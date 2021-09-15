@@ -1,0 +1,76 @@
+Avant de commencer, lancer le container "registry" :
+docker run -d -p 5000:5000 --restart=always --name registry registry:2
+
+# Construire l'image du runtime
+
+Construire l'image et la nommer "localhost:5000/runtime" :
+docker build -f RuntimeDockerfile -t localhost:5000/runtime .
+
+Pousser vers le "registry" local :
+docker push localhost:5000/runtime
+
+# Construire et déployer FAAS kubernetes
+
+Pour windows, copier le fichier %USERPROFILE\.kube\config vers la racine du project.
+
+Construire l'image et la nommer "localhost:5000/kubernetes"
+docker build -f KubernetesDockerfile -t localhost:5000/kubernetes .
+
+Pousser vers le "registry" local :
+docker push localhost:5000/kubernetes
+
+Créer le namespace faas
+kubectl apply -f ./faas-namespace.yml
+
+Déployer sur kubernetes
+kubectl apply -f ./run-faas-kubernetes.yml --namespace=faas
+
+Déployer le service
+kubectl apply -f ./faas-kubernetes-svc.yml --namespace=faas
+
+# Faas Kubernetes
+
+Cette API REST gère le déploiement des fonctions dans Kubernetes.
+
+# Gateway
+
+La gateway est utilisée pour déployer les fonctions mais aussi appeler des APIs.
+
+
+Example de workflow :
+
+provider:
+  name: apidesigner
+  gateway: http://localhost:8080
+
+apis:
+  persons:
+    path: persons
+    async: false
+    workflow:
+     - function: getSql
+       configuration: {"ConnectionString": "", "Query": ""}
+       next: transform
+     - function: transform
+       configuration: { "mapping": { "input": "output" } }
+       next: setPayload
+     - function: setPayload
+       configuration: { "forwardResponse" : true }
+       
+
+functions:
+ - name: getSql
+ - name: transform
+ - name: setPayload
+
+# Autre
+
+Comment lancer le dashboard ?
+
+kubectl proxy
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy
+Token : eyJhbGciOiJSUzI1NiIsImtpZCI6IlREanEtTXBUMlBiN2lIVmI0VDV5X1BQajVrQlVEMlh1TDdBVmM4TkNyekUifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkZXBsb3ltZW50LWNvbnRyb2xsZXItdG9rZW4tNXZtYjgiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGVwbG95bWVudC1jb250cm9sbGVyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiODYwNDExOTItNzY0Ny00OWJlLWFhNmMtNGYzMGQ4MmIxZmYwIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmRlcGxveW1lbnQtY29udHJvbGxlciJ9.IxK3HWZUXQ4IOVkx3j_hm0J9AIIIPy1ND3OglGQ1l1hL5geNM39J_ncQq9u-kdx6TgOw9KbNie1fS-GvQVXm75fi8V2fv9mEDZWkV2-GQ-x81-WUSYt7YVdgMWOMECKCsYSzhpKstT_NY3LbbHwAIgV4URqvJMRiDWQp5HNKQVmmiYO2dnyjmlIJ4Qfs0gDvLs-KsyV8U9XQL2FMT36PXQSOYi2eFyWZsrNaU2evdlwKkSKFwoMaZd2vGQfRO-LLeTxYrUHqPraz5ReWyXXSjNmHQpKZ0GLEki3IILdafpVZmUIio--qI-Lmc7-ZYs_KzY3i3IEkf807tqAoIfdmdQ
+
+Comment récupérer les API ?
+
+Pour récupérer la version d'API il faut exécuter la commande : kubectl api-resources

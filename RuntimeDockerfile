@@ -1,0 +1,10 @@
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
+
+COPY build/results/services/Runtime/ App/
+ENV ASPNETCORE_URLS=http://*:8080
+
+EXPOSE 8080
+
+WORKDIR /App
+
+ENTRYPOINT ["dotnet", "FaasNet.Runtime.Startup.dll"]

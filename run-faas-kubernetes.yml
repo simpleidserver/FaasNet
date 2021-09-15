@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faas-kubernetes
+spec:
+  selector:
+    matchLabels:
+      run: faas-kubernetes
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: faas-kubernetes
+    spec:
+      containers:
+      - name: faas-kubernetes
+        image: localhost:5000/kubernetes
+        ports:
+        - containerPort: 8080
