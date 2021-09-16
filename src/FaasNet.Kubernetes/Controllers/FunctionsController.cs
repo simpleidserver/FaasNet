@@ -164,10 +164,6 @@ namespace FaasNet.Kubernetes.Controllers
 
         private Task CreateService(PublishFunctionCommand cmd, k8s.Kubernetes client, CancellationToken cancellationToken)
         {
-            // https://github.com/openfaas/faas-netes/blob/e5b3e8af8d9b91d114abed1d61bdfd15bfcefc85/pkg/handlers/deploy.go
-            // https://github.com/kubernetes/api/blob/f745d22351a7adb356f23ba56ec1c6d53c3475e1/core/v1/types.go
-            // Use ClusterIP ???
-            // https://stackoverflow.com/questions/53406249/how-to-access-the-service-deployed-on-one-pod-via-another-pod-in-kubernetes
             return client.CreateNamespacedServiceAsync(new k8s.Models.V1Service
             {
                 ApiVersion = "v1",

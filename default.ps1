@@ -22,6 +22,7 @@ task publish {
 	exec { dotnet publish $source_dir\FaasNet.Runtime.GetSql\FaasNet.Runtime.GetSql.csproj -c $config -o $result_dir\services\RuntimeGetSql }
 	exec { dotnet publish $source_dir\FaasNet.Runtime.Transform\FaasNet.Runtime.Transform.csproj -c $config -o $result_dir\services\RuntimeTransform }
 	exec { dotnet publish $source_dir\FaasNet.Kubernetes\FaasNet.Kubernetes.csproj -c $config -o $result_dir\services\Kubernetes }
+	exec { dotnet publish $source_dir\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj -c $config -o $result_dir\services\Gateway }
 }
 
 task clean {

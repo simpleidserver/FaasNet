@@ -11,13 +11,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Runtime.Startup", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Kubernetes", "src\FaasNet.Kubernetes\FaasNet.Kubernetes.csproj", "{2B6F7B44-91D5-44DD-8615-4EE8447F4839}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaasNet.Runtime", "src\FaasNet.Runtime\FaasNet.Runtime.csproj", "{74F28744-9578-4547-8CE8-A388EFED1DB6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Runtime", "src\FaasNet.Runtime\FaasNet.Runtime.csproj", "{74F28744-9578-4547-8CE8-A388EFED1DB6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Functions", "02. Functions", "{E407AB8F-BDC8-4084-BE20-B4442CFE5EE9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Runtime.GetSql", "src\FaasNet.Runtime.GetSql\FaasNet.Runtime.GetSql.csproj", "{39083E6B-D9AE-41A7-A364-82681B781A8B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Runtime.Transform", "src\FaasNet.Runtime.Transform\FaasNet.Runtime.Transform.csproj", "{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Gateway.Core", "src\FaasNet.Gateway.Core\FaasNet.Gateway.Core.csproj", "{65DA8EDF-48A2-4AB5-B93A-6301718F1C1B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaasNet.Gateway.Startup", "src\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj", "{24686604-17C3-4BBB-9B05-7668073546E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65DA8EDF-48A2-4AB5-B93A-6301718F1C1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65DA8EDF-48A2-4AB5-B93A-6301718F1C1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65DA8EDF-48A2-4AB5-B93A-6301718F1C1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65DA8EDF-48A2-4AB5-B93A-6301718F1C1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24686604-17C3-4BBB-9B05-7668073546E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24686604-17C3-4BBB-9B05-7668073546E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24686604-17C3-4BBB-9B05-7668073546E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24686604-17C3-4BBB-9B05-7668073546E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +67,8 @@ Global
 		{74F28744-9578-4547-8CE8-A388EFED1DB6} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
 		{39083E6B-D9AE-41A7-A364-82681B781A8B} = {E407AB8F-BDC8-4084-BE20-B4442CFE5EE9}
 		{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51} = {E407AB8F-BDC8-4084-BE20-B4442CFE5EE9}
+		{65DA8EDF-48A2-4AB5-B93A-6301718F1C1B} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
+		{24686604-17C3-4BBB-9B05-7668073546E2} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46764455-0D10-4266-9C37-35D7BD67517C}

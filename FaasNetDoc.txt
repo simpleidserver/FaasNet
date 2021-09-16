@@ -3,11 +3,13 @@ docker run -d -p 5000:5000 --restart=always --name registry registry:2
 
 # Construire l'image du runtime
 
-Construire l'image et la nommer "localhost:5000/runtime" :
-docker build -f RuntimeDockerfile -t localhost:5000/runtime .
+Construire l'image et la nommer "localhost:5000/getsql" && "localhost:5000/transform" :
+docker build -f RuntimeGetSqlDockerfile -t localhost:5000/getsql .
+docker build -f RuntimeTransformDockerfile -t localhost:5000/transform .
 
 Pousser vers le "registry" local :
-docker push localhost:5000/runtime
+docker push localhost:5000/getsql
+docker push localhost:5000/transform
 
 # Construire et déployer FAAS kubernetes
 
@@ -20,19 +22,31 @@ Pousser vers le "registry" local :
 docker push localhost:5000/kubernetes
 
 Créer le namespace faas
-kubectl apply -f ./faas-namespace.yml
+kubectl apply -f ./kubernetes/faas-namespace.yml
 
 Déployer sur kubernetes
-kubectl apply -f ./run-faas-kubernetes.yml --namespace=faas
+kubectl apply -f ./kubernetes/run-faas-kubernetes.yml --namespace=faas
 
 Déployer le service
-kubectl apply -f ./faas-kubernetes-svc.yml --namespace=faas
+kubectl apply -f ./kubernetes/faas-kubernetes-svc.yml --namespace=faas
 
 # Faas Kubernetes
 
 Cette API REST gère le déploiement des fonctions dans Kubernetes.
 
 # Gateway
+
+Construire l'image et la nommer "localhost:5000/gateway"
+docker build -f GatewayDockerfile -t localhost:5000/gateway .
+
+Pousser vers le "registry" local :
+docker push localhost:5000/gateway
+
+Déployer sur kubernetes
+kubectl apply -f ./kubernetes/run-faas-gateway.yml --namespace=faas
+
+Déployer le service
+kubectl apply -f ./kubernetes/faas-gateway-svc.yml --namespace=faas
 
 La gateway est utilisée pour déployer les fonctions mais aussi appeler des APIs.
 
@@ -44,18 +58,20 @@ provider:
 
 apis:
   persons:
-    path: persons
-    async: false
-    workflow:
-     - function: getSql
-       configuration: {"ConnectionString": "", "Query": ""}
-       next: transform
-     - function: transform
-       configuration: { "mapping": { "input": "output" } }
-       next: setPayload
-     - function: setPayload
-       configuration: { "forwardResponse" : true }
-       
+   - path: persons
+     operations:
+     - name: getPerson
+       async: false       
+       workflow:
+        - function: getSql
+          configuration: {"ConnectionString": "", "Query": ""}
+          next: transform
+        - function: transform
+          configuration: { "mapping": { "input": "output" } }
+          next: setPayload
+        - function: setPayload
+          configuration: { "forwardResponse" : true }
+   - path: person/{id}
 
 functions:
  - name: getSql
