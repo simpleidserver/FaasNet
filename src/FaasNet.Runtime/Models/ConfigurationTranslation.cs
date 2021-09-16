@@ -1,4 +1,4 @@
-﻿namespace FaasNet.Runtime.Startup.Models
+﻿namespace FaasNet.Runtime.Models
 {
     public class ConfigurationTranslation
     {

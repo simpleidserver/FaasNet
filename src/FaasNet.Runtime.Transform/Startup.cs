@@ -8,7 +8,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace FaasNet.Runtime.Startup
+namespace FaasNet.Runtime.Transform
 {
     public class Startup
     {
@@ -18,7 +18,7 @@ namespace FaasNet.Runtime.Startup
             {
                 c.Run(async (httpContext) =>
                 {
-                    var configuration = ConfigurationFactory.New(typeof(HelloConfiguration));
+                    var configuration = ConfigurationFactory.New(typeof(TransformConfiguration));
                     var json = JsonConvert.SerializeObject(configuration);
                     httpContext.Response.StatusCode = 200;
                     httpContext.Response.ContentType = "application/json";
@@ -37,7 +37,7 @@ namespace FaasNet.Runtime.Startup
                 try
                 {
                     var requestBody = await GetRequest(context.Request.Body);
-                    var parameter = JsonConvert.DeserializeObject<FunctionParameter<HelloConfiguration>>(requestBody);
+                    var parameter = JsonConvert.DeserializeObject<FunctionParameter<TransformConfiguration>>(requestBody);
                     var result = await functionHandler.Handle(parameter);
                     context.Response.StatusCode = 200;
                     context.Response.ContentType = "application/json";

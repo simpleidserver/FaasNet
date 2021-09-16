@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace FaasNet.Runtime.Startup.Parameters
+namespace FaasNet.Runtime.Parameters
 {
     public class FunctionParameter<T>
     {

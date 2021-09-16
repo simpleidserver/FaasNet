@@ -36,7 +36,6 @@ Cette API REST gère le déploiement des fonctions dans Kubernetes.
 
 La gateway est utilisée pour déployer les fonctions mais aussi appeler des APIs.
 
-
 Example de workflow :
 
 provider:

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FaasNet.Runtime.Startup.Attributes
+namespace FaasNet.Runtime.Attributes
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class FuncInfoAttribute : Attribute

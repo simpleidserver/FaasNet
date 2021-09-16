@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Startup.Parameters;
+﻿using FaasNet.Runtime.Parameters;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 

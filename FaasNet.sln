@@ -5,11 +5,19 @@ VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01. Core", "01. Core", "{1064A767-7322-4A14-BFD4-97FDD40E76B4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Startup", "02. Startup", "{B0C38F6D-3F83-458A-A493-428AB3DD9F85}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03. Startup", "03. Startup", "{B0C38F6D-3F83-458A-A493-428AB3DD9F85}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Runtime.Startup", "src\FaasNet.Runtime.Startup\FaasNet.Runtime.Startup.csproj", "{892918CD-9BE2-4023-9026-FAFE03BC77BE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Kubernetes", "src\FaasNet.Kubernetes\FaasNet.Kubernetes.csproj", "{2B6F7B44-91D5-44DD-8615-4EE8447F4839}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaasNet.Runtime", "src\FaasNet.Runtime\FaasNet.Runtime.csproj", "{74F28744-9578-4547-8CE8-A388EFED1DB6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Functions", "02. Functions", "{E407AB8F-BDC8-4084-BE20-B4442CFE5EE9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Runtime.GetSql", "src\FaasNet.Runtime.GetSql\FaasNet.Runtime.GetSql.csproj", "{39083E6B-D9AE-41A7-A364-82681B781A8B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Runtime.Transform", "src\FaasNet.Runtime.Transform\FaasNet.Runtime.Transform.csproj", "{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +33,18 @@ Global
 		{2B6F7B44-91D5-44DD-8615-4EE8447F4839}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B6F7B44-91D5-44DD-8615-4EE8447F4839}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B6F7B44-91D5-44DD-8615-4EE8447F4839}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74F28744-9578-4547-8CE8-A388EFED1DB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74F28744-9578-4547-8CE8-A388EFED1DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74F28744-9578-4547-8CE8-A388EFED1DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74F28744-9578-4547-8CE8-A388EFED1DB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39083E6B-D9AE-41A7-A364-82681B781A8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39083E6B-D9AE-41A7-A364-82681B781A8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39083E6B-D9AE-41A7-A364-82681B781A8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39083E6B-D9AE-41A7-A364-82681B781A8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +52,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{892918CD-9BE2-4023-9026-FAFE03BC77BE} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
 		{2B6F7B44-91D5-44DD-8615-4EE8447F4839} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
+		{74F28744-9578-4547-8CE8-A388EFED1DB6} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
+		{39083E6B-D9AE-41A7-A364-82681B781A8B} = {E407AB8F-BDC8-4084-BE20-B4442CFE5EE9}
+		{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51} = {E407AB8F-BDC8-4084-BE20-B4442CFE5EE9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46764455-0D10-4266-9C37-35D7BD67517C}

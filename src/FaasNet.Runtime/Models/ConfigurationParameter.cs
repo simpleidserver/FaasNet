@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FaasNet.Runtime.Startup.Models
+namespace FaasNet.Runtime.Models
 {
     public class ConfigurationParameter
     {
@@ -9,10 +9,12 @@ namespace FaasNet.Runtime.Startup.Models
             Name = name;
             Type = type;
             Translations = new List<ConfigurationTranslation>();
+            Parameters = new List<ConfigurationParameter>();
         }
 
         public string Name { get; private set; }
         public string Type { get; private set; }
         public ICollection<ConfigurationTranslation> Translations { get; private set; }
+        public ICollection<ConfigurationParameter> Parameters { get; set; }
     }
 }

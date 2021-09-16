@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Startup.Attributes;
+﻿using FaasNet.Runtime.Attributes;
 
 namespace FaasNet.Runtime.Startup
 {
