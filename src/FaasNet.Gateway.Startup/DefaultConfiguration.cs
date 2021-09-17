@@ -21,12 +21,12 @@ namespace FaasNet.Gateway.Startup
                             new ApiDefinitionFunction
                             {
                                 Function = "getsql",
-                                SerializedConfiguration = "{\r\n  \"ConnectionString\": \"Data Source=DESKTOP-F641MIJ\\\\SQLEXPRESS;Initial Catalog=OpenID;Integrated Security=True\",\r\n  \"SqlQuery\": \"SELECT * FROM [dbo].[Acrs]\"\r\n}"
+                                SerializedConfiguration = "{\r\n  \"ConnectionString\": \"Data Source=mssql-entry.faas.svc.cluster.local;Initial Catalog=OpenID;User ID=sa;Password=D54DE7hHpkG9\",\r\n  \"SqlQuery\": \"SELECT * FROM [dbo].[Acrs]\"\r\n}"
                             },
                             new ApiDefinitionFunction
                             {
                                 Function = "transform",
-                                SerializedConfiguration = "{ \"mappings\": [ { \"input\": \"content.name\", \"output\": \"name\" } ] }"
+                                SerializedConfiguration = "{ \"mappings\": [ { \"input\": \"content[*].Name\", \"output\": \"name\" } ] }"
                             }
                         },
                         SequenceFlows = new List<ApiDefinitionSequenceFlow>

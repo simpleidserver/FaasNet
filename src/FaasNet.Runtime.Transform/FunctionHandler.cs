@@ -1,5 +1,6 @@
 ﻿using FaasNet.Runtime.Parameters;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FaasNet.Runtime.Transform
@@ -11,12 +12,18 @@ namespace FaasNet.Runtime.Transform
             var result = new JObject();
             foreach(var mapping in parameter.Configuration.Mappings)
             {
-                var token = parameter.Input.SelectToken(mapping.Input);
-                if (token != null)
+                var tokens = parameter.Input.SelectTokens(mapping.Input);
+                if (tokens.Count() == 1)
                 {
-                    result.Add(mapping.Output, token);
+                    result.Add(mapping.Output, tokens.First());
+                }
+                else if (tokens.Count() > 1)
+                {
+                    var jArr = new JArray(tokens);
+                    result.Add(mapping.Output, jArr);
                 }
             }
+
             return Task.FromResult(result);
         }
     }

@@ -1,6 +1,14 @@
 Avant de commencer, lancer le container "registry" :
 docker run -d -p 5000:5000 --restart=always --name registry registry:2
 
+# Comment déployer SQLSERVER
+
+kubectl apply -f ./kubernetes/run-mssql.yml --namespace=faas
+kubectl apply -f ./kubernetes/mssql-external-svc.yml --namespace=faas
+kubectl apply -f ./kubernetes/mssql-internal-svc.yml --namespace=faas
+
+Il est possible ensuite de se connecter à la BDD avec : 127.0.0.1, 30002
+
 # Construire l'image du runtime
 
 Construire l'image et la nommer "localhost:5000/getsql" && "localhost:5000/transform" :
