@@ -17,7 +17,7 @@ namespace FaasNet.Kubernetes
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var config = KubernetesClientConfiguration.BuildConfigFromConfigFile();
+            var config = KubernetesClientConfiguration.InClusterConfig();
             services.AddSingleton(config);
             services.AddControllers();
         }

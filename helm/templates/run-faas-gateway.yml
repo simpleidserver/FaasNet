@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faas-gateway
+spec:
+  selector:
+    matchLabels:
+      run: faas-gateway
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: faas-gateway
+    spec:
+      containers:
+      - name: faas-gateway
+        image: simpleidserver/faasgateway
+        ports:
+        - containerPort: 8080

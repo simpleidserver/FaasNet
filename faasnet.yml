@@ -23,6 +23,6 @@ apis:
         flows: []
 functions:
 - name: getsql
-  image: localhost:5000/getsql
+  image: simpleidserver/faasgetsql
 - name: transform
-  image: localhost:5000/transform
+  image: simpleidserver/faastransform
