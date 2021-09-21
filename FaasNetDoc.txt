@@ -3,8 +3,8 @@ docker run -d -p 5000:5000 --restart=always --name registry registry:2
 
 Créer le namespace : kubectl create namespace faas
 Installer avec helm : helm install faasnet ./helm --namespace faas
-Construire le package helm : helm package ./helm -d ./charts
-Construire index.yaml : helm repo index ./charts 
+Construire le package helm : helm package ./helm -d ./docs/charts
+Construire index.yaml : helm repo index ./docs/charts 
 
 # Comment déployer SQLSERVER
 

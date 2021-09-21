@@ -3,15 +3,15 @@ entries:
   faasnet:
   - apiVersion: v1
     appVersion: 0.0.1
-    created: "2021-09-21T21:06:32.3645154+02:00"
+    created: "2021-09-21T21:11:54.9950703+02:00"
     description: A helm chart to install faasnet
-    digest: 8b4b914d25d8b432e32e8d9261210e69c1796d52fe5d4a6b43b7a3ec9646d6d6
+    digest: c1e3723fd8a8c8ab49465d3b485ee795641cde4075055455370d0242201620ce
     home: https://github.com/simpleidserver/FaasNet
     maintainers:
     - email: agentsimpleidserver@gmail.com
       name: SimpleIdServer
     name: faasnet
     urls:
-    - charts/faasnet-0.0.1.tgz
+    - faasnet-0.0.1.tgz
     version: 0.0.1
-generated: "2021-09-21T21:06:32.3645154+02:00"
+generated: "2021-09-21T21:11:54.9940938+02:00"
