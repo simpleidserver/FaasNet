@@ -1,6 +1,8 @@
 ﻿using FaasNet.Gateway.Core;
+using FaasNet.Gateway.Core.ApiDefinitions;
 using FaasNet.Gateway.Core.Domains;
 using FaasNet.Gateway.Core.Factories;
+using FaasNet.Gateway.Core.Functions;
 using FaasNet.Gateway.Core.Repositories;
 using FaasNet.Gateway.Core.Repositories.InMemory;
 using MediatR;
@@ -23,12 +25,27 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             var builder = new ServerBuilder(services);
+            services.AddApi()
+                .AddInMemoryStore();
+            return builder;
+        }
+
+        private static IServiceCollection AddApi(this IServiceCollection services)
+        {
+            services.AddTransient<IHttpClientFactory, HttpClientFactory>();
+            services.AddMediatR(typeof(ServerBuilder));
+            services.AddTransient<IApiDefinitionService, ApiDefinitionService>();
+            services.AddTransient<IFunctionService, FunctionService>();
+            return services;
+        }
+
+
+        private static IServiceCollection AddInMemoryStore(this IServiceCollection services)
+        {
             var apis = new List<ApiDefinitionAggregate>();
             var apiRepository = new InMemoryApiDefinitionRepository(apis);
             services.AddSingleton<IApiDefinitionRepository>(apiRepository);
-            services.AddTransient<IHttpClientFactory, HttpClientFactory>();
-            services.AddMediatR(typeof(ServerBuilder));
-            return builder;
+            return services;
         }
     }
 }

@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "FaasNet.CLI": {
+      "commandName": "Project"
+    }
+  }
+}

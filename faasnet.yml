@@ -1,0 +1,28 @@
+provider:
+  name: faasnet
+  gateway: http://localhost:30001
+apis:
+  persons:
+    path: persons
+    operations:
+    - name: getPersons
+      functions:
+      - name: getsql
+        configuration: >-
+          {
+
+            "ConnectionString": "Data Source=mssql-entry.faas.svc.cluster.local;Initial Catalog=OpenID;User ID=sa;Password=D54DE7hHpkG9",
+
+            "SqlQuery": "SELECT * FROM [dbo].[Acrs]"
+
+          }
+        flows:
+        - next: transform
+      - name: transform
+        configuration: '{ "mappings": [ { "input": "content[*].Name", "output": "name" } ] }'
+        flows: []
+functions:
+- name: getsql
+  image: localhost:5000/getsql
+- name: transform
+  image: localhost:5000/transform

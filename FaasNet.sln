@@ -21,7 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Runtime.Transform",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Gateway.Core", "src\FaasNet.Gateway.Core\FaasNet.Gateway.Core.csproj", "{65DA8EDF-48A2-4AB5-B93A-6301718F1C1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaasNet.Gateway.Startup", "src\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj", "{24686604-17C3-4BBB-9B05-7668073546E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Gateway.Startup", "src\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj", "{24686604-17C3-4BBB-9B05-7668073546E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaasNet.CLI", "src\FaasNet.CLI\FaasNet.CLI.csproj", "{EDDFD04B-B4F0-47A6-8FD3-628F3F542402}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaasNet.Common", "src\FaasNet.Common\FaasNet.Common.csproj", "{8B02C02D-EF1A-4F48-A69D-DC8592D966B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +61,14 @@ Global
 		{24686604-17C3-4BBB-9B05-7668073546E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24686604-17C3-4BBB-9B05-7668073546E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24686604-17C3-4BBB-9B05-7668073546E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDDFD04B-B4F0-47A6-8FD3-628F3F542402}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDDFD04B-B4F0-47A6-8FD3-628F3F542402}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDDFD04B-B4F0-47A6-8FD3-628F3F542402}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDDFD04B-B4F0-47A6-8FD3-628F3F542402}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B02C02D-EF1A-4F48-A69D-DC8592D966B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B02C02D-EF1A-4F48-A69D-DC8592D966B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B02C02D-EF1A-4F48-A69D-DC8592D966B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B02C02D-EF1A-4F48-A69D-DC8592D966B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +81,8 @@ Global
 		{E1FBEF1B-892D-4F3B-ADB2-A150152F4E51} = {E407AB8F-BDC8-4084-BE20-B4442CFE5EE9}
 		{65DA8EDF-48A2-4AB5-B93A-6301718F1C1B} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
 		{24686604-17C3-4BBB-9B05-7668073546E2} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
+		{EDDFD04B-B4F0-47A6-8FD3-628F3F542402} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
+		{8B02C02D-EF1A-4F48-A69D-DC8592D966B9} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46764455-0D10-4266-9C37-35D7BD67517C}
