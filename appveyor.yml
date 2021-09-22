@@ -10,10 +10,19 @@ environment:
 nuget:
   disable_publish_on_pr: true
 build_script:
-- cmd: .\psake.cmd ci
+- cmd: >-
+    .\psake.cmd ci
+
+    7z a FaasNetCLI.zip %APPVEYOR_BUILD_FOLDER%\build\results\cli\**\*.*
 test: off
 artifacts:
-- path: build\results\*.nupkg
-  name: NuGet
 - path: build\results\cli\**\*.*
   name: FaasNetCli
+deploy:
+- provider: GitHub
+  api_key:
+    secure: oErVeFRIc7rayP70fEr/yuWdvOThLPMPdyLJg7ee+5wKrfE3OsQm/A63zPLVo+Rt
+  artifact: FaasNetCli
+  on:
+    branch: master
+    appveyor_repo_tag: true
