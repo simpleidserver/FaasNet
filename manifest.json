@@ -5,17 +5,6 @@
   "files": [
     {
       "type": "Resource",
-      "source_relative_path": "charts/Chart.yaml",
-      "output": {
-        "resource": {
-          "relative_path": "charts/Chart.yaml"
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "Resource",
       "source_relative_path": "charts/faasnet-0.0.1.tgz",
       "output": {
         "resource": {
