@@ -1,0 +1,10 @@
+apiVersion: v1
+description: A helm chart to install faasnet
+name: faasnet
+home: https://github.com/simpleidserver/FaasNet
+version: 0.0.1
+maintainers:
+  - email: agentsimpleidserver@gmail.com
+    name: SimpleIdServer
+appVersion: 0.0.1
+source: https://github.com/simpleidserver/FaasNet
