@@ -6,7 +6,6 @@ namespace FaasNet.CLI.Commands
     {
         public string Command { get; }
         public string Description { get; }
-
         void Execute(IEnumerable<string> args);
     }
 }

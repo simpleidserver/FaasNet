@@ -1,0 +1,19 @@
+version: '{build}'
+pull_requests:
+  do_not_increment_build_number: true
+branches:
+  only:
+  - master
+image: Visual Studio 2019
+environment:
+  nodejs_version: "12"
+nuget:
+  disable_publish_on_pr: true
+build_script:
+- cmd: .\psake.cmd ci
+test: off
+artifacts:
+- path: build\results\*.nupkg
+  name: NuGet
+- path: build\results\cli\**\*.*
+  name: FaasNetCli

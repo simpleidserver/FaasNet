@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       run: faas-gateway
-  replicas: 1
+  replicas: {{ .Values.gateway.replicaCount }}
   template:
     metadata:
       labels:
@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: faas-gateway
-        image: simpleidserver/faasgateway:0.0.1
+        image: "{{ .Values.gateway.image }}:{{ .Values.gateway.tag }}"
         ports:
         - containerPort: 8080

@@ -23,6 +23,7 @@ task publish {
 	exec { dotnet publish $source_dir\FaasNet.Runtime.Transform\FaasNet.Runtime.Transform.csproj -c $config -o $result_dir\services\RuntimeTransform }
 	exec { dotnet publish $source_dir\FaasNet.Kubernetes\FaasNet.Kubernetes.csproj -c $config -o $result_dir\services\Kubernetes }
 	exec { dotnet publish $source_dir\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj -c $config -o $result_dir\services\Gateway }
+	exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config $result_dir\cli }
 }
 
 task clean {
@@ -45,6 +46,10 @@ task compile -depends clean {
 	exec { msbuild -version }
 	
     exec { dotnet build .\FaasNet.sln -c $config --version-suffix=$buildSuffix }
+}
+
+task publishWebsite {
+	exec { docfx ./docs/docfx.json }
 }
  
 task pack -depends release, compile {

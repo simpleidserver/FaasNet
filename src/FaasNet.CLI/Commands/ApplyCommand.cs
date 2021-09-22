@@ -16,7 +16,8 @@ namespace FaasNet.CLI.Commands
     {
         private List<IMenuItemCommand> _commands = new List<IMenuItemCommand>
         {
-            new ApplyFileCommand()
+            new ApplyFileCommand(),
+            new ApplyHttpCommand()
         };
 
         public string Command => "apply";

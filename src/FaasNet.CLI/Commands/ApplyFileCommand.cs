@@ -1,13 +1,6 @@
-﻿using FaasNet.Common.Configuration;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace FaasNet.CLI.Commands
 {
@@ -21,7 +14,7 @@ namespace FaasNet.CLI.Commands
         {
             if (!args.Any())
             {
-                Console.Write("A file must be specified");
+                Console.WriteLine("A file must be specified");
                 return;
             }
 
