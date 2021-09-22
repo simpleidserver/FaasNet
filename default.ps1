@@ -70,6 +70,7 @@ task publishHelmAndWebsite {
 }
 
 task pack -depends release, compile {
+	exec { dotnet pack $source_dir\FaasNet.Runtime\FaasNet.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
 }
 
 task test {

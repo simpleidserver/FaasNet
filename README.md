@@ -11,3 +11,9 @@ For project documentation, please visit [docs](https://simpleidserver.github.io/
 | Command                     | Description                             |
 | --------------------------  | --------------------------------------- |
 | psake publishHelmAndWebsite | Publish Helm Charts and the website     |
+
+## Packages
+
+|                         			 						|      																															  																					|																																								|																																								|
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FaasNet.Runtime` 			 			     			| [![MyGet (dev)](https://img.shields.io/myget/advance-ict/v/FaasNet.Runtime.svg)](https://www.myget.org/feed/advance-ict/package/nuget/FaasNet.Runtime)								              				| [![NuGet](https://img.shields.io/nuget/v/FaasNet.Runtime.svg)](https://nuget.org/packages/FaasNet.Runtime) 													| [![NuGet](https://img.shields.io/nuget/dt/FaasNet.Runtime.svg)](https://nuget.org/packages/FaasNet.Runtime) 													|
