@@ -13,15 +13,15 @@ build_script:
 - cmd: >-
     .\psake.cmd ci
 
-    7z a FaasNetCLI.zip %APPVEYOR_BUILD_FOLDER%\build\results\cli\**\*.*
+    7z a FaasNetCLI.zip .\build\results\cli\*
 test: off
 artifacts:
-- path: build\results\cli\**\*.*
+- path: FaasNetCLI.zip
   name: FaasNetCli
 deploy:
 - provider: GitHub
-  api_key:
-    secure: oErVeFRIc7rayP70fEr/yuWdvOThLPMPdyLJg7ee+5wKrfE3OsQm/A63zPLVo+Rt
+  auth_token:
+    secure: zTfwwuXIaZPeCrcbsQhuJxmDiIoya4VeC+GZZVv0+SSwX0oIPgYdkiVLxKjFqbEy
   artifact: FaasNetCli
   on:
     branch: master
