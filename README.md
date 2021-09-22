@@ -5,3 +5,9 @@
 FaasNet makes it easy to deploy functions and API to Kubernetes without repetitive, boiler-plate coding.
 
 For project documentation, please visit [docs](https://simpleidserver.github.io/FaasNet/).
+
+## Command Line
+
+| Command                     | Description                             |
+| --------------------------  | --------------------------------------- |
+| psake publishHelmAndWebsite | Publish Helm Charts and the website     |

@@ -23,7 +23,7 @@ task publish {
 	exec { dotnet publish $source_dir\FaasNet.Runtime.Transform\FaasNet.Runtime.Transform.csproj -c $config -o $result_dir\services\RuntimeTransform }
 	exec { dotnet publish $source_dir\FaasNet.Kubernetes\FaasNet.Kubernetes.csproj -c $config -o $result_dir\services\Kubernetes }
 	exec { dotnet publish $source_dir\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj -c $config -o $result_dir\services\Gateway }
-	exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config $result_dir\cli }
+	exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
 }
 
 task clean {
@@ -48,10 +48,27 @@ task compile -depends clean {
     exec { dotnet build .\FaasNet.sln -c $config --version-suffix=$buildSuffix }
 }
 
-task publishWebsite {
+task publishHelmAndWebsite {
+	exec { git checkout gh-pages }
+	exec { Get-ChildItem -Path . -Include *.* -File -Recurse | foreach { $_.Delete()} }
+	exec { git add . }
+	exec { git commit -m "Remove" }
+	exec { git checkout master }
 	exec { docfx ./docs/docfx.json }
+	rd "$base_dir\docs\charts" -recurse -force  -ErrorAction SilentlyContinue | out-null
+	exec { helm package ./helm -d ./docs/charts }
+	exec { Copy-item "./helm/Chart.yaml" -Destination "./docs/charts" }
+	exec { helm repo index ./docs/charts }
+	exec { Remove-Item "./docs/charts/Chart.yaml" }
+	exec { Copy-item -Force -Recurse -Verbose "./docs/_site/*" -Destination "." }
+	exec { git checkout gh-pages --merge }
+	exec { git add . }
+	exec { git commit -m "Update Documentation" }
+	exec { git rebase -i HEAD~2 }
+	exec { git push origin gh-pages }
+	exec { git checkout master }
 }
- 
+
 task pack -depends release, compile {
 }
 
