@@ -1,9 +1,0 @@
-kubernetes:
-  image: simpleidserver/faaskubernetes
-  tag: "0.0.1"
-  replicaCount: 1
-gateway:
-  image: simpleidserver/faasgateway
-  tag: "0.0.1"
-  replicaCount: 1
-  nodePort: 30001
