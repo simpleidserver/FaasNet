@@ -1,0 +1,19 @@
+{
+  "author": "SimpleIdServer",
+  "classifications": [
+    "FaasNet",
+    "faas",
+	"function"
+  ],
+  "name": "FaasNet function",
+  "identity": "FaasNet.Function",
+  "groupIdentity": "FaasNet.Function",
+  "shortName": "faasnetfn",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "FaasNet.Function",
+  "preferNameDirectory": "true",
+  "primaryOutputs": [ { "path": "FaasNet.Function.csproj" } ]
+}

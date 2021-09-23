@@ -23,9 +23,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Gateway.Core", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Gateway.Startup", "src\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj", "{24686604-17C3-4BBB-9B05-7668073546E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaasNet.CLI", "src\FaasNet.CLI\FaasNet.CLI.csproj", "{EDDFD04B-B4F0-47A6-8FD3-628F3F542402}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.CLI", "src\FaasNet.CLI\FaasNet.CLI.csproj", "{EDDFD04B-B4F0-47A6-8FD3-628F3F542402}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaasNet.Common", "src\FaasNet.Common\FaasNet.Common.csproj", "{8B02C02D-EF1A-4F48-A69D-DC8592D966B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Common", "src\FaasNet.Common\FaasNet.Common.csproj", "{8B02C02D-EF1A-4F48-A69D-DC8592D966B9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04. Templates", "04. Templates", "{8C14A385-0FC5-4517-B570-05FF7039CEA3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Templates", "src\FaasNet.Templates\FaasNet.Templates.csproj", "{6738B4F6-C01A-42D0-B205-7A9DACB4FD52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +73,10 @@ Global
 		{8B02C02D-EF1A-4F48-A69D-DC8592D966B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B02C02D-EF1A-4F48-A69D-DC8592D966B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B02C02D-EF1A-4F48-A69D-DC8592D966B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6738B4F6-C01A-42D0-B205-7A9DACB4FD52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6738B4F6-C01A-42D0-B205-7A9DACB4FD52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6738B4F6-C01A-42D0-B205-7A9DACB4FD52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6738B4F6-C01A-42D0-B205-7A9DACB4FD52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,6 +91,7 @@ Global
 		{24686604-17C3-4BBB-9B05-7668073546E2} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
 		{EDDFD04B-B4F0-47A6-8FD3-628F3F542402} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
 		{8B02C02D-EF1A-4F48-A69D-DC8592D966B9} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
+		{6738B4F6-C01A-42D0-B205-7A9DACB4FD52} = {8C14A385-0FC5-4517-B570-05FF7039CEA3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46764455-0D10-4266-9C37-35D7BD67517C}

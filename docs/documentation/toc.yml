@@ -1,2 +1,6 @@
 - name: Getting Started
   href: gettingstarted/index.md
+- name: Functions
+  items:
+   - name: Create and deploy a function
+     href: functions/create.md
