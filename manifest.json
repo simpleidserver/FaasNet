@@ -27,6 +27,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "documentation/functions/create.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/functions/create.html",
+          "hash": "RBe4nD7Z/VYEsMHHFdOxb88Bm3p33PW0/o3NRuafpc8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "documentation/gettingstarted/index.md",
       "output": {
         ".html": {
@@ -43,7 +55,7 @@
       "output": {
         ".html": {
           "relative_path": "documentation/toc.html",
-          "hash": "1ZtIOH6MmG7+WlFukfikETI6MHTTEx7bDcfkOl/lUr0="
+          "hash": "Y3FD45TkBO4VAqxdkZD0KrOVkZAjw/Kcjn14nV5n7Xs="
         }
       },
       "is_incremental": false,
@@ -88,7 +100,7 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 2,
+          "total_file_count": 3,
           "skipped_file_count": 0
         },
         "ResourceDocumentProcessor": {

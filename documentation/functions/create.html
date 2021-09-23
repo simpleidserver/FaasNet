@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Before you start </title>
+    <title>Create a function </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Before you start ">
+    <meta name="title" content="Create a function ">
     <meta name="generator" content="docfx 2.58.3.0">
     
     <link rel="shortcut icon" href="../../favicon.ico">
@@ -67,63 +67,43 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="before-you-start">Before you start</h1>
+<h1 id="create-a-function">Create a function</h1>
 
-<p>Make sure you have <a href="https://kubernetes.io/docs/tasks/tools/">Kubernetes</a> and <a href="https://helm.sh/docs/intro/install/">Helm</a> installed.</p>
-<p>Download and install the FaasNet CLI tool :</p>
-<ol>
-<li>Download your <a href="https://github.com/simpleidserver/FaasNet/releases">desired version</a>.</li>
-<li>Unpack it.</li>
-<li>Add the Directory path into the PATH environment variable.</li>
-</ol>
-<h1 id="start-faasnet">Start FaasNet</h1>
-<p>Open a command prompt and create a <code>faas</code> namespace in kubernetes.</p>
-<pre><code>kubectl create namespace faas
+<p>Install FaasNet template</p>
+<pre><code>dotnet new --install FaasNet.Templates
 </code></pre>
-<p>Install and launch the <code>faasnet</code> project.</p>
-<pre><code>helm repo add faasnet https://simpleidserver.github.io/FaasNet/charts/
-helm install my-faasnet faasnet/faasnet --version 0.0.1 --namespace=faas
+<p>Create a Function project</p>
+<pre><code>mkdir QuickStart
+cd QuickStart
+
+mkdir src
+cd src
+
+dotnet new faasnetfn -n Function
 </code></pre>
-<h1 id="deploy-and-execute-your-first-api-operation">Deploy and execute your first API operation</h1>
-<p>Before starting, an SQLServer database should be deployed in kubernetes.</p>
-<pre><code>kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/run-mssql.yml --namespace=faas
-kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/mssql-external-svc.yml --namespace=faas
-kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/mssql-internal-svc.yml --namespace=faas
+<p>The following files will be created :</p>
+<ul>
+<li><em>Startup.cs</em> and <em>Program.cs</em>: the application entry point.</li>
+<li><em>HelloWorldConfiguration.cs</em>: configuration of the function.</li>
+<li><em>FunctionHandler.cs</em>: logic of the function.</li>
+</ul>
+<p>In case the Visual Studio Support is needed, a solution can be created :</p>
+<pre><code>cd ..
+dotnet new sln -n QuickStart
 </code></pre>
-<p>Authenticate to the SQLServer database <code>127.0.0.1, 30002</code> with the following credentials :</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Login</td>
-<td>sa</td>
-</tr>
-<tr>
-<td>Password</td>
-<td>D54DE7hHpkG9</td>
-</tr>
-</tbody>
-</table>
-<p>Add a new <code>OpenID</code> database schema, create the table <code>[dbo].[Acrs]</code> and insert some data.</p>
-<pre><code>CREATE DATABASE OpenID;
-CREATE TABLE [OpenID].[dbo].[Acrs](
-	[Id] [uniqueidentifier] NULL,
-	[Name] [nvarchar](255) NULL
-) ON [PRIMARY]
-GO
-INSERT INTO [OpenID].[dbo].[Acrs] VALUES (NEWID(), 'acr1')
-INSERT INTO [OpenID].[dbo].[Acrs] VALUES (NEWID(), 'acr2')
-INSERT INTO [OpenID].[dbo].[Acrs] VALUES (NEWID(), 'acr3')
+<p>Add the Function project into the solution :</p>
+<pre><code>dotnet sln add ./src/Function/Function.csproj
 </code></pre>
-<p>Deploy your first API operation. If there is no error during the deployment then the message <code>Configuration is applied</code> is displayed.</p>
-<pre><code>FaasNet.CLI.exe apply -u https://raw.githubusercontent.com/simpleidserver/FaasNet/master/faasnet.yml
+<h1 id="deploy-a-function">Deploy a function</h1>
+<p>Create the docker file. Replace the <code>DIRECTORY</code> variable by the project directory.</p>
+<pre><code>FaasNet.CLI function -df &lt;DIRECTORY&gt;
 </code></pre>
-<p>Open Postman or an another tool, execute the HTTP POST request against <code>http://localhost:30001/clients</code>.</p>
+<p>Build the docker image. Replace the <code>DIRECTORY</code> variable by the project directory, replace the <code>NAME</code> variable by the name of your image.</p>
+<pre><code>FaasNet.CLI function -db &lt;DIRECTORY&gt; -t &lt;NAME&gt;
+</code></pre>
+<p>Push the docker image into the Hub. Replace the <code>NAME</code> variable by the name of your image.</p>
+<pre><code>FaasNet.CLI function -dp &lt;NAME&gt;
+</code></pre>
 </article>
           </div>
           
@@ -132,7 +112,7 @@ INSERT INTO [OpenID].[dbo].[Acrs] VALUES (NEWID(), 'acr3')
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/gettingstarted/index.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/functions/create.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
