@@ -85,7 +85,7 @@ namespace FaasNet.Kubernetes.Controllers
         {
             using (var httpClient = new HttpClient())
             {
-                var httpResult = await httpClient.GetAsync(BuildFunctionUrl(name));
+                var httpResult = await httpClient.GetAsync($"{BuildFunctionUrl(name)}/configuration");
                 var json = await httpResult.Content.ReadAsStringAsync();
                 return new ContentResult
                 {

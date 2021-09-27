@@ -43,8 +43,11 @@ namespace Microsoft.Extensions.DependencyInjection
         private static IServiceCollection AddInMemoryStore(this IServiceCollection services)
         {
             var apis = new List<ApiDefinitionAggregate>();
+            var fns = new List<FunctionAggregate>();
             var apiRepository = new InMemoryApiDefinitionRepository(apis);
+            var fnRepository = new InMemoryFunctionRepository(fns);
             services.AddSingleton<IApiDefinitionRepository>(apiRepository);
+            services.AddSingleton<IFunctionRepository>(fnRepository);
             return services;
         }
     }

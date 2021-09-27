@@ -7,6 +7,8 @@ namespace FaasNet.CLI.Helpers
 {
     public static class MenuHelper
     {
+        private static int Padding = 10;
+
         public static void Execute(IEnumerable<string> args, List<IMenuItemCommand> commands)
         {
             if (!args.Any())
@@ -27,10 +29,17 @@ namespace FaasNet.CLI.Helpers
 
         private static void DisplayHelper(List<IMenuItemCommand> commands)
         {
+            var maxWidth = GetMaxWidth(commands.Select(c => c.Command));
             foreach (var cmd in commands)
             {
-                Console.WriteLine($"{cmd.Command} \t\t {cmd.Description}");
+                var space = string.Join(string.Empty, Enumerable.Repeat(" ", maxWidth - cmd.Command.Length + Padding));
+                Console.WriteLine($"{cmd.Command} {space} {cmd.Description}");
             }
+        }
+
+        private static int GetMaxWidth(IEnumerable<string> str)
+        {
+            return str.Select(r => r.Length).Max();
         }
     }
 }

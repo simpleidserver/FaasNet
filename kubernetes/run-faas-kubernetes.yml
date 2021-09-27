@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: faas-kubernetes
-        image: localhost:5000/kubernetes
+        image: localhost:5000/faaskubernetes
         ports:
         - containerPort: 8080

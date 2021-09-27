@@ -1,4 +1,8 @@
-﻿using FaasNet.Gateway.Core.Factories;
+﻿using FaasNet.Gateway.Core.Domains;
+using FaasNet.Gateway.Core.Exceptions;
+using FaasNet.Gateway.Core.Factories;
+using FaasNet.Gateway.Core.Repositories;
+using FaasNet.Gateway.Core.Resources;
 using MediatR;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -13,18 +17,27 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
     public class PublishFunctionCommandHandler : IRequestHandler<PublishFunctionCommand, bool>
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IFunctionRepository _functionRepository;
         private readonly GatewayConfiguration _configuration;
 
         public PublishFunctionCommandHandler(
             IHttpClientFactory httpClientFactory,
+            IFunctionRepository functionRepository,
             IOptions<GatewayConfiguration> configuration)
         {
             _httpClientFactory = httpClientFactory;
+            _functionRepository = functionRepository;
             _configuration = configuration.Value;
         }
 
         public async Task<bool> Handle(PublishFunctionCommand command, CancellationToken cancellationToken)
         {
+            var function = await _functionRepository.Get(command.Image, cancellationToken);
+            if (function != null)
+            {
+                throw new BusinessRuleException(string.Format(Global.FunctionNameAlreadyExists, command.Image));
+            }
+
             using (var httpClient = _httpClientFactory.Build())
             {
                 var request = new HttpRequestMessage
@@ -35,6 +48,9 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
                 };
                 var httpResult = await httpClient.SendAsync(request);
                 httpResult.EnsureSuccessStatusCode();
+                function = FunctionAggregate.Create(command.Name, command.Image);
+                await _functionRepository.Add(function, cancellationToken);
+                await _functionRepository.SaveChanges(cancellationToken);
                 return true;
             }
         }

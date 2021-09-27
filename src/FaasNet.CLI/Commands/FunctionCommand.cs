@@ -9,7 +9,11 @@ namespace FaasNet.CLI.Commands
         {
             new FunctionCreateDockerFileCommand(),
             new FunctionBuildDockerFileCommand(),
-            new FunctionPublishDockerFileCommand()
+            new FunctionPublishDockerFileCommand(),
+            new FunctionDeployCommand(),
+            new FunctionRemoveCommand(),
+            new FunctionInvokeCommand(),
+            new FunctionConfigurationCommand()
         };
 
         public string Command => "function";

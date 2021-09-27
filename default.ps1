@@ -69,6 +69,28 @@ task publishHelmAndWebsite {
 	exec { git checkout master }
 }
 
+task buildLocalDockerImage -depends publish {
+	exec { docker build -f RuntimeGetSqlDockerfile -t localhost:5000/faasgetsql . }
+	exec { docker build -f RuntimeGetSqlDockerfile -t localhost:5000/faastransform . }
+	exec { docker build -f KubernetesDockerfile -t localhost:5000/faaskubernetes . }
+	exec { docker build -f GatewayDockerfile -t localhost:5000/faasgateway . }
+	exec { docker push localhost:5000/faasgetsql }
+	exec { docker push localhost:5000/faastransform }
+	exec { docker push localhost:5000/faaskubernetes }
+	exec { docker push localhost:5000/faasgateway }
+}
+
+task initLocalKubernetes {
+	exec { kubectl apply -f ./kubernetes/faas-namespace.yml }
+    exec { kubectl apply -f ./kubernetes/run-mssql.yml --namespace=faas }
+    exec { kubectl apply -f ./kubernetes/mssql-external-svc.yml --namespace=faas }
+    exec { kubectl apply -f ./kubernetes/mssql-internal-svc.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/run-faas-kubernetes.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/faas-kubernetes-svc.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/run-faas-gateway.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/faas-gateway-svc.yml --namespace=faas }
+}
+
 task pack -depends release, compile {
 	exec { dotnet pack $source_dir\FaasNet.Runtime\FaasNet.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
 	exec { dotnet pack $source_dir\FaasNet.Templates\FaasNet.Templates.csproj -c $config --no-build $versionSuffix --output $result_dir }

@@ -1,7 +1,8 @@
 {
   "profiles": {
     "FaasNet.CLI": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "function invoke -name test -configuration {'firstName':'coucou'} -input {}"
     }
   }
 }

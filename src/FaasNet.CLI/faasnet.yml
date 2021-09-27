@@ -1,0 +1,3 @@
+provider:
+  name: faasnet
+  gateway: http://localhost:30001

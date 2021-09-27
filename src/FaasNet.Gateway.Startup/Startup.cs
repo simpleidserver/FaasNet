@@ -20,7 +20,7 @@ namespace FaasNet.Gateway.Startup
             services.AddGateway()
                 .AddApiDefs(DefaultConfiguration.ApiDefinitions);
             services.AddSwaggerGen();
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace FaasNet.Kubernetes.Commands
+﻿namespace FaasNet.Kubernetes.Commands
 {
     public class InvokeFunctionCommand
     {
