@@ -14,12 +14,12 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
 {
     public class GetFunctionConfigurationCommandHandler : IRequestHandler<GetFunctionConfigurationCommand, JObject>
     {
-        private readonly IFunctionRepository _functionRepository;
+        private readonly IFunctionCommandRepository _functionRepository;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly GatewayConfiguration _configuration;
 
         public GetFunctionConfigurationCommandHandler(
-            IFunctionRepository functionRepository,
+            IFunctionCommandRepository functionRepository,
             IHttpClientFactory httpClientFactory,
             IOptions<GatewayConfiguration> configuration)
         {

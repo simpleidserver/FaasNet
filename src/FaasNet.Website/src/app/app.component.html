@@ -1,0 +1,16 @@
+<ng-container>
+  <mat-toolbar>
+    FaasNet
+    <span class="spacer"></span>
+  </mat-toolbar>
+  <mat-drawer-container class="drawer-container">
+    <mat-drawer #drawer mode="side" opened>
+      <mat-nav-list>
+        <a mat-list-item [routerLink]="['/functions']">{{ 'functions.list' | translate }}</a>
+      </mat-nav-list>
+    </mat-drawer>
+    <div class="container">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-drawer-container>
+</ng-container>

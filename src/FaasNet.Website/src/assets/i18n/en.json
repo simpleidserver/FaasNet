@@ -1,0 +1,9 @@
+{
+  "functions": {
+    "list": "Functions",
+    "name": "Function",
+    "image": "Docker Image",
+    "createDateTime": "Create Datetime",
+    "updateDateTime": "Update Datetime"
+  }
+}

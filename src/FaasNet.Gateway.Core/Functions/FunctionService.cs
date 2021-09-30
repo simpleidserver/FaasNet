@@ -1,6 +1,5 @@
 ﻿using FaasNet.Gateway.Core.Functions.Commands;
 using MediatR;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 

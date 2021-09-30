@@ -14,12 +14,12 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
     public class UnpublishFunctionCommandHandler : IRequestHandler<UnpublishFunctionCommand, bool>
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IFunctionRepository _functionRepository;
+        private readonly IFunctionCommandRepository _functionRepository;
         private readonly GatewayConfiguration _configuration;
 
         public UnpublishFunctionCommandHandler(
             IHttpClientFactory httpClientFactory,
-            IFunctionRepository functionRepository,
+            IFunctionCommandRepository functionRepository,
             IOptions<GatewayConfiguration> configuration)
         {
             _httpClientFactory = httpClientFactory;

@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Gateway.Core.Repositories.InMemory
 {
-    public class InMemoryFunctionRepository : IFunctionRepository
+    public class InMemoryFunctionCommandRepository : IFunctionCommandRepository
     {
         private readonly ICollection<FunctionAggregate> _functions;
 
-        public InMemoryFunctionRepository(ICollection<FunctionAggregate> functions)
+        public InMemoryFunctionCommandRepository(ICollection<FunctionAggregate> functions)
         {
             _functions = functions;
         }

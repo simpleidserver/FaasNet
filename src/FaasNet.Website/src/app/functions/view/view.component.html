@@ -1,0 +1,18 @@
+<div fxLayout="row" class="breadcrumb">
+  <div fxFlex="80%">
+    <ul>
+      <li>
+        <div class="mat-h1"><a [routerLink]="['/functions']">{{ "functions.list" | translate }}</a></div>
+      </li>
+      <li class="separator">
+        <div class="mat-h1">\</div>
+      </li>
+      <li>
+        <div class="mat-h1">{{ name }}</div>
+      </li>
+    </ul>
+  </div>
+</div>
+<div *ngFor="let parameter of option?.Parameters">
+  <function-rendering-component [option]="parameter"></function-rendering-component>
+</div>

@@ -1,0 +1,7 @@
+@mixin app-theme($theme) {
+  $primary: map-get($theme, primary);
+}
+
+@mixin component-themes($theme) {
+  @include app-theme($theme);
+}

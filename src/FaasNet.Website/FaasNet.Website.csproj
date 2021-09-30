@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <TypeScriptToolsVersion>4.3</TypeScriptToolsVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="src\app\functions\function-rendering\string\string-rendering.component.ts" />
+    <None Remove="src\app\functions\functions.module.ts" />
+    <None Remove="src\app\functions\functions.routes.ts" />
+    <None Remove="src\app\functions\function-rendering\base-rendering.component.ts" />
+    <None Remove="src\app\functions\function-rendering\array\array-rendering.component.ts" />
+    <None Remove="src\app\functions\function-rendering\function-rendering.component.ts" />
+    <None Remove="src\app\shared\material.module.ts" />
+    <None Remove="src\app\shared\shared.module.ts" />
+    <None Remove="src\stores\common\search.model.ts" />
+    <None Remove="src\stores\functions\models\function.model.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\app\functions\list\" />
+    <Folder Include="src\stores\functions\reducers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="src\app\functions\function-rendering\string\string-rendering.component.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\app\functions\functions.module.ts" />
+    <TypeScriptCompile Include="src\app\functions\functions.routes.ts" />
+    <TypeScriptCompile Include="src\app\functions\function-rendering\base-rendering.component.ts" />
+    <TypeScriptCompile Include="src\app\functions\function-rendering\array\array-rendering.component.ts" />
+    <TypeScriptCompile Include="src\app\functions\function-rendering\function-rendering.component.ts" />
+    <TypeScriptCompile Include="src\app\shared\material.module.ts" />
+    <TypeScriptCompile Include="src\app\shared\shared.module.ts" />
+    <TypeScriptCompile Include="src\stores\common\search.model.ts" />
+    <TypeScriptCompile Include="src\stores\functions\models\function.model.ts" />
+  </ItemGroup>
+</Project>

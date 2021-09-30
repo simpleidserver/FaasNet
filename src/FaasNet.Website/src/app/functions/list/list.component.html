@@ -1,0 +1,42 @@
+<div fxLayout="row" class="breadcrumb">
+  <div fxFlex="80%">
+    <ul>
+      <li><div class="mat-h1">{{ "functions.list" | translate }}</div></li>
+    </ul>
+  </div>
+</div>
+<div class="mat-elevation-z8 overflow-hidden">
+  <mat-table class="full-width" [dataSource]="functions" matSortActive="createDateTime" matSortDirection="desc" matSort>
+    <!-- Name -->
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef>{{ "functions.name" | translate }}</mat-header-cell>
+      <mat-cell *matCellDef="let function">
+        <a href="#" [routerLink]="['/functions/' + function.name]">{{ function.name }}</a>
+      </mat-cell>
+    </ng-container>
+    <!-- Image -->
+    <ng-container matColumnDef="image">
+      <mat-header-cell *matHeaderCellDef>{{ "functions.image" | translate }}</mat-header-cell>
+      <mat-cell *matCellDef="let function">
+        {{ function.image }}
+      </mat-cell>
+    </ng-container>
+    <!-- Create DateTime -->
+    <ng-container matColumnDef="createDateTime">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>{{ "functions.createDateTime" | translate }}</mat-header-cell>
+      <mat-cell *matCellDef="let function">
+        {{ function.createDateTime | date:'fullDate' }}
+      </mat-cell>
+    </ng-container>
+    <!-- Update DateTime -->
+    <ng-container matColumnDef="updateDateTime">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>{{ "functions.updateDateTime" | translate }}</mat-header-cell>
+      <mat-cell *matCellDef="let function">
+        {{ function.updateDateTime | date:'fullDate' }}
+      </mat-cell>
+    </ng-container>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+  <mat-paginator [length]="length" [pageSize]="50" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+</div>

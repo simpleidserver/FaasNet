@@ -1,0 +1,10 @@
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      {{ option.Translations[0].Description }}
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <div *ngFor="let parameter of option.Parameters">
+    <function-rendering-component [option]="parameter"></function-rendering-component>
+  </div>
+</mat-expansion-panel>

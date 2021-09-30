@@ -17,12 +17,12 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
     public class PublishFunctionCommandHandler : IRequestHandler<PublishFunctionCommand, bool>
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IFunctionRepository _functionRepository;
+        private readonly IFunctionCommandRepository _functionRepository;
         private readonly GatewayConfiguration _configuration;
 
         public PublishFunctionCommandHandler(
             IHttpClientFactory httpClientFactory,
-            IFunctionRepository functionRepository,
+            IFunctionCommandRepository functionRepository,
             IOptions<GatewayConfiguration> configuration)
         {
             _httpClientFactory = httpClientFactory;

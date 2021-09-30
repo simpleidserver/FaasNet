@@ -1,4 +1,5 @@
 ﻿using FaasNet.Gateway.Core.Functions.Commands;
+using FaasNet.Gateway.Core.Functions.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
@@ -44,6 +45,13 @@ namespace FaasNet.Gateway.Startup.Controllers
         {
             await _mediator.Send(new UnpublishFunctionCommand { Name = name }, cancellationToken);
             return new NoContentResult();
+        }
+
+        [HttpPost(".search")]
+        public async Task<IActionResult> Search([FromBody] SearchFunctionsQuery query, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(query, cancellationToken);
+            return new OkObjectResult(result);
         }
     }
 }

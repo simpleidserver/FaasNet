@@ -45,9 +45,11 @@ namespace Microsoft.Extensions.DependencyInjection
             var apis = new List<ApiDefinitionAggregate>();
             var fns = new List<FunctionAggregate>();
             var apiRepository = new InMemoryApiDefinitionRepository(apis);
-            var fnRepository = new InMemoryFunctionRepository(fns);
+            var cmdFnRepository = new InMemoryFunctionCommandRepository(fns);
+            var queryFnRepository = new InMemoryFunctionQueryRepository(fns);
             services.AddSingleton<IApiDefinitionRepository>(apiRepository);
-            services.AddSingleton<IFunctionRepository>(fnRepository);
+            services.AddSingleton<IFunctionCommandRepository>(cmdFnRepository);
+            services.AddSingleton<IFunctionQueryRepository>(queryFnRepository);
             return services;
         }
     }

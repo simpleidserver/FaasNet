@@ -17,6 +17,9 @@ namespace FaasNet.Gateway.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()));
             services.AddGateway()
                 .AddApiDefs(DefaultConfiguration.ApiDefinitions);
             services.AddSwaggerGen();
@@ -25,6 +28,7 @@ namespace FaasNet.Gateway.Startup
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("AllowAll");
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
