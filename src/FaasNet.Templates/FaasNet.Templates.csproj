@@ -15,4 +15,14 @@
     <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**;templates\**\wwwroot\**" />
     <Compile Remove="**\*" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="templates\Middlewares\FunctionMiddleware.cs" />
+    <Content Remove="templates\Middlewares\ResponseMetricMiddleware.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="templates\Middlewares\FunctionMiddleware.cs" />
+    <Compile Include="templates\Middlewares\ResponseMetricMiddleware.cs" />
+  </ItemGroup>
 </Project>

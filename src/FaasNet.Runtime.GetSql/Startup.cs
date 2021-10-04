@@ -1,19 +1,24 @@
 ﻿using FaasNet.Runtime.Factories;
-using FaasNet.Runtime.Parameters;
+using FaasNet.Runtime.GetSql.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using System;
+using Prometheus;
 using System.IO;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace FaasNet.Runtime.GetSql
 {
     public class Startup
     {
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddSingleton<MetricReporter>();
+        }
+
         public void Configure(IApplicationBuilder app)
         {
+            app.UseMetricServer();
             app.Map("/configuration", (c) =>
             {
                 c.Run(async (httpContext) =>
@@ -25,38 +30,8 @@ namespace FaasNet.Runtime.GetSql
                     await httpContext.Response.WriteAsync(json);
                 });
             });
-            app.Use(async (context, next) =>
-            {
-                if (context.Request.Method != HttpMethods.Post)
-                {
-                    await next.Invoke();
-                    return;
-                }
-
-                var functionHandler = new FunctionHandler();
-                try
-                {
-                    var requestBody = await GetRequest(context.Request.Body);
-                    var parameter = JsonConvert.DeserializeObject<FunctionParameter<GetSqlConfiguration>>(requestBody);
-                    var result = await functionHandler.Handle(parameter);
-                    context.Response.StatusCode = 200;
-                    context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsync(result.ToString());
-                }
-                catch (Exception ex)
-                {
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    await context.Response.WriteAsync(ex.Message);
-                }
-            });
-        }
-
-        private Task<string> GetRequest(Stream inputBody)
-        {
-            using (var reader = new StreamReader(inputBody))
-            {
-                return reader.ReadToEndAsync();
-            }
+            app.UseMiddleware<ResponseMetricMiddleware>();
+            app.UseMiddleware<FunctionMiddleware>();
         }
     }
 }

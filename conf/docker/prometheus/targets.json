@@ -1,0 +1,10 @@
+[
+  {
+    "labels": {
+      "job": "node"
+    },
+    "targets": [
+      "test-entry.test.svc.cluster.local"
+    ]
+  }
+]
