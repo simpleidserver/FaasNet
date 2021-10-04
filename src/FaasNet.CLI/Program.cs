@@ -17,7 +17,6 @@ namespace FaasNet.CLI
         static void Main(string[] args)
         {
             MenuHelper.Execute(args, Commands);
-            string ss = "";
         }
     }
 }

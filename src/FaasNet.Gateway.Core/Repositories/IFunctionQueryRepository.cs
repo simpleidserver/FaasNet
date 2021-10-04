@@ -9,5 +9,6 @@ namespace FaasNet.Gateway.Core.Repositories
     public interface IFunctionQueryRepository
     {
         Task<BaseSearchResult<FunctionResult>> Search(SearchFunctionsParameter parameter, CancellationToken cancellationToken);
+        Task<FunctionResult> Get(string name, CancellationToken cancellationToken);
     }
 }

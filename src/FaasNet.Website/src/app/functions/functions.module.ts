@@ -6,6 +6,8 @@ import { FunctionRenderingComponent } from "./function-rendering/function-render
 import { StringRenderingComponent } from "./function-rendering/string/string-rendering.component";
 import { FunctionsRoutes } from "./functions.routes";
 import { ListFunctionsComponent } from "./list/list.component";
+import { InfoFunctionComponent } from "./view/info/info.component";
+import { InvokeFunctionComponent } from "./view/invoke/invoke.component";
 import { ViewFunctionComponent } from "./view/view.component";
 
 @NgModule({
@@ -19,7 +21,9 @@ import { ViewFunctionComponent } from "./view/view.component";
     ViewFunctionComponent,
     FunctionRenderingComponent,
     ArrayRenderingComponent,
-    StringRenderingComponent
+    StringRenderingComponent,
+    InvokeFunctionComponent,
+    InfoFunctionComponent
   ]
 })
 

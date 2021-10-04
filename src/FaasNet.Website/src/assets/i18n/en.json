@@ -4,6 +4,27 @@
     "name": "Function",
     "image": "Docker Image",
     "createDateTime": "Create Datetime",
-    "updateDateTime": "Update Datetime"
+    "updateDateTime": "Update Datetime",
+    "launch": "Launch",
+    "configurationParameters": "Configuration parameters",
+    "inputParameters": "Input parameters",
+    "input": "Input",
+    "invokeResult": "Invocation result",
+    "result": "Result",
+    "invoke": "Invoke",
+    "deleteTitle": "Delete this function",
+    "delete": "Delete",
+    "info": "Information",
+    "messages": {
+      "errorInvokeFunction": "An error occured while trying to invoke the function",
+      "functionRemoved": "The function has been removed",
+      "errorRemoveFunction": "An error occured while trying to remove the function"
+    }
+  },
+  "shared": {
+    "add": "Add",
+    "remove": "Remove",
+    "save": "Save",
+    "parameter": "Parameter N°{{index}}"
   }
 }

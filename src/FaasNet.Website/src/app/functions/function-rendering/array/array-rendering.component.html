@@ -1,10 +1,19 @@
 <mat-expansion-panel>
   <mat-expansion-panel-header>
-    <mat-panel-title>
-      {{ option.Translations[0].Description }}
-    </mat-panel-title>
+    {{ option.Translations | translateobj }}
   </mat-expansion-panel-header>
-  <div *ngFor="let parameter of option.Parameters">
-    <function-rendering-component [option]="parameter"></function-rendering-component>
+  <button mat-raised-button (click)="addParameter($event)" color="primary">{{ 'shared.add' | translate }}</button>
+  <div fxLayout="row wrap" fxLayoutGap="10px">
+    <mat-card *ngFor="let child of children; let i = index" fxFlex="25%" class="mb-10">
+      <mat-card-content>
+        <h5>
+          {{ 'shared.parameter' | translate : { index : i } }}
+        </h5>
+        <function-rendering-component [option]="parameter" [form]="child.form" *ngFor="let parameter of child.parameters"></function-rendering-component>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-raised-button (click)="removeParameter($event, child)" color="warn">{{ 'shared.remove' | translate }}</button>
+      </mat-card-actions>
+    </mat-card>
   </div>
 </mat-expansion-panel>

@@ -32,13 +32,20 @@ namespace FaasNet.Gateway.Startup.Controllers
             return new OkObjectResult(result);
         }
 
+        [HttpGet("{name}")]
+        public async Task<IActionResult> Get(string name, CancellationToken cancellationToken)
+        {
+            var cmd = new GetFunctionQuery { FuncName = name };
+            var result = await _mediator.Send(cmd, cancellationToken);
+            return new OkObjectResult(result);
+        }
+
         [HttpGet("{name}/configuration")]
         public async Task<IActionResult> GetConfiguration(string name, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new GetFunctionConfigurationCommand { FuncName = name }, cancellationToken);
             return new OkObjectResult(result);
         }
-
 
         [HttpDelete("{name}")]
         public async Task<IActionResult> Unpublish(string name, CancellationToken cancellationToken)

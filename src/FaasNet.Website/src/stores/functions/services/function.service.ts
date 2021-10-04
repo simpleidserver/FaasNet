@@ -28,4 +28,25 @@ export class FunctionService {
     let targetUrl = environment.apiUrl + "/functions/" + name + '/configuration';
     return this.http.get<any>(targetUrl, { headers: headers });
   }
+
+  invoke(name: string, request: any): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = environment.apiUrl + "/functions/" + name + '/invoke';
+    return this.http.post<any>(targetUrl, request, { headers: headers });
+  }
+
+  get(name: string): Observable<FunctionResult> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = environment.apiUrl + "/functions/" + name;
+    return this.http.get<any>(targetUrl, { headers: headers });
+  }
+
+  delete(name: string): Observable<FunctionResult> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = environment.apiUrl + "/functions/" + name;
+    return this.http.delete<any>(targetUrl, { headers: headers });
+  }
 }

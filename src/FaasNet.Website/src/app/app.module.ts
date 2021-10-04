@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { environment } from '@envs/environment';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { appReducer } from '../stores/appstate';
@@ -39,6 +40,9 @@ export function createTranslateLoader(http: HttpClient) {
         useFactory: createTranslateLoader,
         deps: [HttpClient]
       }
+    }),
+    StoreDevtoolsModule.instrument({
+      maxAge: 10
     })
   ],
   providers: [FunctionService],

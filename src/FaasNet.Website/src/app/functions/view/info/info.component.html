@@ -1,0 +1,29 @@
+<mat-card>
+  <mat-card-content>
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>{{ 'functions.name' | translate }}</mat-label>
+      <input matInput type="text" [value]="function?.name" disabled />
+    </mat-form-field>
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>{{ 'functions.image' | translate }}</mat-label>
+      <input matInput type="text" [value]="function?.image" disabled />
+    </mat-form-field>
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>{{ 'functions.createDateTime' | translate }}</mat-label>
+      <input matInput type="text" [value]="function?.createDateTime | date:'short'" disabled />
+    </mat-form-field>
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>{{ 'functions.updateDateTime' | translate }}</mat-label>
+      <input matInput type="text" [value]="function?.updateDateTime | date:'short'" disabled />
+    </mat-form-field>
+    <div class="alert alert-danger" fxLayout="row">
+      <div fxFlex="90%">
+        <b>{{ 'functions.deleteTitle' | translate }}</b>
+      </div>
+      <div>
+        <button mat-raised-button color="warn" (click)="delete()">{{ 'functions.delete' | translate }}</button>
+      </div>
+    </div>
+
+  </mat-card-content>
+</mat-card>

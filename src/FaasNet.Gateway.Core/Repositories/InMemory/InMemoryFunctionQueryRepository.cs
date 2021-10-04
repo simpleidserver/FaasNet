@@ -45,5 +45,16 @@ namespace FaasNet.Gateway.Core.Repositories.InMemory
                 Content = result.Select(r => FunctionResult.ToDto(r)).ToList()
             });
         }
+
+        public Task<FunctionResult> Get(string name, CancellationToken cancellationToken)
+        {
+            var result = _functions.FirstOrDefault(f => f.Name == name);
+            if (result == null)
+            {
+                return Task.FromResult((FunctionResult)null);
+            }
+
+            return Task.FromResult(FunctionResult.ToDto(result));
+        }
     }
 }

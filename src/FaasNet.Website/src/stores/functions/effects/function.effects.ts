@@ -3,8 +3,11 @@ import { Actions, Effect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import {
+    completeDelete,
+    completeGet,
     completeGetConfiguration,
-    completeSearch, errorGetConfiguration, errorSearch, startGetConfiguration, startSearch
+    completeInvoke,
+    completeSearch, errorDelete, errorGet, errorGetConfiguration, errorInvoke, errorSearch, startDelete, startGet, startGetConfiguration, startInvoke, startSearch
 } from '../actions/function.actions';
 import { FunctionService } from '../services/function.service';
 
@@ -38,6 +41,48 @@ export class FunctionEffects {
           .pipe(
             map(content => completeGetConfiguration({ content: content })),
             catchError(() => of(errorGetConfiguration()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  invokeFunction$ = this.actions$
+    .pipe(
+      ofType(startInvoke),
+      mergeMap((evt: { name: string, request: any }) => {
+        return this.applicationService.invoke(evt.name, evt.request)
+          .pipe(
+            map(content => completeInvoke({ content: content })),
+            catchError(() => of(errorInvoke()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  getFunction$ = this.actions$
+    .pipe(
+      ofType(startGet),
+      mergeMap((evt: { name: string }) => {
+        return this.applicationService.get(evt.name)
+          .pipe(
+            map(content => completeGet({ content: content })),
+            catchError(() => of(errorGet()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  deleteFunction$ = this.actions$
+    .pipe(
+      ofType(startDelete),
+      mergeMap((evt: { name: string}) => {
+        return this.applicationService.delete(evt.name)
+          .pipe(
+            map(content => completeDelete()),
+            catchError(() => of(errorDelete()))
           );
       }
       )

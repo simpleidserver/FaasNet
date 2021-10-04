@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faas-website
+spec:
+  selector:
+    matchLabels:
+      run: faas-website
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: faas-website
+    spec:
+      containers:
+      - name: faas-website
+        image: localhost:5000/faaswebsite
+        ports:
+        - containerPort: 4200

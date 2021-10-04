@@ -1,4 +1,6 @@
-<mat-form-field appearance="outline" class="full-width">
-  <mat-label>{{ option.Translations[0].Description }}</mat-label>
-  <input matInput type="text" />
+<mat-form-field class="full-width" appearance="outline" floatLabel="always">
+  <mat-label>
+    {{ option.Translations | translateobj }}
+  </mat-label>
+  <input type="text" [formControl]="control" matInput />
 </mat-form-field>

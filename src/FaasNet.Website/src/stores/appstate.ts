@@ -31,6 +31,17 @@ export const selectFunctionConfigurationResult = createSelector(
   }
 );
 
+export const selectFunctionResult = createSelector(
+  selectFunction,
+  (state: fromFunctions.FunctionState) => {
+    if (!state || state.Function === null) {
+      return null;
+    }
+
+    return state.Function;
+  }
+);
+
 export const appReducer = {
   functions: fromFunctions.getSearchFunctionsReducer,
   function: fromFunctions.getFunctionReducer

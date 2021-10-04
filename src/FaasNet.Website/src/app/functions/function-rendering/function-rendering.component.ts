@@ -1,4 +1,5 @@
-import { Component, ComponentFactoryResolver, ComponentRef, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { FormGroup } from "@angular/forms";
 import { ArrayRenderingComponent } from "./array/array-rendering.component";
 import { BaseRenderingComponent } from "./base-rendering.component";
 import { StringRenderingComponent } from "./string/string-rendering.component";
@@ -17,8 +18,28 @@ export class FunctionRenderingComponent {
     'array': ArrayRenderingComponent,
     'string': StringRenderingComponent
   };
+  private _form: FormGroup | null = null;
 
-  constructor(private compFactoryResolver: ComponentFactoryResolver) { }
+  constructor(
+    private compFactoryResolver: ComponentFactoryResolver,
+    private ref: ChangeDetectorRef) { }
+
+  @Input()
+  get form() : FormGroup | null {
+    if (!this._form) {
+      return null;
+    }
+
+    return this._form;
+  }
+  set form(val: FormGroup | null) {
+    if (!val) {
+      return;
+    }
+
+    this._form = val;
+    this.refresh();
+  }
 
   @Input()
   get option() {
@@ -38,7 +59,7 @@ export class FunctionRenderingComponent {
   }
 
   private refresh() {
-    if (!this.option || !this.container) {
+    if (!this.option || !this.container || !this.form) {
       return;
     }
 
@@ -52,5 +73,9 @@ export class FunctionRenderingComponent {
     this.componentRef = this.container.createComponent(factory);
     this.baseUIComponent = this.componentRef.instance as BaseRenderingComponent;
     this.baseUIComponent.option = this.option;
+    this.baseUIComponent.setForm(this.form);
+    setTimeout(() => {
+      this.ref.markForCheck();
+    }, 10);
   }
 }

@@ -9,6 +9,7 @@ export interface SearchFunctionsState {
 
 export interface FunctionState {
   Configuration: any | null;
+  Function: FunctionResult | null;
 }
 
 export const initialSearchFunctionsState: SearchFunctionsState = {
@@ -16,7 +17,8 @@ export const initialSearchFunctionsState: SearchFunctionsState = {
 };
 
 export const initialFunctionState: FunctionState = {
-  Configuration: null
+  Configuration: null,
+  Function : null
 };
 
 const searchFunctionsReducer = createReducer(
@@ -36,7 +38,13 @@ const functionReducer = createReducer(
       ...state,
       Configuration: { ...content }
     };
-  })
+  }),
+  on(fromActions.completeGet, (state, { content }) => {
+    return {
+      ...state,
+      Function: { ...content }
+    };
+  }),
 );
 
 export function getSearchFunctionsReducer(state: SearchFunctionsState | undefined, action: Action) {
