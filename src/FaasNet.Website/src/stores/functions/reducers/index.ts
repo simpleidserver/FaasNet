@@ -44,7 +44,7 @@ const functionReducer = createReducer(
       ...state,
       Function: { ...content }
     };
-  }),
+  })
 );
 
 export function getSearchFunctionsReducer(state: SearchFunctionsState | undefined, action: Action) {

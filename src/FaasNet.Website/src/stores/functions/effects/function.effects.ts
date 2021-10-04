@@ -3,11 +3,12 @@ import { Actions, Effect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import {
+    completeAdd,
     completeDelete,
     completeGet,
     completeGetConfiguration,
     completeInvoke,
-    completeSearch, errorDelete, errorGet, errorGetConfiguration, errorInvoke, errorSearch, startDelete, startGet, startGetConfiguration, startInvoke, startSearch
+    completeSearch, errorAdd, errorDelete, errorGet, errorGetConfiguration, errorInvoke, errorSearch, startAdd, startDelete, startGet, startGetConfiguration, startInvoke, startSearch
 } from '../actions/function.actions';
 import { FunctionService } from '../services/function.service';
 
@@ -83,6 +84,20 @@ export class FunctionEffects {
           .pipe(
             map(content => completeDelete()),
             catchError(() => of(errorDelete()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  addFunction$ = this.actions$
+    .pipe(
+      ofType(startAdd),
+      mergeMap((evt: { name: string, image: string }) => {
+        return this.applicationService.add(evt.name, evt.image)
+          .pipe(
+            map(content => completeAdd({ name: evt.name, image: evt.image })),
+            catchError(() => of(errorAdd()))
           );
       }
       )

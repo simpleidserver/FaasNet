@@ -3,6 +3,7 @@
     "list": "Functions",
     "name": "Function",
     "image": "Docker Image",
+    "add": "Add a function",
     "createDateTime": "Create Datetime",
     "updateDateTime": "Update Datetime",
     "launch": "Launch",
@@ -15,16 +16,22 @@
     "deleteTitle": "Delete this function",
     "delete": "Delete",
     "info": "Information",
+    "nameRequired": "The name is required",
+    "imageRequired": "The image is required",
     "messages": {
       "errorInvokeFunction": "An error occured while trying to invoke the function",
       "functionRemoved": "The function has been removed",
-      "errorRemoveFunction": "An error occured while trying to remove the function"
+      "errorRemoveFunction": "An error occured while trying to remove the function",
+      "functionAdded": "The function has been added",
+      "errorAddFunction": "An error occured while trying to add the function"
     }
   },
   "shared": {
     "add": "Add",
     "remove": "Remove",
     "save": "Save",
-    "parameter": "Parameter N°{{index}}"
+    "parameter": "Parameter N°{{index}}",
+    "create": "Create",
+    "close": "Close"
   }
 }

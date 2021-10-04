@@ -17,3 +17,6 @@ export const errorGet = createAction('[Functions] ERROR_GET_FUNCTION');
 export const startDelete = createAction('[Functions] START_DELETE_FUNCTION', props<{ name: string }>());
 export const completeDelete = createAction('[Functions] COMPLETE_DELETE_FUNCTION');
 export const errorDelete = createAction('[Functions] ERROR_DELETE_FUNCTION');
+export const startAdd = createAction('[Functions] START_ADD_FUNCTION', props<{ name: string, image: string }>());
+export const completeAdd = createAction('[Functions] COMPLETE_ADD_FUNCTION', props<{ name: string, image: string }>());
+export const errorAdd = createAction('[Functions] ERROR_ADD_FUNCTION');

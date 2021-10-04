@@ -1,0 +1,25 @@
+<h1 mat-dialog-title>{{ 'functions.add' | translate }}</h1>
+<form [formGroup]="addFunctionFormGroup" (ngSubmit)="save()">
+  <div mat-dialog-content>
+    <!-- Name -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'functions.name' | translate }}</mat-label>
+      <input matInput formControlName="name" />
+      <mat-error *ngIf="addFunctionFormGroup.get('name')?.hasError('required')">
+        {{ 'functions.nameRequired' | translate }}
+      </mat-error>
+    </mat-form-field>
+    <!-- Image -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'functions.image' | translate }}</mat-label>
+      <input matInput formControlName="image" />
+      <mat-error *ngIf="addFunctionFormGroup.get('image')?.hasError('required')">
+        {{ 'functions.imageRequired' | translate }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button color="primary">{{ 'shared.create' | translate }}</button>
+    <button mat-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
+  </div>
+</form>

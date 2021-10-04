@@ -5,6 +5,7 @@ import { ArrayRenderingComponent } from "./function-rendering/array/array-render
 import { FunctionRenderingComponent } from "./function-rendering/function-rendering.component";
 import { StringRenderingComponent } from "./function-rendering/string/string-rendering.component";
 import { FunctionsRoutes } from "./functions.routes";
+import { AddFunctionComponent } from "./list/add-function.component";
 import { ListFunctionsComponent } from "./list/list.component";
 import { InfoFunctionComponent } from "./view/info/info.component";
 import { InvokeFunctionComponent } from "./view/invoke/invoke.component";
@@ -23,7 +24,8 @@ import { ViewFunctionComponent } from "./view/view.component";
     ArrayRenderingComponent,
     StringRenderingComponent,
     InvokeFunctionComponent,
-    InfoFunctionComponent
+    InfoFunctionComponent,
+    AddFunctionComponent
   ]
 })
 
