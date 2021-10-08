@@ -12,8 +12,15 @@ spec:
       labels:
         run: faas-prometheus
     spec:
+      volumes:
+      - name: prometheus-pv-storage
+        persistentVolumeClaim:
+          claimName: prometheus-pv-claim
       containers:
       - name: faas-website
         image: localhost:5000/faasprometheus
         ports:
         - containerPort: 9090
+        volumeMounts:
+        - mountPath: "/shared"
+          name: prometheus-pv-storage

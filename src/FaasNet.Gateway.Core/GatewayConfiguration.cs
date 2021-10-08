@@ -8,5 +8,6 @@
         }
 
         public string FunctionApi { get; set; }
+        public string PrometheusFilePath { get; set; }
     }
 }

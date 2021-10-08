@@ -3,6 +3,7 @@ using FaasNet.Gateway.Core.ApiDefinitions;
 using FaasNet.Gateway.Core.Domains;
 using FaasNet.Gateway.Core.Factories;
 using FaasNet.Gateway.Core.Functions;
+using FaasNet.Gateway.Core.Helpers;
 using FaasNet.Gateway.Core.Repositories;
 using FaasNet.Gateway.Core.Repositories.InMemory;
 using MediatR;
@@ -36,6 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddMediatR(typeof(ServerBuilder));
             services.AddTransient<IApiDefinitionService, ApiDefinitionService>();
             services.AddTransient<IFunctionService, FunctionService>();
+            services.AddTransient<IPrometheusHelper, PrometheusHelper>();
             return services;
         }
 

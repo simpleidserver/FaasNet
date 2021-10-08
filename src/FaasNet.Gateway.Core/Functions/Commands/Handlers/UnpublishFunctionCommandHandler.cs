@@ -1,5 +1,6 @@
 ﻿using FaasNet.Gateway.Core.Exceptions;
 using FaasNet.Gateway.Core.Factories;
+using FaasNet.Gateway.Core.Helpers;
 using FaasNet.Gateway.Core.Repositories;
 using FaasNet.Gateway.Core.Resources;
 using MediatR;
@@ -15,15 +16,18 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IFunctionCommandRepository _functionRepository;
+        private readonly IPrometheusHelper _prometheusHelper;
         private readonly GatewayConfiguration _configuration;
 
         public UnpublishFunctionCommandHandler(
             IHttpClientFactory httpClientFactory,
             IFunctionCommandRepository functionRepository,
+            IPrometheusHelper prometheusHelper,
             IOptions<GatewayConfiguration> configuration)
         {
             _httpClientFactory = httpClientFactory;
             _functionRepository = functionRepository;
+            _prometheusHelper = prometheusHelper;
             _configuration = configuration.Value;
         }
 
@@ -46,6 +50,7 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
                 httpResult.EnsureSuccessStatusCode();
                 await _functionRepository.Delete(function, cancellationToken);
                 await _functionRepository.SaveChanges(cancellationToken);
+                _prometheusHelper.Remove(command.Name);
                 return true;
             }
         }

@@ -90,6 +90,8 @@ task initLocalKubernetes {
     exec { kubectl apply -f ./kubernetes/run-mssql.yml --namespace=faas }
     exec { kubectl apply -f ./kubernetes/mssql-external-svc.yml --namespace=faas }
     exec { kubectl apply -f ./kubernetes/mssql-internal-svc.yml --namespace=faas }
+    exec { kubectl apply -f ./kubernetes/prometheus-persistent-volume.yml --namespace=faas }
+    exec { kubectl apply -f ./kubernetes/prometheus-persistent-volume-claim.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/run-faas-kubernetes.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/faas-kubernetes-svc.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/run-faas-gateway.yml --namespace=faas }

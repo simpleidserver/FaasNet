@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:5.0
 
 COPY build/results/services/Gateway/ App/
 ENV ASPNETCORE_URLS=http://*:8080
+ENV ASPNETCORE_ENVIRONMENT=Docker
 
 EXPOSE 8080
 
