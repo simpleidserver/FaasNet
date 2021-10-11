@@ -3,6 +3,7 @@
     "list": "Functions",
     "name": "Function",
     "image": "Docker Image",
+    "monitoring": "Monitoring",
     "add": "Add a function",
     "createDateTime": "Create Datetime",
     "updateDateTime": "Update Datetime",
@@ -18,6 +19,10 @@
     "info": "Information",
     "nameRequired": "The name is required",
     "imageRequired": "The image is required",
+    "threads": "Threads",
+    "numberThreads": "Number of threads",
+    "virtualMemory": "Virtual Memory",
+    "virtualMemoryBytes": "Virtual Memory Size",
     "messages": {
       "errorInvokeFunction": "An error occured while trying to invoke the function",
       "functionRemoved": "The function has been removed",

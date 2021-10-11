@@ -1,4 +1,5 @@
 import { Action, createReducer, on } from '@ngrx/store';
+import { PrometheusQueryRangeResult } from '../../common/prometheus-queryrange-result.model';
 import { SearchResult } from '../../common/search.model';
 import * as fromActions from '../actions/function.actions';
 import { FunctionResult } from '../models/function.model';
@@ -10,6 +11,8 @@ export interface SearchFunctionsState {
 export interface FunctionState {
   Configuration: any | null;
   Function: FunctionResult | null;
+  Threads: PrometheusQueryRangeResult | null;
+  VirtualMemoryBytes: PrometheusQueryRangeResult | null;
 }
 
 export const initialSearchFunctionsState: SearchFunctionsState = {
@@ -18,7 +21,9 @@ export const initialSearchFunctionsState: SearchFunctionsState = {
 
 export const initialFunctionState: FunctionState = {
   Configuration: null,
-  Function : null
+  Function: null,
+  Threads: null,
+  VirtualMemoryBytes: null
 };
 
 const searchFunctionsReducer = createReducer(
@@ -43,6 +48,18 @@ const functionReducer = createReducer(
     return {
       ...state,
       Function: { ...content }
+    };
+  }),
+  on(fromActions.completeGetThreads, (state, { content }) => {
+    return {
+      ...state,
+      Threads: content
+    };
+  }),
+  on(fromActions.completeGetVirtualMemoryBytes, (state, { content }) => {
+    return {
+      ...state,
+      VirtualMemoryBytes: content
     };
   })
 );

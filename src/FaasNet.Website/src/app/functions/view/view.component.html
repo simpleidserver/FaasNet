@@ -28,5 +28,12 @@
      [active]="rla2.isActive">
     {{ 'functions.invoke' | translate }}
   </a>
+  <a mat-tab-link
+     [routerLink]="['/functions/' + name + '/monitoring']"
+     routerLinkActive
+     #rla3="routerLinkActive"
+     [active]="rla3.isActive">
+    {{ 'functions.monitoring' | translate }}
+  </a>
 </nav>
 <router-outlet></router-outlet>

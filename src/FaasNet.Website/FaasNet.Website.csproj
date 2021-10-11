@@ -12,6 +12,7 @@
     <None Remove="src\app\functions\function-rendering\function-rendering.component.ts" />
     <None Remove="src\app\shared\material.module.ts" />
     <None Remove="src\app\shared\shared.module.ts" />
+    <None Remove="src\stores\common\prometheus-queryrange-result.model.ts" />
     <None Remove="src\stores\common\search.model.ts" />
     <None Remove="src\stores\functions\models\function.model.ts" />
   </ItemGroup>
@@ -30,6 +31,7 @@
     <TypeScriptCompile Include="src\app\functions\function-rendering\function-rendering.component.ts" />
     <TypeScriptCompile Include="src\app\shared\material.module.ts" />
     <TypeScriptCompile Include="src\app\shared\shared.module.ts" />
+    <TypeScriptCompile Include="src\stores\common\prometheus-queryrange-result.model.ts" />
     <TypeScriptCompile Include="src\stores\common\search.model.ts" />
     <TypeScriptCompile Include="src\stores\functions\models\function.model.ts" />
   </ItemGroup>

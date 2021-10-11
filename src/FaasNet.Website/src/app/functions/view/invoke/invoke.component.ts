@@ -29,6 +29,8 @@ export class InvokeFunctionComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
+    this.form = new FormGroup({});
+    this.inputForm = new FormControl();
     this.actions$.pipe(
       filter((action: any) => action.type === '[Functions] COMPLETE_INVOKE_FUNCTION'))
       .subscribe((e) => {

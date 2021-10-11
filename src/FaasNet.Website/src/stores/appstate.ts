@@ -42,6 +42,28 @@ export const selectFunctionResult = createSelector(
   }
 );
 
+export const selectFunctionThreadsResult = createSelector(
+  selectFunction,
+  (state: fromFunctions.FunctionState) => {
+    if (!state || state.Threads === null) {
+      return null;
+    }
+
+    return state.Threads;
+  }
+);
+
+export const selectFunctionVirtualMemoryBytesResult = createSelector(
+  selectFunction,
+  (state: fromFunctions.FunctionState) => {
+    if (!state || state.VirtualMemoryBytes === null) {
+      return null;
+    }
+
+    return state.VirtualMemoryBytes;
+  }
+);
+
 export const appReducer = {
   functions: fromFunctions.getSearchFunctionsReducer,
   function: fromFunctions.getFunctionReducer

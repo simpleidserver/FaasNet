@@ -1,4 +1,5 @@
 import { createAction, props } from '@ngrx/store';
+import { PrometheusQueryRangeResult } from '../../common/prometheus-queryrange-result.model';
 import { SearchResult } from '../../common/search.model';
 import { FunctionResult } from '../models/function.model';
 
@@ -20,3 +21,9 @@ export const errorDelete = createAction('[Functions] ERROR_DELETE_FUNCTION');
 export const startAdd = createAction('[Functions] START_ADD_FUNCTION', props<{ name: string, image: string }>());
 export const completeAdd = createAction('[Functions] COMPLETE_ADD_FUNCTION', props<{ name: string, image: string }>());
 export const errorAdd = createAction('[Functions] ERROR_ADD_FUNCTION');
+export const startGetThreads = createAction("[Functions] START_GET_THREADS", props<{ name: string, startDate: number, endDate: number }>());
+export const completeGetThreads = createAction("[Functions] COMPLETE_GET_THREADS", props<{ content: PrometheusQueryRangeResult }>());
+export const errorGetThreads = createAction("[Functions] ERROR_GET_THREADS");
+export const startGetVirtualMemoryBytes = createAction("[Functions] START_GET_VIRTUAL_MEMORYBYTES", props<{ name: string, startDate: number, endDate: number }>());
+export const completeGetVirtualMemoryBytes = createAction("[Functions] COMPLETE_GET_VIRTUAL_MEMORYBYTES", props<{ content: PrometheusQueryRangeResult }>());
+export const errorGetVirtualMemoryBytes = createAction("[Functions] ERROR_GET_VIRTUAL_MEMORYBYTES");

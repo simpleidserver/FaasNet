@@ -7,8 +7,10 @@ import {
     completeDelete,
     completeGet,
     completeGetConfiguration,
+    completeGetThreads,
+    completeGetVirtualMemoryBytes,
     completeInvoke,
-    completeSearch, errorAdd, errorDelete, errorGet, errorGetConfiguration, errorInvoke, errorSearch, startAdd, startDelete, startGet, startGetConfiguration, startInvoke, startSearch
+    completeSearch, errorAdd, errorDelete, errorGet, errorGetConfiguration, errorGetThreads, errorGetVirtualMemoryBytes, errorInvoke, errorSearch, startAdd, startDelete, startGet, startGetConfiguration, startGetThreads, startGetVirtualMemoryBytes, startInvoke, startSearch
 } from '../actions/function.actions';
 import { FunctionService } from '../services/function.service';
 
@@ -98,6 +100,34 @@ export class FunctionEffects {
           .pipe(
             map(content => completeAdd({ name: evt.name, image: evt.image })),
             catchError(() => of(errorAdd()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  getThreads$ = this.actions$
+    .pipe(
+      ofType(startGetThreads),
+      mergeMap((evt: { name: string, startDate: number, endDate: number }) => {
+        return this.applicationService.getThreads(evt.name, evt.startDate, evt.endDate)
+          .pipe(
+            map(content => completeGetThreads({ content: content })),
+            catchError(() => of(errorGetThreads()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  getVirtualMemoryBytes$ = this.actions$
+    .pipe(
+      ofType(startGetVirtualMemoryBytes),
+      mergeMap((evt: { name: string, startDate: number, endDate: number }) => {
+        return this.applicationService.getVirtualMemoryBytes(evt.name, evt.startDate, evt.endDate)
+          .pipe(
+            map(content => completeGetVirtualMemoryBytes({ content: content })),
+            catchError(() => of(errorGetVirtualMemoryBytes()))
           );
       }
       )

@@ -2,6 +2,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ListFunctionsComponent } from './list/list.component';
 import { InfoFunctionComponent } from './view/info/info.component';
 import { InvokeFunctionComponent } from './view/invoke/invoke.component';
+import { MonitoringFunctionComponent } from './view/monitoring/monitoring.component';
 import { ViewFunctionComponent } from './view/view.component';
 
 
@@ -24,6 +25,10 @@ const routes: Routes = [
       {
         path: 'invoke',
         component: InvokeFunctionComponent
+      },
+      {
+        path: 'monitoring',
+        component: MonitoringFunctionComponent
       }
     ]
   }

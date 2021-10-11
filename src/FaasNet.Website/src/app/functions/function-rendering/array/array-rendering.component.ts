@@ -10,12 +10,12 @@ import { BaseRenderingComponent } from "../base-rendering.component";
 export class ArrayRenderingComponent extends BaseRenderingComponent {
   children: any[] = [];
   isLoaded: boolean = true;
-  formArr: FormArray = new FormArray([]);
 
   addParameter(evt: any) {
     evt.preventDefault();
     const formGroup = new FormGroup({});
-    this.formArr.push(formGroup);
+    const formArr = this.form?.get(this.option.Name) as FormArray;
+    formArr.push(formGroup);
     this.children.push({
       form: formGroup,
       parameters: this.option.Parameters
@@ -24,8 +24,9 @@ export class ArrayRenderingComponent extends BaseRenderingComponent {
 
   removeParameter(evt: any, child: any) {
     evt.preventDefault();
+    const formArr = this.form?.get(this.option.Name) as FormArray;
     const index = this.children.indexOf(child);
-    this.formArr.removeAt(this.formArr.controls.indexOf(child.form));
+    formArr.removeAt(formArr.controls.indexOf(child.form));
     this.children.splice(index, 1);
   }
 
@@ -34,7 +35,8 @@ export class ArrayRenderingComponent extends BaseRenderingComponent {
       return;
     }
 
+    const formArr = new FormArray([]);
     this.form = form;
-    this.form.addControl(this.option.Name, this.formArr);
+    this.form.addControl(this.option.Name, formArr);
   }
 }

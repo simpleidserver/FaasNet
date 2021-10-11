@@ -1,0 +1,22 @@
+<div fxLayout="row" fxLayoutGap="10px">
+  <mat-card fxFlex="50%">
+    <mat-card-content>
+      <h3>{{ "functions.threads" | translate }}</h3>
+      <canvas baseChart width="350"
+              [datasets]="threadValues"
+              [labels]="threadLabels"
+              [options]="options"
+              chartType="line"></canvas>
+    </mat-card-content>
+  </mat-card>
+  <mat-card fxFlex="50%">
+    <mat-card-content>
+      <h3>{{ "functions.virtualMemoryBytes" | translate }}</h3>
+      <canvas baseChart width="350"
+              [datasets]="virtualMemoryBytesValues"
+              [labels]="virtualMemoryBytesLabels"
+              [options]="options"
+              chartType="line"></canvas>
+    </mat-card-content>
+  </mat-card>
+</div>

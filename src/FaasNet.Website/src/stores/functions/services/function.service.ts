@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@envs/environment';
 import { Observable } from 'rxjs';
+import { PrometheusQueryRangeResult } from '../../common/prometheus-queryrange-result.model';
 import { SearchResult } from '../../common/search.model';
 import { FunctionResult } from '../models/function.model';
 
@@ -55,5 +56,19 @@ export class FunctionService {
     headers = headers.set('Accept', 'application/json');
     let targetUrl = environment.apiUrl + "/functions";
     return this.http.post<any>(targetUrl, { name: name, image: image }, { headers: headers });
+  }
+
+  getThreads(name: string, startDate: number, endDate: number): Observable<PrometheusQueryRangeResult> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = "http://localhost:30004/api/v1/query_range?query=process_num_threads{job=%22"+name+"%22}&start="+startDate+"&end="+endDate+"&step=14";
+    return this.http.get<PrometheusQueryRangeResult>(targetUrl, { headers: headers });
+  }
+
+  getVirtualMemoryBytes(name: string, startDate: number, endDate: number): Observable<PrometheusQueryRangeResult> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = "http://localhost:30004/api/v1/query_range?query=process_virtual_memory_bytes{job=%22" + name + "%22}&start=" + startDate + "&end=" + endDate + "&step=14";
+    return this.http.get<PrometheusQueryRangeResult>(targetUrl, { headers: headers });
   }
 }
