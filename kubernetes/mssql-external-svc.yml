@@ -10,4 +10,4 @@ spec:
   - port: 1433
     protocol: TCP
     targetPort: 1433
-    nodePort: 30002
+    nodePort: 30010

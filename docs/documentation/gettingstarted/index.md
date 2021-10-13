@@ -39,7 +39,7 @@ kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master
 kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/mssql-internal-svc.yml --namespace=faas
 ```
 
-Authenticate to the SQLServer database `127.0.0.1, 30002` with the following credentials :
+Authenticate to the SQLServer database `127.0.0.1, 30010` with the following credentials :
 
 | Parameter | Value        |
 | --------- | ------------ |

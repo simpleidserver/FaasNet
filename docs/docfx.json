@@ -27,7 +27,7 @@
     "resource": [
       {
         "files": [
-          "images/**",
+          "documentation/**.png",
           "charts/**"
         ]
       }

@@ -7,4 +7,4 @@
 - name: Portal
   items:  
    - name: Manage functions
-     href: functions/manage.md
+     href: portal/manage.md
