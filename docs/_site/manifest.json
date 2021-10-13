@@ -16,6 +16,17 @@
     },
     {
       "type": "Resource",
+      "source_relative_path": "charts/faasnet-0.0.3.tgz",
+      "output": {
+        "resource": {
+          "relative_path": "charts/faasnet-0.0.3.tgz"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
       "source_relative_path": "charts/index.yaml",
       "output": {
         "resource": {
