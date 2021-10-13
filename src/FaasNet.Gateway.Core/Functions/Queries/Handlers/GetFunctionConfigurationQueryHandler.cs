@@ -10,16 +10,16 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
+namespace FaasNet.Gateway.Core.Functions.Queries.Handlers
 {
-    public class GetFunctionConfigurationCommandHandler : IRequestHandler<GetFunctionConfigurationCommand, JObject>
+    public class GetFunctionConfigurationQueryHandler : IRequestHandler<GetFunctionConfigurationQuery, JObject>
     {
-        private readonly IFunctionCommandRepository _functionRepository;
+        private readonly IFunctionQueryRepository _functionRepository;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly GatewayConfiguration _configuration;
 
-        public GetFunctionConfigurationCommandHandler(
-            IFunctionCommandRepository functionRepository,
+        public GetFunctionConfigurationQueryHandler(
+            IFunctionQueryRepository functionRepository,
             IHttpClientFactory httpClientFactory,
             IOptions<GatewayConfiguration> configuration)
         {
@@ -28,7 +28,7 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
             _configuration = configuration.Value;
         }
 
-        public async Task<JObject> Handle(GetFunctionConfigurationCommand request, CancellationToken cancellationToken)
+        public async Task<JObject> Handle(GetFunctionConfigurationQuery request, CancellationToken cancellationToken)
         {
             var function = await _functionRepository.Get(request.FuncName, cancellationToken);
             if (function == null)

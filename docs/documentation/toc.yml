@@ -4,3 +4,7 @@
   items:
    - name: Create and deploy a function
      href: functions/create.md
+- name: Portal
+  items:  
+   - name: Manage functions
+     href: functions/manage.md

@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: faas-gateway
+  name: faas-prometheus
 spec:
   selector:
     matchLabels:
-      run: faas-gateway
+      run: faas-prometheus
   replicas: {{ .Values.gateway.replicaCount }}
   template:
     metadata:
       labels:
-        run: faas-gateway
+        run: faas-prometheus
     spec:
       volumes:
       - name: prometheus-pv-storage
         persistentVolumeClaim:
           claimName: prometheus-pv-claim
       containers:
-      - name: faas-gateway
-        image: "{{ .Values.gateway.image }}:{{ .Values.gateway.tag }}"
+      - name: faas-website
+        image: "{{ .Values.prometheus.image }}:{{ .Values.prometheus.tag }}"
         ports:
-        - containerPort: 8080
+        - containerPort: 9090
         volumeMounts:
         - mountPath: "/shared"
           name: prometheus-pv-storage

@@ -6,9 +6,13 @@ website:
   image: simpleidserver/faaswebsite
   tag: "0.0.3"
   replicaCount: 1
-  website: 30003
+  nodePort: 30003
 gateway:
   image: simpleidserver/faasgateway
   tag: "0.0.3"
   replicaCount: 1
   nodePort: 30001
+prometheus:
+  image: simpleidserver/faasprometheus
+  tag: "0.0.3"
+  replicaCount: 1

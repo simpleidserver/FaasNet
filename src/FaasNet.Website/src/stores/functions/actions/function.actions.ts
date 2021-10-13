@@ -1,6 +1,7 @@
 import { createAction, props } from '@ngrx/store';
-import { PrometheusQueryRangeResult } from '../../common/prometheus-queryrange-result.model';
+import { PrometheusQueryRangeResult, PrometheusQueryResult } from '../../common/prometheus-query.model';
 import { SearchResult } from '../../common/search.model';
+import { FunctionDetailsResult } from '../models/function-details.model';
 import { FunctionResult } from '../models/function.model';
 
 export const startSearch = createAction('[Functions] START_SEARCH_FUNCTIONS', props<{ order: string, direction: string, count: number, startIndex: number }>());
@@ -27,3 +28,16 @@ export const errorGetThreads = createAction("[Functions] ERROR_GET_THREADS");
 export const startGetVirtualMemoryBytes = createAction("[Functions] START_GET_VIRTUAL_MEMORYBYTES", props<{ name: string, startDate: number, endDate: number }>());
 export const completeGetVirtualMemoryBytes = createAction("[Functions] COMPLETE_GET_VIRTUAL_MEMORYBYTES", props<{ content: PrometheusQueryRangeResult }>());
 export const errorGetVirtualMemoryBytes = createAction("[Functions] ERROR_GET_VIRTUAL_MEMORYBYTES");
+export const startGetCpuUsage = createAction("[Functions] START_GET_CPU_USAGE", props<{ name: string, startDate: number, endDate: number, duration: number }>());
+export const completeGetCpuUsage = createAction("[Functions] COMPLETE_GET_CPU_USAGE", props<{ content: PrometheusQueryRangeResult }>());
+export const errorGetCpuUsage = createAction("[Functions] ERROR_GET_CPU_USAGE");
+export const startGetRequestDuration = createAction("[Functions] START_GET_REQUEST_DURATION", props<{ name: string, startDate: number, endDate: number, duration: number }>());
+export const completeGetRequestDuration = createAction("[Functions] COMPLETE_GET_REQUEST_DURATION", props<{ content: PrometheusQueryRangeResult }>());
+export const errorGetRequestDuration = createAction("[Functions] ERROR_GET_REQUEST_DURATION");
+export const startGetDetails = createAction("[Functions] START_GET_DETAILS", props<{ name: string }>());
+export const completeGetDetails = createAction("[Functions] COMPLETE_GET_DETAILS", props<{ content: FunctionDetailsResult }>());
+export const errorGetDetails = createAction("[Functions] ERROR_GET_DETAILS");
+export const startGetTotalRequests = createAction("[Functions] START_GET_TOTAL_REQUESTS", props<{ name: string, time: number }>());
+export const completeGetTotalRequests = createAction("[Functions] COMPLETE_GET_TOTAL_REQUESTS", props<{ content: PrometheusQueryResult }>());
+export const errorGetTotalRequests = createAction("[Functions] ERROR_GET_TOTAL_REQUESTS");
+

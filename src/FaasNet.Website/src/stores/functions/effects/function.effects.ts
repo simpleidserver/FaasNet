@@ -7,10 +7,14 @@ import {
     completeDelete,
     completeGet,
     completeGetConfiguration,
+    completeGetCpuUsage,
+    completeGetDetails,
+    completeGetRequestDuration,
     completeGetThreads,
+    completeGetTotalRequests,
     completeGetVirtualMemoryBytes,
     completeInvoke,
-    completeSearch, errorAdd, errorDelete, errorGet, errorGetConfiguration, errorGetThreads, errorGetVirtualMemoryBytes, errorInvoke, errorSearch, startAdd, startDelete, startGet, startGetConfiguration, startGetThreads, startGetVirtualMemoryBytes, startInvoke, startSearch
+    completeSearch, errorAdd, errorDelete, errorGet, errorGetConfiguration, errorGetCpuUsage, errorGetDetails, errorGetRequestDuration, errorGetThreads, errorGetTotalRequests, errorGetVirtualMemoryBytes, errorInvoke, errorSearch, startAdd, startDelete, startGet, startGetConfiguration, startGetCpuUsage, startGetDetails, startGetRequestDuration, startGetThreads, startGetTotalRequests, startGetVirtualMemoryBytes, startInvoke, startSearch
 } from '../actions/function.actions';
 import { FunctionService } from '../services/function.service';
 
@@ -128,6 +132,62 @@ export class FunctionEffects {
           .pipe(
             map(content => completeGetVirtualMemoryBytes({ content: content })),
             catchError(() => of(errorGetVirtualMemoryBytes()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  getCpuUsage$ = this.actions$
+    .pipe(
+      ofType(startGetCpuUsage),
+      mergeMap((evt: { name: string, startDate: number, endDate: number, duration: number}) => {
+        return this.applicationService.getCpuUsage(evt.name, evt.startDate, evt.endDate, evt.duration)
+          .pipe(
+            map(content => completeGetCpuUsage({ content: content })),
+            catchError(() => of(errorGetCpuUsage()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  getRequestDuration$ = this.actions$
+    .pipe(
+      ofType(startGetRequestDuration),
+      mergeMap((evt: { name: string, startDate: number, endDate: number, duration: number }) => {
+        return this.applicationService.getRequestDuration(evt.name, evt.startDate, evt.endDate, evt.duration)
+          .pipe(
+            map(content => completeGetRequestDuration({ content: content })),
+            catchError(() => of(errorGetRequestDuration()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  getDetails$ = this.actions$
+    .pipe(
+      ofType(startGetDetails),
+      mergeMap((evt: { name: string }) => {
+        return this.applicationService.getDetails(evt.name)
+          .pipe(
+            map(content => completeGetDetails({ content: content })),
+            catchError(() => of(errorGetDetails()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  getTotalRequests$ = this.actions$
+    .pipe(
+      ofType(startGetTotalRequests),
+      mergeMap((evt: { name: string, time: number }) => {
+        return this.applicationService.getTotalRequests(evt.name, evt.time)
+          .pipe(
+            map(content => completeGetTotalRequests({ content: content })),
+            catchError(() => of(errorGetTotalRequests()))
           );
       }
       )

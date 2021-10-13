@@ -24,7 +24,6 @@ task publish {
 	exec { dotnet publish $source_dir\FaasNet.Kubernetes\FaasNet.Kubernetes.csproj -c $config -o $result_dir\services\Kubernetes }
 	exec { dotnet publish $source_dir\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj -c $config -o $result_dir\services\Gateway }
 	exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
-	exec { npm run docker --prefix $source_dir\FaasNet.Website }
 }
 
 task clean {
@@ -51,16 +50,19 @@ task compile -depends clean {
 
 task publishHelmAndWebsite {
 	exec { git checkout gh-pages }
-	exec { Get-ChildItem -Path . -Include *.* -File -Recurse | foreach { $_.Delete()} }
+	exec { git rm -r . }
+	exec { git checkout HEAD -- .gitignore }
 	exec { git add . }
 	exec { git commit -m "Remove" }
 	exec { git checkout master }
-	exec { docfx ./docs/docfx.json }
-	rd "$base_dir\docs\charts" -recurse -force  -ErrorAction SilentlyContinue | out-null
 	exec { helm package ./helm -d ./docs/charts }
 	exec { Copy-item "./helm/Chart.yaml" -Destination "./docs/charts" }
 	exec { helm repo index ./docs/charts }
 	exec { Remove-Item "./docs/charts/Chart.yaml" }
+	rd "$base_dir\docs\obj" -recurse -force  -ErrorAction SilentlyContinue | out-null
+	exec { docfx ./docs/docfx.json }
+	exec { git add . }
+	exec { git commit -m "Publish helm" }
 	exec { Copy-item -Force -Recurse -Verbose "./docs/_site/*" -Destination "." }
 	exec { git checkout gh-pages --merge }
 	exec { git add . }
@@ -71,6 +73,7 @@ task publishHelmAndWebsite {
 }
 
 task buildLocalDockerImage -depends publish {
+	exec { npm run docker --prefix $source_dir\FaasNet.Website }
 	exec { docker build -f RuntimeGetSqlDockerfile -t localhost:5000/faasgetsql . }
 	exec { docker build -f RuntimeTransformDockerfile -t localhost:5000/faastransform . }
 	exec { docker build -f KubernetesDockerfile -t localhost:5000/faaskubernetes . }
@@ -103,21 +106,24 @@ task initLocalKubernetes {
 }
 
 task builderDockerImage -depends publish {
+	exec { npm run docker --prefix $source_dir\FaasNet.Website }
 	exec { docker build -f RuntimeGetSqlDockerfile -t simpleidserver/faasgetsql:0.0.3 . }
 	exec { docker build -f RuntimeTransformDockerfile -t simpleidserver/faastransform:0.0.3 . }
 	exec { docker build -f KubernetesDockerfile -t simpleidserver/faaskubernetes:0.0.3 . }
 	exec { docker build -f GatewayDockerfile -t simpleidserver/faasgateway:0.0.3 . }
 	exec { docker build -f WebsiteDockerfile -t simpleidserver/faaswebsite:0.0.3 . }
+	exec { docker build -f PrometheusDockerfile -t simpleidserver/faasprometheus:0.0.3 . }
 	exec { docker push simpleidserver/faasgetsql:0.0.3 }
 	exec { docker push simpleidserver/faastransform:0.0.3 }
 	exec { docker push simpleidserver/faaskubernetes:0.0.3 }
 	exec { docker push simpleidserver/faasgateway:0.0.3 }
 	exec { docker push simpleidserver/faaswebsite:0.0.3 }
+	exec { docker push simpleidserver/faasprometheus:0.0.3 }
 }
 
 task pack -depends release, compile {
 	exec { dotnet pack $source_dir\FaasNet.Runtime\FaasNet.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
-	exec { dotnet pack $source_dir\FaasNet.Templates\FaasNet.Templates.csproj -c $config --no-build $versionSuffix --output $result_dir }
+	# exec { dotnet pack $source_dir\FaasNet.Templates\FaasNet.Templates.csproj -c $config --no-build $versionSuffix --output $result_dir }
 }
 
 task test {

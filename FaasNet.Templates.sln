@@ -29,6 +29,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Common", "src\FaasN
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Website", "src\FaasNet.Website\FaasNet.Website.csproj", "{6B493287-F29B-4988-A21F-A32EF81DE717}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04. Templates", "04. Templates", "{6CFE3CE6-8D78-4393-92C3-433EB75F5CF5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleIdServer.Templates", "..\SimpleIdServer\src\Templates\SimpleIdServer.Templates.csproj", "{D04B87DD-7F41-42C0-AEA4-E3115C04610E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +79,10 @@ Global
 		{6B493287-F29B-4988-A21F-A32EF81DE717}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B493287-F29B-4988-A21F-A32EF81DE717}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B493287-F29B-4988-A21F-A32EF81DE717}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D04B87DD-7F41-42C0-AEA4-E3115C04610E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D04B87DD-7F41-42C0-AEA4-E3115C04610E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D04B87DD-7F41-42C0-AEA4-E3115C04610E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D04B87DD-7F41-42C0-AEA4-E3115C04610E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +98,7 @@ Global
 		{EDDFD04B-B4F0-47A6-8FD3-628F3F542402} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
 		{8B02C02D-EF1A-4F48-A69D-DC8592D966B9} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
 		{6B493287-F29B-4988-A21F-A32EF81DE717} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
+		{D04B87DD-7F41-42C0-AEA4-E3115C04610E} = {6CFE3CE6-8D78-4393-92C3-433EB75F5CF5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46764455-0D10-4266-9C37-35D7BD67517C}

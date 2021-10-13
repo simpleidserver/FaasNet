@@ -1,5 +1,52 @@
-<div fxLayout="row" fxLayoutGap="10px">
-  <mat-card fxFlex="50%">
+<div fxLayout="row wrap" fxLayoutGap="1%">
+  <!-- Form -->
+  <mat-card fxFlex="100%" class="mb-10">
+    <form [formGroup]="updateMonitoringStatusFormGroup">
+      <mat-form-field appearance="outline" class="mr-10">
+        <mat-label>{{ "functions.startDate" | translate }}</mat-label>
+        <mat-select formControlName="range">
+          <mat-option value="5">{{ "functions.startDateTypes.5Minutes" | translate }}</mat-option>
+          <mat-option value="15">{{ "functions.startDateTypes.15Minutes" | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ "functions.duration" | translate }}</mat-label>
+        <mat-select formControlName="duration">
+          <mat-option value="1">{{ "functions.durationTypes.1Minute" | translate }}</mat-option>
+          <mat-option value="5">{{ "functions.durationTypes.5Minutes" | translate }}</mat-option>
+          <mat-option value="15">{{ "functions.durationTypes.15Minutes" | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </mat-card>
+  <!-- Display number of HTTP requests -->
+  <mat-card fxFlex="49%" class="mb-10">
+    <mat-card-content>
+      <h3>{{ "functions.totalHttpRequests" | translate }}</h3>
+      <h2>{{ totalRequests }}</h2>
+    </mat-card-content>
+  </mat-card>
+  <!-- Display number of PODS -->
+  <mat-card fxFlex="49%" class="mb-10">
+    <mat-card-content>
+      <h3>{{ "functions.totalPods" | translate
+        }}</h3>
+        <h2>{{ nbPods }}</h2>
+</mat-card-content>
+  </mat-card>
+  <!-- CPU usage -->
+  <mat-card fxFlex="49%" class="mb-10">
+    <mat-card-content>
+      <h3>{{ "functions.cpu" | translate }}</h3>
+      <canvas baseChart width="350"
+              [datasets]="cpuUsageValues"
+              [labels]="cpuUsageLabels"
+              [options]="options"
+              chartType="line"></canvas>
+    </mat-card-content>
+  </mat-card>
+  <!-- Threads -->
+  <mat-card fxFlex="49%" class="mb-10">
     <mat-card-content>
       <h3>{{ "functions.threads" | translate }}</h3>
       <canvas baseChart width="350"
@@ -9,12 +56,24 @@
               chartType="line"></canvas>
     </mat-card-content>
   </mat-card>
-  <mat-card fxFlex="50%">
+  <!-- RAM -->
+  <mat-card fxFlex="49%" class="mb-10">
     <mat-card-content>
       <h3>{{ "functions.virtualMemoryBytes" | translate }}</h3>
       <canvas baseChart width="350"
               [datasets]="virtualMemoryBytesValues"
               [labels]="virtualMemoryBytesLabels"
+              [options]="options"
+              chartType="line"></canvas>
+    </mat-card-content>
+  </mat-card>
+  <!-- Request Duration -->
+  <mat-card fxFlex="49%" class="mb-10">
+    <mat-card-content>
+      <h3>{{ "functions.requestDuration" | translate }}</h3>
+      <canvas baseChart width="350"
+              [datasets]="requestDurationValues"
+              [labels]="requestDurationLabels"
               [options]="options"
               chartType="line"></canvas>
     </mat-card-content>

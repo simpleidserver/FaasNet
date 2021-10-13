@@ -20,13 +20,7 @@ Install and launch the `faasnet` project.
 
 ```
 helm repo add faasnet https://simpleidserver.github.io/FaasNet/charts/
-helm install my-faasnet faasnet/faasnet --version 0.0.3 --namespace=faas
-```
-
-If the `faasnet` repository is already installed, its latest version can be downloaded by executing the following command.
-
-```
-helm repo update
+helm install my-faasnet faasnet/faasnet --version 0.0.1 --namespace=faas
 ```
 
 # Deploy and execute your first API operation

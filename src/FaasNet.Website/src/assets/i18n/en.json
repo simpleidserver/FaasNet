@@ -5,6 +5,8 @@
     "image": "Docker Image",
     "monitoring": "Monitoring",
     "add": "Add a function",
+    "cpu": "CPU",
+    "cpuUsage": "CPU usage in seconds",
     "createDateTime": "Create Datetime",
     "updateDateTime": "Update Datetime",
     "launch": "Launch",
@@ -23,6 +25,21 @@
     "numberThreads": "Number of threads",
     "virtualMemory": "Virtual Memory",
     "virtualMemoryBytes": "Virtual Memory Size",
+    "duration": "Duration Frame",
+    "durationTypes": {
+      "1Minute": "1 minute",
+      "5Minutes": "5 minutes",
+      "15Minutes": "15 minutes"
+    },
+    "startDate": "Begin Date",
+    "startDateTypes": {
+      "5Minutes": "5 minutes",
+      "15Minutes": "15 Minutes"
+    },
+    "requestDuration": "HTTP Request Duration",
+    "requestDurationLegend": "Request Duration in seconds",
+    "totalHttpRequests": "Number of function calls",
+    "totalPods": "Number of running instance",
     "messages": {
       "errorInvokeFunction": "An error occured while trying to invoke the function",
       "functionRemoved": "The function has been removed",

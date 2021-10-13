@@ -5,8 +5,6 @@ branches:
   only:
   - master
 image: Visual Studio 2019
-environment:
-  nodejs_version: "12"
 nuget:
   disable_publish_on_pr: true
 build_script:

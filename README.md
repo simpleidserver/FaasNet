@@ -18,3 +18,19 @@ For project documentation, please visit [docs](https://simpleidserver.github.io/
 | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `FaasNet.Runtime` 			 			     			| [![MyGet (dev)](https://img.shields.io/myget/advance-ict/v/FaasNet.Runtime.svg)](https://www.myget.org/feed/advance-ict/package/nuget/FaasNet.Runtime)								              				| [![NuGet](https://img.shields.io/nuget/v/FaasNet.Runtime.svg)](https://nuget.org/packages/FaasNet.Runtime) 													| [![NuGet](https://img.shields.io/nuget/dt/FaasNet.Runtime.svg)](https://nuget.org/packages/FaasNet.Runtime) 													|
 | `FaasNet.Templates` 			 			     			| [![MyGet (dev)](https://img.shields.io/myget/advance-ict/v/FaasNet.Templates.svg)](https://www.myget.org/feed/advance-ict/package/nuget/FaasNet.Templates)								           				| [![NuGet](https://img.shields.io/nuget/v/FaasNet.Templates.svg)](https://nuget.org/packages/FaasNet.Templates)												| [![NuGet](https://img.shields.io/nuget/dt/FaasNet.Templates.svg)](https://nuget.org/packages/FaasNet.Templates) 												|
+
+## How to release ?
+
+1. Build the Docker images and publish them into the Hub.
+
+```
+psake builderDockerImage
+```
+
+2. Build the website and helm package and publish them into the GITHUB page.
+
+```
+psake publishHelmAndWebsite
+```
+
+3. Create and publish the tag release.
