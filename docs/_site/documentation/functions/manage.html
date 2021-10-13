@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Create a function </title>
+    <title>Manage Functions </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Create a function ">
+    <meta name="title" content="Manage Functions ">
     <meta name="generator" content="docfx 2.58.3.0">
     
     <link rel="shortcut icon" href="../../favicon.ico">
@@ -67,74 +67,31 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="create-a-function">Create a function</h1>
+<h1 id="manage-functions">Manage Functions</h1>
 
-<p>Install FaasNet template. This utility can be used to generate Function project in C#.</p>
-<pre><code>dotnet new --install FaasNet.Templates
-</code></pre>
-<p>Create a Function project</p>
-<pre><code>mkdir QuickStart
-cd QuickStart
-
-mkdir src
-cd src
-
-dotnet new faasnetfn -n Function
-</code></pre>
-<p>The following files will be created :</p>
-<ul>
-<li><p><em>Startup.cs</em> and <em>Program.cs</em>: the application entry point.</p>
-</li>
-<li><p><em>HelloWorldConfiguration.cs</em>: configuration properties of the function.</p>
-</li>
-<li><p><em>FunctionHandler.cs</em>: contains the business logic. This class has one function which accepts one parameter and returns a JSON result. The input parameter has two distinct properties :</p>
-<ul>
-<li>Configuration: its value is coming from the gateway, it will be used to configure the behavior of the function for example : <code>ConnectionString</code> and <code>SQL Statement</code>.</li>
-<li>Input: value passed by caller.</li>
-</ul>
-</li>
-</ul>
-<p>In case the Visual Studio Support is needed, a solution can be created :</p>
-<pre><code>cd ..
-dotnet new sln -n QuickStart
-</code></pre>
-<p>Add the Function project into the solution.</p>
-<pre><code>dotnet sln add ./src/Function/Function.csproj
-</code></pre>
-<h1 id="deploy-a-function">Deploy a function</h1>
 <div class="WARNING">
 <h5>Warning</h5>
-<p>Before you start, Make sure your working environment is properly configured.</p>
+<p>Make sure your working environment is <a href="/documentation/gettingstarted/index.html">properly configured</a>.</p>
 </div>
-<p>When the Function project is ready, it can be deployed to the Gateway API.</p>
-<p>First of all, open a command prompt and execute the following command line to create a Docker file. The <code>DIRECTORY</code> variable must be replaced by the directory of the Function.csproj project.</p>
-<pre><code>FaasNet.CLI function -df &lt;DIRECTORY&gt;
-</code></pre>
-<p>Execute the following instruction to locally build the Docker image.
-The <code>DIRECTORY</code> variable must be replaced by the directory of the Function.csproj project, and the <code>IMAGENAME</code> variable must be replaced by the name of the Docker image for example : localhost:5000/function.</p>
-<pre><code>FaasNet.CLI function -db &lt;DIRECTORY&gt; -t &lt;IMAGENAME&gt;
-</code></pre>
-<p>Execute the following command line to push the local Docker image into a registry. The <code>IMAGENAME</code> variable must be replaced by the name of the Docker Image.</p>
-<pre><code>FaasNet.CLI function -dp &lt;IMAGENAME&gt;
-</code></pre>
-<p>Finally, execute the latest command line to deploy the function into the Gateway API. Replace the <code>FUNCTIONNAME</code> variable by the name of your function and replace the <code>IMAGENAME</code> variable by the name of your Docker image.</p>
-<pre><code>FaasNet.CLI function deploy -name &lt;FUNCTIONAME&gt; -image &lt;IMAGENAME&gt;
-</code></pre>
-<h1 id="execute-a-function">Execute a function</h1>
+<p>A Portal is available on the following <a href="http://localhost:30003">address</a>. It can be used by developers to manage functions.
+The following chapters describe how functions can easily be managed.</p>
+<h1 id="publish-a-function">Publish a function</h1>
 <div class="WARNING">
 <h5>Warning</h5>
-<p>Before you start, Make sure you have a function deployed in the Gateway API.</p>
+<p>Before publishing a function, it should be available in an online store for example DockerHub. For more information please refer to this <a href="/documentation/functions/create.html#deploy-a-function">documentation</a>.</p>
 </div>
-<p>Execute the following command to invoke a function. Replace the <code>FUNCTIONNAME</code> variable by the name of your function.</p>
-<pre><code>FaasNet.CLI function invoke &lt;FUNCTIONNAME&gt; -input {} -configuration {'firstName':'coucou'}
-</code></pre>
-<p>The following message is displayed</p>
-<pre><code>{
-  &quot;content&quot;: {
-    &quot;message&quot;: &quot;Hello 'coucou'&quot;
-  }
-}
-</code></pre>
+<p>In the website, click on the <code>Add function</code> button. Fill in the form with the following information and click on <code>Add</code>.</p>
+<ul>
+<li>Name : Unique name of your function. This parameter will be used to uniquely identify the function.</li>
+<li>Image: name of your image for example <code>simpleidserver/faastransform</code>.</li>
+</ul>
+<p>The function will be published and displayed in the table.</p>
+<h1 id="unpublish-a-function">Unpublish a function</h1>
+<p>TODO</p>
+<h1 id="invoke-a-function">Invoke a function</h1>
+<p>TODO</p>
+<h1 id="monitor-a-function">Monitor a function</h1>
+<p>TODO</p>
 </article>
           </div>
           
@@ -143,7 +100,7 @@ The <code>DIRECTORY</code> variable must be replaced by the directory of the Fun
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/functions/create.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/functions/manage.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

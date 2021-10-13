@@ -82,10 +82,7 @@
 </code></pre>
 <p>Install and launch the <code>faasnet</code> project.</p>
 <pre><code>helm repo add faasnet https://simpleidserver.github.io/FaasNet/charts/
-helm install my-faasnet faasnet/faasnet --version 0.0.3 --namespace=faas
-</code></pre>
-<p>If the <code>faasnet</code> repository is already installed, its latest version can be downloaded by executing the following command.</p>
-<pre><code>helm repo update
+helm install my-faasnet faasnet/faasnet --version 0.0.1 --namespace=faas
 </code></pre>
 <h1 id="deploy-and-execute-your-first-api-operation">Deploy and execute your first API operation</h1>
 <p>Before starting, an SQLServer database should be deployed in kubernetes.</p>
@@ -135,7 +132,7 @@ INSERT INTO [OpenID].[dbo].[Acrs] VALUES (NEWID(), 'acr3')
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/gettingstarted/index.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/portal/index.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

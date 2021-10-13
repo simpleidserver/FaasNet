@@ -38,11 +38,11 @@
     },
     {
       "type": "Conceptual",
-      "source_relative_path": "documentation/functions/create.md",
+      "source_relative_path": "documentation/functions/manage.md",
       "output": {
         ".html": {
-          "relative_path": "documentation/functions/create.html",
-          "hash": "PU5TBstnLmWZUOA3ldEDg54FMbG/GiYE7BlUV9NQl0Y="
+          "relative_path": "documentation/functions/manage.html",
+          "hash": "nk7nYIivKMV3Q6eVfXSnz5x03UA37zaPJFRFT7kyxV0="
         }
       },
       "is_incremental": false,
@@ -54,19 +54,34 @@
       "output": {
         ".html": {
           "relative_path": "documentation/gettingstarted/index.html",
-          "hash": "OQ9nNaSNEiPuJHVdzWReS6p584rnYULwh6TlytM4XL0="
+          "hash": "OoI/eCXBHqBlEUtpEznFNzutZJ2ktI0i8u5k63pMvl0="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/portal/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/portal/index.html",
+          "hash": "ValaEqWaSwXF6xv0UdAKtvg8J++i1aS3IO1iyzj9rkU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "log_codes": [
+        "InvalidFileLink"
+      ],
       "type": "Toc",
       "source_relative_path": "documentation/toc.yml",
       "output": {
         ".html": {
           "relative_path": "documentation/toc.html",
-          "hash": "Y3FD45TkBO4VAqxdkZD0KrOVkZAjw/Kcjn14nV5n7Xs="
+          "hash": "/sMkuM2NleXwPkbnq5FHr7aLAwj9WYOiDMceIyTXr3U="
         }
       },
       "is_incremental": false,
@@ -111,7 +126,7 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 3,
+          "total_file_count": 4,
           "skipped_file_count": 0
         },
         "ResourceDocumentProcessor": {
