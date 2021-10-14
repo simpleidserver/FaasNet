@@ -26,6 +26,10 @@ task publish {
 	exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
 }
 
+task publishTemplate {
+	exec { dotnet pack $source_dir\FaasNet.Templates\FaasNet.Templates.csproj -c $config --no-build --output $result_dir }
+}
+
 task clean {
 	rd "$source_dir\artifacts" -recurse -force  -ErrorAction SilentlyContinue | out-null
 	rd "$base_dir\build" -recurse -force  -ErrorAction SilentlyContinue | out-null

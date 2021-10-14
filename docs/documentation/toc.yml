@@ -1,3 +1,5 @@
+- name: Big Picture
+  href: bigpicture/index.md
 - name: Getting Started
   href: gettingstarted/index.md
 - name: Functions

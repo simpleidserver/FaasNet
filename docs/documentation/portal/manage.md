@@ -48,7 +48,7 @@ If `faastransform` is published, it can be invoked like this :
 { "firstname" : "sid" }
 ```
 
-Finally click on the `Launch` button. The JSON object above will be transformed into a new object which looks like to something like this :
+Click on the `Launch` button. The JSON object above will be transformed into a new object which looks like to something like this :
 
 ```
 { "FIRSTNAME": "sid" }

@@ -80,7 +80,7 @@ FaasNet.CLI function deploy -name <FUNCTIONAME> -image <IMAGENAME>
 Execute the following command to invoke a function. Replace the `FUNCTIONNAME` variable by the name of your function.
 
 ```
-FaasNet.CLI function invoke <FUNCTIONNAME> -input {} -configuration {'firstName':'coucou'}
+FaasNet.CLI function invoke -name <FUNCTIONNAME> -input {} -configuration {'firstName':'coucou'}
 ```
 
 The following message is displayed
