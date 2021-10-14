@@ -37,12 +37,35 @@
       "version": ""
     },
     {
+      "type": "Resource",
+      "source_relative_path": "documentation/bigpicture/images/bigpicture1.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/bigpicture/images/bigpicture1.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
       "type": "Conceptual",
-      "source_relative_path": "documentation/functions/manage.md",
+      "source_relative_path": "documentation/bigpicture/index.md",
       "output": {
         ".html": {
-          "relative_path": "documentation/functions/manage.html",
-          "hash": "nk7nYIivKMV3Q6eVfXSnz5x03UA37zaPJFRFT7kyxV0="
+          "relative_path": "documentation/bigpicture/index.html",
+          "hash": "DvX7J+N2VG8FAiIj7he17e7G/0bhda0Ro49Uh9pgld8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/functions/create.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/functions/create.html",
+          "hash": "4wRL+fBjedsvYgsUr7qi9YtgqMJ3dM3A9pkXXGK/JIw="
         }
       },
       "is_incremental": false,
@@ -54,7 +77,62 @@
       "output": {
         ".html": {
           "relative_path": "documentation/gettingstarted/index.html",
-          "hash": "OoI/eCXBHqBlEUtpEznFNzutZJ2ktI0i8u5k63pMvl0="
+          "hash": "D12MJYWbc+WWHoGISLp2wQLvu5Xz6Kj8XBpRNBDeuJ0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/portal/images/manage1.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/portal/images/manage1.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/portal/images/manage2.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/portal/images/manage2.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/portal/images/manage3.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/portal/images/manage3.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/portal/images/manage4.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/portal/images/manage4.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/portal/images/manage5.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/portal/images/manage5.png"
         }
       },
       "is_incremental": false,
@@ -62,26 +140,23 @@
     },
     {
       "type": "Conceptual",
-      "source_relative_path": "documentation/portal/index.md",
+      "source_relative_path": "documentation/portal/manage.md",
       "output": {
         ".html": {
-          "relative_path": "documentation/portal/index.html",
-          "hash": "ValaEqWaSwXF6xv0UdAKtvg8J++i1aS3IO1iyzj9rkU="
+          "relative_path": "documentation/portal/manage.html",
+          "hash": "BnB7L7tc/l0hbEZMHCtKcManagOAULpsonOcFeWZ6aM="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "InvalidFileLink"
-      ],
       "type": "Toc",
       "source_relative_path": "documentation/toc.yml",
       "output": {
         ".html": {
           "relative_path": "documentation/toc.html",
-          "hash": "/sMkuM2NleXwPkbnq5FHr7aLAwj9WYOiDMceIyTXr3U="
+          "hash": "yUAeJtAk+UWJ0stvSi76rzNGLf3VrIXFWMjVMKryFvA="
         }
       },
       "is_incremental": false,
@@ -105,7 +180,7 @@
       "output": {
         ".html": {
           "relative_path": "toc.html",
-          "hash": "9+kikPzuHxlV9xOsb3P9x0JDDhszMQrY5+9lI5EMdUo="
+          "hash": "kNFNkN6mbUHcAoXK60MZhIVbCDoxtnGAWAwbzjRSy2E="
         }
       },
       "is_incremental": false,
@@ -126,7 +201,7 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 4,
+          "total_file_count": 5,
           "skipped_file_count": 0
         },
         "ResourceDocumentProcessor": {
