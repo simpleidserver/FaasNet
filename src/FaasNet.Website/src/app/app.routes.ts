@@ -7,5 +7,9 @@ export const routes: Routes = [
   {
     path: 'functions',
     loadChildren: async () => (await import('./functions/functions.module')).FunctionsModule
+  },
+  {
+    path: 'apis',
+    loadChildren: async () => (await import('./apis/apis.module')).ApisModule
   }
 ];

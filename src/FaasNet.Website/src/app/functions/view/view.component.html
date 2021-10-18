@@ -1,39 +1,42 @@
-<div fxLayout="row" class="breadcrumb">
-  <div fxFlex="80%">
-    <ul>
-      <li>
-        <div class="mat-h1"><a [routerLink]="['/functions']">{{ "functions.list" | translate }}</a></div>
-      </li>
-      <li class="separator">
-        <div class="mat-h1">\</div>
-      </li>
-      <li>
-        <div class="mat-h1">{{ name }}</div>
-      </li>
-    </ul>
+<div class="container">
+  <div fxLayout="row" class="breadcrumb">
+    <div fxFlex="80%">
+      <ul>
+        <li>
+          <div class="mat-h1"><a [routerLink]="['/functions']">{{ "functions.list" | translate }}</a></div>
+        </li>
+        <li class="separator">
+          <div class="mat-h1">\</div>
+        </li>
+        <li>
+          <div class="mat-h1">{{ name }}</div>
+        </li>
+      </ul>
+    </div>
   </div>
+  <nav mat-tab-nav-bar>
+    <a mat-tab-link
+       [routerLink]="['/functions/' + name + '/info']"
+       routerLinkActive
+       #rla1="routerLinkActive"
+       [active]="rla1.isActive">
+      {{ 'functions.info' | translate }}
+    </a>
+    <a mat-tab-link
+       [routerLink]="['/functions/' + name + '/invoke']"
+       routerLinkActive
+       #rla2="routerLinkActive"
+       [active]="rla2.isActive">
+      {{ 'functions.invoke' | translate }}
+    </a>
+    <a mat-tab-link
+       [routerLink]="['/functions/' + name + '/monitoring']"
+       routerLinkActive
+       #rla3="routerLinkActive"
+       [active]="rla3.isActive">
+      {{ 'functions.monitoring' | translate }}
+    </a>
+  </nav>
+  <router-outlet></router-outlet>
+
 </div>
-<nav mat-tab-nav-bar>
-  <a mat-tab-link
-     [routerLink]="['/functions/' + name + '/info']"
-     routerLinkActive
-     #rla1="routerLinkActive"
-     [active]="rla1.isActive">
-    {{ 'functions.info' | translate }}
-  </a>
-  <a mat-tab-link
-     [routerLink]="['/functions/' + name + '/invoke']"
-     routerLinkActive
-     #rla2="routerLinkActive"
-     [active]="rla2.isActive">
-    {{ 'functions.invoke' | translate }}
-  </a>
-  <a mat-tab-link
-     [routerLink]="['/functions/' + name + '/monitoring']"
-     routerLinkActive
-     #rla3="routerLinkActive"
-     [active]="rla3.isActive">
-    {{ 'functions.monitoring' | translate }}
-  </a>
-</nav>
-<router-outlet></router-outlet>

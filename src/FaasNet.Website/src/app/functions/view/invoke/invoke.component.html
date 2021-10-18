@@ -1,37 +1,30 @@
-<div fxLayout="row" fxLayoutGap="10px">
-  <div fxFlex="70%">
-    <div *ngFor="let parameter of option?.Parameters">
-      <form (ngSubmit)="onSave($event)">
-        <mat-card>
-          <mat-card-content>
-            <div>
-              <h3>{{ 'functions.configurationParameters' | translate }}</h3>
-              <function-rendering-component [option]="parameter" [form]="form"></function-rendering-component>
-            </div>
-            <div>
-              <h3>{{ 'functions.inputParameters' | translate }}</h3>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'functions.input' | translate }}</mat-label>
-                <textarea matInput [formControl]="inputForm"></textarea>
-              </mat-form-field>
-            </div>
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-raised-button color="primary">{{ 'functions.launch' | translate }}</button>
-          </mat-card-actions>
-        </mat-card>
-      </form>
-    </div>
-  </div>
-  <div fxFlex="30%">
-    <mat-card>
-      <mat-card-content>
+<form (ngSubmit)="onSave($event)">
+  <mat-card>
+    <mat-card-content>
+      <!-- Configuration parameters -->
+      <div>
+        <h3>{{ 'functions.configurationParameters' | translate }}</h3>
+        <div *ngFor="let parameter of option?.Parameters">
+          <function-rendering-component [option]="parameter" [form]="form"></function-rendering-component>
+        </div>
+      </div>
+      <!-- Input parameters -->
+      <div>
+        <h3>{{ 'functions.inputParameters' | translate }}</h3>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'functions.input' | translate }}</mat-label>
+          <textarea matInput [formControl]="inputForm"></textarea>
+        </mat-form-field>
+      </div>
+      <button mat-raised-button color="primary">{{ 'functions.launch' | translate }}</button>
+      <!-- Result -->
+      <div>
         <h3>{{ 'functions.invokeResult' | translate }}</h3>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'functions.result' | translate }}</mat-label>
           <textarea matInput disabled>{{ output | json }}</textarea>
         </mat-form-field>
-      </mat-card-content>
-    </mat-card>
-  </div>
-</div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</form>

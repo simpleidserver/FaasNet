@@ -4,6 +4,9 @@
     <TypeScriptToolsVersion>4.3</TypeScriptToolsVersion>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="src\app\apis\edit\base-node.model.ts" />
+    <None Remove="src\app\apis\edit\function-panel.component.ts" />
+    <None Remove="src\app\apis\edit\function-panel\function.model.ts" />
     <None Remove="src\app\functions\function-rendering\string\string-rendering.component.ts" />
     <None Remove="src\app\functions\functions.module.ts" />
     <None Remove="src\app\functions\functions.routes.ts" />
@@ -21,6 +24,9 @@
     <Folder Include="src\stores\functions\reducers\" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="src\app\apis\edit\base-node.model.ts" />
+    <TypeScriptCompile Include="src\app\apis\edit\function-panel\function-panel.component.ts" />
+    <TypeScriptCompile Include="src\app\apis\edit\function-panel\function.model.ts" />
     <TypeScriptCompile Include="src\app\functions\function-rendering\string\string-rendering.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

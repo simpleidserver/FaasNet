@@ -35,8 +35,18 @@ export class ArrayRenderingComponent extends BaseRenderingComponent {
       return;
     }
 
-    const formArr = new FormArray([]);
     this.form = form;
-    this.form.addControl(this.option.Name, formArr);
+    if (!this.form?.contains(this.option.Name)) {
+      const formArr = new FormArray([]);
+      this.form.addControl(this.option.Name, formArr);
+    } else {
+      const formArr = this.form.controls[this.option.Name] as FormArray;
+      formArr.controls.forEach((r: any) => {
+        this.children.push({
+          form: r,
+          parameters: this.option.Parameters
+        });
+      });
+    }
   }
 }

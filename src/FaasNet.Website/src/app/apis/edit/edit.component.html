@@ -1,0 +1,27 @@
+<div class="actions">
+  <div class="buttonsright">
+    <button mat-raised-button color="primary" (click)="save()">{{ "shared.save" | translate }}</button>
+  </div>
+</div>
+<div>
+  <div class="leftcard">
+    <div class="create-flowy blockelem">
+      <input type="hidden" name='blockelemtype' class="blockelemtype" value="function">
+      <div class="title">
+        {{ "apis.edit.menu.function" | translate }}
+      </div>
+      <div class="description">
+        Kubernetes Function
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+  </div>
+  <div id="canvas"></div>
+  <div class="rightcard" [class.expanded]="selectedNode !== null">
+    <div>
+      <h3>{{ "apis.edit.properties" | translate }}</h3>
+      <button class="close" (click)="close()" mat-icon-button><mat-icon>close</mat-icon></button>
+    </div>
+    <function-panel *ngIf="selectedNode?.type === 'function'" [model]="selectedNode"></function-panel>
+  </div>
+</div>

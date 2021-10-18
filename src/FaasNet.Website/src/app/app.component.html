@@ -1,5 +1,8 @@
 <ng-container>
   <mat-toolbar>
+    <button mat-icon-button (click)="drawer.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
     FaasNet
     <span class="spacer"></span>
   </mat-toolbar>
@@ -8,9 +11,10 @@
       <mat-nav-list>
         <a mat-list-item [routerLink]="['/functions']">{{ 'functions.list' | translate }}</a>
       </mat-nav-list>
+      <mat-nav-list>
+        <a mat-list-item [routerLink]="['/apis/api1']">{{ 'apis.list' | translate }}</a>
+      </mat-nav-list>
     </mat-drawer>
-    <div class="container">
-      <router-outlet></router-outlet>
-    </div>
+    <router-outlet></router-outlet>
   </mat-drawer-container>
 </ng-container>

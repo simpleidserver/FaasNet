@@ -1,21 +1,19 @@
-<div class="container">
-  <div fxLayout="row" class="breadcrumb">
-    <div fxFlex="80%">
-      <ul>
-        <li><div class="mat-h1">{{ "functions.list" | translate }}</div></li>
-      </ul>
-    </div>
-  </div>
-  <div class="mb-10">
-    <button mat-raised-button color="primary" (click)="addFunction()">{{ 'functions.add' | translate }}</button>
-  </div>
-  <div class="mat-elevation-z8 overflow-hidden">
+<h1 mat-dialog-title>{{ 'apis.edit.addFunction' | translate }}</h1>
+<form>
+  <div mat-dialog-content>
     <mat-table class="full-width" [dataSource]="functions" matSortActive="createDateTime" matSortDirection="desc" matSort>
+      <!-- Action -->
+      <ng-container matColumnDef="action">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let function">
+          <mat-checkbox (change)="toggle(function)" [checked]="function.isSelected"></mat-checkbox>
+        </mat-cell>
+      </ng-container>
       <!-- Name -->
       <ng-container matColumnDef="name">
         <mat-header-cell *matHeaderCellDef>{{ "functions.name" | translate }}</mat-header-cell>
         <mat-cell *matCellDef="let function">
-          <a href="#" [routerLink]="['/functions/' + function.name]">{{ function.name }}</a>
+          {{ function.name }}
         </mat-cell>
       </ng-container>
       <!-- Image -->
@@ -44,5 +42,8 @@
     </mat-table>
     <mat-paginator [length]="length" [pageSize]="50" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
   </div>
-
-</div>
+  <div mat-dialog-actions>
+    <button mat-button color="primary" (click)="save()" [disabled]="!isFunctionSelected()">{{ 'shared.choose' | translate }}</button>
+    <button mat-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
+  </div>
+</form>

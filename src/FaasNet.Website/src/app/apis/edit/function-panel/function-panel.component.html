@@ -1,0 +1,34 @@
+<mat-tab-group>
+  <mat-tab label="{{ 'apis.edit.panels.function.info' | translate }}">
+    <div class="tab-container">
+      <button mat-raised-button (click)="chooseFunction()">{{ 'apis.edit.panels.function.selectFunction' | translate }}</button>
+      <div *ngIf="isSelected()" class="mt-10">
+        <!-- Name -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'apis.edit.panels.function.name' | translate }}</mat-label>
+          <input matInput type="text" [value]="model?.content?.info?.name" disabled />
+        </mat-form-field>
+        <!-- Image -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'apis.edit.panels.function.image' | translate }}</mat-label>
+          <input matInput type="text" [value]="model?.content?.info?.image" disabled />
+        </mat-form-field>
+        <!-- CreateDateTime -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'apis.edit.panels.function.createDateTime' | translate }}</mat-label>
+          <input matInput type="text" [value]="model?.content?.info?.createDateTime | date:'fullDate'" disabled />
+        </mat-form-field>
+        <!-- UpdateDateTime -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'apis.edit.panels.function.updateDateTime' | translate }}</mat-label>
+          <input matInput type="text" [value]="model?.content?.info?.updateDateTime | date:'fullDate'" disabled />
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-tab>
+  <mat-tab label="{{ 'apis.edit.panels.function.configuration' | translate }}" [disabled]="!isSelected()">
+    <div class="tab-container">
+      <button mat-raised-button (click)="updateConfiguration()">{{ 'apis.edit.panels.function.updateConfiguration' | translate }}</button>
+    </div>
+  </mat-tab>
+</mat-tab-group>

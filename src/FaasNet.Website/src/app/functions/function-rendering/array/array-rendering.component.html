@@ -3,8 +3,8 @@
     {{ option.Translations | translateobj }}
   </mat-expansion-panel-header>
   <button mat-raised-button (click)="addParameter($event)" color="primary">{{ 'shared.add' | translate }}</button>
-  <div fxLayout="row wrap" fxLayoutGap="10px">
-    <mat-card *ngFor="let child of children; let i = index" fxFlex="25%" class="mb-10">
+  <div fxLayout="row wrap" fxLayoutGap="1%">
+    <mat-card *ngFor="let child of children; let i = index" fxFlex="24%" class="mb-10">
       <mat-card-content>
         <h5>
           {{ 'shared.parameter' | translate : { index : i } }}

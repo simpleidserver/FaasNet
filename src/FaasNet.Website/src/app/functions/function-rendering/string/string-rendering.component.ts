@@ -16,6 +16,10 @@ export class StringRenderingComponent extends BaseRenderingComponent {
     }
 
     this.form = form;
-    this.form.addControl(this.option.Name, this.control);
+    if (!this.form.contains(this.option.Name)) {
+      this.form.addControl(this.option.Name, this.control);
+    } else {
+      this.control = this.form.get(this.option.Name) as FormControl;
+    }
   }
 }

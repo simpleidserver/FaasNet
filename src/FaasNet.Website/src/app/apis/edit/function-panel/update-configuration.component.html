@@ -1,0 +1,12 @@
+<h1 mat-dialog-title>{{ 'apis.edit.panels.function.updateConfiguration' | translate }}</h1>
+<form>
+  <div mat-dialog-content class="update-conf-container">
+    <div *ngFor="let parameter of option?.Parameters">
+      <function-rendering-component [option]="parameter" [form]="form"></function-rendering-component>
+    </div>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button color="primary" (click)="save()" [disabled]="!form.valid">{{ 'shared.save' | translate }}</button>
+    <button mat-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
+  </div>
+</form>

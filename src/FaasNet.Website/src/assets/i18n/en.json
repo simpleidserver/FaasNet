@@ -48,12 +48,35 @@
       "errorAddFunction": "An error occured while trying to add the function"
     }
   },
+  "apis": {
+    "list": "APIs",
+    "edit": {
+      "properties": "Properties",
+      "addFunction": "Add function",
+      "panels": {
+        "function": {
+          "info": "Information",
+          "selectFunction": "Select a function",
+          "name": "Name",
+          "image": "Image",
+          "createDateTime": "Create Datetime",
+          "updateDateTime": "Update Datetime",
+          "configuration": "Configuration",
+          "updateConfiguration": "Update configuration"
+        }
+      },
+      "menu": {
+        "function": "Function"
+      }
+    }
+  },
   "shared": {
     "add": "Add",
     "remove": "Remove",
     "save": "Save",
     "parameter": "Parameter N°{{index}}",
     "create": "Create",
-    "close": "Close"
+    "close": "Close",
+    "choose": "Choose"
   }
 }
