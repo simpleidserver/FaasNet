@@ -19,12 +19,12 @@ namespace FaasNet.Gateway.Core.ApiDefinitions.Commands.Handlers
 {
     public class InvokeApiDefinitionCommandHandler : IRequestHandler<InvokeApiDefinitionCommand, InvokeApiDefinitionResult>
     {
-        private readonly IApiDefinitionRepository _apiDefinitionRepository;
+        private readonly IApiDefinitionCommandRepository _apiDefinitionRepository;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly GatewayConfiguration _configuration;
 
         public InvokeApiDefinitionCommandHandler(
-            IApiDefinitionRepository apiDefinitionRepository,
+            IApiDefinitionCommandRepository apiDefinitionRepository,
             IHttpClientFactory httpClientFactory,
             IOptions<GatewayConfiguration> configuration)
         {

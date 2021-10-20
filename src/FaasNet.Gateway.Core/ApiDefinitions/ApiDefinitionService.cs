@@ -14,7 +14,7 @@ namespace FaasNet.Gateway.Core.ApiDefinitions
             _mediator = mediator;
         }
 
-        public Task<bool> Replace(ReplaceApiDefinitionCommand cmd, CancellationToken cancellationToken)
+        public Task<bool> Replace(UpdateApiDefinitionCommand cmd, CancellationToken cancellationToken)
         {
             return _mediator.Send(cmd, cancellationToken);
         }

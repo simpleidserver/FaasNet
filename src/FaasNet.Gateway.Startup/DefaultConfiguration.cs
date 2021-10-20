@@ -15,6 +15,7 @@ namespace FaasNet.Gateway.Startup
                 {
                     new ApiDefinitionOperation
                     {
+                        Name = "getAllClients",
                         Path = string.Empty,
                         Functions = new List<ApiDefinitionFunction>
                         {

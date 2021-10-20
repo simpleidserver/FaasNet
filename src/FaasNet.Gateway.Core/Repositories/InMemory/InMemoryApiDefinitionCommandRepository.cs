@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Gateway.Core.Repositories.InMemory
 {
-    public class InMemoryApiDefinitionRepository : IApiDefinitionRepository
+    public class InMemoryApiDefinitionCommandRepository : IApiDefinitionCommandRepository
     {
         private ICollection<ApiDefinitionAggregate> _apiDefinitions;
 
-        public InMemoryApiDefinitionRepository(ICollection<ApiDefinitionAggregate> apiDefinitions)
+        public InMemoryApiDefinitionCommandRepository(ICollection<ApiDefinitionAggregate> apiDefinitions)
         {
             _apiDefinitions = apiDefinitions;
         }

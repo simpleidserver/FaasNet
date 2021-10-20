@@ -4,6 +4,7 @@ namespace FaasNet.Gateway.Core.Domains
 {
     public class ApiDefinitionFunction : ICloneable
     {
+        public string Name { get; set; }
         public string Function { get; set; }
         public string SerializedConfiguration { get; set; }
 
@@ -16,10 +17,11 @@ namespace FaasNet.Gateway.Core.Domains
 
         #endregion
 
-        public static ApiDefinitionFunction Create(string fn)
+        public static ApiDefinitionFunction Create(string id, string fn)
         {
             return new ApiDefinitionFunction
             {
+                Name = id,
                 Function = fn
             };
         }
@@ -28,6 +30,7 @@ namespace FaasNet.Gateway.Core.Domains
         {
             return new ApiDefinitionFunction
             {
+                Name = Name,
                 Function = Function,
                 SerializedConfiguration = SerializedConfiguration
             };

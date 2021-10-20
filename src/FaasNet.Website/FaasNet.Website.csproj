@@ -7,6 +7,7 @@
     <None Remove="src\app\apis\edit\base-node.model.ts" />
     <None Remove="src\app\apis\edit\function-panel.component.ts" />
     <None Remove="src\app\apis\edit\function-panel\function.model.ts" />
+    <None Remove="src\app\functions\function-rendering\function-rendering.module.ts" />
     <None Remove="src\app\functions\function-rendering\string\string-rendering.component.ts" />
     <None Remove="src\app\functions\functions.module.ts" />
     <None Remove="src\app\functions\functions.routes.ts" />
@@ -15,18 +16,21 @@
     <None Remove="src\app\functions\function-rendering\function-rendering.component.ts" />
     <None Remove="src\app\shared\material.module.ts" />
     <None Remove="src\app\shared\shared.module.ts" />
+    <None Remove="src\stores\apis\models\apidef.model.ts" />
     <None Remove="src\stores\common\prometheus-queryrange-result.model.ts" />
     <None Remove="src\stores\common\search.model.ts" />
     <None Remove="src\stores\functions\models\function.model.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\app\functions\list\" />
+    <Folder Include="src\assets\libs\" />
     <Folder Include="src\stores\functions\reducers\" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="src\app\apis\edit\base-node.model.ts" />
     <TypeScriptCompile Include="src\app\apis\edit\function-panel\function-panel.component.ts" />
     <TypeScriptCompile Include="src\app\apis\edit\function-panel\function.model.ts" />
+    <TypeScriptCompile Include="src\app\functions\function-rendering\function-rendering.module.ts" />
     <TypeScriptCompile Include="src\app\functions\function-rendering\string\string-rendering.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
@@ -37,7 +41,7 @@
     <TypeScriptCompile Include="src\app\functions\function-rendering\function-rendering.component.ts" />
     <TypeScriptCompile Include="src\app\shared\material.module.ts" />
     <TypeScriptCompile Include="src\app\shared\shared.module.ts" />
-    <TypeScriptCompile Include="src\stores\common\prometheus-queryrange-result.model.ts" />
+    <TypeScriptCompile Include="src\stores\apis\models\apidef.model.ts" />
     <TypeScriptCompile Include="src\stores\common\search.model.ts" />
     <TypeScriptCompile Include="src\stores\functions\models\function.model.ts" />
   </ItemGroup>

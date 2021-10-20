@@ -59,7 +59,7 @@ namespace FaasNet.Gateway.Core.Configuration.Commands.Handlers
         {
             var commands = configuration.Apis.Select(kvp =>
             {
-                return new ReplaceApiDefinitionCommand
+                return new UpdateApiDefinitionCommand
                 {
                     Name = kvp.Key,
                     Path = kvp.Value.Path,
@@ -71,7 +71,8 @@ namespace FaasNet.Gateway.Core.Configuration.Commands.Handlers
                             Path = op.Path,
                             Functions = op.Functions.Select(fn => new ReplaceApiFunction
                             {
-                                Function = fn.Name,
+                                Name = fn.Name,
+                                Function = fn.Function,
                                 SerializedConfiguration = fn.Configuration,
                                 Flows = fn.Flows.Select(fl => new ReplaceApiSequenceFlow
                                 {

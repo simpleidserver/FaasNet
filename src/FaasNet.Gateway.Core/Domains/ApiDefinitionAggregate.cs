@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FaasNet.Gateway.Core.Exceptions;
+using FaasNet.Gateway.Core.Resources;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,6 +15,8 @@ namespace FaasNet.Gateway.Core.Domains
 
         public string Name { get; set; }
         public string Path { get; set; }
+        public DateTime CreateDateTime { get; set; }
+        public DateTime UpdateDateTime { get; set; }
         public ICollection<ApiDefinitionOperation> Operations { get; set; }
 
         #region Operations
@@ -22,17 +26,28 @@ namespace FaasNet.Gateway.Core.Domains
             Path = path;
         }
 
-        public ApiDefinitionOperation UpdateOperation(string name, string path)
+        public ApiDefinitionOperation AddOperation(string name, string path)
         {
-            var op = Operations.FirstOrDefault(op => op.Name == name);
-            if (op == null)
+            if (Operations.Any(o => o.Name == name))
             {
-                op = ApiDefinitionOperation.Create(name);
-                Operations.Add(op);
+                throw new BusinessRuleException(string.Format(Global.OperationExists, name));
             }
 
+            var op = ApiDefinitionOperation.Create(name);
             op.UpdatePath(path);
+            Operations.Add(op);
             return op;
+        }
+
+        public void UpdateUIOperation(string opName, ApiDefinitionOperationUI ui)
+        {
+            var op = GetOperation(opName);
+            if (op == null)
+            {
+                throw new BusinessRuleException(string.Format(Global.UnknownApiDefOperation, opName));
+            }
+
+            op.UpdateUI(ui);
         }
 
         #endregion
@@ -56,13 +71,21 @@ namespace FaasNet.Gateway.Core.Domains
             return false;
         }
 
+        public ApiDefinitionOperation GetOperation(string name)
+        {
+            return Operations.FirstOrDefault(o => o.Name == name);
+        }
+
         #endregion
 
-        public static ApiDefinitionAggregate Create(string name)
+        public static ApiDefinitionAggregate Create(string name, string path = null)
         {
             return new ApiDefinitionAggregate
             {
-                Name = name
+                Name = name,
+                Path = path,
+                CreateDateTime = DateTime.UtcNow,
+                UpdateDateTime = DateTime.UtcNow
             };
         }
 
@@ -72,6 +95,8 @@ namespace FaasNet.Gateway.Core.Domains
             {
                 Name = Name,
                 Path = Path,
+                CreateDateTime = CreateDateTime,
+                UpdateDateTime = UpdateDateTime,
                 Operations = Operations.Select(op => (ApiDefinitionOperation)op.Clone()).ToList()
             };
         }

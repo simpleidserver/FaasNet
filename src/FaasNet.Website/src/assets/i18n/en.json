@@ -50,9 +50,29 @@
   },
   "apis": {
     "list": "APIs",
+    "add": "Add API",
+    "name": "Name",
+    "path": "Path",
+    "nameRequired": "Name is required",
+    "pathRequired": "Path is required",
+    "nbOperations": "Number of operations",
+    "createDateTime": "Create Datetime",
+    "updateDateTime": "Update Datetime",
+    "info": "Information",
+    "operations": "Operations",
+    "addOperation": "Add operation",
+    "messages": {
+      "apiAdded": "API is added",
+      "errorAddApi": "An error occured while trying to add the API",
+      "apiOperationAdded": "API operation has been added",
+      "errorAddApiOperation": "An error occured while trying to add the API operation",
+      "apiOperationUpdated": "API operation has been updated",
+      "errorUpdateApiOperation": "An error occured while trying to update the API operation"
+    },
     "edit": {
       "properties": "Properties",
       "addFunction": "Add function",
+      "chooseFunction": "Choose a function",
       "panels": {
         "function": {
           "info": "Information",

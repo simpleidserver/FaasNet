@@ -117,8 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="FunctionExists" xml:space="preserve">
+    <value>function '{0}' already exists</value>
+  </data>
   <data name="FunctionNameAlreadyExists" xml:space="preserve">
     <value>a function with the name '{0}' already exists</value>
+  </data>
+  <data name="OperationExists" xml:space="preserve">
+    <value>operation '{0}' already exists</value>
+  </data>
+  <data name="UnknownApiDef" xml:space="preserve">
+    <value>api '{0}' doesn't exist</value>
+  </data>
+  <data name="UnknownApiDefOperation" xml:space="preserve">
+    <value>operation '{0}' doesn't exist</value>
   </data>
   <data name="UnknownFunction" xml:space="preserve">
     <value>function '{0}' doesn't exist</value>

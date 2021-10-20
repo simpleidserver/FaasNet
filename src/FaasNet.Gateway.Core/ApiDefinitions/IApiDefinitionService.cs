@@ -6,6 +6,6 @@ namespace FaasNet.Gateway.Core.ApiDefinitions
 {
     public interface IApiDefinitionService
     {
-        Task<bool> Replace(ReplaceApiDefinitionCommand cmd, CancellationToken cancellationToken);
+        Task<bool> Replace(UpdateApiDefinitionCommand cmd, CancellationToken cancellationToken);
     }
 }

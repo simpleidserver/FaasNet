@@ -15,6 +15,9 @@ namespace FaasNet.Gateway.Core.Domains
 
         public string Name { get; set; }
         public string Path { get; set; }
+        public DateTime CreateDateTime { get; set; }
+        public DateTime UpdateDateTime { get; set; }
+        public ApiDefinitionOperationUI UI { get; set; }
         public ICollection<ApiDefinitionSequenceFlow> SequenceFlows { get; set; }
         public ICollection<ApiDefinitionFunction> Functions { get; set; }
 
@@ -25,24 +28,38 @@ namespace FaasNet.Gateway.Core.Domains
             Path = path;
         }
 
-        public void UpdateFunction(string function, string configuration)
+        public void AddFunction(string id, string name, string configuration)
         {
-            var fn = Functions.FirstOrDefault(fn => fn.Function == function);
-            if (fn == null)
-            {
-                fn = ApiDefinitionFunction.Create(function);
-                Functions.Add(fn);
-            }
-
+            var fn = ApiDefinitionFunction.Create(id, name);
             fn.UpdateConfiguration(configuration);
+            Functions.Add(fn);
         }
 
-        public void UpdateSequenceFlow(string sourceRef, string targetRef)
+        public void AddSequenceFlow(string sourceRef, string targetRef)
         {
-            var sequenceFlow = SequenceFlows.FirstOrDefault(fl => fl.SourceRef == sourceRef && fl.TargetRef == targetRef);
-            if (sequenceFlow == null)
+            SequenceFlows.Add(ApiDefinitionSequenceFlow.Create(sourceRef, targetRef));
+        }
+
+        public void UpdateUI(ApiDefinitionOperationUI ui)
+        {
+            UI = ui;
+            Functions.Clear();
+            SequenceFlows.Clear();
+            UpdateDateTime = DateTime.UtcNow;
+            foreach(var block in ui.Blocks)
             {
-                SequenceFlows.Add(ApiDefinitionSequenceFlow.Create(sourceRef, targetRef));
+                if (block.Model == null || block.Model.Info == null)
+                {
+                    continue;
+                }
+
+                var newFn = ApiDefinitionFunction.Create(block.ExternalId.ToString(), block.Model.Info.Name);
+                newFn.SerializedConfiguration = block.Model.Configuration.ToString();
+                Functions.Add(newFn);
+                if (block.Parent != -1)
+                {
+                    SequenceFlows.Add(ApiDefinitionSequenceFlow.Create(block.Parent.ToString(), block.ExternalId.ToString()));
+                }
             }
         }
 
@@ -72,18 +89,18 @@ namespace FaasNet.Gateway.Core.Domains
 
         public ApiDefinitionFunction GetRootFunction()
         {
-            return Functions.FirstOrDefault(s => !SequenceFlows.Any(f => f.TargetRef == s.Function));
+            return Functions.FirstOrDefault(s => !SequenceFlows.Any(f => f.TargetRef == s.Name));
         }
 
         public ApiDefinitionFunction GetNextFunction(ApiDefinitionFunction fn)
         {
-            var sequenceFlow = SequenceFlows.FirstOrDefault(f => f.SourceRef == fn.Function);
+            var sequenceFlow = SequenceFlows.FirstOrDefault(f => f.SourceRef == fn.Name);
             if (sequenceFlow == null)
             {
                 return null;
             }
 
-            return Functions.FirstOrDefault(f => f.Function == sequenceFlow.TargetRef);
+            return Functions.FirstOrDefault(f => f.Name == sequenceFlow.TargetRef);
         }
 
         #endregion
@@ -103,7 +120,10 @@ namespace FaasNet.Gateway.Core.Domains
                 Name = Name,
                 Path = Path,
                 SequenceFlows = SequenceFlows.Select(sf => (ApiDefinitionSequenceFlow)sf.Clone()).ToList(),
-                Functions = Functions.Select(fn => (ApiDefinitionFunction)fn.Clone()).ToList()
+                Functions = Functions.Select(fn => (ApiDefinitionFunction)fn.Clone()).ToList(),
+                UI = (ApiDefinitionOperationUI)UI?.Clone(),
+                CreateDateTime = CreateDateTime,
+                UpdateDateTime = UpdateDateTime
             };
         }
     }

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace FaasNet.Gateway.Core.ApiDefinitions.Commands
 {
-    public class ReplaceApiDefinitionCommand : IRequest<bool>
+    public class UpdateApiDefinitionCommand : IRequest<bool>
     {
-        public ReplaceApiDefinitionCommand()
+        public UpdateApiDefinitionCommand()
         {
             Operations = new List<ReplaceApiOperation>();
         }
@@ -29,6 +29,7 @@ namespace FaasNet.Gateway.Core.ApiDefinitions.Commands
 
     public class ReplaceApiFunction
     {
+        public string Name { get; set; }
         public string Function { get; set; }
         public string SerializedConfiguration { get; set; }
         public ICollection<ReplaceApiSequenceFlow> Flows { get; set; }

@@ -54,33 +54,6 @@
   height: calc(100% - 80px);
 }
 
-.blockelem {
-  box-shadow: 0px 0px 30px rgb(22 33 74 / 0%);
-  background-color: #FFF;
-  cursor: pointer;
-  border: 2px solid transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.blockelem.isselected {
-  border-color: #217BE8;
-}
-
-.blockelem .title, .blockelem .description {
-  padding: 5px 5px 0px 5px;
-}
-
-.blockelem.block {
-  border-radius: 5px;
-  width: 300px !important;
-  height: 80px !important;
-}
-
 .block .title {
   border-bottom: 1px solid #E8E8EF;
 }

@@ -1,0 +1,24 @@
+<mat-card>
+  <mat-card-content>
+    <!-- Name -->
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>{{ 'apis.name' | translate }}</mat-label>
+      <input matInput type="text" [value]="api?.name" disabled />
+    </mat-form-field>
+    <!-- Path -->
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>{{ 'apis.path' | translate }}</mat-label>
+      <input matInput type="text" [value]="api?.path" disabled />
+    </mat-form-field>
+    <!-- CreateDateTime -->
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>{{ 'apis.createDateTime' | translate }}</mat-label>
+      <input matInput type="text" [value]="api?.createDateTime | date:'short'" disabled />
+    </mat-form-field>
+    <!-- UpdateDateTime -->
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>{{ 'apis.updateDateTime' | translate }}</mat-label>
+      <input matInput type="text" [value]="api?.updateDateTime | date:'short'" disabled />
+    </mat-form-field>
+  </mat-card-content>
+</mat-card>

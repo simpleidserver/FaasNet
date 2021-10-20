@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Gateway.Core.Repositories
 {
-    public interface IApiDefinitionRepository
+    public interface IApiDefinitionCommandRepository
     {
         Task<ApiDefinitionAggregate> GetByName(string name, CancellationToken cancellationToken);
         Task<ApiDefinitionAggregate> GetByPath(string path, CancellationToken cancellationToken);

@@ -61,11 +61,47 @@ namespace FaasNet.Gateway.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to function &apos;{0}&apos; already exists.
+        /// </summary>
+        internal static string FunctionExists {
+            get {
+                return ResourceManager.GetString("FunctionExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to a function with the name &apos;{0}&apos; already exists.
         /// </summary>
         internal static string FunctionNameAlreadyExists {
             get {
                 return ResourceManager.GetString("FunctionNameAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to operation &apos;{0}&apos; already exists.
+        /// </summary>
+        internal static string OperationExists {
+            get {
+                return ResourceManager.GetString("OperationExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to api &apos;{0}&apos; doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownApiDef {
+            get {
+                return ResourceManager.GetString("UnknownApiDef", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to operation &apos;{0}&apos; doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownApiDefOperation {
+            get {
+                return ResourceManager.GetString("UnknownApiDefOperation", resourceCulture);
             }
         }
         

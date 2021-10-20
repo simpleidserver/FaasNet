@@ -17,7 +17,8 @@ namespace FaasNet.Gateway.Core
 
         public ServerBuilder AddApiDefs(ICollection<ApiDefinitionAggregate> apiDefs)
         {
-            _services.AddSingleton<IApiDefinitionRepository>(new InMemoryApiDefinitionRepository(apiDefs));
+            _services.AddSingleton<IApiDefinitionCommandRepository>(new InMemoryApiDefinitionCommandRepository(apiDefs));
+            _services.AddSingleton<IApiDefinitionQueryRepository>(new InMemoryApiDefinitionQueryRepository(apiDefs));
             return this;
         }
     }

@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Gateway.Core.ApiDefinitions.Commands.Handlers
 {
-    public class ReplaceApiDefinitionCommandHandler : IRequestHandler<ReplaceApiDefinitionCommand, bool>
+    public class UpdateApiDefinitionCommandHandler : IRequestHandler<UpdateApiDefinitionCommand, bool>
     {
-        private readonly IApiDefinitionRepository _apiDefinitionRepository;
+        private readonly IApiDefinitionCommandRepository _apiDefinitionRepository;
 
-        public ReplaceApiDefinitionCommandHandler(IApiDefinitionRepository apiDefinitionRepository)
+        public UpdateApiDefinitionCommandHandler(IApiDefinitionCommandRepository apiDefinitionRepository)
         {
             _apiDefinitionRepository = apiDefinitionRepository;
         }
 
-        public async Task<bool> Handle(ReplaceApiDefinitionCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(UpdateApiDefinitionCommand request, CancellationToken cancellationToken)
         {
             var apiDefinition = await _apiDefinitionRepository.GetByName(request.Name, cancellationToken);
             if (apiDefinition == null)
@@ -29,18 +29,19 @@ namespace FaasNet.Gateway.Core.ApiDefinitions.Commands.Handlers
             return true;
         }
 
-        protected virtual void Apply(ApiDefinitionAggregate apiDef, ReplaceApiDefinitionCommand cmd)
+        protected virtual void Apply(ApiDefinitionAggregate apiDef, UpdateApiDefinitionCommand cmd)
         {
             apiDef.UpdatePath(cmd.Path);
+            apiDef.Operations.Clear();
             foreach(var op in cmd.Operations)
             {
-                var operation = apiDef.UpdateOperation(op.Name, op.Path);
+                var operation = apiDef.AddOperation(op.Name, op.Path);
                 foreach(var fn in op.Functions)
                 {
-                    operation.UpdateFunction(fn.Function, fn.SerializedConfiguration);
+                    operation.AddFunction(fn.Name, fn.Function, fn.SerializedConfiguration);
                     foreach(var fl in fn.Flows)
                     {
-                        operation.UpdateSequenceFlow(fn.Function, fl.TargetRef);
+                        operation.AddSequenceFlow(fn.Function, fl.TargetRef);
                     }
                 }
             }

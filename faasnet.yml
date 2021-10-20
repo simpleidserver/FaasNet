@@ -7,7 +7,8 @@ apis:
     operations:
     - name: getPersons
       functions:
-      - name: getsql
+      - name: 1
+        function: getsql
         configuration: >-
           {
 
@@ -17,8 +18,9 @@ apis:
 
           }
         flows:
-        - next: transform
-      - name: transform
+        - next: 2
+      - name: 2
+        function: transform
         configuration: '{ "mappings": [ { "input": "content[*].Name", "output": "name" } ] }'
         flows: []
 functions:

@@ -11,6 +11,7 @@ namespace FaasNet.Common.Configuration
         }
 
         public string Name { get; set; }
+        public string Function { get; set; }
         public string Path { get; set; }
         public ICollection<FaasApiFunctionConfiguration> Functions { get; set; }
     }

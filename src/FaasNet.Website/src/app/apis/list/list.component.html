@@ -1,0 +1,55 @@
+<div class="container">
+  <div fxLayout="row" class="breadcrumb">
+    <div fxFlex="80%">
+      <ul>
+        <li><div class="mat-h1">{{ "apis.list" | translate }}</div></li>
+      </ul>
+    </div>
+  </div>
+  <div class="mb-10">
+    <button mat-raised-button color="primary" (click)="addApi()">{{ 'apis.add' | translate }}</button>
+  </div>
+  <div class="mat-elevation-z8 overflow-hidden">
+    <mat-table class="full-width" [dataSource]="apiDefs" matSortActive="createDateTime" matSortDirection="desc" matSort>
+      <!-- Name -->
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef>{{ "apis.name" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let api">
+          <a href="#" [routerLink]="['/apis/' + api.name]">{{ api.name }}</a>
+        </mat-cell>
+      </ng-container>
+      <!-- Path -->
+      <ng-container matColumnDef="path">
+        <mat-header-cell *matHeaderCellDef>{{ "apis.path" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let api">
+          {{ api.path }}
+        </mat-cell>
+      </ng-container>
+      <!-- Path -->
+      <ng-container matColumnDef="nbOperations">
+        <mat-header-cell *matHeaderCellDef>{{ "apis.nbOperations" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let api">
+          {{ api.operations.length }}
+        </mat-cell>
+      </ng-container>
+      <!-- Create DateTime -->
+      <ng-container matColumnDef="createDateTime">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>{{ "apis.createDateTime" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let api">
+          {{ api.createDateTime | date:'fullDate' }}
+        </mat-cell>
+      </ng-container>
+      <!-- Update DateTime -->
+      <ng-container matColumnDef="updateDateTime">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>{{ "apis.updateDateTime" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let api">
+          {{ api.updateDateTime | date:'fullDate' }}
+        </mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+    <mat-paginator [length]="length" [pageSize]="50" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+  </div>
+
+</div>
