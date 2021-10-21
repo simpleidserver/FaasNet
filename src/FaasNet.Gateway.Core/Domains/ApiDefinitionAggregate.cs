@@ -8,6 +8,11 @@ namespace FaasNet.Gateway.Core.Domains
 {
     public class ApiDefinitionAggregate : ICloneable
     {
+        private static ICollection<string> STANDARD_URLS = new List<string>
+        {
+            "apis", "configuration", "functions"
+        };
+
         public ApiDefinitionAggregate()
         {
             Operations = new List<ApiDefinitionOperation>();
@@ -80,6 +85,11 @@ namespace FaasNet.Gateway.Core.Domains
 
         public static ApiDefinitionAggregate Create(string name, string path = null)
         {
+            if (STANDARD_URLS.Contains(path))
+            {
+                throw new BusinessRuleException(string.Format(Global.StandardPath, path));
+            }
+
             return new ApiDefinitionAggregate
             {
                 Name = name,

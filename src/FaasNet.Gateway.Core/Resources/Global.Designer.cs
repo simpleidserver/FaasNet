@@ -88,6 +88,15 @@ namespace FaasNet.Gateway.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to cannot add api with path &apos;{0}&apos;.
+        /// </summary>
+        internal static string StandardPath {
+            get {
+                return ResourceManager.GetString("StandardPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to api &apos;{0}&apos; doesn&apos;t exist.
         /// </summary>
         internal static string UnknownApiDef {

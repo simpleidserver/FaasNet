@@ -17,6 +17,7 @@ namespace FaasNet.Gateway.Core.ApiDefinitions.Queries.Results
                 Html = Html,
                 Blocks = Blocks?.Select(b => new ApiDefinitionOperationBlock
                 {
+                    Parent = b.Parent,
                     Data = b.Data?.Select(d => new ApiDefinitionOperationBlockData
                     {
                         Name = d.Name,

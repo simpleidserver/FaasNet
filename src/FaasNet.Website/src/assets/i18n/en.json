@@ -97,6 +97,7 @@
     "parameter": "Parameter N°{{index}}",
     "create": "Create",
     "close": "Close",
-    "choose": "Choose"
+    "choose": "Choose",
+    "launch": "Launch"
   }
 }

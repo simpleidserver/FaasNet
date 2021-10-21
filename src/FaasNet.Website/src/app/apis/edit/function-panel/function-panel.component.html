@@ -4,25 +4,23 @@
       <button mat-raised-button (click)="chooseFunction()">{{ 'apis.edit.panels.function.selectFunction' | translate }}</button>
       <div *ngIf="isSelected()" class="mt-10">
         <!-- Name -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'apis.edit.panels.function.name' | translate }}</mat-label>
-          <input matInput type="text" [value]="model?.content?.info?.name" disabled />
-        </mat-form-field>
+        <div fxLayout="row">
+          <div fxFlex="20%">
+            <b>{{ 'apis.edit.panels.function.name' | translate }}</b>
+          </div>
+          <div fxFlex="80%">
+            <a href="#" [routerLink]="['/functions/' + model?.content?.info?.name]">{{ model?.content?.info?.name }}</a>
+          </div>
+        </div>
         <!-- Image -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'apis.edit.panels.function.image' | translate }}</mat-label>
-          <input matInput type="text" [value]="model?.content?.info?.image" disabled />
-        </mat-form-field>
-        <!-- CreateDateTime -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'apis.edit.panels.function.createDateTime' | translate }}</mat-label>
-          <input matInput type="text" [value]="model?.content?.info?.createDateTime | date:'fullDate'" disabled />
-        </mat-form-field>
-        <!-- UpdateDateTime -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'apis.edit.panels.function.updateDateTime' | translate }}</mat-label>
-          <input matInput type="text" [value]="model?.content?.info?.updateDateTime | date:'fullDate'" disabled />
-        </mat-form-field>
+        <div fxLayout="row">
+          <div fxFlex="20%">
+            <b>{{ 'apis.edit.panels.function.image' | translate }}</b>
+          </div>
+          <div fxFlex="80%">
+            {{ model?.content?.info?.image }}
+          </div>
+        </div>
       </div>
     </div>
   </mat-tab>

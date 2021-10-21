@@ -31,10 +31,12 @@ export class EditApiComponent implements OnInit, OnDestroy {
   selectedIndex: number = 0;
   currentIndex: number = 0;
   nodes: EditorModel[] = [];
+  name: string = "";
   opName: string = "";
   subscription: any;
   secondSubscription: any;
   mouseupHandler: any;
+  isInitialized: boolean = false;
 
   constructor(
     private dialog: MatDialog,
@@ -63,18 +65,33 @@ export class EditApiComponent implements OnInit, OnDestroy {
       });
 
     this.nodes = [];
+    this.refresh();
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+
+    if (this.secondSubscription) {
+      this.secondSubscription.unsubscribe();
+    }
+
+    window.removeEventListener('mouseup', this.mouseupHandler);
+    this.destroy();
+  }
+
+  ngAfterViewInit() {
     var spacing_x = 20;
     var spacing_y = 50;
-    flowy(document.getElementById("canvas"), null, null, this.snapping.bind(this), null, spacing_x, spacing_y);
     window.addEventListener('mouseup', this.mouseupHandler);
-    this.subscription = this.activatedRoute.params.subscribe(() => {
-      this.refresh();
-    });
     this.secondSubscription = this.store.pipe(select(fromReducers.selectApiDefResult)).subscribe((state: ApiDefinitionResult | null) => {
-      if (!state || !this.opName) {
+      if (!state || !this.opName || this.isInitialized) {
         return;
       }
 
+      this.isInitialized = true;
+      flowy(document.getElementById("canvas"), null, null, this.snapping.bind(this), null, spacing_x, spacing_y);
       const operation = state.operations.filter(o => o.name === this.opName)[0];
       if (operation.ui) {
         flowy.import(operation.ui);
@@ -96,19 +113,6 @@ export class EditApiComponent implements OnInit, OnDestroy {
         this.currentIndex = Math.max.apply(null, indexes) + 1;
       }
     });
-  }
-
-  ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-
-    if (this.secondSubscription) {
-      this.secondSubscription.unsubscribe();
-    }
-
-    window.removeEventListener('mouseup', this.mouseupHandler);
-    flowy.destroy();
   }
 
   snapping(b: any) {
@@ -135,6 +139,10 @@ export class EditApiComponent implements OnInit, OnDestroy {
     this.selectedIndex = 0;
   }
 
+  launch() {
+
+  }
+
   save() {
     const json = flowy.output();
     json.blocks.forEach((b : any) => {
@@ -153,10 +161,16 @@ export class EditApiComponent implements OnInit, OnDestroy {
   }
 
   private refresh() {
-    const name = this.activatedRoute?.snapshot.params['name'];
+    this.name = this.activatedRoute?.snapshot.params['name'];
     this.opName = this.activatedRoute?.snapshot.params['opname'];
-    const action = startGet({ funcName: name });
+    const action = startGet({ funcName: this.name });
     this.store.dispatch(action);
+  }
+
+  private destroy() {
+    if (flowy.destroy) {
+      flowy.destroy();
+    }
   }
 
   private handleMouseUp(evt: any) {

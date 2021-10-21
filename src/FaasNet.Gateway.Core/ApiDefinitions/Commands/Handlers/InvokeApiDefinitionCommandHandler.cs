@@ -49,8 +49,7 @@ namespace FaasNet.Gateway.Core.ApiDefinitions.Commands.Handlers
                 return InvokeApiDefinitionResult.NoMatch();
             }
 
-            var input = request.Content;
-            input = await ExecuteWorkflow(operation, operation.GetRootFunction(), request.Content, cancellationToken);
+            var input = await ExecuteWorkflow(operation, operation.GetRootFunction(), request.Content, cancellationToken);
             return InvokeApiDefinitionResult.Match(input);
         }
 
@@ -61,7 +60,7 @@ namespace FaasNet.Gateway.Core.ApiDefinitions.Commands.Handlers
                 Name = func.Function,
                 Content = new FunctionParameter
                 {
-                    Configuration = JObject.Parse(func.SerializedConfiguration),
+                    Configuration = string.IsNullOrWhiteSpace(func.SerializedConfiguration) ? null : JObject.Parse(func.SerializedConfiguration),
                     Input = input
                 }
             };

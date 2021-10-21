@@ -1,12 +1,15 @@
 .actions {
+  display: flex;
   height: 70px;
   border-bottom: 1px solid #E8E8EF;
 }
 
-.actions > .buttonsright {
-  float: right;
-  margin-top: 20px;
-  margin-right: 10px;
+.actions > .breadcrumb {
+  padding-left: 5px;
+}
+
+.actions > .buttons {
+  padding: 20px 5px 20px 0px;
 }
 
 .leftcard {

@@ -54,7 +54,7 @@ namespace FaasNet.Gateway.Core.Domains
                 }
 
                 var newFn = ApiDefinitionFunction.Create(block.ExternalId.ToString(), block.Model.Info.Name);
-                newFn.SerializedConfiguration = block.Model.Configuration.ToString();
+                newFn.SerializedConfiguration = block.Model.Configuration?.ToString();
                 Functions.Add(newFn);
                 if (block.Parent != -1)
                 {
