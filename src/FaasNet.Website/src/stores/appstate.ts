@@ -6,13 +6,15 @@ export interface AppState {
   functions: fromFunctions.SearchFunctionsState;
   function: fromFunctions.FunctionState;
   apiDefs: fromApiDefs.SearchApiDefsState,
-  apiDef: fromApiDefs.ApiDefState
+  apiDef: fromApiDefs.ApiDefState,
+  operation: fromApiDefs.OperationState
 }
 
 export const selectFunctions = (state: AppState) => state.functions;
 export const selectFunction = (state: AppState) => state.function;
 export const selectApiDefs = (state: AppState) => state.apiDefs;
 export const selectApiDef = (state: AppState) => state.apiDef;
+export const selectOperation = (state: AppState) => state.operation;
 
 export const selectFunctionsResult = createSelector(
   selectFunctions,
@@ -135,9 +137,22 @@ export const selectApiDefsResult = createSelector(
   }
 );
 
+export const selectApiOperationInvocationResult = createSelector(
+  selectOperation,
+  (state: fromApiDefs.OperationState) => {
+    if (!state || !state.InvocationResult) {
+      return null;
+    }
+
+    return state.InvocationResult;
+  }
+
+)
+
 export const appReducer = {
   functions: fromFunctions.getSearchFunctionsReducer,
   function: fromFunctions.getFunctionReducer,
   apiDef: fromApiDefs.getApiDefReducer,
-  apiDefs: fromApiDefs.getSearchApiDefsReducer
+  apiDefs: fromApiDefs.getSearchApiDefsReducer,
+  operation: fromApiDefs.getOperationReducer
 };

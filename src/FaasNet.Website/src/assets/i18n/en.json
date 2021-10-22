@@ -73,6 +73,9 @@
       "properties": "Properties",
       "addFunction": "Add function",
       "chooseFunction": "Choose a function",
+      "launchFunction": "Launch the function",
+      "input": "Input (JSON format)",
+      "output": "Output",
       "panels": {
         "function": {
           "info": "Information",

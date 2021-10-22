@@ -5,13 +5,14 @@ import { ActivatedRoute } from '@angular/router';
 import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { startGet, startUpdateUIOperation } from '@stores/apis/actions/api.actions';
-import { ApiDefinitionResult } from '@stores/apis/models/apidef.model';
+import { ApiDefinitionOperationResult, ApiDefinitionResult } from '@stores/apis/models/apidef.model';
 import * as fromReducers from '@stores/appstate';
 import { FunctionResult } from '@stores/functions/models/function.model';
 import Drawflow from 'drawflow';
 import { filter } from 'rxjs/operators';
 import { BaseNodeModel } from './base-node.model';
 import { FunctionModel, FunctionRecord } from './function-panel/function.model';
+import { LaunchFunctionDialogComponent } from './launch-function-dialog.component';
 
 declare var flowy: any;
 
@@ -37,6 +38,7 @@ export class EditApiComponent implements OnInit, OnDestroy {
   secondSubscription: any;
   mouseupHandler: any;
   isInitialized: boolean = false;
+  currentOperation: ApiDefinitionOperationResult | null = null;
 
   constructor(
     private dialog: MatDialog,
@@ -92,10 +94,10 @@ export class EditApiComponent implements OnInit, OnDestroy {
 
       this.isInitialized = true;
       flowy(document.getElementById("canvas"), null, null, this.snapping.bind(this), null, spacing_x, spacing_y);
-      const operation = state.operations.filter(o => o.name === this.opName)[0];
-      if (operation.ui) {
-        flowy.import(operation.ui);
-        operation.ui.blocks.forEach((b) => {
+      this.currentOperation = state.operations.filter(o => o.name === this.opName)[0];
+      if (this.currentOperation.ui) {
+        flowy.import(this.currentOperation.ui);
+        this.currentOperation.ui.blocks.forEach((b) => {
           const model = new FunctionModel(new FunctionRecord());
           const blockId = b.data.filter((d) => d.name === 'blockid')[0].value;
           if (b.model && model.content) {
@@ -140,7 +142,13 @@ export class EditApiComponent implements OnInit, OnDestroy {
   }
 
   launch() {
-
+    this.dialog.open(LaunchFunctionDialogComponent, {
+      width: '800px',
+      data: {
+        funcName: this.name,
+        opName: this.currentOperation?.path
+      }
+    });
   }
 
   save() {

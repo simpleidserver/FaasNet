@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
-import { completeAdd, completeGet, completeSearch, completeUpdateUIOperation, errorAdd, errorGet, errorAddOperation, errorSearch, errorUpdateUIOperation, startAdd, startAddOperation, startGet, startSearch, startUpdateUIOperation, completeAddOperation } from '../actions/api.actions';
+import { completeAdd, completeGet, completeSearch, completeUpdateUIOperation, errorAdd, errorGet, errorAddOperation, errorSearch, errorUpdateUIOperation, startAdd, startAddOperation, startGet, startSearch, startUpdateUIOperation, completeAddOperation, startInvokeOperation, completeInvokeOperation, errorInvokeOperation } from '../actions/api.actions';
 import { ApiDefinitionOperationUIResult } from '../models/apidef.model';
 import { ApiDefService } from '../services/api.service';
 
@@ -78,6 +78,20 @@ export class ApiDefEffects {
           .pipe(
             map(content => completeGet({ content: content })),
             catchError(() => of(errorGet()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  invokeOperation = this.actions$
+    .pipe(
+      ofType(startInvokeOperation),
+      mergeMap((evt: { funcName: string, opName: string, request: any }) => {
+        return this.apiDefService.invokeOperation(evt.funcName, evt.opName, evt.request)
+          .pipe(
+            map(content => completeInvokeOperation({ content: content })),
+            catchError(() => of(errorInvokeOperation()))
           );
       }
       )

@@ -49,4 +49,15 @@ export class ApiDefService {
     let targetUrl = environment.apiUrl + "/apis/" + funcName;
     return this.http.get<ApiDefinitionResult>(targetUrl, { headers: headers });
   }
+
+  invokeOperation(funcName: string, opName: string, request: any): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = environment.apiUrl + "/" + funcName;
+    if (opName) {
+      targetUrl += "/" + opName;
+    }
+
+    return this.http.post<any>(targetUrl, request, { headers: headers });
+  }
 }

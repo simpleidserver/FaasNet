@@ -8,6 +8,7 @@ import { EditApiComponent } from "./edit/edit.component";
 import { AddFunctionComponent } from "./edit/function-panel/add-function.component";
 import { FunctionPanelComponent } from "./edit/function-panel/function-panel.component";
 import { UpdateFunctionConfigurationComponent } from "./edit/function-panel/update-configuration.component";
+import { LaunchFunctionDialogComponent } from "./edit/launch-function-dialog.component";
 import { AddApiDefComponent } from "./list/add-api.component";
 import { ListApiDefComponent } from "./list/list.component";
 import { InfoApiComponent } from "./view/info/info.component";
@@ -33,11 +34,13 @@ import { ViewApiDefComponent } from "./view/view.component";
     ViewApiDefComponent,
     InfoApiComponent,
     OperationsApiComponents,
-    AddOperationComponent
+    AddOperationComponent,
+    LaunchFunctionDialogComponent
   ],
   entryComponents: [
     AddApiDefComponent,
-    AddOperationComponent
+    AddOperationComponent,
+    LaunchFunctionDialogComponent
   ]
 })
 

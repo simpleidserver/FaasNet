@@ -17,3 +17,6 @@ export const errorAddOperation = createAction('[ApiDefs] ERROR_ADD_APIDEF_OPERAT
 export const startUpdateUIOperation = createAction('[ApiDefs] START_UPDATE_UI_OPERATION', props<{ funcName: string, operationName: string, ui: ApiDefinitionOperationUIResult }>());
 export const completeUpdateUIOperation = createAction('[ApiDefs] COMPLETE_UPDATE_UI_OPERATION');
 export const errorUpdateUIOperation = createAction('[ApiDefs] ERROR_UPDATE_UI_OPERATION');
+export const startInvokeOperation = createAction('[ApiDefs] START_INVOKE_OPERATION', props<{ funcName: string, opName: string, request: any }>());
+export const completeInvokeOperation = createAction('[ApiDefs] COMPLETE_INVOKE_OPERATION', props<{ content: any }>());
+export const errorInvokeOperation = createAction('[ApiDefs] ERROR_INVOKE_OPERATION');
