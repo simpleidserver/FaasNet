@@ -38,39 +38,62 @@
 
 .arrowblock {
   position: absolute;
+  width: 100%;
   overflow: visible;
   pointer-events: none
 }
 
-.arrowblock svg {
-  width: -webkit-fill-available;
-  overflow: visible;
-}
+  .arrowblock svg {
+    width: -webkit-fill-available;
+    overflow: visible;
+  }
+
 
 .blockelem {
-  box-shadow: 0px 0px 30px rgb(22 33 74 / 0%);
+  display: flex;
+  margin: 10px;
+  cursor: grab;
+}
+
+.blockelem > .logo {
+  width: 50px;
+  text-align: center;
+  background-color: gray;
+  border-radius: 5px 0px 0px 5px;
+  border-left: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+  padding-top: 5px;
+}
+
+.blockelem > .content {
+  padding: 5px 0px 5px 5px;
+  flex: 1;
+  background-color: white;
+  border: 1px solid gray;
+  border-radius: 0px 5px 5px 0px;
+}
+
+.blockelem .title {
+  font-weight: bold;
+}
+
+.blockelem .description {
+    font-style: italic;
+}
+
+.blockelem > .logo > img {
+  width: 30px;
+}
+
+.block {
   background-color: #FFF;
-  cursor: pointer;
-  border: 2px solid transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  margin-top: 0px !important;
+  width: 250px;
+  z-index: 1;
+  cursor: pointer !important;
 }
 
-
-.blockelem.isselected {
-  border-color: #217BE8;
-}
-
-.blockelem .title, .blockelem .description {
-  padding: 5px 5px 0px 5px;
-}
-
-.blockelem.block {
-  border-radius: 5px;
-  width: 300px !important;
-  height: 80px !important;
+.blockelem.isselected > .logo, .blockelem.isselected .content {
+  border-color: #217CE8;
 }

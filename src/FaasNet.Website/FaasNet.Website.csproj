@@ -7,6 +7,8 @@
     <None Remove="src\app\apis\edit\base-node.model.ts" />
     <None Remove="src\app\apis\edit\function-panel.component.ts" />
     <None Remove="src\app\apis\edit\function-panel\function.model.ts" />
+    <None Remove="src\app\apis\edit\launch-function-dialog.component.html" />
+    <None Remove="src\app\apis\edit\launch-function-dialog.component.ts" />
     <None Remove="src\app\functions\function-rendering\function-rendering.module.ts" />
     <None Remove="src\app\functions\function-rendering\string\string-rendering.component.ts" />
     <None Remove="src\app\functions\functions.module.ts" />
@@ -30,6 +32,10 @@
     <TypeScriptCompile Include="src\app\apis\edit\base-node.model.ts" />
     <TypeScriptCompile Include="src\app\apis\edit\function-panel\function-panel.component.ts" />
     <TypeScriptCompile Include="src\app\apis\edit\function-panel\function.model.ts" />
+    <TypeScriptCompile Include="src\app\apis\edit\launch-function-dialog.component.html">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\app\apis\edit\launch-function-dialog.component.ts" />
     <TypeScriptCompile Include="src\app\functions\function-rendering\function-rendering.module.ts" />
     <TypeScriptCompile Include="src\app\functions\function-rendering\string\string-rendering.component.ts">
       <SubType>Code</SubType>

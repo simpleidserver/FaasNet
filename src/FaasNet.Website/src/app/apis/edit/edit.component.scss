@@ -13,15 +13,15 @@
 }
 
 .leftcard {
-  width: 200px;
+  width: 300px;
   position: absolute;
   border-right: 1px solid #E8E8EF;
 }
 
 .rightcard {
   position: absolute;
-  right: -300px;
-  width: 300px;
+  right: -500px;
+  width: 500px;
   border-left: 1px solid #E8E8EF;
   z-index: 2;
   opacity: 0;
@@ -48,27 +48,11 @@
   background-repeat: repeat;
   background-size: 30px 30px;
   position: absolute;
-  width: calc(100% - 200px);
+  width: calc(100% - 300px);
   overflow: auto;
-  left: 200px;
+  left: 300px;
 }
 
 #canvas, .leftcard {
   height: calc(100% - 80px);
-}
-
-.block .title {
-  border-bottom: 1px solid #E8E8EF;
-}
-
-.blockelem .title {
-  font-weight: bold;
-}
-
-.blockelem .description {
-  font-style: italic;
-}
-
-.blockelem.selectedblock {
-  border: 2px solid #217CE8;
 }

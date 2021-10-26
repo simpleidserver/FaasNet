@@ -89,7 +89,8 @@
         }
       },
       "menu": {
-        "function": "Function"
+        "function": "Function",
+        "functionDescription": "Kubernetes function"
       }
     }
   },
