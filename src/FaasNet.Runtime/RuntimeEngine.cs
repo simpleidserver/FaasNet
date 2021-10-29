@@ -18,14 +18,19 @@ namespace FaasNet.Runtime
             _stateProcessors = stateProcessors;
         }
 
-        public async Task<WorkflowInstanceAggregate> InstanciateAndLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, string input, CancellationToken cancellationToken)
+        public Task<WorkflowInstanceAggregate> InstanciateAndLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, string input, CancellationToken cancellationToken)
+        {
+            return InstanciateAndLaunch(workflowDefinitionAggregate, JObject.Parse(input), cancellationToken);
+        }
+
+        public async Task<WorkflowInstanceAggregate> InstanciateAndLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, JObject input, CancellationToken cancellationToken)
         {
             var workflowInstance = Instanciate(workflowDefinitionAggregate);
             await Launch(workflowDefinitionAggregate, workflowInstance, input, cancellationToken);
             return workflowInstance;
         }
 
-        public async Task Launch(WorkflowDefinitionAggregate workflowDefinitionAggregate, WorkflowInstanceAggregate workflowInstance, string input, CancellationToken cancellationToken)
+        public async Task Launch(WorkflowDefinitionAggregate workflowDefinitionAggregate, WorkflowInstanceAggregate workflowInstance, JObject input, CancellationToken cancellationToken)
         {
             WorkflowInstanceState state = null;
             if (!workflowInstance.TryGetFirstCreateState(out state))
@@ -41,7 +46,7 @@ namespace FaasNet.Runtime
                 return;
             }
 
-            var executionContext = new WorkflowInstanceExecutionContext(stateDefinition);
+            var executionContext = new WorkflowInstanceExecutionContext(stateDefinition, state, workflowDefinitionAggregate);
             var stateProcessorResult = await stateProcessor.Process(executionContext, cancellationToken);
             if (stateProcessorResult.IsError)
             {
@@ -80,15 +85,14 @@ namespace FaasNet.Runtime
             return result;
         }
 
-        private string Transform(string input, string filter)
+        private JObject Transform(JObject input, string filter)
         {
             if (string.IsNullOrWhiteSpace(filter))
             {
                 return input;
             }
 
-            var jObj = JObject.Parse(input);
-            return jObj.Transform(filter);
+            return input.Transform(filter);
         }
     }
 }

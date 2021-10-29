@@ -46,21 +46,21 @@ namespace FaasNet.Runtime.Domains
 
         #region Commands
 
-        public void StartState(string stateId, string input)
+        public void StartState(string stateId, JObject input)
         {
             var state = GetState(stateId);
             state.Start(input);
         }
 
-        public void CompleteState(string stateId, string output)
+        public void CompleteState(string stateId, JObject output)
         {
             var state = GetState(stateId);
             state.Complete(output);
         }
 
-        public void Terminate(string output)
+        public void Terminate(JObject output)
         {
-            OutputStr = output;
+            OutputStr = output.ToString();
             Status = WorkflowInstanceStatus.TERMINATE;
         }
 

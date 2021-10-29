@@ -22,6 +22,12 @@ namespace FaasNet.Runtime.Builders
             return this;
         }
 
+        public IStateBuilder SetInputFilter(string filter)
+        {
+            StateDef.StateDataFilterInput = filter;
+            return this;
+        }
+
         public IStateBuilder SetOutputFilter(string filter)
         {
             StateDef.StateDataFilterOuput = filter;

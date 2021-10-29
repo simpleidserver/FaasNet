@@ -11,5 +11,10 @@
         {
             return new InjectStateBuilder();
         }
+
+        public OperationStateBuilder Operation()
+        {
+            return new OperationStateBuilder();
+        }
     }
 }

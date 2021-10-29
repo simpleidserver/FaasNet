@@ -5,6 +5,7 @@ namespace FaasNet.Runtime.Domains
 {
     public class WorkflowDefinitionFunction
     {
+        public string Name { get; set; }
         /// <summary>
         /// type = reqest :  <path_to_openapi_definition>#<operation_id>
         /// type = asyncapi : <path_to_asyncapi_definition>#<operation_id>

@@ -12,7 +12,7 @@ namespace FaasNet.Runtime.Processors
         public Task<StateProcessorResult> Process(WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
             var injectState = executionContext.StateDef as WorkflowDefinitionInjectState;
-            return Task.FromResult(StateProcessorResult.Ok(injectState.DataStr));
+            return Task.FromResult(StateProcessorResult.Ok(injectState.Data));
         }
     }
 }

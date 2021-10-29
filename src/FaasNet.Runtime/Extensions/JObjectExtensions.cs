@@ -6,11 +6,11 @@ namespace FaasNet.Runtime.Extensions
 {
     public static class JObjectExtensions
     {
-        public static string Transform(this JObject jObj, string filter)
+        public static JObject Transform(this JObject jObj, string filter)
         {
             if(string.IsNullOrWhiteSpace(filter))
             {
-                return jObj.ToString();
+                return jObj;
             }
 
             var regularExpression = new Regex(@"\$\.([a-zA-Z])*");
@@ -51,7 +51,73 @@ namespace FaasNet.Runtime.Extensions
                 }
             }
 
-            return transformed.ToString();
+            return transformed;
+        }
+
+        public static void Merge(this JObject jObj, string targetPath, JToken token)
+        {
+            if (string.IsNullOrWhiteSpace(targetPath))
+            {
+                jObj.Merge(token, new JsonMergeSettings
+                {
+                    MergeArrayHandling = MergeArrayHandling.Union
+                });
+                return;
+            }
+
+            var selectedToken = jObj.SelectToken(targetPath);
+            if (selectedToken != null)
+            {
+                Merge(selectedToken, token);
+            }
+            else
+            {
+                // TODO : Correctly tokenize the JSONExpression.
+                var names = targetPath.Split('.').Skip(1);
+                JToken parentNode = jObj;
+                for (var i = 0; i < names.Count(); i++)
+                {
+                    var name = names.ElementAt(i);
+                    selectedToken = parentNode.SelectToken(name);
+                    if (selectedToken != null)
+                    {
+                        parentNode = selectedToken;
+                    }
+                    else
+                    {
+                        JToken record = new JObject();
+                        if (i == names.Count() - 1)
+                        {
+                            record = token;
+                        }
+
+                        (parentNode as JObject).Add(name, record);
+                        parentNode = record;
+                    }
+                }
+            }
+        }
+
+        private static void Merge(JToken selectedToken, JToken token)
+        {
+            var jVal = selectedToken as JValue;
+            var jObject = selectedToken as JObject;
+            var jArr = selectedToken as JArray;
+            if (jVal != null)
+            {
+                var property = jVal.Parent as JProperty;
+                property.Value = token;
+            }
+            else if (jObject != null)
+            {
+                jObject.Remove();
+                var parent = jObject.Parent;
+                parent.Add(token);
+            }
+            else if (jArr != null)
+            {
+                jArr.Add(token);
+            }
         }
     }
 }

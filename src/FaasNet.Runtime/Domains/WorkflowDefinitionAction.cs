@@ -11,5 +11,9 @@ namespace FaasNet.Runtime.Domains
         /// References a resusable function definition.
         /// </summary>
         public WorkflowDefinitionFunctionRef FunctionRef { get; set; }
+        /// <summary>
+        /// Action data filter definition.
+        /// </summary>
+        public WorkflowDefinitionActionDataFilter ActionDataFilter { get; set; }
     }
 }

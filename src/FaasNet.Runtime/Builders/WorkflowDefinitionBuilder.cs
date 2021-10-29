@@ -13,6 +13,14 @@ namespace FaasNet.Runtime.Builders
             _instance = WorkflowDefinitionAggregate.Create(id, version, name, description);
         }
 
+        public WorkflowDefinitionBuilder AddFunction(Func<FunctionDefinitionBuilder, IFunctionBuilder> callback)
+        {
+            var builder = new FunctionDefinitionBuilder();
+            var fnBuilder = callback(builder);
+            _instance.Functions.Add(fnBuilder.Build());
+            return this;
+        }
+
         public WorkflowDefinitionBuilder StartsWith(Func<StateDefinitionBuilder, IStateBuilder> callback)
         {
             var builder = new StateDefinitionBuilder();

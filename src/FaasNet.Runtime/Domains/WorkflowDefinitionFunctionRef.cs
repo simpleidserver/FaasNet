@@ -1,4 +1,6 @@
-﻿namespace FaasNet.Runtime.Domains
+﻿using Newtonsoft.Json.Linq;
+
+namespace FaasNet.Runtime.Domains
 {
     public class WorkflowDefinitionFunctionRef
     {
@@ -14,5 +16,17 @@
         /// Used if function type is graphsql. String containing valid GraphSQL selection set.
         /// </summary>
         public string SelectionSet { get; set; }
+        public JObject Arguments
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(ArgumentsStr))
+                {
+                    return null;
+                }
+
+                return JObject.Parse(ArgumentsStr);
+            }
+        }
     }
 }

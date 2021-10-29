@@ -36,15 +36,15 @@ namespace FaasNet.Runtime.Domains
             }
         }
 
-        public void Start(string input)
+        public void Start(JObject input)
         {
-            InputStr = input;
+            InputStr = input.ToString();
             Status = WorkflowInstanceStateStatus.ACTIVE;
         }
 
-        public void Complete(string output)
+        public void Complete(JObject output)
         {
-            OutputStr = output;
+            OutputStr = output.ToString();
             Status = WorkflowInstanceStateStatus.COMPLETE;
         }
 

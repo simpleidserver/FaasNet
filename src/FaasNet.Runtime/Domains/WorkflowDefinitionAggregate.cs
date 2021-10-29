@@ -51,6 +51,11 @@ namespace FaasNet.Runtime.Domains
             };
         }
 
+        public WorkflowDefinitionFunction GetFunction(string name)
+        {
+            return Functions.FirstOrDefault(f => f.Name == name);
+        }
+
         public BaseWorkflowDefinitionState GetState(string id)
         {
             return States.FirstOrDefault(s => s.Id == id);
