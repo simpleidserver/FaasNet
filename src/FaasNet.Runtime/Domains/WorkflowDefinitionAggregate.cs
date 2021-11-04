@@ -9,6 +9,7 @@ namespace FaasNet.Runtime.Domains
         {
             States = new List<BaseWorkflowDefinitionState>();
             Functions = new List<WorkflowDefinitionFunction>();
+            Events = new List<WorkflowDefinitionEvent>();
         }
 
         /// <summary>
@@ -39,6 +40,10 @@ namespace FaasNet.Runtime.Domains
         /// Workflow function definitions.
         /// </summary>
         public ICollection<WorkflowDefinitionFunction> Functions { get; set; }
+        /// <summary>
+        /// Workflow event definitions.
+        /// </summary>
+        public ICollection<WorkflowDefinitionEvent> Events { get; set; }
 
         public static WorkflowDefinitionAggregate Create(string id, string version, string name, string description)
         {
@@ -59,6 +64,11 @@ namespace FaasNet.Runtime.Domains
         public BaseWorkflowDefinitionState GetState(string id)
         {
             return States.FirstOrDefault(s => s.Id == id);
+        }
+
+        public WorkflowDefinitionEvent GetEvent(string name)
+        {
+            return Events.FirstOrDefault(e => e.Name == name);
         }
     }
 }

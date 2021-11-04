@@ -1,4 +1,7 @@
 ﻿using FaasNet.Runtime.Domains.Enums;
+using FaasNet.Runtime.Domains.IntegrationEvents;
+using FaasNet.Runtime.Exceptions;
+using FaasNet.Runtime.Resources;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -12,6 +15,7 @@ namespace FaasNet.Runtime.Domains
         {
             States = new List<WorkflowInstanceState>();
             Flows = new List<WorkflowInstanceSequenceFlow>();
+            IntegrationEvents = new List<IntegrationEvent>();
         }
 
         public string Id { get; set; }
@@ -21,6 +25,14 @@ namespace FaasNet.Runtime.Domains
         public WorkflowInstanceStatus Status { get; set; }
         public ICollection<WorkflowInstanceState> States { get; set; }
         public ICollection<WorkflowInstanceSequenceFlow> Flows { get; set; }
+        public ICollection<IntegrationEvent> IntegrationEvents { get; set; }
+        public IEnumerable<EventAddedEvent> EventAddedEvts
+        {
+            get
+            {
+                return IntegrationEvents.Where(e => e is EventAddedEvent).Cast<EventAddedEvent>();
+            }
+        }
         public string OutputStr { get; set; }
         public JObject Output
         {
@@ -37,9 +49,19 @@ namespace FaasNet.Runtime.Domains
 
         #region Getters
 
-        public bool TryGetFirstCreateState(out WorkflowInstanceState result)
+        public WorkflowInstanceState GetRootState()
         {
-            return TryGetFirstState(out result, WorkflowInstanceStateStatus.CREATE);
+            return States.FirstOrDefault(s => !Flows.Any(f => f.ToStateId == s.Id));
+        }
+
+        public WorkflowInstanceState GetState(string id)
+        {
+            return States.FirstOrDefault(s => s.Id == id);
+        }
+
+        public IEnumerable<string> GetNextStateInstanceIds(string id)
+        {
+            return Flows.Where(f => f.FromStateId == id).Select(f => f.ToStateId);
         }
 
         #endregion
@@ -58,10 +80,73 @@ namespace FaasNet.Runtime.Domains
             state.Complete(output);
         }
 
+        public void ProcessEvent(string stateId, string source, string type)
+        {
+            var state = States.First(s => s.Id == stateId);
+            var evt = state.GetEvent(source, type);
+            evt.State = WorkflowInstanceStateEventStates.PROCESSED;
+        }
+
+        public void ProcessAllEvents(string stateId)
+        {
+            var state = States.First(s => s.Id == stateId);
+            foreach(var evt in state.Events)
+            {
+                evt.State = WorkflowInstanceStateEventStates.PROCESSED;
+            }
+        }
+
         public void Terminate(JObject output)
         {
             OutputStr = output.ToString();
             Status = WorkflowInstanceStatus.TERMINATE;
+        }
+
+        public bool TryListenEvent(string stateInstanceId, string name, string source, string type)
+        {
+            var state = GetState(stateInstanceId);
+            if (state == null)
+            {
+                throw new BusinessException(string.Format(Global.UnknownWorkflowState, stateInstanceId));
+            }
+
+            if(state.Status != WorkflowInstanceStateStatus.ACTIVE)
+            {
+                throw new BusinessException(Global.AddEventToActiveState);
+            }
+
+            if (!state.TryGetEvent(name, out WorkflowInstanceStateEvent evt))
+            {
+                state.AddEvent(name, source, type);
+                var addedEvt = new EventAddedEvent(Guid.NewGuid().ToString(), Id, stateInstanceId, source, type);
+                IntegrationEvents.Add(addedEvt);
+                return true;
+            }
+
+            return false;
+        }
+
+        public void ConsumeEvent(string stateInstanceId, string source, string type, string data)
+        {
+            var state = GetState(stateInstanceId);
+            if (state == null)
+            {
+                throw new BusinessException(string.Format(Global.UnknownWorkflowState, stateInstanceId));
+            }
+
+            if (state.Status != WorkflowInstanceStateStatus.ACTIVE)
+            {
+                return;
+            }
+
+            if (state.TryGetEvent(source, type, out WorkflowInstanceStateEvent evt))
+            {
+                if (evt.State == WorkflowInstanceStateEventStates.CREATED)
+                {
+                    evt.State = WorkflowInstanceStateEventStates.CONSUMED;
+                    evt.Data = data;
+                }
+            }
         }
 
         #endregion
@@ -92,65 +177,6 @@ namespace FaasNet.Runtime.Domains
                 WorkflowDefVersion = workflowDefVersion,
                 Status = WorkflowInstanceStatus.ACTIVE
             };
-        }
-
-        private bool TryGetFirstState(out WorkflowInstanceState result, WorkflowInstanceStateStatus state)
-        {
-            result = null;
-            var rootState = GetRootState();
-            if (rootState.Status == state)
-            {
-                result = rootState;
-                return true;
-            }
-
-            var rootFlow = GetRootFlow();
-            return TryGetState(rootFlow, out result, state);
-        }
-
-        private bool TryGetState(WorkflowInstanceSequenceFlow flow, out WorkflowInstanceState result, WorkflowInstanceStateStatus status)
-        {
-            result = null;
-            var state = GetState(flow.ToStateId);
-            if (state.Status == status)
-            {
-                result = state;
-                return true;
-            }
-
-            flow = GetFlow(flow.ToStateId);
-            if (flow == null)
-            {
-                return false;
-            }
-
-            return TryGetState(flow, out result, status);
-        }
-
-        private WorkflowInstanceSequenceFlow GetFlow(string id)
-        {
-            return Flows.FirstOrDefault(f => f.FromStateId == id);
-        }
-
-        private WorkflowInstanceSequenceFlow GetRootFlow()
-        {
-            var rootState = GetRootState();
-            if (rootState == null)
-            {
-                return null;
-            }
-
-            return GetFlow(rootState.Id);
-        }
-
-        private WorkflowInstanceState GetRootState()
-        {
-            return States.FirstOrDefault(s => !Flows.Any(f => f.ToStateId == s.Id));
-        }
-
-        private WorkflowInstanceState GetState(string id)
-        {
-            return States.FirstOrDefault(s => s.Id == id);
         }
     }
 }

@@ -16,5 +16,10 @@
         {
             return new OperationStateBuilder();
         }
+
+        public EventStateBuilder Event()
+        {
+            return new EventStateBuilder();
+        }
     }
 }

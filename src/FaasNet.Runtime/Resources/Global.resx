@@ -117,8 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddEventToActiveState" xml:space="preserve">
+    <value>an event cannot be added to an active state</value>
+  </data>
   <data name="BadRESTApiUrl" xml:space="preserve">
     <value>the RestApi URL {0} doesn't match the format : url#operationid</value>
+  </data>
+  <data name="MissingOnEvents" xml:space="preserve">
+    <value>at least one OnEvent must be specified</value>
   </data>
   <data name="MissingRequiredParameters" xml:space="preserve">
     <value>the parameters {0} are missing</value>
@@ -131,5 +137,8 @@
   </data>
   <data name="UnknownWorkflowDefinition" xml:space="preserve">
     <value>the workflow definition {0} doesn't exist</value>
+  </data>
+  <data name="UnknownWorkflowState" xml:space="preserve">
+    <value>the workflow state {0} doesn't exist</value>
   </data>
 </root>

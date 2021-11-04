@@ -21,6 +21,18 @@ namespace FaasNet.Runtime.Builders
             return this;
         }
 
+        public WorkflowDefinitionBuilder AddConsumedEvent(string name, string source, string type)
+        {
+            _instance.Events.Add(new WorkflowDefinitionEvent
+            {
+                Kind = Domains.Enums.WorkflowDefinitionEventKinds.Consumed,
+                Name = name,
+                Source = source,
+                Type = type
+            });
+            return this;
+        }
+
         public WorkflowDefinitionBuilder StartsWith(Func<StateDefinitionBuilder, IStateBuilder> callback)
         {
             var builder = new StateDefinitionBuilder();

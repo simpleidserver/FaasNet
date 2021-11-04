@@ -61,11 +61,29 @@ namespace FaasNet.Runtime.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to an event cannot be added to an active state.
+        /// </summary>
+        internal static string AddEventToActiveState {
+            get {
+                return ResourceManager.GetString("AddEventToActiveState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to the RestApi URL {0} doesn&apos;t match the format : url#operationid.
         /// </summary>
         internal static string BadRESTApiUrl {
             get {
                 return ResourceManager.GetString("BadRESTApiUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to at least one OnEvent must be specified.
+        /// </summary>
+        internal static string MissingOnEvents {
+            get {
+                return ResourceManager.GetString("MissingOnEvents", resourceCulture);
             }
         }
         
@@ -102,6 +120,15 @@ namespace FaasNet.Runtime.Resources {
         internal static string UnknownWorkflowDefinition {
             get {
                 return ResourceManager.GetString("UnknownWorkflowDefinition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the workflow state {0} doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownWorkflowState {
+            get {
+                return ResourceManager.GetString("UnknownWorkflowState", resourceCulture);
             }
         }
     }

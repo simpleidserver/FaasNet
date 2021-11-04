@@ -1,6 +1,6 @@
 ﻿namespace FaasNet.Runtime.Domains.Enums
 {
-    public enum WorkflowDefinitionOperationActionModes
+    public enum WorkflowDefinitionActionModes
     {
         Sequential = 0,
         Parallel = 1

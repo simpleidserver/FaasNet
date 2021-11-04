@@ -14,7 +14,7 @@ namespace FaasNet.Runtime.Domains
         /// <summary>
         /// Should actions be performed sequentially or in parallel.
         /// </summary>
-        public WorkflowDefinitionOperationActionModes ActionMode { get; set; }
+        public WorkflowDefinitionActionModes ActionMode { get; set; }
         /// <summary>
         /// Actions to be performed.
         /// </summary>

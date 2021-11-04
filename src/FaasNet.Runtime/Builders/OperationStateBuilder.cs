@@ -10,7 +10,7 @@ namespace FaasNet.Runtime.Builders
         {
         }
 
-        public OperationStateBuilder SetActionMode(WorkflowDefinitionOperationActionModes actionMode)
+        public OperationStateBuilder SetActionMode(WorkflowDefinitionActionModes actionMode)
         {
             StateDef.ActionMode = actionMode;
             return this;
