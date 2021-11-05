@@ -80,6 +80,29 @@ namespace FaasNet.Runtime.Domains
             state.Complete(output);
         }
 
+        public void ConsumeEvent(string stateInstanceId, string source, string type, string data)
+        {
+            var state = GetState(stateInstanceId);
+            if (state == null)
+            {
+                throw new BusinessException(string.Format(Global.UnknownWorkflowState, stateInstanceId));
+            }
+
+            if (state.Status != WorkflowInstanceStateStatus.ACTIVE)
+            {
+                return;
+            }
+
+            if (state.TryGetEvent(source, type, out WorkflowInstanceStateEvent evt))
+            {
+                if (evt.State == WorkflowInstanceStateEventStates.CREATED)
+                {
+                    evt.State = WorkflowInstanceStateEventStates.CONSUMED;
+                    evt.Data = data;
+                }
+            }
+        }
+
         public void ProcessEvent(string stateId, string source, string type)
         {
             var state = States.First(s => s.Id == stateId);
@@ -87,13 +110,10 @@ namespace FaasNet.Runtime.Domains
             evt.State = WorkflowInstanceStateEventStates.PROCESSED;
         }
 
-        public void ProcessAllEvents(string stateId)
+        public void ConsumeOnEventResult(string stateId, int onEventId, string eventName, JObject content)
         {
-            var state = States.First(s => s.Id == stateId);
-            foreach(var evt in state.Events)
-            {
-                evt.State = WorkflowInstanceStateEventStates.PROCESSED;
-            }
+            var state = GetState(stateId);
+            state.AddOnEventResult(onEventId, eventName, content);
         }
 
         public void Terminate(JObject output)
@@ -124,29 +144,6 @@ namespace FaasNet.Runtime.Domains
             }
 
             return false;
-        }
-
-        public void ConsumeEvent(string stateInstanceId, string source, string type, string data)
-        {
-            var state = GetState(stateInstanceId);
-            if (state == null)
-            {
-                throw new BusinessException(string.Format(Global.UnknownWorkflowState, stateInstanceId));
-            }
-
-            if (state.Status != WorkflowInstanceStateStatus.ACTIVE)
-            {
-                return;
-            }
-
-            if (state.TryGetEvent(source, type, out WorkflowInstanceStateEvent evt))
-            {
-                if (evt.State == WorkflowInstanceStateEventStates.CREATED)
-                {
-                    evt.State = WorkflowInstanceStateEventStates.CONSUMED;
-                    evt.Data = data;
-                }
-            }
         }
 
         #endregion

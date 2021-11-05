@@ -11,6 +11,7 @@ namespace FaasNet.Runtime.Domains
         public WorkflowInstanceState()
         {
             Events = new List<WorkflowInstanceStateEvent>();
+            OnEvents = new List<WorkflowInstanceStateOnEvent>();
         }
 
         public string Id { get; set; }
@@ -43,6 +44,7 @@ namespace FaasNet.Runtime.Domains
             }
         }
         public ICollection<WorkflowInstanceStateEvent> Events { get; set; }
+        public ICollection<WorkflowInstanceStateOnEvent> OnEvents { get; set; }
 
         #region Commands
 
@@ -63,13 +65,18 @@ namespace FaasNet.Runtime.Domains
             Events.Add(WorkflowInstanceStateEvent.Create(name, source, type));
         }
 
+        public void AddOnEventResult(int onEventId, string eventName, JObject jObj)
+        {
+            OnEvents.Add(WorkflowInstanceStateOnEvent.Create(onEventId, eventName, jObj.ToString()));
+        }
+
         #endregion
 
         #region Getters
 
-        public IEnumerable<WorkflowInstanceStateEvent> GetConsumedEvts()
+        public IEnumerable<WorkflowInstanceStateEvent> GetConsumedEvts(IEnumerable<string> names)
         {
-            return Events.Where(e => e.State == WorkflowInstanceStateEventStates.CONSUMED);
+            return Events.Where(e => e.State == WorkflowInstanceStateEventStates.CONSUMED && names.Contains(e.Name));
         }
 
         public bool TryGetEvent(string name, out WorkflowInstanceStateEvent stateEvt)
@@ -89,14 +96,29 @@ namespace FaasNet.Runtime.Domains
             return Events.FirstOrDefault(e => e.Source == source && e.Type == type);
         }
 
-        public bool IsAllEvtsConsumed()
+        public bool IsAllEvtsConsumed(IEnumerable<string> names)
         {
-            return Events.All(e => e.State == WorkflowInstanceStateEventStates.CONSUMED);
+            return IsAllEvts(names, WorkflowInstanceStateEventStates.CONSUMED);
         }
 
         public bool IsAllEvtsProcessed(IEnumerable<string> names)
         {
-            return names.All(n => Events.Any(e => e.Name == n && e.State == WorkflowInstanceStateEventStates.PROCESSED));
+            return IsAllEvts(names, WorkflowInstanceStateEventStates.PROCESSED);
+        }
+
+        public JObject BuildOutputEventResult(int onEventId)
+        {
+            var result = new JObject();
+            var dataLst = OnEvents.Where(e => e.OnEventId == onEventId).Select(e => e.Data);
+            foreach(var d in dataLst)
+            {
+                result.Merge(d, new JsonMergeSettings
+                {
+                    MergeArrayHandling = MergeArrayHandling.Union
+                });
+            }
+
+            return result;
         }
 
         #endregion
@@ -109,6 +131,11 @@ namespace FaasNet.Runtime.Domains
                 DefId = defId,
                 Status = WorkflowInstanceStateStatus.CREATE
             };
+        }
+
+        private bool IsAllEvts(IEnumerable<string> names, WorkflowInstanceStateEventStates state)
+        {
+            return names.All(n => Events.Any(e => e.Name == n && e.State == state));
         }
     }
 }

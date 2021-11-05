@@ -96,14 +96,14 @@ namespace FaasNet.Runtime.Tests
                 .StartsWith(o => o.Event()
                     .SetExclusive(false)
                     .AddOnEvent(
-                        onevt => onevt.AddEventRef("GreetingEvent").AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.person.name' }")).Build()
-                    )
+                        onevt => onevt.AddEventRef("GreetingEvent").AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.person.message' }").SetActionDataFilter(string.Empty, "$.person.message", "$.result")).Build()
+                    ).End()
                 )
                 .Build();
             await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             runtimeJob.Start();
-            var jObj = JObject.Parse("{'greet': {'name': 'simpleidserver'}}");
+            var jObj = JObject.Parse("{'person': {'message': 'simpleidserver'}}");
             await runtimeJob.Publish(new CloudEventMessage
             {
                 Id = "id",
@@ -112,8 +112,9 @@ namespace FaasNet.Runtime.Tests
                 SpecVersion = "1.0",
                 Data = jObj
             });
-            string sss = "";
-            runtimeJob.Stop();
+            runtimeJob.WaitTerminate(instance);
+            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
+            Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
         }
 
         public class RuntimeJob
@@ -154,6 +155,17 @@ namespace FaasNet.Runtime.Tests
             public void Stop()
             {
                 _busControl.Stop();
+            }
+
+            public void WaitTerminate(WorkflowInstanceAggregate workflowInstance)
+            {
+                if (workflowInstance.Status == WorkflowInstanceStatus.TERMINATE)
+                {
+                    return;
+                }
+
+                Thread.Sleep(20);
+                WaitTerminate(workflowInstance);
             }
 
             public Task Publish(CloudEventMessage msg)
