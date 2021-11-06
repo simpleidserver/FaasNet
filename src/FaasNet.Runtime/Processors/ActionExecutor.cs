@@ -20,9 +20,9 @@ namespace FaasNet.Runtime.Processors
             _functionProcessors = functionProcessors;
         }
 
-        public async Task<JObject> Execute(JObject input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
+        public async Task<JObject> Execute(JObject inputState, JObject input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
-            JObject result = input;
+            var result = inputState;
             foreach (var action in actions)
             {
                 var referenceName = action.FunctionRef.ReferenceName;

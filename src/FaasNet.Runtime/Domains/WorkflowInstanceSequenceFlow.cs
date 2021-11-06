@@ -1,9 +1,15 @@
-﻿namespace FaasNet.Runtime.Domains
+﻿using System;
+
+namespace FaasNet.Runtime.Domains
 {
-    public class WorkflowInstanceSequenceFlow
+    public class WorkflowInstanceSequenceFlow : ICloneable
     {
+        #region Properties
+
         public string FromStateId { get; set; }
         public string ToStateId { get; set; }
+
+        #endregion
 
         public static WorkflowInstanceSequenceFlow Create(string fromStateId, string toStateId)
         {
@@ -11,6 +17,15 @@
             {
                 FromStateId = fromStateId,
                 ToStateId = toStateId
+            };
+        }
+
+        public object Clone()
+        {
+            return new WorkflowInstanceSequenceFlow
+            {
+                FromStateId = FromStateId,
+                ToStateId = ToStateId
             };
         }
     }

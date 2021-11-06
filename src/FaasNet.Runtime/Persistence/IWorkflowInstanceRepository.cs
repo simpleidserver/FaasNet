@@ -9,7 +9,7 @@ namespace FaasNet.Runtime.Persistence
     {
         IQueryable<WorkflowInstanceAggregate> Query();
         Task Add(WorkflowInstanceAggregate workflowInstance, CancellationToken cancellationToken);
-        Task Update(WorkflowDefinitionAggregate workflowInstance, CancellationToken cancellationToken);
+        Task Update(WorkflowInstanceAggregate workflowInstance, CancellationToken cancellationToken);
         Task<int> SaveChanges(CancellationToken cancellationToken);
     }
 }

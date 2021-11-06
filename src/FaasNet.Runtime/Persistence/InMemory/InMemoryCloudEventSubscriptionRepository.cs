@@ -1,4 +1,5 @@
 ﻿using FaasNet.Runtime.Domains;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -8,9 +9,9 @@ namespace FaasNet.Runtime.Persistence.InMemory
 {
     public class InMemoryCloudEventSubscriptionRepository : ICloudEventSubscriptionRepository
     {
-        private readonly ICollection<CloudEventSubscriptionAggregate> _cloudEvents;
+        private readonly ConcurrentBag<CloudEventSubscriptionAggregate> _cloudEvents;
 
-        public InMemoryCloudEventSubscriptionRepository(ICollection<CloudEventSubscriptionAggregate> cloudEvents)
+        public InMemoryCloudEventSubscriptionRepository(ConcurrentBag<CloudEventSubscriptionAggregate> cloudEvents)
         {
             _cloudEvents = cloudEvents;
         }

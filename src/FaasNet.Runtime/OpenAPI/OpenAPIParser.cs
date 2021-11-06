@@ -23,18 +23,16 @@ namespace FaasNet.Runtime.OpenAPI
 
         public async Task<JObject> Invoke(string url, string operationId, JObject input, CancellationToken cancellationToken)
         {
-            using (var httpClient = _httpClientFactory.Build())
-            {
-                var httpResult = await httpClient.GetAsync(url, cancellationToken);
-                httpResult.EnsureSuccessStatusCode();
-                var json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
-                var openApiResult = JsonConvert.DeserializeObject<OpenApiResult>(json);
-                var httpRequestMessage = BuildHttpRequestMessage(url, openApiResult, operationId, input);
-                httpResult = await httpClient.SendAsync(httpRequestMessage, cancellationToken);
-                httpResult.EnsureSuccessStatusCode();
-                json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
-                return JObject.Parse(json);
-            }
+            var httpClient = _httpClientFactory.Build();
+            var httpResult = await httpClient.GetAsync(url, cancellationToken);
+            httpResult.EnsureSuccessStatusCode();
+            var json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
+            var openApiResult = JsonConvert.DeserializeObject<OpenApiResult>(json);
+            var httpRequestMessage = BuildHttpRequestMessage(url, openApiResult, operationId, input);
+            httpResult = await httpClient.SendAsync(httpRequestMessage, cancellationToken);
+            httpResult.EnsureSuccessStatusCode();
+            json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
+            return JObject.Parse(json);
         }
 
         protected virtual HttpRequestMessage BuildHttpRequestMessage(string url, OpenApiResult openApiResult, string operationId, JObject input)

@@ -2,7 +2,7 @@
 using FaasNet.Runtime.Persistence;
 using FaasNet.Runtime.Persistence.InMemory;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace FaasNet.Runtime
 {
@@ -16,7 +16,7 @@ namespace FaasNet.Runtime
             _services = services;
         }
 
-        public ServerBuilder AddWorkflowDefs(List<WorkflowDefinitionAggregate> workflowDefs)
+        public ServerBuilder AddWorkflowDefs(ConcurrentBag<WorkflowDefinitionAggregate> workflowDefs)
         {
             _services.AddSingleton<IWorkflowDefinitionRepository>(new InMemoryWorkflowDefinitionRepository(workflowDefs));
             return this;

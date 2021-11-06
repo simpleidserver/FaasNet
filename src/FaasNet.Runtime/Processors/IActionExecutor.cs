@@ -9,6 +9,6 @@ namespace FaasNet.Runtime.Processors
 {
     public interface IActionExecutor
     {
-        Task<JObject> Execute(JObject input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken);
+        Task<JObject> Execute(JObject inputState, JObject input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken);
     }
 }

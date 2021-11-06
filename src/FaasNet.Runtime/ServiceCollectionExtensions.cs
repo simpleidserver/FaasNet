@@ -2,6 +2,7 @@
 using FaasNet.Runtime.Consumers;
 using FaasNet.Runtime.Domains;
 using FaasNet.Runtime.Factories;
+using FaasNet.Runtime.Infrastructure;
 using FaasNet.Runtime.OpenAPI;
 using FaasNet.Runtime.Persistence;
 using FaasNet.Runtime.Persistence.InMemory;
@@ -9,7 +10,7 @@ using FaasNet.Runtime.Processors;
 using MassTransit;
 using MassTransit.ExtensionsDependencyInjectionIntegration;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -36,7 +37,8 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.RegisterInMemory()
-                .RegisterCore();
+                .RegisterCore()
+                .AddLogging();
             return serverBuilder;
         }
 
@@ -50,14 +52,15 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IFunctionProcessor, RestApiFunctionProcessor>();
             services.AddTransient<IOpenAPIParser, OpenAPIParser>();
             services.AddTransient<IHttpClientFactory, HttpClientFactory>();
+            services.AddSingleton<IDistributedLock, InMemoryDistributedLock>();
             return services;
         }
 
         private static IServiceCollection RegisterInMemory(this IServiceCollection services)
         {
-            var cloudEvts = new List<CloudEventSubscriptionAggregate>();
-            var workflowInstances = new List<WorkflowInstanceAggregate>();
-            var workflowDefs = new List<WorkflowDefinitionAggregate>();
+            var cloudEvts = new ConcurrentBag<CloudEventSubscriptionAggregate>();
+            var workflowInstances = new ConcurrentBag<WorkflowInstanceAggregate>();
+            var workflowDefs = new ConcurrentBag<WorkflowDefinitionAggregate>();
             services.AddSingleton<ICloudEventSubscriptionRepository>(new InMemoryCloudEventSubscriptionRepository(cloudEvts));
             services.AddSingleton<IWorkflowInstanceRepository>(new InMemoryWorkflowInstanceRepository(workflowInstances));
             services.AddSingleton<IWorkflowDefinitionRepository>(new InMemoryWorkflowDefinitionRepository(workflowDefs));

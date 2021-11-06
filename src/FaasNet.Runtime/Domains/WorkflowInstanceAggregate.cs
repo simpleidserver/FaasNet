@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace FaasNet.Runtime.Domains
 {
-    public class WorkflowInstanceAggregate
+    public class WorkflowInstanceAggregate : ICloneable
     {
         public WorkflowInstanceAggregate()
         {
@@ -17,6 +17,8 @@ namespace FaasNet.Runtime.Domains
             Flows = new List<WorkflowInstanceSequenceFlow>();
             IntegrationEvents = new List<IntegrationEvent>();
         }
+
+        #region Properties
 
         public string Id { get; set; }
         public string WorkflowDefId { get; set; }
@@ -46,6 +48,8 @@ namespace FaasNet.Runtime.Domains
                 return JObject.Parse(OutputStr);
             }
         }
+
+        #endregion
 
         #region Getters
 
@@ -173,6 +177,21 @@ namespace FaasNet.Runtime.Domains
                 WorkflowDefId = workflowDefId,
                 WorkflowDefVersion = workflowDefVersion,
                 Status = WorkflowInstanceStatus.ACTIVE
+            };
+        }
+
+        public object Clone()
+        {
+            return new WorkflowInstanceAggregate
+            {
+                CreateDateTime = CreateDateTime,
+                Id = Id,
+                OutputStr = OutputStr,
+                Status = Status,
+                WorkflowDefVersion = WorkflowDefVersion,
+                WorkflowDefId = WorkflowDefId,
+                States = States.Select(s => (WorkflowInstanceState)s.Clone()).ToList(),
+                Flows = Flows.Select(f => (WorkflowInstanceSequenceFlow)f.Clone()).ToList()
             };
         }
     }

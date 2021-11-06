@@ -3,8 +3,6 @@ using FaasNet.Runtime.CloudEvent.Models;
 using FaasNet.Runtime.Domains;
 using FaasNet.Runtime.Domains.Enums;
 using FaasNet.Runtime.Persistence;
-using FaasNet.Runtime.Persistence.InMemory;
-using FaasNet.Runtime.Processors;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +10,7 @@ using Moq;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -87,7 +86,7 @@ namespace FaasNet.Runtime.Tests
         }
 
         [Fact]
-        public async Task When_Publish_Event()
+        public async Task When_Call_GreetingFunction_With_Event()
         {
             var runtimeJob = new RuntimeJob();
             var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
@@ -112,9 +111,104 @@ namespace FaasNet.Runtime.Tests
                 SpecVersion = "1.0",
                 Data = jObj
             });
-            runtimeJob.WaitTerminate(instance);
+            instance = runtimeJob.WaitTerminate(instance.Id);
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
             Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
+        }
+
+        [Fact]
+        public async Task When_Send_Two_Events_And_Set_Exlusive_To_False()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
+                .AddConsumedEvent("FirstEvent", "firstEventSource", "firstEventType")
+                .AddConsumedEvent("SecondEvent", "secondEventSource", "secondEventType")
+                .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
+                .StartsWith(o => o.Event()
+                    .SetExclusive(false)
+                    .AddOnEvent(
+                        onevt => onevt
+                            .AddEventRef("FirstEvent").AddEventRef("SecondEvent")
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.name' }").SetActionDataFilter(string.Empty, "$.firstEvent", "$.result"))
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.name' }").SetActionDataFilter(string.Empty, "$.secondEvent", "$.result"))
+                            .Build()
+                    )
+                    .End()
+                )
+                .Build();
+            await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
+            runtimeJob.Start();
+            var firstEventData = JObject.Parse("{'name': 'firstEvent'}");
+            var secondEventData = JObject.Parse("{'name': 'secondEvent'}");
+            await runtimeJob.Publish(new CloudEventMessage
+            {
+                Id = "id1",
+                Source = "firstEventSource",
+                Type = "firstEventType",
+                SpecVersion = "1.0",
+                Data = firstEventData
+            });
+            await runtimeJob.Publish(new CloudEventMessage
+            {
+                Id = "id2",
+                Source = "secondEventSource",
+                Type = "secondEventType",
+                SpecVersion = "1.0",
+                Data = secondEventData
+            });
+            instance = runtimeJob.WaitTerminate(instance.Id);
+            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
+            Assert.Equal("{\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\",\r\n  \"secondEvent\": \"Welcome to Serverless Workflow, secondEvent!\"\r\n}", instance.OutputStr);
+        }
+
+        [Fact]
+        public async Task When_Send_Two_Events_With_Same_Id()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
+                .AddConsumedEvent("FirstEvent", "firstEventSource", "firstEventType")
+                .AddConsumedEvent("SecondEvent", "secondEventSource", "secondEventType")
+                .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
+                .StartsWith(o => o.Event()
+                    .SetExclusive(true)
+                    .AddOnEvent(
+                        onevt => onevt
+                            .AddEventRef("FirstEvent").AddEventRef("SecondEvent")
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.name' }").SetActionDataFilter(string.Empty, "$.firstEvent", "$.result"))
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.name' }").SetActionDataFilter(string.Empty, "$.secondEvent", "$.result"))
+                            .Build()
+                    )
+                    .End()
+                )
+                .Build();
+            await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
+            runtimeJob.Start();
+            var firstEventData = JObject.Parse("{'name': 'firstEvent'}");
+            var secondEventData = JObject.Parse("{'name': 'secondEvent'}");
+            await runtimeJob.Publish(new CloudEventMessage
+            {
+                Id = "id1",
+                Source = "firstEventSource",
+                Type = "firstEventType",
+                SpecVersion = "1.0",
+                Data = firstEventData
+            });
+            Thread.Sleep(20);
+            await runtimeJob.Publish(new CloudEventMessage
+            {
+                Id = "id1",
+                Source = "firstEventSource",
+                Type = "firstEventType",
+                SpecVersion = "1.0",
+                Data = secondEventData
+            });
+            Thread.Sleep(2000);
+            var workflowInstance = runtimeJob.GetWorkflowInstance(instance.Id);
+            Assert.Equal(1, workflowInstance.States.Count);
+            Assert.Equal(1, workflowInstance.States.First().OnEvents.Count);
+            Assert.Equal("{\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\"\r\n}", workflowInstance.States.First().OnEvents.First().DataStr);
         }
 
         public class RuntimeJob
@@ -157,15 +251,24 @@ namespace FaasNet.Runtime.Tests
                 _busControl.Stop();
             }
 
-            public void WaitTerminate(WorkflowInstanceAggregate workflowInstance)
+            public WorkflowInstanceAggregate GetWorkflowInstance(string id)
             {
+                var workflowInstanceRepository = _serviceProvider.GetService<IWorkflowInstanceRepository>();
+                var workflowInstance = workflowInstanceRepository.Query().First(w => w.Id == id);
+                return workflowInstance;
+            }
+
+            public WorkflowInstanceAggregate WaitTerminate(string id)
+            {
+                var workflowInstanceRepository = _serviceProvider.GetService<IWorkflowInstanceRepository>();
+                var workflowInstance = workflowInstanceRepository.Query().First(w => w.Id == id);
                 if (workflowInstance.Status == WorkflowInstanceStatus.TERMINATE)
                 {
-                    return;
+                    return workflowInstance;
                 }
 
                 Thread.Sleep(20);
-                WaitTerminate(workflowInstance);
+                return WaitTerminate(id);
             }
 
             public Task Publish(CloudEventMessage msg)

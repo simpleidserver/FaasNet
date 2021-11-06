@@ -1,4 +1,6 @@
 ﻿using FaasNet.Runtime.Domains;
+using FaasNet.Runtime.Extensions;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -8,16 +10,16 @@ namespace FaasNet.Runtime.Persistence.InMemory
 {
     public class InMemoryWorkflowInstanceRepository : IWorkflowInstanceRepository
     {
-        private readonly ICollection<WorkflowInstanceAggregate> _instances;
+        private readonly ConcurrentBag<WorkflowInstanceAggregate> _instances;
 
-        public InMemoryWorkflowInstanceRepository(ICollection<WorkflowInstanceAggregate> instances)
+        public InMemoryWorkflowInstanceRepository(ConcurrentBag<WorkflowInstanceAggregate> instances)
         {
             _instances = instances;
         }
 
         public Task Add(WorkflowInstanceAggregate workflowInstance, CancellationToken cancellationToken)
         {
-            _instances.Add(workflowInstance);
+            _instances.Add((WorkflowInstanceAggregate)workflowInstance.Clone());
             return Task.CompletedTask;
         }
 
@@ -31,8 +33,10 @@ namespace FaasNet.Runtime.Persistence.InMemory
             return Task.FromResult(1);
         }
 
-        public Task Update(WorkflowDefinitionAggregate workflowInstance, CancellationToken cancellationToken)
+        public Task Update(WorkflowInstanceAggregate workflowInstance, CancellationToken cancellationToken)
         {
+            _instances.Remove(_instances.First(i => i.Id == workflowInstance.Id));
+            _instances.Add((WorkflowInstanceAggregate)workflowInstance.Clone());
             return Task.CompletedTask;
         }
     }

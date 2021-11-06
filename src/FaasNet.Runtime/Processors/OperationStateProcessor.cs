@@ -19,7 +19,7 @@ namespace FaasNet.Runtime.Processors
         public async Task<StateProcessorResult> Process(WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
             var operationState = executionContext.StateDef as WorkflowDefinitionOperationState;
-            var result = await _actionExecutor.Execute(executionContext.StateInstance.Input, operationState.ActionMode, operationState.Actions, executionContext, cancellationToken);
+            var result = await _actionExecutor.Execute(executionContext.StateInstance.Input, executionContext.StateInstance.Input, operationState.ActionMode, operationState.Actions, executionContext, cancellationToken);
             return StateProcessorResult.Ok(result);
         }
     }

@@ -6,13 +6,15 @@ using System.Linq;
 
 namespace FaasNet.Runtime.Domains
 {
-    public class WorkflowInstanceState
+    public class WorkflowInstanceState : ICloneable
     {
         public WorkflowInstanceState()
         {
             Events = new List<WorkflowInstanceStateEvent>();
             OnEvents = new List<WorkflowInstanceStateOnEvent>();
         }
+
+        #region Properties
 
         public string Id { get; set; }
         public string DefId { get; set; }
@@ -45,6 +47,8 @@ namespace FaasNet.Runtime.Domains
         }
         public ICollection<WorkflowInstanceStateEvent> Events { get; set; }
         public ICollection<WorkflowInstanceStateOnEvent> OnEvents { get; set; }
+
+        #endregion
 
         #region Commands
 
@@ -136,6 +140,20 @@ namespace FaasNet.Runtime.Domains
         private bool IsAllEvts(IEnumerable<string> names, WorkflowInstanceStateEventStates state)
         {
             return names.All(n => Events.Any(e => e.Name == n && e.State == state));
+        }
+
+        public object Clone()
+        {
+            return new WorkflowInstanceState
+            {
+                DefId = DefId,
+                Id = Id,
+                OutputStr = OutputStr,
+                Status = Status,
+                OnEvents = OnEvents.Select(e => (WorkflowInstanceStateOnEvent)e.Clone()).ToList(),
+                InputStr = InputStr,
+                Events = Events.Select(e => (WorkflowInstanceStateEvent)e.Clone()).ToList()
+            };
         }
     }
 }

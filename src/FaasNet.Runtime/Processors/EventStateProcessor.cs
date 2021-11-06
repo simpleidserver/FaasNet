@@ -22,8 +22,6 @@ namespace FaasNet.Runtime.Processors
 
         public async Task<StateProcessorResult> Process(WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
-            // Si c'est le state de départ alors il faut créer une nouvelle instance à chaque fois.
-            // OnEvent lorsque success alors on peut passer au state suivant.
             var eventState = executionContext.StateDef as WorkflowDefinitionEventState;
             await ConsumeEvents(executionContext, eventState, cancellationToken);
             var consumedOnEventIds = GetConsumedEventIndexLst(eventState, executionContext);
@@ -94,7 +92,7 @@ namespace FaasNet.Runtime.Processors
                 {
                     onEvent.Actions.ElementAt(index)
                 };
-                var content = await _actionExecutor.Execute(evt.DataObj, onEvent.ActionMode, actions, executionContext, cancellationToken);
+                var content = await _actionExecutor.Execute(JObject.Parse("{}"), evt.DataObj, onEvent.ActionMode, actions, executionContext, cancellationToken);
                 if (!consumedEvts.Contains(evt.Name))
                 {
                     consumedEvts.Add(evt.Name);

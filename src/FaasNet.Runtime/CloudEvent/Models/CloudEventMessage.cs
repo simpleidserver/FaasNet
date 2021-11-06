@@ -29,5 +29,13 @@ namespace FaasNet.Runtime.CloudEvent.Models
         #endregion
 
         public JObject Data { get; set; }
+
+        public string UniqueId
+        {
+            get
+            {
+                return $"{Id}.{Source}";
+            }
+        }
     }
 }

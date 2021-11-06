@@ -1,5 +1,5 @@
 ﻿using FaasNet.Runtime.Domains;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,9 +8,9 @@ namespace FaasNet.Runtime.Persistence.InMemory
 {
     public class InMemoryWorkflowDefinitionRepository : IWorkflowDefinitionRepository
     {
-        private readonly ICollection<WorkflowDefinitionAggregate> _defs;
+        private readonly ConcurrentBag<WorkflowDefinitionAggregate> _defs;
 
-        public InMemoryWorkflowDefinitionRepository(ICollection<WorkflowDefinitionAggregate> defs)
+        public InMemoryWorkflowDefinitionRepository(ConcurrentBag<WorkflowDefinitionAggregate> defs)
         {
             _defs = defs;
         }

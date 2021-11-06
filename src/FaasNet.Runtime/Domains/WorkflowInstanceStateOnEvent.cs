@@ -1,9 +1,12 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 
 namespace FaasNet.Runtime.Domains
 {
-    public class WorkflowInstanceStateOnEvent
+    public class WorkflowInstanceStateOnEvent : ICloneable
     {
+        #region Properties
+
         public int OnEventId { get; set; }
         public string EventName { get; set; }
         public string DataStr { get; set; }
@@ -15,6 +18,8 @@ namespace FaasNet.Runtime.Domains
             }
         }
 
+        #endregion
+
         public static WorkflowInstanceStateOnEvent Create(int onEventId, string eventName, string dataStr)
         {
             return new WorkflowInstanceStateOnEvent
@@ -22,6 +27,16 @@ namespace FaasNet.Runtime.Domains
                 DataStr = dataStr,
                 EventName = eventName,
                 OnEventId = onEventId
+            };
+        }
+
+        public object Clone()
+        {
+            return new WorkflowInstanceStateOnEvent
+            {
+                DataStr = DataStr,
+                EventName = EventName,
+                OnEventId = OnEventId
             };
         }
     }
