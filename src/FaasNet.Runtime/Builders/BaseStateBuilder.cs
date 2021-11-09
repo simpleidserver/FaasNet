@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Definitions;
 
 namespace FaasNet.Runtime.Builders
 {
@@ -16,9 +16,9 @@ namespace FaasNet.Runtime.Builders
             return StateDef;
         }
 
-        public IStateBuilder End()
+        public IStateBuilder SetName(string name)
         {
-            StateDef.End = true;
+            StateDef.Name = name;
             return this;
         }
 

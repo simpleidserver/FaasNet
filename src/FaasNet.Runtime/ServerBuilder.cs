@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Persistence;
 using FaasNet.Runtime.Persistence.InMemory;
 using Microsoft.Extensions.DependencyInjection;

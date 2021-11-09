@@ -19,13 +19,25 @@ namespace FaasNet.Runtime.Processors
         }
 
         public JObject Output { get; private set; }
+        public bool IsEnd { get; private set; }
+        public string Transition { get; private set; }
         public StateProcessorStatus Status { get; set; }
 
-        public static StateProcessorResult Ok(JObject result)
+        public static StateProcessorResult End(JObject result)
         {
             return new StateProcessorResult(result)
             {
-                Status = StateProcessorStatus.OK
+                Status = StateProcessorStatus.OK,
+                IsEnd = true
+            };
+        }
+
+        public static StateProcessorResult Next(JObject result, string transition)
+        {
+            return new StateProcessorResult(result)
+            {
+                Status = StateProcessorStatus.OK,
+                Transition = transition
             };
         }
 

@@ -1,5 +1,4 @@
-﻿using FaasNet.Runtime.Domains;
-using System;
+﻿using FaasNet.Runtime.Domains.Definitions;
 
 namespace FaasNet.Runtime.Builders
 {

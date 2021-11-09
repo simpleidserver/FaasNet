@@ -1,7 +1,8 @@
 ﻿using FaasNet.Runtime.Builders;
 using FaasNet.Runtime.CloudEvent.Models;
-using FaasNet.Runtime.Domains;
+using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Domains.Enums;
+using FaasNet.Runtime.Domains.Instances;
 using FaasNet.Runtime.Persistence;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -62,7 +63,7 @@ namespace FaasNet.Runtime.Tests
                         age = 30
                     }
                 }
-                }).SetOutputFilter("{ 'people' : '$.people[?(@.age < 40)]' }").End())
+                }).End().SetOutputFilter("{ 'people' : '$.people[?(@.age < 40)]' }"))
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
@@ -149,6 +150,22 @@ namespace FaasNet.Runtime.Tests
                 SpecVersion = "1.0",
                 Data = firstEventData
             });
+            runtimeJob.Wait(instance.Id, i =>
+            {
+                var firstState = i.States.FirstOrDefault();
+                if (firstState == null || !firstState.Events.Any())
+                {
+                    return false;
+                }
+
+                var evt = firstState.Events.FirstOrDefault(e => e.Source == "firstEventSource");
+                if (evt == null)
+                {
+                    return false;
+                }
+
+                return evt.State == WorkflowInstanceStateEventStates.CONSUMED;
+            });
             await runtimeJob.Publish(new CloudEventMessage
             {
                 Id = "id2",
@@ -195,7 +212,22 @@ namespace FaasNet.Runtime.Tests
                 SpecVersion = "1.0",
                 Data = firstEventData
             });
-            Thread.Sleep(20);
+            runtimeJob.Wait(instance.Id, i =>
+            {
+                var firstState = i.States.FirstOrDefault();
+                if (firstState == null || !firstState.Events.Any())
+                {
+                    return false;
+                }
+
+                var evt = firstState.Events.FirstOrDefault(e => e.Source == "firstEventSource");
+                if (evt == null)
+                {
+                    return false;
+                }
+
+                return evt.State == WorkflowInstanceStateEventStates.PROCESSED;
+            });
             await runtimeJob.Publish(new CloudEventMessage
             {
                 Id = "id1",
@@ -204,11 +236,76 @@ namespace FaasNet.Runtime.Tests
                 SpecVersion = "1.0",
                 Data = secondEventData
             });
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
             var workflowInstance = runtimeJob.GetWorkflowInstance(instance.Id);
             Assert.Equal(1, workflowInstance.States.Count);
-            Assert.Equal(1, workflowInstance.States.First().OnEvents.Count);
-            Assert.Equal("{\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\"\r\n}", workflowInstance.States.First().OnEvents.First().DataStr);
+            Assert.Equal("{\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\"\r\n}", workflowInstance.States.First().Events.First().OutputLst.First().Data);
+            Assert.Equal(WorkflowInstanceStateEventStates.PROCESSED, workflowInstance.States.First().Events.First().State);
+        }
+
+        [Fact]
+        public async Task When_Run_Switch_Data_Condition()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
+                .StartsWith(o => o.Switch()
+                    .AddDataCondition("MoreThan18", "StartApplication", "context.GetIntFromState(\"$.applicant.age\") >= 18")
+                    .AddDataCondition("LessThan18", "RejectApplication", "context.GetIntFromState(\"$.applicant.age\") < 18")
+                )
+                .Then(o => o.Inject().Data(new { reason = "accepted" }).End().SetName("StartApplication"))
+                .Then(o => o.Inject().Data(new { reason = "rejected" }).End().SetName("RejectApplication"))
+                .Build();
+            await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{ 'applicant' : { 'age' : 18 }}");
+            var secondInstance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{ 'applicant' : { 'age' : 15 }}");
+            Assert.Equal(3, instance.States.Count);
+            Assert.Equal(3, secondInstance.States.Count);
+            Assert.Equal("{\r\n  \"reason\": \"accepted\"\r\n}", instance.OutputStr);
+            Assert.Equal("{\r\n  \"reason\": \"rejected\"\r\n}", secondInstance.OutputStr);
+        }
+
+        [Fact]
+        public async Task When_Run_Switch_Event_Condition()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
+                .AddConsumedEvent("visaApprovedEvt", "visaCheckSource", "VisaApproved")
+                .AddConsumedEvent("visaRejectedEvt", "visaCheckSource", "VisaRejected")
+                .StartsWith(o => o.Switch()
+                    .AddEventCondition("visaApproved", "visaApprovedEvt", "HandleApprovedVisa")
+                    .AddEventCondition("visaRejected", "visaRejectedEvt", "HandleRejectedVisa")
+                )
+                .Then(o => o.Inject().Data(new { reason = "accepted" }).End().SetName("HandleApprovedVisa"))
+                .Then(o => o.Inject().Data(new { reason = "rejected" }).End().SetName("HandleRejectedVisa"))
+                .Build();
+            await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
+            runtimeJob.Start();
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
+            var firstEventData = JObject.Parse("{'name': 'firstEvent'}");
+            await runtimeJob.Publish(new CloudEventMessage
+            {
+                Id = "id1",
+                Source = "visaCheckSource",
+                Type = "VisaApproved",
+                SpecVersion = "1.0",
+                Data = firstEventData
+            });
+            instance = runtimeJob.WaitTerminate(instance.Id);
+            var secondInstance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
+            var secondEventData = JObject.Parse("{'name': 'secondEvent'}");
+            await runtimeJob.Publish(new CloudEventMessage
+            {
+                Id = "id2",
+                Source = "visaCheckSource",
+                Type = "VisaRejected",
+                SpecVersion = "1.0",
+                Data = firstEventData
+            });
+            secondInstance = runtimeJob.WaitTerminate(secondInstance.Id);
+            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
+            Assert.Equal(WorkflowInstanceStatus.TERMINATE, secondInstance.Status);
+            Assert.Equal("{\r\n  \"reason\": \"accepted\"\r\n}", instance.OutputStr);
+            Assert.Equal("{\r\n  \"reason\": \"rejected\"\r\n}", secondInstance.OutputStr);
         }
 
         public class RuntimeJob
@@ -256,6 +353,19 @@ namespace FaasNet.Runtime.Tests
                 var workflowInstanceRepository = _serviceProvider.GetService<IWorkflowInstanceRepository>();
                 var workflowInstance = workflowInstanceRepository.Query().First(w => w.Id == id);
                 return workflowInstance;
+            }
+
+            public WorkflowInstanceAggregate Wait(string id, Func<WorkflowInstanceAggregate, bool> callback)
+            {
+                var workflowInstanceRepository = _serviceProvider.GetService<IWorkflowInstanceRepository>();
+                var workflowInstance = workflowInstanceRepository.Query().First(w => w.Id == id);
+                if (callback(workflowInstance))
+                {
+                    return workflowInstance;
+                }
+
+                Thread.Sleep(20);
+                return Wait(id, callback);
             }
 
             public WorkflowInstanceAggregate WaitTerminate(string id)

@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Definitions;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;

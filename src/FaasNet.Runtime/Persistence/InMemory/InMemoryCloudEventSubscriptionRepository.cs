@@ -1,4 +1,5 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Subscriptions;
+using FaasNet.Runtime.Extensions;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,13 +19,13 @@ namespace FaasNet.Runtime.Persistence.InMemory
 
         public Task Add(CloudEventSubscriptionAggregate evt, CancellationToken cancellationToken)
         {
-            _cloudEvents.Add(evt);
+            _cloudEvents.Add((CloudEventSubscriptionAggregate)evt.Clone());
             return Task.CompletedTask;
         }
 
         public IQueryable<CloudEventSubscriptionAggregate> Query()
         {
-            return _cloudEvents.AsQueryable();
+            return _cloudEvents.Select(c => (CloudEventSubscriptionAggregate)c.Clone()).AsQueryable();
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)
@@ -32,8 +33,21 @@ namespace FaasNet.Runtime.Persistence.InMemory
             return Task.FromResult(1);
         }
 
-        public Task Update(IEnumerable<CloudEventSubscriptionAggregate> evt, CancellationToken cancellationToken)
+        public Task Update(IEnumerable<CloudEventSubscriptionAggregate> evts, CancellationToken cancellationToken)
         {
+            foreach(var evt in evts)
+            {
+                Update(evt, cancellationToken);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task Update(CloudEventSubscriptionAggregate evt, CancellationToken cancellation)
+        {
+            var record = _cloudEvents.First(c => c.Source == evt.Source && c.Type == evt.Type && c.StateInstanceId == evt.StateInstanceId && c.WorkflowInstanceId == evt.WorkflowInstanceId);
+            _cloudEvents.Remove(record);
+            _cloudEvents.Add((CloudEventSubscriptionAggregate)evt.Clone());
             return Task.CompletedTask;
         }
     }

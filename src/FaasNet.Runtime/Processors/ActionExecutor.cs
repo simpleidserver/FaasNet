@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Domains.Enums;
 using FaasNet.Runtime.Exceptions;
 using FaasNet.Runtime.Extensions;

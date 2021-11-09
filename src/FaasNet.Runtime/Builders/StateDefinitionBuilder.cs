@@ -21,5 +21,10 @@
         {
             return new EventStateBuilder();
         }
+
+        public SwitchStateBuilder Switch()
+        {
+            return new SwitchStateBuilder();
+        }
     }
 }

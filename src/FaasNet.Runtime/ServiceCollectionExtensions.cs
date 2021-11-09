@@ -1,12 +1,18 @@
 ﻿using FaasNet.Runtime;
 using FaasNet.Runtime.Consumers;
-using FaasNet.Runtime.Domains;
+using FaasNet.Runtime.Domains.Definitions;
+using FaasNet.Runtime.Domains.Instances;
+using FaasNet.Runtime.Domains.IntegrationEvents;
+using FaasNet.Runtime.Domains.Subscriptions;
 using FaasNet.Runtime.Factories;
 using FaasNet.Runtime.Infrastructure;
+using FaasNet.Runtime.Infrastructure.Handlers;
 using FaasNet.Runtime.OpenAPI;
 using FaasNet.Runtime.Persistence;
 using FaasNet.Runtime.Persistence.InMemory;
 using FaasNet.Runtime.Processors;
+using FaasNet.Runtime.Processors.Functions;
+using FaasNet.Runtime.Processors.States;
 using MassTransit;
 using MassTransit.ExtensionsDependencyInjectionIntegration;
 using System;
@@ -49,9 +55,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IStateProcessor, EventStateProcessor>();
             services.AddTransient<IStateProcessor, InjectStateProcessor>();
             services.AddTransient<IStateProcessor, OperationStateProcessor>();
+            services.AddTransient<IStateProcessor, SwitchStateProcessor>();
             services.AddTransient<IFunctionProcessor, RestApiFunctionProcessor>();
             services.AddTransient<IOpenAPIParser, OpenAPIParser>();
             services.AddTransient<IHttpClientFactory, HttpClientFactory>();
+            services.AddTransient<IIntegrationEventProcessor, IntegrationEventProcessor>();
+            services.AddTransient<IIntegrationEventHandler<EventListenedEvent>, EventListenedEventHandler>();
+            services.AddTransient<IIntegrationEventHandler<EventUnlistenedEvent>, EventUnlistenedEventHandler>();
             services.AddSingleton<IDistributedLock, InMemoryDistributedLock>();
             return services;
         }

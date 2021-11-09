@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Definitions;
 using System;
 using System.Linq;
 
@@ -37,7 +37,9 @@ namespace FaasNet.Runtime.Builders
         {
             var builder = new StateDefinitionBuilder();
             var stateBuilder = callback(builder);
-            _instance.States.Add(stateBuilder.Build());
+            var result = stateBuilder.Build();
+            result.IsRootState = true;
+            _instance.States.Add(result);
             return this;
         }
 
@@ -49,7 +51,11 @@ namespace FaasNet.Runtime.Builders
             if (_instance.States.Count() > 1) 
             {
                 var previousElt = _instance.States.ElementAt(_instance.States.Count() - 2);
-                previousElt.Transition = _instance.States.Last().Id;
+                var flowableState = previousElt as BaseWorkflowDefinitionFlowableState;
+                if (flowableState != null)
+                {
+                    flowableState.Transition = _instance.States.Last().Id;
+                }
             }
 
             return this;

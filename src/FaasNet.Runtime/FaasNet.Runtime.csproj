@@ -6,6 +6,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="prometheus-net" Version="5.0.1" />
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.2.4" />
+    <PackageReference Include="DynamicExpresso.Core" Version="2.9.5" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\Global.Designer.cs">

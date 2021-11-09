@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Definitions;
 using System;
 
 namespace FaasNet.Runtime.Builders
@@ -20,6 +20,12 @@ namespace FaasNet.Runtime.Builders
             var builder = new OnEventBuilder();
             callback(builder);
             StateDef.OnEvents.Add(builder.Build());
+            return this;
+        }
+
+        public EventStateBuilder End()
+        {
+            StateDef.End = true;
             return this;
         }
     }

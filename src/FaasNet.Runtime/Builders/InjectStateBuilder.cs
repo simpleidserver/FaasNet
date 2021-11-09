@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Definitions;
 using Newtonsoft.Json;
 
 namespace FaasNet.Runtime.Builders
@@ -9,9 +9,15 @@ namespace FaasNet.Runtime.Builders
         {
         }
 
-        public IStateBuilder Data(object data)
+        public InjectStateBuilder Data(object data)
         {
             StateDef.DataStr = JsonConvert.SerializeObject(data);
+            return this;
+        }
+
+        public InjectStateBuilder End()
+        {
+            StateDef.End = true;
             return this;
         }
     }

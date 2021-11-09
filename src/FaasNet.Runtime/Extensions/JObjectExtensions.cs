@@ -98,6 +98,21 @@ namespace FaasNet.Runtime.Extensions
             }
         }
 
+        public static void Merge(this JObject jObj, JObject dataObj, string data, string toState)
+        {
+            JToken record = dataObj;
+            if (!string.IsNullOrWhiteSpace(data))
+            {
+                record = record.SelectToken(data);
+                if (record == null)
+                {
+                    return;
+                }
+            }
+
+            jObj.Merge(toState, record);
+        }
+
         private static void Merge(JToken selectedToken, JToken token)
         {
             var jVal = selectedToken as JValue;

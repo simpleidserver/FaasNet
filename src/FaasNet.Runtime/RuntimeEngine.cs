@@ -1,5 +1,7 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Definitions;
+using FaasNet.Runtime.Domains.Instances;
 using FaasNet.Runtime.Extensions;
+using FaasNet.Runtime.Infrastructure;
 using FaasNet.Runtime.Persistence;
 using FaasNet.Runtime.Processors;
 using Newtonsoft.Json.Linq;
@@ -13,14 +15,14 @@ namespace FaasNet.Runtime
     public class RuntimeEngine : IRuntimeEngine
     {
         private readonly IEnumerable<IStateProcessor> _stateProcessors;
-        private readonly ICloudEventSubscriptionRepository _cloudEventSubscriptionRepository;
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
+        private readonly IIntegrationEventProcessor _integrationEventProcessor;
 
-        public RuntimeEngine(IEnumerable<IStateProcessor> stateProcessors, ICloudEventSubscriptionRepository cloudEventSubscriptionRepository, IWorkflowInstanceRepository workflowInstanceRepository)
+        public RuntimeEngine(IEnumerable<IStateProcessor> stateProcessors, IWorkflowInstanceRepository workflowInstanceRepository, IIntegrationEventProcessor integrationEventProcessor)
         {
             _stateProcessors = stateProcessors;
-            _cloudEventSubscriptionRepository = cloudEventSubscriptionRepository;
             _workflowInstanceRepository = workflowInstanceRepository;
+            _integrationEventProcessor = integrationEventProcessor;
         }
 
         public Task<WorkflowInstanceAggregate> InstanciateAndLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, string input, CancellationToken cancellationToken)
@@ -39,8 +41,9 @@ namespace FaasNet.Runtime
 
         public Task Launch(WorkflowDefinitionAggregate workflowDefinitionAggregate, WorkflowInstanceAggregate workflowInstance, JObject input, CancellationToken cancellationToken)
         {
-            var rootState = workflowInstance.GetRootState();
-            return Launch(workflowDefinitionAggregate, workflowInstance, input, rootState.Id, cancellationToken);
+            var rootState = workflowDefinitionAggregate.GetRootState();
+            var instance = workflowInstance.GetStateByDefId(rootState.Id);
+            return Launch(workflowDefinitionAggregate, workflowInstance, input, instance.Id, cancellationToken);
         }
 
         public async Task Launch(WorkflowDefinitionAggregate workflowDefinitionAggregate, WorkflowInstanceAggregate workflowInstance, JObject input, string stateInstanceId, CancellationToken cancellationToken)
@@ -54,7 +57,7 @@ namespace FaasNet.Runtime
             var stateInstance = workflowInstance.GetState(stateInstanceId);
             if (stateInstance.Status == Domains.Enums.WorkflowInstanceStateStatus.COMPLETE)
             {
-                // TODO : THROW EXCEPTION.
+                return;
             }
 
             var stateDefinition = workflowDefinitionAggregate.GetState(stateInstance.DefId);
@@ -78,16 +81,17 @@ namespace FaasNet.Runtime
 
             var output = Transform(stateProcessorResult.Output, stateDefinition.StateDataFilterOuput);
             workflowInstance.CompleteState(stateInstance.Id, output);
-            if (stateDefinition.End)
+            if (stateProcessorResult.IsEnd)
             {
                 workflowInstance.Terminate(output);
                 return;
             }
 
-            var nextStateInstances = workflowInstance.GetNextStateInstanceIds(stateInstance.Id);
-            foreach(var nextStateInstance in nextStateInstances)
+            var stateDef = workflowDefinitionAggregate.GetStateByName(stateProcessorResult.Transition);
+            var nextState = workflowInstance.GetStateByDefId(stateDef.Id);
+            if (nextState != null)
             {
-                await InternalLaunch(workflowDefinitionAggregate, workflowInstance, output, nextStateInstance, cancellationToken);
+                await InternalLaunch(workflowDefinitionAggregate, workflowInstance, output, nextState.Id, cancellationToken);
             }
         }
 
@@ -99,14 +103,6 @@ namespace FaasNet.Runtime
             {
                 var stateInstance = result.AddState(state.Id);
                 dic.Add(state.Id, stateInstance.Id);
-            }
-
-            foreach(var state in workflowDefinitionAggregate.States)
-            {
-                if (!string.IsNullOrWhiteSpace(state.Transition))
-                {
-                    result.AddFlow(dic[state.Id], dic[state.Transition]);
-                }
             }
 
             return result;
@@ -122,15 +118,9 @@ namespace FaasNet.Runtime
             return input.Transform(filter);
         }
 
-        private async Task Publish(WorkflowInstanceAggregate workflowInstance, CancellationToken cancellationToken)
+        private Task Publish(WorkflowInstanceAggregate workflowInstance, CancellationToken cancellationToken)
         {
-            foreach (var evt in workflowInstance.EventAddedEvts)
-            {
-                await _cloudEventSubscriptionRepository.Add(CloudEventSubscriptionAggregate.Create(workflowInstance.Id, evt.StateInstanceId, evt.Source, evt.Type), cancellationToken);
-                await _cloudEventSubscriptionRepository.SaveChanges(cancellationToken);
-            }
-
-            return;
+            return _integrationEventProcessor.Process(workflowInstance.IntegrationEvents.ToList(), cancellationToken);
         }
     }
 }

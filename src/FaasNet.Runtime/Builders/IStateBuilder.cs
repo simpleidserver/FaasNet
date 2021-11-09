@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Definitions;
 
 namespace FaasNet.Runtime.Builders
 {
@@ -6,6 +6,6 @@ namespace FaasNet.Runtime.Builders
     {
         BaseWorkflowDefinitionState Build();
         IStateBuilder SetOutputFilter(string filter);
-        IStateBuilder End();
+        IStateBuilder SetName(string name);
     }
 }

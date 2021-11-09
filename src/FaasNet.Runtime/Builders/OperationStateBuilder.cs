@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Domains.Enums;
 using System;
 
@@ -21,6 +21,12 @@ namespace FaasNet.Runtime.Builders
             var builder = new ActionBuilder(name);
             callback(builder);
             StateDef.Actions.Add(builder.Build());
+            return this;
+        }
+
+        public OperationStateBuilder End()
+        {
+            StateDef.End = true;
             return this;
         }
     }

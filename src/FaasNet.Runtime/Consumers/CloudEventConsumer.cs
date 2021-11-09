@@ -1,14 +1,15 @@
 ﻿using FaasNet.Runtime.CloudEvent.Models;
-using FaasNet.Runtime.Domains;
+using FaasNet.Runtime.Domains.Instances;
+using FaasNet.Runtime.Domains.Subscriptions;
 using FaasNet.Runtime.Infrastructure;
 using FaasNet.Runtime.Persistence;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace FaasNet.Runtime.Consumers
 {
@@ -21,7 +22,13 @@ namespace FaasNet.Runtime.Consumers
         private readonly IDistributedLock _distributedLock;
         private readonly ILogger<CloudEventConsumer> _logger;
 
-        public CloudEventConsumer(ICloudEventSubscriptionRepository cloudEventSubscriptionRepository, IWorkflowInstanceRepository workflowInstanceRepository, IRuntimeEngine runtimeEngine, IWorkflowDefinitionRepository workflowDefinitionRepository, IDistributedLock distributedLock, ILogger<CloudEventConsumer> logger)
+        public CloudEventConsumer(
+            ICloudEventSubscriptionRepository cloudEventSubscriptionRepository, 
+            IWorkflowInstanceRepository workflowInstanceRepository, 
+            IRuntimeEngine runtimeEngine, 
+            IWorkflowDefinitionRepository workflowDefinitionRepository, 
+            IDistributedLock distributedLock, 
+            ILogger<CloudEventConsumer> logger)
         {
             _cloudEventSubscriptionRepository = cloudEventSubscriptionRepository;
             _workflowInstanceRepository = workflowInstanceRepository;
@@ -41,38 +48,54 @@ namespace FaasNet.Runtime.Consumers
 
             try
             {
-                var subscriptions = _cloudEventSubscriptionRepository.Query().Where(c => c.Source == context.Message.Source && c.Type == context.Message.Type && !c.IsConsumed).ToList();
-                var dic = new Dictionary<WorkflowInstanceAggregate, List<string>>();
-                foreach (var kvp in subscriptions.GroupBy(s => s.WorkflowInstanceId))
+                var subscriptions = GetSubscriptions(context);
+                foreach(var subscription in subscriptions)
                 {
-                    var workflowInstance = _workflowInstanceRepository.Query().First(w => w.Id == kvp.Key);
-                    foreach (var subscription in kvp)
+                    var workflowDef = _workflowDefinitionRepository.Query().FirstOrDefault(w => w.Id == subscription.WorkflowInstance.WorkflowDefId);
+                    using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        subscription.IsConsumed = true;
-                        workflowInstance.ConsumeEvent(subscription.StateInstanceId, context.Message.Source, context.Message.Type, context.Message.Data?.ToString());
-                    }
+                        foreach (var sub in subscription.Subscriptions)
+                        {
+                            subscription.WorkflowInstance.ConsumeEvent(sub.StateInstanceId, context.Message.Source, context.Message.Type, context.Message.Data?.ToString());
+                            await _runtimeEngine.Launch(workflowDef, subscription.WorkflowInstance, context.Message.Data, sub.StateInstanceId, CancellationToken.None);
+                            sub.IsConsumed = true; 
+                            await _workflowInstanceRepository.Update(subscription.WorkflowInstance, CancellationToken.None);
+                            await _cloudEventSubscriptionRepository.Update(new List<CloudEventSubscriptionAggregate> { sub }, CancellationToken.None);
+                        }
 
-                    dic.Add(workflowInstance, kvp.Select(kvp => kvp.StateInstanceId).ToList());
-                }
-
-                await _cloudEventSubscriptionRepository.Update(subscriptions, CancellationToken.None);
-                await _cloudEventSubscriptionRepository.SaveChanges(CancellationToken.None);
-                foreach (var kvp in dic)
-                {
-                    var workflowDef = _workflowDefinitionRepository.Query().FirstOrDefault(w => w.Id == kvp.Key.WorkflowDefId);
-                    foreach (var value in kvp.Value)
-                    {
-                        await _runtimeEngine.Launch(workflowDef, kvp.Key, JObject.Parse("{}"), value, CancellationToken.None);
-                        await _workflowInstanceRepository.Update(kvp.Key, CancellationToken.None);
+                        await _workflowInstanceRepository.SaveChanges(CancellationToken.None);
+                        await _cloudEventSubscriptionRepository.SaveChanges(CancellationToken.None);
+                        scope.Complete();
                     }
                 }
-
-                await _workflowInstanceRepository.SaveChanges(CancellationToken.None);
             }
             finally
             {
                 await _distributedLock.ReleaseLock(context.Message.UniqueId, CancellationToken.None);
             }
+        }
+
+        protected virtual List<SubscriptionResult> GetSubscriptions(ConsumeContext<CloudEventMessage> context)
+        {
+            var subscriptions = _cloudEventSubscriptionRepository.Query().Where(c => c.Source == context.Message.Source && c.Type == context.Message.Type && !c.IsConsumed).ToList();
+            var result = new List<SubscriptionResult>();
+            foreach (var kvp in subscriptions.GroupBy(s => s.WorkflowInstanceId))
+            {
+                var workflowInstance = _workflowInstanceRepository.Query().First(w => w.Id == kvp.Key);
+                result.Add(new SubscriptionResult
+                {
+                    Subscriptions = kvp.ToList(),
+                    WorkflowInstance = workflowInstance
+                });
+            }
+
+            return result;
+        }
+
+        protected class SubscriptionResult
+        {
+            public WorkflowInstanceAggregate WorkflowInstance { get; set; }
+            public ICollection<CloudEventSubscriptionAggregate> Subscriptions { get; set; }
         }
     }
 }

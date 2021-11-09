@@ -1,4 +1,5 @@
-﻿using FaasNet.Runtime.Domains;
+﻿using FaasNet.Runtime.Domains.Definitions;
+using FaasNet.Runtime.Domains.Instances;
 using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Threading.Tasks;
