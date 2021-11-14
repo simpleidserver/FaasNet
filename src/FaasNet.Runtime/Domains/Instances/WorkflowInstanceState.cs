@@ -21,7 +21,7 @@ namespace FaasNet.Runtime.Domains.Instances
         public string DefId { get; set; }
         public WorkflowInstanceStateStatus Status { get; set; }
         public string InputStr { get; set; }
-        public JObject Input
+        public JToken Input
         {
             get
             {
@@ -34,7 +34,7 @@ namespace FaasNet.Runtime.Domains.Instances
             }
         }
         public string OutputStr { get; set; }
-        public JObject Output
+        public JToken Output
         {
             get
             {
@@ -52,13 +52,13 @@ namespace FaasNet.Runtime.Domains.Instances
 
         #region Commands
 
-        public void Start(JObject input)
+        public void Start(JToken input)
         {
             InputStr = input.ToString();
             Status = WorkflowInstanceStateStatus.ACTIVE;
         }
 
-        public void Complete(JObject output)
+        public void Complete(JToken output)
         {
             OutputStr = output.ToString();
             Status = WorkflowInstanceStateStatus.COMPLETE;

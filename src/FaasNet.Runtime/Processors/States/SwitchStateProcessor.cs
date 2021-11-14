@@ -47,7 +47,7 @@ namespace FaasNet.Runtime.Processors.States
             return Task.FromResult(StateProcessorResult.Block());
         }
 
-        protected StateProcessorResult Ok(BaseEventCondition evtCondition, JObject result)
+        protected StateProcessorResult Ok(BaseEventCondition evtCondition, JToken result)
         {
             if (evtCondition.End)
             {

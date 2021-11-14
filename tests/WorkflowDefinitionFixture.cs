@@ -83,7 +83,7 @@ namespace FaasNet.Runtime.Tests
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'name': 'simpleidserver', 'message': 'message' }}");
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("{\r\n  \"person\": {\r\n    \"name\": \"simpleidserver\",\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
+            Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
         }
 
         [Fact]
@@ -306,6 +306,29 @@ namespace FaasNet.Runtime.Tests
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, secondInstance.Status);
             Assert.Equal("{\r\n  \"reason\": \"accepted\"\r\n}", instance.OutputStr);
             Assert.Equal("{\r\n  \"reason\": \"rejected\"\r\n}", secondInstance.OutputStr);
+        }
+
+        [Fact]
+        public async Task When_Run_ForeachState()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("solvemathproblems", "v1", "name", "description")
+                .AddFunction(o => o.RestAPI("solveMathExpressionFunction", "http://localhost/swagger/v1/swagger.json#calculator"))
+                .StartsWith(o => o.Foreach()
+                    .SetInputCollection("$.expressions")
+                    .SetOutputCollection("$.results")
+                    .SetMode(WorkflowDefinitionForeachStateModes.Sequential)
+                    .AddAction("", (act) =>
+                    {
+                        act.SetFunctionRef("solveMathExpressionFunction", string.Empty);
+                    })
+                    .End()
+                )
+                .Build();
+            await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{ 'expressions' : ['2+2', '4-1', '10x3']}");
+            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
+            Assert.Equal("[\r\n  4,\r\n  3,\r\n  30\r\n]", instance.OutputStr);
         }
 
         public class RuntimeJob

@@ -6,6 +6,6 @@ namespace FaasNet.Runtime.OpenAPI
 {
     public interface IOpenAPIParser
     {
-        Task<JObject> Invoke(string url, string operationId, JObject input, CancellationToken cancellationToken);
+        Task<JToken> Invoke(string url, string operationId, JToken input, CancellationToken cancellationToken);
     }
 }

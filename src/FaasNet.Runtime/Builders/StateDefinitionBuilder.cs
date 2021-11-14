@@ -26,5 +26,10 @@
         {
             return new SwitchStateBuilder();
         }
+
+        public ForeachStateBuilder Foreach()
+        {
+            return new ForeachStateBuilder();
+        }
     }
 }

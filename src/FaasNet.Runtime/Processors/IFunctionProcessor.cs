@@ -10,6 +10,6 @@ namespace FaasNet.Runtime.Processors
     public interface IFunctionProcessor
     {
         WorkflowDefinitionTypes Type { get; }
-        Task<JObject> Process(JObject input, WorkflowDefinitionFunction function, WorkflowInstanceState instanceState, CancellationToken cancellationToken);
+        Task<JToken> Process(JToken input, WorkflowDefinitionFunction function, WorkflowInstanceState instanceState, CancellationToken cancellationToken);
     }
 }

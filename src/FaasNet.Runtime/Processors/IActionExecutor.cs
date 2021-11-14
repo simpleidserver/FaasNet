@@ -1,5 +1,4 @@
-﻿using FaasNet.Runtime.Domains;
-using FaasNet.Runtime.Domains.Definitions;
+﻿using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Domains.Enums;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -10,6 +9,8 @@ namespace FaasNet.Runtime.Processors
 {
     public interface IActionExecutor
     {
-        Task<JObject> Execute(JObject inputState, JObject input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken);
+        Task<JObject> ExecuteAndMerge(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken);
+        Task<JToken> ExecuteAndConcatenate(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken);
+        Task<List<JToken>> Execute(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken);
     }
 }

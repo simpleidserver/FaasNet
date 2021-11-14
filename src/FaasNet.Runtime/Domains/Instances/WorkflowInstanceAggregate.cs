@@ -91,13 +91,13 @@ namespace FaasNet.Runtime.Domains.Instances
 
         #region Manage State
 
-        public void StartState(string stateId, JObject input)
+        public void StartState(string stateId, JToken input)
         {
             var state = GetState(stateId);
             state.Start(input);
         }
 
-        public void CompleteState(string stateId, JObject output)
+        public void CompleteState(string stateId, JToken output)
         {
             var state = GetState(stateId);
             state.Complete(output);
@@ -154,7 +154,7 @@ namespace FaasNet.Runtime.Domains.Instances
 
         #endregion
 
-        public void Terminate(JObject output)
+        public void Terminate(JToken output)
         {
             OutputStr = output.ToString();
             Status = WorkflowInstanceStatus.TERMINATE;

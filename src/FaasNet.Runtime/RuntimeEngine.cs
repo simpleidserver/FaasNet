@@ -52,7 +52,7 @@ namespace FaasNet.Runtime
             await Publish(workflowInstance, cancellationToken);
         }
 
-        protected async Task InternalLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, WorkflowInstanceAggregate workflowInstance, JObject input, string stateInstanceId, CancellationToken cancellationToken)
+        protected async Task InternalLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, WorkflowInstanceAggregate workflowInstance, JToken input, string stateInstanceId, CancellationToken cancellationToken)
         {
             var stateInstance = workflowInstance.GetState(stateInstanceId);
             if (stateInstance.Status == Domains.Enums.WorkflowInstanceStateStatus.COMPLETE)
@@ -108,7 +108,7 @@ namespace FaasNet.Runtime
             return result;
         }
 
-        private JObject Transform(JObject input, string filter)
+        private JToken Transform(JToken input, string filter)
         {
             if (string.IsNullOrWhiteSpace(filter))
             {

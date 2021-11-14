@@ -56,6 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IStateProcessor, InjectStateProcessor>();
             services.AddTransient<IStateProcessor, OperationStateProcessor>();
             services.AddTransient<IStateProcessor, SwitchStateProcessor>();
+            services.AddTransient<IStateProcessor, ForeachStateProcessor>();
             services.AddTransient<IFunctionProcessor, RestApiFunctionProcessor>();
             services.AddTransient<IOpenAPIParser, OpenAPIParser>();
             services.AddTransient<IHttpClientFactory, HttpClientFactory>();

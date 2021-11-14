@@ -25,7 +25,7 @@ namespace FaasNet.Runtime.Processors.States
         {
             var eventState = executionContext.StateDef as WorkflowDefinitionEventState;
             await ConsumeEvents(executionContext, eventState, cancellationToken);
-            if (TryGetOutput(eventState, executionContext, out JObject output))
+            if (TryGetOutput(eventState, executionContext, out JToken output))
             {
                 return Ok(output, eventState);
             }
@@ -91,7 +91,7 @@ namespace FaasNet.Runtime.Processors.States
                 {
                     onEvent.Actions.ElementAt(index)
                 };
-                var content = await _actionExecutor.Execute(JObject.Parse("{}"), evt.InputDataObj, onEvent.ActionMode, actions, executionContext, cancellationToken);
+                var content = await _actionExecutor.ExecuteAndMerge(evt.InputDataObj, onEvent.ActionMode, actions, executionContext, cancellationToken);
                 if (!consumedEvts.Contains(evt.Name))
                 {
                     consumedEvts.Add(evt.Name);
@@ -103,7 +103,7 @@ namespace FaasNet.Runtime.Processors.States
             return result;
         }
 
-        protected bool TryGetOutput(WorkflowDefinitionEventState state, WorkflowInstanceExecutionContext executionContext, out JObject output)
+        protected bool TryGetOutput(WorkflowDefinitionEventState state, WorkflowInstanceExecutionContext executionContext, out JToken output)
         {
             var result = false;
             output = executionContext.StateInstance.Input;

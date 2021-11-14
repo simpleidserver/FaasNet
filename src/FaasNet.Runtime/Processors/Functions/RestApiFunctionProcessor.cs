@@ -22,7 +22,7 @@ namespace FaasNet.Runtime.Processors.Functions
 
         public WorkflowDefinitionTypes Type => WorkflowDefinitionTypes.REST;
 
-        public async Task<JObject> Process(JObject input, WorkflowDefinitionFunction function, WorkflowInstanceState instanceState, CancellationToken cancellationToken)
+        public async Task<JToken> Process(JToken input, WorkflowDefinitionFunction function, WorkflowInstanceState instanceState, CancellationToken cancellationToken)
         {
             var splitted = function.Operation.Split('#');
             if (splitted.Count() != 2)

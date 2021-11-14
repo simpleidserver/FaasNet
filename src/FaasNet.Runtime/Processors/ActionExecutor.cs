@@ -20,9 +20,47 @@ namespace FaasNet.Runtime.Processors
             _functionProcessors = functionProcessors;
         }
 
-        public async Task<JObject> Execute(JObject inputState, JObject input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
+        #region Public methods
+
+        public async Task<JObject> ExecuteAndMerge(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
-            var result = inputState;
+            var dic = await ExecuteActions(input, actionMode, actions, executionContext, cancellationToken);
+            var output = JObject.Parse("{}");
+            foreach (var kvp in dic)
+            {
+                EnrichOutputState(kvp.Key, kvp.Value, output);
+            }
+
+            return output;
+        }
+
+        public async Task<JToken> ExecuteAndConcatenate(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
+        {
+            var records = await Execute(input, actionMode, actions, executionContext, cancellationToken);
+            JToken record = records.First();
+            if (records.Count() > 1)
+            {
+                record = new JArray();
+                foreach (var rec in records)
+                {
+                    ((JArray)record).Add(rec);
+                }
+            }
+
+            return record;
+        }
+
+        public async Task<List<JToken>> Execute(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
+        {
+            var dic = await ExecuteActions(input, actionMode, actions, executionContext, cancellationToken);
+            return dic.Select(kvp => kvp.Value).ToList();
+        }
+
+        #endregion
+
+        protected virtual async Task<Dictionary<WorkflowDefinitionAction, JToken>> ExecuteActions(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
+        {
+            var result = new Dictionary<WorkflowDefinitionAction, JToken>();
             foreach (var action in actions)
             {
                 var referenceName = action.FunctionRef.ReferenceName;
@@ -40,29 +78,28 @@ namespace FaasNet.Runtime.Processors
 
                 var functionInput = GetInput(action, input);
                 var functionResult = await functionProcessor.Process(functionInput, function, executionContext.StateInstance, cancellationToken);
-                EnrichOutputState(action, functionResult, result);
+                result.Add(action, functionResult);
             }
 
             return result;
         }
 
-        protected virtual JObject GetInput(WorkflowDefinitionAction action, JObject inputState)
+        protected virtual JToken GetInput(WorkflowDefinitionAction action, JToken inputState)
         {
             if (action.ActionDataFilter != null && !string.IsNullOrWhiteSpace(action.ActionDataFilter.FromStateData))
             {
                 inputState = inputState.Transform(action.ActionDataFilter.ToStateData);
             }
 
-            var input = JObject.Parse("{}");
             if (!string.IsNullOrWhiteSpace(action.FunctionRef.ArgumentsStr))
             {
-                input = inputState.Transform(action.FunctionRef.ArgumentsStr);
+                return inputState.Transform(action.FunctionRef.ArgumentsStr);
             }
 
-            return input;
+            return inputState;
         }
 
-        protected virtual void EnrichOutputState(WorkflowDefinitionAction action, JObject functionResult, JObject outputState)
+        protected virtual void EnrichOutputState(WorkflowDefinitionAction action, JToken functionResult, JObject outputState)
         {
             if (action.ActionDataFilter != null && action.ActionDataFilter.UseResults && !string.IsNullOrWhiteSpace(action.ActionDataFilter.ToStateData))
             {

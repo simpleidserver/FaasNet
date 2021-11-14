@@ -5,7 +5,7 @@ namespace FaasNet.Runtime.Processors.States
 {
     public class BaseFlowableStateProcessor
     {
-        public StateProcessorResult Ok(JObject jObj, BaseWorkflowDefinitionFlowableState stateDef)
+        public StateProcessorResult Ok(JToken jObj, BaseWorkflowDefinitionFlowableState stateDef)
         {
             if(stateDef.End)
             {

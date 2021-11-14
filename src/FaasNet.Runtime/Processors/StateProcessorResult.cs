@@ -13,17 +13,17 @@ namespace FaasNet.Runtime.Processors
     {
         private StateProcessorResult() { }
 
-        private StateProcessorResult(JObject output)
+        private StateProcessorResult(JToken output)
         {
             Output = output;
         }
 
-        public JObject Output { get; private set; }
+        public JToken Output { get; private set; }
         public bool IsEnd { get; private set; }
         public string Transition { get; private set; }
         public StateProcessorStatus Status { get; set; }
 
-        public static StateProcessorResult End(JObject result)
+        public static StateProcessorResult End(JToken result)
         {
             return new StateProcessorResult(result)
             {
@@ -32,7 +32,7 @@ namespace FaasNet.Runtime.Processors
             };
         }
 
-        public static StateProcessorResult Next(JObject result, string transition)
+        public static StateProcessorResult Next(JToken result, string transition)
         {
             return new StateProcessorResult(result)
             {

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace FaasNet.Runtime.OpenAPI
 {
@@ -21,7 +22,7 @@ namespace FaasNet.Runtime.OpenAPI
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<JObject> Invoke(string url, string operationId, JObject input, CancellationToken cancellationToken)
+        public async Task<JToken> Invoke(string url, string operationId, JToken input, CancellationToken cancellationToken)
         {
             var httpClient = _httpClientFactory.Build();
             var httpResult = await httpClient.GetAsync(url, cancellationToken);
@@ -32,10 +33,17 @@ namespace FaasNet.Runtime.OpenAPI
             httpResult = await httpClient.SendAsync(httpRequestMessage, cancellationToken);
             httpResult.EnsureSuccessStatusCode();
             json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
-            return JObject.Parse(json);
+            try
+            {
+                return JToken.Parse(json);
+            }
+            catch
+            {
+                return json;
+            }
         }
 
-        protected virtual HttpRequestMessage BuildHttpRequestMessage(string url, OpenApiResult openApiResult, string operationId, JObject input)
+        protected virtual HttpRequestMessage BuildHttpRequestMessage(string url, OpenApiResult openApiResult, string operationId, JToken input)
         {
             var path = openApiResult.Paths.FirstOrDefault(p => p.Value.Any(v => v.Value.OperationId == operationId));
             if (string.IsNullOrWhiteSpace(path.Key))
@@ -54,26 +62,38 @@ namespace FaasNet.Runtime.OpenAPI
             };
         }
 
-        protected string ConvertUrl(string operationUrl, JObject input, OpenApiOperationResult openApiOperationResult)
+        protected string ConvertUrl(string operationUrl, JToken input, OpenApiOperationResult openApiOperationResult)
         {
             var result = operationUrl;
-            var missingRequiredParameters = new List<string>();
-            foreach(var parameter in openApiOperationResult.Parameters)
+            var jObj = input as JObject;
+            if (jObj != null)
             {
-                var containsKey = input.ContainsKey(parameter.Name);
-                if (parameter.Required && !containsKey)
+                var missingRequiredParameters = new List<string>();
+                foreach (var parameter in openApiOperationResult.Parameters)
                 {
-                    missingRequiredParameters.Add(parameter.Name);
-                    continue;
+                    var containsKey = jObj.ContainsKey(parameter.Name);
+                    if (parameter.Required && !containsKey)
+                    {
+                        missingRequiredParameters.Add(parameter.Name);
+                        continue;
+                    }
+
+                    var value = input[parameter.Name].ToString();
+                    result = result.Replace("{" + parameter.Name + "}", value);
                 }
 
-                var value = input[parameter.Name].ToString();
-                result = result.Replace("{" + parameter.Name + "}", value);
+                if (missingRequiredParameters.Any())
+                {
+                    throw new OpenAPIException(string.Format(Global.MissingRequiredParameters, string.Join(',', missingRequiredParameters)));
+                }
             }
-
-            if (missingRequiredParameters.Any())
+            else
             {
-                throw new OpenAPIException(string.Format(Global.MissingRequiredParameters, string.Join(',', missingRequiredParameters)));
+                foreach (var parameter in openApiOperationResult.Parameters)
+                {
+                    result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(input.ToString()));
+                }
+
             }
 
             return result;
