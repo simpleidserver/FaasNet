@@ -69,17 +69,20 @@ namespace FaasNet.Runtime.OpenAPI
             if (jObj != null)
             {
                 var missingRequiredParameters = new List<string>();
-                foreach (var parameter in openApiOperationResult.Parameters)
+                if (openApiOperationResult.Parameters != null && openApiOperationResult.Parameters.Any())
                 {
-                    var containsKey = jObj.ContainsKey(parameter.Name);
-                    if (parameter.Required && !containsKey)
+                    foreach (var parameter in openApiOperationResult.Parameters)
                     {
-                        missingRequiredParameters.Add(parameter.Name);
-                        continue;
-                    }
+                        var containsKey = jObj.ContainsKey(parameter.Name);
+                        if (parameter.Required && !containsKey)
+                        {
+                            missingRequiredParameters.Add(parameter.Name);
+                            continue;
+                        }
 
-                    var value = input[parameter.Name].ToString();
-                    result = result.Replace("{" + parameter.Name + "}", value);
+                        var value = input[parameter.Name].ToString();
+                        result = result.Replace("{" + parameter.Name + "}", value);
+                    }
                 }
 
                 if (missingRequiredParameters.Any())

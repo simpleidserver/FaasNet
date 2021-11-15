@@ -69,7 +69,7 @@ namespace FaasNet.Runtime.Domains.Instances
                 throw new BusinessException(string.Format(Global.UnknownWorkflowState, stateInstanceId));
             }
 
-            if (state.Status != WorkflowInstanceStateStatus.ACTIVE)
+            if (state.Status != WorkflowInstanceStateStatus.ACTIVE && state.Status != WorkflowInstanceStateStatus.PENDING)
             {
                 throw new BusinessException(Global.AddEventToActiveState);
             }
@@ -107,6 +107,17 @@ namespace FaasNet.Runtime.Domains.Instances
             }
         }
 
+        public void BlockState(string stateId)
+        {
+            var state = GetState(stateId);
+            if (state.Status == WorkflowInstanceStateStatus.PENDING)
+            {
+                return;
+            }
+
+            state.Block();
+        }
+
         #endregion
 
         #region Manage Events
@@ -119,7 +130,7 @@ namespace FaasNet.Runtime.Domains.Instances
                 throw new BusinessException(string.Format(Global.UnknownWorkflowState, stateInstanceId));
             }
 
-            if (state.Status != WorkflowInstanceStateStatus.ACTIVE)
+            if (state.Status != WorkflowInstanceStateStatus.ACTIVE && state.Status != WorkflowInstanceStateStatus.PENDING)
             {
                 return;
             }

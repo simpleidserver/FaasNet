@@ -64,6 +64,11 @@ namespace FaasNet.Runtime.Domains.Instances
             Status = WorkflowInstanceStateStatus.COMPLETE;
         }
 
+        public void Block()
+        {
+            Status = WorkflowInstanceStateStatus.PENDING;
+        }
+
         public void AddEvent(string name, string source, string type)
         {
             Events.Add(WorkflowInstanceStateEvent.Create(name, source, type));

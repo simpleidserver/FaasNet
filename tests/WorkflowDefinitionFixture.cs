@@ -331,6 +331,36 @@ namespace FaasNet.Runtime.Tests
             Assert.Equal("[\r\n  4,\r\n  3,\r\n  30\r\n]", instance.OutputStr);
         }
 
+        [Fact]
+        public async Task When_Run_CallbackState()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("creditCheckCompleteType", "v1", "name", "description")
+                .AddFunction(o => o.RestAPI("creditCheckFunction", "http://localhost/swagger/v1/swagger.json#creditCheck"))
+                .AddConsumedEvent("CreditCheckCompletedEvent", "creditCheckSource", "creditCheckCompleteType")
+                .StartsWith(o => o.Callback()
+                    .SetAction("callCreditCheckMicroservice", act => act.SetFunctionRef("creditCheckFunction", string.Empty))
+                    .SetEventRef("CreditCheckCompletedEvent")
+                    .End()
+                )
+                .Build();
+            await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
+            runtimeJob.Start();
+            var evtData = JObject.Parse("{'name': 'firstEvent'}");
+            await runtimeJob.Publish(new CloudEventMessage
+            {
+                Id = "id1",
+                Source = "creditCheckSource",
+                Type = "creditCheckCompleteType",
+                SpecVersion = "1.0",
+                Data = evtData
+            });
+            instance = runtimeJob.WaitTerminate(instance.Id);
+            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
+            Assert.Equal("{\r\n  \"name\": \"firstEvent\"\r\n}", instance.OutputStr);
+        }
+
         public class RuntimeJob
         {
             private readonly IServiceProvider _serviceProvider;

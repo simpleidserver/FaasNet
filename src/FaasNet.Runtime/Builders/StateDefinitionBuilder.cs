@@ -31,5 +31,10 @@
         {
             return new ForeachStateBuilder();
         }
+
+        public CallbackStateBuilder Callback()
+        {
+            return new CallbackStateBuilder();
+        }
     }
 }

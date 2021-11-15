@@ -4,6 +4,7 @@
     {
         CREATE = 0,
         ACTIVE = 1,
-        COMPLETE = 2
+        PENDING = 2,
+        COMPLETE = 3
     }
 }
