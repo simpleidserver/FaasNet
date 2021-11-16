@@ -33,6 +33,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04. Tests", "04. Tests", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Runtime.Tests", "tests\FaasNet.Runtime.Tests.csproj", "{961E58E2-C33D-4350-820B-6FB6C6CBACB9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Runtime.EF", "src\FaasNet.Runtime.EF\FaasNet.Runtime.EF.csproj", "{EBC898D8-3AF8-4389-A737-593580171352}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Gateway.SqlServer.Startup", "src\FaasNet.Gateway.SqlServer.Startup\FaasNet.Gateway.SqlServer.Startup.csproj", "{D851F1DA-654F-4782-B6D2-ADB4293D788E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +87,14 @@ Global
 		{961E58E2-C33D-4350-820B-6FB6C6CBACB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{961E58E2-C33D-4350-820B-6FB6C6CBACB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{961E58E2-C33D-4350-820B-6FB6C6CBACB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBC898D8-3AF8-4389-A737-593580171352}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBC898D8-3AF8-4389-A737-593580171352}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBC898D8-3AF8-4389-A737-593580171352}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBC898D8-3AF8-4389-A737-593580171352}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D851F1DA-654F-4782-B6D2-ADB4293D788E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D851F1DA-654F-4782-B6D2-ADB4293D788E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D851F1DA-654F-4782-B6D2-ADB4293D788E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D851F1DA-654F-4782-B6D2-ADB4293D788E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,6 +111,8 @@ Global
 		{6E815839-411A-4DA7-9269-3271C3159E15} = {E407AB8F-BDC8-4084-BE20-B4442CFE5EE9}
 		{D19F1CD9-628D-411E-9FF6-3212B30B70D7} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
 		{961E58E2-C33D-4350-820B-6FB6C6CBACB9} = {472FC125-267E-422D-AFFE-E33C5FFB3344}
+		{EBC898D8-3AF8-4389-A737-593580171352} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
+		{D851F1DA-654F-4782-B6D2-ADB4293D788E} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46764455-0D10-4266-9C37-35D7BD67517C}

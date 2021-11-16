@@ -15,5 +15,6 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// Action data filter definition.
         /// </summary>
         public WorkflowDefinitionActionDataFilter ActionDataFilter { get; set; }
+        public WorkflowDefinitionCallbackState CallbackState { get; set; }
     }
 }

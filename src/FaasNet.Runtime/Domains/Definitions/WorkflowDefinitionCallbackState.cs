@@ -18,6 +18,7 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// References an unique callback event name in the defined workflow events.
         /// </summary>
         public string EventRef { get; set; }
+        public int? ActionId { get; set; }
 
         public static WorkflowDefinitionCallbackState Create()
         {

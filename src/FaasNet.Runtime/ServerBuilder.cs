@@ -8,17 +8,16 @@ namespace FaasNet.Runtime
 {
     public class ServerBuilder
     {
-
-        private readonly IServiceCollection _services;
-
         public ServerBuilder(IServiceCollection services)
         {
-            _services = services;
+            Services = services;
         }
+
+        public IServiceCollection Services { get; private set; }
 
         public ServerBuilder AddWorkflowDefs(ConcurrentBag<WorkflowDefinitionAggregate> workflowDefs)
         {
-            _services.AddSingleton<IWorkflowDefinitionRepository>(new InMemoryWorkflowDefinitionRepository(workflowDefs));
+            Services.AddSingleton<IWorkflowDefinitionRepository>(new InMemoryWorkflowDefinitionRepository(workflowDefs));
             return this;
         }
     }

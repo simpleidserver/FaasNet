@@ -6,6 +6,8 @@ namespace FaasNet.Runtime.Domains.Definitions
 {
     public class WorkflowDefinitionInjectState: BaseWorkflowDefinitionFlowableState
     {
+        #region Properties
+
         public string DataStr { get; set; }
         public JObject Data
         {
@@ -19,6 +21,8 @@ namespace FaasNet.Runtime.Domains.Definitions
                 return JObject.Parse(DataStr);
             }
         }
+
+        #endregion
 
         public static WorkflowDefinitionInjectState Create()
         {

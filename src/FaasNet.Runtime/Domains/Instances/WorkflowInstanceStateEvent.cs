@@ -20,7 +20,6 @@ namespace FaasNet.Runtime.Domains.Instances
         public string Type { get; set; }
         public WorkflowInstanceStateEventStates State { get; set; }
         public string InputData { get; set; }
-        public ICollection<WorkflowInstanceStateEventOutput> OutputLst { get; set; }
         public JObject InputDataObj
         {
             get
@@ -28,6 +27,7 @@ namespace FaasNet.Runtime.Domains.Instances
                 return JObject.Parse(InputData);
             }
         }
+        public ICollection<WorkflowInstanceStateEventOutput> OutputLst { get; set; }
 
         #endregion
 

@@ -2,7 +2,7 @@
 
 namespace FaasNet.Runtime.Domains.Definitions
 {
-    public class BaseEventCondition
+    public abstract class BaseEventCondition
     {
         /// <summary>
         /// Name.
