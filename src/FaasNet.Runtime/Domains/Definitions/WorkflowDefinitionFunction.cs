@@ -1,5 +1,6 @@
 ﻿using FaasNet.Runtime.Domains.Enums;
 using Newtonsoft.Json.Linq;
+using YamlDotNet.Serialization;
 
 namespace FaasNet.Runtime.Domains.Definitions
 {
@@ -18,7 +19,9 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Defines the function type. Default is rest.
         /// </summary>
+        [YamlIgnore]
         public WorkflowDefinitionTypes Type { get; set; }
+        [YamlIgnore]
         public string MetadataStr { get; set; }
         /// <summary>
         /// Metadata information. Can be used to define custom function information.

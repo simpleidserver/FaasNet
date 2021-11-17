@@ -10,4 +10,7 @@
     <ProjectReference Include="..\FaasNet.Runtime.EF\FaasNet.Runtime.EF.csproj" />
     <ProjectReference Include="..\FaasNet.Runtime\FaasNet.Runtime.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
 </Project>

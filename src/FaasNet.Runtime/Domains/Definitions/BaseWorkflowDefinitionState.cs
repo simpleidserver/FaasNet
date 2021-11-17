@@ -1,4 +1,5 @@
 ﻿using FaasNet.Runtime.Domains.Enums;
+using YamlDotNet.Serialization;
 
 namespace FaasNet.Runtime.Domains.Definitions
 {
@@ -34,6 +35,7 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// Workflow expression to filter the states data output.
         /// </summary>
         public string StateDataFilterOuput { get; set; }
+        [YamlIgnore]
         public bool IsRootState { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using YamlDotNet.Serialization;
 
 namespace FaasNet.Runtime.Domains.Definitions
 {
@@ -11,6 +12,7 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Arguments (inputs) to be passed to the referenced function.
         /// </summary>
+        [YamlIgnore]
         public string ArgumentsStr { get; set; }
         /// <summary>
         /// Used if function type is graphsql. String containing valid GraphSQL selection set.
@@ -26,6 +28,10 @@ namespace FaasNet.Runtime.Domains.Definitions
                 }
 
                 return JObject.Parse(ArgumentsStr);
+            }
+            set
+            {
+                ArgumentsStr = value.ToString();
             }
         }
     }
