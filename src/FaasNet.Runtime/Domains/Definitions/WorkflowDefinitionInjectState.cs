@@ -1,6 +1,7 @@
 ﻿using FaasNet.Runtime.Domains.Enums;
 using Newtonsoft.Json.Linq;
 using System;
+using YamlDotNet.Serialization;
 
 namespace FaasNet.Runtime.Domains.Definitions
 {
@@ -8,6 +9,7 @@ namespace FaasNet.Runtime.Domains.Definitions
     {
         #region Properties
 
+        [YamlIgnore]
         public string DataStr { get; set; }
         public JObject Data
         {
@@ -19,6 +21,10 @@ namespace FaasNet.Runtime.Domains.Definitions
                 }
 
                 return JObject.Parse(DataStr);
+            }
+            set
+            {
+                DataStr = value.ToString();
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using FaasNet.Runtime.Domains.Definitions;
+using System.Linq;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -26,7 +27,13 @@ namespace FaasNet.Runtime.Serializer
                 .WithTypeConverter(new YamlEnumConverter())
                 .WithTypeConverter(new YamlJObjectConverter())
                 .Build();
-            return deserializer.Deserialize<WorkflowDefinitionAggregate>(yaml);
+            var result = deserializer.Deserialize<WorkflowDefinitionAggregate>(yaml);
+            if (result.States.Any())
+            {
+                result.States.First().IsRootState = true;
+            }
+
+            return result;
         }
     }
 }

@@ -5,6 +5,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.12" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FaasNet.Runtime.EF\FaasNet.Runtime.EF.csproj" />
@@ -12,5 +13,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="ServerlessWorkflows\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="ServerlessWorkflows\HelloWorld.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

@@ -1,9 +1,12 @@
 using FaasNet.Runtime.EF;
+using FaasNet.Runtime.Serializer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace FaasNet.Gateway.SqlServer.Startup
@@ -28,7 +31,7 @@ namespace FaasNet.Gateway.SqlServer.Startup
             services.AddRuntime()
                 .AddRuntimeEF(opt =>
                 {
-                    opt.UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));
+                    opt.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));
                 });
             services.AddControllers();
         }
@@ -51,6 +54,15 @@ namespace FaasNet.Gateway.SqlServer.Startup
                 using (var context = scope.ServiceProvider.GetService<RuntimeDBContext>())
                 {
                     context.Database.Migrate();
+                    var files = Directory.EnumerateFiles(Path.Combine(Directory.GetCurrentDirectory(), "ServerlessWorkflows"), "*.yml").ToList();
+                    var runtimeSerializer = new RuntimeSerializer();
+                    foreach(var file in files)
+                    {
+                        var workflowDef = runtimeSerializer.DeserializeYaml(File.ReadAllText(file));
+                        context.WorkflowDefinitions.Add(workflowDef);
+                    }
+
+                    context.SaveChanges();
                 }
             }
         }
