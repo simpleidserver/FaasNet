@@ -15,12 +15,12 @@ namespace FaasNet.Gateway.Core.Functions.Queries.Handlers
     public class GetFunctionConfigurationQueryHandler : IRequestHandler<GetFunctionConfigurationQuery, JObject>
     {
         private readonly IFunctionQueryRepository _functionRepository;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly Factories.IHttpClientFactory _httpClientFactory;
         private readonly GatewayConfiguration _configuration;
 
         public GetFunctionConfigurationQueryHandler(
             IFunctionQueryRepository functionRepository,
-            IHttpClientFactory httpClientFactory,
+            Factories.IHttpClientFactory httpClientFactory,
             IOptions<GatewayConfiguration> configuration)
         {
             _functionRepository = functionRepository;

@@ -24,10 +24,10 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Actions to be performed.
         /// </summary>
-        public ICollection<WorkflowDefinitionAction> Actions { get; set; }
+        public virtual ICollection<WorkflowDefinitionAction> Actions { get; set; }
         /// <summary>
         /// Event data filter definition.
         /// </summary>
-        public WorkflowDefinitionEventDataFilter EventDataFilter { get; set; }
+        public virtual WorkflowDefinitionEventDataFilter EventDataFilter { get; set; }
     }
 }

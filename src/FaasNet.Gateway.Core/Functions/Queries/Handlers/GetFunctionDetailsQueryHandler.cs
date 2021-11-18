@@ -1,5 +1,4 @@
 ﻿using FaasNet.Gateway.Core.Exceptions;
-using FaasNet.Gateway.Core.Factories;
 using FaasNet.Gateway.Core.Repositories;
 using FaasNet.Gateway.Core.Resources;
 using MediatR;
@@ -15,12 +14,12 @@ namespace FaasNet.Gateway.Core.Functions.Queries.Handlers
     public class GetFunctionDetailsQueryHandler : IRequestHandler<GetFunctionDetailsQuery, JObject>
     {
         private readonly IFunctionQueryRepository _functionQueryRepository;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly Factories.IHttpClientFactory _httpClientFactory;
         private readonly GatewayConfiguration _configuration;
 
         public GetFunctionDetailsQueryHandler(
             IFunctionQueryRepository functionQueryRepository,
-            IHttpClientFactory httpClientFactory,
+            Factories.IHttpClientFactory httpClientFactory,
             IOptions<GatewayConfiguration> configuration)
         {
             _functionQueryRepository = functionQueryRepository;

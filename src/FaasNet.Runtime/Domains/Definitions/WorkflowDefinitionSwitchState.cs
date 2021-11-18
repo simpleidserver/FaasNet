@@ -15,7 +15,7 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Defined if the Switch state evaluates conditions and transitions based on state data, or arrival of events.
         /// </summary>
-        public ICollection<BaseEventCondition> Conditions { get; set; }
+        public virtual ICollection<BaseEventCondition> Conditions { get; set; }
 
         public static WorkflowDefinitionSwitchState Create()
         {

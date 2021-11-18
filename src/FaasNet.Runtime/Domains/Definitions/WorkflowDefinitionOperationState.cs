@@ -18,7 +18,7 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Actions to be performed.
         /// </summary>
-        public ICollection<WorkflowDefinitionAction> Actions { get; set; }
+        public virtual ICollection<WorkflowDefinitionAction> Actions { get; set; }
 
         public static WorkflowDefinitionOperationState Create()
         {

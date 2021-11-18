@@ -37,7 +37,7 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Actions to be executed for each of the elements of inputCollection.
         /// </summary>
-        public ICollection<WorkflowDefinitionAction> Actions { get; set; }
+        public virtual ICollection<WorkflowDefinitionAction> Actions { get; set; }
 
         public static WorkflowDefinitionForeachState Create()
         {

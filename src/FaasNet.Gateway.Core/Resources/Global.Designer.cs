@@ -79,6 +79,15 @@ namespace FaasNet.Gateway.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The provided JSON input data is invalid.
+        /// </summary>
+        internal static string InvalidExecutionInput {
+            get {
+                return ResourceManager.GetString("InvalidExecutionInput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to operation &apos;{0}&apos; already exists.
         /// </summary>
         internal static string OperationExists {
@@ -120,6 +129,15 @@ namespace FaasNet.Gateway.Core.Resources {
         internal static string UnknownFunction {
             get {
                 return ResourceManager.GetString("UnknownFunction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to state machine &apos;{0}&apos; doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownStateMachine {
+            get {
+                return ResourceManager.GetString("UnknownStateMachine", resourceCulture);
             }
         }
     }

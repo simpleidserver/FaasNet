@@ -46,7 +46,7 @@ namespace FaasNet.Runtime.Domains.Instances
                 return JObject.Parse(OutputStr);
             }
         }
-        public ICollection<WorkflowInstanceStateEvent> Events { get; set; }
+        public virtual ICollection<WorkflowInstanceStateEvent> Events { get; set; }
 
         #endregion
 

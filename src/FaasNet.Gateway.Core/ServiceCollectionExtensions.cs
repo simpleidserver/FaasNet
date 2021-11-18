@@ -6,6 +6,8 @@ using FaasNet.Gateway.Core.Functions;
 using FaasNet.Gateway.Core.Helpers;
 using FaasNet.Gateway.Core.Repositories;
 using FaasNet.Gateway.Core.Repositories.InMemory;
+using FaasNet.Runtime;
+using MassTransit.ExtensionsDependencyInjectionIntegration;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -14,7 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static ServerBuilder AddGateway(this IServiceCollection services, Action<GatewayConfiguration> callback = null)
+        public static ServerBuilder AddGateway(this IServiceCollection services, Action<GatewayConfiguration> callback = null, Action<IServiceCollectionBusConfigurator> configureMassTransit = null)
         {
             if (callback == null)
             {
@@ -27,20 +29,20 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var builder = new ServerBuilder(services);
             services.AddApi()
-                .AddInMemoryStore();
+                .AddInMemoryStore()
+                .AddRuntime(configureMassTransit);
             return builder;
         }
 
         private static IServiceCollection AddApi(this IServiceCollection services)
         {
             services.AddTransient<IHttpClientFactory, HttpClientFactory>();
-            services.AddMediatR(typeof(ServerBuilder));
+            services.AddMediatR(typeof(IHttpClientFactory));
             services.AddTransient<IApiDefinitionService, ApiDefinitionService>();
             services.AddTransient<IFunctionService, FunctionService>();
             services.AddTransient<IPrometheusHelper, PrometheusHelper>();
             return services;
         }
-
 
         private static IServiceCollection AddInMemoryStore(this IServiceCollection services)
         {

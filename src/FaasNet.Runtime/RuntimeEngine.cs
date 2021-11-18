@@ -25,6 +25,8 @@ namespace FaasNet.Runtime
             _integrationEventProcessor = integrationEventProcessor;
         }
 
+        #region Public Methods
+
         public Task<WorkflowInstanceAggregate> InstanciateAndLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, string input, CancellationToken cancellationToken)
         {
             return InstanciateAndLaunch(workflowDefinitionAggregate, JObject.Parse(input), cancellationToken);
@@ -51,6 +53,8 @@ namespace FaasNet.Runtime
             await InternalLaunch(workflowDefinitionAggregate, workflowInstance, input, stateInstanceId, cancellationToken);
             await Publish(workflowInstance, cancellationToken);
         }
+
+        #endregion
 
         protected async Task InternalLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, WorkflowInstanceAggregate workflowInstance, JToken input, string stateInstanceId, CancellationToken cancellationToken)
         {

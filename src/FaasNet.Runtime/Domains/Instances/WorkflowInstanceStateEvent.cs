@@ -27,7 +27,7 @@ namespace FaasNet.Runtime.Domains.Instances
                 return JObject.Parse(InputData);
             }
         }
-        public ICollection<WorkflowInstanceStateEventOutput> OutputLst { get; set; }
+        public virtual ICollection<WorkflowInstanceStateEventOutput> OutputLst { get; set; }
 
         #endregion
 

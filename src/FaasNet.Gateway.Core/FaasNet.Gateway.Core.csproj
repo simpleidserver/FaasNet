@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FaasNet.Common\FaasNet.Common.csproj" />
+    <ProjectReference Include="..\FaasNet.Runtime\FaasNet.Runtime.csproj" />
   </ItemGroup>
 
   <ItemGroup>

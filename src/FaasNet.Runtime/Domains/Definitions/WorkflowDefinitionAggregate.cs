@@ -33,19 +33,19 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Workflow start definition.
         /// </summary>
-        public WorkflowDefinitionStartState Start { get; set; }
+        public virtual WorkflowDefinitionStartState Start { get; set; }
         /// <summary>
         /// Workflow states.
         /// </summary>
-        public ICollection<BaseWorkflowDefinitionState> States { get; set; }
+        public virtual ICollection<BaseWorkflowDefinitionState> States { get; set; }
         /// <summary>
         /// Workflow function definitions.
         /// </summary>
-        public ICollection<WorkflowDefinitionFunction> Functions { get; set; }
+        public virtual ICollection<WorkflowDefinitionFunction> Functions { get; set; }
         /// <summary>
         /// Workflow event definitions.
         /// </summary>
-        public ICollection<WorkflowDefinitionEvent> Events { get; set; }
+        public virtual ICollection<WorkflowDefinitionEvent> Events { get; set; }
 
         #endregion
 

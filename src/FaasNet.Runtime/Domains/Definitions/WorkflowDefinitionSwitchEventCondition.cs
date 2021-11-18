@@ -15,6 +15,6 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Event Data Filter definition.
         /// </summary>
-        public WorkflowDefinitionEventDataFilter EventDataFilter { get; set; }
+        public virtual WorkflowDefinitionEventDataFilter EventDataFilter { get; set; }
     }
 }

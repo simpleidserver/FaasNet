@@ -10,11 +10,11 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// References a resusable function definition.
         /// </summary>
-        public WorkflowDefinitionFunctionRef FunctionRef { get; set; }
+        public virtual WorkflowDefinitionFunctionRef FunctionRef { get; set; }
         /// <summary>
         /// Action data filter definition.
         /// </summary>
-        public WorkflowDefinitionActionDataFilter ActionDataFilter { get; set; }
-        public WorkflowDefinitionCallbackState CallbackState { get; set; }
+        public virtual WorkflowDefinitionActionDataFilter ActionDataFilter { get; set; }
+        public virtual WorkflowDefinitionCallbackState CallbackState { get; set; }
     }
 }

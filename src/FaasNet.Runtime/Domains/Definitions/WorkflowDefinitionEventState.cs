@@ -21,7 +21,7 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Define the events to be consumed and optional actions to be performed.
         /// </summary>
-        public ICollection<WorkflowDefinitionOnEvent> OnEvents { get; set; }
+        public virtual ICollection<WorkflowDefinitionOnEvent> OnEvents { get; set; }
 
         public static WorkflowDefinitionEventState Create()
         {

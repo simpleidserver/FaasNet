@@ -13,7 +13,7 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Defines the action to be executed.
         /// </summary>
-        public WorkflowDefinitionAction Action { get; set; }
+        public virtual WorkflowDefinitionAction Action { get; set; }
         /// <summary>
         /// References an unique callback event name in the defined workflow events.
         /// </summary>
