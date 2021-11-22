@@ -27,14 +27,9 @@ namespace FaasNet.Gateway.Core.Repositories.InMemory
             return Task.CompletedTask;
         }
 
-        public Task<FunctionAggregate> Get(string name, CancellationToken cancellationToken)
+        public IQueryable<FunctionAggregate> Query()
         {
-            return Task.FromResult(_functions.FirstOrDefault(f => f.Name == name));
-        }
-
-        public Task<FunctionAggregate> GetByImage(string image, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(_functions.FirstOrDefault(_ => _.Image == image));
+            return _functions.AsQueryable();
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)

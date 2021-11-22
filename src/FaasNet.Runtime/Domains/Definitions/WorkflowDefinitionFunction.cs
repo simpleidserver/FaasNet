@@ -19,10 +19,11 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Defines the function type. Default is rest.
         /// </summary>
-        [YamlIgnore]
         public WorkflowDefinitionTypes Type { get; set; }
         [YamlIgnore]
         public string MetadataStr { get; set; }
+        [YamlIgnore]
+        public string FunctionId { get; set; }
         /// <summary>
         /// Metadata information. Can be used to define custom function information.
         /// </summary>
@@ -37,6 +38,28 @@ namespace FaasNet.Runtime.Domains.Definitions
 
                 return JObject.Parse(MetadataStr);
             }
+            set
+            {
+                MetadataStr = value.ToString();
+            }
+        }
+        [YamlIgnore]
+        public string Provider
+        {
+            get
+            {
+                return GetMetadata("provider");
+            }
+        }
+
+        private string GetMetadata(string key)
+        {
+            if (Metadata != null && Metadata.ContainsKey(key))
+            {
+                return Metadata[key].ToString();
+            }
+
+            return null;
         }
     }
 }

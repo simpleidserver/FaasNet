@@ -1,5 +1,4 @@
 ﻿using FaasNet.Kubernetes.Commands;
-using FaasNet.Kubernetes.Results;
 using k8s;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -36,25 +35,15 @@ namespace FaasNet.Kubernetes.Controllers
             return new NoContentResult();
         }
 
-        [HttpDelete("{name}")]
-        public async Task<IActionResult> Unpublish(string name, CancellationToken cancellationToken)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Unpublish(string id, CancellationToken cancellationToken)
         {
             using (var client = new k8s.Kubernetes(_configuration))
             {
-                await DeleteNamespace(name, client, cancellationToken);
+                await DeleteNamespace(id, client, cancellationToken);
             }
 
             return new NoContentResult();
-        }
-
-        [HttpGet("{name}/details")]
-        public async Task<IActionResult> GetDetails(string name)
-        {
-            using (var client = new k8s.Kubernetes(_configuration))
-            {
-                var pods = await client.ListNamespacedPodAsync(name);
-                return new OkObjectResult(FunctionMonitoringResult.Build(pods));
-            }
         }
 
         [HttpPost("invoke")]
@@ -65,7 +54,7 @@ namespace FaasNet.Kubernetes.Controllers
                 var content = cmd.Content == null ? string.Empty : cmd.Content.ToString();
                 var request = new HttpRequestMessage
                 {
-                    RequestUri = new Uri(BuildFunctionUrl(cmd.Name)),
+                    RequestUri = new Uri(BuildFunctionUrl(cmd.Id)),
                     Method = HttpMethod.Post,
                     Content = new StringContent(content, Encoding.UTF8, "application/json")
                 };
@@ -81,11 +70,11 @@ namespace FaasNet.Kubernetes.Controllers
         }
 
         [HttpGet("{name}/configuration")]
-        public async Task<IActionResult> GetConfiguration(string name)
+        public async Task<IActionResult> GetConfiguration(string id)
         {
             using (var httpClient = new HttpClient())
             {
-                var httpResult = await httpClient.GetAsync($"{BuildFunctionUrl(name)}/configuration");
+                var httpResult = await httpClient.GetAsync($"{BuildFunctionUrl(id)}/configuration");
                 var json = await httpResult.Content.ReadAsStringAsync();
                 return new ContentResult
                 {
@@ -106,7 +95,7 @@ namespace FaasNet.Kubernetes.Controllers
             {
                 Metadata = new k8s.Models.V1ObjectMeta
                 {
-                    Name = cmd.Name
+                    Name = cmd.Id
                 }
             }, cancellationToken: cancellationToken);
         }
@@ -124,7 +113,7 @@ namespace FaasNet.Kubernetes.Controllers
                 ApiVersion = "apps/v1",
                 Metadata = new k8s.Models.V1ObjectMeta
                 {
-                    Name = $"{cmd.Name}-runtime"
+                    Name = $"{cmd.Id}-runtime"
                 },
                 Spec = new k8s.Models.V1DeploymentSpec
                 {
@@ -133,7 +122,7 @@ namespace FaasNet.Kubernetes.Controllers
                     {
                         MatchLabels = new Dictionary<string, string>
                         {
-                            { cmd.Name, "web" }
+                            { cmd.Id, "web" }
                         }
                     },
                     Template = new k8s.Models.V1PodTemplateSpec
@@ -142,7 +131,7 @@ namespace FaasNet.Kubernetes.Controllers
                         {
                             Labels = new Dictionary<string, string>
                             {
-                                { cmd.Name, "web" }
+                                { cmd.Id, "web" }
                             }
                         },
                         Spec = new k8s.Models.V1PodSpec
@@ -151,7 +140,7 @@ namespace FaasNet.Kubernetes.Controllers
                             {
                                 new k8s.Models.V1Container
                                 {
-                                    Name = cmd.Name,
+                                    Name = cmd.Id,
                                     Image = cmd.Image,
                                     ImagePullPolicy = "IfNotPresent"
                                 }
@@ -159,7 +148,7 @@ namespace FaasNet.Kubernetes.Controllers
                         }
                     }
                 }
-            }, cmd.Name, cancellationToken: cancellationToken);
+            }, cmd.Id, cancellationToken: cancellationToken);
         }
 
         private Task CreateService(PublishFunctionCommand cmd, k8s.Kubernetes client, CancellationToken cancellationToken)
@@ -170,15 +159,15 @@ namespace FaasNet.Kubernetes.Controllers
                 Kind = "Service",
                 Metadata = new k8s.Models.V1ObjectMeta
                 {
-                    Name = $"{cmd.Name}-entry",
-                    NamespaceProperty = cmd.Name
+                    Name = $"{cmd.Id}-entry",
+                    NamespaceProperty = cmd.Id
                 },
                 Spec = new k8s.Models.V1ServiceSpec
                 {
                     Type = "ClusterIP",
                     Selector = new Dictionary<string, string>
                     {
-                        { cmd.Name, "web" }
+                        { cmd.Id, "web" }
                     },
                     Ports = new List<k8s.Models.V1ServicePort>
                     {
@@ -189,12 +178,12 @@ namespace FaasNet.Kubernetes.Controllers
                         }
                     }
                 }
-            }, cmd.Name, cancellationToken: cancellationToken);
+            }, cmd.Id, cancellationToken: cancellationToken);
         }
 
-        private static string BuildFunctionUrl(string name)
+        private static string BuildFunctionUrl(string id)
         {
-            return $"http://{name}-entry.{name}.svc.cluster.local";
+            return $"http://{id}-entry.{id}.svc.cluster.local";
         }
 
         #endregion

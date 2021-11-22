@@ -1,11 +1,12 @@
 ﻿using FaasNet.Gateway.Core.Domains;
+using Newtonsoft.Json.Linq;
 using System;
 
 namespace FaasNet.Gateway.Core.Functions.Queries.Results
 {
     public class FunctionResult
     {
-        public string Image { get; set; }
+        public JObject Metadata { get; set; }
         public string Name { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
@@ -14,10 +15,10 @@ namespace FaasNet.Gateway.Core.Functions.Queries.Results
         {
             return new FunctionResult
             {
-                Image = fn.Image,
                 CreateDateTime = fn.CreateDateTime,
                 Name = fn.Name,
-                UpdateDateTime = fn.UpdateDateTime
+                UpdateDateTime = fn.UpdateDateTime,
+                Metadata = fn.Metadata
             };
         }
     }

@@ -132,6 +132,9 @@
   <data name="StandardPath" xml:space="preserve">
     <value>cannot add api with path '{0}'</value>
   </data>
+  <data name="StateMachineExists" xml:space="preserve">
+    <value>state machine with the same name already exists</value>
+  </data>
   <data name="UnknownApiDef" xml:space="preserve">
     <value>api '{0}' doesn't exist</value>
   </data>
@@ -139,9 +142,12 @@
     <value>operation '{0}' doesn't exist</value>
   </data>
   <data name="UnknownFunction" xml:space="preserve">
-    <value>function '{0}' doesn't exist</value>
+    <value>the function doesn't exist</value>
   </data>
   <data name="UnknownStateMachine" xml:space="preserve">
     <value>state machine '{0}' doesn't exist</value>
+  </data>
+  <data name="UnsupportedFunctionProvider" xml:space="preserve">
+    <value>the function provider is not supported</value>
   </data>
 </root>

@@ -2,6 +2,6 @@
 {
     public class StateMachineNotFoundException: NotFoundException
     {
-        public StateMachineNotFoundException(string code, string message) : base(message) { }
+        public StateMachineNotFoundException(string code, string message) : base(code, message) { }
     }
 }

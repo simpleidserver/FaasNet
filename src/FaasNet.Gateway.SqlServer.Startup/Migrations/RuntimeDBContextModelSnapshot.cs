@@ -176,6 +176,9 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("FunctionId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MetadataStr")
                         .HasColumnType("nvarchar(max)");
 

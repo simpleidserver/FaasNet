@@ -1,0 +1,19 @@
+﻿id: e95a6ddb-919b-4b21-88c5-1506a9552d40
+version: v1
+name: transformJson
+description: transform json
+states:
+- actionMode: sequential
+  actions:
+  - name: transformJson
+    functionRef:
+      referenceName: transform
+  end: true
+  id: 9c8eeb08-3826-4a26-b11f-1e57a9dd6f97
+  type: operation
+functions:
+- name: transform
+  type: custom
+  metadata:
+    provider: kubernetes
+    image: localhost:5000/faastransform

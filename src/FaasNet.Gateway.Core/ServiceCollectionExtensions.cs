@@ -1,12 +1,13 @@
 ﻿using FaasNet.Gateway.Core;
-using FaasNet.Gateway.Core.ApiDefinitions;
 using FaasNet.Gateway.Core.Domains;
-using FaasNet.Gateway.Core.Factories;
 using FaasNet.Gateway.Core.Functions;
+using FaasNet.Gateway.Core.Functions.Invokers;
+using FaasNet.Gateway.Core.Functions.Processors;
 using FaasNet.Gateway.Core.Helpers;
 using FaasNet.Gateway.Core.Repositories;
 using FaasNet.Gateway.Core.Repositories.InMemory;
 using FaasNet.Runtime;
+using FaasNet.Runtime.Processors;
 using MassTransit.ExtensionsDependencyInjectionIntegration;
 using MediatR;
 using System;
@@ -36,24 +37,20 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static IServiceCollection AddApi(this IServiceCollection services)
         {
-            services.AddTransient<IHttpClientFactory, HttpClientFactory>();
-            services.AddMediatR(typeof(IHttpClientFactory));
-            services.AddTransient<IApiDefinitionService, ApiDefinitionService>();
+            services.AddMediatR(typeof(FunctionService));
             services.AddTransient<IFunctionService, FunctionService>();
             services.AddTransient<IPrometheusHelper, PrometheusHelper>();
+            services.AddTransient<IFunctionInvokerFactory, FunctionInvokerFactory>();
+            services.AddTransient<IFunctionInvoker, KubernetesFunctionInvoker>();
+            services.AddTransient<IFunctionProcessor, CustomFunctionProcessor>();
             return services;
         }
 
         private static IServiceCollection AddInMemoryStore(this IServiceCollection services)
         {
-            var apis = new List<ApiDefinitionAggregate>();
             var fns = new List<FunctionAggregate>();
-            var cmdApiRepository = new InMemoryApiDefinitionCommandRepository(apis);
-            var queryApiRepository = new InMemoryApiDefinitionQueryRepository(apis);
             var cmdFnRepository = new InMemoryFunctionCommandRepository(fns);
             var queryFnRepository = new InMemoryFunctionQueryRepository(fns);
-            services.AddSingleton<IApiDefinitionCommandRepository>(cmdApiRepository);
-            services.AddSingleton<IApiDefinitionQueryRepository>(queryApiRepository);
             services.AddSingleton<IFunctionCommandRepository>(cmdFnRepository);
             services.AddSingleton<IFunctionQueryRepository>(queryFnRepository);
             return services;

@@ -4,6 +4,6 @@ namespace FaasNet.Gateway.Core.Functions.Commands
 {
     public class UnpublishFunctionCommand : IRequest<bool>
     {
-        public string Name { get; set; }
+        public string Id { get; set; }
     }
 }

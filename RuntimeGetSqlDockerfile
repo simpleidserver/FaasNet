@@ -7,4 +7,4 @@ EXPOSE 8080
 
 WORKDIR /App
 
-ENTRYPOINT ["dotnet", "FaasNet.Runtime.GetSql.dll"]
+ENTRYPOINT ["dotnet", "FaasNet.Function.GetSql.dll"]

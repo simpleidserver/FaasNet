@@ -15,38 +15,48 @@ namespace FaasNet.Gateway.Core.Helpers
             _configuration = configuration.Value;
         }
 
-        public void Add(string name)
+        public void Add(string id)
         {
             var targets = GetTargets();
             targets.Add(new PrometheusTarget
             {
                 Labels = new PrometheusLabel
                 {
-                    Job = name
+                    Job = id
                 },
                 Targets = new List<string>
                 {
-                    $"{name}-entry.{name}.svc.cluster.local"
+                    $"{id}-entry.{id}.svc.cluster.local"
                 }
             });
             Update(targets);
         }
 
-        public void Remove(string name)
+        public void Remove(string id)
         {
             var targets = GetTargets();
-            var filteredTargets = targets.Where(t => !(t.Labels.Job == name)).ToList();
+            var filteredTargets = targets.Where(t => !(t.Labels.Job == id)).ToList();
             Update(filteredTargets);
         }
 
         private ICollection<PrometheusTarget> GetTargets()
         {
+            if (string.IsNullOrWhiteSpace(_configuration.PrometheusFilePath))
+            {
+                return new List<PrometheusTarget>();
+            }
+
             var content = File.ReadAllText(_configuration.PrometheusFilePath);
             return JsonConvert.DeserializeObject<List<PrometheusTarget>>(content);
         }
 
         private void Update(ICollection<PrometheusTarget> targets)
         {
+            if (string.IsNullOrWhiteSpace(_configuration.PrometheusFilePath))
+            {
+                return;
+            }
+
             File.WriteAllText(_configuration.PrometheusFilePath, JsonConvert.SerializeObject(targets));
         }
     }

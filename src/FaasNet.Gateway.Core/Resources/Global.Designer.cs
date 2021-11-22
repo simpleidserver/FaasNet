@@ -106,6 +106,15 @@ namespace FaasNet.Gateway.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to state machine with the same name already exists.
+        /// </summary>
+        internal static string StateMachineExists {
+            get {
+                return ResourceManager.GetString("StateMachineExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to api &apos;{0}&apos; doesn&apos;t exist.
         /// </summary>
         internal static string UnknownApiDef {
@@ -124,7 +133,7 @@ namespace FaasNet.Gateway.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to function &apos;{0}&apos; doesn&apos;t exist.
+        ///   Looks up a localized string similar to the function doesn&apos;t exist.
         /// </summary>
         internal static string UnknownFunction {
             get {
@@ -138,6 +147,15 @@ namespace FaasNet.Gateway.Core.Resources {
         internal static string UnknownStateMachine {
             get {
                 return ResourceManager.GetString("UnknownStateMachine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the function provider is not supported.
+        /// </summary>
+        internal static string UnsupportedFunctionProvider {
+            get {
+                return ResourceManager.GetString("UnsupportedFunctionProvider", resourceCulture);
             }
         }
     }

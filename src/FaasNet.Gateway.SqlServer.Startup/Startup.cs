@@ -1,3 +1,4 @@
+using FaasNet.Gateway.SqlServer.Startup.Infrastructure;
 using FaasNet.Runtime.EF;
 using FaasNet.Runtime.Serializer;
 using Microsoft.AspNetCore.Builder;
@@ -29,13 +30,20 @@ namespace FaasNet.Gateway.SqlServer.Startup
             services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()));
-            services.AddGateway()
+            services.AddGateway(opt =>
+            {
+                opt.FunctionApi = Configuration["KubernetesApi"];
+                opt.PromotheusApi = Configuration["PromotheusApi"];
+            })
                 .AddRuntimeEF(opt =>
                 {
                     opt.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));
                 });
             services.AddSwaggerGen();
-            services.AddControllers().AddNewtonsoftJson(opts => opts.SerializerSettings.Converters.Add(new StringEnumConverter()));
+            services.AddControllers(opts =>
+            {
+                opts.InputFormatters.Add(new YamlInputFormatter());
+            }).AddNewtonsoftJson(opts => opts.SerializerSettings.Converters.Add(new StringEnumConverter()));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

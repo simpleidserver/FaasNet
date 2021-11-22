@@ -1,12 +1,9 @@
 ﻿using FaasNet.Gateway.Core.Exceptions;
-using FaasNet.Gateway.Core.Factories;
-using FaasNet.Gateway.Core.Helpers;
+using FaasNet.Gateway.Core.Functions.Invokers;
 using FaasNet.Gateway.Core.Repositories;
 using FaasNet.Gateway.Core.Resources;
 using MediatR;
-using Microsoft.Extensions.Options;
-using System;
-using System.Net.Http;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,45 +11,31 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
 {
     public class UnpublishFunctionCommandHandler : IRequestHandler<UnpublishFunctionCommand, bool>
     {
-        private readonly Factories.IHttpClientFactory _httpClientFactory;
         private readonly IFunctionCommandRepository _functionRepository;
-        private readonly IPrometheusHelper _prometheusHelper;
-        private readonly GatewayConfiguration _configuration;
+        private readonly IFunctionInvokerFactory _functionInvokerFactory;
 
         public UnpublishFunctionCommandHandler(
-            Factories.IHttpClientFactory httpClientFactory,
             IFunctionCommandRepository functionRepository,
-            IPrometheusHelper prometheusHelper,
-            IOptions<GatewayConfiguration> configuration)
+            IFunctionInvokerFactory functionInvokerFactory)
         {
-            _httpClientFactory = httpClientFactory;
             _functionRepository = functionRepository;
-            _prometheusHelper = prometheusHelper;
-            _configuration = configuration.Value;
+            _functionInvokerFactory = functionInvokerFactory;
         }
 
         public async Task<bool> Handle(UnpublishFunctionCommand command, CancellationToken cancellationToken)
         {
-            var function = await _functionRepository.Get(command.Name, cancellationToken);
+            var function = _functionRepository.Query().FirstOrDefault(f => f.Id == command.Id);
             if (function == null)
             {
-                throw new FunctionNotFoundException(string.Format(Global.UnknownFunction, command.Name));
+                throw new FunctionNotFoundException(ErrorCodes.UnknownFunction, Global.UnknownFunction);
             }
 
-            using (var httpClient = _httpClientFactory.Build())
-            {
-                var request = new HttpRequestMessage
-                {
-                    RequestUri = new Uri($"{_configuration.FunctionApi}/functions/{command.Name}"),
-                    Method = HttpMethod.Delete
-                };
-                var httpResult = await httpClient.SendAsync(request);
-                httpResult.EnsureSuccessStatusCode();
-                await _functionRepository.Delete(function, cancellationToken);
-                await _functionRepository.SaveChanges(cancellationToken);
-                _prometheusHelper.Remove(command.Name);
-                return true;
-            }
+            var invoker = _functionInvokerFactory.Build(function.Provider);
+            await invoker.Unpublish(command.Id, cancellationToken);
+            await invoker.RemoveAudit(command.Id, cancellationToken);
+            await _functionRepository.Delete(function, cancellationToken);
+            await _functionRepository.SaveChanges(cancellationToken);
+            return true;
         }
     }
 }

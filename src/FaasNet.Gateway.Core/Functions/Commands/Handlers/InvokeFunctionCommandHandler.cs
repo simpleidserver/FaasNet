@@ -1,66 +1,43 @@
 ﻿using FaasNet.Gateway.Core.Exceptions;
-using FaasNet.Gateway.Core.Factories;
-using FaasNet.Gateway.Core.Parameters;
+using FaasNet.Gateway.Core.Functions.Invokers;
 using FaasNet.Gateway.Core.Repositories;
 using FaasNet.Gateway.Core.Resources;
 using MediatR;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Net.Http;
-using System.Text;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
 {
-    public class InvokeFunctionCommandHandler : IRequestHandler<InvokeFunctionCommand, JObject>
+    public class InvokeFunctionCommandHandler : IRequestHandler<InvokeFunctionCommand, JToken>
     {
         private readonly IFunctionCommandRepository _functionRepository;
-        private readonly Factories.IHttpClientFactory _httpClientFactory;
-        private readonly GatewayConfiguration _configuration;
+        private readonly IFunctionInvokerFactory _functionInvokerFactory;
 
         public InvokeFunctionCommandHandler(
             IFunctionCommandRepository functionRepository,
-            Factories.IHttpClientFactory httpClientFactory,
-            IOptions<GatewayConfiguration> configuration)
+            IFunctionInvokerFactory functionInvokerFactory)
         {
             _functionRepository = functionRepository;
-            _httpClientFactory = httpClientFactory;
-            _configuration = configuration.Value;
+            _functionInvokerFactory = functionInvokerFactory;
         }
 
-        public async Task<JObject> Handle(InvokeFunctionCommand request, CancellationToken cancellationToken)
+        public Task<JToken> Handle(InvokeFunctionCommand request, CancellationToken cancellationToken)
         {
-            var function = await _functionRepository.Get(request.FuncName, cancellationToken);
+            var function = _functionRepository.Query().FirstOrDefault(f => f.Id == request.Id);
             if (function == null)
             {
-                throw new FunctionNotFoundException(string.Format(Global.UnknownFunction, request.FuncName));
+                throw new FunctionNotFoundException(ErrorCodes.UnknownFunction, Global.UnknownFunction);
             }
 
-            var parameter = new InvokeFunctionParameter
+            var invoker = _functionInvokerFactory.Build(function.Provider);
+            if (invoker == null)
             {
-                Name = request.FuncName,
-                Content = new FunctionParameter
-                {
-                    Configuration = request.Configuration,
-                    Input = request.Input
-                }
-            };
-            using (var httpClient = _httpClientFactory.Build())
-            {
-                var httpRequest = new HttpRequestMessage
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(parameter), Encoding.UTF8, "application/json"),
-                    Method = HttpMethod.Post,
-                    RequestUri = new Uri($"{_configuration.FunctionApi}/functions/invoke")
-                };
-                var httpResult = await httpClient.SendAsync(httpRequest);
-                httpResult.EnsureSuccessStatusCode();
-                var str = await httpResult.Content.ReadAsStringAsync();
-                return JObject.Parse(str);
+                throw new BadRequestException(ErrorCodes.UnsupportedFunctionProvider, Global.UnsupportedFunctionProvider);
             }
+
+            return invoker.Invoke(function.Id, request.Input, request.Configuration, cancellationToken);
         }
     }
 }

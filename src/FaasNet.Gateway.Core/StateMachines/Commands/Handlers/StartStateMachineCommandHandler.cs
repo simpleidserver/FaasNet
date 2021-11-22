@@ -1,18 +1,19 @@
 ﻿using FaasNet.Gateway.Core.Exceptions;
 using FaasNet.Gateway.Core.Extensions;
 using FaasNet.Gateway.Core.Resources;
-using FaasNet.Gateway.Core.StateMachines.Queries.Results;
+using FaasNet.Gateway.Core.StateMachines.Results;
 using FaasNet.Runtime;
 using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Persistence;
 using MediatR;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
 {
-    public class StartStateMachineCommandHandler : IRequestHandler<StartStateMachineCommand, StateMachineInstanceDetails>
+    public class StartStateMachineCommandHandler : IRequestHandler<StartStateMachineCommand, StartStateMachineResult>
     {
         private readonly IWorkflowDefinitionRepository _workflowDefinitionRepository;
         private readonly IRuntimeEngine _runtimeEngine;
@@ -23,11 +24,14 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
             _runtimeEngine = runtimeEngine;
         }
 
-        public async Task<StateMachineInstanceDetails> Handle(StartStateMachineCommand request, CancellationToken cancellationToken)
+        public async Task<StartStateMachineResult> Handle(StartStateMachineCommand request, CancellationToken cancellationToken)
         {
             var validationResult = Validate(request);
-            var workflowInstance = await _runtimeEngine.InstanciateAndLaunch(validationResult.WorkflowDefinition, request.Input, cancellationToken);
-            return StateMachineInstanceDetails.Build(workflowInstance);
+            await _runtimeEngine.InstanciateAndLaunch(validationResult.WorkflowDefinition, request.Input, cancellationToken);
+            return new StartStateMachineResult
+            {
+                LaunchDateTime = DateTime.UtcNow
+            };
         }
 
         #region Validation

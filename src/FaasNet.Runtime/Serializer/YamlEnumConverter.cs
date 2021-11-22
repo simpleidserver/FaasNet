@@ -18,6 +18,7 @@ namespace FaasNet.Runtime.Serializer
             var scalar = parser.Current as Scalar;
             var names = Enum.GetNames(type);
             var result = Convert.ChangeType(Enum.Parse(type, names.First(n => n.ToLowerInvariant() == scalar.Value)), type);
+            parser.MoveNext();
             return result;
         }
 

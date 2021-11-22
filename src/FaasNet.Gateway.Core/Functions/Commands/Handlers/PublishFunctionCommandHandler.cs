@@ -1,63 +1,39 @@
 ﻿using FaasNet.Gateway.Core.Domains;
 using FaasNet.Gateway.Core.Exceptions;
-using FaasNet.Gateway.Core.Factories;
-using FaasNet.Gateway.Core.Helpers;
+using FaasNet.Gateway.Core.Functions.Invokers;
 using FaasNet.Gateway.Core.Repositories;
 using FaasNet.Gateway.Core.Resources;
 using MediatR;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System;
-using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
 {
-    public class PublishFunctionCommandHandler : IRequestHandler<PublishFunctionCommand, bool>
+    public class PublishFunctionCommandHandler : IRequestHandler<PublishFunctionCommand, string>
     {
-        private readonly Factories.IHttpClientFactory _httpClientFactory;
         private readonly IFunctionCommandRepository _functionRepository;
-        private readonly IPrometheusHelper _prometheusHelper;
-        private readonly GatewayConfiguration _configuration;
+        private readonly IFunctionInvokerFactory _functionInvokerFactory;
 
-        public PublishFunctionCommandHandler(
-            Factories.IHttpClientFactory httpClientFactory,
-            IFunctionCommandRepository functionRepository,
-            IPrometheusHelper prometheusHelper,
-            IOptions<GatewayConfiguration> configuration)
+        public PublishFunctionCommandHandler(IFunctionCommandRepository functionRepository, IFunctionInvokerFactory functionInvokerFactory)
         {
-            _httpClientFactory = httpClientFactory;
             _functionRepository = functionRepository;
-            _prometheusHelper = prometheusHelper;
-            _configuration = configuration.Value;
+            _functionInvokerFactory = functionInvokerFactory;
         }
 
-        public async Task<bool> Handle(PublishFunctionCommand command, CancellationToken cancellationToken)
+        public async Task<string> Handle(PublishFunctionCommand command, CancellationToken cancellationToken)
         {
-            var function = await _functionRepository.Get(command.Image, cancellationToken);
-            if (function != null)
+            var invoker = _functionInvokerFactory.Build(command.Provider);
+            if (invoker == null)
             {
-                throw new BusinessRuleException(string.Format(Global.FunctionNameAlreadyExists, command.Image));
+                throw new BadRequestException(ErrorCodes.UnsupportedFunctionProvider, Global.UnsupportedFunctionProvider);
             }
 
-            using (var httpClient = _httpClientFactory.Build())
-            {
-                var request = new HttpRequestMessage
-                {
-                    RequestUri = new Uri($"{_configuration.FunctionApi}/functions"),
-                    Method = HttpMethod.Post,
-                    Content = new StringContent(JsonConvert.SerializeObject(command), Encoding.UTF8, "application/json")
-                };
-                var httpResult = await httpClient.SendAsync(request);
-                httpResult.EnsureSuccessStatusCode();
-                function = FunctionAggregate.Create(command.Name, command.Image);
-                await _functionRepository.Add(function, cancellationToken);
-                await _functionRepository.SaveChanges(cancellationToken);
-                _prometheusHelper.Add(command.Name);
-                return true;
-            }
+            var function = FunctionAggregate.Create(command.Name, command.Provider, command.Metadata);
+            await invoker.Publish(function.Id, function.Metadata, cancellationToken);
+            await invoker.InitAudit(function.Id, cancellationToken);
+            await _functionRepository.Add(function, cancellationToken);
+            await _functionRepository.SaveChanges(cancellationToken);
+            return function.Id;
         }
     }
 }

@@ -31,7 +31,7 @@ namespace FaasNet.Runtime.Domains.Definitions
             }
             set
             {
-                ArgumentsStr = value.ToString();
+                ArgumentsStr = value?.ToString();
             }
         }
     }

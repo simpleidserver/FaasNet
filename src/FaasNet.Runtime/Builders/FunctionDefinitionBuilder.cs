@@ -6,5 +6,10 @@
         {
             return new RESTAPIFunctionDefinitionBuilder(name, operation);
         }
+
+        public KubernetesFunctionDefinitionBuilder KubernetesAPI(string name)
+        {
+            return new KubernetesFunctionDefinitionBuilder(name);
+        }
     }
 }

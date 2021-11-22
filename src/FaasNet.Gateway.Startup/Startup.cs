@@ -1,4 +1,3 @@
-using FaasNet.Gateway.Startup.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -25,8 +24,7 @@ namespace FaasNet.Gateway.Startup
             services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()));
-            services.AddGateway(opt => opt.PrometheusFilePath = prometheusFilePath)
-                .AddApiDefs(DefaultConfiguration.ApiDefinitions);
+            services.AddGateway(opt => opt.PrometheusFilePath = prometheusFilePath);
             services.AddSwaggerGen();
             services.AddControllers().AddNewtonsoftJson();
         }
@@ -50,7 +48,6 @@ namespace FaasNet.Gateway.Startup
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Gateway V1");
             });
 
-            app.UseMiddleware<RequestApiMiddleware>();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {

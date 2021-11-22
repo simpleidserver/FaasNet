@@ -15,7 +15,27 @@ namespace FaasNet.Runtime.Serializer
 
         public object ReadYaml(IParser parser, Type type)
         {
-            throw new NotImplementedException();
+            var jObj = new JObject();
+            var mappingStart = parser.Current as MappingStart;
+            if (mappingStart == null)
+            {
+                return jObj;
+            }
+
+            parser.MoveNext();
+            do
+            {
+                var scalarKey = parser.Current as Scalar;
+                var key = scalarKey.Value;
+                parser.MoveNext();
+                var scalarValue = parser.Current as Scalar;
+                var value = scalarValue.Value;
+                parser.MoveNext();
+                jObj.Add(key, value);
+            }
+            while (parser.Current.GetType() != typeof(MappingEnd));
+            parser.MoveNext();
+            return jObj;
         }
 
         public void WriteYaml(IEmitter emitter, object value, Type type)

@@ -22,7 +22,7 @@ namespace FaasNet.Gateway.Core.Functions.Queries.Handlers
             var fn = await _functionQueryRepository.Get(request.FuncName, cancellationToken);
             if (fn == null)
             {
-                throw new FunctionNotFoundException(string.Format(Global.UnknownFunction, request.FuncName));
+                throw new FunctionNotFoundException(ErrorCodes.UnknownFunction, string.Format(Global.UnknownFunction, request.FuncName));
             }
 
             return fn;

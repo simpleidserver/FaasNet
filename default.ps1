@@ -18,12 +18,11 @@ task local -depends compile, test
 task ci -depends clean, release, local, pack, publish
 
 task publish {
-	exec { dotnet publish $source_dir\FaasNet.Runtime.Startup\FaasNet.Runtime.Startup.csproj -c $config -o $result_dir\services\Runtime }
-	exec { dotnet publish $source_dir\FaasNet.Runtime.GetSql\FaasNet.Runtime.GetSql.csproj -c $config -o $result_dir\services\RuntimeGetSql }
-	exec { dotnet publish $source_dir\FaasNet.Runtime.Transform\FaasNet.Runtime.Transform.csproj -c $config -o $result_dir\services\RuntimeTransform }
+	exec { dotnet publish $source_dir\FaasNet.Function.GetSql\FaasNet.Function.GetSql.csproj -c $config -o $result_dir\services\RuntimeGetSql }
+	exec { dotnet publish $source_dir\FaasNet.Function.Transform\FaasNet.Function.Transform.csproj -c $config -o $result_dir\services\RuntimeTransform }
 	exec { dotnet publish $source_dir\FaasNet.Kubernetes\FaasNet.Kubernetes.csproj -c $config -o $result_dir\services\Kubernetes }
-	exec { dotnet publish $source_dir\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj -c $config -o $result_dir\services\Gateway }
-	exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
+	# exec { dotnet publish $source_dir\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj -c $config -o $result_dir\services\Gateway }
+	# exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
 }
 
 task publishTemplate {
@@ -87,9 +86,9 @@ task buildLocalDockerImage -depends publish {
 	exec { docker push localhost:5000/faasgetsql }
 	exec { docker push localhost:5000/faastransform }
 	exec { docker push localhost:5000/faaskubernetes }
-	exec { docker push localhost:5000/faasgateway }
-	exec { docker push localhost:5000/faaswebsite }
-	exec { docker push localhost:5000/faasprometheus }
+	# exec { docker push localhost:5000/faasgateway }
+	# exec { docker push localhost:5000/faaswebsite }
+	# exec { docker push localhost:5000/faasprometheus }
 }
 
 task initLocalKubernetes {
@@ -101,12 +100,13 @@ task initLocalKubernetes {
     exec { kubectl apply -f ./kubernetes/prometheus-persistent-volume-claim.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/run-faas-kubernetes.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/faas-kubernetes-svc.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/run-faas-gateway.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-gateway-svc.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/run-website.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-website-svc.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/run-prometheus.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-prometheus-svc.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/faas-kubernetes-external-svc.yml --namespace=faas }
+	# exec { kubectl apply -f ./kubernetes/run-faas-gateway.yml --namespace=faas }
+	# exec { kubectl apply -f ./kubernetes/faas-gateway-svc.yml --namespace=faas }
+	# exec { kubectl apply -f ./kubernetes/run-website.yml --namespace=faas }
+	# exec { kubectl apply -f ./kubernetes/faas-website-svc.yml --namespace=faas }
+	# exec { kubectl apply -f ./kubernetes/run-prometheus.yml --namespace=faas }
+	# exec { kubectl apply -f ./kubernetes/faas-prometheus-svc.yml --namespace=faas }
 }
 
 task builderDockerImage -depends publish {
