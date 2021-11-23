@@ -1,0 +1,18 @@
+.statediagram > svg, .statediagram {
+  width: 100%;
+  height: 100%;
+}
+
+.statediagram .statediagram-state > rect {
+  stroke: black;
+  stroke-width: 1px;
+  fill: #ECECFF;
+}
+
+.statediagram .statediagram-state > line {
+  stroke: #9370DB;
+}
+
+.statediagram .statediagram-state foreignObject > div {
+    text-align: center;
+}

@@ -1,0 +1,27 @@
+<div class="statediagram" #stateDiagram>
+  <svg>
+    <g>
+      <g class="root">
+        <g class="nodes">
+          <g class="nodes default">
+            <circle class="node state-start" [attr.r]="options.circleRadius" [attr.cx]="circleStartPosition.x" [attr.cy]="circleStartPosition.y"></circle>
+          </g>
+          <g *ngFor="let node of nodes" class="nodes statediagram-state" [attr.transform]="node.transform">
+            <rect [attr.width]="options.nodeWidth" [attr.height]="options.nodeHeight"></rect>
+            <line x1="0" [attr.y1]="options.titleHeight" [attr.x2]="options.nodeWidth" [attr.y2]="options.titleHeight"></line>
+            <g>
+              <foreignObject [attr.width]="options.nodeWidth" [attr.height]="options.titleHeight">
+                <div>
+                  {{node.state?.name}}
+                </div>
+              </foreignObject>
+              <foreignObject [attr.width]="options.nodeWidth" [attr.height]="options.bodyHeight" [attr.transform]="'translate(0, '+options.titleHeight+')'">
+                <div>description</div>
+              </foreignObject>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
