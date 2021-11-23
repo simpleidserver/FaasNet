@@ -4,6 +4,7 @@
     {
         public const string InvalidStateMachineName = "InvalidStateMachineName";
         public const string InvalidExecutionInput = "InvalidExecutionInput";
+        public const string InvalidStateMachineInstanceId = "InvalidStateMachineInstanceId";
         public const string UnsupportedFunctionProvider = "UnsupportedFunctionProvider";
         public const string UnknownFunction = "UnknownFunction";
         public const string StateMachineExists = "StateMachineExists";

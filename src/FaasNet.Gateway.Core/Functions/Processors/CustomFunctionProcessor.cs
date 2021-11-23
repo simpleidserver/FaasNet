@@ -23,7 +23,7 @@ namespace FaasNet.Gateway.Core.Functions.Processors
         public Task<JToken> Process(JToken input, WorkflowDefinitionFunction function, WorkflowInstanceState instanceState, CancellationToken cancellationToken)
         {
             var invoker = _functionInvokerFactory.Build(function.Provider);
-            return invoker.Invoke(function.FunctionId, input, JObject.Parse("{}"), cancellationToken);
+            return invoker.Invoke(function.FunctionId, input, function.Configuration, cancellationToken);
         }
     }
 }

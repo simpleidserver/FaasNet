@@ -101,12 +101,12 @@ namespace FaasNet.Runtime.Processors
 
         protected virtual void EnrichOutputState(WorkflowDefinitionAction action, JToken functionResult, JObject outputState)
         {
-            if (action.ActionDataFilter != null && action.ActionDataFilter.UseResults && !string.IsNullOrWhiteSpace(action.ActionDataFilter.ToStateData))
+            if (action.ActionDataFilter == null || (action.ActionDataFilter != null && action.ActionDataFilter.UseResults))
             {
                 JToken inputToken = functionResult;
-                if (!string.IsNullOrWhiteSpace(action.ActionDataFilter.Results))
+                if (!string.IsNullOrWhiteSpace(action.ActionDataFilter?.Results))
                 {
-                    inputToken = functionResult.SelectToken(action.ActionDataFilter.Results);
+                    inputToken = functionResult.SelectToken(action.ActionDataFilter?.Results);
                 }
 
                 if (inputToken == null)
@@ -114,7 +114,7 @@ namespace FaasNet.Runtime.Processors
                     return;
                 }
 
-                outputState.Merge(action.ActionDataFilter.ToStateData, inputToken);
+                outputState.Merge(action.ActionDataFilter?.ToStateData, inputToken);
             }
         }
     }

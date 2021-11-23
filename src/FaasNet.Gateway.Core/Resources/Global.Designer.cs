@@ -151,6 +151,15 @@ namespace FaasNet.Gateway.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to state machine instance doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownStateMachineInstance {
+            get {
+                return ResourceManager.GetString("UnknownStateMachineInstance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to the function provider is not supported.
         /// </summary>
         internal static string UnsupportedFunctionProvider {

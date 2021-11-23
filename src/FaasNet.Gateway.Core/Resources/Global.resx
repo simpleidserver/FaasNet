@@ -147,6 +147,9 @@
   <data name="UnknownStateMachine" xml:space="preserve">
     <value>state machine '{0}' doesn't exist</value>
   </data>
+  <data name="UnknownStateMachineInstance" xml:space="preserve">
+    <value>state machine instance doesn't exist</value>
+  </data>
   <data name="UnsupportedFunctionProvider" xml:space="preserve">
     <value>the function provider is not supported</value>
   </data>

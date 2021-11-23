@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using FaasNet.Runtime.Extensions;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
@@ -15,27 +17,8 @@ namespace FaasNet.Runtime.Serializer
 
         public object ReadYaml(IParser parser, Type type)
         {
-            var jObj = new JObject();
-            var mappingStart = parser.Current as MappingStart;
-            if (mappingStart == null)
-            {
-                return jObj;
-            }
-
-            parser.MoveNext();
-            do
-            {
-                var scalarKey = parser.Current as Scalar;
-                var key = scalarKey.Value;
-                parser.MoveNext();
-                var scalarValue = parser.Current as Scalar;
-                var value = scalarValue.Value;
-                parser.MoveNext();
-                jObj.Add(key, value);
-            }
-            while (parser.Current.GetType() != typeof(MappingEnd));
-            parser.MoveNext();
-            return jObj;
+            var treeNodes = parser.Extract(typeof(MappingEnd));
+            return Build(treeNodes);
         }
 
         public void WriteYaml(IEmitter emitter, object value, Type type)
@@ -49,6 +32,34 @@ namespace FaasNet.Runtime.Serializer
             }
 
             emitter.Emit(new MappingEnd());
+        }
+
+        private JObject Build(ICollection<TreeNode> nodes)
+        {
+            var result = new JObject();
+            foreach(var node in nodes)
+            {
+                switch(node.Type)
+                {
+                    case TreeNodeTypes.PROPERTY:
+                        result.Add(node.Key, node.Value);
+                        break;
+                    case TreeNodeTypes.OBJECT:
+                        result.Add(node.Key, Build(node.Children));
+                        break;
+                    case TreeNodeTypes.ARRAY:
+                        var jArr = new JArray();
+                        foreach(var child in node.Children)
+                        {
+                            jArr.Add(Build(child.Children));
+                        }
+
+                        result.Add(node.Key, jArr);
+                        break;
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -27,10 +27,11 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
         public async Task<StartStateMachineResult> Handle(StartStateMachineCommand request, CancellationToken cancellationToken)
         {
             var validationResult = Validate(request);
-            await _runtimeEngine.InstanciateAndLaunch(validationResult.WorkflowDefinition, request.Input, cancellationToken);
+            var  workflowInstance = await _runtimeEngine.InstanciateAndLaunch(validationResult.WorkflowDefinition, request.Input, cancellationToken);
             return new StartStateMachineResult
             {
-                LaunchDateTime = DateTime.UtcNow
+                LaunchDateTime = DateTime.UtcNow,
+                Id = workflowInstance.Id  
             };
         }
 

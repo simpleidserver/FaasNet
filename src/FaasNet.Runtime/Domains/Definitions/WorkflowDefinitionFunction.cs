@@ -51,6 +51,15 @@ namespace FaasNet.Runtime.Domains.Definitions
                 return GetMetadata("provider");
             }
         }
+        [YamlIgnore]
+        public JObject Configuration
+        {
+            get
+            {
+                var str = GetMetadata("configuration");
+                return string.IsNullOrWhiteSpace(str) ? JObject.Parse("{}") : JObject.Parse(str);
+            }
+        }
 
         private string GetMetadata(string key)
         {
