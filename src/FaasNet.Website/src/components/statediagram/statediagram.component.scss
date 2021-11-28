@@ -3,16 +3,65 @@
   height: 100%;
 }
 
-.statediagram .statediagram-state > rect {
-  stroke: black;
-  stroke-width: 1px;
-  fill: #ECECFF;
+.statediagram, .statediagram .editor, .statediagram .editor svg {
+  height: 100%;
 }
 
-.statediagram .statediagram-state > line {
+.statediagram .editor svg {
+  width: 100%;
+}
+
+/* Toolbox */
+.statediagram .toolbox {
+  background-color: white;
+  border-right: 1px solid #d6d2d2;
+  overflow: hidden;
+}
+
+.statediagram .toolbox .toolbox-item {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Editor */
+.statediagram .editor .state .separator {
   stroke: #9370DB;
 }
 
-.statediagram .statediagram-state foreignObject > div {
-    text-align: center;
+.statediagram .editor .state > rect {
+  stroke: #9370DB;
+  stroke-width: 1px;
+  fill: #ECECFF;
+  rx: 5px;
+  ry: 5px;
+}
+
+.statediagram .editor .state foreignObject > div {
+  text-align: center;
+}
+
+.statediagram .editor .edgePaths > path {
+  stroke: #333333;
+  stroke-width: 1px;
+}
+
+.statediagram .editor .anchor {
+  display: none;
+}
+
+.statediagram .editor .anchor.selected {
+  display: block;
+}
+
+.statediagram .editor .anchor > .outer {
+  fill: red;
+}
+
+.statediagram .editor .anchor > .inner {
+  fill: white;
+}
+
+.statediagram .editor .draggableZone {
+  width: 100%;
+  height: 100%;
 }
