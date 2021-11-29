@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { InjectStateMachineState } from '../../../components/statediagram/models/statemachine-inject-state.model';
+import { EventCondition, SwitchStateMachineState } from '../../../components/statediagram/models/statemachine-switch-state.model';
 import { StateMachine } from '../../../components/statediagram/models/statemachine.model';
 
 @Component({
@@ -8,19 +9,34 @@ import { StateMachine } from '../../../components/statediagram/models/statemachi
   styleUrls: ['./edit.component.scss']
 })
 export class EditStateMachineComponent implements OnInit, OnDestroy {
-  stateMachineDef: StateMachine = {
-    id: "id",
-    specVersion: "1.0",
-    start: "start",
-    version: "1.0",
-    states: []
-  };
+  stateMachineDef: StateMachine | null = null;
 
   constructor() {
-    const firstInject: InjectStateMachineState = { name: "firstInject", type: "inject", transition: "secondInject" };
-    const secondInject: InjectStateMachineState = { name: "secondInject", type: "inject", transition: "" };
+    this.stateMachineDef = new StateMachine();
+    this.stateMachineDef.id = "id";
+    this.stateMachineDef.specVersion = "1.0";
+    this.stateMachineDef.start = "start";
+    this.stateMachineDef.version = "1.0";
+    const switchState = new SwitchStateMachineState();
+    switchState.name = "switch";
+    const firstEvtCondition = new EventCondition();
+    firstEvtCondition.eventRef = "evt1";
+    firstEvtCondition.transition = "firstInject";
+    const secondEvtCondition = new EventCondition();
+    secondEvtCondition.eventRef = "evt2";
+    secondEvtCondition.transition = "secondInject";
+    switchState.eventConditions = [firstEvtCondition, secondEvtCondition];
+    const firstInject = new InjectStateMachineState();
+    firstInject.name = "firstInject";
+    const secondInject = new InjectStateMachineState();
+    secondInject.name = "secondInject";
+    secondInject.transition = "thirdInject";
+    const thirdInject = new InjectStateMachineState();
+    thirdInject.name = "thirdInject";
+    this.stateMachineDef.states.push(switchState);
     this.stateMachineDef.states.push(firstInject);
     this.stateMachineDef.states.push(secondInject);
+    this.stateMachineDef.states.push(thirdInject);
 
   }
 
