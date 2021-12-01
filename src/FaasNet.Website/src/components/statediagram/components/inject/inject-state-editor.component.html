@@ -1,0 +1,8 @@
+<h2 class="title">Inject State</h2>
+<form [formGroup]="updateInjectFormGroup" class="form" (ngSubmit)="saveForm()">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>JSON</mat-label>
+    <textarea matInput formControlName="data"></textarea>
+  </mat-form-field>
+  <button mat-raised-button color="primary">Save</button>
+</form>

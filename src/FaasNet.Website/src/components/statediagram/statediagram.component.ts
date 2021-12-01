@@ -1,4 +1,5 @@
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ForeachStateMachineState } from './models/statemachine-foreach-state.model';
 import { InjectStateMachineState } from './models/statemachine-inject-state.model';
 import { BaseTransition, StateMachineState } from './models/statemachine-state.model';
 import { SwitchStateMachineState } from './models/statemachine-switch-state.model';
@@ -56,6 +57,10 @@ class EdgeLabel {
       this.width = -this.width;
     }
 
+    if (this.width === 0) {
+      this.width = 100;
+    }
+
     this.height = this.edgePath.toY - this.edgePath.fromY;
   }
 }
@@ -94,11 +99,12 @@ class DraggableZone {
 }
 
 class DiagramOptions {
-  canvasWidth: number = 1000;
+  canvasWidth: number = 800;
   canvasHeight: number = 600;
   nodeGap: number = 50;
   nodeWidth: number = 200;
   nodeHeight: number = 90;
+  zoom: number = 20;
   draggableZoneWidth: number = 30;
   circleRadius: number = 7;
   get titleHeight() {
@@ -119,18 +125,22 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   @Input() stateMachine: StateMachine | null = null;
   @Input() options: DiagramOptions = new DiagramOptions();
   @ViewChild("stateDiagram") stateDiagram: any;
+  @ViewChild("gutter") gutter: any;
+  @ViewChild("stateDiagramContainer") stateDiagramContainer: any;
   circleStartPosition: { x: number, y: number } = { x: 0, y: 0 };
   circleStartSelected: boolean = false;
   edgePathCircleStart: string = "";
   viewBox: string = "";
   isMoving: boolean = false;
-  previousMousePosition: { x: number, y: number } = {x : 0, y : 0};
+  isResizing: boolean = false;
+  startMoving: boolean = false;
+  previousMousePosition: { x: number, y: number } = { x: 0, y: 0 };
   nodes: DiagramNode[] = [];
   edgePaths: EdgePath[] = [];
   edgeLabels: EdgeLabel[] = [];
   anchors: Anchor[] = [];
   draggableZoneLst: DraggableZone[] = [];
-  handleZoomRef: any;
+  selectedState: StateMachineState | null = null;
 
   constructor() {
   }
@@ -144,7 +154,6 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   ngAfterViewInit() {
     this.refreshUI();
     this.viewBox = "0 0 " + this.options.canvasWidth + " " + this.options.canvasHeight;
-    this.handleZoomRef = this.handleZoom.bind(this);
     this.initListener();
   }
 
@@ -153,6 +162,10 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   onDrop(evt: any, draggableZone: DraggableZone) {
+    if (this.startMoving) {
+      return;
+    }
+
     draggableZone.anchor.selected = false;
     const parent = draggableZone.diagramNode.state;
     let child: StateMachineState | null = null;
@@ -164,13 +177,16 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
       case SwitchStateMachineState.TYPE:
         child = new SwitchStateMachineState();
         break;
+      case ForeachStateMachineState.TYPE:
+        child = new ForeachStateMachineState();
+        break;
     }
 
     if (child) {
       child.name = this.buildId(type);
-      const removedTransitions = parent?.setTransitions([child.name]);
-      if (removedTransitions) {
-        this.stateMachine?.removeByNames(removedTransitions);
+      const removedTransition = parent?.tryAddTransition(child.name);
+      if (removedTransition) {
+        this.stateMachine?.removeByNames([removedTransition]);
       }
 
       this.stateMachine?.states.push(child);
@@ -179,20 +195,36 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   onDragOver(evt: any, draggableZone: DraggableZone) {
+    if (this.startMoving) {
+      return;
+    }
+
     evt.preventDefault();
     draggableZone.anchor.selected = true;
   }
 
-  onDragOverCircleStart(evt : any) {
+  onDragOverCircleStart(evt: any) {
+    if (this.startMoving) {
+      return;
+    }
+
     this.circleStartSelected = true;
     evt.preventDefault();
   }
 
   onDragLeaveCircleStart(evt: any) {
+    if (this.startMoving) {
+      return;
+    }
+
     this.circleStartSelected = false;
   }
 
   onDropCircleStart(evt: any) {
+    if (this.startMoving) {
+      return;
+    }
+
     this.circleStartSelected = false;
     let child: StateMachineState | null = null;
     const type = evt.dataTransfer.getData('type');
@@ -203,13 +235,17 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
       case SwitchStateMachineState.TYPE:
         child = new SwitchStateMachineState();
         break;
+      case ForeachStateMachineState.TYPE:
+        child = new ForeachStateMachineState();
+        break;
     }
 
     const rootState = this.stateMachine?.getRootState();
     if (child) {
       child.name = this.buildId(type);
       if (rootState && rootState.name) {
-        child.setTransitions([rootState.name]);
+        const transitions = rootState.getNextTransitions();
+        child.setTransitions(transitions);
       }
 
       this.stateMachine?.states.push(child);
@@ -218,42 +254,82 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   onDragLeave(evt: any, draggableZone: DraggableZone) {
+    if (this.startMoving) {
+      return;
+    }
+
     draggableZone.anchor.selected = false;
   }
 
   removeNode(node: DiagramNode) {
+    if (this.startMoving) {
+      return;
+    }
+
     const state = node.state;
     if (!state) {
       return;
     }
 
-    let nextTransitions = state.getNextTransitions();
+    let stateNextTransitions = state.getNextTransitions();
     let parent = this.getParent(state);
     if (!parent) {
-      if (!nextTransitions || nextTransitions.length === 0) {
+      if (!stateNextTransitions || stateNextTransitions.length === 0) {
         this.stateMachine?.remove(state);
+        this.refreshUI();
         return;
       }
-
-      parent = this.stateMachine?.getState(nextTransitions[0].transition);
-      nextTransitions = nextTransitions.filter((t) => t.transition !== parent?.name);
     }
 
+    let parentNextTransitions = parent?.getNextTransitions();
+    parentNextTransitions = parentNextTransitions?.filter((t) => t.transition !== state?.name);
     this.stateMachine?.remove(state);
-    parent?.setTransitions(nextTransitions.map((t) => t.transition));
+    if (parentNextTransitions) {
+      parent?.setTransitions(parentNextTransitions);
+    }
+
     this.refreshUI();
   }
 
-  openSettings(node: DiagramNode) {
-    console.log(node);
+  selectState(node: DiagramNode) {
+    if (this.startMoving || !node.state) {
+      return;
+    }
+
+    this.selectedState = node.state;
+  }
+
+  zoomIn() {
+    this.zoom(-(this.options.zoom));
+  }
+
+  zoomOut() {
+    this.zoom(this.options.zoom);
+  }
+
+  startMove() {
+    this.startMoving = true;
+
+  }
+
+  startEdit() {
+    this.startMoving = false;
   }
 
   private initListener() {
+    this.initStateDiagramListeners();
+    this.initGutterListeners();
+  }
+
+  private initStateDiagramListeners() {
     const self = this;
     const native = this.stateDiagram.nativeElement;
     const viewBox = native.viewBox;
-    native.onmousewheel = this.handleZoomRef;
-    native.onmousedown = function (e : any) {
+    native.onmousedown = function (e: any) {
+      if (!self.startMoving) {
+        return;
+      }
+
       self.isMoving = true;
       self.previousMousePosition = { x: e.clientX + viewBox.animVal.x, y: e.clientY + viewBox.animVal.y };
     };
@@ -271,15 +347,36 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     };
   }
 
-  private handleZoom(evt: any) {
+  private initGutterListeners() {
+    const self = this;
+    const native = this.gutter.nativeElement;
+    const stateDiagramContainer = this.stateDiagramContainer.nativeElement;
+    let rect: any = null;
+    native.onmousedown = function (e: any) {
+      self.isResizing = true;
+      console.log(e.x);
+      self.previousMousePosition = { x: e.x, y: e.y };
+      rect = stateDiagramContainer.getBoundingClientRect();
+    };
+    window.addEventListener('mousemove', function (e) {
+      if (!self.isResizing) {
+        return;
+      }
+
+      const newX = self.previousMousePosition.x - e.x;
+      stateDiagramContainer.style.width = rect.width - newX + "px";
+    });
+    native.onmouseup = function (e: any) {
+      self.isResizing = false;
+    };
+  }
+
+  private zoom(delta: number) {
     const native = this.stateDiagram.nativeElement;
-    evt.preventDefault();
     const viewBox = native.viewBox;
     const w = viewBox.animVal.width;
     const h = viewBox.animVal.height;
-    const dw = w * Math.sign(evt.deltaY) * 0.05;
-    const dh = h * Math.sign(evt.deltaY) * 0.05;
-    this.viewBox = (viewBox.animVal.x) + " " +(viewBox.animVal.y)+ " " + (w - dw) + " " + (h - dh);
+    this.viewBox = (viewBox.animVal.x) + " " +(viewBox.animVal.y)+ " " + (w + delta) + " " + (h + delta);
   }
 
   private refreshUI() {

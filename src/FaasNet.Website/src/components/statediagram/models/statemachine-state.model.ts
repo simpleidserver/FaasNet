@@ -2,7 +2,8 @@ export abstract class StateMachineState {
   name: string | undefined;
   type: string | undefined;
 
-  public abstract setTransitions(transitions: string[]): string[];
+  public abstract setTransitions(transitions: BaseTransition[]): void;
+  public abstract tryAddTransition(transitionName: string): string | null;
   public abstract getNextTransitions(): BaseTransition[];
 }
 
@@ -31,13 +32,16 @@ export class FlowableStateMachineState extends StateMachineState{
 
   transition: string;
 
-  public override setTransitions(transitions: string[]): string[] {
-    const oldTransition = this.transition;
+  public override setTransitions(transitions: BaseTransition[]): void {
     if (transitions && transitions.length > 0) {
-      this.transition = transitions[0];
+      this.transition = transitions[0].transition;
     }
+  }
 
-    return oldTransition == "" ? [] : [oldTransition];
+  public override tryAddTransition(transitionName: string): string | null{
+    const oldTransition = this.transition;
+    this.transition = transitionName;
+    return oldTransition;
   }
 
   public override getNextTransitions(): BaseTransition[] {

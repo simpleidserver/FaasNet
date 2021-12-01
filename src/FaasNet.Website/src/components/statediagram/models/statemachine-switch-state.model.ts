@@ -1,4 +1,4 @@
-import { StateMachineState, BaseTransition } from "./statemachine-state.model";
+import { BaseTransition, StateMachineState } from "./statemachine-state.model";
 
 export class EventCondition extends BaseTransition {
   static TYPE : string = "event";
@@ -35,6 +35,7 @@ export class SwitchStateMachineState extends StateMachineState {
 
   constructor() {
     super();
+    this.type = SwitchStateMachineState.TYPE;
     this.eventConditions = [];
     this.dataConditions = [];
   }
@@ -43,17 +44,29 @@ export class SwitchStateMachineState extends StateMachineState {
   dataConditions: DataCondition[] = [];
   defaultCondition: BaseTransition | null = null;
 
-  public override setTransitions(transitions: string[]) : string[] {
+  public override setTransitions(transitions: BaseTransition[]) {
     if (transitions) {
-      transitions.forEach((t: string) => {
-        const evtCondition = new EventCondition();
-        evtCondition.eventRef = "";
-        evtCondition.transition = t;
-        this.eventConditions.push(evtCondition);
+      this.eventConditions = transitions.filter((t: BaseTransition) => {
+        return t.getType() == EventCondition.TYPE;
+      }).map((t: BaseTransition) => {
+        return t as EventCondition;
+      });
+      this.dataConditions = transitions.filter((t: BaseTransition) => {
+        return t.getType() == DataCondition.TYPE;
+      }).map((t: BaseTransition) => {
+        return t as DataCondition;
       });
     }
 
     return [];
+  }
+
+  public override tryAddTransition(transitionName: string): string | null {
+    const newEvtTransition = new EventCondition();
+    newEvtTransition.eventRef = "event";
+    newEvtTransition.transition = transitionName;
+    this.eventConditions.push(newEvtTransition);
+    return null;
   }
 
   public override getNextTransitions(): BaseTransition[] {

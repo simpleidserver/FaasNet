@@ -1,3 +1,6 @@
+$border-color: #d6d2d2;
+$gutter-width: 10px;
+
 .statediagram .editor {
   background-image: url('../../assets/images/tile.png');
   background-repeat: repeat;
@@ -5,10 +8,19 @@
   user-select: none;
 }
 
+/* Wrapper & Pane */
+.wrapper {
+  display: flex;
+}
+
+.wrapper > .pane {
+  min-width: 200px;
+}
+
 /* Toolbox */
 .statediagram .toolbox {
   background-color: white;
-  border-right: 1px solid #d6d2d2;
+  border-right: 1px solid $border-color;
   overflow: hidden;
 }
 
@@ -17,7 +29,67 @@
   user-select: none;
 }
 
+/* Toolbar */
+.statediagram .toolbar > ul {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid $border-color;
+}
+
+.statediagram .toolbar > ul > li {
+  display: inline-block;
+  border-right: 1px solid $border-color;
+  padding: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.statediagram .toolbar > ul > li.hidden {
+  display: none;
+}
+
+.statediagram .toolbar > ul > li > .item, .statediagram .toolbar > ul > li > mat-icon {
+  vertical-align: middle;
+}
+
+/* Properties */
+.statediagram .wrapper .properties {
+  position: relative;
+  flex: auto;
+}
+
+.statediagram .wrapper .properties .container {
+  margin-left: $gutter-width;
+}
+
+.statediagram .wrapper .properties .gutter {
+  width: $gutter-width;
+  height: 100%;
+  border-right: 1px solid $border-color;
+  border-left: 1px solid $border-color;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: col-resize;
+}
+
 /* Editor */
+.statediagram .editor {
+  overflow-x: auto;
+}
+
+.statediagram .editor.zoom {
+  cursor: move;
+}
+
+.statediagram .editor.zoom .state {
+    cursor: default !important;
+}
+
+.statediagram .editor .state {
+  cursor: pointer;
+}
+
 .statediagram .editor .state .separator {
   stroke: #9370DB;
 }
@@ -43,6 +115,11 @@
   position: absolute;
   right: 0px;
   top: 5px;
+}
+
+.statediagram .editor.zoom .state .header > .actions > mat-icon {
+  color: #b4b1b1cc;
+  cursor: unset;
 }
 
 .statediagram .editor .state .header > .actions > mat-icon {

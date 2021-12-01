@@ -1,4 +1,4 @@
-import { StateMachineState } from "./statemachine-state.model";
+import { BaseTransition, StateMachineState } from "./statemachine-state.model";
 
 export class StateMachine {
   constructor() {
@@ -15,8 +15,17 @@ export class StateMachine {
     return this.states.length === 0;
   }
 
-  public remove(state: StateMachineState) : void {
-    const index = this.states.indexOf(state);
+  public remove(state: StateMachineState): void {
+    const self = this;
+    const index = self.states.indexOf(state);
+    const nextTransitions = state.getNextTransitions();
+    nextTransitions.forEach((t: BaseTransition) => {
+      const child = self.getState(t.transition);
+      if (child) {
+        self.remove(child);
+      }
+    });
+
     this.states.splice(index, 1);
   }
 
