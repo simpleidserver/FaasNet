@@ -1,1 +1,10 @@
-<h2 class="title">Switch State</h2>
+<h2 class="state-title">Switch State</h2>
+<form [formGroup]="updateSwitchFormGroup" class="form">
+  <!-- Name -->
+  <div class="form-control">
+    <div class="title">Name</div>
+    <p class="description">State name</p>
+    <input type="text" formControlName="name" class="full-width" />
+  </div>
+  <mat-divider></mat-divider>
+</form>

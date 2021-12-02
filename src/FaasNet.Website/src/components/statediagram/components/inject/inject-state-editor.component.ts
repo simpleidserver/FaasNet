@@ -10,7 +10,9 @@ import { StateMachineState } from "../../models/statemachine-state.model";
 })
 export class InjectStateEditorComponent {
   private _state: StateMachineState | null = null;
-  private _injectState : InjectStateMachineState | null = null;
+  private _injectState: InjectStateMachineState | null = null;
+  private nameSubscription: any | null = null;
+  private dataSubscription: any | null = null;
   @Input()
   get state(): StateMachineState | null {
     return this._state;
@@ -22,6 +24,7 @@ export class InjectStateEditorComponent {
   }
 
   updateInjectFormGroup: FormGroup = new FormGroup({
+    name: new FormControl(),
     data: new FormControl()
   });
 
@@ -32,22 +35,40 @@ export class InjectStateEditorComponent {
   }
 
   ngOnDestroy() {
-  }
+    if (this.nameSubscription) {
+      this.nameSubscription.unsubscribe();
+    }
 
-  saveForm() {
-    const formVal = this.updateInjectFormGroup.value;
-    const data = JSON.parse(formVal.data);
-    if (data && this._injectState) {
-      this._injectState.data = data;
+    if (this.dataSubscription) {
+      this.dataSubscription.unsubscribe();
     }
   }
 
   private init() {
+    const self = this;
+    this.ngOnDestroy();
     let json: string = "{}";
     if (this._injectState && this._injectState.data) {
       json = JSON.stringify(this._injectState.data);
     }
 
     this.updateInjectFormGroup.get('data')?.setValue(json);
+    this.updateInjectFormGroup.get('name')?.setValue(this._injectState?.name);
+    this.nameSubscription = this.updateInjectFormGroup.get('name')?.valueChanges.subscribe((e: any) => {
+      if (self._injectState) {
+        self._injectState.name = e;
+      }
+    });
+    this.dataSubscription = this.updateInjectFormGroup.get('data')?.valueChanges.subscribe((e : any) => {
+      if (self._injectState) {
+        if (e) {
+          try {
+            const data = JSON.parse(e);
+            self._injectState.data = data;
+          }
+          catch { }
+        }
+      }
+    });
   }
 }

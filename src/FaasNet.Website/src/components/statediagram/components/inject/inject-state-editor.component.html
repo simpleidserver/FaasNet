@@ -1,8 +1,17 @@
-<h2 class="title">Inject State</h2>
-<form [formGroup]="updateInjectFormGroup" class="form" (ngSubmit)="saveForm()">
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>JSON</mat-label>
-    <textarea matInput formControlName="data"></textarea>
-  </mat-form-field>
-  <button mat-raised-button color="primary">Save</button>
+<h2 class="state-title">Inject State</h2>
+<form [formGroup]="updateInjectFormGroup" class="form">
+  <!-- Name -->
+  <div class="form-control">
+    <div class="title">Name</div>
+    <p class="description">State name</p>
+    <input type="text" formControlName="name" class="full-width" />
+  </div>
+  <mat-divider></mat-divider>
+  <!-- Data -->
+  <div class="form-control">
+    <div class="title">Data</div>
+    <p class="description">JSON object which can be set as state's data input and can be manipulated via filter</p>
+    <textarea formControlName="data" class="full-width"></textarea>
+  </div>
+  <mat-divider></mat-divider>
 </form>

@@ -1,4 +1,5 @@
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { ForeachStateMachineState } from './models/statemachine-foreach-state.model';
 import { InjectStateMachineState } from './models/statemachine-inject-state.model';
 import { BaseTransition, StateMachineState } from './models/statemachine-state.model';
@@ -40,7 +41,7 @@ class EdgePath {
 }
 
 class EdgeLabel {
-  constructor(public label: string, public edgePath: EdgePath) {
+  constructor(public label: BehaviorSubject<string>, public edgePath: EdgePath) {
 
   }
 
@@ -48,6 +49,7 @@ class EdgeLabel {
   posY: number = 0;
   width: number = 0;
   height: number = 0;
+  selected: boolean = false;
 
   public computePosition() {
     this.posX = (this.edgePath.fromX > this.edgePath.toX) ? this.edgePath.toX : this.edgePath.fromX;
@@ -141,14 +143,23 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   anchors: Anchor[] = [];
   draggableZoneLst: DraggableZone[] = [];
   selectedState: StateMachineState | null = null;
+  selectedTransition: BaseTransition | null = null;
+  handleMouseMoveWindowRef: any | null = null;
+  handleMouseUpRef: any | null = null;
+  gutterBoundingRect: any | null = null;
 
   constructor() {
   }
 
   ngOnInit() {
+    this.handleMouseMoveWindowRef = this.handleMouseMoveWindow.bind(this);
+    this.handleMouseUpRef = this.handleMouseUp.bind(this);
   }
 
   ngOnDestroy() {
+    if (this.handleMouseMoveWindowRef) {
+      window.removeEventListener('mousemove', this.handleMouseMoveWindowRef);
+    }
   }
 
   ngAfterViewInit() {
@@ -183,8 +194,9 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     }
 
     if (child) {
-      child.name = this.buildId(type);
-      const removedTransition = parent?.tryAddTransition(child.name);
+      child.id = this.buildId();
+      child.name = type;
+      const removedTransition = parent?.tryAddTransition(child.id);
       if (removedTransition) {
         this.stateMachine?.removeByNames([removedTransition]);
       }
@@ -221,7 +233,8 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   onDropCircleStart(evt: any) {
-    if (this.startMoving) {
+    if (this.startMoving || (this.stateMachine && this.stateMachine?.states.length > 0)) {
+      this.circleStartSelected = false;
       return;
     }
 
@@ -242,7 +255,8 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
     const rootState = this.stateMachine?.getRootState();
     if (child) {
-      child.name = this.buildId(type);
+      child.id = this.buildId();
+      child.name = type;
       if (rootState && rootState.name) {
         const transitions = rootState.getNextTransitions();
         child.setTransitions(transitions);
@@ -288,6 +302,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
       parent?.setTransitions(parentNextTransitions);
     }
 
+    this.selectedState = null;
     this.refreshUI();
   }
 
@@ -297,6 +312,10 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     }
 
     this.selectedState = node.state;
+    this.edgeLabels.forEach((e) => {
+      e.selected = false;
+    });
+    this.selectedTransition = null;
   }
 
   zoomIn() {
@@ -309,11 +328,19 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
   startMove() {
     this.startMoving = true;
-
   }
 
   startEdit() {
     this.startMoving = false;
+  }
+
+  selectLabel(label: EdgeLabel) {
+    this.edgeLabels.forEach((e) => {
+      e.selected = false;
+    });
+    this.selectedState = null;
+    label.selected = !label.selected;
+    this.selectedTransition = label.edgePath.transition;
   }
 
   private initListener() {
@@ -342,33 +369,40 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
       const diffY = -(e.clientY - self.previousMousePosition.y);
       self.viewBox = diffX + " " + diffY + " " + viewBox.animVal.width + " " + viewBox.animVal.height;
     };
-    native.onmouseup = function (e: any) {
-      self.isMoving = false;
-    };
   }
 
   private initGutterListeners() {
     const self = this;
     const native = this.gutter.nativeElement;
     const stateDiagramContainer = this.stateDiagramContainer.nativeElement;
-    let rect: any = null;
     native.onmousedown = function (e: any) {
       self.isResizing = true;
-      console.log(e.x);
       self.previousMousePosition = { x: e.x, y: e.y };
-      rect = stateDiagramContainer.getBoundingClientRect();
+      self.gutterBoundingRect = stateDiagramContainer.getBoundingClientRect();
     };
-    window.addEventListener('mousemove', function (e) {
-      if (!self.isResizing) {
-        return;
-      }
+    window.addEventListener('mousemove', this.handleMouseMoveWindowRef);
+    window.addEventListener('mouseup', this.handleMouseUpRef);
+  }
 
-      const newX = self.previousMousePosition.x - e.x;
-      stateDiagramContainer.style.width = rect.width - newX + "px";
-    });
-    native.onmouseup = function (e: any) {
-      self.isResizing = false;
-    };
+  private handleMouseMoveWindow(e: any) {
+    if (!this.isResizing) {
+      return;
+    }
+
+    const stateDiagramContainer = this.stateDiagramContainer.nativeElement;
+    const rect = stateDiagramContainer.getBoundingClientRect();
+    const newX = this.previousMousePosition.x - e.x;
+    stateDiagramContainer.style.width = this.gutterBoundingRect.width - newX + "px";
+  }
+
+  private handleMouseUp(e: any) {
+    if (this.isResizing) {
+      this.isResizing = false;
+    }
+
+    if (this.isMoving) {
+      this.isMoving = false;
+    }
   }
 
   private zoom(delta: number) {
@@ -402,7 +436,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
       newNode.level = parentNode.level + 1;
     }
 
-    let existingNodes = this.nodes.filter((n: DiagramNode) => n.state?.name === state.name);
+    let existingNodes = this.nodes.filter((n: DiagramNode) => n.state?.id === state.id);
     if (existingNodes.length === 1) {
       const existingNode = existingNodes[0];
       if (existingNode.level < newNode.level) {
@@ -419,7 +453,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     this.draggableZoneLst.push(draggableZone);
     const nextNodeNames = state.getNextTransitions();
     nextNodeNames.forEach((transition: BaseTransition) => {
-      const child = this.stateMachine?.states.filter((s: StateMachineState) => s.name === transition.transition)[0];
+      const child = this.stateMachine?.states.filter((s: StateMachineState) => s.id === transition.transition)[0];
       if (!child) {
         return;
       }
@@ -498,10 +532,13 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     return filtered.length === 1 ? filtered[0].formNode.state : null;
   }
 
-  private buildId(type: string) {
-    const date = new Date();
-    return type + "-" + date.getTime();
+  private buildId() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+    });
   }
+
 
   private getSvgWidth() {
     const native = this.stateDiagram.nativeElement;

@@ -1,4 +1,7 @@
+import { BehaviorSubject } from "rxjs";
+
 export abstract class StateMachineState {
+  id: string | undefined;
   name: string | undefined;
   type: string | undefined;
 
@@ -10,17 +13,24 @@ export abstract class StateMachineState {
 export abstract class BaseTransition {
   transition: string = "";
   public abstract getType(): string;
-  public abstract getLabel(): string | undefined;
+  public abstract getLabel(): BehaviorSubject<string> | undefined;
 }
 
 export class EmptyTransition extends BaseTransition {
   static TYPE: string = "empty";
+  private label: BehaviorSubject<string> | undefined;
+
+  constructor() {
+    super();
+    this.label = new BehaviorSubject<string>("transition");
+  }
+
   public override getType(): string {
     return EmptyTransition.TYPE;
   }
 
-  public override getLabel(): string | undefined {
-    return undefined;
+  public override getLabel(): BehaviorSubject<string> | undefined {
+    return this.label;
   }
 }
 

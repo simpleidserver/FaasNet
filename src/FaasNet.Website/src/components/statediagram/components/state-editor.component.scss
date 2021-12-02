@@ -1,10 +1,37 @@
-.title {
+.state-title {
   padding: 10px 0px 10px 5px !important;
   margin-left: 5px;
   margin: 0px 0px 0px 2px !important;
-  background-color: #a8a7a726;
+  background-color: whitesmoke;
 }
 
 .form {
-  padding: 5px;
+  padding-left: 2px;
+}
+
+.form-control {
+  padding: 10px 10px 5px 10px;
+
+  .title {
+    font-weight: bold;
+  }
+
+  .description {
+    color: rgb(127, 133, 140);
+    font-size: 0.7em;
+    font-weight: bold;
+  }
+
+  textarea, input {
+    border: 1px solid #c1c1c1;
+  }
+
+  input {
+    height: 30px;
+  }
+
+  textarea {
+    min-height: 50px;
+    resize: vertical;
+  }
 }

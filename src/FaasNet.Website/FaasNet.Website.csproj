@@ -18,6 +18,7 @@
     <None Remove="src\app\functions\function-rendering\function-rendering.component.ts" />
     <None Remove="src\app\shared\material.module.ts" />
     <None Remove="src\app\shared\shared.module.ts" />
+    <None Remove="src\components\statediagram\components\evtcondition\evtcondition.component.ts" />
     <None Remove="src\components\statediagram\components\inject\inject-state-editor.component.ts" />
     <None Remove="src\components\statediagram\components\switch\switch-state-editor.component.ts" />
     <None Remove="src\components\statediagram\models\statemachine-foreach-state.model.ts" />
@@ -51,6 +52,9 @@
     <TypeScriptCompile Include="src\app\functions\function-rendering\function-rendering.component.ts" />
     <TypeScriptCompile Include="src\app\shared\material.module.ts" />
     <TypeScriptCompile Include="src\app\shared\shared.module.ts" />
+    <TypeScriptCompile Include="src\components\statediagram\components\evtcondition\evtcondition.component.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\components\statediagram\components\inject\inject-state-editor.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

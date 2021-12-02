@@ -43,7 +43,7 @@ export class StateMachine {
   }
 
   public getState(stateName: string) {
-    const filtered = this.states.filter((s) => s.name === stateName);
+    const filtered = this.states.filter((s) => s.id === stateName);
     return filtered.length === 0 ? null : filtered[0];
   }
 

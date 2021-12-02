@@ -1,32 +1,56 @@
+import { BehaviorSubject } from "rxjs";
 import { BaseTransition, StateMachineState } from "./statemachine-state.model";
 
 export class EventCondition extends BaseTransition {
-  static TYPE : string = "event";
-  constructor() {
-    super();
+  static TYPE: string = "event";
+  private _eventRef: string = "";
+  private label: BehaviorSubject<string> | undefined;
+  get eventRef() {
+    return this._eventRef;
+  }
+  set eventRef(str: string) {
+    this._eventRef = str;
+    this.label?.next(this._eventRef);
   }
 
-  eventRef: string | undefined;
+  constructor() {
+    super();
+    this.label = new BehaviorSubject<string>("");
+  }
+
   public override getType(): string {
     return EventCondition.TYPE;
   }
 
-  public override getLabel(): string | undefined {
-    return this.eventRef;
+  public override getLabel(): BehaviorSubject<string> | undefined {
+    return this.label;
   }
 }
 
 export class DataCondition extends BaseTransition {
   static TYPE: string = "data";
+  private _condition: string = "";
   name: string | undefined;
-  condition: string | undefined;
+  get condition() : string {
+    return this._condition;
+  }
+  set condition(str: string) {
+    this._condition = str;
+    this.label?.next(this._condition);
+  }
+  private label: BehaviorSubject<string> | undefined;
+
+  constructor() {
+    super();
+    this.label = new BehaviorSubject<string>("");
+  }
 
   public override getType(): string {
     return DataCondition.TYPE;
   }
 
-  public override getLabel(): string | undefined {
-    return this.condition;
+  public override getLabel(): BehaviorSubject<string> | undefined {
+    return this.label;
   }
 }
 
