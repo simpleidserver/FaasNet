@@ -1,0 +1,19 @@
+$border-color: #d6d2d2;
+$separation: 5px;
+
+.firstPanel {
+  margin-right: $separation;
+}
+
+.secondPanel {
+  border-left: 1px solid $border-color;
+  margin-left: $separation;
+}
+
+#jsonContainer {
+  min-height: 300px;
+}
+
+.mat-dialog-content {
+  overflow: hidden;
+}

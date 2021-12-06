@@ -9,8 +9,6 @@ import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { ApiDefEffects } from '../stores/apis/effects/api.effects';
-import { ApiDefService } from '../stores/apis/services/api.service';
 import { appReducer } from '../stores/appstate';
 import { FunctionEffects } from '../stores/functions/effects/function.effects';
 import { FunctionService } from '../stores/functions/services/function.service';
@@ -34,7 +32,7 @@ export function createTranslateLoader(http: HttpClient) {
     BrowserModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    EffectsModule.forRoot([FunctionEffects, ApiDefEffects]),
+    EffectsModule.forRoot([FunctionEffects]),
     StoreModule.forRoot(appReducer),
     TranslateModule.forRoot({
       loader: {
@@ -47,7 +45,7 @@ export function createTranslateLoader(http: HttpClient) {
       maxAge: 10
     })
   ],
-  providers: [FunctionService, ApiDefService],
+  providers: [FunctionService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,0 +1,10 @@
+<h2 class="state-title">Data Condition</h2>
+<form [formGroup]="updateDataConditionFormGroup" class="form">
+  <!-- Condition -->
+  <div class="form-control">
+    <div class="title">Condition</div>
+    <p class="description">Workflow expression evaluated against state data.</p>
+    <input formControlName="condition" (click)="editExpression()"  type="text" class="condition full-width" readonly />
+  </div>
+  <mat-divider></mat-divider>
+</form>

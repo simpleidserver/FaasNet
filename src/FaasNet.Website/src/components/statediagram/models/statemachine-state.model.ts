@@ -1,3 +1,4 @@
+import { EventEmitter } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 
 export abstract class StateMachineState {
@@ -8,6 +9,7 @@ export abstract class StateMachineState {
   public abstract setTransitions(transitions: BaseTransition[]): void;
   public abstract tryAddTransition(transitionName: string): string | null;
   public abstract getNextTransitions(): BaseTransition[];
+  public updated: EventEmitter<StateMachineState> = new EventEmitter<StateMachineState>();
 }
 
 export abstract class BaseTransition {

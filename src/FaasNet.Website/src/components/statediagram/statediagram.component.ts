@@ -390,7 +390,6 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     }
 
     const stateDiagramContainer = this.stateDiagramContainer.nativeElement;
-    const rect = stateDiagramContainer.getBoundingClientRect();
     const newX = this.previousMousePosition.x - e.x;
     stateDiagramContainer.style.width = this.gutterBoundingRect.width - newX + "px";
   }
@@ -430,7 +429,8 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     this.updateStartAndEndEdgePath();
   }
 
-  private buildNodeHierarchy(state: StateMachineState, parentNode: DiagramNode | undefined) : DiagramNode{
+  private buildNodeHierarchy(state: StateMachineState, parentNode: DiagramNode | undefined): DiagramNode {
+    const self = this;
     let newNode: DiagramNode = new DiagramNode(0, 0, 0, state);
     if (parentNode) {
       newNode.level = parentNode.level + 1;
@@ -452,6 +452,9 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     this.anchors.push(anchor);
     this.draggableZoneLst.push(draggableZone);
     const nextNodeNames = state.getNextTransitions();
+    state.updated.subscribe(() => {
+      self.refreshUI();
+    });
     nextNodeNames.forEach((transition: BaseTransition) => {
       const child = this.stateMachine?.states.filter((s: StateMachineState) => s.id === transition.transition)[0];
       if (!child) {

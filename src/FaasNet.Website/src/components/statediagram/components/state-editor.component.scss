@@ -1,8 +1,11 @@
+$descriptionColor: rgb(127, 133, 140);
+$background: whitesmoke;
+
 .state-title {
   padding: 10px 0px 10px 5px !important;
   margin-left: 5px;
   margin: 0px 0px 0px 2px !important;
-  background-color: whitesmoke;
+  background-color: $background;
 }
 
 .form {
@@ -17,21 +20,30 @@
   }
 
   .description {
-    color: rgb(127, 133, 140);
+    color: $descriptionColor;
     font-size: 0.7em;
     font-weight: bold;
   }
 
-  textarea, input {
+  textarea, input, select {
     border: 1px solid #c1c1c1;
   }
 
-  input {
+  input, select {
     height: 30px;
+  }
+
+  input:read-only {
+    color: $descriptionColor;
+    background-color: $background;
   }
 
   textarea {
     min-height: 50px;
     resize: vertical;
+  }
+
+  .condition {
+    cursor: pointer;
   }
 }

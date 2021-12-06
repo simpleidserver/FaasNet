@@ -1,0 +1,15 @@
+.editor-container {
+  border: 1px solid gray;
+}
+
+.editor-container.singleLine {
+  height: 24px;
+}
+
+.editor-container.medium {
+  height: 200px;
+}
+
+.editor-container.large {
+  height: 400px;
+}

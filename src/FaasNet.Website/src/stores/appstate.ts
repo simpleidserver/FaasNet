@@ -1,20 +1,13 @@
 import { createSelector } from '@ngrx/store';
-import * as fromApiDefs from './apis/reducers';
 import * as fromFunctions from './functions/reducers';
 
 export interface AppState {
   functions: fromFunctions.SearchFunctionsState;
   function: fromFunctions.FunctionState;
-  apiDefs: fromApiDefs.SearchApiDefsState,
-  apiDef: fromApiDefs.ApiDefState,
-  operation: fromApiDefs.OperationState
 }
 
 export const selectFunctions = (state: AppState) => state.functions;
 export const selectFunction = (state: AppState) => state.function;
-export const selectApiDefs = (state: AppState) => state.apiDefs;
-export const selectApiDef = (state: AppState) => state.apiDef;
-export const selectOperation = (state: AppState) => state.operation;
 
 export const selectFunctionsResult = createSelector(
   selectFunctions,
@@ -115,44 +108,7 @@ export const selectTotalRequests = createSelector(
   }
 );
 
-export const selectApiDefResult = createSelector(
-  selectApiDef,
-  (state: fromApiDefs.ApiDefState) => {
-    if (!state || state.Details === null) {
-      return null;
-    }
-
-    return state.Details;
-  }
-);
-
-export const selectApiDefsResult = createSelector(
-  selectApiDefs,
-  (state: fromApiDefs.SearchApiDefsState) => {
-    if (!state || !state.ApiDefs) {
-      return null;
-    }
-
-    return state.ApiDefs;
-  }
-);
-
-export const selectApiOperationInvocationResult = createSelector(
-  selectOperation,
-  (state: fromApiDefs.OperationState) => {
-    if (!state || !state.InvocationResult) {
-      return null;
-    }
-
-    return state.InvocationResult;
-  }
-
-)
-
 export const appReducer = {
   functions: fromFunctions.getSearchFunctionsReducer,
-  function: fromFunctions.getFunctionReducer,
-  apiDef: fromApiDefs.getApiDefReducer,
-  apiDefs: fromApiDefs.getSearchApiDefsReducer,
-  operation: fromApiDefs.getOperationReducer
+  function: fromFunctions.getFunctionReducer
 };

@@ -4,11 +4,12 @@
     <TypeScriptToolsVersion>4.3</TypeScriptToolsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="src\app\apis\edit\base-node.model.ts" />
-    <None Remove="src\app\apis\edit\function-panel.component.ts" />
-    <None Remove="src\app\apis\edit\function-panel\function.model.ts" />
-    <None Remove="src\app\apis\edit\launch-function-dialog.component.html" />
-    <None Remove="src\app\apis\edit\launch-function-dialog.component.ts" />
+    <Compile Remove="src\app\apis\**" />
+    <Content Remove="src\app\apis\**" />
+    <EmbeddedResource Remove="src\app\apis\**" />
+    <None Remove="src\app\apis\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="src\app\functions\function-rendering\function-rendering.module.ts" />
     <None Remove="src\app\functions\function-rendering\string\string-rendering.component.ts" />
     <None Remove="src\app\functions\functions.module.ts" />
@@ -18,29 +19,28 @@
     <None Remove="src\app\functions\function-rendering\function-rendering.component.ts" />
     <None Remove="src\app\shared\material.module.ts" />
     <None Remove="src\app\shared\shared.module.ts" />
+    <None Remove="src\components\monaco-editor\base-editor.ts" />
+    <None Remove="src\components\monaco-editor\config.ts" />
+    <None Remove="src\components\monaco-editor\editor.module.ts" />
+    <None Remove="src\components\monaco-editor\languages\jq\jq-contribution.ts" />
+    <None Remove="src\components\monaco-editor\monaco-editor.component.ts" />
+    <None Remove="src\components\monaco-editor\types.ts" />
+    <None Remove="src\components\statediagram\components\datacondition\datacondition.component.ts" />
     <None Remove="src\components\statediagram\components\evtcondition\evtcondition.component.ts" />
     <None Remove="src\components\statediagram\components\inject\inject-state-editor.component.ts" />
     <None Remove="src\components\statediagram\components\switch\switch-state-editor.component.ts" />
     <None Remove="src\components\statediagram\models\statemachine-foreach-state.model.ts" />
     <None Remove="src\components\statediagram\models\statemachine-switch-state.model.ts" />
-    <None Remove="src\stores\apis\models\apidef.model.ts" />
+    <None Remove="src\components\statediagram\statediagram.module.ts" />
     <None Remove="src\stores\common\prometheus-queryrange-result.model.ts" />
     <None Remove="src\stores\common\search.model.ts" />
     <None Remove="src\stores\functions\models\function.model.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\app\functions\list\" />
-    <Folder Include="src\assets\libs\" />
     <Folder Include="src\stores\functions\reducers\" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="src\app\apis\edit\base-node.model.ts" />
-    <TypeScriptCompile Include="src\app\apis\edit\function-panel\function-panel.component.ts" />
-    <TypeScriptCompile Include="src\app\apis\edit\function-panel\function.model.ts" />
-    <TypeScriptCompile Include="src\app\apis\edit\launch-function-dialog.component.html">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="src\app\apis\edit\launch-function-dialog.component.ts" />
     <TypeScriptCompile Include="src\app\functions\function-rendering\function-rendering.module.ts" />
     <TypeScriptCompile Include="src\app\functions\function-rendering\string\string-rendering.component.ts">
       <SubType>Code</SubType>
@@ -52,6 +52,15 @@
     <TypeScriptCompile Include="src\app\functions\function-rendering\function-rendering.component.ts" />
     <TypeScriptCompile Include="src\app\shared\material.module.ts" />
     <TypeScriptCompile Include="src\app\shared\shared.module.ts" />
+    <TypeScriptCompile Include="src\components\monaco-editor\base-editor.ts" />
+    <TypeScriptCompile Include="src\components\monaco-editor\config.ts" />
+    <TypeScriptCompile Include="src\components\monaco-editor\editor.module.ts" />
+    <TypeScriptCompile Include="src\components\monaco-editor\languages\jq\jq-contribution.ts" />
+    <TypeScriptCompile Include="src\components\monaco-editor\monaco-editor.component.ts" />
+    <TypeScriptCompile Include="src\components\monaco-editor\types.ts" />
+    <TypeScriptCompile Include="src\components\statediagram\components\datacondition\datacondition.component.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\components\statediagram\components\evtcondition\evtcondition.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
@@ -61,7 +70,7 @@
     <TypeScriptCompile Include="src\components\statediagram\components\switch\switch-state-editor.component.ts" />
     <TypeScriptCompile Include="src\components\statediagram\models\statemachine-foreach-state.model.ts" />
     <TypeScriptCompile Include="src\components\statediagram\models\statemachine-switch-state.model.ts" />
-    <TypeScriptCompile Include="src\stores\apis\models\apidef.model.ts" />
+    <TypeScriptCompile Include="src\components\statediagram\statediagram.module.ts" />
     <TypeScriptCompile Include="src\stores\common\search.model.ts" />
     <TypeScriptCompile Include="src\stores\functions\models\function.model.ts" />
   </ItemGroup>

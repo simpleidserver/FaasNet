@@ -9,10 +9,6 @@ export const routes: Routes = [
     loadChildren: async () => (await import('./functions/functions.module')).FunctionsModule
   },
   {
-    path: 'apis',
-    loadChildren: async () => (await import('./apis/apis.module')).ApisModule
-  },
-  {
     path: 'statemachines',
     loadChildren: async () => (await import('./statemachines/statemachines.module')).StateMachinesModule
   }

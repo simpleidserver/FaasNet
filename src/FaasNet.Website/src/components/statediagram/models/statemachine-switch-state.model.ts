@@ -56,6 +56,8 @@ export class DataCondition extends BaseTransition {
 
 export class SwitchStateMachineState extends StateMachineState {
   public static TYPE: string = "switch";
+  public static EVENT_TYPE: string = "event";
+  public static DATA_TYPE: string = "data";
 
   constructor() {
     super();
@@ -64,6 +66,7 @@ export class SwitchStateMachineState extends StateMachineState {
     this.dataConditions = [];
   }
 
+  switchType: string = "event";
   eventConditions: EventCondition[];
   dataConditions: DataCondition[] = [];
   defaultCondition: BaseTransition | null = null;
@@ -86,10 +89,21 @@ export class SwitchStateMachineState extends StateMachineState {
   }
 
   public override tryAddTransition(transitionName: string): string | null {
-    const newEvtTransition = new EventCondition();
-    newEvtTransition.eventRef = "event";
-    newEvtTransition.transition = transitionName;
-    this.eventConditions.push(newEvtTransition);
+    switch (this.switchType) {
+      case SwitchStateMachineState.EVENT_TYPE:
+        const newEvtTransition = new EventCondition();
+        newEvtTransition.eventRef = "event";
+        newEvtTransition.transition = transitionName;
+        this.eventConditions.push(newEvtTransition);
+        break;
+      case SwitchStateMachineState.DATA_TYPE:
+        const newDataCondition = new DataCondition();
+        newDataCondition.condition = "true";
+        newDataCondition.transition = transitionName;
+        this.dataConditions.push(newDataCondition);
+        break;
+    }
+
     return null;
   }
 
@@ -108,6 +122,28 @@ export class SwitchStateMachineState extends StateMachineState {
     });
 
     return arr;
+  }
+
+  public switchToEventCondition() : void {
+    this.switchType = SwitchStateMachineState.EVENT_TYPE;
+    this.eventConditions = this.dataConditions.map((e: DataCondition) => {
+      const record = new EventCondition();
+      record.eventRef = "event";
+      record.transition = e.transition;
+      return record;
+    });
+    this.dataConditions = [];
+  }
+
+  public switchToDataCondition(): void {
+    this.switchType = SwitchStateMachineState.DATA_TYPE;
+    this.dataConditions = this.eventConditions.map((e: EventCondition) => {
+      const record = new DataCondition();
+      record.transition = e.transition;
+      record.condition = "true";
+      return record;
+    });
+    this.eventConditions = [];
   }
 }
 

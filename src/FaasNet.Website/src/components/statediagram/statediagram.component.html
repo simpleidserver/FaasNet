@@ -147,6 +147,7 @@
           </div>
           <div [ngSwitch]="selectedTransition?.getType()">
             <evtcondition-editor *ngSwitchCase="'event'" [transition]="selectedTransition"></evtcondition-editor>
+            <datacondition-editor *ngSwitchCase="'data'" [transition]="selectedTransition"></datacondition-editor>
           </div>
         </div>
         <div class="gutter" #gutter></div>

@@ -10,6 +10,7 @@ import { SwitchStateMachineState } from "../../models/statemachine-switch-state.
 })
 export class SwitchStateEditorComponent implements OnDestroy {
   private nameSubscription: any = null;
+  private typeSubscription: any = null;
   private _state: StateMachineState | null = null;
   private _switchState: SwitchStateMachineState | null = null;
   @Input()
@@ -22,7 +23,8 @@ export class SwitchStateEditorComponent implements OnDestroy {
     this.init();
   }
   updateSwitchFormGroup: FormGroup = new FormGroup({
-    name: new FormControl()
+    name: new FormControl(),
+    type: new FormControl()
   });
 
   constructor() {
@@ -35,17 +37,40 @@ export class SwitchStateEditorComponent implements OnDestroy {
     if (this.nameSubscription) {
       this.nameSubscription.unsubscribe();
     }
+
+    if (this.typeSubscription) {
+      this.typeSubscription.unsubscribe();
+    }
   }
 
   private init() {
     const self = this;
     if (self._switchState) {
       self.updateSwitchFormGroup.get('name')?.setValue(self._switchState.name);
+      if (this._switchState?.dataConditions && this._switchState.dataConditions.length > 0) {
+        self.updateSwitchFormGroup.get('type')?.setValue('data');
+      } else {
+        self.updateSwitchFormGroup.get('type')?.setValue(self._switchState.switchType);
+      }
     }
 
     this.nameSubscription = this.updateSwitchFormGroup.get('name')?.valueChanges.subscribe((e: any) => {
       if (self.updateSwitchFormGroup && self._switchState) {
         self._switchState.name = e;
+      }
+    });
+    this.typeSubscription = this.updateSwitchFormGroup.get('type')?.valueChanges.subscribe((e: any) => {
+      switch (e) {
+        case SwitchStateMachineState.DATA_TYPE:
+          self._switchState?.switchToDataCondition();
+          break;
+        case SwitchStateMachineState.EVENT_TYPE:
+          self._switchState?.switchToEventCondition();
+          break;
+      }
+
+      if (self._switchState) {
+        this._switchState?.updated.emit(self._switchState);
       }
     });
   }

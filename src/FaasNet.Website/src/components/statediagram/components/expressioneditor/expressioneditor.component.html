@@ -1,0 +1,27 @@
+<h1 mat-dialog-title>Expression Editor</h1>
+<div mat-dialog-content>
+  <div fxLayout="row" class="firstPanel">
+    <div fxFlex="50%">
+      <!-- Filter -->
+      <div class="form-control">
+        <div class="title">Filter</div>
+        <ngx-monaco-editor [options]="filterOptions" [(ngModel)]="filter" (onInit)="initFilterOptions($event)"></ngx-monaco-editor>
+      </div>
+      <!-- JSON -->
+      <div class="form-control">
+        <div class="title">JSON</div>
+        <ngx-monaco-editor [options]="jsonEditorOptions" [(ngModel)]="json"></ngx-monaco-editor>
+      </div>
+    </div>
+    <div fxFlex="auto" class="secondPanel">
+      <!-- Result -->
+      <div class="form-control">
+        <div class="title">Result</div>
+        <ngx-monaco-editor [options]="jsonEditorOptions" [(ngModel)]="result"></ngx-monaco-editor>
+      </div>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="save()">Save</button>
+</div>

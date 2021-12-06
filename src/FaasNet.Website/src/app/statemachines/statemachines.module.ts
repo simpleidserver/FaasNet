@@ -1,10 +1,7 @@
 import { NgModule } from "@angular/core";
 import { MaterialModule } from "@app/shared/material.module";
 import { SharedModule } from "@app/shared/shared.module";
-import { EvtConditionComponent } from "../../components/statediagram/components/evtcondition/evtcondition.component";
-import { InjectStateEditorComponent } from "../../components/statediagram/components/inject/inject-state-editor.component";
-import { SwitchStateEditorComponent } from "../../components/statediagram/components/switch/switch-state-editor.component";
-import { StateDiagramComponent } from "../../components/statediagram/statediagram.component";
+import { StateDiagramModule } from "../../components/statediagram/statediagram.module";
 import { EditStateMachineComponent } from "./edit/edit.component";
 import { StateMachinesRoutes } from "./statemachines.routes";
 
@@ -12,14 +9,11 @@ import { StateMachinesRoutes } from "./statemachines.routes";
   imports: [
     MaterialModule,
     SharedModule,
-    StateMachinesRoutes
+    StateMachinesRoutes,
+    StateDiagramModule
   ],
   declarations: [
-    EditStateMachineComponent,
-    StateDiagramComponent,
-    SwitchStateEditorComponent,
-    InjectStateEditorComponent,
-    EvtConditionComponent
+    EditStateMachineComponent
   ],
   entryComponents: [
   ]
