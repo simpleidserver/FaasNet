@@ -7,7 +7,9 @@ import { DefaultConditionComponent } from './components/defaultcondition/default
 import { EvtConditionComponent } from './components/evtcondition/evtcondition.component';
 import { ExpressionEditorComponent } from './components/expressioneditor/expressioneditor.component';
 import { InjectStateEditorComponent } from './components/inject/inject-state-editor.component';
+import { JsonComponent } from './components/json/json.component';
 import { SwitchStateEditorComponent } from './components/switch/switch-state-editor.component';
+import { YamlComponent } from './components/yaml/yaml.component';
 import { StateDiagramComponent } from './statediagram.component';
 
 @NgModule({
@@ -23,7 +25,9 @@ import { StateDiagramComponent } from './statediagram.component';
     ExpressionEditorComponent,
     InjectStateEditorComponent,
     SwitchStateEditorComponent,
-    DefaultConditionComponent
+    DefaultConditionComponent,
+    YamlComponent,
+    JsonComponent
   ],
   exports: [
     StateDiagramComponent,
@@ -32,7 +36,9 @@ import { StateDiagramComponent } from './statediagram.component';
     ExpressionEditorComponent,
     InjectStateEditorComponent,
     SwitchStateEditorComponent,
-    DefaultConditionComponent
+    DefaultConditionComponent,
+    YamlComponent,
+    JsonComponent
   ]
 })
 

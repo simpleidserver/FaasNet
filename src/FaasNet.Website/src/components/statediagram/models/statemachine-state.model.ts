@@ -10,12 +10,20 @@ export abstract class StateMachineState {
   public abstract setTransitions(transitions: BaseTransition[]): void;
   public abstract tryAddTransition(transitionName: string): string | null;
   public abstract getNextTransitions(): BaseTransition[];
+  public abstract getJson(): any;
   public updated: EventEmitter<StateMachineState> = new EventEmitter<StateMachineState>();
 }
 
 export class StateDataFilter {
   input: string = "";
   output: string = "";
+
+  public getJson() {
+    return {
+      input: this.input,
+      output: this.output
+    };
+  }
 }
 
 export abstract class BaseTransition {
@@ -42,7 +50,7 @@ export class EmptyTransition extends BaseTransition {
   }
 }
 
-export class FlowableStateMachineState extends StateMachineState{
+export abstract class FlowableStateMachineState extends StateMachineState{
   constructor() {
     super();
     this.transition = "";

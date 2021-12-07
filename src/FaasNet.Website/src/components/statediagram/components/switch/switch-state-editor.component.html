@@ -7,6 +7,16 @@
     <input type="text" formControlName="name" class="full-width" />
   </div>
   <mat-divider></mat-divider>
+  <!-- Type -->
+  <div class="form-control">
+    <div class="title">Type</div>
+    <p class="description">Type of switch</p>
+    <select formControlName="type" class="full-width">
+      <option value="data">Data Conditions</option>
+      <option value="event">Event Conditions</option>
+    </select>
+  </div>
+  <mat-divider></mat-divider>
   <!-- Input  -->
   <div class="form-control">
     <div class="title">Input State Data Filter</div>
@@ -19,16 +29,6 @@
     <div class="title">Output State Data Filter</div>
     <p class="description">Workflow expression that filters the states data output</p>
     <input formControlName="outputStateDataFilter" (click)="editOutputStateDataFilter()" type="text" class="condition full-width" readonly />
-  </div>
-  <mat-divider></mat-divider>
-  <!-- Type -->
-  <div class="form-control">
-    <div class="title">Type</div>
-    <p class="description">Type of switch</p>
-    <select formControlName="type" class="full-width">
-      <option value="data">Data Conditions</option>
-      <option value="event">Event Conditions</option>
-    </select>
   </div>
   <mat-divider></mat-divider>
 </form>

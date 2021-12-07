@@ -64,4 +64,16 @@ export class StateMachine {
 
     return rootState;
   }
+
+  public getJson(): any {
+    return {
+      id: this.id,
+      version: this.version,
+      specVersion: this.specVersion,
+      start: this.start,
+      states: this.states.map((s: StateMachineState) => {
+        return s.getJson();
+      })
+    };
+  }
 }

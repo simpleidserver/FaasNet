@@ -30,4 +30,13 @@ export class ForeachStateMachineState extends StateMachineState {
       record
     ];
   }
+
+  public override getJson() {
+    return {
+      id: this.id,
+      name: this.name,
+      stateDataFilter: this.stateDataFilter?.getJson(),
+      transition: this.transition
+    };
+  }
 }

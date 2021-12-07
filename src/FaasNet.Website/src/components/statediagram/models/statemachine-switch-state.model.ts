@@ -1,5 +1,3 @@
-import { transition } from "@angular/animations";
-import { ORIENTATION_BREAKPOINTS } from "@angular/flex-layout";
 import { BehaviorSubject } from "rxjs";
 import { BaseTransition, EmptyTransition, StateMachineState } from "./statemachine-state.model";
 
@@ -27,6 +25,13 @@ export class EventCondition extends BaseTransition {
   public override getLabel(): BehaviorSubject<string> | undefined {
     return this.label;
   }
+
+  public getJson(): any {
+    return {
+      eventRef: this.eventRef,
+      transition: this.transition
+    };
+  }
 }
 
 export class DataCondition extends BaseTransition {
@@ -53,6 +58,14 @@ export class DataCondition extends BaseTransition {
 
   public override getLabel(): BehaviorSubject<string> | undefined {
     return this.label;
+  }
+
+  public getJson(): any {
+    return {
+      name: this.name,
+      condition: this.condition,
+      transition: this.transition
+    };
   }
 }
 
@@ -160,6 +173,21 @@ export class SwitchStateMachineState extends StateMachineState {
     this.removeTransition(transition);
     this.defaultCondition = new EmptyTransition();
     this.defaultCondition.transition = transition.transition;
+  }
+
+  public override getJson() {
+    return {
+      id: this.id,
+      name: this.name,
+      stateDataFilter: this.stateDataFilter?.getJson(),
+      eventConditions: this.eventConditions.map((e: EventCondition) => {
+        return e.getJson();
+      }),
+      dataConditions: this.dataConditions.map((d: DataCondition) => {
+        return d.getJson()
+      }),
+      defaultCondition: this.defaultCondition?.transition
+    };
   }
 
   private removeTransition(transition: BaseTransition) {

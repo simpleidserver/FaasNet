@@ -8,4 +8,13 @@ export class InjectStateMachineState extends FlowableStateMachineState {
     this.type = InjectStateMachineState.TYPE;
     this.stateDataFilter = new StateDataFilter();
   }
+
+  public override getJson() {
+    return {
+      id: this.id,
+      name: this.name,
+      stateDataFilter: this.stateDataFilter?.getJson(),
+      transition: this.transition
+    };
+  }
 }

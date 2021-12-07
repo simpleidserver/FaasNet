@@ -1,6 +1,9 @@
 import { Component, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { BehaviorSubject } from 'rxjs';
+import { JsonComponent } from './components/json/json.component';
+import { YamlComponent } from './components/yaml/yaml.component';
 import { ForeachStateMachineState } from './models/statemachine-foreach-state.model';
 import { InjectStateMachineState } from './models/statemachine-inject-state.model';
 import { BaseTransition, EmptyTransition, StateMachineState } from './models/statemachine-state.model';
@@ -172,7 +175,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   handleMouseUpRef: any | null = null;
   gutterBoundingRect: any | null = null;
 
-  constructor() {
+  constructor(private dialog: MatDialog) {
   }
 
   ngOnInit() {
@@ -377,6 +380,23 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     matMenuTrigger?.openMenu();
   }
 
+  openYaml() {
+    this.dialog.open(YamlComponent, {
+      width: '800px',
+      data: {
+        stateMachine: this.stateMachine
+      }
+    });
+  }
+
+  openJson() {
+    this.dialog.open(JsonComponent, {
+      width: '800px',
+      data: {
+        stateMachine: this.stateMachine
+      }
+    });
+  }
   setDefaultCondition(edgeLabel: EdgeLabel) {
     const switchStateMachine = edgeLabel.edgePath.formNode.state as SwitchStateMachineState;
     switchStateMachine.swichTransitionToDefault(edgeLabel.edgePath.transition);
