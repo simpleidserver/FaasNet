@@ -1,8 +1,9 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { MatMenuTrigger } from '@angular/material/menu';
 import { BehaviorSubject } from 'rxjs';
 import { ForeachStateMachineState } from './models/statemachine-foreach-state.model';
 import { InjectStateMachineState } from './models/statemachine-inject-state.model';
-import { BaseTransition, StateMachineState } from './models/statemachine-state.model';
+import { BaseTransition, EmptyTransition, StateMachineState } from './models/statemachine-state.model';
 import { SwitchStateMachineState } from './models/statemachine-switch-state.model';
 import { StateMachine } from './models/statemachine.model';
 
@@ -16,8 +17,17 @@ class DiagramNode {
   }
 
   public computePosition(position: number, nbNodes: number, nodeGap: number, nodeWidth: number, nodeHeigth : number, fullWidth: number): void {
-    const cellWidth = fullWidth / nbNodes;
-    this.x = (cellWidth * position) + ((cellWidth / 2) - (nodeWidth / 2));
+    const middle = fullWidth / 2;
+    let nbHalfNodes = Math.floor(nbNodes / 2);
+    const fullNodeWidth = nodeWidth + nodeGap;
+    if (nbNodes === 1) {
+      this.x = middle - (nodeWidth / 2);
+    } else {
+      let min = middle - (fullNodeWidth * nbHalfNodes);
+      let newPosition = min + (fullNodeWidth * position) - (nodeWidth / 2);
+      this.x = newPosition;
+    }
+
     this.y = (this.level * (nodeHeigth + nodeGap)) + nodeGap;
   }
 }
@@ -38,6 +48,14 @@ class EdgePath {
     this.toY = this.targetNode.y;
     this.path = "M" + this.fromX + ","  + this.fromY + "L" + this.toX + "," + this.toY;
   }
+
+  public isDefault() {
+    return this.transition.getType() == EmptyTransition.TYPE && this.formNode.state?.type == SwitchStateMachineState.TYPE;
+  }
+
+  public getMarkerEnd() {
+    return 'url(#' + (this.isDefault() ? 'statediagram-barbEndDefault' : 'statediagram-barbEnd') +')';
+  }
 }
 
 class EdgeLabel {
@@ -52,18 +70,23 @@ class EdgeLabel {
   selected: boolean = false;
 
   public computePosition() {
-    this.posX = (this.edgePath.fromX > this.edgePath.toX) ? this.edgePath.toX : this.edgePath.fromX;
-    this.posY = this.edgePath.fromY;
-    this.width = this.edgePath.fromX - this.edgePath.toX;
-    if (this.width < 0) {
-      this.width = -this.width;
+    let edgePathWidth = this.edgePath.fromX - this.edgePath.toX;
+    let edgePathHeight = this.edgePath.toY - this.edgePath.fromY;
+    if (edgePathWidth < 0) {
+      edgePathWidth = -edgePathWidth;
     }
 
     if (this.width === 0) {
       this.width = 100;
     }
 
-    this.height = this.edgePath.toY - this.edgePath.fromY;
+    if (this.height === 0) {
+      this.height = 30;
+    }
+
+    const fromX = (this.edgePath.fromX > this.edgePath.toX) ? this.edgePath.toX : this.edgePath.fromX;
+    this.posX = fromX + (edgePathWidth / 2) - (this.width / 2);
+    this.posY = this.edgePath.fromY + (edgePathHeight / 2) - (this.height / 2);
   }
 }
 
@@ -129,6 +152,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   @ViewChild("stateDiagram") stateDiagram: any;
   @ViewChild("gutter") gutter: any;
   @ViewChild("stateDiagramContainer") stateDiagramContainer: any;
+  @ViewChildren(MatMenuTrigger) contextMenu: QueryList<MatMenuTrigger> | null = null;
   circleStartPosition: { x: number, y: number } = { x: 0, y: 0 };
   circleStartSelected: boolean = false;
   edgePathCircleStart: string = "";
@@ -341,6 +365,23 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     this.selectedState = null;
     label.selected = !label.selected;
     this.selectedTransition = label.edgePath.transition;
+  }
+
+  onContextMenu(evt: MouseEvent, edgeLabel: EdgeLabel, index : number) {
+    evt.preventDefault();
+    if (edgeLabel.edgePath.transition.getType() == "empty") {
+      return;
+    }
+
+    const matMenuTrigger = this.contextMenu?.get(index);
+    matMenuTrigger?.openMenu();
+  }
+
+  setDefaultCondition(edgeLabel: EdgeLabel) {
+    const switchStateMachine = edgeLabel.edgePath.formNode.state as SwitchStateMachineState;
+    switchStateMachine.swichTransitionToDefault(edgeLabel.edgePath.transition);
+    this.refreshUI();
+    this.selectedTransition = null;
   }
 
   private initListener() {

@@ -1,17 +1,31 @@
 <h2 class="state-title">Inject State</h2>
-<form [formGroup]="updateInjectFormGroup" class="form">
+<div class="form">
   <!-- Name -->
   <div class="form-control">
     <div class="title">Name</div>
     <p class="description">State name</p>
-    <input type="text" formControlName="name" class="full-width" />
+    <input type="text" [formControl]="nameFormControl" class="full-width" />
+  </div>
+  <mat-divider></mat-divider>
+  <!-- Input  -->
+  <div class="form-control">
+    <div class="title">Input State Data Filter</div>
+    <p class="description">Workflow expression to filter the states data input</p>
+    <input (click)="editInputStateDataFilter()" [(ngModel)]="inputStateDataFilter" type="text" class="condition full-width" readonly />
+  </div>
+  <mat-divider></mat-divider>
+  <!-- Output -->
+  <div class="form-control">
+    <div class="title">Output State Data Filter</div>
+    <p class="description">Workflow expression that filters the states data output</p>
+    <input (click)="editOutputStateDataFilter()" [(ngModel)]="outputStateDataFilter" type="text" class="condition full-width" readonly />
   </div>
   <mat-divider></mat-divider>
   <!-- Data -->
   <div class="form-control">
     <div class="title">Data</div>
     <p class="description">JSON object which can be set as state's data input and can be manipulated via filter</p>
-    <textarea formControlName="data" class="full-width"></textarea>
+    <ngx-monaco-editor [options]="jsonOptions" [(ngModel)]="data"></ngx-monaco-editor>
   </div>
   <mat-divider></mat-divider>
-</form>
+</div>

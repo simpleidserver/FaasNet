@@ -26,6 +26,7 @@
     <None Remove="src\components\monaco-editor\monaco-editor.component.ts" />
     <None Remove="src\components\monaco-editor\types.ts" />
     <None Remove="src\components\statediagram\components\datacondition\datacondition.component.ts" />
+    <None Remove="src\components\statediagram\components\defaultcondition\defaultcondition.component.ts" />
     <None Remove="src\components\statediagram\components\evtcondition\evtcondition.component.ts" />
     <None Remove="src\components\statediagram\components\inject\inject-state-editor.component.ts" />
     <None Remove="src\components\statediagram\components\switch\switch-state-editor.component.ts" />
@@ -59,6 +60,9 @@
     <TypeScriptCompile Include="src\components\monaco-editor\monaco-editor.component.ts" />
     <TypeScriptCompile Include="src\components\monaco-editor\types.ts" />
     <TypeScriptCompile Include="src\components\statediagram\components\datacondition\datacondition.component.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\components\statediagram\components\defaultcondition\defaultcondition.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="src\components\statediagram\components\evtcondition\evtcondition.component.ts">

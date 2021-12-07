@@ -76,6 +76,9 @@
               <marker id="statediagram-barbEnd" refX="19" refY="7" markerWidth="20" markerHeight="14" markerUnits="strokeWidth" orient="auto">
                 <path d="M 19,7 L9,13 L14,7 L9,1 Z"></path>
               </marker>
+              <marker id="statediagram-barbEndDefault" refX="19" refY="7" markerWidth="20" markerHeight="14" markerUnits="strokeWidth" orient="auto">
+                <path d="M 19,7 L9,13 L14,7 L9,1 Z"></path>
+              </marker>
             </defs>
             <g class="root">
               <g>
@@ -107,7 +110,7 @@
                 <!-- Edge Paths -->
                 <g class="edgePaths">
                   <path [attr.d]="edgePathCircleStart" marker-end="url(#statediagram-barbEnd)" [style.display]="stateMachine?.isEmpty ? 'none' : 'block'" />
-                  <path [attr.d]="edgePath.path" *ngFor="let edgePath of edgePaths" marker-end="url(#statediagram-barbEnd)" />
+                  <path [attr.d]="edgePath.path" *ngFor="let edgePath of edgePaths" [attr.marker-end]="edgePath.getMarkerEnd()" [attr.class]="edgePath.isDefault() ? 'isDefault' : ''" />
                 </g>
                 <!-- Anchors -->
                 <g class="anchors">
@@ -118,14 +121,21 @@
                 </g>
                 <!-- Edge Labels -->
                 <g class="edgeLabels">
-                  <foreignObject *ngFor="let edgeLabel of edgeLabels" [attr.x]="edgeLabel.posX" [attr.y]="edgeLabel.posY" [attr.width]="edgeLabel.width" [attr.height]="edgeLabel.height">
+                  <foreignObject *ngFor="let edgeLabel of edgeLabels; let i = index" [attr.x]="edgeLabel.posX" [attr.y]="edgeLabel.posY" [attr.width]="edgeLabel.width" [attr.height]="edgeLabel.height">
                     <div [attr.class]="edgeLabel.selected ? 'edgeLabel selected' : 'edgeLabel'">
-                      <div class="textContainer" [style.lineHeight]="edgeLabel.height + 'px'" (click)="selectLabel(edgeLabel)">
-                        <span class="text">
-                          {{ edgeLabel.label | async }}
-                        </span>
+                      <div class="textContainer">
+                        <div class="text" (contextmenu)="onContextMenu($event, edgeLabel, i)"  (click)="selectLabel(edgeLabel)">
+                          <span [matMenuTriggerFor]="contextMenu">
+                            {{ edgeLabel.label | async }}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <mat-menu #contextMenu="matMenu">
+                      <ng-template matMenuContent>
+                        <button mat-menu-item (click)="setDefaultCondition(edgeLabel)">Set default condition</button>
+                      </ng-template>
+                    </mat-menu>
                   </foreignObject>
                 </g>
                 <!-- Draggable Zone -->
@@ -148,6 +158,7 @@
           <div [ngSwitch]="selectedTransition?.getType()">
             <evtcondition-editor *ngSwitchCase="'event'" [transition]="selectedTransition"></evtcondition-editor>
             <datacondition-editor *ngSwitchCase="'data'" [transition]="selectedTransition"></datacondition-editor>
+            <defaultcondition-editor *ngSwitchCase="'empty'"></defaultcondition-editor>
           </div>
         </div>
         <div class="gutter" #gutter></div>

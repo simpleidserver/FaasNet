@@ -1,5 +1,7 @@
+import { transition } from "@angular/animations";
+import { ORIENTATION_BREAKPOINTS } from "@angular/flex-layout";
 import { BehaviorSubject } from "rxjs";
-import { BaseTransition, StateMachineState } from "./statemachine-state.model";
+import { BaseTransition, EmptyTransition, StateMachineState } from "./statemachine-state.model";
 
 export class EventCondition extends BaseTransition {
   static TYPE: string = "event";
@@ -109,10 +111,6 @@ export class SwitchStateMachineState extends StateMachineState {
 
   public override getNextTransitions(): BaseTransition[] {
     let arr: BaseTransition[] = [];
-    if (this.defaultCondition && this.defaultCondition.transition) {
-      arr.push(this.defaultCondition);
-    }
-
     this.eventConditions.forEach((ec) => {
       arr.push(ec);
     });
@@ -120,6 +118,10 @@ export class SwitchStateMachineState extends StateMachineState {
     this.dataConditions.forEach((dc) => {
       arr.push(dc);
     });
+
+    if (this.defaultCondition && this.defaultCondition.transition) {
+      arr.push(this.defaultCondition);
+    }
 
     return arr;
   }
@@ -144,6 +146,37 @@ export class SwitchStateMachineState extends StateMachineState {
       return record;
     });
     this.eventConditions = [];
+  }
+
+  public swichTransitionToDefault(transition: BaseTransition): void {
+    if (this.defaultCondition) {
+      if (transition.transition == this.defaultCondition.transition) {
+        return;
+      }
+
+      this.tryAddTransition(this.defaultCondition.transition);
+    }
+
+    this.removeTransition(transition);
+    this.defaultCondition = new EmptyTransition();
+    this.defaultCondition.transition = transition.transition;
+  }
+
+  private removeTransition(transition: BaseTransition) {
+    switch (this.switchType) {
+      case SwitchStateMachineState.EVENT_TYPE:
+        {
+          const index = this.eventConditions.indexOf(transition as EventCondition);
+          this.eventConditions.splice(index, 1);
+        }
+        break;
+      case SwitchStateMachineState.DATA_TYPE:
+        {
+          const index = this.dataConditions.indexOf(transition as DataCondition);
+          this.dataConditions.splice(index, 1);
+        }
+        break;
+    }
   }
 }
 

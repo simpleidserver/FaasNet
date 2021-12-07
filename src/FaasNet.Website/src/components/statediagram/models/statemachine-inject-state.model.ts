@@ -1,4 +1,4 @@
-import { FlowableStateMachineState } from "./statemachine-state.model";
+import { FlowableStateMachineState, StateDataFilter } from "./statemachine-state.model";
 
 export class InjectStateMachineState extends FlowableStateMachineState {
   public static TYPE: string = "inject";
@@ -6,5 +6,6 @@ export class InjectStateMachineState extends FlowableStateMachineState {
   constructor() {
     super();
     this.type = InjectStateMachineState.TYPE;
+    this.stateDataFilter = new StateDataFilter();
   }
 }

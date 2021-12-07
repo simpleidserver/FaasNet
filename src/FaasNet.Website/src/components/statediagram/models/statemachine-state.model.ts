@@ -5,11 +5,17 @@ export abstract class StateMachineState {
   id: string | undefined;
   name: string | undefined;
   type: string | undefined;
+  stateDataFilter: StateDataFilter | undefined;
 
   public abstract setTransitions(transitions: BaseTransition[]): void;
   public abstract tryAddTransition(transitionName: string): string | null;
   public abstract getNextTransitions(): BaseTransition[];
   public updated: EventEmitter<StateMachineState> = new EventEmitter<StateMachineState>();
+}
+
+export class StateDataFilter {
+  input: string = "";
+  output: string = "";
 }
 
 export abstract class BaseTransition {

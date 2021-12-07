@@ -1,7 +1,9 @@
 import { Component, Input } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
+import { FormControl } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
 import { InjectStateMachineState } from "../../models/statemachine-inject-state.model";
 import { StateMachineState } from "../../models/statemachine-state.model";
+import { ExpressionEditorComponent } from "../expressioneditor/expressioneditor.component";
 
 @Component({
   selector: 'inject-state-editor',
@@ -11,6 +13,7 @@ import { StateMachineState } from "../../models/statemachine-state.model";
 export class InjectStateEditorComponent {
   private _state: StateMachineState | null = null;
   private _injectState: InjectStateMachineState | null = null;
+  private _data: string = "";
   private nameSubscription: any | null = null;
   private dataSubscription: any | null = null;
   @Input()
@@ -23,12 +26,44 @@ export class InjectStateEditorComponent {
     this.init();
   }
 
-  updateInjectFormGroup: FormGroup = new FormGroup({
-    name: new FormControl(),
-    data: new FormControl()
-  });
+  get data(): string {
+    return this._data;
+  }
 
-  constructor() {
+  set data(str: string) {
+    this._data = str;
+    if (this._injectState) {
+      try {
+        const data = JSON.parse(str);
+        this._injectState.data = data;
+      }
+      catch { }
+    }
+  }
+
+  inputStateDataFilter: string = "";
+  outputStateDataFilter: string = "";
+
+  jsonOptions: any = {
+    theme: 'vs',
+    language: 'json',
+    minimap: { enabled: false },
+    overviewRulerBorder: false,
+    overviewRulerLanes: 0,
+    lineNumbers: 'off',
+    lineNumbersMinChars: 0,
+    lineDecorationsWidth: 0,
+    renderLineHighlight: 'none',
+    scrollbar: {
+      horizontal: 'hidden',
+      vertical: 'hidden',
+      alwaysConsumeMouseWheel: false,
+    }
+  };
+
+  nameFormControl: FormControl = new FormControl();
+
+  constructor(private dialog : MatDialog) {
   }
 
   ngOnInit() {
@@ -44,30 +79,69 @@ export class InjectStateEditorComponent {
     }
   }
 
+  editInputStateDataFilter() {
+    let filter: string = "";
+    if (this._injectState?.stateDataFilter?.input) {
+      filter = this._injectState?.stateDataFilter.input;
+    }
+
+    const dialogRef = this.dialog.open(ExpressionEditorComponent, {
+      width: '800px',
+      data: {
+        filter: filter
+      }
+    });
+    dialogRef.afterClosed().subscribe((r: any) => {
+      if (!r || !r.filter) {
+        return;
+      }
+
+      if (this._injectState?.stateDataFilter) {
+        this._injectState.stateDataFilter.input = r.filter;
+      }
+
+      this.inputStateDataFilter = r.filter;
+    });
+  }
+
+  editOutputStateDataFilter() {
+    let filter: string = "";
+    if (this._injectState?.stateDataFilter?.output) {
+      filter = this._injectState?.stateDataFilter.output;
+    }
+
+    const dialogRef = this.dialog.open(ExpressionEditorComponent, {
+      width: '800px',
+      data: {
+        filter: filter
+      }
+    });
+    dialogRef.afterClosed().subscribe((r: any) => {
+      if (!r || !r.filter) {
+        return;
+      }
+
+      if (this._injectState?.stateDataFilter) {
+        this._injectState.stateDataFilter.output = r.filter;
+      }
+
+      this.outputStateDataFilter = r.filter;
+    });
+  }
+
   private init() {
     const self = this;
     this.ngOnDestroy();
-    let json: string = "{}";
+    let json: any = "{}";
     if (this._injectState && this._injectState.data) {
       json = JSON.stringify(this._injectState.data);
     }
 
-    this.updateInjectFormGroup.get('data')?.setValue(json);
-    this.updateInjectFormGroup.get('name')?.setValue(this._injectState?.name);
-    this.nameSubscription = this.updateInjectFormGroup.get('name')?.valueChanges.subscribe((e: any) => {
+    this._data = json;
+    this.nameFormControl.setValue(this._injectState?.name);
+    this.nameSubscription = this.nameFormControl.valueChanges.subscribe((e: any) => {
       if (self._injectState) {
         self._injectState.name = e;
-      }
-    });
-    this.dataSubscription = this.updateInjectFormGroup.get('data')?.valueChanges.subscribe((e : any) => {
-      if (self._injectState) {
-        if (e) {
-          try {
-            const data = JSON.parse(e);
-            self._injectState.data = data;
-          }
-          catch { }
-        }
       }
     });
   }

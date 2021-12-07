@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { InjectStateMachineState } from '../../../components/statediagram/models/statemachine-inject-state.model';
+import { StateDataFilter } from '../../../components/statediagram/models/statemachine-state.model';
 import { EventCondition, SwitchStateMachineState } from '../../../components/statediagram/models/statemachine-switch-state.model';
 import { StateMachine } from '../../../components/statediagram/models/statemachine.model';
 
@@ -20,6 +21,7 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
     const switchState = new SwitchStateMachineState();
     switchState.id = "1";
     switchState.name = "switch";
+    switchState.stateDataFilter = new StateDataFilter();
     const firstEvtCondition = new EventCondition();
     firstEvtCondition.eventRef = "evt1";
     firstEvtCondition.transition = "2";
@@ -30,10 +32,12 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
     const firstInject = new InjectStateMachineState();
     firstInject.id = "2";
     firstInject.name = "firstInject";
+    firstInject.data = {};
     const secondInject = new InjectStateMachineState();
     secondInject.id = "3";
     secondInject.name = "secondInject";
     secondInject.transition = "4";
+    secondInject.data = {};
     const thirdInject = new InjectStateMachineState();
     thirdInject.id = "4";
     thirdInject.name = "thirdInject";

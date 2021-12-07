@@ -1,7 +1,9 @@
 import { Component, Input, OnDestroy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
 import { StateMachineState } from "../../models/statemachine-state.model";
 import { SwitchStateMachineState } from "../../models/statemachine-switch-state.model";
+import { ExpressionEditorComponent } from "../expressioneditor/expressioneditor.component";
 
 @Component({
   selector: 'switch-state-editor',
@@ -24,10 +26,12 @@ export class SwitchStateEditorComponent implements OnDestroy {
   }
   updateSwitchFormGroup: FormGroup = new FormGroup({
     name: new FormControl(),
-    type: new FormControl()
+    type: new FormControl(),
+    inputStateDataFilter : new FormControl(),
+    outputStateDataFilter: new FormControl()
   });
 
-  constructor() {
+  constructor(private dialog: MatDialog) {
   }
 
   ngOnInit() {
@@ -41,6 +45,56 @@ export class SwitchStateEditorComponent implements OnDestroy {
     if (this.typeSubscription) {
       this.typeSubscription.unsubscribe();
     }
+  }
+
+  editInputStateDataFilter() {
+    let filter: string = "";
+    if (this._switchState?.stateDataFilter?.input) {
+      filter = this._switchState?.stateDataFilter.input;
+    }
+
+    const dialogRef = this.dialog.open(ExpressionEditorComponent, {
+      width: '800px',
+      data: {
+        filter: filter
+      }
+    });
+    dialogRef.afterClosed().subscribe((r: any) => {
+      if (!r || !r.filter) {
+        return;
+      }
+
+      if (this._switchState?.stateDataFilter) {
+        this._switchState.stateDataFilter.input = r.filter;
+      }
+
+      this.updateSwitchFormGroup.get('inputStateDataFilter')?.setValue(r.filter);
+    });
+  }
+
+  editOutputStateDataFilter() {
+    let filter: string = "";
+    if (this._switchState?.stateDataFilter?.output) {
+      filter = this._switchState?.stateDataFilter.output;
+    }
+
+    const dialogRef = this.dialog.open(ExpressionEditorComponent, {
+      width: '800px',
+      data: {
+        filter: filter
+      }
+    });
+    dialogRef.afterClosed().subscribe((r: any) => {
+      if (!r || !r.filter) {
+        return;
+      }
+
+      if (this._switchState?.stateDataFilter) {
+        this._switchState.stateDataFilter.output = r.filter;
+      }
+
+      this.updateSwitchFormGroup.get('outputStateDataFilter')?.setValue(r.filter);
+    });
   }
 
   private init() {
