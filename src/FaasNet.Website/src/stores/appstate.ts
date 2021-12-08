@@ -1,13 +1,18 @@
 import { createSelector } from '@ngrx/store';
 import * as fromFunctions from './functions/reducers';
+import * as fromStateMachines from './statemachines/reducers';
 
 export interface AppState {
   functions: fromFunctions.SearchFunctionsState;
   function: fromFunctions.FunctionState;
+  stateMachines: fromStateMachines.SearchStateMachineState,
+  stateMachine: fromStateMachines.StateMachineState
 }
 
 export const selectFunctions = (state: AppState) => state.functions;
 export const selectFunction = (state: AppState) => state.function;
+export const selectStateMachines = (state: AppState) => state.stateMachines;
+export const selectStateMachine = (state: AppState) => state.stateMachine;
 
 export const selectFunctionsResult = createSelector(
   selectFunctions,
@@ -108,7 +113,31 @@ export const selectTotalRequests = createSelector(
   }
 );
 
+export const selectStateMachinesResult = createSelector(
+  selectStateMachines,
+  (state: fromStateMachines.SearchStateMachineState) => {
+    if (!state || !state.StateMachines) {
+      return null;
+    }
+
+    return state.StateMachines;
+  }
+);
+
+export const selectStateMachineResult = createSelector(
+  selectStateMachine,
+  (state: fromStateMachines.StateMachineState) => {
+    if (!state || !state.StateMachine) {
+      return null;
+    }
+
+    return state.StateMachine;
+  }
+);
+
 export const appReducer = {
   functions: fromFunctions.getSearchFunctionsReducer,
-  function: fromFunctions.getFunctionReducer
+  function: fromFunctions.getFunctionReducer,
+  stateMachines: fromStateMachines.getSearchStateMachinesReducer,
+  stateMachine: fromStateMachines.getStateMachineReducer
 };

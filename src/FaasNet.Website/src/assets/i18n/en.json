@@ -94,6 +94,17 @@
       }
     }
   },
+  "stateMachines": {
+    "list": "State Machines",
+    "name": "Name",
+    "description": "Description",
+    "version": "Version",
+    "createDateTime": "Creation DateTime",
+    "updateDateTime": "Update DateTime",
+    "messages": {
+      "errorGetStateMachine": "An error occured while trying to get the State Machine"
+    }
+  },
   "shared": {
     "add": "Add",
     "remove": "Remove",
@@ -103,5 +114,6 @@
     "close": "Close",
     "choose": "Choose",
     "launch": "Launch"
-  }
+  },
+  "undo": "Undo"
 }

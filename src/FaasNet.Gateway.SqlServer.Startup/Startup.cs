@@ -43,7 +43,12 @@ namespace FaasNet.Gateway.SqlServer.Startup
             services.AddControllers(opts =>
             {
                 opts.InputFormatters.Add(new YamlInputFormatter());
-            }).AddNewtonsoftJson(opts => opts.SerializerSettings.Converters.Add(new StringEnumConverter()));
+                opts.OutputFormatters.Add(new YamlOutputFormatter());
+                opts.RespectBrowserAcceptHeader = true;
+            }).AddNewtonsoftJson(opts =>
+            {
+                opts.SerializerSettings.Converters.Add(new StringEnumConverter());
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

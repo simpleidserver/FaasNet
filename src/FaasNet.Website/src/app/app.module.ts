@@ -12,6 +12,8 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { appReducer } from '../stores/appstate';
 import { FunctionEffects } from '../stores/functions/effects/function.effects';
 import { FunctionService } from '../stores/functions/services/function.service';
+import { StateMachineEffects } from '../stores/statemachines/effects/statemachines.effects';
+import { StateMachinesService } from '../stores/statemachines/services/statemachines.service';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
 import { MaterialModule } from './shared/material.module';
@@ -32,7 +34,7 @@ export function createTranslateLoader(http: HttpClient) {
     BrowserModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    EffectsModule.forRoot([FunctionEffects]),
+    EffectsModule.forRoot([FunctionEffects, StateMachineEffects]),
     StoreModule.forRoot(appReducer),
     TranslateModule.forRoot({
       loader: {
@@ -45,7 +47,7 @@ export function createTranslateLoader(http: HttpClient) {
       maxAge: 10
     })
   ],
-  providers: [FunctionService],
+  providers: [FunctionService, StateMachinesService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

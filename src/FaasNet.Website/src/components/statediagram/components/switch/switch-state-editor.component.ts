@@ -1,8 +1,8 @@
 import { Component, Input, OnDestroy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
-import { StateMachineState } from "../../models/statemachine-state.model";
-import { SwitchStateMachineState } from "../../models/statemachine-switch-state.model";
+import { StateMachineState } from "@stores/statemachines/models/statemachine-state.model";
+import { SwitchStateMachineState } from "@stores/statemachines/models/statemachine-switch-state.model";
 import { ExpressionEditorComponent } from "../expressioneditor/expressioneditor.component";
 
 @Component({

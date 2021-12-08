@@ -17,6 +17,7 @@ namespace FaasNet.Runtime.EF.Configurations
                 .HasValue<WorkflowDefinitionInjectState>(WorkflowDefinitionStateTypes.Inject)
                 .HasValue<WorkflowDefinitionForeachState>(WorkflowDefinitionStateTypes.ForEach)
                 .HasValue<WorkflowDefinitionCallbackState>(WorkflowDefinitionStateTypes.Callback);
+            builder.Ignore(_ => _.StateDataFilter);
         }
     }
 }

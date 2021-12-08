@@ -1,0 +1,51 @@
+<div class="container">
+  <div fxLayout="row" class="breadcrumb">
+    <div fxFlex="80%">
+      <ul>
+        <li><div class="mat-h1">{{ "stateMachines.list" | translate }}</div></li>
+      </ul>
+    </div>
+  </div>
+  <div class="mat-elevation-z8 overflow-hidden">
+    <mat-table class="full-width" [dataSource]="stateMachines" matSortActive="createDateTime" matSortDirection="desc" matSort>
+      <!-- Name -->
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef>{{ "stateMachines.name" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let stateMachine">
+          <a href="#" [routerLink]="['/statemachines/' + stateMachine.id]">{{ stateMachine.name }}</a>
+        </mat-cell>
+      </ng-container>
+      <!-- Description -->
+      <ng-container matColumnDef="description">
+        <mat-header-cell *matHeaderCellDef>{{ "stateMachines.description" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let stateMachine">
+          {{ stateMachine.description }}
+        </mat-cell>
+      </ng-container>
+      <!-- Version -->
+      <ng-container matColumnDef="version">
+        <mat-header-cell *matHeaderCellDef>{{ "stateMachines.version" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let stateMachine">
+          {{ stateMachine.version }}
+        </mat-cell>
+      </ng-container>
+      <!-- Create DateTime -->
+      <ng-container matColumnDef="createDateTime">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>{{ "stateMachines.createDateTime" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let stateMachine">
+          {{ stateMachine.createDateTime | date:'fullDate' }}
+        </mat-cell>
+      </ng-container>
+      <!-- Update DateTime -->
+      <ng-container matColumnDef="updateDateTime">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>{{ "stateMachines.updateDateTime" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let stateMachine">
+          {{ stateMachine.updateDateTime | date:'fullDate' }}
+        </mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+    <mat-paginator [length]="length" [pageSize]="50" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+  </div>
+</div>

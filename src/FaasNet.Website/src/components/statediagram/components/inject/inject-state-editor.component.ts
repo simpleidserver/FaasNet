@@ -1,8 +1,8 @@
 import { Component, Input } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
-import { InjectStateMachineState } from "../../models/statemachine-inject-state.model";
-import { StateMachineState } from "../../models/statemachine-state.model";
+import { InjectStateMachineState } from "@stores/statemachines/models/statemachine-inject-state.model";
+import { StateMachineState } from "@stores/statemachines/models/statemachine-state.model";
 import { ExpressionEditorComponent } from "../expressioneditor/expressioneditor.component";
 
 @Component({

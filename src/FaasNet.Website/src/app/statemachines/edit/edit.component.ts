@@ -1,8 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { InjectStateMachineState } from '../../../components/statediagram/models/statemachine-inject-state.model';
-import { StateDataFilter } from '../../../components/statediagram/models/statemachine-state.model';
-import { EventCondition, SwitchStateMachineState } from '../../../components/statediagram/models/statemachine-switch-state.model';
-import { StateMachine } from '../../../components/statediagram/models/statemachine.model';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
+import { ScannedActionsSubject, select, Store } from '@ngrx/store';
+import { TranslateService } from '@ngx-translate/core';
+import * as fromReducers from '@stores/appstate';
+import { startGetJson } from '@stores/statemachines/actions/statemachines.actions';
+import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'edit-state-machine',
@@ -10,47 +14,41 @@ import { StateMachine } from '../../../components/statediagram/models/statemachi
   styleUrls: ['./edit.component.scss']
 })
 export class EditStateMachineComponent implements OnInit, OnDestroy {
-  stateMachineDef: StateMachine | null = null;
+  stateMachineDef: StateMachineModel = new StateMachineModel();
 
-  constructor() {
-    this.stateMachineDef = new StateMachine();
-    this.stateMachineDef.id = "id";
-    this.stateMachineDef.specVersion = "1.0";
-    this.stateMachineDef.start = "start";
-    this.stateMachineDef.version = "1.0";
-    const switchState = new SwitchStateMachineState();
-    switchState.id = "1";
-    switchState.name = "switch";
-    switchState.stateDataFilter = new StateDataFilter();
-    const firstEvtCondition = new EventCondition();
-    firstEvtCondition.eventRef = "evt1";
-    firstEvtCondition.transition = "2";
-    const secondEvtCondition = new EventCondition();
-    secondEvtCondition.eventRef = "evt2";
-    secondEvtCondition.transition = "3";
-    switchState.eventConditions = [firstEvtCondition, secondEvtCondition];
-    const firstInject = new InjectStateMachineState();
-    firstInject.id = "2";
-    firstInject.name = "firstInject";
-    firstInject.data = {};
-    const secondInject = new InjectStateMachineState();
-    secondInject.id = "3";
-    secondInject.name = "secondInject";
-    secondInject.transition = "4";
-    secondInject.data = {};
-    const thirdInject = new InjectStateMachineState();
-    thirdInject.id = "4";
-    thirdInject.name = "thirdInject";
-    this.stateMachineDef.states.push(switchState);
-    this.stateMachineDef.states.push(firstInject);
-    this.stateMachineDef.states.push(secondInject);
-    this.stateMachineDef.states.push(thirdInject);
-
+  constructor(
+    private store: Store<fromReducers.AppState>,
+    private activatedRoute: ActivatedRoute,
+    private actions$: ScannedActionsSubject,
+    private translateService: TranslateService,
+    private snackBar: MatSnackBar) {
   }
 
   ngOnInit() {
+    const self = this;
+    self.actions$.pipe(
+      filter((action: any) => action.type === '[StateMachines] ERROR_GET_JSON_STATE_MACHINE'))
+      .subscribe(() => {
+        self.snackBar.open(this.translateService.instant('stateMachines.messages.errorGetStateMachine'), this.translateService.instant('undo'), {
+          duration: 2000
+        });
+      });
+    this.store.pipe(select(fromReducers.selectStateMachineResult)).subscribe((stateMachine: StateMachineModel | null) => {
+      if (!stateMachine) {
+        return;
+      }
+
+      this.stateMachineDef = stateMachine;
+    });
+    self.init();
   }
 
   ngOnDestroy() {
+  }
+
+  private init(): void {
+    const id = this.activatedRoute.snapshot.params['id'];
+    const action = startGetJson({ id: id });
+    this.store.dispatch(action);
   }
 }

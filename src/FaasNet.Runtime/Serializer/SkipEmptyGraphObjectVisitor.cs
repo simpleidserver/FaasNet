@@ -27,6 +27,11 @@ namespace FaasNet.Runtime.Serializer
                 return false;
             }
 
+            if (key.Type.Name == "ILazyLoader") 
+            {
+                return false;
+            }
+
             return base.EnterMapping(key, value, context);
         }
     }

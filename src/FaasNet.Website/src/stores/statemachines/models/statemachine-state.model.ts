@@ -24,6 +24,23 @@ export class StateDataFilter {
       output: this.output
     };
   }
+
+  public static build(json: any): StateDataFilter | undefined {
+    if (!json) {
+      return undefined;
+    }
+
+    var result = new StateDataFilter();
+    if (json["input"]) {
+      result.input = json["input"];
+    }
+
+    if (json["output"]) {
+      result.output = json["output"];
+    }
+
+    return result;
+  }
 }
 
 export abstract class BaseTransition {

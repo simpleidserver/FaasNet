@@ -32,6 +32,8 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     Version = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Start = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>

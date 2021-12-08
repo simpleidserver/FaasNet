@@ -1,14 +1,14 @@
 import { Component, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { ForeachStateMachineState } from '@stores/statemachines/models/statemachine-foreach-state.model';
+import { InjectStateMachineState } from '@stores/statemachines/models/statemachine-inject-state.model';
+import { BaseTransition, EmptyTransition, StateMachineState } from '@stores/statemachines/models/statemachine-state.model';
+import { SwitchStateMachineState } from '@stores/statemachines/models/statemachine-switch-state.model';
+import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { BehaviorSubject } from 'rxjs';
 import { JsonComponent } from './components/json/json.component';
 import { YamlComponent } from './components/yaml/yaml.component';
-import { ForeachStateMachineState } from './models/statemachine-foreach-state.model';
-import { InjectStateMachineState } from './models/statemachine-inject-state.model';
-import { BaseTransition, EmptyTransition, StateMachineState } from './models/statemachine-state.model';
-import { SwitchStateMachineState } from './models/statemachine-switch-state.model';
-import { StateMachine } from './models/statemachine.model';
 
 class DiagramNode {
   constructor(public x: number, public y: number, public level: number, public state: StateMachineState | undefined) {
@@ -150,7 +150,17 @@ class DiagramOptions {
   styleUrls: ['./statediagram.component.scss']
 })
 export class StateDiagramComponent implements OnInit, OnDestroy {
-  @Input() stateMachine: StateMachine | null = null;
+  private _stateMachine: StateMachineModel = new StateMachineModel();
+  @Input()
+  get stateMachine(): StateMachineModel {
+    return this._stateMachine;
+  }
+  set stateMachine(s: StateMachineModel) {
+    this._stateMachine = s;
+    if (s) {
+      this.refreshUI();
+    }
+  }
   @Input() options: DiagramOptions = new DiagramOptions();
   @ViewChild("stateDiagram") stateDiagram: any;
   @ViewChild("gutter") gutter: any;
@@ -190,7 +200,6 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.refreshUI();
     this.viewBox = "0 0 " + this.options.canvasWidth + " " + this.options.canvasHeight;
     this.initListener();
   }
@@ -474,6 +483,10 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   private refreshUI() {
+    if (!this._stateMachine.id) {
+      return;
+    }
+
     this.circleStartPosition = { x: this.computeCirclePosition(), y: 10 };
     this.nodes = [];
     this.edgePaths = [];

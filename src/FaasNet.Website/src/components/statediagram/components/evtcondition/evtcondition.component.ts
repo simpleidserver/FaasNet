@@ -1,7 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { BaseTransition } from "../../models/statemachine-state.model";
-import { EventCondition } from "../../models/statemachine-switch-state.model";
+import { BaseTransition } from "@stores/statemachines/models/statemachine-state.model";
+import { EventCondition } from "@stores/statemachines/models/statemachine-switch-state.model";
 
 @Component({
   selector: 'evtcondition-editor',

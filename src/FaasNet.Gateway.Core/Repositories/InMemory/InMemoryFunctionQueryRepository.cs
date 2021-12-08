@@ -34,7 +34,6 @@ namespace FaasNet.Gateway.Core.Repositories.InMemory
                 result = result.InvokeOrderBy(MAPPING_FUNCTION_TO_PROPERTYNAME[parameter.OrderBy], parameter.Order);
             }
 
-
             int totalLength = result.Count();
             result = result.Skip(parameter.StartIndex).Take(parameter.Count);
             return Task.FromResult(new BaseSearchResult<FunctionResult>

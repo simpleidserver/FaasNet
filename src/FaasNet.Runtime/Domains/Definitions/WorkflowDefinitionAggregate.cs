@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using YamlDotNet.Serialization;
 
 namespace FaasNet.Runtime.Domains.Definitions
 {
@@ -30,6 +33,12 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// Workflow description.
         /// </summary>
         public string Description { get; set; }
+        [JsonIgnore]
+        [YamlIgnore]
+        public DateTime CreateDateTime { get; set; }
+        [JsonIgnore]
+        [YamlIgnore]
+        public DateTime UpdateDateTime { get; set; }
         /// <summary>
         /// Workflow start definition.
         /// </summary>
@@ -56,7 +65,9 @@ namespace FaasNet.Runtime.Domains.Definitions
                 Id = id,
                 Version = version,
                 Name = name,
-                Description = description
+                Description = description,
+                UpdateDateTime = DateTime.UtcNow,
+                CreateDateTime = DateTime.UtcNow
             };
         }
 

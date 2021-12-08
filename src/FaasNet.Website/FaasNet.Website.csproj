@@ -30,12 +30,14 @@
     <None Remove="src\components\statediagram\components\evtcondition\evtcondition.component.ts" />
     <None Remove="src\components\statediagram\components\inject\inject-state-editor.component.ts" />
     <None Remove="src\components\statediagram\components\switch\switch-state-editor.component.ts" />
-    <None Remove="src\components\statediagram\models\statemachine-foreach-state.model.ts" />
-    <None Remove="src\components\statediagram\models\statemachine-switch-state.model.ts" />
     <None Remove="src\components\statediagram\statediagram.module.ts" />
     <None Remove="src\stores\common\prometheus-queryrange-result.model.ts" />
     <None Remove="src\stores\common\search.model.ts" />
     <None Remove="src\stores\functions\models\function.model.ts" />
+    <None Remove="src\stores\statemachines\models\statemachine-foreach-state.model.ts" />
+    <None Remove="src\stores\statemachines\models\statemachine-switch-state.model.ts" />
+    <None Remove="src\stores\statemachines\models\statemachine.model.ts" />
+    <None Remove="src\stores\statemachines\models\statemachinemodel.model.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\app\functions\list\" />
@@ -72,10 +74,18 @@
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="src\components\statediagram\components\switch\switch-state-editor.component.ts" />
-    <TypeScriptCompile Include="src\components\statediagram\models\statemachine-foreach-state.model.ts" />
-    <TypeScriptCompile Include="src\components\statediagram\models\statemachine-switch-state.model.ts" />
     <TypeScriptCompile Include="src\components\statediagram\statediagram.module.ts" />
     <TypeScriptCompile Include="src\stores\common\search.model.ts" />
     <TypeScriptCompile Include="src\stores\functions\models\function.model.ts" />
+    <TypeScriptCompile Include="src\stores\statemachines\models\statemachinemodel.model.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\stores\statemachines\models\statemachine-foreach-state.model.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\stores\statemachines\models\statemachine-switch-state.model.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\stores\statemachines\models\statemachine.model.ts" />
   </ItemGroup>
 </Project>

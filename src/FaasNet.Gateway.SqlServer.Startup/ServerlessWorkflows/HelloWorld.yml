@@ -7,4 +7,5 @@ states:
     result: Hello World!
   end: true
   id: c7285af5-7766-4108-92c5-c3ca8e4c2270
+  name: helloWorld
   type: inject

@@ -1,6 +1,7 @@
-import { BaseTransition, StateMachineState } from "./statemachine-state.model";
+import { InjectStateMachineState } from "./statemachine-inject-state.model";
+import { BaseTransition, StateDataFilter, StateMachineState } from "./statemachine-state.model";
 
-export class StateMachine {
+export class StateMachineModel {
   constructor() {
     this.states = [];
   }
@@ -47,7 +48,7 @@ export class StateMachine {
     return filtered.length === 0 ? null : filtered[0];
   }
 
-  public getRootState() : StateMachineState | null {
+  public getRootState(): StateMachineState | null {
     let rootState: StateMachineState | null = null;
     this.states.forEach((s) => {
       const filtered = this.states.filter((c) => {
@@ -75,5 +76,27 @@ export class StateMachine {
         return s.getJson();
       })
     };
+  }
+
+  public static build(json: any) : StateMachineModel {
+    var result = new StateMachineModel();
+    result.id = json["id"];
+    result.version = json["version"];
+    result.specVersion = json["specVersion"];
+    result.start = json["start"];
+    result.states = json["states"].map((s: any) => {
+      switch (s.type) {
+        case InjectStateMachineState.TYPE:
+          var result = new InjectStateMachineState();
+          result.data = s["data"];
+          result.transition = s["transition"];
+          result.name = s["name"];
+          result.stateDataFilter = StateDataFilter.build(s["stateDataFilter"]);
+          return result;
+      }
+
+      return 
+    });
+    return result;
   }
 }

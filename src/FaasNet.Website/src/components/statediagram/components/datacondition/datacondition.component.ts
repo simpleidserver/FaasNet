@@ -1,8 +1,8 @@
 import { Component, Input } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
-import { BaseTransition } from "../../models/statemachine-state.model";
-import { DataCondition } from "../../models/statemachine-switch-state.model";
+import { BaseTransition } from "@stores/statemachines/models/statemachine-state.model";
+import { DataCondition } from "@stores/statemachines/models/statemachine-switch-state.model";
 import { ExpressionEditorComponent } from "../expressioneditor/expressioneditor.component";
 
 @Component({
