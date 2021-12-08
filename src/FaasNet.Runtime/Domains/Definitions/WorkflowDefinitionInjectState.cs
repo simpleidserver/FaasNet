@@ -8,6 +8,11 @@ namespace FaasNet.Runtime.Domains.Definitions
 {
     public class WorkflowDefinitionInjectState: BaseWorkflowDefinitionFlowableState
     {
+        public WorkflowDefinitionInjectState()
+        {
+            Type = WorkflowDefinitionStateTypes.Inject;
+        }
+
         #region Properties
 
         [YamlIgnore]

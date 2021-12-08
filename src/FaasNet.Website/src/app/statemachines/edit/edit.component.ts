@@ -33,12 +33,12 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
           duration: 2000
         });
       });
-    this.store.pipe(select(fromReducers.selectStateMachineResult)).subscribe((stateMachine: StateMachineModel | null) => {
+    this.store.pipe(select(fromReducers.selectStateMachineResult)).subscribe((stateMachine: any) => {
       if (!stateMachine) {
         return;
       }
 
-      this.stateMachineDef = stateMachine;
+      this.stateMachineDef = StateMachineModel.build(stateMachine);
     });
     self.init();
   }

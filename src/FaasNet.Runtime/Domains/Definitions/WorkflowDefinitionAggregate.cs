@@ -58,6 +58,19 @@ namespace FaasNet.Runtime.Domains.Definitions
 
         #endregion
 
+        public static WorkflowDefinitionAggregate CreateEmpty(string id, string name, string description)
+        {
+            var result = Create(id, "1.0", name, description);
+            result.States.Add(new WorkflowDefinitionInjectState
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = "helloWorld",
+                DataStr = "{'message' : 'Hello World !' }",
+                IsRootState = true
+            });
+            return result;
+        }
+
         public static WorkflowDefinitionAggregate Create(string id, string version, string name, string description)
         {
             return new WorkflowDefinitionAggregate

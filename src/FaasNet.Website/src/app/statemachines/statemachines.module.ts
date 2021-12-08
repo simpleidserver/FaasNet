@@ -3,6 +3,7 @@ import { MaterialModule } from "@app/shared/material.module";
 import { SharedModule } from "@app/shared/shared.module";
 import { StateDiagramModule } from "../../components/statediagram/statediagram.module";
 import { EditStateMachineComponent } from "./edit/edit.component";
+import { AddStateMachineComponent } from "./list/add-statemachine.component";
 import { ListStateMachinesComponent } from "./list/list.component";
 import { StateMachinesRoutes } from "./statemachines.routes";
 
@@ -15,9 +16,11 @@ import { StateMachinesRoutes } from "./statemachines.routes";
   ],
   declarations: [
     EditStateMachineComponent,
-    ListStateMachinesComponent
+    ListStateMachinesComponent,
+    AddStateMachineComponent
   ],
   entryComponents: [
+    AddStateMachineComponent
   ]
 })
 

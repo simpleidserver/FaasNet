@@ -1,0 +1,25 @@
+<h1 mat-dialog-title>{{ 'stateMachines.add' | translate }}</h1>
+<form [formGroup]="addStateMachineFormGroup" (ngSubmit)="save()">
+  <div mat-dialog-content>
+    <!-- Name -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'stateMachines.name' | translate }}</mat-label>
+      <input matInput formControlName="name" />
+      <mat-error *ngIf="addStateMachineFormGroup.get('name')?.hasError('required')">
+        {{ 'stateMachines.validations.nameRequired' | translate }}
+      </mat-error>
+    </mat-form-field>
+    <!-- Description -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'stateMachines.description' | translate }}</mat-label>
+      <textarea matInput formControlName="description"></textarea>
+      <mat-error *ngIf="addStateMachineFormGroup.get('description')?.hasError('required')">
+        {{ 'stateMachines.validations.descriptionRequired' | translate }}
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button color="primary">{{ 'shared.create' | translate }}</button>
+    <button mat-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
+  </div>
+</form>

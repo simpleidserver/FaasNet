@@ -7,9 +7,11 @@ import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
 import { SearchResult } from '@stores/common/search.model';
-import { startSearch } from '@stores/statemachines/actions/statemachines.actions';
+import { startAddEmpty, startSearch } from '@stores/statemachines/actions/statemachines.actions';
 import { StateMachine } from '@stores/statemachines/models/statemachine.model';
 import { merge } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { AddStateMachineComponent } from './add-statemachine.component';
 
 @Component({
   selector: 'list-statemachines',
@@ -30,6 +32,21 @@ export class ListStateMachinesComponent implements OnInit {
     private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
+    this.actions$.pipe(
+      filter((action: any) => action.type === '[StateMachines] COMPLETE_ADD_EMPTY_STATE_MACHINE'))
+      .subscribe((e) => {
+        this.snackBar.open(this.translateService.instant('stateMachines.messages.stateMachineAdded'), this.translateService.instant('undo'), {
+          duration: 2000
+        });
+        this.refresh();
+      });
+    this.actions$.pipe(
+      filter((action: any) => action.type === '[StateMachines] ERROR_ADD_EMPTY_STATE_MACHINE'))
+      .subscribe(() => {
+        this.snackBar.open(this.translateService.instant('stateMachines.messages.errorAddStateMachine'), this.translateService.instant('undo'), {
+          duration: 2000
+        });
+      });
     this.store.pipe(select(fromReducers.selectStateMachinesResult)).subscribe((state: SearchResult<StateMachine> | null) => {
       if (!state || !state.content) {
         return;
@@ -47,6 +64,21 @@ export class ListStateMachinesComponent implements OnInit {
 
     merge(this.sort.sortChange, this.paginator.page).subscribe(() => this.refresh());
     this.refresh();
+  }
+
+
+  addStateMachine() {
+    const dialogRef = this.dialog.open(AddStateMachineComponent, {
+      width: '800px'
+    });
+    dialogRef.afterClosed().subscribe((opt: any) => {
+      if (!opt) {
+        return;
+      }
+
+      const addStateMachine = startAddEmpty({ name: opt.name, description: opt.description });
+      this.store.dispatch(addStateMachine);
+    });
   }
 
   private refresh() {

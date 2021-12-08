@@ -96,13 +96,20 @@
   },
   "stateMachines": {
     "list": "State Machines",
+    "add": "Add State Machine",
     "name": "Name",
     "description": "Description",
     "version": "Version",
     "createDateTime": "Creation DateTime",
     "updateDateTime": "Update DateTime",
     "messages": {
-      "errorGetStateMachine": "An error occured while trying to get the State Machine"
+      "errorGetStateMachine": "An error occured while trying to get the State Machine",
+      "stateMachineAdded": "State machine has been added",
+      "errorAddStateMachine": "An error occured while trying to add the State Machine"
+    },
+    "validations": {
+      "nameRequired": "Name is required",
+      "descriptionRequired": "Description is required"
     }
   },
   "shared": {

@@ -9,7 +9,7 @@ export interface SearchStateMachineState {
 }
 
 export interface StateMachineState {
-  StateMachine: StateMachineModel;
+  StateMachine: any;
 }
 
 export const initialSearchStateMachines: SearchStateMachineState = {
@@ -17,7 +17,7 @@ export const initialSearchStateMachines: SearchStateMachineState = {
 };
 
 export const initialStateMachine: StateMachineState = {
-  StateMachine: new StateMachineModel()
+  StateMachine: null
 };
 
 const searchStateMachinesReducer = createReducer(
@@ -33,10 +33,9 @@ const searchStateMachinesReducer = createReducer(
 const stateMachineReducer = createReducer(
   initialStateMachine,
   on(fromActions.completeGetJson, (state, { content }) => {
-    const stateMachine = StateMachineModel.build(content);
     return {
       ...state,
-      StateMachine: stateMachine
+      StateMachine: { ...content }
     };
   })
 );

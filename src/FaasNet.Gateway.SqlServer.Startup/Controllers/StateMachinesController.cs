@@ -2,6 +2,7 @@
 using FaasNet.Gateway.Core.StateMachines.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,6 +40,20 @@ namespace FaasNet.Gateway.SqlServer.Startup.Controllers
         {
             var result = await _mediator.Send(cmd, cancellationToken);
             return StatusCode((int)HttpStatusCode.Created, result);
+        }
+
+        [HttpPost("empty")]
+        public async Task<IActionResult> AddEmpty([FromBody] AddEmptyStateMachineCommand cmd, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(cmd, cancellationToken);
+            return new ContentResult
+            {
+                StatusCode = (int)HttpStatusCode.Created,
+                Content = new JObject
+                {
+                    { "id", result }
+                }.ToString()
+            };
         }
 
         [HttpGet("{id}")]

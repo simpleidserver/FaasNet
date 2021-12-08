@@ -215,6 +215,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
     draggableZone.anchor.selected = false;
     const parent = draggableZone.diagramNode.state;
+    console.log(parent);
     let child: StateMachineState | null = null;
     const type = evt.dataTransfer.getData('type');
     switch (type) {

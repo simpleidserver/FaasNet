@@ -28,4 +28,18 @@ export class StateMachinesService {
     let targetUrl = environment.apiUrl + "/statemachines/" + id;
     return this.http.get<any>(targetUrl);
   }
+
+  addEmpty(name: string, description: string): Observable<{ id: string }> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = environment.apiUrl + "/statemachines/empty";
+    console.log({
+      name: name,
+      description: description
+    });
+    return this.http.post<{ id: string }>(targetUrl, {
+      name: name,
+      description: description
+    }, { headers: headers });
+  }
 }
