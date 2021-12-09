@@ -53,4 +53,14 @@ export class StateMachinesService {
     const yaml = doc.toString();
     return this.http.put(targetUrl, yaml, { headers: headers });
   }
+
+  launch(id: string, input: any): Observable<{ id: string, launchDateTime: Date }> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = environment.apiUrl + "/statemachines/start";
+    return this.http.post<{ id: string, launchDateTime: Date }>(targetUrl, {
+      id: id,
+      input: input
+    }, { headers: headers });
+  }
 }

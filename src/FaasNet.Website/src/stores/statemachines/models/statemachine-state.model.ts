@@ -5,6 +5,7 @@ export abstract class StateMachineState {
   id: string | undefined;
   name: string | undefined;
   type: string | undefined;
+  end: boolean = false;
   stateDataFilter: StateDataFilter | undefined;
 
   public abstract setTransitions(transitions: BaseTransition[]): void;

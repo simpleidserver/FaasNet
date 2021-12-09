@@ -1,2 +1,2 @@
 <loader *ngIf="isLoading"></loader>
-<state-diagram [stateMachine]="stateMachineDef" (saved)="onSave($event)"></state-diagram>
+<state-diagram [stateMachine]="stateMachineDef" (saved)="onSave($event)" (launched)="onLaunch()"></state-diagram>

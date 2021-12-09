@@ -96,6 +96,7 @@
   },
   "stateMachines": {
     "list": "State Machines",
+    "launch": "Launch State Machine",
     "add": "Add State Machine",
     "name": "Name",
     "description": "Description",
@@ -107,7 +108,9 @@
       "stateMachineAdded": "State machine has been added",
       "errorAddStateMachine": "An error occured while trying to add the State Machine",
       "stateMachineUpdated": "State machine has been updated",
-      "errorUpdateStateMachine": "An error occured while trying to update the State Machine"
+      "errorUpdateStateMachine": "An error occured while trying to update the State Machine",
+      "stateMachineLaunched": "State machine has been launched",
+      "errorLaunchStateMachine": "An error occured while trying to launch the State Machine"
     },
     "validations": {
       "nameRequired": "Name is required",

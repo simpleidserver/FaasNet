@@ -98,6 +98,7 @@ export class StateMachineModel {
           result.data = s["data"];
           result.transition = s["transition"];
           result.name = s["name"];
+          result.end = s["end"];
           result.stateDataFilter = StateDataFilter.build(s["stateDataFilter"]);
           return result;
       }

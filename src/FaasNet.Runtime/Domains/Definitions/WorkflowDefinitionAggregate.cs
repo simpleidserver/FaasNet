@@ -66,7 +66,8 @@ namespace FaasNet.Runtime.Domains.Definitions
                 Id = Guid.NewGuid().ToString(),
                 Name = "helloWorld",
                 DataStr = "{'message' : 'Hello World !' }",
-                IsRootState = true
+                IsRootState = true,
+                End = true
             });
             return result;
         }

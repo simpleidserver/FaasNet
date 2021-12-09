@@ -1,12 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
-import { startGetJson, startUpdate } from '@stores/statemachines/actions/statemachines.actions';
+import { startGetJson, startLaunch, startUpdate } from '@stores/statemachines/actions/statemachines.actions';
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { filter } from 'rxjs/operators';
+import { LaunchStateMachineComponent } from '../launch/launch-statemachine.component';
 
 @Component({
   selector: 'edit-state-machine',
@@ -22,7 +24,8 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private actions$: ScannedActionsSubject,
     private translateService: TranslateService,
-    private snackBar: MatSnackBar) {
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog) {
   }
 
   ngOnInit() {
@@ -50,13 +53,29 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
           duration: 2000
         });
       });
+    self.actions$.pipe(
+      filter((action: any) => action.type === '[StateMachines] COMPLETE_LAUNCH_STATE_MACHINE'))
+      .subscribe((e: any) => {
+        console.log(e);
+        this.isLoading = false;
+        self.snackBar.open(this.translateService.instant('stateMachines.messages.stateMachineLaunched'), this.translateService.instant('undo'), {
+          duration: 2000
+        });
+      });
+    self.actions$.pipe(
+      filter((action: any) => action.type === '[StateMachines] ERROR_LAUNCH_STATE_MACHINE'))
+      .subscribe(() => {
+        this.isLoading = false;
+        self.snackBar.open(this.translateService.instant('stateMachines.messages.errorLaunchStateMachine'), this.translateService.instant('undo'), {
+          duration: 2000
+        });
+      });
     this.store.pipe(select(fromReducers.selectStateMachineResult)).subscribe((stateMachine: any) => {
       if (!stateMachine) {
         return;
       }
 
       this.stateMachineDef = StateMachineModel.build(stateMachine);
-      console.log('toto');
     });
     self.init();
   }
@@ -68,6 +87,24 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const command = startUpdate({ stateMachine: stateMachineModel.getJson() });
     this.store.dispatch(command);
+  }
+
+  onLaunch() {
+    const dialogRef = this.dialog.open(LaunchStateMachineComponent, {
+      width: '800px',
+      data: {
+        stateMachine: this.stateMachineDef
+      }
+    });
+    dialogRef.afterClosed().subscribe((opt: any) => {
+      if (!opt || !opt.json || !this.stateMachineDef.id) {
+        return;
+      }
+
+      this.isLoading = true;
+      const action = startLaunch({ id: this.stateMachineDef.id, input: opt.json });
+      this.store.dispatch(action);
+    });
   }
 
   private init(): void {

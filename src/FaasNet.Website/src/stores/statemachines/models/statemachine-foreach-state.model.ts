@@ -37,7 +37,8 @@ export class ForeachStateMachineState extends StateMachineState {
       name: this.name,
       stateDataFilter: this.stateDataFilter?.getJson(),
       transition: this.transition,
-      type: ForeachStateMachineState.TYPE
+      type: ForeachStateMachineState.TYPE,
+      end: this.end
     };
   }
 }

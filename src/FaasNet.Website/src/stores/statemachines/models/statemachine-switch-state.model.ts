@@ -181,6 +181,7 @@ export class SwitchStateMachineState extends StateMachineState {
       name: this.name,
       stateDataFilter: this.stateDataFilter?.getJson(),
       type: SwitchStateMachineState.TYPE,
+      end: this.end,
       eventConditions: this.eventConditions.map((e: EventCondition) => {
         return e.getJson();
       }),

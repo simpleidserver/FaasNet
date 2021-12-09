@@ -14,5 +14,8 @@ export const errorAddEmpty = createAction('[StateMachines] ERROR_ADD_EMPTY_STATE
 export const startUpdate = createAction('[StateMachines] START_UPDATE_STATE_MACHINE', props<{ stateMachine: any }>());
 export const completeUpdate = createAction('[StateMachines] COMPLETE_UPDATE_STATE_MACHINE');
 export const errorUpdate = createAction('[StateMachines] ERROR_UPDATE_STATE_MACHINE');
+export const startLaunch = createAction('[StateMachines] START_LAUNCH_STATE_MACHINE', props<{ id: string, input: any }>());
+export const completeLaunch = createAction('[StateMachines] COMPLETE_LAUNCH_STATE_MACHINE', props<{ id: string, launchDateTime: Date }>());
+export const errorLaunch = createAction('[StateMachines] ERROR_LAUNCH_STATE_MACHINE');
 
 

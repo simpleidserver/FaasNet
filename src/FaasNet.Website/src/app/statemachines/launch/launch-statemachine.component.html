@@ -1,0 +1,12 @@
+<h1 mat-dialog-title>{{ 'stateMachines.launch' | translate }}</h1>
+<div mat-dialog-content>
+  <!-- JSON -->
+  <div class="form-control">
+    <div class="title">JSON Input</div>
+    <ngx-monaco-editor [options]="jsonEditorOptions" [(ngModel)]="json"></ngx-monaco-editor>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-button color="primary" (click)="launch()">{{ 'shared.launch' | translate }}</button>
+  <button mat-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
+</div>

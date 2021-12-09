@@ -162,7 +162,8 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     }
   }
   @Input() options: DiagramOptions = new DiagramOptions();
-  @Output() saved: EventEmitter<StateMachineModel> = new EventEmitter <StateMachineModel>();
+  @Output() saved: EventEmitter<StateMachineModel> = new EventEmitter<StateMachineModel>();
+  @Output() launched: EventEmitter<StateMachineModel> = new EventEmitter<StateMachineModel>();
   @ViewChild("stateDiagram") stateDiagram: any;
   @ViewChild("gutter") gutter: any;
   @ViewChild("stateDiagramContainer") stateDiagramContainer: any;
@@ -170,7 +171,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   circleStartPosition: { x: number, y: number } = { x: 0, y: 0 };
   circleStartSelected: boolean = false;
   edgePathCircleStart: string = "";
-  viewBox: string = "";
+  viewBox: string = "0 0 1 1";
   isMoving: boolean = false;
   isResizing: boolean = false;
   startMoving: boolean = false;
@@ -412,6 +413,10 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     this.saved.emit(this._stateMachine);
   }
 
+  launch() {
+    this.launched.emit(this._stateMachine);
+  }
+
   setDefaultCondition(edgeLabel: EdgeLabel) {
     const switchStateMachine = edgeLabel.edgePath.formNode.state as SwitchStateMachineState;
     switchStateMachine.swichTransitionToDefault(edgeLabel.edgePath.transition);
@@ -557,6 +562,10 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
   private updateNodePosition() {
     const totalWidth = this.getSvgWidth();
+    if (!totalWidth) {
+      return;
+    }
+
     const groupedResult = this.groupBy(this.nodes, 'level');
     for (var key in groupedResult) {
       let index: number = 0;
@@ -598,6 +607,10 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
   private computeCirclePosition() : number {
     const totalWidth = this.getSvgWidth();
+    if (!totalWidth) {
+      return 0;
+    }
+
     return (totalWidth / 2);
   }
 
@@ -624,6 +637,10 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
 
   private getSvgWidth() {
+    if (!this.stateDiagram) {
+      return null;
+    }
+
     const native = this.stateDiagram.nativeElement;
     return native.width.baseVal.value;
   }

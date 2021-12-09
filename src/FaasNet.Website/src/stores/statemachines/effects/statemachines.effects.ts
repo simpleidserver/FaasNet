@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
-import { completeAddEmpty, completeGetJson, completeSearch, completeUpdate, errorAddEmpty, errorGetJson, errorSearch, errorUpdate, startAddEmpty, startGetJson, startSearch, startUpdate } from '../actions/statemachines.actions';
+import { completeAddEmpty, completeGetJson, completeLaunch, completeSearch, completeUpdate, errorAddEmpty, errorGetJson, errorLaunch, errorSearch, errorUpdate, startAddEmpty, startGetJson, startLaunch, startSearch, startUpdate } from '../actions/statemachines.actions';
 import { StateMachineModel } from '../models/statemachinemodel.model';
 import { StateMachinesService } from '../services/statemachines.service';
 
@@ -64,6 +64,20 @@ export class StateMachineEffects {
           .pipe(
             map(content => completeUpdate()),
             catchError(() => of(errorUpdate()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  launchStateMachine = this.actions$
+    .pipe(
+      ofType(startLaunch),
+      mergeMap((evt: { id: string, input : any }) => {
+        return this.stateMachinesService.launch(evt.id, evt.input)
+          .pipe(
+            map(content => completeLaunch({ id: content.id, launchDateTime: content.launchDateTime })),
+            catchError(() => of(errorLaunch()))
           );
       }
       )
