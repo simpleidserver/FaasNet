@@ -7,6 +7,8 @@ export class StateMachineModel {
   }
 
   id: string | undefined;
+  name: string | undefined;
+  description: string | undefined;
   version: string | undefined;
   specVersion: string | undefined;
   start: string | undefined;
@@ -70,6 +72,8 @@ export class StateMachineModel {
     return {
       id: this.id,
       version: this.version,
+      name: this.name,
+      description: this.description,
       specVersion: this.specVersion,
       start: this.start,
       states: this.states.map((s: StateMachineState) => {
@@ -81,6 +85,8 @@ export class StateMachineModel {
   public static build(json: any) : StateMachineModel {
     var result = new StateMachineModel();
     result.id = json["id"];
+    result.name = json["name"];
+    result.description = json["description"];
     result.version = json["version"];
     result.specVersion = json["specVersion"];
     result.start = json["start"];
@@ -88,6 +94,7 @@ export class StateMachineModel {
       switch (s.type) {
         case InjectStateMachineState.TYPE:
           var result = new InjectStateMachineState();
+          result.id = s["id"];
           result.data = s["data"];
           result.transition = s["transition"];
           result.name = s["name"];

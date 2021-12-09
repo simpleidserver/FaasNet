@@ -42,6 +42,13 @@ namespace FaasNet.Gateway.SqlServer.Startup.Controllers
             return StatusCode((int)HttpStatusCode.Created, result);
         }
 
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] UpdateStateMachineCommand cmd, CancellationToken cancellationToken)
+        {
+            await _mediator.Send(cmd, cancellationToken);
+            return new NoContentResult();
+        }
+
         [HttpPost("empty")]
         public async Task<IActionResult> AddEmpty([FromBody] AddEmptyStateMachineCommand cmd, CancellationToken cancellationToken)
         {

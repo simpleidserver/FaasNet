@@ -1,4 +1,5 @@
 ﻿using FaasNet.Runtime.Domains.Definitions;
+using FaasNet.Runtime.Extensions;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
@@ -20,6 +21,14 @@ namespace FaasNet.Runtime.Persistence.InMemory
             _defs.Add(workflowDef);
             return Task.CompletedTask;
         }
+
+        public Task Update(WorkflowDefinitionAggregate workflowDef, CancellationToken cancellationToken)
+        {
+            _defs.Remove(_defs.First(_ => _.Id == workflowDef.Id));
+            _defs.Add(workflowDef);
+            return Task.CompletedTask;
+        }
+
 
         public IQueryable<WorkflowDefinitionAggregate> Query()
         {

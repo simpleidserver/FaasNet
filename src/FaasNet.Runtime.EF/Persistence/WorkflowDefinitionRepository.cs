@@ -21,6 +21,12 @@ namespace FaasNet.Runtime.EF.Persistence
             return Task.CompletedTask;
         }
 
+        public Task Update(WorkflowDefinitionAggregate workflowDef, CancellationToken cancellationToken)
+        {
+            _dbContext.WorkflowDefinitions.Update(workflowDef);
+            return Task.CompletedTask;
+        }
+
         public IQueryable<WorkflowDefinitionAggregate> Query()
         {
             return _dbContext.WorkflowDefinitions;

@@ -108,5 +108,32 @@ namespace FaasNet.Runtime.Domains.Definitions
         {
             return States.First(s => s.IsRootState);
         }
+
+        public void UpdateStates(ICollection<BaseWorkflowDefinitionState> states)
+        {
+            States.Clear();
+            foreach(var s in states)
+            {
+                States.Add(s);
+            }
+        }
+
+        public void UpdateFunctions(ICollection<WorkflowDefinitionFunction> functions)
+        {
+            Functions.Clear();
+            foreach(var f in functions)
+            {
+                Functions.Add(f);
+            }
+        }
+
+        public void UpdateEvents(ICollection<WorkflowDefinitionEvent> events)
+        {
+            Events.Clear();
+            foreach(var e in events)
+            {
+                Events.Add(e);
+            }
+        }
     }
 }

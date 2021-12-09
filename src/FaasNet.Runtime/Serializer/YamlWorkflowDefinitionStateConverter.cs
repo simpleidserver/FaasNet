@@ -58,7 +58,10 @@ namespace FaasNet.Runtime.Serializer
                 if(property.PropertyType == typeof(JObject))
                 {
                     var jObj = node.Build().SelectToken(node.Key);
-                    property.SetValue(result, jObj);
+                    if (jObj != null && (jObj is JObject))
+                    {
+                        property.SetValue(result, jObj);
+                    }
                     continue;
                 }
 

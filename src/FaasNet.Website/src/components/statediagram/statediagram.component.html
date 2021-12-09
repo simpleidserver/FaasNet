@@ -67,13 +67,23 @@
           </span>
         </li>
         <li (click)="openYaml()">
+          <mat-icon>insert_drive_file</mat-icon>
           <span class="item">
             Yaml
           </span>
         </li>
         <li (click)="openJson()">
+          <div class="picture">
+            <img src="/assets/images/json.png" />
+          </div>
           <span class="item">
             Json
+          </span>
+        </li>
+        <li (click)="save()">
+          <mat-icon>save</mat-icon>
+          <span class="item">
+            Save
           </span>
         </li>
       </ul>

@@ -19,6 +19,7 @@
     <None Remove="src\app\functions\function-rendering\function-rendering.component.ts" />
     <None Remove="src\app\shared\material.module.ts" />
     <None Remove="src\app\shared\shared.module.ts" />
+    <None Remove="src\components\loader\loader.component.ts" />
     <None Remove="src\components\monaco-editor\base-editor.ts" />
     <None Remove="src\components\monaco-editor\config.ts" />
     <None Remove="src\components\monaco-editor\editor.module.ts" />
@@ -55,6 +56,9 @@
     <TypeScriptCompile Include="src\app\functions\function-rendering\function-rendering.component.ts" />
     <TypeScriptCompile Include="src\app\shared\material.module.ts" />
     <TypeScriptCompile Include="src\app\shared\shared.module.ts" />
+    <TypeScriptCompile Include="src\components\loader\loader.component.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\components\monaco-editor\base-editor.ts" />
     <TypeScriptCompile Include="src\components\monaco-editor\config.ts" />
     <TypeScriptCompile Include="src\components\monaco-editor\editor.module.ts" />

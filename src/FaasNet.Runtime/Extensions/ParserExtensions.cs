@@ -20,6 +20,7 @@ namespace FaasNet.Runtime.Extensions
             do
             {
                 var propertyName = parser.Current as Scalar;
+                var t = parser.Current.GetType();
                 parser.MoveNext();
                 var scalarPropertyValue = parser.Current as Scalar;
                 var sequencePropertyValue = parser.Current as SequenceStart;

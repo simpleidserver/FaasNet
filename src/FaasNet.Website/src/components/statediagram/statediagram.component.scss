@@ -70,6 +70,13 @@ $orange: orange;
   user-select: none;
 }
 
+.statediagram .toolbar > ul > li > .picture {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+  display: inline-block;
+}
+
 .statediagram .toolbar > ul > li.hidden {
   display: none;
 }

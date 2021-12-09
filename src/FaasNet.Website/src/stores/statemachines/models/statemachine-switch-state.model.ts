@@ -180,6 +180,7 @@ export class SwitchStateMachineState extends StateMachineState {
       id: this.id,
       name: this.name,
       stateDataFilter: this.stateDataFilter?.getJson(),
+      type: SwitchStateMachineState.TYPE,
       eventConditions: this.eventConditions.map((e: EventCondition) => {
         return e.getJson();
       }),

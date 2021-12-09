@@ -56,6 +56,11 @@ namespace FaasNet.Runtime.Domains.Definitions
                     Output = StateDataFilterOuput
                 };
             }
+            set
+            {
+                StateDataFilterInput = value == null ? null : value.Input;
+                StateDataFilterOuput = value == null ? null : value.Output;
+            }
         }
     }
 

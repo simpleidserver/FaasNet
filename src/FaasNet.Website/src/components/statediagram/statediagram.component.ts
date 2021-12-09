@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { ForeachStateMachineState } from '@stores/statemachines/models/statemachine-foreach-state.model';
@@ -162,6 +162,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     }
   }
   @Input() options: DiagramOptions = new DiagramOptions();
+  @Output() saved: EventEmitter<StateMachineModel> = new EventEmitter <StateMachineModel>();
   @ViewChild("stateDiagram") stateDiagram: any;
   @ViewChild("gutter") gutter: any;
   @ViewChild("stateDiagramContainer") stateDiagramContainer: any;
@@ -215,7 +216,6 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
     draggableZone.anchor.selected = false;
     const parent = draggableZone.diagramNode.state;
-    console.log(parent);
     let child: StateMachineState | null = null;
     const type = evt.dataTransfer.getData('type');
     switch (type) {
@@ -407,6 +407,11 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  save() {
+    this.saved.emit(this._stateMachine);
+  }
+
   setDefaultCondition(edgeLabel: EdgeLabel) {
     const switchStateMachine = edgeLabel.edgePath.formNode.state as SwitchStateMachineState;
     switchStateMachine.swichTransitionToDefault(edgeLabel.edgePath.transition);

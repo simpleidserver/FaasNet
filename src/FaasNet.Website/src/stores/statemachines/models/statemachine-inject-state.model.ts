@@ -15,7 +15,8 @@ export class InjectStateMachineState extends FlowableStateMachineState {
       name: this.name,
       stateDataFilter: this.stateDataFilter?.getJson(),
       transition: this.transition,
-      data : this.data
+      data: this.data,
+      type: InjectStateMachineState.TYPE
     };
   }
 }

@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
-import { startGetJson } from '@stores/statemachines/actions/statemachines.actions';
+import { startGetJson, startUpdate } from '@stores/statemachines/actions/statemachines.actions';
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { filter } from 'rxjs/operators';
 
@@ -15,6 +15,7 @@ import { filter } from 'rxjs/operators';
 })
 export class EditStateMachineComponent implements OnInit, OnDestroy {
   stateMachineDef: StateMachineModel = new StateMachineModel();
+  isLoading: boolean = false;
 
   constructor(
     private store: Store<fromReducers.AppState>,
@@ -33,17 +34,40 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
           duration: 2000
         });
       });
+    self.actions$.pipe(
+      filter((action: any) => action.type === '[StateMachines] COMPLETE_UPDATE_STATE_MACHINE'))
+      .subscribe(() => {
+        this.isLoading = false;
+        self.snackBar.open(this.translateService.instant('stateMachines.messages.stateMachineUpdated'), this.translateService.instant('undo'), {
+          duration: 2000
+        });
+      });
+    self.actions$.pipe(
+      filter((action: any) => action.type === '[StateMachines] ERROR_UPDATE_STATE_MACHINE'))
+      .subscribe(() => {
+        this.isLoading = false;
+        self.snackBar.open(this.translateService.instant('stateMachines.messages.errorUpdateStateMachine'), this.translateService.instant('undo'), {
+          duration: 2000
+        });
+      });
     this.store.pipe(select(fromReducers.selectStateMachineResult)).subscribe((stateMachine: any) => {
       if (!stateMachine) {
         return;
       }
 
       this.stateMachineDef = StateMachineModel.build(stateMachine);
+      console.log('toto');
     });
     self.init();
   }
 
   ngOnDestroy() {
+  }
+
+  onSave(stateMachineModel: StateMachineModel) {
+    this.isLoading = true;
+    const command = startUpdate({ stateMachine: stateMachineModel.getJson() });
+    this.store.dispatch(command);
   }
 
   private init(): void {

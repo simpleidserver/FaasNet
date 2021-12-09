@@ -4,6 +4,8 @@ import { environment } from '@envs/environment';
 import { Observable } from 'rxjs';
 import { SearchResult } from '../../common/search.model';
 import { StateMachine } from '../models/statemachine.model';
+import { StateMachineModel } from '../models/statemachinemodel.model';
+import { Document } from 'yaml';
 
 @Injectable()
 export class StateMachinesService {
@@ -33,13 +35,22 @@ export class StateMachinesService {
     let headers = new HttpHeaders();
     headers = headers.set('Accept', 'application/json');
     let targetUrl = environment.apiUrl + "/statemachines/empty";
-    console.log({
-      name: name,
-      description: description
-    });
     return this.http.post<{ id: string }>(targetUrl, {
       name: name,
       description: description
     }, { headers: headers });
+  }
+
+  update(stateMachine: any): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Content-Type', 'text/yaml');
+    let targetUrl = environment.apiUrl + "/statemachines";
+    const json = {
+      workflowDefinition: stateMachine
+    };
+    const doc = new Document();
+    doc.contents = json;
+    const yaml = doc.toString();
+    return this.http.put(targetUrl, yaml, { headers: headers });
   }
 }
