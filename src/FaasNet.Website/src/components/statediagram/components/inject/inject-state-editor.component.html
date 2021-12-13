@@ -1,10 +1,25 @@
-<h2 class="state-title">Inject State</h2>
+<h2 class="state-title">
+  Inject State
+  <span (click)="close()">
+    <mat-icon>close</mat-icon>
+  </span>
+</h2>
 <div class="form">
   <!-- Name -->
   <div class="form-control">
     <div class="title">Name</div>
     <p class="description">State name</p>
     <input type="text" [formControl]="nameFormControl" class="full-width" />
+  </div>
+  <mat-divider></mat-divider>
+  <!-- End -->
+  <div class="form-control">
+    <div class="title">End</div>
+    <p class="description">If this state and end state</p>
+    <select class="full-width" disabled [ngModel]="end">
+      <option value="true">True</option>
+      <option value="false">False</option>
+    </select>
   </div>
   <mat-divider></mat-divider>
   <!-- Input  -->

@@ -1,3 +1,4 @@
+import { transition } from "@angular/animations";
 import { BehaviorSubject } from "rxjs";
 import { BaseTransition, EmptyTransition, StateMachineState } from "./statemachine-state.model";
 
@@ -31,6 +32,14 @@ export class EventCondition extends BaseTransition {
       eventRef: this.eventRef,
       transition: this.transition
     };
+  }
+
+  public static build(json: any) {
+    var result = new EventCondition();
+    result.eventRef = json["eventRef"];
+    result.label = json["label"];
+    result.transition = json["transition"];
+    return result;
   }
 }
 
@@ -67,6 +76,15 @@ export class DataCondition extends BaseTransition {
       transition: this.transition
     };
   }
+
+  public static build(json: any) {
+    var result = new DataCondition();
+    result.condition = json["condition"];
+    result.label = json["label"];
+    result.name = json["name"];
+    result.transition = json["transition"];
+    return result;
+  }
 }
 
 export class SwitchStateMachineState extends StateMachineState {
@@ -88,22 +106,30 @@ export class SwitchStateMachineState extends StateMachineState {
 
   public override setTransitions(transitions: BaseTransition[]) {
     if (transitions) {
-      this.eventConditions = transitions.filter((t: BaseTransition) => {
-        return t.getType() == EventCondition.TYPE;
-      }).map((t: BaseTransition) => {
-        return t as EventCondition;
-      });
-      this.dataConditions = transitions.filter((t: BaseTransition) => {
-        return t.getType() == DataCondition.TYPE;
-      }).map((t: BaseTransition) => {
-        return t as DataCondition;
-      });
+      switch (this.switchType) {
+        case SwitchStateMachineState.EVENT_TYPE:
+          this.eventConditions = transitions.filter((t: BaseTransition) => {
+            return t.getType() == EventCondition.TYPE;
+          }).map((t: BaseTransition) => {
+            return t as EventCondition;
+          });
+          break;
+        case SwitchStateMachineState.DATA_TYPE:
+          this.dataConditions = transitions.filter((t: BaseTransition) => {
+            return t.getType() == DataCondition.TYPE;
+          }).map((t: BaseTransition) => {
+            return t as DataCondition;
+          });
+          break;
+      }
     }
 
+    this.end = transitions.length === 0;
     return [];
   }
 
   public override tryAddTransition(transitionName: string): string | null {
+    this.end = false;
     switch (this.switchType) {
       case SwitchStateMachineState.EVENT_TYPE:
         const newEvtTransition = new EventCondition();

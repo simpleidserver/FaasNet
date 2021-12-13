@@ -1,5 +1,6 @@
 import { InjectStateMachineState } from "./statemachine-inject-state.model";
-import { BaseTransition, StateDataFilter, StateMachineState } from "./statemachine-state.model";
+import { BaseTransition, EmptyTransition, StateDataFilter, StateMachineState } from "./statemachine-state.model";
+import { DataCondition, DefaultCondition, EventCondition, SwitchStateMachineState } from "./statemachine-switch-state.model";
 
 export class StateMachineModel {
   constructor() {
@@ -20,7 +21,6 @@ export class StateMachineModel {
 
   public remove(state: StateMachineState): void {
     const self = this;
-    const index = self.states.indexOf(state);
     const nextTransitions = state.getNextTransitions();
     nextTransitions.forEach((t: BaseTransition) => {
       const child = self.getState(t.transition);
@@ -29,6 +29,7 @@ export class StateMachineModel {
       }
     });
 
+    const index = self.states.findIndex(s => s.id === state.id);
     this.states.splice(index, 1);
   }
 
@@ -54,11 +55,11 @@ export class StateMachineModel {
     let rootState: StateMachineState | null = null;
     this.states.forEach((s) => {
       const filtered = this.states.filter((c) => {
-        if (!c.name || !s.name) {
+        if (!c.id || !s.id) {
           return false;
         }
 
-        return c.getNextTransitions().map(t => t.transition).indexOf(s.name) > -1;
+        return c.getNextTransitions().map(t => t.transition).indexOf(s.id) > -1;
       });
       if (filtered.length === 0 && !rootState) {
         rootState = s;
@@ -93,14 +94,44 @@ export class StateMachineModel {
     result.states = json["states"].map((s: any) => {
       switch (s.type) {
         case InjectStateMachineState.TYPE:
-          var result = new InjectStateMachineState();
-          result.id = s["id"];
-          result.data = s["data"];
-          result.transition = s["transition"];
-          result.name = s["name"];
-          result.end = s["end"];
-          result.stateDataFilter = StateDataFilter.build(s["stateDataFilter"]);
-          return result;
+          {
+            var result = new InjectStateMachineState();
+            result.id = s["id"];
+            if (s["data"]) {
+              result.data = s["data"];
+            }
+            result.transition = s["transition"];
+            result.name = s["name"];
+            result.end = s["end"];
+            result.stateDataFilter = StateDataFilter.build(s["stateDataFilter"]);
+            return result;
+          }
+        case SwitchStateMachineState.TYPE:
+          {
+            var switchResult = new SwitchStateMachineState();
+            switchResult.id = s["id"];
+            switchResult.name = s["name"];
+            switchResult.end = s["end"];
+            switchResult.stateDataFilter = StateDataFilter.build(s["stateDataFilter"]);
+            if (s["eventConditions"]) {
+              switchResult.eventConditions = s["eventConditions"].map((ec: any) => {
+                return EventCondition.build(ec);
+              });
+            }
+
+            if (s["dataConditions"]) {
+              switchResult.dataConditions = s["dataConditions"].map((dc: any) => {
+                return DataCondition.build(dc);
+              });
+            }
+
+            if (s["defaultCondition"]) {
+              return switchResult.defaultCondition = EmptyTransition.build(s["defaultCondition"]);
+            }
+
+            return switchResult;
+          }
+          break;
       }
 
       return 

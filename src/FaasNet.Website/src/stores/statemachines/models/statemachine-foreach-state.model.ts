@@ -12,13 +12,18 @@ export class ForeachStateMachineState extends StateMachineState {
 
 
   public override setTransitions(transitions: BaseTransition[]) : void {
-    if (transitions && transitions.length > 0) {
+    if (transitions.length > 0) {
       this.transition = transitions[0].transition;
+      this.end = false;
+    } else {
+      this.end = true;
+      this.transition = "";
     }
   }
 
   public override tryAddTransition(transitionName: string): string | null {
     const oldTransition = this.transition;
+    this.end = false;
     this.transition = transitionName;
     return oldTransition;
   }

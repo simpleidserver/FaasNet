@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { BaseTransition } from "@stores/statemachines/models/statemachine-state.model";
 import { EventCondition } from "@stores/statemachines/models/statemachine-switch-state.model";
@@ -12,6 +12,7 @@ export class EvtConditionComponent {
   private eventRefSubscription: any | null = null;
   private _evtCondition: EventCondition | null = null;
   private _transition: BaseTransition | null = null;
+  @Output() closed: EventEmitter<any> = new EventEmitter<any>();
   @Input()
   get transition(): BaseTransition | null {
     return this._transition;
@@ -36,6 +37,10 @@ export class EvtConditionComponent {
     if (this.eventRefSubscription) {
       this.eventRefSubscription.unsubscribe();
     }
+  }
+
+  close() {
+    this.closed.emit();
   }
 
   private init() {

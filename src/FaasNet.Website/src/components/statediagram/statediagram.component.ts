@@ -206,6 +206,11 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     this.initListener();
   }
 
+  closePanel() {
+    this.selectedState = null;
+    this.selectedTransition = null;
+  }
+
   onDragStart(evt: any, type: string) {
     evt.dataTransfer.setData('type', type);
   }
@@ -234,6 +239,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     if (child) {
       child.id = this.buildId();
       child.name = type;
+      child.end = true;
       const removedTransition = parent?.tryAddTransition(child.id);
       if (removedTransition) {
         this.stateMachine?.removeByNames([removedTransition]);
@@ -241,6 +247,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
       this.stateMachine?.states.push(child);
       this.refreshUI();
+      this.closePanel();
     }
   }
 
@@ -271,7 +278,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   onDropCircleStart(evt: any) {
-    if (this.startMoving || (this.stateMachine && this.stateMachine?.states.length > 0)) {
+    if (this.startMoving) {
       this.circleStartSelected = false;
       return;
     }
@@ -291,17 +298,14 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
         break;
     }
 
-    const rootState = this.stateMachine?.getRootState();
     if (child) {
+      this.stateMachine.states = [];
       child.id = this.buildId();
       child.name = type;
-      if (rootState && rootState.name) {
-        const transitions = rootState.getNextTransitions();
-        child.setTransitions(transitions);
-      }
-
+      child.end = true;
       this.stateMachine?.states.push(child);
       this.refreshUI();
+      this.closePanel();
     }
   }
 
@@ -334,14 +338,14 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     }
 
     let parentNextTransitions = parent?.getNextTransitions();
-    parentNextTransitions = parentNextTransitions?.filter((t) => t.transition !== state?.name);
+    parentNextTransitions = parentNextTransitions?.filter((t) => t.transition !== state?.id);
     this.stateMachine?.remove(state);
     if (parentNextTransitions) {
       parent?.setTransitions(parentNextTransitions);
     }
 
-    this.selectedState = null;
     this.refreshUI();
+    this.closePanel();
   }
 
   selectState(node: DiagramNode) {
@@ -623,7 +627,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
   private getParent(state : StateMachineState) {
     const filtered =  this.edgePaths.filter((e: EdgePath) => {
-      return e.targetNode.state?.name == state.name;
+      return e.targetNode.state?.id == state.id;
     });
     return filtered.length === 1 ? filtered[0].formNode.state : null;
   }

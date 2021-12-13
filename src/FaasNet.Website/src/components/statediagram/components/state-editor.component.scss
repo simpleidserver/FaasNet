@@ -6,6 +6,14 @@ $background: whitesmoke;
   margin-left: 5px;
   margin: 0px 0px 0px 2px !important;
   background-color: $background;
+  position: relative;
+}
+
+.state-title > span {
+  position: absolute;
+  right: 0px;
+  top: 10px;
+  cursor: pointer;
 }
 
 .form {

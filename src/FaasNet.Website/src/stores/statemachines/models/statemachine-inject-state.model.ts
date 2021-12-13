@@ -10,14 +10,18 @@ export class InjectStateMachineState extends FlowableStateMachineState {
   }
 
   public override getJson() {
-    return {
+    let result : any = {
       id: this.id,
       name: this.name,
       stateDataFilter: this.stateDataFilter?.getJson(),
       transition: this.transition,
-      data: this.data,
       type: InjectStateMachineState.TYPE,
       end: this.end
     };
+    if (this.data && Object.keys(this.data).length > 0) {
+      result['data'] = this.data;
+    }
+
+    return result;
   }
 }

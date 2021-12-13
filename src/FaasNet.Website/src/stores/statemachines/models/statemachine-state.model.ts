@@ -66,6 +66,13 @@ export class EmptyTransition extends BaseTransition {
   public override getLabel(): BehaviorSubject<string> | undefined {
     return this.label;
   }
+
+  public static build(json: any) {
+    var result = new EmptyTransition();
+    result.label = json["label"];
+    result.transition = json["transition"];
+    return result;
+  }
 }
 
 export abstract class FlowableStateMachineState extends StateMachineState{
@@ -77,13 +84,18 @@ export abstract class FlowableStateMachineState extends StateMachineState{
   transition: string;
 
   public override setTransitions(transitions: BaseTransition[]): void {
-    if (transitions && transitions.length > 0) {
+    if (transitions.length > 0) {
       this.transition = transitions[0].transition;
+      this.end = false;
+    } else {
+      this.transition = "";
+      this.end = true;
     }
   }
 
   public override tryAddTransition(transitionName: string): string | null{
     const oldTransition = this.transition;
+    this.end = false;
     this.transition = transitionName;
     return oldTransition;
   }

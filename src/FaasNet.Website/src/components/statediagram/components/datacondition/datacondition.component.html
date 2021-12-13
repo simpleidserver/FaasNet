@@ -1,4 +1,9 @@
-<h2 class="state-title">Data Condition</h2>
+<h2 class="state-title">
+  Data Condition
+  <span (click)="close()">
+    <mat-icon>close</mat-icon>
+  </span>
+</h2>
 <form [formGroup]="updateDataConditionFormGroup" class="form">
   <!-- Condition -->
   <div class="form-control">

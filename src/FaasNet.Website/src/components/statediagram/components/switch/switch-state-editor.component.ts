@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { StateMachineState } from "@stores/statemachines/models/statemachine-state.model";
@@ -24,11 +24,18 @@ export class SwitchStateEditorComponent implements OnDestroy {
     this._switchState = v as SwitchStateMachineState;
     this.init();
   }
+  @Output() closed: EventEmitter<any> = new EventEmitter<any>();
+
+  get end() {
+    return this._switchState?.end;
+  }
+
   updateSwitchFormGroup: FormGroup = new FormGroup({
     name: new FormControl(),
     type: new FormControl(),
     inputStateDataFilter : new FormControl(),
-    outputStateDataFilter: new FormControl()
+    outputStateDataFilter: new FormControl(),
+    end: new FormControl()
   });
 
   constructor(private dialog: MatDialog) {
@@ -45,6 +52,10 @@ export class SwitchStateEditorComponent implements OnDestroy {
     if (this.typeSubscription) {
       this.typeSubscription.unsubscribe();
     }
+  }
+
+  close() {
+    this.closed.emit();
   }
 
   editInputStateDataFilter() {
@@ -107,6 +118,9 @@ export class SwitchStateEditorComponent implements OnDestroy {
         self.updateSwitchFormGroup.get('type')?.setValue(self._switchState.switchType);
       }
     }
+
+    self.updateSwitchFormGroup.get('end')?.setValue(self._switchState?.end);
+    self.updateSwitchFormGroup.get('end')?.disable();
 
     this.nameSubscription = this.updateSwitchFormGroup.get('name')?.valueChanges.subscribe((e: any) => {
       if (self.updateSwitchFormGroup && self._switchState) {

@@ -178,13 +178,13 @@
       <div class="properties pane">
         <div class="container">
           <div [ngSwitch]="selectedState?.type">
-            <switch-state-editor *ngSwitchCase="'switch'" [state]="selectedState"></switch-state-editor>
-            <inject-state-editor *ngSwitchCase="'inject'" [state]="selectedState"></inject-state-editor>
+            <switch-state-editor *ngSwitchCase="'switch'" [state]="selectedState" (closed)="closePanel()"></switch-state-editor>
+            <inject-state-editor *ngSwitchCase="'inject'" [state]="selectedState" (closed)="closePanel()"></inject-state-editor>
           </div>
           <div [ngSwitch]="selectedTransition?.getType()">
-            <evtcondition-editor *ngSwitchCase="'event'" [transition]="selectedTransition"></evtcondition-editor>
-            <datacondition-editor *ngSwitchCase="'data'" [transition]="selectedTransition"></datacondition-editor>
-            <defaultcondition-editor *ngSwitchCase="'empty'"></defaultcondition-editor>
+            <evtcondition-editor *ngSwitchCase="'event'" [transition]="selectedTransition" (closed)="closePanel()"></evtcondition-editor>
+            <datacondition-editor *ngSwitchCase="'data'" [transition]="selectedTransition" (closed)="closePanel()"></datacondition-editor>
+            <defaultcondition-editor *ngSwitchCase="'empty'" (closed)="closePanel()"></defaultcondition-editor>
           </div>
         </div>
         <div class="gutter" #gutter></div>

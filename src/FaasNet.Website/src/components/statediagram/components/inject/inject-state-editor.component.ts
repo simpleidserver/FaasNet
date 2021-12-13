@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { InjectStateMachineState } from "@stores/statemachines/models/statemachine-inject-state.model";
@@ -16,6 +16,7 @@ export class InjectStateEditorComponent {
   private _data: string = "";
   private nameSubscription: any | null = null;
   private dataSubscription: any | null = null;
+  @Output() closed: EventEmitter<any> = new EventEmitter<any>();
   @Input()
   get state(): StateMachineState | null {
     return this._state;
@@ -39,6 +40,10 @@ export class InjectStateEditorComponent {
       }
       catch { }
     }
+  }
+
+  get end() {
+    return this._injectState?.end;
   }
 
   inputStateDataFilter: string = "";
@@ -77,6 +82,10 @@ export class InjectStateEditorComponent {
     if (this.dataSubscription) {
       this.dataSubscription.unsubscribe();
     }
+  }
+
+  close() {
+    this.closed.emit();
   }
 
   editInputStateDataFilter() {

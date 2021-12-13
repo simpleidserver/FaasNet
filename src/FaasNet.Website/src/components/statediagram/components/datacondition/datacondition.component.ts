@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { BaseTransition } from "@stores/statemachines/models/statemachine-state.model";
@@ -14,6 +14,7 @@ export class DataConditionComponent {
   private conditionRefSubscription: any | null = null;
   private _dataCondition: DataCondition | null = null;
   private _transition: BaseTransition | null = null;
+  @Output() closed: EventEmitter<any> = new EventEmitter<any>();
   @Input()
   get transition(): BaseTransition | null {
     return this._transition;
@@ -38,6 +39,10 @@ export class DataConditionComponent {
     if (this.conditionRefSubscription) {
       this.conditionRefSubscription.unsubscribe();
     }
+  }
+
+  close() {
+    this.closed.emit();
   }
 
   editExpression() {
