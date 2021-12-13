@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Gateway.Core.StateMachineInstances.Queries.Handlers
 {
-    public class GetStateMachineInstanceQueryHandler : IRequestHandler<GetStateMachineInstanceQuery, StateMachineInstanceResult>
+    public class GetStateMachineInstanceQueryHandler : IRequestHandler<GetStateMachineInstanceQuery, StateMachineInstanceDetailsResult>
     {
         private readonly IWorkflowInstanceRepository _workflowInstanceRepository;
 
@@ -18,7 +18,7 @@ namespace FaasNet.Gateway.Core.StateMachineInstances.Queries.Handlers
             _workflowInstanceRepository = workflowInstanceRepository;
         }
 
-        public Task<StateMachineInstanceResult> Handle(GetStateMachineInstanceQuery request, CancellationToken cancellationToken)
+        public Task<StateMachineInstanceDetailsResult> Handle(GetStateMachineInstanceQuery request, CancellationToken cancellationToken)
         {
             var instance = _workflowInstanceRepository.Query().FirstOrDefault(w => w.Id == request.Id);
             if (instance == null)
@@ -26,7 +26,7 @@ namespace FaasNet.Gateway.Core.StateMachineInstances.Queries.Handlers
                 throw new StateMachineInstanceNotFoundException(ErrorCodes.InvalidStateMachineInstanceId, Global.UnknownStateMachineInstance);
             }
 
-            return Task.FromResult(StateMachineInstanceResult.Build(instance));
+            return Task.FromResult(StateMachineInstanceDetailsResult.ToDto(instance));
         }
     }
 }

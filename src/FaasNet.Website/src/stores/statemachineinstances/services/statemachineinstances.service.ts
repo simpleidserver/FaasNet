@@ -1,0 +1,24 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { environment } from '@envs/environment';
+import { Observable } from 'rxjs';
+import { SearchResult } from '../../common/search.model';
+import { StateMachineInstance } from '../models/statemachineinstance.model';
+
+@Injectable()
+export class StateMachineInstancesService {
+  constructor(
+    private http: HttpClient) { }
+
+  search(startIndex: number, count: number, order: string, direction: string): Observable<SearchResult<StateMachineInstance>> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = environment.apiUrl + "/statemachineinstances/.search";
+    return this.http.post<SearchResult<StateMachineInstance>>(targetUrl, {
+      startIndex: startIndex,
+      count: count,
+      orderBy: order,
+      order: direction
+    }, { headers: headers });
+  }
+}

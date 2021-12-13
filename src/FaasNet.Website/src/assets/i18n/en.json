@@ -117,6 +117,13 @@
       "descriptionRequired": "Description is required"
     }
   },
+  "stateMachineInstance": {
+    "list": "State Machine Instances",
+    "name": "Name",
+    "description": "Description",
+    "status": "Status",
+    "createDateTime": "Creation DateTime"
+  },
   "shared": {
     "add": "Add",
     "remove": "Remove",

@@ -25,6 +25,14 @@ namespace FaasNet.Gateway.SqlServer.Startup.Controllers
             return new OkObjectResult(result);
         }
 
+
+        [HttpPost(".search")]
+        public async Task<IActionResult> Search([FromBody] SearchStateMachineInstanceQuery query, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(query, cancellationToken);
+            return new OkObjectResult(result);
+        }
+
         #endregion
     }
 }

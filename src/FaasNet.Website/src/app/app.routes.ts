@@ -11,5 +11,9 @@ export const routes: Routes = [
   {
     path: 'statemachines',
     loadChildren: async () => (await import('./statemachines/statemachines.module')).StateMachinesModule
+  },
+  {
+    path: 'statemachineinstances',
+    loadChildren: async () => (await import('./statemachineinstances/statemachineinstances.module')).StateMachineInstancesModule
   }
 ];

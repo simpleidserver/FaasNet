@@ -1,0 +1,46 @@
+<div class="container">
+  <div fxLayout="row" class="breadcrumb">
+    <div fxFlex="80%">
+      <ul>
+        <li><div class="mat-h1">{{ "stateMachineInstance.list" | translate }}</div></li>
+      </ul>
+    </div>
+  </div>
+  <div class="mat-elevation-z8 overflow-hidden">
+    <mat-table class="full-width" [dataSource]="stateMachineInstances" matSortActive="createDateTime" matSortDirection="desc" matSort>
+      <!-- workflowDefName -->
+      <ng-container matColumnDef="workflowDefName">
+        <mat-header-cell *matHeaderCellDef>{{ "stateMachineInstance.name" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let stateMachineInstance">
+          <a href="#" [routerLink]="['/statemachineinstances/' + stateMachineInstance.id]">{{ stateMachineInstance.workflowDefName }}</a>
+        </mat-cell>
+      </ng-container>
+      <!-- workflowDefDescription -->
+      <ng-container matColumnDef="workflowDefDescription">
+        <mat-header-cell *matHeaderCellDef>{{ "stateMachineInstance.description" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let stateMachineInstance">
+          {{ stateMachineInstance.workflowDefDescription }}
+        </mat-cell>
+      </ng-container>
+      <!-- status -->
+      <ng-container matColumnDef="status">
+        <mat-header-cell *matHeaderCellDef>{{ "stateMachineInstance.status" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let stateMachineInstance">
+          <mat-chip-list>
+            <mat-chip>{{ stateMachineInstance.status }}</mat-chip>
+          </mat-chip-list>
+        </mat-cell>
+      </ng-container>
+      <!-- Create DateTime -->
+      <ng-container matColumnDef="createDateTime">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>{{ "stateMachineInstance.createDateTime" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let stateMachineInstance">
+          {{ stateMachineInstance.createDateTime | date:'fullDate' }}
+        </mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+    <mat-paginator [length]="length" [pageSize]="50" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+  </div>
+</div>
