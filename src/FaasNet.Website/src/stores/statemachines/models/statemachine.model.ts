@@ -1,4 +1,5 @@
 export class StateMachine {
+  technicalId: string = "";
   id: string = "";
   version: string = "";
   name: string = "";

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.Gateway.SqlServer.Startup.Migrations
 {
     [DbContext(typeof(RuntimeDBContext))]
-    [Migration("20211207194557_Init")]
+    [Migration("20211214154243_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,12 +40,12 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     b.Property<string>("Transition")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("WorkflowDefinitionSwitchStateId")
+                    b.Property<string>("WorkflowDefinitionSwitchStateTechnicalId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WorkflowDefinitionSwitchStateId");
+                    b.HasIndex("WorkflowDefinitionSwitchStateTechnicalId");
 
                     b.ToTable("BaseEventCondition");
 
@@ -54,11 +54,11 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
 
             modelBuilder.Entity("FaasNet.Runtime.Domains.Definitions.BaseWorkflowDefinitionState", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("TechnicalId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("IsRootState")
-                        .HasColumnType("bit");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -72,12 +72,12 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<string>("WorkflowDefinitionAggregateId")
+                    b.Property<string>("WorkflowDefinitionAggregateTechnicalId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                    b.HasKey("TechnicalId");
 
-                    b.HasIndex("WorkflowDefinitionAggregateId");
+                    b.HasIndex("WorkflowDefinitionAggregateTechnicalId");
 
                     b.ToTable("BaseWorkflowDefinitionState");
 
@@ -100,29 +100,29 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("WorkflowDefinitionForeachStateId")
+                    b.Property<string>("WorkflowDefinitionForeachStateTechnicalId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("WorkflowDefinitionOnEventId")
                         .HasColumnType("int");
 
-                    b.Property<string>("WorkflowDefinitionOperationStateId")
+                    b.Property<string>("WorkflowDefinitionOperationStateTechnicalId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WorkflowDefinitionForeachStateId");
+                    b.HasIndex("WorkflowDefinitionForeachStateTechnicalId");
 
                     b.HasIndex("WorkflowDefinitionOnEventId");
 
-                    b.HasIndex("WorkflowDefinitionOperationStateId");
+                    b.HasIndex("WorkflowDefinitionOperationStateTechnicalId");
 
                     b.ToTable("WorkflowDefinitionAction");
                 });
 
             modelBuilder.Entity("FaasNet.Runtime.Domains.Definitions.WorkflowDefinitionAggregate", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("TechnicalId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDateTime")
@@ -130,6 +130,12 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsLast")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -140,10 +146,10 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     b.Property<DateTime>("UpdateDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Version")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("TechnicalId");
 
                     b.ToTable("WorkflowDefinitions");
                 });
@@ -167,12 +173,12 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("WorkflowDefinitionAggregateId")
+                    b.Property<string>("WorkflowDefinitionAggregateTechnicalId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WorkflowDefinitionAggregateId");
+                    b.HasIndex("WorkflowDefinitionAggregateTechnicalId");
 
                     b.ToTable("WorkflowDefinitionEvent");
                 });
@@ -199,12 +205,12 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<string>("WorkflowDefinitionAggregateId")
+                    b.Property<string>("WorkflowDefinitionAggregateTechnicalId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WorkflowDefinitionAggregateId");
+                    b.HasIndex("WorkflowDefinitionAggregateTechnicalId");
 
                     b.ToTable("WorkflowDefinitionFunction");
                 });
@@ -225,12 +231,12 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     b.Property<string>("EventRefs")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("WorkflowDefinitionEventStateId")
+                    b.Property<string>("WorkflowDefinitionEventStateTechnicalId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WorkflowDefinitionEventStateId");
+                    b.HasIndex("WorkflowDefinitionEventStateTechnicalId");
 
                     b.ToTable("WorkflowDefinitionOnEvent");
                 });
@@ -249,11 +255,20 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<string>("WorkflowDefDescription")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("WorkflowDefId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("WorkflowDefVersion")
+                    b.Property<string>("WorkflowDefName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WorkflowDefTechnicalId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("WorkflowDefVersion")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -506,7 +521,7 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 {
                     b.HasOne("FaasNet.Runtime.Domains.Definitions.WorkflowDefinitionSwitchState", null)
                         .WithMany("Conditions")
-                        .HasForeignKey("WorkflowDefinitionSwitchStateId")
+                        .HasForeignKey("WorkflowDefinitionSwitchStateTechnicalId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -514,7 +529,7 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 {
                     b.HasOne("FaasNet.Runtime.Domains.Definitions.WorkflowDefinitionAggregate", null)
                         .WithMany("States")
-                        .HasForeignKey("WorkflowDefinitionAggregateId")
+                        .HasForeignKey("WorkflowDefinitionAggregateTechnicalId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -522,7 +537,7 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 {
                     b.HasOne("FaasNet.Runtime.Domains.Definitions.WorkflowDefinitionForeachState", null)
                         .WithMany("Actions")
-                        .HasForeignKey("WorkflowDefinitionForeachStateId")
+                        .HasForeignKey("WorkflowDefinitionForeachStateTechnicalId")
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("FaasNet.Runtime.Domains.Definitions.WorkflowDefinitionOnEvent", null)
@@ -532,7 +547,7 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
 
                     b.HasOne("FaasNet.Runtime.Domains.Definitions.WorkflowDefinitionOperationState", null)
                         .WithMany("Actions")
-                        .HasForeignKey("WorkflowDefinitionOperationStateId")
+                        .HasForeignKey("WorkflowDefinitionOperationStateTechnicalId")
                         .OnDelete(DeleteBehavior.NoAction);
                 });
 
@@ -540,7 +555,7 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 {
                     b.HasOne("FaasNet.Runtime.Domains.Definitions.WorkflowDefinitionAggregate", null)
                         .WithMany("Events")
-                        .HasForeignKey("WorkflowDefinitionAggregateId")
+                        .HasForeignKey("WorkflowDefinitionAggregateTechnicalId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -548,7 +563,7 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 {
                     b.HasOne("FaasNet.Runtime.Domains.Definitions.WorkflowDefinitionAggregate", null)
                         .WithMany("Functions")
-                        .HasForeignKey("WorkflowDefinitionAggregateId")
+                        .HasForeignKey("WorkflowDefinitionAggregateTechnicalId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -556,7 +571,7 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 {
                     b.HasOne("FaasNet.Runtime.Domains.Definitions.WorkflowDefinitionEventState", null)
                         .WithMany("OnEvents")
-                        .HasForeignKey("WorkflowDefinitionEventStateId")
+                        .HasForeignKey("WorkflowDefinitionEventStateTechnicalId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

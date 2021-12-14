@@ -17,6 +17,16 @@ namespace FaasNet.Runtime.Domains.Definitions
 
         #region Properties
 
+        [JsonIgnore]
+        [YamlIgnore]
+        /// <summary>
+        /// Technical Identifier.
+        /// </summary>
+        public string TechnicalId { get; set; }
+        /// <summary>
+        /// Is Last.
+        /// </summary>
+        public bool IsLast { get; set; }
         /// <summary>
         /// Workflow unique identifier.
         /// </summary>
@@ -24,7 +34,7 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Workflow version.
         /// </summary>
-        public string Version { get; set; }
+        public int Version { get; set; }
         /// <summary>
         /// Worfklow name.
         /// </summary>
@@ -60,29 +70,37 @@ namespace FaasNet.Runtime.Domains.Definitions
 
         public static WorkflowDefinitionAggregate CreateEmpty(string id, string name, string description)
         {
-            var result = Create(id, "1.0", name, description);
+            var result = Create(id, 1, name, description);
+            var stateId = Guid.NewGuid().ToString();
             result.States.Add(new WorkflowDefinitionInjectState
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = stateId,
                 Name = "helloWorld",
                 DataStr = "{'message' : 'Hello World !' }",
-                IsRootState = true,
                 End = true
             });
+            result.Start = new WorkflowDefinitionStartState
+            {
+                StateName = stateId
+            };
+            result.RefreshTechnicalId();
             return result;
         }
 
-        public static WorkflowDefinitionAggregate Create(string id, string version, string name, string description)
+        public static WorkflowDefinitionAggregate Create(string id, int version, string name, string description)
         {
-            return new WorkflowDefinitionAggregate
+            var result = new WorkflowDefinitionAggregate
             {
                 Id = id,
                 Version = version,
                 Name = name,
                 Description = description,
+                IsLast = true,
                 UpdateDateTime = DateTime.UtcNow,
                 CreateDateTime = DateTime.UtcNow
             };
+            result.RefreshTechnicalId();
+            return result;
         }
 
         public WorkflowDefinitionFunction GetFunction(string name)
@@ -107,33 +125,15 @@ namespace FaasNet.Runtime.Domains.Definitions
 
         public BaseWorkflowDefinitionState GetRootState()
         {
-            return States.First(s => s.IsRootState);
+            return States.First(s => s.Id == Start.StateName);
         }
 
-        public void UpdateStates(ICollection<BaseWorkflowDefinitionState> states)
+        public void RefreshTechnicalId()
         {
-            States.Clear();
-            foreach(var s in states)
+            TechnicalId = $"{Id}.{Version}";
+            foreach(var state in States)
             {
-                States.Add(s);
-            }
-        }
-
-        public void UpdateFunctions(ICollection<WorkflowDefinitionFunction> functions)
-        {
-            Functions.Clear();
-            foreach(var f in functions)
-            {
-                Functions.Add(f);
-            }
-        }
-
-        public void UpdateEvents(ICollection<WorkflowDefinitionEvent> events)
-        {
-            Events.Clear();
-            foreach(var e in events)
-            {
-                Events.Add(e);
+                state.TechnicalId = $"{state.Id}.{Version}";
             }
         }
     }

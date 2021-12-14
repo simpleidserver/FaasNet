@@ -38,6 +38,7 @@
     <None Remove="src\stores\statemachines\models\statemachine-foreach-state.model.ts" />
     <None Remove="src\stores\statemachines\models\statemachine-switch-state.model.ts" />
     <None Remove="src\stores\statemachines\models\statemachine.model.ts" />
+    <None Remove="src\stores\statemachines\models\statemachineadded.model.ts" />
     <None Remove="src\stores\statemachines\models\statemachinemodel.model.ts" />
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +82,7 @@
     <TypeScriptCompile Include="src\components\statediagram\statediagram.module.ts" />
     <TypeScriptCompile Include="src\stores\common\search.model.ts" />
     <TypeScriptCompile Include="src\stores\functions\models\function.model.ts" />
+    <TypeScriptCompile Include="src\stores\statemachines\models\statemachineadded.model.ts" />
     <TypeScriptCompile Include="src\stores\statemachines\models\statemachinemodel.model.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

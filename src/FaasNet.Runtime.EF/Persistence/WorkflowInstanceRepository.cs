@@ -1,5 +1,6 @@
 ﻿using FaasNet.Runtime.Domains.Instances;
 using FaasNet.Runtime.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace FaasNet.Runtime.EF.Persistence
 
         public IQueryable<WorkflowInstanceAggregate> Query()
         {
-            return _dbContext.WorkflowInstances;
+            return _dbContext.WorkflowInstances.Include(w => w.States).ThenInclude(w => w.Events);
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)

@@ -106,7 +106,7 @@ namespace FaasNet.Runtime
 
         public WorkflowInstanceAggregate Instanciate(WorkflowDefinitionAggregate workflowDefinitionAggregate)
         {
-            var result = WorkflowInstanceAggregate.Create(workflowDefinitionAggregate.Id, workflowDefinitionAggregate.Name, workflowDefinitionAggregate.Description, workflowDefinitionAggregate.Version);
+            var result = WorkflowInstanceAggregate.Create(workflowDefinitionAggregate.TechnicalId, workflowDefinitionAggregate.Id, workflowDefinitionAggregate.Name, workflowDefinitionAggregate.Description, workflowDefinitionAggregate.Version);
             var dic = new Dictionary<string, string>();
             foreach (var state in workflowDefinitionAggregate.States)
             {

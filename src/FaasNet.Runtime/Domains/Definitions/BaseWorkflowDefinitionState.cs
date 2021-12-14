@@ -6,6 +6,12 @@ namespace FaasNet.Runtime.Domains.Definitions
 {
     public abstract class BaseWorkflowDefinitionState
     {
+        [JsonIgnore]
+        [YamlIgnore]
+        /// <summary>
+        /// Technical Identifier.
+        /// </summary>
+        public string TechnicalId { get; set; }
         /// <summary>
         /// Unique state id.
         /// </summary>
@@ -38,9 +44,6 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// </summary>
         [JsonIgnore]
         public string StateDataFilterOuput { get; set; }
-        [YamlIgnore]
-        [JsonIgnore]
-        public bool IsRootState { get; set; }
         public StateDataFilter StateDataFilter
         {
             get

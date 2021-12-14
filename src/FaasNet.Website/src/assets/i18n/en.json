@@ -122,7 +122,11 @@
     "name": "Name",
     "description": "Description",
     "status": "Status",
-    "createDateTime": "Creation DateTime"
+    "version": "Version",
+    "createDateTime": "Creation DateTime",
+    "messages": {
+      "errorGetStateMachineInstance": "An error occured while trying to get the State Machine Instance"
+    }
   },
   "shared": {
     "add": "Add",

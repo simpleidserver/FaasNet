@@ -9,6 +9,8 @@ namespace FaasNet.Runtime.EF.Configurations
         public void Configure(EntityTypeBuilder<WorkflowDefinitionSwitchState> builder)
         {
             builder.HasMany(_ => _.Conditions).WithOne().OnDelete(DeleteBehavior.Cascade);
+            builder.Ignore(_ => _.DataConditions);
+            builder.Ignore(_ => _.EventConditions);
         }
     }
 }

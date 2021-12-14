@@ -15,8 +15,6 @@ export class JsonComponent {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any) {
-    if (data && data.stateMachine) {
-      this.json = JSON.stringify(data.stateMachine.getJson());
-    }
+    this.json = data.json;
   }
 }

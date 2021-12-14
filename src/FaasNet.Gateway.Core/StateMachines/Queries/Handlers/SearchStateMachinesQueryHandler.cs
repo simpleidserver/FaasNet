@@ -36,6 +36,7 @@ namespace FaasNet.Gateway.Core.StateMachines.Queries.Handlers
                 query = query.InvokeOrderBy(MAPPING_STATEMACHINE_TO_PROPERTYNAME[request.OrderBy], request.Order);
             }
 
+            query = query.Where(q => q.IsLast);
             int totalLength = query.Count();
             query = query.Skip(request.StartIndex).Take(request.Count);
             return Task.FromResult(new BaseSearchResult<StateMachineResult>

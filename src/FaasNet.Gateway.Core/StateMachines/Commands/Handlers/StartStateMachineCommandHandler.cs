@@ -27,7 +27,7 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
         public async Task<StartStateMachineResult> Handle(StartStateMachineCommand request, CancellationToken cancellationToken)
         {
             var validationResult = Validate(request);
-            var  workflowInstance = await _runtimeEngine.InstanciateAndLaunch(validationResult.WorkflowDefinition, request.Input, cancellationToken);
+            var workflowInstance = await _runtimeEngine.InstanciateAndLaunch(validationResult.WorkflowDefinition, request.Input, cancellationToken);
             return new StartStateMachineResult
             {
                 LaunchDateTime = DateTime.UtcNow,
@@ -39,7 +39,7 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
 
         protected virtual ValidationResult Validate(StartStateMachineCommand request)
         {
-            var workflowDef = _workflowDefinitionRepository.Query().FirstOrDefault(w => w.Id == request.Id);
+            var workflowDef = _workflowDefinitionRepository.Query().FirstOrDefault(w => w.TechnicalId == request.Id);
             if (workflowDef == null)
             {
                 throw new StateMachineNotFoundException(ErrorCodes.InvalidStateMachineName, string.Format(Global.UnknownStateMachine, request.Id));

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Converters;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -37,7 +38,7 @@ namespace FaasNet.Gateway.SqlServer.Startup
             })
                 .AddRuntimeEF(opt =>
                 {
-                    opt.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));
+                    opt.UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));
                 });
             services.AddSwaggerGen();
             services.AddControllers(opts =>
@@ -81,6 +82,10 @@ namespace FaasNet.Gateway.SqlServer.Startup
                         foreach (var file in files)
                         {
                             var workflowDef = runtimeSerializer.DeserializeYaml(File.ReadAllText(file));
+                            workflowDef.RefreshTechnicalId();
+                            workflowDef.CreateDateTime = DateTime.UtcNow;
+                            workflowDef.UpdateDateTime = DateTime.UtcNow;
+                            workflowDef.IsLast = true;
                             context.WorkflowDefinitions.Add(workflowDef);
                         }
 

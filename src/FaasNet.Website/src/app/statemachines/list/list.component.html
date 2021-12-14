@@ -15,7 +15,7 @@
       <ng-container matColumnDef="name">
         <mat-header-cell *matHeaderCellDef>{{ "stateMachines.name" | translate }}</mat-header-cell>
         <mat-cell *matCellDef="let stateMachine">
-          <a href="#" [routerLink]="['/statemachines/' + stateMachine.id]">{{ stateMachine.name }}</a>
+          <a href="#" [routerLink]="['/statemachines/' + stateMachine.technicalId]">{{ stateMachine.name }}</a>
         </mat-cell>
       </ng-container>
       <!-- Description -->

@@ -5,8 +5,9 @@ namespace FaasNet.Gateway.Core.StateMachines.Results
 {
     public class StateMachineResult
     {
+        public string TechnicalId { get; set; }
         public string Id { get; set; }
-        public string Version { get; set; }
+        public int Version { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime CreateDateTime { get; set; }
@@ -17,6 +18,7 @@ namespace FaasNet.Gateway.Core.StateMachines.Results
         {
             return new StateMachineResult
             {
+                TechnicalId = workflowDefinition.TechnicalId,
                 Id = workflowDefinition.Id,
                 CreateDateTime = workflowDefinition.CreateDateTime,
                 Description = workflowDefinition.Description,

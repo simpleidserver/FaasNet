@@ -28,11 +28,6 @@ namespace FaasNet.Runtime.Serializer
                 .WithTypeConverter(new YamlJObjectConverter())
                 .Build();
             var result = deserializer.Deserialize<WorkflowDefinitionAggregate>(yaml);
-            if (result.States.Any())
-            {
-                result.States.First().IsRootState = true;
-            }
-
             return result;
         }
     }

@@ -8,7 +8,7 @@ namespace FaasNet.Runtime.Builders
     {
         private WorkflowDefinitionAggregate _instance;
 
-        private WorkflowDefinitionBuilder(string id, string version, string name, string description)
+        private WorkflowDefinitionBuilder(string id, int version, string name, string description)
         {
             _instance = WorkflowDefinitionAggregate.Create(id, version, name, description);
         }
@@ -38,7 +38,10 @@ namespace FaasNet.Runtime.Builders
             var builder = new StateDefinitionBuilder();
             var stateBuilder = callback(builder);
             var result = stateBuilder.Build();
-            result.IsRootState = true;
+            _instance.Start = new WorkflowDefinitionStartState
+            {
+                StateName = result.Id
+            };
             _instance.States.Add(result);
             return this;
         }
@@ -66,7 +69,7 @@ namespace FaasNet.Runtime.Builders
             return _instance;
         }
 
-        public static WorkflowDefinitionBuilder New(string id, string version, string name, string description)
+        public static WorkflowDefinitionBuilder New(string id, int version, string name, string description)
         {
             return new WorkflowDefinitionBuilder(id, version, name, description);
         }

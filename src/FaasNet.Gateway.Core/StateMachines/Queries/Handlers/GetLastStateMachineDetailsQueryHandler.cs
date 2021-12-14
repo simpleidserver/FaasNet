@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Gateway.Core.StateMachines.Queries.Handlers
 {
-    public class GetStateMachineDetailsQueryHandler : IRequestHandler<GetStateMachineDetailsQuery, WorkflowDefinitionAggregate>
+    public class GetLastStateMachineDetailsQueryHandler : IRequestHandler<GetLastStateMachineDetailsQuery, WorkflowDefinitionAggregate>
     {
         private readonly IWorkflowDefinitionRepository _workflowDefinitionRepository;
 
-        public GetStateMachineDetailsQueryHandler(IWorkflowDefinitionRepository workflowDefinitionRepository)
+        public GetLastStateMachineDetailsQueryHandler(IWorkflowDefinitionRepository workflowDefinitionRepository)
         {
             _workflowDefinitionRepository = workflowDefinitionRepository;
         }
 
-        public Task<WorkflowDefinitionAggregate> Handle(GetStateMachineDetailsQuery request, CancellationToken cancellationToken)
+        public Task<WorkflowDefinitionAggregate> Handle(GetLastStateMachineDetailsQuery request, CancellationToken cancellationToken)
         {
-            var workflowDefinition = _workflowDefinitionRepository.Query().FirstOrDefault(w => w.TechnicalId == request.Id);
+            var workflowDefinition = _workflowDefinitionRepository.Query().Where(w => w.Id == request.Id).OrderByDescending(w => w.Version).LastOrDefault();
             if (workflowDefinition == null)
             {
                 throw new StateMachineNotFoundException(ErrorCodes.StateMachineExists, string.Format(Global.UnknownStateMachine, request.Id));

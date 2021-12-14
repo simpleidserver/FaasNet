@@ -9,7 +9,7 @@ namespace FaasNet.Runtime.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<WorkflowDefinitionAggregate> builder)
         {
-            builder.HasKey(_ => _.Id);
+            builder.HasKey(_ => _.TechnicalId);
             builder.Property(p => p.Start)
                 .HasConversion(p => JsonConvert.SerializeObject(p), p => JsonConvert.DeserializeObject<WorkflowDefinitionStartState>(p));
             builder.HasMany(_ => _.States).WithOne().OnDelete(DeleteBehavior.Cascade);

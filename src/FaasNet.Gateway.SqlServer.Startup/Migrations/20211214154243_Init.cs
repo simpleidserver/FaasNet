@@ -28,8 +28,10 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 name: "WorkflowDefinitions",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Version = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IsLast = table.Column<bool>(type: "bit", nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Version = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -38,7 +40,7 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WorkflowDefinitions", x => x.Id);
+                    table.PrimaryKey("PK_WorkflowDefinitions", x => x.TechnicalId);
                 });
 
             migrationBuilder.CreateTable(
@@ -46,8 +48,11 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    WorkflowDefTechnicalId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     WorkflowDefId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorkflowDefVersion = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WorkflowDefName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WorkflowDefDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WorkflowDefVersion = table.Column<int>(type: "int", nullable: false),
                     CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     OutputStr = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -67,16 +72,16 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     Source = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Kind = table.Column<int>(type: "int", nullable: false),
-                    WorkflowDefinitionAggregateId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    WorkflowDefinitionAggregateTechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkflowDefinitionEvent", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WorkflowDefinitionEvent_WorkflowDefinitions_WorkflowDefinitionAggregateId",
-                        column: x => x.WorkflowDefinitionAggregateId,
+                        name: "FK_WorkflowDefinitionEvent_WorkflowDefinitions_WorkflowDefinitionAggregateTechnicalId",
+                        column: x => x.WorkflowDefinitionAggregateTechnicalId,
                         principalTable: "WorkflowDefinitions",
-                        principalColumn: "Id",
+                        principalColumn: "TechnicalId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -91,16 +96,16 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     Type = table.Column<int>(type: "int", nullable: false),
                     MetadataStr = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FunctionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorkflowDefinitionAggregateId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    WorkflowDefinitionAggregateTechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkflowDefinitionFunction", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WorkflowDefinitionFunction_WorkflowDefinitions_WorkflowDefinitionAggregateId",
-                        column: x => x.WorkflowDefinitionAggregateId,
+                        name: "FK_WorkflowDefinitionFunction_WorkflowDefinitions_WorkflowDefinitionAggregateTechnicalId",
+                        column: x => x.WorkflowDefinitionAggregateTechnicalId,
                         principalTable: "WorkflowDefinitions",
-                        principalColumn: "Id",
+                        principalColumn: "TechnicalId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -181,7 +186,7 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     ConditionType = table.Column<int>(type: "int", nullable: false),
                     Transition = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     End = table.Column<bool>(type: "bit", nullable: false),
-                    WorkflowDefinitionSwitchStateId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    WorkflowDefinitionSwitchStateTechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Condition = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EventRef = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EventDataFilter = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -200,9 +205,9 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FunctionRef = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ActionDataFilter = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorkflowDefinitionForeachStateId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    WorkflowDefinitionForeachStateTechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     WorkflowDefinitionOnEventId = table.Column<int>(type: "int", nullable: true),
-                    WorkflowDefinitionOperationStateId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    WorkflowDefinitionOperationStateTechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -213,13 +218,13 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 name: "BaseWorkflowDefinitionState",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type = table.Column<int>(type: "int", nullable: false),
                     StateDataFilterInput = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StateDataFilterOuput = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsRootState = table.Column<bool>(type: "bit", nullable: false),
-                    WorkflowDefinitionAggregateId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    WorkflowDefinitionAggregateTechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     EventRef = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ActionId = table.Column<int>(type: "int", nullable: true),
                     End = table.Column<bool>(type: "bit", nullable: true),
@@ -235,7 +240,7 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BaseWorkflowDefinitionState", x => x.Id);
+                    table.PrimaryKey("PK_BaseWorkflowDefinitionState", x => x.TechnicalId);
                     table.ForeignKey(
                         name: "FK_BaseWorkflowDefinitionState_WorkflowDefinitionAction_ActionId",
                         column: x => x.ActionId,
@@ -243,10 +248,10 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_BaseWorkflowDefinitionState_WorkflowDefinitions_WorkflowDefinitionAggregateId",
-                        column: x => x.WorkflowDefinitionAggregateId,
+                        name: "FK_BaseWorkflowDefinitionState_WorkflowDefinitions_WorkflowDefinitionAggregateTechnicalId",
+                        column: x => x.WorkflowDefinitionAggregateTechnicalId,
                         principalTable: "WorkflowDefinitions",
-                        principalColumn: "Id",
+                        principalColumn: "TechnicalId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -259,23 +264,23 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     EventRefs = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ActionMode = table.Column<int>(type: "int", nullable: false),
                     EventDataFilter = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorkflowDefinitionEventStateId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    WorkflowDefinitionEventStateTechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkflowDefinitionOnEvent", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WorkflowDefinitionOnEvent_BaseWorkflowDefinitionState_WorkflowDefinitionEventStateId",
-                        column: x => x.WorkflowDefinitionEventStateId,
+                        name: "FK_WorkflowDefinitionOnEvent_BaseWorkflowDefinitionState_WorkflowDefinitionEventStateTechnicalId",
+                        column: x => x.WorkflowDefinitionEventStateTechnicalId,
                         principalTable: "BaseWorkflowDefinitionState",
-                        principalColumn: "Id",
+                        principalColumn: "TechnicalId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BaseEventCondition_WorkflowDefinitionSwitchStateId",
+                name: "IX_BaseEventCondition_WorkflowDefinitionSwitchStateTechnicalId",
                 table: "BaseEventCondition",
-                column: "WorkflowDefinitionSwitchStateId");
+                column: "WorkflowDefinitionSwitchStateTechnicalId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BaseWorkflowDefinitionState_ActionId",
@@ -285,14 +290,14 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 filter: "[ActionId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BaseWorkflowDefinitionState_WorkflowDefinitionAggregateId",
+                name: "IX_BaseWorkflowDefinitionState_WorkflowDefinitionAggregateTechnicalId",
                 table: "BaseWorkflowDefinitionState",
-                column: "WorkflowDefinitionAggregateId");
+                column: "WorkflowDefinitionAggregateTechnicalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkflowDefinitionAction_WorkflowDefinitionForeachStateId",
+                name: "IX_WorkflowDefinitionAction_WorkflowDefinitionForeachStateTechnicalId",
                 table: "WorkflowDefinitionAction",
-                column: "WorkflowDefinitionForeachStateId");
+                column: "WorkflowDefinitionForeachStateTechnicalId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkflowDefinitionAction_WorkflowDefinitionOnEventId",
@@ -300,24 +305,24 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 column: "WorkflowDefinitionOnEventId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkflowDefinitionAction_WorkflowDefinitionOperationStateId",
+                name: "IX_WorkflowDefinitionAction_WorkflowDefinitionOperationStateTechnicalId",
                 table: "WorkflowDefinitionAction",
-                column: "WorkflowDefinitionOperationStateId");
+                column: "WorkflowDefinitionOperationStateTechnicalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkflowDefinitionEvent_WorkflowDefinitionAggregateId",
+                name: "IX_WorkflowDefinitionEvent_WorkflowDefinitionAggregateTechnicalId",
                 table: "WorkflowDefinitionEvent",
-                column: "WorkflowDefinitionAggregateId");
+                column: "WorkflowDefinitionAggregateTechnicalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkflowDefinitionFunction_WorkflowDefinitionAggregateId",
+                name: "IX_WorkflowDefinitionFunction_WorkflowDefinitionAggregateTechnicalId",
                 table: "WorkflowDefinitionFunction",
-                column: "WorkflowDefinitionAggregateId");
+                column: "WorkflowDefinitionAggregateTechnicalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkflowDefinitionOnEvent_WorkflowDefinitionEventStateId",
+                name: "IX_WorkflowDefinitionOnEvent_WorkflowDefinitionEventStateTechnicalId",
                 table: "WorkflowDefinitionOnEvent",
-                column: "WorkflowDefinitionEventStateId");
+                column: "WorkflowDefinitionEventStateTechnicalId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkflowInstanceState_WorkflowInstanceAggregateId",
@@ -335,26 +340,26 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                 column: "WorkflowInstanceStateEventId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_BaseEventCondition_BaseWorkflowDefinitionState_WorkflowDefinitionSwitchStateId",
+                name: "FK_BaseEventCondition_BaseWorkflowDefinitionState_WorkflowDefinitionSwitchStateTechnicalId",
                 table: "BaseEventCondition",
-                column: "WorkflowDefinitionSwitchStateId",
+                column: "WorkflowDefinitionSwitchStateTechnicalId",
                 principalTable: "BaseWorkflowDefinitionState",
-                principalColumn: "Id",
+                principalColumn: "TechnicalId",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_WorkflowDefinitionAction_BaseWorkflowDefinitionState_WorkflowDefinitionForeachStateId",
+                name: "FK_WorkflowDefinitionAction_BaseWorkflowDefinitionState_WorkflowDefinitionForeachStateTechnicalId",
                 table: "WorkflowDefinitionAction",
-                column: "WorkflowDefinitionForeachStateId",
+                column: "WorkflowDefinitionForeachStateTechnicalId",
                 principalTable: "BaseWorkflowDefinitionState",
-                principalColumn: "Id");
+                principalColumn: "TechnicalId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_WorkflowDefinitionAction_BaseWorkflowDefinitionState_WorkflowDefinitionOperationStateId",
+                name: "FK_WorkflowDefinitionAction_BaseWorkflowDefinitionState_WorkflowDefinitionOperationStateTechnicalId",
                 table: "WorkflowDefinitionAction",
-                column: "WorkflowDefinitionOperationStateId",
+                column: "WorkflowDefinitionOperationStateTechnicalId",
                 principalTable: "BaseWorkflowDefinitionState",
-                principalColumn: "Id");
+                principalColumn: "TechnicalId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_WorkflowDefinitionAction_WorkflowDefinitionOnEvent_WorkflowDefinitionOnEventId",
@@ -367,15 +372,15 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_WorkflowDefinitionAction_BaseWorkflowDefinitionState_WorkflowDefinitionForeachStateId",
+                name: "FK_WorkflowDefinitionAction_BaseWorkflowDefinitionState_WorkflowDefinitionForeachStateTechnicalId",
                 table: "WorkflowDefinitionAction");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_WorkflowDefinitionAction_BaseWorkflowDefinitionState_WorkflowDefinitionOperationStateId",
+                name: "FK_WorkflowDefinitionAction_BaseWorkflowDefinitionState_WorkflowDefinitionOperationStateTechnicalId",
                 table: "WorkflowDefinitionAction");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_WorkflowDefinitionOnEvent_BaseWorkflowDefinitionState_WorkflowDefinitionEventStateId",
+                name: "FK_WorkflowDefinitionOnEvent_BaseWorkflowDefinitionState_WorkflowDefinitionEventStateTechnicalId",
                 table: "WorkflowDefinitionOnEvent");
 
             migrationBuilder.DropTable(

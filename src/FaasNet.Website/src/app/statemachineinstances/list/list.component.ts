@@ -16,7 +16,7 @@ import { merge } from 'rxjs';
   templateUrl: './list.component.html'
 })
 export class ListStateMachineInstanceComponent implements OnInit {
-  displayedColumns: string[] = ['workflowDefName', 'workflowDefDescription', 'status', 'createDateTime'];
+  displayedColumns: string[] = ['workflowDefName', 'workflowDefDescription', 'workflowDefVersion', 'status', 'createDateTime'];
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
   @ViewChild(MatSort) sort: MatSort | undefined;
   stateMachineInstances: StateMachineInstance[] = [];

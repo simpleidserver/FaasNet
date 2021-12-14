@@ -9,11 +9,14 @@ import { StateMachineModel } from '@stores/statemachines/models/statemachinemode
 import { BehaviorSubject } from 'rxjs';
 import { JsonComponent } from './components/json/json.component';
 import { YamlComponent } from './components/yaml/yaml.component';
+import { StateMachineInstanceDetails } from '@stores/statemachineinstances/models/statemachineinstance-details.model';
 
 class DiagramNode {
   constructor(public x: number, public y: number, public level: number, public state: StateMachineState | undefined) {
 
   }
+
+  public status: string = "";
 
   get transform() {
     return "translate(" + this.x + "," + this.y + ")";
@@ -32,6 +35,18 @@ class DiagramNode {
     }
 
     this.y = (this.level * (nodeHeigth + nodeGap)) + nodeGap;
+  }
+}
+
+class DiagramNodeToken {
+  constructor(public data: any, public isInput: boolean, public node: DiagramNode) { }
+
+  posX: number = 0;
+  posY: number = 0;
+
+  public computePosition(tokenWidth: number, tokenHeight: number, nodeHeight: number) {
+    this.posX = this.node.x - (tokenWidth / 2);
+    this.posY = this.node.y + (this.isInput ? 0 : (nodeHeight - tokenHeight / 2));
   }
 }
 
@@ -132,6 +147,8 @@ class DiagramOptions {
   nodeGap: number = 50;
   nodeWidth: number = 200;
   nodeHeight: number = 90;
+  tokenWidth: number = 100;
+  tokenHeight: number = 30;
   zoom: number = 20;
   draggableZoneWidth: number = 30;
   circleRadius: number = 7;
@@ -151,6 +168,7 @@ class DiagramOptions {
 })
 export class StateDiagramComponent implements OnInit, OnDestroy {
   private _stateMachine: StateMachineModel = new StateMachineModel();
+  private _stateMachineInstance: StateMachineInstanceDetails = new StateMachineInstanceDetails();
   @Input()
   get stateMachine(): StateMachineModel {
     return this._stateMachine;
@@ -161,7 +179,18 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
       this.refreshUI();
     }
   }
+  @Input()
+  get stateMachineInstance(): StateMachineInstanceDetails {
+    return this._stateMachineInstance;
+  }
+  set stateMachineInstance(s: StateMachineInstanceDetails) {
+    this._stateMachineInstance = s;
+    if (s) {
+      this.refreshUI();
+    }
+  }
   @Input() options: DiagramOptions = new DiagramOptions();
+  @Input() editMode: boolean = true;
   @Output() saved: EventEmitter<StateMachineModel> = new EventEmitter<StateMachineModel>();
   @Output() launched: EventEmitter<StateMachineModel> = new EventEmitter<StateMachineModel>();
   @ViewChild("stateDiagram") stateDiagram: any;
@@ -181,6 +210,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   edgeLabels: EdgeLabel[] = [];
   anchors: Anchor[] = [];
   draggableZoneLst: DraggableZone[] = [];
+  tokens: DiagramNodeToken[] = [];
   selectedState: StateMachineState | null = null;
   selectedTransition: BaseTransition | null = null;
   handleMouseMoveWindowRef: any | null = null;
@@ -303,6 +333,10 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
       child.id = this.buildId();
       child.name = type;
       child.end = true;
+      if (this.stateMachine.start) {
+        this.stateMachine.start.stateName = child.id;
+      }
+
       this.stateMachine?.states.push(child);
       this.refreshUI();
       this.closePanel();
@@ -408,7 +442,18 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     this.dialog.open(JsonComponent, {
       width: '800px',
       data: {
-        stateMachine: this.stateMachine
+        json: JSON.stringify(this.stateMachine.getJson()),
+        title: 'State Machine JSON'
+      }
+    });
+  }
+
+  displayToken(token: DiagramNodeToken) {
+    this.dialog.open(JsonComponent, {
+      width: '800px',
+      data: {
+        json: JSON.stringify(token.data),
+        title: token.isInput ? 'Input Token' : 'Output Token'
       }
     });
   }
@@ -508,6 +553,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     this.edgeLabels = [];
     this.anchors = [];
     this.draggableZoneLst = [];
+    this.tokens = [];
     const rootState = this.stateMachine?.getRootState();
     if (!rootState) {
       return;
@@ -535,6 +581,22 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
       return existingNode;
     }
 
+    if (self._stateMachineInstance && self._stateMachineInstance.states) {
+      let filteredStateInstances = self._stateMachineInstance.states.filter((s) => {
+        return s.defId === newNode.state?.id;
+      });
+      if (filteredStateInstances.length === 1) {
+        const instance = filteredStateInstances[0];
+        newNode.status = instance.status;
+        if (instance.input) {
+          this.tokens.push(new DiagramNodeToken(instance.input, true, newNode));
+        }
+
+        if (instance.output) {
+          this.tokens.push(new DiagramNodeToken(instance.output, false, newNode));
+        }
+      }
+    }
     this.nodes.push(newNode);
     const anchor = new Anchor(newNode);
     const draggableZone = new DraggableZone(newNode, anchor);
@@ -594,6 +656,10 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
     this.draggableZoneLst.forEach((d: DraggableZone) => {
       d.computPosition(this.options.nodeWidth, this.options.nodeHeight, this.options.nodeGap, this.options.draggableZoneWidth);
+    });
+
+    this.tokens.forEach((t: DiagramNodeToken) => {
+      t.computePosition(this.options.tokenWidth, this.options.tokenHeight, this.options.nodeHeight);
     });
   }
 

@@ -1,14 +1,15 @@
 import { createSelector } from '@ngrx/store';
 import * as fromFunctions from './functions/reducers';
-import * as fromStateMachines from './statemachines/reducers';
 import * as fromStateMachineInstances from './statemachineinstances/reducers';
+import * as fromStateMachines from './statemachines/reducers';
 
 export interface AppState {
   functions: fromFunctions.SearchFunctionsState;
   function: fromFunctions.FunctionState;
   stateMachines: fromStateMachines.SearchStateMachineState,
   stateMachine: fromStateMachines.StateMachineState,
-  stateMachineInstances: fromStateMachineInstances.SearchStateMachineInstanceState
+  stateMachineInstances: fromStateMachineInstances.SearchStateMachineInstanceState,
+  stateMachineInstance: fromStateMachineInstances.StateMachineInstanceState
 }
 
 export const selectFunctions = (state: AppState) => state.functions;
@@ -16,6 +17,7 @@ export const selectFunction = (state: AppState) => state.function;
 export const selectStateMachines = (state: AppState) => state.stateMachines;
 export const selectStateMachine = (state: AppState) => state.stateMachine;
 export const selectStateMachineInstances = (state: AppState) => state.stateMachineInstances;
+export const selectStateMachineInstance = (state: AppState) => state.stateMachineInstance;
 
 export const selectFunctionsResult = createSelector(
   selectFunctions,
@@ -149,10 +151,22 @@ export const selectStateMachineInstancesResult = createSelector(
   }
 );
 
+export const selectStateMachineInstanceResult = createSelector(
+  selectStateMachineInstance,
+  (state: fromStateMachineInstances.StateMachineInstanceState) => {
+    if (!state || !state.StateMachineInstance) {
+      return null;
+    }
+
+    return state.StateMachineInstance;
+  }
+);
+
 export const appReducer = {
   functions: fromFunctions.getSearchFunctionsReducer,
   function: fromFunctions.getFunctionReducer,
   stateMachines: fromStateMachines.getSearchStateMachinesReducer,
   stateMachine: fromStateMachines.getStateMachineReducer,
-  stateMachineInstances: fromStateMachineInstances.getSearchStateMachineInstancesReducer
+  stateMachineInstances: fromStateMachineInstances.getSearchStateMachineInstancesReducer,
+  stateMachineInstance: fromStateMachineInstances.getStateMachineInstanceReducer
 };

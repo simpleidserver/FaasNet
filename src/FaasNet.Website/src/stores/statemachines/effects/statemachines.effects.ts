@@ -59,10 +59,10 @@ export class StateMachineEffects {
   updateStateMachine = this.actions$
     .pipe(
       ofType(startUpdate),
-      mergeMap((evt: { stateMachine: StateMachineModel }) => {
-        return this.stateMachinesService.update(evt.stateMachine)
+      mergeMap((evt: { id: string, stateMachine: StateMachineModel }) => {
+        return this.stateMachinesService.update(evt.id, evt.stateMachine)
           .pipe(
-            map(content => completeUpdate()),
+            map(content => completeUpdate({ id: content.id })),
             catchError(() => of(errorUpdate()))
           );
       }

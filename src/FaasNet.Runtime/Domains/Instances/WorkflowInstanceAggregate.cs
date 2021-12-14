@@ -20,10 +20,11 @@ namespace FaasNet.Runtime.Domains.Instances
         #region Properties
 
         public string Id { get; set; }
+        public string WorkflowDefTechnicalId { get; set; }
         public string WorkflowDefId { get; set; }
         public string WorkflowDefName { get; set; }
         public string WorkflowDefDescription { get; set; }
-        public string WorkflowDefVersion { get; set; }
+        public int WorkflowDefVersion { get; set; }
         public DateTime CreateDateTime { get; set; }
         public WorkflowInstanceStatus Status { get; set; }
         public virtual ICollection<WorkflowInstanceState> States { get; set; }
@@ -186,11 +187,12 @@ namespace FaasNet.Runtime.Domains.Instances
 
         #endregion
 
-        public static WorkflowInstanceAggregate Create(string workflowDefId, string workflowDefName, string workflowDefDescription, string workflowDefVersion)
+        public static WorkflowInstanceAggregate Create(string workflowDefTechnicalId, string workflowDefId, string workflowDefName, string workflowDefDescription, int workflowDefVersion)
         {
             return new WorkflowInstanceAggregate
             {
                 CreateDateTime = DateTime.UtcNow,
+                WorkflowDefTechnicalId = workflowDefTechnicalId,
                 Id = Guid.NewGuid().ToString(),
                 WorkflowDefName = workflowDefName,
                 WorkflowDefDescription = workflowDefDescription,
@@ -207,6 +209,7 @@ namespace FaasNet.Runtime.Domains.Instances
                 CreateDateTime = CreateDateTime,
                 Id = Id,
                 OutputStr = OutputStr,
+                WorkflowDefTechnicalId = WorkflowDefTechnicalId,
                 Status = Status,
                 WorkflowDefVersion = WorkflowDefVersion,
                 WorkflowDefId = WorkflowDefId,

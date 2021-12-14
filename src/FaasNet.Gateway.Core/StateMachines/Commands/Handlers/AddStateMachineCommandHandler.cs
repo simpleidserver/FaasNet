@@ -42,7 +42,6 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
                     customFunction.FunctionId = id;
                 }
 
-                request.WorkflowDefinition.States.First().IsRootState = true;
                 await _workflowDefinitionRepository.Add(request.WorkflowDefinition, cancellationToken);
                 await _workflowDefinitionRepository.SaveChanges(cancellationToken);
                 scope.Complete();

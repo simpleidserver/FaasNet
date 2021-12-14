@@ -2,6 +2,37 @@ import { InjectStateMachineState } from "./statemachine-inject-state.model";
 import { BaseTransition, EmptyTransition, StateDataFilter, StateMachineState } from "./statemachine-state.model";
 import { DataCondition, DefaultCondition, EventCondition, SwitchStateMachineState } from "./statemachine-switch-state.model";
 
+export class StartStateMachineModel {
+  stateName: string | undefined;
+  schedule: string | undefined;
+
+  public getJson() {
+    var result: any = {};
+    if (this.stateName) {
+      result['stateName'] = this.stateName;
+    }
+
+    if (this.schedule) {
+      result['schedule'] = this.schedule;
+    }
+
+    return result;
+  }
+
+  public static build(json: any): StartStateMachineModel{
+    var result = new StartStateMachineModel();
+    if (json['stateName']) {
+      result.stateName = json['stateName'];
+    }
+
+    if (json['schedule']) {
+      result.schedule = json['schedule'];
+    }
+
+    return result;
+  }
+}
+
 export class StateMachineModel {
   constructor() {
     this.states = [];
@@ -12,7 +43,7 @@ export class StateMachineModel {
   description: string | undefined;
   version: string | undefined;
   specVersion: string | undefined;
-  start: string | undefined;
+  start: StartStateMachineModel | undefined;
   states: StateMachineState[];
 
   get isEmpty() {
@@ -52,21 +83,8 @@ export class StateMachineModel {
   }
 
   public getRootState(): StateMachineState | null {
-    let rootState: StateMachineState | null = null;
-    this.states.forEach((s) => {
-      const filtered = this.states.filter((c) => {
-        if (!c.id || !s.id) {
-          return false;
-        }
-
-        return c.getNextTransitions().map(t => t.transition).indexOf(s.id) > -1;
-      });
-      if (filtered.length === 0 && !rootState) {
-        rootState = s;
-      }
-    });
-
-    return rootState;
+    const filtered = this.states.filter((s) => this.start && this.start.stateName && s.id === this.start.stateName);
+    return filtered.length === 0 ? null : filtered[0];
   }
 
   public getJson(): any {
@@ -90,7 +108,10 @@ export class StateMachineModel {
     result.description = json["description"];
     result.version = json["version"];
     result.specVersion = json["specVersion"];
-    result.start = json["start"];
+    if (json["start"]) {
+      result.start = StartStateMachineModel.build(json['start']);
+    }
+
     result.states = json["states"].map((s: any) => {
       switch (s.type) {
         case InjectStateMachineState.TYPE:
@@ -124,7 +145,6 @@ export class StateMachineModel {
                 return DataCondition.build(dc);
               });
             }
-
             if (s["defaultCondition"]) {
               return switchResult.defaultCondition = EmptyTransition.build(s["defaultCondition"]);
             }

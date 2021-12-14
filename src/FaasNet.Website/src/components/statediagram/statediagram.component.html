@@ -1,5 +1,5 @@
-<div fxLayout="row" class="statediagram">
-  <div fxFlex="20%" class="toolbox">
+<div [attr.fxLayout]="editMode ? 'row' : null" class="statediagram">
+  <div fxFlex="20%" class="toolbox" *ngIf="editMode">
     <!-- Inject -->
     <div class="toolbox-item" draggable="true" (dragstart)="onDragStart($event, 'inject')">
       <div class="selector">
@@ -39,7 +39,7 @@
       </div>
     </div>
   </div>
-  <div fxFlex="80%">
+  <div [attr.class]="editMode ? 'secondColumn' : 'secondColumn full'">
     <div class="toolbar">
       <ul>
         <li (click)="zoomIn()">
@@ -80,13 +80,13 @@
             Json
           </span>
         </li>
-        <li (click)="save()">
+        <li (click)="save()" *ngIf="editMode">
           <mat-icon>save</mat-icon>
           <span class="item">
             Save
           </span>
         </li>
-        <li (click)="launch()">
+        <li (click)="launch()" *ngIf="editMode">
           <mat-icon>launch</mat-icon>
           <span class="item">
             Launch
@@ -116,14 +116,14 @@
                   </foreignObject>
                 </g>
                 <!-- States -->
-                <g *ngFor="let node of nodes" class="state" [attr.transform]="node.transform" (click)="selectState(node)">
+                <g *ngFor="let node of nodes" [attr.class]="node.status ? 'state ' + node.status : 'state'" [attr.transform]="node.transform" (click)="selectState(node)">
                   <rect [attr.width]="options.nodeWidth" [attr.height]="options.nodeHeight" [attr.class]="(selectedState && node.state?.id === selectedState?.id) ? 'selected' : ''"></rect>
                   <line x1="0" [attr.y1]="options.titleHeight" [attr.x2]="options.nodeWidth" [attr.y2]="options.titleHeight" class="separator"></line>
                   <g>
                     <foreignObject [attr.width]="options.nodeWidth" [attr.height]="options.titleHeight">
                       <div class="header">
                         {{node.state?.name}}
-                        <div class="actions">
+                        <div class="actions" *ngIf="editMode">
                           <mat-icon (click)="removeNode(node)">delete</mat-icon>
                         </div>
                       </div>
@@ -132,6 +132,14 @@
                       <div>description</div>
                     </foreignObject>
                   </g>
+                </g>
+                <!-- Tokens -->
+                <g *ngFor="let token of tokens" class="token">
+                  <foreignObject [attr.width]="options.tokenWidth" [attr.height]="options.tokenHeight" [attr.x]="token.posX" [attr.y]="token.posY">
+                    <div [attr.style]="'line-height:' + options.tokenHeight + 'px'" (click)="displayToken(token)">
+                      {{ token.isInput ? 'Input' : 'Output' }}
+                    </div>
+                  </foreignObject>
                 </g>
                 <!-- Edge Paths -->
                 <g class="edgePaths">
@@ -150,7 +158,7 @@
                   <foreignObject *ngFor="let edgeLabel of edgeLabels; let i = index" [attr.x]="edgeLabel.posX" [attr.y]="edgeLabel.posY" [attr.width]="edgeLabel.width" [attr.height]="edgeLabel.height">
                     <div [attr.class]="edgeLabel.selected ? 'edgeLabel selected' : 'edgeLabel'">
                       <div class="textContainer">
-                        <div class="text" (contextmenu)="onContextMenu($event, edgeLabel, i)"  (click)="selectLabel(edgeLabel)">
+                        <div class="text" (contextmenu)="onContextMenu($event, edgeLabel, i)" (click)="selectLabel(edgeLabel)">
                           <span [matMenuTriggerFor]="contextMenu">
                             {{ edgeLabel.label | async }}
                           </span>

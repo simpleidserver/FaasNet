@@ -80,7 +80,6 @@ export class DataCondition extends BaseTransition {
   public static build(json: any) {
     var result = new DataCondition();
     result.condition = json["condition"];
-    result.label = json["label"];
     result.name = json["name"];
     result.transition = json["transition"];
     return result;
@@ -202,20 +201,30 @@ export class SwitchStateMachineState extends StateMachineState {
   }
 
   public override getJson() {
-    return {
+    var result : any = {
       id: this.id,
       name: this.name,
       stateDataFilter: this.stateDataFilter?.getJson(),
       type: SwitchStateMachineState.TYPE,
       end: this.end,
-      eventConditions: this.eventConditions.map((e: EventCondition) => {
-        return e.getJson();
-      }),
       dataConditions: this.dataConditions.map((d: DataCondition) => {
         return d.getJson()
       }),
       defaultCondition: this.defaultCondition?.transition
     };
+    if (this.eventConditions && this.eventConditions.length > 0) {
+      result.eventConditions = this.eventConditions.map((e: EventCondition) => {
+        return e.getJson();
+      });
+    }
+
+    if (this.dataConditions && this.dataConditions.length > 0) {
+      result.dataConditions = this.dataConditions.map((d: DataCondition) => {
+        return d.getJson()
+      });
+    }
+
+    return result;
   }
 
   private removeTransition(transition: BaseTransition) {

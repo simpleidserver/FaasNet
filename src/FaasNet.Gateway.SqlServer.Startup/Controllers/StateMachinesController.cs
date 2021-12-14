@@ -42,11 +42,12 @@ namespace FaasNet.Gateway.SqlServer.Startup.Controllers
             return StatusCode((int)HttpStatusCode.Created, result);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateStateMachineCommand cmd, CancellationToken cancellationToken)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(string id, [FromBody] UpdateStateMachineCommand cmd, CancellationToken cancellationToken)
         {
-            await _mediator.Send(cmd, cancellationToken);
-            return new NoContentResult();
+            cmd.Id = id;
+            var result = await _mediator.Send(cmd, cancellationToken);
+            return StatusCode((int)HttpStatusCode.Created, result);
         }
 
         [HttpPost("empty")]

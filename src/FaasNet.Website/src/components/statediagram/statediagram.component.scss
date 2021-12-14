@@ -1,5 +1,6 @@
 $border-color: #d6d2d2;
 $gutter-width: 10px;
+$default-color: #ECECFF;
 $red: red;
 $orange: orange;
 
@@ -132,12 +133,30 @@ $orange: orange;
   stroke: #9370DB;
 }
 
+.statediagram .editor .state.COMPLETE > rect {
+  stroke: green;
+  fill: #a1f2a1;
+  stroke-width: 1px;
+}
+
+.statediagram .editor .state.COMPLETE .separator {
+  stroke: green;
+}
+
 .statediagram .editor .state > rect {
   stroke: #9370DB;
   stroke-width: 1px;
-  fill: #ECECFF;
+  fill: $default-color;
   rx: 5px;
   ry: 5px;
+}
+
+.statediagram .editor .token div {
+  background-color: $default-color;
+  border-radius: 5px;
+  text-align: center;
+  height: 100%;
+  cursor: pointer;
 }
 
 .statediagram .editor .state > rect.selected {
@@ -189,7 +208,7 @@ $orange: orange;
 }
 
 .statediagram .editor .edgeLabel > .textContainer > .text {
-  background-color: #ECECFF;
+  background-color: $default-color;
   padding: 5px;
   cursor: pointer;
   z-index: 10;
@@ -223,4 +242,14 @@ $orange: orange;
 .statediagram .editor .draggableZone {
   width: 100%;
   height: 100%;
+}
+
+.secondColumn {
+  flex: 1 1 100%;
+  box-sizing: border-box;
+  max-width: 80%;
+}
+
+.secondColumn.full {
+  max-width: 100% !important;
 }

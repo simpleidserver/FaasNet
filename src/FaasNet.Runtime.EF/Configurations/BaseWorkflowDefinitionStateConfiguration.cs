@@ -9,7 +9,7 @@ namespace FaasNet.Runtime.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<BaseWorkflowDefinitionState> builder)
         {
-            builder.HasKey(_ => _.Id);
+            builder.HasKey(_ => _.TechnicalId);
             builder.HasDiscriminator(_ => _.Type)
                 .HasValue<WorkflowDefinitionEventState>(WorkflowDefinitionStateTypes.Event)
                 .HasValue<WorkflowDefinitionOperationState>(WorkflowDefinitionStateTypes.Operation)

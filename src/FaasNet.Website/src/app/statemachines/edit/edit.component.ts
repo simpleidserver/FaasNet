@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
@@ -18,10 +18,12 @@ import { LaunchStateMachineComponent } from '../launch/launch-statemachine.compo
 export class EditStateMachineComponent implements OnInit, OnDestroy {
   stateMachineDef: StateMachineModel = new StateMachineModel();
   isLoading: boolean = false;
+  id: string = "";
 
   constructor(
     private store: Store<fromReducers.AppState>,
     private activatedRoute: ActivatedRoute,
+    private router: Router,
     private actions$: ScannedActionsSubject,
     private translateService: TranslateService,
     private snackBar: MatSnackBar,
@@ -39,8 +41,10 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
       });
     self.actions$.pipe(
       filter((action: any) => action.type === '[StateMachines] COMPLETE_UPDATE_STATE_MACHINE'))
-      .subscribe(() => {
+      .subscribe((evt : any) => {
         this.isLoading = false;
+        this.router.navigate(['/statemachines/' + evt.id]);
+        self.id = evt.id;
         self.snackBar.open(this.translateService.instant('stateMachines.messages.stateMachineUpdated'), this.translateService.instant('undo'), {
           duration: 2000
         });
@@ -77,6 +81,7 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
 
       this.stateMachineDef = StateMachineModel.build(stateMachine);
     });
+    self.id = this.activatedRoute.snapshot.params["id"];
     self.init();
   }
 
@@ -85,7 +90,7 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
 
   onSave(stateMachineModel: StateMachineModel) {
     this.isLoading = true;
-    const command = startUpdate({ stateMachine: stateMachineModel.getJson() });
+    const command = startUpdate({ id : this.id, stateMachine: stateMachineModel.getJson() });
     this.store.dispatch(command);
   }
 
@@ -102,14 +107,13 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
       }
 
       this.isLoading = true;
-      const action = startLaunch({ id: this.stateMachineDef.id, input: opt.json });
+      const action = startLaunch({ id: this.id, input: opt.json });
       this.store.dispatch(action);
     });
   }
 
   private init(): void {
-    const id = this.activatedRoute.snapshot.params['id'];
-    const action = startGetJson({ id: id });
+    const action = startGetJson({ id: this.id });
     this.store.dispatch(action);
   }
 }

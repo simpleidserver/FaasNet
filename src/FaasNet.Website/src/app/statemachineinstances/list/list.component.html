@@ -12,7 +12,7 @@
       <ng-container matColumnDef="workflowDefName">
         <mat-header-cell *matHeaderCellDef>{{ "stateMachineInstance.name" | translate }}</mat-header-cell>
         <mat-cell *matCellDef="let stateMachineInstance">
-          <a href="#" [routerLink]="['/statemachineinstances/' + stateMachineInstance.id]">{{ stateMachineInstance.workflowDefName }}</a>
+          <a href="#" [routerLink]="['/statemachineinstances/' + stateMachineInstance.workflowDefTechnicalId + '/' + stateMachineInstance.id]">{{ stateMachineInstance.workflowDefName }}</a>
         </mat-cell>
       </ng-container>
       <!-- workflowDefDescription -->
@@ -20,6 +20,13 @@
         <mat-header-cell *matHeaderCellDef>{{ "stateMachineInstance.description" | translate }}</mat-header-cell>
         <mat-cell *matCellDef="let stateMachineInstance">
           {{ stateMachineInstance.workflowDefDescription }}
+        </mat-cell>
+      </ng-container>
+      <!-- workflowDefVersion -->
+      <ng-container matColumnDef="workflowDefVersion">
+        <mat-header-cell *matHeaderCellDef>{{ "stateMachineInstance.version" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let stateMachineInstance">
+          {{ stateMachineInstance.workflowDefVersion }}
         </mat-cell>
       </ng-container>
       <!-- status -->

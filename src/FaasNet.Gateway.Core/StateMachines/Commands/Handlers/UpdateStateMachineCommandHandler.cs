@@ -1,6 +1,7 @@
 ﻿using FaasNet.Gateway.Core.Exceptions;
 using FaasNet.Gateway.Core.Functions;
 using FaasNet.Gateway.Core.Resources;
+using FaasNet.Gateway.Core.StateMachines.Results;
 using FaasNet.Runtime.Persistence;
 using MediatR;
 using System;
@@ -11,7 +12,7 @@ using System.Transactions;
 
 namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
 {
-    public class UpdateStateMachineCommandHandler : IRequestHandler<UpdateStateMachineCommand, bool>
+    public class UpdateStateMachineCommandHandler : IRequestHandler<UpdateStateMachineCommand, AddStateMachineResult>
     {
         private readonly IWorkflowDefinitionRepository _workflowDefinitionRepository;
         private readonly IFunctionService _functionService;
@@ -24,9 +25,9 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
             _functionService = functionService;
         }
 
-        public async Task<bool> Handle(UpdateStateMachineCommand request, CancellationToken cancellationToken)
+        public async Task<AddStateMachineResult> Handle(UpdateStateMachineCommand request, CancellationToken cancellationToken)
         {
-            var workflowDefinition = _workflowDefinitionRepository.Query().FirstOrDefault(w=> w.Id == request.WorkflowDefinition.Id);
+            var workflowDefinition = _workflowDefinitionRepository.Query().FirstOrDefault(w=> w.TechnicalId == request.Id);
             if (workflowDefinition == null)
             {
                 throw new StateMachineNotFoundException(ErrorCodes.UnknownStateMachine, string.Format(Global.UnknownStateMachine, request.WorkflowDefinition.Id));
@@ -41,20 +42,18 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
                     customFunction.FunctionId = id;
                 }
 
-                request.WorkflowDefinition.States.First().IsRootState = true;
-                workflowDefinition.Name = request.WorkflowDefinition.Name;
-                workflowDefinition.Description = request.WorkflowDefinition.Description;
-                workflowDefinition.UpdateDateTime = DateTime.UtcNow;
-                workflowDefinition.Start = request.WorkflowDefinition.Start;
-                workflowDefinition.UpdateStates(request.WorkflowDefinition.States);
-                workflowDefinition.UpdateFunctions(request.WorkflowDefinition.Functions);
-                workflowDefinition.UpdateEvents(request.WorkflowDefinition.Events);
+                workflowDefinition.IsLast = false;
+                request.WorkflowDefinition.Version = workflowDefinition.Version + 1;
+                request.WorkflowDefinition.CreateDateTime = DateTime.UtcNow;
+                request.WorkflowDefinition.UpdateDateTime = DateTime.UtcNow;
+                request.WorkflowDefinition.IsLast = true;
+                request.WorkflowDefinition.RefreshTechnicalId();
                 await _workflowDefinitionRepository.Update(workflowDefinition, cancellationToken);
+                await _workflowDefinitionRepository.Add(request.WorkflowDefinition, cancellationToken);
                 await _workflowDefinitionRepository.SaveChanges(cancellationToken);
                 scope.Complete();
+                return new AddStateMachineResult { CreateDateTime = request.WorkflowDefinition.CreateDateTime, Id = request.WorkflowDefinition.TechnicalId };
             }
-
-            return true;
         }
     }
 }

@@ -24,7 +24,7 @@ namespace FaasNet.Runtime.Tests
         public async Task When_Run_HelloWorld()
         {
             var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("helloWorld", "v1", "name", "description")
+            var workflowDefinition = WorkflowDefinitionBuilder.New("helloWorld", 1, "name", "description")
                 .StartsWith(o => o.Inject().Data(new { result = "Hello World!" }).End())
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
@@ -36,7 +36,7 @@ namespace FaasNet.Runtime.Tests
         public async Task When_Inject_Persons_And_Filter()
         {
             var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("injectAndFilterPersons", "v1", "name", "description")
+            var workflowDefinition = WorkflowDefinitionBuilder.New("injectAndFilterPersons", 1, "name", "description")
                 .StartsWith(o => o.Inject().Data(new
                 {
                     people = new List<dynamic>
@@ -74,7 +74,7 @@ namespace FaasNet.Runtime.Tests
         public async Task When_Run_GreetingFunction()
         {
             var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("Greet",
                 (act) => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.person.name' }")
@@ -90,7 +90,7 @@ namespace FaasNet.Runtime.Tests
         public async Task When_Call_GreetingFunction_With_Event()
         {
             var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
                 .AddConsumedEvent("GreetingEvent", "greetingEventSource", "greetingEventType")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
                 .StartsWith(o => o.Event()
@@ -121,7 +121,7 @@ namespace FaasNet.Runtime.Tests
         public async Task When_Send_Two_Events_And_Set_Exlusive_To_False()
         {
             var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
                 .AddConsumedEvent("FirstEvent", "firstEventSource", "firstEventType")
                 .AddConsumedEvent("SecondEvent", "secondEventSource", "secondEventType")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
@@ -183,7 +183,7 @@ namespace FaasNet.Runtime.Tests
         public async Task When_Send_Two_Events_With_Same_Id()
         {
             var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
                 .AddConsumedEvent("FirstEvent", "firstEventSource", "firstEventType")
                 .AddConsumedEvent("SecondEvent", "secondEventSource", "secondEventType")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
@@ -247,7 +247,7 @@ namespace FaasNet.Runtime.Tests
         public async Task When_Run_Switch_Data_Condition()
         {
             var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
                 .StartsWith(o => o.Switch()
                     .AddDataCondition("MoreThan18", "StartApplication", "context.GetIntFromState(\"$.applicant.age\") >= 18")
                     .AddDataCondition("LessThan18", "RejectApplication", "context.GetIntFromState(\"$.applicant.age\") < 18")
@@ -268,7 +268,7 @@ namespace FaasNet.Runtime.Tests
         public async Task When_Run_Switch_Event_Condition()
         {
             var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
                 .AddConsumedEvent("visaApprovedEvt", "visaCheckSource", "VisaApproved")
                 .AddConsumedEvent("visaRejectedEvt", "visaCheckSource", "VisaRejected")
                 .StartsWith(o => o.Switch()
@@ -312,7 +312,7 @@ namespace FaasNet.Runtime.Tests
         public async Task When_Run_ForeachState()
         {
             var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("solvemathproblems", "v1", "name", "description")
+            var workflowDefinition = WorkflowDefinitionBuilder.New("solvemathproblems", 1, "name", "description")
                 .AddFunction(o => o.RestAPI("solveMathExpressionFunction", "http://localhost/swagger/v1/swagger.json#calculator"))
                 .StartsWith(o => o.Foreach()
                     .SetInputCollection("$.expressions")
@@ -335,7 +335,7 @@ namespace FaasNet.Runtime.Tests
         public async Task When_Run_CallbackState()
         {
             var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("creditCheckCompleteType", "v1", "name", "description")
+            var workflowDefinition = WorkflowDefinitionBuilder.New("creditCheckCompleteType", 1, "name", "description")
                 .AddFunction(o => o.RestAPI("creditCheckFunction", "http://localhost/swagger/v1/swagger.json#creditCheck"))
                 .AddConsumedEvent("CreditCheckCompletedEvent", "creditCheckSource", "creditCheckCompleteType")
                 .StartsWith(o => o.Callback()

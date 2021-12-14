@@ -13,7 +13,7 @@ namespace FaasNet.Runtime.Tests
         public void When_Serialize_And_Deserialize_WorkflowDefinition()
         {
             // ARRANGE
-            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", "v1", "name", "description")
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
                 // .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Parallel).AddAction("Greet",
                 (act) => {

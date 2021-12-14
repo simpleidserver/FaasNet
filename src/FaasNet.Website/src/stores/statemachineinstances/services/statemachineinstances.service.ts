@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '@envs/environment';
 import { Observable } from 'rxjs';
 import { SearchResult } from '../../common/search.model';
+import { StateMachineInstanceDetails } from '../models/statemachineinstance-details.model';
 import { StateMachineInstance } from '../models/statemachineinstance.model';
 
 @Injectable()
@@ -20,5 +21,12 @@ export class StateMachineInstancesService {
       orderBy: order,
       order: direction
     }, { headers: headers });
+  }
+
+  get(id: string): Observable<StateMachineInstanceDetails> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = environment.apiUrl + "/statemachineinstances/" + id;
+    return this.http.get<StateMachineInstanceDetails>(targetUrl, { headers: headers });
   }
 }
