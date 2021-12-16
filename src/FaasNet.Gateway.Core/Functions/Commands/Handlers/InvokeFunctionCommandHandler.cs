@@ -12,15 +12,15 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
 {
     public class InvokeFunctionCommandHandler : IRequestHandler<InvokeFunctionCommand, JToken>
     {
-        private readonly IFunctionCommandRepository _functionRepository;
-        private readonly IFunctionInvokerFactory _functionInvokerFactory;
+        private readonly IFunctionRepository _functionRepository;
+        private readonly IFunctionInvoker _functionInvoker;
 
         public InvokeFunctionCommandHandler(
-            IFunctionCommandRepository functionRepository,
-            IFunctionInvokerFactory functionInvokerFactory)
+            IFunctionRepository functionRepository,
+            IFunctionInvoker functionInvoker)
         {
             _functionRepository = functionRepository;
-            _functionInvokerFactory = functionInvokerFactory;
+            _functionInvoker = functionInvoker;
         }
 
         public Task<JToken> Handle(InvokeFunctionCommand request, CancellationToken cancellationToken)
@@ -31,13 +31,7 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
                 throw new FunctionNotFoundException(ErrorCodes.UnknownFunction, Global.UnknownFunction);
             }
 
-            var invoker = _functionInvokerFactory.Build(function.Provider);
-            if (invoker == null)
-            {
-                throw new BadRequestException(ErrorCodes.UnsupportedFunctionProvider, Global.UnsupportedFunctionProvider);
-            }
-
-            return invoker.Invoke(function.Id, request.Input, request.Configuration, cancellationToken);
+            return _functionInvoker.Invoke(function.Id, request.Input, request.Configuration, cancellationToken);
         }
     }
 }

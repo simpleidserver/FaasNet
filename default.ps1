@@ -109,6 +109,17 @@ task initLocalKubernetes {
 	# exec { kubectl apply -f ./kubernetes/faas-prometheus-svc.yml --namespace=faas }
 }
 
+task initDevKubernetes {
+	exec { kubectl apply -f ./kubernetes/faas-namespace.yml }
+    exec { kubectl apply -f ./kubernetes/prometheus-persistent-volume.yml --namespace=faas }
+    exec { kubectl apply -f ./kubernetes/prometheus-persistent-volume-claim.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/run-prometheus.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/faas-prometheus-svc.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/run-faas-kubernetes.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/faas-kubernetes-external-svc.yml --namespace=faas }
+	
+}
+
 task builderDockerImage -depends publish {
 	exec { npm run docker --prefix $source_dir\FaasNet.Website }
 	exec { docker build -f RuntimeGetSqlDockerfile -t simpleidserver/faasgetsql:0.0.3 . }

@@ -11,15 +11,15 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
 {
     public class UnpublishFunctionCommandHandler : IRequestHandler<UnpublishFunctionCommand, bool>
     {
-        private readonly IFunctionCommandRepository _functionRepository;
-        private readonly IFunctionInvokerFactory _functionInvokerFactory;
+        private readonly IFunctionRepository _functionRepository;
+        private readonly IFunctionInvoker _functionInvoker;
 
         public UnpublishFunctionCommandHandler(
-            IFunctionCommandRepository functionRepository,
-            IFunctionInvokerFactory functionInvokerFactory)
+            IFunctionRepository functionRepository,
+            IFunctionInvoker functionInvoker)
         {
             _functionRepository = functionRepository;
-            _functionInvokerFactory = functionInvokerFactory;
+            _functionInvoker = functionInvoker;
         }
 
         public async Task<bool> Handle(UnpublishFunctionCommand command, CancellationToken cancellationToken)
@@ -30,9 +30,8 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
                 throw new FunctionNotFoundException(ErrorCodes.UnknownFunction, Global.UnknownFunction);
             }
 
-            var invoker = _functionInvokerFactory.Build(function.Provider);
-            await invoker.Unpublish(command.Id, cancellationToken);
-            await invoker.RemoveAudit(command.Id, cancellationToken);
+            await _functionInvoker.Unpublish(command.Id, cancellationToken);
+            await _functionInvoker.RemoveAudit(command.Id, cancellationToken);
             await _functionRepository.Delete(function, cancellationToken);
             await _functionRepository.SaveChanges(cancellationToken);
             return true;

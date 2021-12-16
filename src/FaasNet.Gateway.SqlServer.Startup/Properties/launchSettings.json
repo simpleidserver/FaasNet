@@ -2,11 +2,10 @@
   "profiles": {
     "FaasNet.Gateway.SqlServer.Startup": {
       "commandName": "Project",
-      "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:5001;http://localhost:5003"
+      "applicationUrl": "http://localhost:5003"
     }
   }
 }

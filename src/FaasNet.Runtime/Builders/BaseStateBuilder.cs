@@ -18,6 +18,7 @@ namespace FaasNet.Runtime.Builders
 
         public IStateBuilder SetName(string name)
         {
+            StateDef.Id = name;
             StateDef.Name = name;
             return this;
         }

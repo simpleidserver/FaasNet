@@ -40,7 +40,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddMediatR(typeof(FunctionService));
             services.AddTransient<IFunctionService, FunctionService>();
             services.AddTransient<IPrometheusHelper, PrometheusHelper>();
-            services.AddTransient<IFunctionInvokerFactory, FunctionInvokerFactory>();
             services.AddTransient<IFunctionInvoker, KubernetesFunctionInvoker>();
             services.AddTransient<IFunctionProcessor, CustomFunctionProcessor>();
             return services;
@@ -49,10 +48,8 @@ namespace Microsoft.Extensions.DependencyInjection
         private static IServiceCollection AddInMemoryStore(this IServiceCollection services)
         {
             var fns = new List<FunctionAggregate>();
-            var cmdFnRepository = new InMemoryFunctionCommandRepository(fns);
-            var queryFnRepository = new InMemoryFunctionQueryRepository(fns);
-            services.AddSingleton<IFunctionCommandRepository>(cmdFnRepository);
-            services.AddSingleton<IFunctionQueryRepository>(queryFnRepository);
+            var cmdFnRepository = new InMemoryFunctionRepository(fns);
+            services.AddSingleton<IFunctionRepository>(cmdFnRepository);
             return services;
         }
     }

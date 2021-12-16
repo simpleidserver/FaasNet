@@ -1,3 +1,4 @@
+using FaasNet.Gateway.EF;
 using FaasNet.Gateway.SqlServer.Startup.Infrastructure;
 using FaasNet.Runtime.EF;
 using FaasNet.Runtime.Serializer;
@@ -37,6 +38,10 @@ namespace FaasNet.Gateway.SqlServer.Startup
                 opt.PromotheusApi = Configuration["PromotheusApi"];
             })
                 .AddRuntimeEF(opt =>
+                {
+                    opt.UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));
+                })
+                .AddGatewayEF(opt =>
                 {
                     opt.UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));
                 });
@@ -92,6 +97,11 @@ namespace FaasNet.Gateway.SqlServer.Startup
                     }
 
                     context.SaveChanges();
+                }
+
+                using (var context = scope.ServiceProvider.GetService<GatewayDBContext>())
+                {
+                    context.Database.Migrate();
                 }
             }
         }

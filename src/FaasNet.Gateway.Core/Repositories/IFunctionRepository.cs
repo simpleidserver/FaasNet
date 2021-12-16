@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Gateway.Core.Repositories
 {
-    public interface IFunctionCommandRepository
+    public interface IFunctionRepository
     {
         IQueryable<FunctionAggregate> Query();
         Task Add(FunctionAggregate function, CancellationToken cancellationToken);

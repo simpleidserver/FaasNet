@@ -23,16 +23,13 @@ namespace FaasNet.Gateway.Core.Functions.Invokers
             _promotheusHelper = promotheusHelper;
         }
 
-        public string Provider => "kubernetes";
-
-        public async Task Publish(string id, JObject jObj, CancellationToken cancellationToken)
+        public async Task Publish(string id, string image, string command, CancellationToken cancellationToken)
         {
-            var parameter = (KubernetesPublishFunctionParameter)jObj.ToObject(typeof(KubernetesPublishFunctionParameter));
             using (var httpClient = _httpClientFactory.Build())
             {
                 var json = JsonConvert.SerializeObject(new
                 {
-                    Image = parameter.Image,
+                    Image = image,
                     Id = id
                 });
                 var request = new HttpRequestMessage

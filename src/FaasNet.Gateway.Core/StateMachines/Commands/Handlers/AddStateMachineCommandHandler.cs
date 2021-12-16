@@ -38,7 +38,8 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
                 var customFunctions = request.WorkflowDefinition.Functions.Where(f => f.Type == Runtime.Domains.Enums.WorkflowDefinitionTypes.CUSTOM);
                 foreach (var customFunction in customFunctions)
                 {
-                    var id = await _functionService.Publish(customFunction.Name, customFunction.Provider, customFunction.MetadataStr, cancellationToken);
+                    var image = customFunction.Metadata.SelectToken("image").ToString();
+                    var id = await _functionService.Publish(customFunction.Name, image, cancellationToken);
                     customFunction.FunctionId = id;
                 }
 

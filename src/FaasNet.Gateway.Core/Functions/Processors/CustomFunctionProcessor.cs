@@ -11,19 +11,18 @@ namespace FaasNet.Gateway.Core.Functions.Processors
 {
     public class CustomFunctionProcessor : IFunctionProcessor
     {
-        private readonly IFunctionInvokerFactory _functionInvokerFactory;
+        private readonly IFunctionInvoker _functionInvoker;
 
-        public CustomFunctionProcessor(IFunctionInvokerFactory functionInvokerFactory)
+        public CustomFunctionProcessor(IFunctionInvoker functionInvoker)
         {
-            _functionInvokerFactory = functionInvokerFactory;
+            _functionInvoker = functionInvoker;
         }
 
         public WorkflowDefinitionTypes Type => WorkflowDefinitionTypes.CUSTOM;
 
         public Task<JToken> Process(JToken input, WorkflowDefinitionFunction function, WorkflowInstanceState instanceState, CancellationToken cancellationToken)
         {
-            var invoker = _functionInvokerFactory.Build(function.Provider);
-            return invoker.Invoke(function.FunctionId, input, function.Configuration, cancellationToken);
+            return _functionInvoker.Invoke(function.FunctionId, input, function.Configuration, cancellationToken);
         }
     }
 }

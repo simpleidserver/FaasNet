@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Linq;
 
 namespace FaasNet.Gateway.Core.Domains
@@ -10,35 +9,23 @@ namespace FaasNet.Gateway.Core.Domains
 
         public string Id { get; set; }
         public string Name { get; set; }
-        public string Provider { get; set; }
-        public string MetadataStr { get; set; }
+        public string Image { get; set; }
+        public string Command { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
-        public JObject Metadata
-        {
-            get
-            {
-                if(string.IsNullOrWhiteSpace(MetadataStr))
-                {
-                    return null;
-                }
-
-                return JObject.Parse(MetadataStr);
-            }
-        }
 
         #endregion
 
-        public static FunctionAggregate Create(string name, string provider, string metadataStr)
+        public static FunctionAggregate Create(string name, string image, string command)
         {
             return new FunctionAggregate
             {
                 Id = GenerateId(name),
-                Provider = provider,
                 CreateDateTime = DateTime.UtcNow,
                 Name = name,
-                MetadataStr = metadataStr,
-                UpdateDateTime = DateTime.UtcNow
+                UpdateDateTime = DateTime.UtcNow,
+                Image = image,
+                Command = command
             };
         }
 
@@ -47,11 +34,11 @@ namespace FaasNet.Gateway.Core.Domains
             return new FunctionAggregate
             {
                 Id = Id,
-                Provider =  Provider,
-                MetadataStr = MetadataStr,
                 CreateDateTime = CreateDateTime,
                 UpdateDateTime = UpdateDateTime,
-                Name = Name
+                Name = Name,
+                Command = Command,
+                Image = Image
             };
         }
 

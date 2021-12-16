@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace FaasNet.Gateway.SqlServer.Startup.Migrations
+namespace FaasNet.Gateway.SqlServer.Startup.Migrations.RuntimeDB
 {
-    public partial class Init : Migration
+    public partial class InitRuntime : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

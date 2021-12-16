@@ -9,6 +9,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FaasNet.Gateway.EF\FaasNet.Gateway.EF.csproj" />
     <ProjectReference Include="..\FaasNet.Runtime.EF\FaasNet.Runtime.EF.csproj" />
     <ProjectReference Include="..\FaasNet.Runtime\FaasNet.Runtime.csproj" />
     <ProjectReference Include="..\FaasNet.Gateway.Core\FaasNet.Gateway.Core.csproj" />
