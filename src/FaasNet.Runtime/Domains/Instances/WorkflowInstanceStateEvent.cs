@@ -20,11 +20,11 @@ namespace FaasNet.Runtime.Domains.Instances
         public string Type { get; set; }
         public WorkflowInstanceStateEventStates State { get; set; }
         public string InputData { get; set; }
-        public JObject InputDataObj
+        public JToken InputDataObj
         {
             get
             {
-                return JObject.Parse(InputData);
+                return JToken.Parse(InputData);
             }
         }
         public virtual ICollection<WorkflowInstanceStateEventOutput> OutputLst { get; set; }

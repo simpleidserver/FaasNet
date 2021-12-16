@@ -63,7 +63,7 @@ namespace FaasNet.Runtime.Tests
                         age = 30
                     }
                 }
-                }).End().SetOutputFilter("{ 'people' : '$.people[?(@.age < 40)]' }"))
+                }).End().SetOutputFilter("{ \"people\" : (.people | select(.[].age < 40)) }"))
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
@@ -77,13 +77,13 @@ namespace FaasNet.Runtime.Tests
             var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("Greet",
-                (act) => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.person.name' }")
-                .SetActionDataFilter(string.Empty, "$.person.message", "$.result"))
+                (act) => act.SetFunctionRef("greetingFunction", "{ \"name\" : .person.name }")
+                .SetActionDataFilter(string.Empty, ".person.message", ".result"))
                 .End())
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'name': 'simpleidserver', 'message': 'message' }}");
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
+            Assert.Equal("{\r\n  \"person\": {\r\n    \"name\": \"simpleidserver\",\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace FaasNet.Runtime.Tests
                 .StartsWith(o => o.Event()
                     .SetExclusive(false)
                     .AddOnEvent(
-                        onevt => onevt.AddEventRef("GreetingEvent").AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.person.message' }").SetActionDataFilter(string.Empty, "$.person.message", "$.result")).Build()
+                        onevt => onevt.AddEventRef("GreetingEvent").AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"name\" : .person.message }").SetActionDataFilter(string.Empty, ".person.message", ".result")).Build()
                     ).End()
                 )
                 .Build();
@@ -130,8 +130,8 @@ namespace FaasNet.Runtime.Tests
                     .AddOnEvent(
                         onevt => onevt
                             .AddEventRef("FirstEvent").AddEventRef("SecondEvent")
-                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.name' }").SetActionDataFilter(string.Empty, "$.firstEvent", "$.result"))
-                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.name' }").SetActionDataFilter(string.Empty, "$.secondEvent", "$.result"))
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"name\" : .name }").SetActionDataFilter(string.Empty, ".firstEvent", ".result"))
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"name\" : .name }").SetActionDataFilter(string.Empty, ".secondEvent", ".result"))
                             .Build()
                     )
                     .End()
@@ -176,7 +176,7 @@ namespace FaasNet.Runtime.Tests
             });
             instance = runtimeJob.WaitTerminate(instance.Id);
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("{\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\",\r\n  \"secondEvent\": \"Welcome to Serverless Workflow, secondEvent!\"\r\n}", instance.OutputStr);
+            Assert.Equal("{\r\n  \"name\": \"secondEvent\",\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\",\r\n  \"secondEvent\": \"Welcome to Serverless Workflow, secondEvent!\"\r\n}", instance.OutputStr);
         }
 
         [Fact]
@@ -192,8 +192,8 @@ namespace FaasNet.Runtime.Tests
                     .AddOnEvent(
                         onevt => onevt
                             .AddEventRef("FirstEvent").AddEventRef("SecondEvent")
-                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.name' }").SetActionDataFilter(string.Empty, "$.firstEvent", "$.result"))
-                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ 'name' : '$.name' }").SetActionDataFilter(string.Empty, "$.secondEvent", "$.result"))
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"name\" : .name }").SetActionDataFilter(string.Empty, ".firstEvent", ".result"))
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"name\" : .name }").SetActionDataFilter(string.Empty, ".secondEvent", ".result"))
                             .Build()
                     )
                     .End()
@@ -239,7 +239,7 @@ namespace FaasNet.Runtime.Tests
             Thread.Sleep(1000);
             var workflowInstance = runtimeJob.GetWorkflowInstance(instance.Id);
             Assert.Equal(1, workflowInstance.States.Count);
-            Assert.Equal("{\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\"\r\n}", workflowInstance.States.First().Events.First().OutputLst.First().Data);
+            Assert.Equal("{\r\n  \"name\": \"firstEvent\",\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\"\r\n}", workflowInstance.States.First().Events.First().OutputLst.First().Data);
             Assert.Equal(WorkflowInstanceStateEventStates.PROCESSED, workflowInstance.States.First().Events.First().State);
         }
 
@@ -249,8 +249,8 @@ namespace FaasNet.Runtime.Tests
             var runtimeJob = new RuntimeJob();
             var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
                 .StartsWith(o => o.Switch()
-                    .AddDataCondition("MoreThan18", "StartApplication", "context.GetIntFromState(\"$.applicant.age\") >= 18")
-                    .AddDataCondition("LessThan18", "RejectApplication", "context.GetIntFromState(\"$.applicant.age\") < 18")
+                    .AddDataCondition("MoreThan18", "StartApplication", ".applicant.age >= 18")
+                    .AddDataCondition("LessThan18", "RejectApplication", ".applicant.age < 18")
                 )
                 .Then(o => o.Inject().Data(new { reason = "accepted" }).End().SetName("StartApplication"))
                 .Then(o => o.Inject().Data(new { reason = "rejected" }).End().SetName("RejectApplication"))
@@ -315,8 +315,8 @@ namespace FaasNet.Runtime.Tests
             var workflowDefinition = WorkflowDefinitionBuilder.New("solvemathproblems", 1, "name", "description")
                 .AddFunction(o => o.RestAPI("solveMathExpressionFunction", "http://localhost/swagger/v1/swagger.json#calculator"))
                 .StartsWith(o => o.Foreach()
-                    .SetInputCollection("$.expressions")
-                    .SetOutputCollection("$.results")
+                    .SetInputCollection(".expressions")
+                    .SetOutputCollection(".results")
                     .SetMode(WorkflowDefinitionForeachStateModes.Sequential)
                     .AddAction("", (act) =>
                     {

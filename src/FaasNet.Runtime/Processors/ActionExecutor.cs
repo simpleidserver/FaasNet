@@ -22,10 +22,10 @@ namespace FaasNet.Runtime.Processors
 
         #region Public methods
 
-        public async Task<JObject> ExecuteAndMerge(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
+        public async Task<JToken> ExecuteAndMerge(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
             var dic = await ExecuteActions(input, actionMode, actions, executionContext, cancellationToken);
-            var output = JObject.Parse("{}");
+            var output = input;
             foreach (var kvp in dic)
             {
                 EnrichOutputState(kvp.Key, kvp.Value, output);
@@ -88,7 +88,7 @@ namespace FaasNet.Runtime.Processors
         {
             if (action.ActionDataFilter != null && !string.IsNullOrWhiteSpace(action.ActionDataFilter.FromStateData))
             {
-                inputState = inputState.Transform(action.ActionDataFilter.ToStateData);
+                inputState = inputState.Transform(action.ActionDataFilter.FromStateData);
             }
 
             if (!string.IsNullOrWhiteSpace(action.FunctionRef.ArgumentsStr))
@@ -99,14 +99,14 @@ namespace FaasNet.Runtime.Processors
             return inputState;
         }
 
-        protected virtual void EnrichOutputState(WorkflowDefinitionAction action, JToken functionResult, JObject outputState)
+        protected virtual void EnrichOutputState(WorkflowDefinitionAction action, JToken functionResult, JToken outputState)
         {
             if (action.ActionDataFilter == null || (action.ActionDataFilter != null && action.ActionDataFilter.UseResults))
             {
                 JToken inputToken = functionResult;
                 if (!string.IsNullOrWhiteSpace(action.ActionDataFilter?.Results))
                 {
-                    inputToken = functionResult.SelectToken(action.ActionDataFilter?.Results);
+                    inputToken = functionResult.Transform(action.ActionDataFilter?.Results);
                 }
 
                 if (inputToken == null)

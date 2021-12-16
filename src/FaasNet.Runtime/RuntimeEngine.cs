@@ -96,7 +96,7 @@ namespace FaasNet.Runtime
                 return;
             }
 
-            var stateDef = workflowDefinitionAggregate.GetStateByName(stateProcessorResult.Transition);
+            var stateDef = workflowDefinitionAggregate.GetState(stateProcessorResult.Transition);
             var nextState = workflowInstance.GetStateByDefId(stateDef.Id);
             if (nextState != null)
             {

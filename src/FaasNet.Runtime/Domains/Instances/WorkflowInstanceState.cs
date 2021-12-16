@@ -1,10 +1,9 @@
-﻿using DynamicExpresso;
+﻿using Coeus;
 using FaasNet.Runtime.Domains.Enums;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 namespace FaasNet.Runtime.Domains.Instances
 {
@@ -127,11 +126,8 @@ namespace FaasNet.Runtime.Domains.Instances
 
         public bool EvaluateCondition(string expression)
         {
-            var decodedExpressionBody = HttpUtility.HtmlDecode(expression);
-            var context = new ConditionExpressionContext(this);
-            var interpreter = new Interpreter().SetVariable("context", context);
-            var parsedExpression = interpreter.Parse(decodedExpressionBody);
-            return (bool)parsedExpression.Invoke();
+            var token = JQ.EvalToToken(expression, Input);
+            return bool.Parse(token.ToString());
         }
 
         #endregion

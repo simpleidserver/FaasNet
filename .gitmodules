@@ -1,0 +1,4 @@
+[submodule "lib/Coeus"]
+	path = lib/Coeus
+	url = https://github.com/simpleidserver/Coeus.git
+	branch = main

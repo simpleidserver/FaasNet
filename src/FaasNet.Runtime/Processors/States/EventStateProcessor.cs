@@ -131,7 +131,7 @@ namespace FaasNet.Runtime.Processors.States
 
         protected class OnEventResult
         {
-            public OnEventResult(string source, string type, JObject result)
+            public OnEventResult(string source, string type, JToken result)
             {
                 Source = source;
                 Type = type;
@@ -140,7 +140,7 @@ namespace FaasNet.Runtime.Processors.States
 
             public string Source { get; private set; }
             public string Type { get; private set; }
-            public JObject Result { get; private set; }
+            public JToken Result { get; private set; }
         }
     }
 }

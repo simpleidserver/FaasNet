@@ -9,11 +9,11 @@ namespace FaasNet.Runtime.Domains.Instances
 
         public int Index { get; set; }
         public string Data { get; set; }
-        public JObject DataObj
+        public JToken DataObj
         {
             get
             {
-                return JObject.Parse(Data);
+                return JToken.Parse(Data);
             }
         }
 

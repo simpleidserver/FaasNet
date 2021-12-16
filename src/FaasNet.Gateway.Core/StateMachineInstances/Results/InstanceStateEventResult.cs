@@ -8,7 +8,7 @@ namespace FaasNet.Gateway.Core.StateMachineInstances.Results
         public string Name { get; set; }
         public string Source { get; set; }
         public string Type { get; set; }
-        public JObject Input { get; set; }
+        public JToken Input { get; set; }
 
         public static InstanceStateEventResult ToDto(WorkflowInstanceStateEvent evt)
         {

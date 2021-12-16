@@ -6,8 +6,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="prometheus-net" Version="5.0.1" />
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.2.4" />
-    <PackageReference Include="DynamicExpresso.Core" Version="2.9.5" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\lib\Coeus\src\Coeus.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\Global.Designer.cs">

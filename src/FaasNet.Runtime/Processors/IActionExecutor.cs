@@ -9,7 +9,7 @@ namespace FaasNet.Runtime.Processors
 {
     public interface IActionExecutor
     {
-        Task<JObject> ExecuteAndMerge(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken);
+        Task<JToken> ExecuteAndMerge(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken);
         Task<JToken> ExecuteAndConcatenate(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken);
         Task<List<JToken>> Execute(JToken input, WorkflowDefinitionActionModes actionMode, ICollection<WorkflowDefinitionAction> actions, WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken);
     }

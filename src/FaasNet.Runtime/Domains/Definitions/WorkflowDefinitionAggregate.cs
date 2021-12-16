@@ -113,11 +113,6 @@ namespace FaasNet.Runtime.Domains.Definitions
             return States.FirstOrDefault(s => s.Id == id);
         }
 
-        public BaseWorkflowDefinitionState GetStateByName(string name)
-        {
-            return States.FirstOrDefault(s => s.Name == name);
-        }
-
         public WorkflowDefinitionEvent GetEvent(string name)
         {
             return Events.FirstOrDefault(e => e.Name == name);
