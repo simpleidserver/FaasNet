@@ -6,7 +6,7 @@ namespace FaasNet.Gateway.Core.Functions
 {
     public interface IFunctionService
     {
-        Task<string> Publish(string id, string image, CancellationToken cancellationToken);
+        Task<string> Publish(string id, string image, string version, CancellationToken cancellationToken);
         Task<JToken> Invoke(string id, JToken input, JObject configuration, CancellationToken cancellationToken);
         Task<bool> Unpublish(string id, CancellationToken cancellationToken);
     }

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace FaasNet.Gateway.SqlServer.Startup.Migrations.RuntimeDB
+namespace FaasNet.Gateway.SqlServer.Startup.Migrations
 {
     public partial class InitRuntime : Migration
     {

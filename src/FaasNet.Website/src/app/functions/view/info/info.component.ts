@@ -1,13 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { act } from '@ngrx/effects';
 import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
-import { startDelete, startGet } from '@stores/functions/actions/function.actions';
+import { startDelete } from '@stores/functions/actions/function.actions';
 import { FunctionResult } from '@stores/functions/models/function.model';
-import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -15,8 +13,6 @@ import { filter } from 'rxjs/operators';
   templateUrl: './info.component.html'
 })
 export class InfoFunctionComponent implements OnInit, OnDestroy {
-  private subscription: Subscription | undefined;
-  name: string | undefined;
   function: FunctionResult | undefined;
 
   constructor(
@@ -50,27 +46,14 @@ export class InfoFunctionComponent implements OnInit, OnDestroy {
 
       this.function = state;
     });
-    this.subscription = this.activatedRoute.params.subscribe(() => {
-      this.refresh();
-    });
   }
 
   ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
   }
 
   delete() {
     const name = this.activatedRoute.parent?.snapshot.params['name'];
     const action = startDelete({ name: name });
-    this.store.dispatch(action);
-  }
-
-  private refresh() {
-    const name = this.activatedRoute.parent?.snapshot.params['name'];
-    this.name = name;
-    const action = startGet({ name: name });
     this.store.dispatch(action);
   }
 }

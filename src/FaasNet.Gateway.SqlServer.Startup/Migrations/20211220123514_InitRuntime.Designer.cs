@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace FaasNet.Gateway.SqlServer.Startup.Migrations.RuntimeDB
+namespace FaasNet.Gateway.SqlServer.Startup.Migrations
 {
     [DbContext(typeof(RuntimeDBContext))]
-    [Migration("20211216151611_InitRuntime")]
+    [Migration("20211220123514_InitRuntime")]
     partial class InitRuntime
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

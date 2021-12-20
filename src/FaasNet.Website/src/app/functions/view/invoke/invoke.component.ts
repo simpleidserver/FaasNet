@@ -15,7 +15,6 @@ import { filter } from 'rxjs/operators';
 })
 export class InvokeFunctionComponent implements OnInit, OnDestroy {
   private subscription: Subscription | undefined;
-  name: string | undefined;
   option: any | undefined;
   form: FormGroup = new FormGroup({});
   inputForm: FormControl = new FormControl();
@@ -61,6 +60,12 @@ export class InvokeFunctionComponent implements OnInit, OnDestroy {
     }
   }
 
+  private refresh() {
+    const name = this.activatedRoute.parent?.snapshot.params['name'];
+    const action = startGetConfiguration({ name: name });
+    this.store.dispatch(action);
+  }
+
   onSave(evt: any) {
     const name = this.activatedRoute.parent?.snapshot.params['name'];
     const request = {
@@ -69,12 +74,5 @@ export class InvokeFunctionComponent implements OnInit, OnDestroy {
     };
     const invoke = startInvoke({ name: name, request: request });
     this.store.dispatch(invoke);
-  }
-
-  private refresh() {
-    const name = this.activatedRoute.parent?.snapshot.params['name'];
-    this.name = name;
-    const action = startGetConfiguration({ name: name });
-    this.store.dispatch(action);
   }
 }

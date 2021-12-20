@@ -9,14 +9,12 @@ import { startDelete, startGetCpuUsage, startGetDetails, startGetRequestDuration
 import { FunctionDetailsResult } from '@stores/functions/models/function-details.model';
 import { ChartDataSets } from 'chart.js';
 import { Label } from 'ng2-charts';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'monitoring-function',
   templateUrl: './monitoring.component.html'
 })
 export class MonitoringFunctionComponent implements OnInit, OnDestroy {
-  private subscription: Subscription | undefined;
   threadValues: ChartDataSets[] = [];
   threadLabels: Label[] = [];
   virtualMemoryBytesValues: ChartDataSets[] = [];
@@ -32,7 +30,6 @@ export class MonitoringFunctionComponent implements OnInit, OnDestroy {
       }
     }
   };
-  name: string | undefined;
   intervalRefreshThreads: any;
   updateMonitoringStatusFormGroup: FormGroup = new FormGroup({
     range: new FormControl(),
@@ -110,19 +107,12 @@ export class MonitoringFunctionComponent implements OnInit, OnDestroy {
 
       this.totalRequests = state.data.result[0].value[1];
     });
-    this.subscription = this.activatedRoute.params.subscribe(() => {
-      this.refresh();
-    });
     this.intervalRefreshThreads = setInterval(this.refresh.bind(self), 1000);
     this.updateMonitoringStatusFormGroup.get('range')?.setValue('15');
     this.updateMonitoringStatusFormGroup.get('duration')?.setValue('5');
   }
 
   ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-
     if (this.intervalRefreshThreads) {
       clearInterval(this.intervalRefreshThreads);
     }
@@ -160,7 +150,6 @@ export class MonitoringFunctionComponent implements OnInit, OnDestroy {
 
   private refreshThreads() {
     const name = this.activatedRoute.parent?.snapshot.params['name'];
-    this.name = name;
     let startDate = this.getStartDate();
     let endDate = this.getEndDate();
     const action = startGetThreads({ name: name, startDate: startDate, endDate: endDate });
@@ -169,7 +158,6 @@ export class MonitoringFunctionComponent implements OnInit, OnDestroy {
 
   private refreshVirtualMemoryBytes() {
     const name = this.activatedRoute.parent?.snapshot.params['name'];
-    this.name = name;
     let startDate = this.getStartDate();
     let endDate = this.getEndDate();
     const action = startGetVirtualMemoryBytes({ name: name, startDate: startDate, endDate: endDate });
@@ -178,7 +166,6 @@ export class MonitoringFunctionComponent implements OnInit, OnDestroy {
 
   private refreshCpuUsage() {
     const name = this.activatedRoute.parent?.snapshot.params['name'];
-    this.name = name;
     let startDate = this.getStartDate();
     let endDate = this.getEndDate();
     const action = startGetCpuUsage({ name: name, startDate: startDate, endDate: endDate, duration: this.getDuration() });
@@ -187,7 +174,6 @@ export class MonitoringFunctionComponent implements OnInit, OnDestroy {
 
   private refreshRequestDuration() {
     const name = this.activatedRoute.parent?.snapshot.params['name'];
-    this.name = name;
     let startDate = this.getStartDate();
     let endDate = this.getEndDate();
     const action = startGetRequestDuration({ name: name, startDate: startDate, endDate: endDate, duration: this.getDuration() });

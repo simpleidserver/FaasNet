@@ -1,9 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { ScannedActionsSubject, Store } from '@ngrx/store';
+import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
+import { startGet } from '@stores/functions/actions/function.actions';
+import { FunctionResult } from '@stores/functions/models/function.model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -12,6 +14,7 @@ import { Subscription } from 'rxjs';
 })
 export class ViewFunctionComponent implements OnInit, OnDestroy {
   name: string | undefined;
+  id: string | undefined;
   subscription: Subscription | undefined;
 
   constructor(
@@ -22,6 +25,14 @@ export class ViewFunctionComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
+    this.store.pipe(select(fromReducers.selectFunctionResult)).subscribe((state: FunctionResult | null) => {
+      if (!state) {
+        return;
+      }
+
+      this.name = state.name;
+      this.id = state.id;
+    });
     this.subscription = this.activatedRoute.params.subscribe(() => {
       this.refresh();
     });
@@ -35,6 +46,7 @@ export class ViewFunctionComponent implements OnInit, OnDestroy {
 
   private refresh() {
     const name = this.activatedRoute.snapshot.params['name'];
-    this.name = name;
+    const action = startGet({ name: name });
+    this.store.dispatch(action);
   }
 }

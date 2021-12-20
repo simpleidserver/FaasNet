@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace FaasNet.Gateway.SqlServer.Startup.Migrations.RuntimeDB
+namespace FaasNet.Gateway.SqlServer.Startup.Migrations
 {
     [DbContext(typeof(RuntimeDBContext))]
     partial class RuntimeDBContextModelSnapshot : ModelSnapshot

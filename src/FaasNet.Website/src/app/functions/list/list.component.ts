@@ -18,7 +18,7 @@ import { AddFunctionComponent } from './add-function.component';
   templateUrl: './list.component.html'
 })
 export class ListFunctionsComponent implements OnInit {
-  displayedColumns: string[] = ['name', 'image', 'createDateTime', 'updateDateTime'];
+  displayedColumns: string[] = ['name', 'description', 'image', 'version', 'createDateTime', 'updateDateTime'];
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
   @ViewChild(MatSort) sort: MatSort | undefined;
   functions: FunctionResult[] = [];
@@ -75,7 +75,7 @@ export class ListFunctionsComponent implements OnInit {
         return;
       }
 
-      const addFunction = startAdd({ name: opt.name, image: opt.image });
+      const addFunction = startAdd({ name: opt.name, description: opt.description, image: opt.image, version: opt.version });
       this.store.dispatch(addFunction);
     });
   }

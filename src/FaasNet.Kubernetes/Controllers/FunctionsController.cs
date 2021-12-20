@@ -1,4 +1,5 @@
 ﻿using FaasNet.Kubernetes.Commands;
+using FaasNet.Kubernetes.Results;
 using k8s;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -46,6 +47,16 @@ namespace FaasNet.Kubernetes.Controllers
             return new NoContentResult();
         }
 
+        [HttpGet("{name}/details")]
+        public async Task<IActionResult> GetDetails(string name)
+        {
+            using (var client = new k8s.Kubernetes(_configuration))
+            {
+                var pods = await client.ListNamespacedPodAsync(name);
+                return new OkObjectResult(FunctionMonitoringResult.Build(pods));
+            }
+        }
+
         [HttpPost("invoke")]
         public async Task<IActionResult> Invoke([FromBody] InvokeFunctionCommand cmd, CancellationToken cancellationToken)
         {
@@ -69,12 +80,14 @@ namespace FaasNet.Kubernetes.Controllers
             }
         }
 
-        [HttpGet("{name}/configuration")]
+        [HttpGet("{id}/configuration")]
         public async Task<IActionResult> GetConfiguration(string id)
         {
+            var url = $"{BuildFunctionUrl(id)}/configuration";
+            Console.WriteLine($"URL {url}");
             using (var httpClient = new HttpClient())
             {
-                var httpResult = await httpClient.GetAsync($"{BuildFunctionUrl(id)}/configuration");
+                var httpResult = await httpClient.GetAsync(url);
                 var json = await httpResult.Content.ReadAsStringAsync();
                 return new ContentResult
                 {
@@ -141,7 +154,7 @@ namespace FaasNet.Kubernetes.Controllers
                                 new k8s.Models.V1Container
                                 {
                                     Name = cmd.Id,
-                                    Image = cmd.Image,
+                                    Image = $"{cmd.Image}:{cmd.Version}",
                                     ImagePullPolicy = "IfNotPresent"
                                 }
                             }

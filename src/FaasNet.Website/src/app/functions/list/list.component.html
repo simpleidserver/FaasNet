@@ -15,7 +15,14 @@
       <ng-container matColumnDef="name">
         <mat-header-cell *matHeaderCellDef>{{ "functions.name" | translate }}</mat-header-cell>
         <mat-cell *matCellDef="let function">
-          <a href="#" [routerLink]="['/functions/' + function.name]">{{ function.name }}</a>
+          <a href="#" [routerLink]="['/functions/' + function.id]">{{ function.name }}</a>
+        </mat-cell>
+      </ng-container>
+      <!-- Description -->
+      <ng-container matColumnDef="description">
+        <mat-header-cell *matHeaderCellDef>{{ "functions.description" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let function">
+          {{ function.description }}
         </mat-cell>
       </ng-container>
       <!-- Image -->
@@ -23,6 +30,13 @@
         <mat-header-cell *matHeaderCellDef>{{ "functions.image" | translate }}</mat-header-cell>
         <mat-cell *matCellDef="let function">
           {{ function.image }}
+        </mat-cell>
+      </ng-container>
+      <!-- Version -->
+      <ng-container matColumnDef="version">
+        <mat-header-cell *matHeaderCellDef>{{ "functions.version" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let function">
+          {{ function.version }}
         </mat-cell>
       </ng-container>
       <!-- Create DateTime -->

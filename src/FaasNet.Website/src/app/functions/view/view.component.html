@@ -16,21 +16,21 @@
   </div>
   <nav mat-tab-nav-bar>
     <a mat-tab-link
-       [routerLink]="['/functions/' + name + '/info']"
+       [routerLink]="['/functions/' + id + '/info']"
        routerLinkActive
        #rla1="routerLinkActive"
        [active]="rla1.isActive">
       {{ 'functions.info' | translate }}
     </a>
     <a mat-tab-link
-       [routerLink]="['/functions/' + name + '/invoke']"
+       [routerLink]="['/functions/' + id + '/invoke']"
        routerLinkActive
        #rla2="routerLinkActive"
        [active]="rla2.isActive">
       {{ 'functions.invoke' | translate }}
     </a>
     <a mat-tab-link
-       [routerLink]="['/functions/' + name + '/monitoring']"
+       [routerLink]="['/functions/' + id + '/monitoring']"
        routerLinkActive
        #rla3="routerLinkActive"
        [active]="rla3.isActive">

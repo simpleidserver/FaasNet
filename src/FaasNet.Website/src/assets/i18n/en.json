@@ -1,7 +1,9 @@
 {
   "functions": {
     "list": "Functions",
-    "name": "Function",
+    "name": "Name",
+    "description": "Description",
+    "version": "Version",
     "image": "Docker Image",
     "monitoring": "Monitoring",
     "add": "Add a function",
@@ -21,6 +23,7 @@
     "info": "Information",
     "nameRequired": "The name is required",
     "imageRequired": "The image is required",
+    "versionRequired": "The version is required",
     "threads": "Threads",
     "numberThreads": "Number of threads",
     "virtualMemory": "Virtual Memory",

@@ -52,11 +52,11 @@ export class FunctionService {
     return this.http.delete<any>(targetUrl, { headers: headers });
   }
 
-  add(name: string, image: string): Observable<FunctionResult> {
+  add(name: string, description: string, image: string, version: string): Observable<FunctionResult> {
     let headers = new HttpHeaders();
     headers = headers.set('Accept', 'application/json');
     let targetUrl = environment.apiUrl + "/functions";
-    return this.http.post<any>(targetUrl, { name: name, image: image }, { headers: headers });
+    return this.http.post<any>(targetUrl, { name: name, description: description, image: image, version: version }, { headers: headers });
   }
 
   getThreads(name: string, startDate: number, endDate: number): Observable<PrometheusQueryRangeResult> {

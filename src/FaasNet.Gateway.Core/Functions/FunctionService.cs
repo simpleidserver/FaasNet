@@ -15,9 +15,9 @@ namespace FaasNet.Gateway.Core.Functions
             _mediator = mediator;
         }
 
-        public Task<string> Publish(string name, string image, CancellationToken cancellationToken)
+        public Task<string> Publish(string name, string image, string version, CancellationToken cancellationToken)
         {
-            return _mediator.Send(new PublishFunctionCommand { Image = image, Name = name }, cancellationToken);
+            return _mediator.Send(new PublishFunctionCommand { Image = image, Version = version, Name = name }, cancellationToken);
         }
 
         public Task<JToken> Invoke(string id, JToken input, JObject configuration, CancellationToken cancellationToken)

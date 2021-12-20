@@ -99,10 +99,10 @@ export class FunctionEffects {
   addFunction$ = this.actions$
     .pipe(
       ofType(startAdd),
-      mergeMap((evt: { name: string, image: string }) => {
-        return this.applicationService.add(evt.name, evt.image)
+      mergeMap((evt: { name: string, description: string, image: string, version: string }) => {
+        return this.applicationService.add(evt.name, evt.description, evt.image, evt.version)
           .pipe(
-            map(content => completeAdd({ name: evt.name, image: evt.image })),
+            map(content => completeAdd({ name: evt.name, image: evt.image, description: evt.description, version: evt.version })),
             catchError(() => of(errorAdd()))
           );
       }

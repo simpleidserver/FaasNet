@@ -77,18 +77,18 @@ task publishHelmAndWebsite {
 
 task buildLocalDockerImage -depends publish {
 	exec { npm run docker --prefix $source_dir\FaasNet.Website }
-	exec { docker build -f RuntimeGetSqlDockerfile -t localhost:5000/faasgetsql . }
+	# exec { docker build -f RuntimeGetSqlDockerfile -t localhost:5000/faasgetsql . }
 	exec { docker build -f RuntimeTransformDockerfile -t localhost:5000/faastransform . }
 	exec { docker build -f KubernetesDockerfile -t localhost:5000/faaskubernetes . }
-	exec { docker build -f GatewayDockerfile -t localhost:5000/faasgateway . }
-	exec { docker build -f WebsiteDockerfile -t localhost:5000/faaswebsite . }
+	# exec { docker build -f GatewayDockerfile -t localhost:5000/faasgateway . }
+	# exec { docker build -f WebsiteDockerfile -t localhost:5000/faaswebsite . }
 	exec { docker build -f PrometheusDockerfile -t localhost:5000/faasprometheus . }
-	exec { docker push localhost:5000/faasgetsql }
+	# exec { docker push localhost:5000/faasgetsql }
 	exec { docker push localhost:5000/faastransform }
 	exec { docker push localhost:5000/faaskubernetes }
 	# exec { docker push localhost:5000/faasgateway }
 	# exec { docker push localhost:5000/faaswebsite }
-	# exec { docker push localhost:5000/faasprometheus }
+	exec { docker push localhost:5000/faasprometheus }
 }
 
 task initLocalKubernetes {
@@ -101,6 +101,8 @@ task initLocalKubernetes {
 	exec { kubectl apply -f ./kubernetes/run-faas-kubernetes.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/faas-kubernetes-svc.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/faas-kubernetes-external-svc.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/run-prometheus.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/faas-external-prometheus-svc.yml --namespace=faas }
 	# exec { kubectl apply -f ./kubernetes/run-faas-gateway.yml --namespace=faas }
 	# exec { kubectl apply -f ./kubernetes/faas-gateway-svc.yml --namespace=faas }
 	# exec { kubectl apply -f ./kubernetes/run-website.yml --namespace=faas }

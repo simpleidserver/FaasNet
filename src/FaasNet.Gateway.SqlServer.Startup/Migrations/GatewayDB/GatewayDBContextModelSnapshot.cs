@@ -4,16 +4,14 @@ using FaasNet.Gateway.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace FaasNet.Gateway.SqlServer.Startup.Migrations
+namespace FaasNet.Gateway.SqlServer.Startup.Migrations.GatewayDB
 {
     [DbContext(typeof(GatewayDBContext))]
-    [Migration("20211216151549_InitGateway")]
-    partial class InitGateway
+    partial class GatewayDBContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,6 +30,9 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
                     b.Property<DateTime>("CreateDateTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
@@ -40,6 +41,9 @@ namespace FaasNet.Gateway.SqlServer.Startup.Migrations
 
                     b.Property<DateTime>("UpdateDateTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

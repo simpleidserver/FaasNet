@@ -23,14 +23,15 @@ namespace FaasNet.Gateway.Core.Functions.Invokers
             _promotheusHelper = promotheusHelper;
         }
 
-        public async Task Publish(string id, string image, string command, CancellationToken cancellationToken)
+        public async Task Publish(string id, string image, string version, string command, CancellationToken cancellationToken)
         {
             using (var httpClient = _httpClientFactory.Build())
             {
                 var json = JsonConvert.SerializeObject(new
                 {
                     Image = image,
-                    Id = id
+                    Id = id,
+                    Version = version
                 });
                 var request = new HttpRequestMessage
                 {

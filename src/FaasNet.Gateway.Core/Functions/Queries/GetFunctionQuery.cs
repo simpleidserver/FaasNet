@@ -5,6 +5,6 @@ namespace FaasNet.Gateway.Core.Functions.Queries
 {
     public class GetFunctionQuery : IRequest<FunctionResult>
     {
-        public string FuncName { get; set; }
+        public string Id { get; set; }
     }
 }

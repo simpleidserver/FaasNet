@@ -20,10 +20,10 @@ namespace FaasNet.Gateway.Core.Functions.Queries.Handlers
 
         public Task<FunctionResult> Handle(GetFunctionQuery request, CancellationToken cancellationToken)
         {
-            var fn = _functionRepository.Query().FirstOrDefault(f => f.Name == request.FuncName);
+            var fn = _functionRepository.Query().FirstOrDefault(f => f.Id == request.Id);
             if (fn == null)
             {
-                throw new FunctionNotFoundException(ErrorCodes.UnknownFunction, string.Format(Global.UnknownFunction, request.FuncName));
+                throw new FunctionNotFoundException(ErrorCodes.UnknownFunction, string.Format(Global.UnknownFunction, request.Id));
             }
 
             return Task.FromResult(FunctionResult.ToDto(fn));

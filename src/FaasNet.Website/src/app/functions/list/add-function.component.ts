@@ -10,7 +10,9 @@ import { TranslateService } from '@ngx-translate/core';
 export class AddFunctionComponent{
   addFunctionFormGroup: FormGroup = new FormGroup({
     name: new FormControl('', [Validators.required]),
-    image: new FormControl('', [Validators.required])
+    description: new FormControl(''),
+    image: new FormControl('', [Validators.required]),
+    version: new FormControl('', [Validators.required])
   });
 
   constructor(

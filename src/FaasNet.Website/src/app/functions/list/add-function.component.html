@@ -9,12 +9,25 @@
         {{ 'functions.nameRequired' | translate }}
       </mat-error>
     </mat-form-field>
+    <!-- Description -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'functions.description' | translate }}</mat-label>
+      <textarea formControlName="description" matInput></textarea>
+    </mat-form-field>
     <!-- Image -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'functions.image' | translate }}</mat-label>
       <input matInput formControlName="image" />
       <mat-error *ngIf="addFunctionFormGroup.get('image')?.hasError('required')">
         {{ 'functions.imageRequired' | translate }}
+      </mat-error>
+    </mat-form-field>
+    <!-- Version -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'functions.version' | translate }}</mat-label>
+      <input matInput formControlName="version" />
+      <mat-error *ngIf="addFunctionFormGroup.get('version')?.hasError('required')">
+        {{ 'functions.versionRequired' | translate }}
       </mat-error>
     </mat-form-field>
   </div>
