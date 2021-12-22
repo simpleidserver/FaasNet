@@ -40,8 +40,15 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
                 {
                     var image = customFunction.Metadata.SelectToken("image").ToString();
                     var version = customFunction.Metadata.SelectToken("version").ToString();
-                    var id = await _functionService.Publish(customFunction.Name, image, version, cancellationToken);
-                    customFunction.FunctionId = id;
+                    try
+                    {
+                        var id = await _functionService.Publish(customFunction.Name, image, version, cancellationToken);
+                        customFunction.FunctionId = id;
+                    }
+                    catch (FunctionAlreadyPublishedException ex)
+                    {
+                        customFunction.FunctionId = ex.FunctionId;
+                    }
                 }
 
                 workflowDefinition.IsLast = false;

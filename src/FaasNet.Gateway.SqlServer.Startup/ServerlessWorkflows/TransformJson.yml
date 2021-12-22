@@ -9,7 +9,7 @@ states:
   actions:
   - name: transformJson
     functionRef:
-      referenceName: transform
+      refName: transform
   end: true
   id: 9c8eeb08-3826-4a26-b11f-1e57a9dd6f97
   type: operation
@@ -18,8 +18,8 @@ functions:
 - name: transform
   type: custom
   metadata:
-    provider: kubernetes
     image: localhost:5000/faastransform
+    version: latest
     configuration:
      mappings:
      - input: firstName

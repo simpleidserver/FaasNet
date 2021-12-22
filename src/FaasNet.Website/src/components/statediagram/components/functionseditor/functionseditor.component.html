@@ -4,25 +4,58 @@
     <div fxFlex="50%" class="firstColumn column">
       <form [formGroup]="editFunctionFormGroup" (ngSubmit)="addFunction()">
         <!-- Name -->
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>{{ 'functions.name' | translate }}</mat-label>
-          <input type="text" matInput formControlName="name" />
-          <mat-error *ngIf="editFunctionFormGroup.get('name')?.errors?.required">{{ 'functions.nameRequired' | translate }}</mat-error>
-        </mat-form-field>
+        <div class="form-control">
+          <div class="title">Name</div>
+          <p class="description">Name of the function</p>
+          <input type="text" formControlName="name" class="full-width" />
+          <mat-error *ngIf="editFunctionFormGroup.get('name')?.errors?.required">Name is required</mat-error>
+        </div>
+        <mat-divider></mat-divider>
         <!-- Type -->
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>{{ 'functions.type' | translate }}</mat-label>
-          <mat-select formControlName="type">
-            <mat-option value="rest">RESTful service invocation</mat-option>
-          </mat-select>
+        <div class="form-control">
+          <div class="title">Type</div>
+          <p class="description">Select the type of function</p>
+          <select formControlName="type" class="full-width">
+            <option value="rest">RESTful service invocation</option>
+            <option value="kubernetes">Serverless function invocation</option>
+          </select>
           <mat-error *ngIf="editFunctionFormGroup.get('type')?.errors?.required">{{ 'functions.typeRequired' | translate }}</mat-error>
-        </mat-form-field>
-        <!-- Operation -->
-        <mat-form-field class="full-width" appearance="outline" *ngIf="editFunctionFormGroup.get('type')?.value">
-          <mat-label>{{ getOperationTranslationKey() | translate }}</mat-label>
-          <input type="text" matInput formControlName="operation" />
-        </mat-form-field>
-        <button mat-raised-button color="primary" [disabled]="!editFunctionFormGroup.valid">Add</button>
+        </div>
+        <div *ngIf="editFunctionFormGroup.get('type')?.value == 'rest'">
+          <mat-divider></mat-divider>
+          <!-- Operation -->
+          <div class="form-control">
+            <div class="title">Operation</div>
+            <p class="description">{{ getOperationTranslationKey() }}</p>
+            <input type="text" formControlName="operation" class="full-width" />
+          </div>
+        </div>
+        <div *ngIf="editFunctionFormGroup.get('type')?.value == 'kubernetes'" [formGroup]="editKubernetesFormGroup">
+          <mat-divider></mat-divider>
+          <!-- Image -->
+          <div class="form-control">
+            <div class="title">Image</div>
+            <p class="description">Docker image</p>
+            <input type="text" formControlName="image" class="full-width" />
+            <mat-error *ngIf="editKubernetesFormGroup.get('image')?.errors?.required">Image is required</mat-error>
+          </div>
+          <!-- Version -->
+          <div class="form-control">
+            <div class="title">Version</div>
+            <p class="description">Docker version</p>
+            <input type="text" formControlName="version" class="full-width" />
+            <mat-error *ngIf="editKubernetesFormGroup.get('version')?.errors?.required">Version is required</mat-error>
+          </div>
+          <mat-divider></mat-divider>
+          <!-- Configuration -->
+          <div class="form-control">
+            <div class="title">Configuration</div>
+            <p class="description">Configuration passed to the serverless function</p>
+            <input type="text" formControlName="configuration" class="full-width" />
+          </div>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-raised-button color="primary" [disabled]="!editFunctionFormGroup.valid" class="mt-10">Add</button>
       </form>
     </div>
     <div fxFlex="50%" class="secondColumn">
@@ -47,16 +80,9 @@
         </ng-container>
         <!-- Type -->
         <ng-container matColumnDef="type">
-          <mat-header-cell *matHeaderCellDef>{{ "functions.description" | translate }}</mat-header-cell>
+          <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
           <mat-cell *matCellDef="let function">
             {{ function.type }}
-          </mat-cell>
-        </ng-container>
-        <!-- Operation -->
-        <ng-container matColumnDef="operation">
-          <mat-header-cell *matHeaderCellDef>{{ "functions.operation" | translate }}</mat-header-cell>
-          <mat-cell *matCellDef="let function">
-            {{ function.operation }}
           </mat-cell>
         </ng-container>
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>

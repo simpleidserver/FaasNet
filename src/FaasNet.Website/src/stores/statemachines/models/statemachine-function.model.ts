@@ -8,7 +8,8 @@ export class StateMachineFunction {
     return {
       name: this.name,
       type: this.type,
-      operation: this.operation
+      operation: this.operation,
+      metadata: this.metadata
     };
   }
 

@@ -23,7 +23,12 @@ export class FunctionsEditorComponent {
     type: new FormControl('', [Validators.required]),
     operation: new FormControl(),
   });
-  displayedColumns: string[] = ['actions', 'name', 'type', 'operation'];
+  editKubernetesFormGroup: FormGroup = new FormGroup({
+    image: new FormControl('', [Validators.required]),
+    version: new FormControl('', [Validators.required]),
+    configuration: new FormControl()
+  });
+  displayedColumns: string[] = ['actions', 'name', 'type' ];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: FunctionsEditorData,
@@ -37,10 +42,30 @@ export class FunctionsEditorComponent {
   }
 
   addFunction() {
+    if (this.isDisabled()) {
+      return;
+    }
+
     let record = new StateMachineFunction();
     record.name = this.editFunctionFormGroup.get('name')?.value;
     record.operation = this.editFunctionFormGroup.get('operation')?.value;
-    record.type = this.editFunctionFormGroup.get('type')?.value;
+    let type = this.editFunctionFormGroup.get('type')?.value;
+    if (type === 'kubernetes') {
+      type = 'custom';
+      record.metadata = {
+        version: this.editKubernetesFormGroup.get('version')?.value,
+        image: this.editKubernetesFormGroup.get('image')?.value
+      };
+      var configuration = this.editKubernetesFormGroup.get('configuration')?.value;
+      if (configuration) {
+        try {
+          var o = JSON.parse(configuration);
+          record.metadata['configuration'] = o;
+        } catch { }
+      }
+    }
+
+    record.type = type;
     this.functions.data.push(record);
     this.functions.data = this.functions.data;
     this.editFunctionFormGroup.reset();
@@ -50,10 +75,23 @@ export class FunctionsEditorComponent {
     let type = this.editFunctionFormGroup.get('type')?.value;
     switch (type) {
       case 'rest':
-        return 'functions.openAPIOperation';
+        return 'OPEN API url';
     }
 
-    return 'functions.operation';
+    return '';
+  }
+
+  isDisabled() {
+    if (!this.editFunctionFormGroup.valid) {
+      return true;
+    }
+
+    let type = this.editFunctionFormGroup.get('type')?.value;
+    if (type == 'kubernetes') {
+      return !this.editKubernetesFormGroup.valid;
+    }
+
+    return false;
   }
 
   save() {

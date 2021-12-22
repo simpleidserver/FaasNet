@@ -24,9 +24,10 @@ namespace FaasNet.Gateway.Core.Functions.Commands.Handlers
         public async Task<string> Handle(PublishFunctionCommand command, CancellationToken cancellationToken)
         {
             var function = FunctionAggregate.Create(command.Name, command.Description, command.Image, command.Version, command.Command);
-            if (_functionRepository.Query().FirstOrDefault(f => f.Id == function.Id) != null)
+            var existingFunction = _functionRepository.Query().FirstOrDefault(f => f.Image == function.Image && f.Version == function.Version);
+            if (existingFunction != null)
             {
-                throw new BadRequestException(ErrorCodes.FunctionExists, string.Format(Global.FunctionExists, function.Id));
+                throw new FunctionAlreadyPublishedException(ErrorCodes.FunctionExists, string.Format(Global.FunctionExists, $"{function.Image}:{function.Version}"), existingFunction.Id);
             }
 
             await _functionInvoker.Publish(function.Id, function.Image, function.Version, function.Command, cancellationToken);

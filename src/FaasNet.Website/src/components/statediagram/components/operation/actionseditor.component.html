@@ -4,37 +4,46 @@
     <div fxFlex="50%" class="firstColumn">
       <form [formGroup]="addActionFormGroup" (ngSubmit)="addAction()">
         <!-- Name -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Action name</mat-label>
-          <input matInput formControlName="name" />
+        <div class="form-control">
+          <div class="title">Name</div>
+          <p class="description">Action name</p>
+          <input type="text" formControlName="name" class="full-width" />
           <mat-error *ngIf="addActionFormGroup.get('name')?.errors?.required">
             {{ 'functions.nameRequired' | translate }}
           </mat-error>
-        </mat-form-field>
+        </div>
+        <mat-divider></mat-divider>
         <!-- Type -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Select the type of action</mat-label>
-          <mat-select formControlName="type">
-            <mat-option value="1">Function</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <!-- Function Ref -->
+        <div class="form-control">
+          <div class="title">Type</div>
+          <p class="description">Select the type of action</p>
+          <select formControlName="type" class="full-width">
+            <option value="1">Function</option>
+          </select>
+        </div>
+        <mat-divider></mat-divider>
         <div *ngIf="addActionFormGroup.get('type')?.value == 1" [formGroup]="addFunctionFormGroup">
           <!-- Reference Name -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Select a function</mat-label>
-            <mat-select formControlName="refName">
-              <mat-option *ngFor="let function of functions" [value]="function.name">{{ function.name + ' (' + function.type + ')'}}</mat-option>
-            </mat-select>
+          <div class="form-control">
+            <div class="title">Reference Name</div>
+            <p class="description">Name of the references function</p>
+            <select formControlName="refName" class="full-width">
+              <option *ngFor="let function of functions" [value]="function.name">{{ function.name + ' (' + function.type + ')'}}</option>
+            </select>
             <mat-error *ngIf="addFunctionFormGroup.get('refName')?.errors?.required">A function must be selected</mat-error>
-          </mat-form-field>
+          </div>
+          <mat-divider></mat-divider>
           <!-- Arguments -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Arguments</mat-label>
-            <input matInput formControlName="arguments" />
-          </mat-form-field>
+          <div class="form-control">
+            <div class="title">Arguments</div>
+            <p class="description">Arguments (inputs) to be passed to the referenced function.</p>
+            <input type="text" formControlName="arguments" class="full-width" />
+          </div>
         </div>
-        <button mat-raised-button color="primary" [disabled]="isDisabled()">Add</button>
+        <mat-divider></mat-divider>
+        <div class="mt-10">
+          <button mat-raised-button color="primary" [disabled]="isDisabled()">Add</button>
+        </div>
       </form>
     </div>
     <div fxFlex="50%" class="secondColumn">
