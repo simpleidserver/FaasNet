@@ -27,7 +27,7 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
 
         public async Task<AddStateMachineResult> Handle(UpdateStateMachineCommand request, CancellationToken cancellationToken)
         {
-            var workflowDefinition = _workflowDefinitionRepository.Query().FirstOrDefault(w=> w.TechnicalId == request.Id);
+            var workflowDefinition = _workflowDefinitionRepository.Query(true).FirstOrDefault(w=> w.TechnicalId == request.Id);
             if (workflowDefinition == null)
             {
                 throw new StateMachineNotFoundException(ErrorCodes.UnknownStateMachine, string.Format(Global.UnknownStateMachine, request.WorkflowDefinition.Id));

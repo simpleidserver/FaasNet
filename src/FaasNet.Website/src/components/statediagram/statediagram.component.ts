@@ -1,15 +1,17 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { StateMachineInstanceDetails } from '@stores/statemachineinstances/models/statemachineinstance-details.model';
 import { ForeachStateMachineState } from '@stores/statemachines/models/statemachine-foreach-state.model';
 import { InjectStateMachineState } from '@stores/statemachines/models/statemachine-inject-state.model';
+import { OperationStateMachineState } from '@stores/statemachines/models/statemachine-operation-state.model';
 import { BaseTransition, EmptyTransition, StateMachineState } from '@stores/statemachines/models/statemachine-state.model';
 import { SwitchStateMachineState } from '@stores/statemachines/models/statemachine-switch-state.model';
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { BehaviorSubject } from 'rxjs';
+import { FunctionsEditorComponent, FunctionsEditorData } from './components/functionseditor/functionseditor.component';
 import { JsonComponent } from './components/json/json.component';
 import { YamlComponent } from './components/yaml/yaml.component';
-import { StateMachineInstanceDetails } from '@stores/statemachineinstances/models/statemachineinstance-details.model';
 
 class DiagramNode {
   constructor(public x: number, public y: number, public level: number, public state: StateMachineState | undefined) {
@@ -264,6 +266,9 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
       case ForeachStateMachineState.TYPE:
         child = new ForeachStateMachineState();
         break;
+      case OperationStateMachineState.TYPE:
+        child = new OperationStateMachineState();
+        break;
     }
 
     if (child) {
@@ -325,6 +330,9 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
         break;
       case ForeachStateMachineState.TYPE:
         child = new ForeachStateMachineState();
+        break;
+      case OperationStateMachineState.TYPE:
+        child = new OperationStateMachineState();
         break;
     }
 
@@ -445,6 +453,23 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
         json: JSON.stringify(this.stateMachine.getJson()),
         title: 'State Machine JSON'
       }
+    });
+  }
+
+  editFunctions() {
+    const self = this;
+    let data = new FunctionsEditorData();
+    data.functions = this.stateMachine.functions;
+    const dialogRef = this.dialog.open(FunctionsEditorComponent, {
+      data: data,
+      width: '800px'
+    });
+    dialogRef.afterClosed().subscribe((e: any) => {
+      if (!e) {
+        return;
+      }
+
+      self.stateMachine.functions = e;
     });
   }
 

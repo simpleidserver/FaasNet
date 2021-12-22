@@ -1,0 +1,45 @@
+<h2 class="state-title">
+  Operation State
+  <span (click)="close()">
+    <mat-icon>close</mat-icon>
+  </span>
+</h2>
+
+<form [formGroup]="updateOperationFormGroup" class="form">
+  <!-- Name -->
+  <div class="form-control">
+    <div class="title">Name</div>
+    <p class="description">State name</p>
+    <input type="text" formControlName="name" class="full-width" />
+  </div>
+  <mat-divider></mat-divider>
+  <!-- End -->
+  <div class="form-control">
+    <div class="title">End</div>
+    <p class="description">If this state and end state</p>
+    <select class="full-width" formControlName="end">
+      <option value="true">True</option>
+      <option value="false">False</option>
+    </select>
+  </div>
+  <mat-divider></mat-divider>
+  <!-- Action Mode -->
+  <div class="form-control">
+    <div class="title">Action Mode</div>
+    <p class="description">Should actions be performed sequentially or in parallel</p>
+    <select class="full-width" formControlName="actionMode">
+      <option value="sequential">Sequential</option>
+      <option value="parallel">Parallel</option>
+    </select>
+  </div>
+  <mat-divider></mat-divider>
+  <!-- Actions -->
+  <div class="form-control">
+    <div class="title">Actions</div>
+    <p class="description">Actions to be performed</p>
+    <div class="actions" (click)="editActions()">
+      {{ getActions() }}
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+</form>

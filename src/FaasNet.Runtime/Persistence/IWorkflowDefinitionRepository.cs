@@ -7,7 +7,7 @@ namespace FaasNet.Runtime.Persistence
 {
     public interface IWorkflowDefinitionRepository
     {
-        IQueryable<WorkflowDefinitionAggregate> Query();
+        IQueryable<WorkflowDefinitionAggregate> Query(bool include);
         Task Add(WorkflowDefinitionAggregate workflowDef, CancellationToken cancellationToken);
         Task Update(WorkflowDefinitionAggregate workflowDef, CancellationToken cancellationToken);
         Task<int> SaveChanges(CancellationToken cancellationToken);

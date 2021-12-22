@@ -38,6 +38,18 @@
         </div>
       </div>
     </div>
+    <!-- Operation -->
+    <div class="toolbox-item"  draggable="true" (dragstart)="onDragStart($event, 'operation')">
+      <div class="selector"></div>
+      <div class="content">
+        <div class="title">
+          Operation
+        </div>
+        <div class="description">
+          Defines a set of actions to be performed in sequence or in parallel.
+        </div>
+      </div>
+    </div>
   </div>
   <div [attr.class]="editMode ? 'secondColumn' : 'secondColumn full'">
     <div class="toolbar">
@@ -64,6 +76,12 @@
           <mat-icon>edit</mat-icon>
           <span class="item">
             Edit
+          </span>
+        </li>
+        <li (click)="editFunctions()">
+          <mat-icon>functions</mat-icon>
+          <span class="item">
+            Functions
           </span>
         </li>
         <li (click)="openYaml()">
@@ -188,6 +206,7 @@
           <div [ngSwitch]="selectedState?.type">
             <switch-state-editor *ngSwitchCase="'switch'" [state]="selectedState" (closed)="closePanel()"></switch-state-editor>
             <inject-state-editor *ngSwitchCase="'inject'" [state]="selectedState" (closed)="closePanel()"></inject-state-editor>
+            <operation-state-editor *ngSwitchCase="'operation'" [state]="selectedState" [stateMachine]="stateMachine" (closed)="closePanel()"></operation-state-editor>
           </div>
           <div [ngSwitch]="selectedTransition?.getType()">
             <evtcondition-editor *ngSwitchCase="'event'" [transition]="selectedTransition" (closed)="closePanel()"></evtcondition-editor>

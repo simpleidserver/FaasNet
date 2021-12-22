@@ -1,0 +1,73 @@
+<h1 mat-dialog-title>Actions Editor</h1>
+<div mat-dialog-content>
+  <div fxLayout="row">
+    <div fxFlex="50%" class="firstColumn">
+      <form [formGroup]="addActionFormGroup" (ngSubmit)="addAction()">
+        <!-- Name -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Action name</mat-label>
+          <input matInput formControlName="name" />
+          <mat-error *ngIf="addActionFormGroup.get('name')?.errors?.required">
+            {{ 'functions.nameRequired' | translate }}
+          </mat-error>
+        </mat-form-field>
+        <!-- Type -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Select the type of action</mat-label>
+          <mat-select formControlName="type">
+            <mat-option value="1">Function</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <!-- Function Ref -->
+        <div *ngIf="addActionFormGroup.get('type')?.value == 1" [formGroup]="addFunctionFormGroup">
+          <!-- Reference Name -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Select a function</mat-label>
+            <mat-select formControlName="refName">
+              <mat-option *ngFor="let function of functions" [value]="function.name">{{ function.name + ' (' + function.type + ')'}}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="addFunctionFormGroup.get('refName')?.errors?.required">A function must be selected</mat-error>
+          </mat-form-field>
+          <!-- Arguments -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Arguments</mat-label>
+            <input matInput formControlName="arguments" />
+          </mat-form-field>
+        </div>
+        <button mat-raised-button color="primary" [disabled]="isDisabled()">Add</button>
+      </form>
+    </div>
+    <div fxFlex="50%" class="secondColumn">
+      <mat-table class="full-width" [dataSource]="actions">
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef></mat-header-cell>
+          <mat-cell *matCellDef="let action; let i = index;">
+            <button mat-icon-button (click)="removeAction(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+        <!-- Name -->
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+          <mat-cell *matCellDef="let action">
+            {{ action.name }}
+          </mat-cell>
+        </ng-container>
+        <!-- Description -->
+        <ng-container matColumnDef="type">
+          <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+          <mat-cell *matCellDef="let action">
+            {{ getType(action) }}
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="save()">Save</button>
+</div>

@@ -18,7 +18,7 @@ namespace FaasNet.Runtime.Builders
         {
             _workflowDefinitionAction.FunctionRef = new WorkflowDefinitionFunctionRef
             {
-                ReferenceName = referenceName,
+                RefName = referenceName,
                 ArgumentsStr = argumentsStr
             };
             return this;

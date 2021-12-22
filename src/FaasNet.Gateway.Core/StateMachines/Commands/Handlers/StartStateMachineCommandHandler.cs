@@ -39,7 +39,7 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
 
         protected virtual ValidationResult Validate(StartStateMachineCommand request)
         {
-            var workflowDef = _workflowDefinitionRepository.Query().FirstOrDefault(w => w.TechnicalId == request.Id);
+            var workflowDef = _workflowDefinitionRepository.Query(true).FirstOrDefault(w => w.TechnicalId == request.Id);
             if (workflowDef == null)
             {
                 throw new StateMachineNotFoundException(ErrorCodes.InvalidStateMachineName, string.Format(Global.UnknownStateMachine, request.Id));

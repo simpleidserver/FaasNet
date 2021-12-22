@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using YamlDotNet.Serialization;
 
 namespace FaasNet.Runtime.Domains.Definitions
@@ -8,11 +9,12 @@ namespace FaasNet.Runtime.Domains.Definitions
         /// <summary>
         /// Name of the referenced function.
         /// </summary>
-        public string ReferenceName { get; set; }
+        public string RefName { get; set; }
         /// <summary>
         /// Arguments (inputs) to be passed to the referenced function.
         /// </summary>
         [YamlIgnore]
+        [JsonIgnore]
         public string ArgumentsStr { get; set; }
         /// <summary>
         /// Used if function type is graphsql. String containing valid GraphSQL selection set.

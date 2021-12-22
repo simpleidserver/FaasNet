@@ -1,6 +1,9 @@
+import { ForeachStateMachineState } from "./statemachine-foreach-state.model";
+import { StateMachineFunction } from "./statemachine-function.model";
 import { InjectStateMachineState } from "./statemachine-inject-state.model";
+import { OperationAction, OperationStateMachineState } from "./statemachine-operation-state.model";
 import { BaseTransition, EmptyTransition, StateDataFilter, StateMachineState } from "./statemachine-state.model";
-import { DataCondition, DefaultCondition, EventCondition, SwitchStateMachineState } from "./statemachine-switch-state.model";
+import { DataCondition, EventCondition, SwitchStateMachineState } from "./statemachine-switch-state.model";
 
 export class StartStateMachineModel {
   stateName: string | undefined;
@@ -36,6 +39,7 @@ export class StartStateMachineModel {
 export class StateMachineModel {
   constructor() {
     this.states = [];
+    this.functions = [];
   }
 
   id: string | undefined;
@@ -45,6 +49,7 @@ export class StateMachineModel {
   specVersion: string | undefined;
   start: StartStateMachineModel | undefined;
   states: StateMachineState[];
+  functions: StateMachineFunction[];
 
   get isEmpty() {
     return this.states.length === 0;
@@ -96,6 +101,9 @@ export class StateMachineModel {
       specVersion: this.specVersion,
       start: this.start,
       states: this.states.map((s: StateMachineState) => {
+        return s.getJson();
+      }),
+      functions: this.functions.map((s: StateMachineFunction) => {
         return s.getJson();
       })
     };
@@ -152,10 +160,42 @@ export class StateMachineModel {
             return switchResult;
           }
           break;
+        case OperationStateMachineState.TYPE:
+          {
+            var operationResult = new OperationStateMachineState();
+            operationResult.id = s["id"];
+            operationResult.name = s["name"];
+            operationResult.end = s["end"];
+            operationResult.transition = s["transition"];
+            operationResult.actionMode = s["actionMode"];
+            operationResult.stateDataFilter = StateDataFilter.build(s["stateDataFilter"]);
+            if (s["actions"]) {
+              operationResult.actions = s["actions"].map((ac: any) => {
+                return OperationAction.build(ac);
+              });
+            }
+            return operationResult;
+          }
+          break;
+        case ForeachStateMachineState.TYPE:
+          {
+            var foreachResult = new ForeachStateMachineState();
+            foreachResult.id = s["id"];
+            foreachResult.name = s["name"];
+            foreachResult.end = s["end"];
+            foreachResult.transition = s["transition"];
+            return foreachResult;
+          }
+          break;
       }
 
       return 
     });
+
+    if (json["functions"]) {
+      result.functions = json["functions"].map((f: any) => StateMachineFunction.build(f));
+    }
+
     return result;
   }
 }

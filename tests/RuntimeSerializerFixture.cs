@@ -32,7 +32,7 @@ namespace FaasNet.Runtime.Tests
             Assert.Equal(WorkflowDefinitionStateTypes.Operation, state.Type);
             Assert.Equal(WorkflowDefinitionActionModes.Parallel, state.ActionMode);
             Assert.Equal("Greet", firstAction.Name);
-            Assert.Equal("greetingFunction", firstAction.FunctionRef.ReferenceName);
+            Assert.Equal("greetingFunction", firstAction.FunctionRef.RefName);
             Assert.Equal("{\r\n  \"name\": \"$.person.name\"\r\n}", firstAction.FunctionRef.ArgumentsStr);
             Assert.Equal("$.person.message", firstAction.ActionDataFilter.ToStateData);
             Assert.Equal("$.result", firstAction.ActionDataFilter.Results);

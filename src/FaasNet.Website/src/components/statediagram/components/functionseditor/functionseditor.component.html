@@ -1,0 +1,70 @@
+<h1 mat-dialog-title>Functions Editor</h1>
+<div mat-dialog-content>
+  <div fxLayout="row">
+    <div fxFlex="50%" class="firstColumn column">
+      <form [formGroup]="editFunctionFormGroup" (ngSubmit)="addFunction()">
+        <!-- Name -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ 'functions.name' | translate }}</mat-label>
+          <input type="text" matInput formControlName="name" />
+          <mat-error *ngIf="editFunctionFormGroup.get('name')?.errors?.required">{{ 'functions.nameRequired' | translate }}</mat-error>
+        </mat-form-field>
+        <!-- Type -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ 'functions.type' | translate }}</mat-label>
+          <mat-select formControlName="type">
+            <mat-option value="rest">RESTful service invocation</mat-option>
+          </mat-select>
+          <mat-error *ngIf="editFunctionFormGroup.get('type')?.errors?.required">{{ 'functions.typeRequired' | translate }}</mat-error>
+        </mat-form-field>
+        <!-- Operation -->
+        <mat-form-field class="full-width" appearance="outline" *ngIf="editFunctionFormGroup.get('type')?.value">
+          <mat-label>{{ getOperationTranslationKey() | translate }}</mat-label>
+          <input type="text" matInput formControlName="operation" />
+        </mat-form-field>
+        <button mat-raised-button color="primary" [disabled]="!editFunctionFormGroup.valid">Add</button>
+      </form>
+    </div>
+    <div fxFlex="50%" class="secondColumn">
+      <mat-table class="full-width" [dataSource]="functions">
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef></mat-header-cell>
+          <mat-cell *matCellDef="let function; let i = index;">
+            <button mat-icon-button (click)="deleteFunction(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+        <!-- Name -->
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef>
+            {{ "functions.name" | translate }}
+          </mat-header-cell>
+          <mat-cell *matCellDef="let function;">
+            {{ function.name }}
+          </mat-cell>
+        </ng-container>
+        <!-- Type -->
+        <ng-container matColumnDef="type">
+          <mat-header-cell *matHeaderCellDef>{{ "functions.description" | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let function">
+            {{ function.type }}
+          </mat-cell>
+        </ng-container>
+        <!-- Operation -->
+        <ng-container matColumnDef="operation">
+          <mat-header-cell *matHeaderCellDef>{{ "functions.operation" | translate }}</mat-header-cell>
+          <mat-cell *matCellDef="let function">
+            {{ function.operation }}
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="save()">Save</button>
+</div>

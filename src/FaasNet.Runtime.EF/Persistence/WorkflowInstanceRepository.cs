@@ -24,7 +24,8 @@ namespace FaasNet.Runtime.EF.Persistence
 
         public IQueryable<WorkflowInstanceAggregate> Query()
         {
-            return _dbContext.WorkflowInstances.Include(w => w.States).ThenInclude(w => w.Events);
+            return _dbContext.WorkflowInstances
+                .Include(w => w.States).ThenInclude(w => w.Events);
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)

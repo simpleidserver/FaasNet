@@ -63,7 +63,7 @@ namespace FaasNet.Runtime.Processors
             var result = new Dictionary<WorkflowDefinitionAction, JToken>();
             foreach (var action in actions)
             {
-                var referenceName = action.FunctionRef.ReferenceName;
+                var referenceName = action.FunctionRef.RefName;
                 var function = executionContext.WorkflowDef.GetFunction(referenceName);
                 if (function == null)
                 {

@@ -30,7 +30,7 @@ namespace FaasNet.Runtime.Persistence.InMemory
         }
 
 
-        public IQueryable<WorkflowDefinitionAggregate> Query()
+        public IQueryable<WorkflowDefinitionAggregate> Query(bool include)
         {
             return _defs.AsQueryable();
         }

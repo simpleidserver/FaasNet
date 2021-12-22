@@ -112,7 +112,3 @@ export class ExpressionEditorComponent {
     this.result = result;
   }
 }
-
-function MD_DIALOG_DATA(MD_DIALOG_DATA: any) {
-    throw new Error('Function not implemented.');
-}

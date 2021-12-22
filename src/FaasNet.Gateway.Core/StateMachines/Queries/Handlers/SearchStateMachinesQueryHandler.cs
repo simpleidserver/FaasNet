@@ -30,7 +30,7 @@ namespace FaasNet.Gateway.Core.StateMachines.Queries.Handlers
 
         public Task<BaseSearchResult<StateMachineResult>> Handle(SearchStateMachinesQuery request, CancellationToken cancellationToken)
         {
-            var query = _workflowDefinitionRepository.Query();
+            var query = _workflowDefinitionRepository.Query(false);
             if (MAPPING_STATEMACHINE_TO_PROPERTYNAME.ContainsKey(request.OrderBy))
             {
                 query = query.InvokeOrderBy(MAPPING_STATEMACHINE_TO_PROPERTYNAME[request.OrderBy], request.Order);

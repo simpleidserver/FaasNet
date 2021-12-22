@@ -28,10 +28,16 @@ namespace FaasNet.Runtime.EF.Persistence
             return Task.CompletedTask;
         }
 
-        public IQueryable<WorkflowDefinitionAggregate> Query()
+        public IQueryable<WorkflowDefinitionAggregate> Query(bool include)
         {
+            if (!include)
+            {
+                return _dbContext.WorkflowDefinitions;
+            }
+
             return _dbContext.WorkflowDefinitions
                 .Include(w => w.States).ThenInclude(s => ((WorkflowDefinitionSwitchState)s).Conditions)
+                .Include(w => w.States).ThenInclude(s => ((WorkflowDefinitionOperationState)s).Actions)
                 .Include(w => w.Functions)
                 .Include(w => w.Events);
         }
