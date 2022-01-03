@@ -27,6 +27,17 @@
     },
     {
       "type": "Resource",
+      "source_relative_path": "charts/faasnet-0.0.4.tgz",
+      "output": {
+        "resource": {
+          "relative_path": "charts/faasnet-0.0.4.tgz"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
       "source_relative_path": "charts/index.yaml",
       "output": {
         "resource": {
@@ -53,7 +64,43 @@
       "output": {
         ".html": {
           "relative_path": "documentation/bigpicture/index.html",
-          "hash": "DvX7J+N2VG8FAiIj7he17e7G/0bhda0Ro49Uh9pgld8="
+          "hash": "5frwd4j/SyEOIs3v9nTeSdBBAam9dmiMfC1Dh+V1Ifo="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/cli/configuration.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/cli/configuration.html",
+          "hash": "8+EuGjA0OSd/ZbGmnsWArel3aB0AQYlhZAElGXsVO9I="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/cli/function.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/cli/function.html",
+          "hash": "jKWoovvrVFcatLeisJYrjVkdLzjjDDyimoJDhs7HtOw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/cli/overview.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/cli/overview.html",
+          "hash": "CEGl8i+NdNJEhBiFY/ulMz5oovMC6C3SzCXWe5dymD4="
         }
       },
       "is_incremental": false,
@@ -65,7 +112,74 @@
       "output": {
         ".html": {
           "relative_path": "documentation/functions/create.html",
-          "hash": "4wRL+fBjedsvYgsUr7qi9YtgqMJ3dM3A9pkXXGK/JIw="
+          "hash": "SmdmRgS1fD432kKPpvupAZ8qL0bV4yIwTygw8ExCwCM="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/functions/images/manage1.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/functions/images/manage1.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/functions/images/manage2.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/functions/images/manage2.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/functions/images/manage3.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/functions/images/manage3.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/functions/images/manage4.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/functions/images/manage4.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/functions/images/manage5.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/functions/images/manage5.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/functions/portal.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/functions/portal.html",
+          "hash": "+HXPR5Hbsj3GeI0Ii2hqSakIajz81jwh3NlG4KerjhE="
         }
       },
       "is_incremental": false,
@@ -77,7 +191,7 @@
       "output": {
         ".html": {
           "relative_path": "documentation/gettingstarted/index.html",
-          "hash": "D12MJYWbc+WWHoGISLp2wQLvu5Xz6Kj8XBpRNBDeuJ0="
+          "hash": "BPZCyhJKhKdqlWS/TBekRny0P0+uuLKGdVWr6/AD+3E="
         }
       },
       "is_incremental": false,
@@ -151,12 +265,79 @@
       "version": ""
     },
     {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/serverlessworkflows/helloworld.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/serverlessworkflows/helloworld.html",
+          "hash": "GEcNU9dHN4DCuNR2KpZaWyYTi10aZdXpLlSdoUfm+5o="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/serverlessworkflows/images/manage1.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/serverlessworkflows/images/manage1.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/serverlessworkflows/images/manage2.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/serverlessworkflows/images/manage2.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/serverlessworkflows/images/manage3.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/serverlessworkflows/images/manage3.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/serverlessworkflows/images/manage4.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/serverlessworkflows/images/manage4.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/serverlessworkflows/images/manage5.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/serverlessworkflows/images/manage5.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
       "type": "Toc",
       "source_relative_path": "documentation/toc.yml",
       "output": {
         ".html": {
           "relative_path": "documentation/toc.html",
-          "hash": "yUAeJtAk+UWJ0stvSi76rzNGLf3VrIXFWMjVMKryFvA="
+          "hash": "ehpeWC+DB1r17dwEq5c0qgpyTlUPC0xV0OZEeUOE06s="
         }
       },
       "is_incremental": false,
@@ -201,7 +382,7 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 5,
+          "total_file_count": 10,
           "skipped_file_count": 0
         },
         "ResourceDocumentProcessor": {

@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Introduction </title>
+    <title>Create workflow </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Introduction ">
+    <meta name="title" content="Create workflow ">
     <meta name="generator" content="docfx 2.58.3.0">
     
     <link rel="shortcut icon" href="../../favicon.ico">
@@ -67,18 +67,38 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="introduction">Introduction</h1>
+<h1 id="create-workflow">Create workflow</h1>
 
-<p>The FaasNet architecture is made of 6 blocks :</p>
+<div class="WARNING">
+<h5>Warning</h5>
+<p>Make sure your working environment is <a href="/documentation/gettingstarted/index.html">properly configured</a>.</p>
+</div>
+<p>The FaasNet project implements the <a href="https://github.com/serverlessworkflow/specification/blob/main/specification.md">Serverless Workflow specification</a>.
+Thanks to the web portal, a workflow/state machine can easily be developed and published by any developers.</p>
+<h1 id="create-a-serverless-workflow">Create a Serverless Workflow</h1>
+<p>In the website, click on the <code>Add a State Machine</code> button and fill in the form with the following information and click on <code>Create</code> button.</p>
 <ul>
-<li><strong>Function</strong> : Each function is deployed into one or more Kubernetes PODs.</li>
-<li><strong>Gateway</strong> : Expose operations to the angular website &amp; CLI. They are used to manage the lifecyle of the functions and workflows.</li>
-<li><strong>Monitoring</strong> : Prometheus product is configured by default in order to monitor the published functions.</li>
-<li><strong>Website</strong> : Portal application which can be used by developers to manage the functions.</li>
-<li><strong>CLI</strong> : Command Line Interface (CLI) which can be used by developers to manage the functions.</li>
-<li><strong>FaasNet Kubernetes</strong> : API used by the gateway to interact with Kubernetes.</li>
+<li><strong>Name</strong> : Name of the workflow for example <code>test</code>.</li>
+<li><strong>Description</strong> : Short description.</li>
 </ul>
-<p><img src="images/bigpicture1.png" alt="Big Picture"></p>
+<p><img src="images/manage1.png" alt="Add workflow"></p>
+<p>The state machine will be published and displayed in the table.</p>
+<p><img src="images/manage2.png" alt="Workflows"></p>
+<h1 id="edit-the-workflow">Edit the workflow</h1>
+<p>In the table, click on the link to edit the workflow. The edition view contains four blocks:</p>
+<ol>
+<li>Toolbox : States which can be added to the workflow for example : Injection and Switch state.</li>
+<li>Toolbar : List of possible actions : save workflow, create and launch an instance.</li>
+<li>Editor : Structure of the workflow.</li>
+<li>Properties : Properties of the selected state.</li>
+</ol>
+<p><img src="images/manage3.png" alt="Edition view"></p>
+<h1 id="launch-the-workflow">Launch the workflow</h1>
+<p>Click on the <code>Launch</code> button. A popup <code>Launch State Machine</code> will be displayed, pass an empty JSON object in the textarea and click on the <code>Launch</code> button. If the instance is successfully launched then a successful message will be displayed.</p>
+<p><img src="images/manage4.png" alt="Create and launch instance"></p>
+<p>Navigate to the <code>State Machine instances</code> view and click on the latest instance displayed in the table.
+The UI displays all the incoming and outoing tokens of all the states.</p>
+<p><img src="images/manage5.png" alt="View instance"></p>
 </article>
           </div>
           
@@ -87,7 +107,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/bigpicture/index.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.4/docs/documentation/serverlessworkflows/create.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

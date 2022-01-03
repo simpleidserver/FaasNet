@@ -82,51 +82,11 @@
 </code></pre>
 <p>Install and launch the <code>faasnet</code> project.</p>
 <pre><code>helm repo add faasnet https://simpleidserver.github.io/FaasNet/charts/
-helm install my-faasnet faasnet/faasnet --version 0.0.3 --namespace=faas
+helm install my-faasnet faasnet/faasnet --version 0.0.4 --namespace=faas
 </code></pre>
 <p>If the <code>faasnet</code> repository is already installed, its latest version can be downloaded by executing the following command.</p>
 <pre><code>helm repo update
 </code></pre>
-<h1 id="deploy-and-execute-your-first-api-operation">Deploy and execute your first API operation</h1>
-<p>Before starting, an SQLServer database should be deployed in kubernetes.</p>
-<pre><code>kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/run-mssql.yml --namespace=faas
-kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/mssql-external-svc.yml --namespace=faas
-kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/mssql-internal-svc.yml --namespace=faas
-</code></pre>
-<p>Authenticate to the SQLServer database <code>127.0.0.1, 30010</code> with the following credentials :</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Login</td>
-<td>sa</td>
-</tr>
-<tr>
-<td>Password</td>
-<td>D54DE7hHpkG9</td>
-</tr>
-</tbody>
-</table>
-<p>Add a new <code>OpenID</code> database schema, create the table <code>[dbo].[Acrs]</code> and insert some data.</p>
-<pre><code>CREATE DATABASE OpenID;
-CREATE TABLE [OpenID].[dbo].[Acrs](
-	[Id] [uniqueidentifier] NULL,
-	[Name] [nvarchar](255) NULL
-) ON [PRIMARY]
-GO
-INSERT INTO [OpenID].[dbo].[Acrs] VALUES (NEWID(), 'acr1')
-INSERT INTO [OpenID].[dbo].[Acrs] VALUES (NEWID(), 'acr2')
-INSERT INTO [OpenID].[dbo].[Acrs] VALUES (NEWID(), 'acr3')
-</code></pre>
-<p>Deploy your first API operation. If there is no error during the deployment then the message <code>Configuration is applied</code> is displayed.</p>
-<pre><code>FaasNet.CLI.exe apply -u https://raw.githubusercontent.com/simpleidserver/FaasNet/master/faasnet.yml
-</code></pre>
-<p>Open Postman or an another tool, execute the HTTP POST request against <code>http://localhost:30001/clients</code>.</p>
 </article>
           </div>
           

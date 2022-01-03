@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Introduction </title>
+    <title>FaasNet.CLI configuration </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Introduction ">
+    <meta name="title" content="FaasNet.CLI configuration ">
     <meta name="generator" content="docfx 2.58.3.0">
     
     <link rel="shortcut icon" href="../../favicon.ico">
@@ -67,18 +67,32 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="introduction">Introduction</h1>
+<h1 id="faasnetcli-configuration">FaasNet.CLI configuration</h1>
 
-<p>The FaasNet architecture is made of 6 blocks :</p>
-<ul>
-<li><strong>Function</strong> : Each function is deployed into one or more Kubernetes PODs.</li>
-<li><strong>Gateway</strong> : Expose operations to the angular website &amp; CLI. They are used to manage the lifecyle of the functions and workflows.</li>
-<li><strong>Monitoring</strong> : Prometheus product is configured by default in order to monitor the published functions.</li>
-<li><strong>Website</strong> : Portal application which can be used by developers to manage the functions.</li>
-<li><strong>CLI</strong> : Command Line Interface (CLI) which can be used by developers to manage the functions.</li>
-<li><strong>FaasNet Kubernetes</strong> : API used by the gateway to interact with Kubernetes.</li>
-</ul>
-<p><img src="images/bigpicture1.png" alt="Big Picture"></p>
+<h2 id="name">Name</h2>
+<p>FaasNet.CLI configuration - Manage the configuration.</p>
+<h2 id="options">Options</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Arguments</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FaasNet.CLI configuration -set gateway=URL</code></td>
+<td><code>URL</code>: URL of the gateway.</td>
+<td>Update the Gateway URL.</td>
+</tr>
+<tr>
+<td><code>FaasNet.CLI configuration -get gateway</code></td>
+<td></td>
+<td>Get the Gateway URL</td>
+</tr>
+</tbody>
+</table>
 </article>
           </div>
           
@@ -87,7 +101,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/bigpicture/index.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/cli/configuration.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

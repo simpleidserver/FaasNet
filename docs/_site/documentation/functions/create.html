@@ -118,15 +118,15 @@ The <code>DIRECTORY</code> variable must be replaced by the directory of the Fun
 <pre><code>FaasNet.CLI function -dp &lt;IMAGENAME&gt;
 </code></pre>
 <p>Finally, execute the latest command line to deploy the function into the Gateway API. Replace the <code>FUNCTIONNAME</code> variable by the name of your function and replace the <code>IMAGENAME</code> variable by the name of your Docker image.</p>
-<pre><code>FaasNet.CLI function deploy -name &lt;FUNCTIONAME&gt; -image &lt;IMAGENAME&gt;
+<pre><code>FaasNet.CLI function deploy -name &lt;FUNCTIONAME&gt; -image &lt;IMAGENAME&gt; -version latest
 </code></pre>
 <h1 id="execute-a-function">Execute a function</h1>
 <div class="WARNING">
 <h5>Warning</h5>
 <p>Before you start, Make sure you have a function deployed in the Gateway API.</p>
 </div>
-<p>Execute the following command to invoke a function. Replace the <code>FUNCTIONNAME</code> variable by the name of your function.</p>
-<pre><code>FaasNet.CLI function invoke -name &lt;FUNCTIONNAME&gt; -input {} -configuration {'firstName':'coucou'}
+<p>Execute the following command to invoke a function. Replace the <code>FUNCTIONID</code> variable by the identifier of your function.</p>
+<pre><code>FaasNet.CLI function invoke -id &lt;FUNCTIONID&gt; -input {} -configuration {'firstName':'coucou'}
 </code></pre>
 <p>The following message is displayed</p>
 <pre><code>{
