@@ -1,4 +1,4 @@
-﻿using FaasNet.Common.Configuration;
+﻿using FaasNet.CLI.Configurations;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

@@ -41,7 +41,7 @@ namespace FaasNet.Gateway.Core.Helpers
 
         private ICollection<PrometheusTarget> GetTargets()
         {
-            if (string.IsNullOrWhiteSpace(_configuration.PrometheusFilePath))
+            if (string.IsNullOrWhiteSpace(_configuration.PrometheusFilePath) || !File.Exists(_configuration.PrometheusFilePath))
             {
                 return new List<PrometheusTarget>();
             }
@@ -55,6 +55,11 @@ namespace FaasNet.Gateway.Core.Helpers
             if (string.IsNullOrWhiteSpace(_configuration.PrometheusFilePath))
             {
                 return;
+            }
+
+            if (!File.Exists(_configuration.PrometheusFilePath))
+            {
+                File.Create(_configuration.PrometheusFilePath).Close();
             }
 
             File.WriteAllText(_configuration.PrometheusFilePath, JsonConvert.SerializeObject(targets));

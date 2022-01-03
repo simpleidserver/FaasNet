@@ -25,9 +25,9 @@ namespace FaasNet.CLI.Commands
                 return;
             }
 
-            var name = args.First();
+            var id = args.First();
             var gatewayClient = new GatewayClient();
-            var jObj = gatewayClient.GetConfiguration(configuration.Provider.Gateway, name);
+            var jObj = gatewayClient.GetConfiguration(configuration.Provider.Gateway, id);
             Console.WriteLine(jObj.ToString());
         }
     }

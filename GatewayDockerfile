@@ -8,4 +8,4 @@ EXPOSE 8080
 
 WORKDIR /App
 
-ENTRYPOINT ["dotnet", "FaasNet.Gateway.Startup.dll"]
+ENTRYPOINT ["dotnet", "FaasNet.Gateway.SqlServer.Startup.dll"]

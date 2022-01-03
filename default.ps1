@@ -21,8 +21,8 @@ task publish {
 	exec { dotnet publish $source_dir\FaasNet.Function.GetSql\FaasNet.Function.GetSql.csproj -c $config -o $result_dir\services\RuntimeGetSql }
 	exec { dotnet publish $source_dir\FaasNet.Function.Transform\FaasNet.Function.Transform.csproj -c $config -o $result_dir\services\RuntimeTransform }
 	exec { dotnet publish $source_dir\FaasNet.Kubernetes\FaasNet.Kubernetes.csproj -c $config -o $result_dir\services\Kubernetes }
-	# exec { dotnet publish $source_dir\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj -c $config -o $result_dir\services\Gateway }
-	# exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
+	exec { dotnet publish $source_dir\FaasNet.Gateway.SqlServer.Startup\FaasNet.Gateway.SqlServer.Startup.csproj -c $config -o $result_dir\services\Gateway }
+	exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
 }
 
 task publishTemplate {
@@ -77,38 +77,34 @@ task publishHelmAndWebsite {
 
 task buildLocalDockerImage -depends publish {
 	exec { npm run docker --prefix $source_dir\FaasNet.Website }
-	# exec { docker build -f RuntimeGetSqlDockerfile -t localhost:5000/faasgetsql . }
+	exec { docker build -f RuntimeGetSqlDockerfile -t localhost:5000/faasgetsql . }
 	exec { docker build -f RuntimeTransformDockerfile -t localhost:5000/faastransform . }
 	exec { docker build -f KubernetesDockerfile -t localhost:5000/faaskubernetes . }
-	# exec { docker build -f GatewayDockerfile -t localhost:5000/faasgateway . }
-	# exec { docker build -f WebsiteDockerfile -t localhost:5000/faaswebsite . }
+	exec { docker build -f GatewayDockerfile -t localhost:5000/faasgateway . }
+	exec { docker build -f WebsiteDockerfile -t localhost:5000/faaswebsite . }
 	exec { docker build -f PrometheusDockerfile -t localhost:5000/faasprometheus . }
-	# exec { docker push localhost:5000/faasgetsql }
+	exec { docker push localhost:5000/faasgetsql }
 	exec { docker push localhost:5000/faastransform }
 	exec { docker push localhost:5000/faaskubernetes }
-	# exec { docker push localhost:5000/faasgateway }
-	# exec { docker push localhost:5000/faaswebsite }
+	exec { docker push localhost:5000/faasgateway }
+	exec { docker push localhost:5000/faaswebsite }
 	exec { docker push localhost:5000/faasprometheus }
 }
 
 task initLocalKubernetes {
 	exec { kubectl apply -f ./kubernetes/faas-namespace.yml }
     exec { kubectl apply -f ./kubernetes/run-mssql.yml --namespace=faas }
-    exec { kubectl apply -f ./kubernetes/mssql-external-svc.yml --namespace=faas }
     exec { kubectl apply -f ./kubernetes/mssql-internal-svc.yml --namespace=faas }
     exec { kubectl apply -f ./kubernetes/prometheus-persistent-volume.yml --namespace=faas }
     exec { kubectl apply -f ./kubernetes/prometheus-persistent-volume-claim.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/run-faas-kubernetes.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/faas-kubernetes-svc.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-kubernetes-external-svc.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/run-prometheus.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-external-prometheus-svc.yml --namespace=faas }
-	# exec { kubectl apply -f ./kubernetes/run-faas-gateway.yml --namespace=faas }
-	# exec { kubectl apply -f ./kubernetes/faas-gateway-svc.yml --namespace=faas }
-	# exec { kubectl apply -f ./kubernetes/run-website.yml --namespace=faas }
-	# exec { kubectl apply -f ./kubernetes/faas-website-svc.yml --namespace=faas }
-	# exec { kubectl apply -f ./kubernetes/run-prometheus.yml --namespace=faas }
-	# exec { kubectl apply -f ./kubernetes/faas-prometheus-svc.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/faas-prometheus-svc.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/run-faas-gateway.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/faas-gateway-svc.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/run-website.yml --namespace=faas }
+	exec { kubectl apply -f ./kubernetes/faas-website-svc.yml --namespace=faas }
 }
 
 task initDevKubernetes {
@@ -118,24 +114,23 @@ task initDevKubernetes {
 	exec { kubectl apply -f ./kubernetes/run-prometheus.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/faas-prometheus-svc.yml --namespace=faas }
 	exec { kubectl apply -f ./kubernetes/run-faas-kubernetes.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-kubernetes-external-svc.yml --namespace=faas }
-	
+	exec { kubectl apply -f ./kubernetes/faas-kubernetes-external-svc.yml --namespace=faas }	
 }
 
 task builderDockerImage -depends publish {
 	exec { npm run docker --prefix $source_dir\FaasNet.Website }
-	exec { docker build -f RuntimeGetSqlDockerfile -t simpleidserver/faasgetsql:0.0.3 . }
-	exec { docker build -f RuntimeTransformDockerfile -t simpleidserver/faastransform:0.0.3 . }
-	exec { docker build -f KubernetesDockerfile -t simpleidserver/faaskubernetes:0.0.3 . }
-	exec { docker build -f GatewayDockerfile -t simpleidserver/faasgateway:0.0.3 . }
-	exec { docker build -f WebsiteDockerfile -t simpleidserver/faaswebsite:0.0.3 . }
-	exec { docker build -f PrometheusDockerfile -t simpleidserver/faasprometheus:0.0.3 . }
-	exec { docker push simpleidserver/faasgetsql:0.0.3 }
-	exec { docker push simpleidserver/faastransform:0.0.3 }
-	exec { docker push simpleidserver/faaskubernetes:0.0.3 }
-	exec { docker push simpleidserver/faasgateway:0.0.3 }
-	exec { docker push simpleidserver/faaswebsite:0.0.3 }
-	exec { docker push simpleidserver/faasprometheus:0.0.3 }
+	exec { docker build -f RuntimeGetSqlDockerfile -t simpleidserver/faasgetsql:0.0.4 . }
+	exec { docker build -f RuntimeTransformDockerfile -t simpleidserver/faastransform:0.0.4 . }
+	exec { docker build -f KubernetesDockerfile -t simpleidserver/faaskubernetes:0.0.4 . }
+	exec { docker build -f GatewayDockerfile -t simpleidserver/faasgateway:0.0.4 . }
+	exec { docker build -f WebsiteDockerfile -t simpleidserver/faaswebsite:0.0.4 . }
+	exec { docker build -f PrometheusDockerfile -t simpleidserver/faasprometheus:0.0.4 . }
+	exec { docker push simpleidserver/faasgetsql:0.0.4 }
+	exec { docker push simpleidserver/faastransform:0.0.4 }
+	exec { docker push simpleidserver/faaskubernetes:0.0.4 }
+	exec { docker push simpleidserver/faasgateway:0.0.4 }
+	exec { docker push simpleidserver/faaswebsite:0.0.4 }
+	exec { docker push simpleidserver/faasprometheus:0.0.4 }
 }
 
 task pack -depends release, compile {

@@ -14,7 +14,7 @@ namespace FaasNet.CLI.Commands
         {
             if (!args.Any())
             {
-                Console.WriteLine("The name must be specified");
+                Console.WriteLine("The identifier must be specified");
                 return;
             }
 
@@ -25,13 +25,10 @@ namespace FaasNet.CLI.Commands
                 return;
             }
 
-            var name = args.First();
+            var id = args.First();
             var client = new GatewayClient();
-            client.UnpublishFunction(configuration.Provider.Gateway, name);
-            var fn = configuration.Functions.First(f => f.Name == name);
-            configuration.Functions.Remove(fn);
-            ConfigurationHelper.UpdateConfiguration(configuration);
-            Console.WriteLine($"The function '{name}' is remove");
+            client.UnpublishFunction(configuration.Provider.Gateway, id);
+            Console.WriteLine($"The function '{id}' is remove");
         }
     }
 }

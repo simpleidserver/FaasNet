@@ -1,6 +1,5 @@
 ﻿using FaasNet.CLI.Commands;
 using FaasNet.CLI.Helpers;
-using System;
 using System.Collections.Generic;
 
 namespace FaasNet.CLI
@@ -9,7 +8,6 @@ namespace FaasNet.CLI
     {
         private static List<IMenuItemCommand> Commands = new List<IMenuItemCommand>
         {
-            new ApplyCommand(),
             new FunctionCommand(),
             new ConfigurationCommand()
         };

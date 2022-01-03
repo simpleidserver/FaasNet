@@ -6,7 +6,18 @@
   items:
    - name: Create and deploy a function
      href: functions/create.md
-- name: Portal
-  items:  
-   - name: Manage functions
-     href: portal/manage.md
+   - name: Web portal
+     href: functions/portal.md
+- name: Workflows
+  items:
+   - name: Hello World workflow
+     href: serverlessworkflows/helloworld.md
+- name: CLI
+  items:
+   - name: Overview
+     href: cli/overview.md
+   - name: Function
+     href: cli/function.md
+   - name: Configuration
+     href: cli/configuration.md
+  

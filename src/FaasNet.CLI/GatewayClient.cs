@@ -9,14 +9,15 @@ namespace FaasNet.CLI
 {
     public class GatewayClient
     {
-        public void PublishFunction(string baseUrl, string name, string image)
+        public PublishFunctionResult PublishFunction(string baseUrl, string name, string image, string version)
         {
             using (var httpClient = new HttpClient())
             {
                 var cmd = new PublishFunction
                 {
                     Image = image,
-                    Name = name
+                    Name = name,
+                    Version = version
                 };
                 var requestMessage = new HttpRequestMessage
                 {
@@ -26,6 +27,8 @@ namespace FaasNet.CLI
                 };
                 var httpResult = httpClient.SendAsync(requestMessage).Result;
                 httpResult.EnsureSuccessStatusCode();
+                var json = httpResult.Content.ReadAsStringAsync().Result;
+                return JsonConvert.DeserializeObject<PublishFunctionResult>(json);
             }
         }
 
@@ -43,7 +46,7 @@ namespace FaasNet.CLI
             }
         }
 
-        public JObject InvokeFunction(string baseUrl, string name, string configuration, string input)
+        public JObject InvokeFunction(string baseUrl, string id, string configuration, string input)
         {
             using (var httpClient = new HttpClient())
             {
@@ -52,7 +55,7 @@ namespace FaasNet.CLI
                 req.Add("configuration", JObject.Parse(configuration));
                 var requestMessage = new HttpRequestMessage
                 {
-                    RequestUri = new Uri($"{baseUrl}/functions/{name}/invoke"),
+                    RequestUri = new Uri($"{baseUrl}/functions/{id}/invoke"),
                     Method = HttpMethod.Post,
                     Content = new StringContent(req.ToString(), Encoding.UTF8, "application/json")
                 };

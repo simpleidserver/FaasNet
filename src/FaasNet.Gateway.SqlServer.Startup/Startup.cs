@@ -36,6 +36,7 @@ namespace FaasNet.Gateway.SqlServer.Startup
             {
                 opt.FunctionApi = Configuration["KubernetesApi"];
                 opt.PromotheusApi = Configuration["PromotheusApi"];
+                opt.PrometheusFilePath = Configuration["PrometheusFilePath"];
             })
                 .AddRuntimeEF(opt =>
                 {

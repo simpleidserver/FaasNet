@@ -1,6 +1,5 @@
 ﻿using FaasNet.CLI.Helpers;
 using FaasNet.CLI.Parameters;
-using FaasNet.Common.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +13,9 @@ namespace FaasNet.CLI.Commands
 
         public void Execute(IEnumerable<string> args)
         {
-            if (!args.Any() || args.Count() != 4)
+            if (!args.Any() || args.Count() != 6)
             {
-                Console.WriteLine("The -name and -image must be specified");
+                Console.WriteLine("The -name, -image and -version arguments must be specified");
                 return;
             }
 
@@ -36,14 +35,8 @@ namespace FaasNet.CLI.Commands
             }
 
             var client = new GatewayClient();
-            client.PublishFunction(configuration.Provider.Gateway, parameter.Name, parameter.Image);
-            configuration.Functions.Add(new FaasFunctionConfiguration
-            {
-                Image = parameter.Image,
-                Name = parameter.Name
-            });
-            ConfigurationHelper.UpdateConfiguration(configuration);
-            Console.WriteLine($"The function '{parameter.Name}' is published");
+            var publishFunctionResult = client.PublishFunction(configuration.Provider.Gateway, parameter.Name, parameter.Image, parameter.Version);
+            Console.WriteLine($"New id: '{publishFunctionResult.Id}'");
         }
     }
 }

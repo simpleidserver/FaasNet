@@ -1,5 +1,5 @@
 ﻿
-namespace FaasNet.Common.Configuration
+namespace FaasNet.CLI.Configurations
 {
     public class FaasProviderConfiguration
     {

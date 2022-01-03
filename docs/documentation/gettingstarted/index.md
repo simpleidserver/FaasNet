@@ -20,7 +20,7 @@ Install and launch the `faasnet` project.
 
 ```
 helm repo add faasnet https://simpleidserver.github.io/FaasNet/charts/
-helm install my-faasnet faasnet/faasnet --version 0.0.3 --namespace=faas
+helm install my-faasnet faasnet/faasnet --version 0.0.4 --namespace=faas
 ```
 
 If the `faasnet` repository is already installed, its latest version can be downloaded by executing the following command.
@@ -28,42 +28,3 @@ If the `faasnet` repository is already installed, its latest version can be down
 ```
 helm repo update
 ```
-
-# Deploy and execute your first API operation
-
-Before starting, an SQLServer database should be deployed in kubernetes.
-
-```
-kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/run-mssql.yml --namespace=faas
-kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/mssql-external-svc.yml --namespace=faas
-kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/mssql-internal-svc.yml --namespace=faas
-```
-
-Authenticate to the SQLServer database `127.0.0.1, 30010` with the following credentials :
-
-| Parameter | Value        |
-| --------- | ------------ |
-| Login     | sa           |
-| Password  | D54DE7hHpkG9 |
-
-Add a new `OpenID` database schema, create the table `[dbo].[Acrs]` and insert some data.
-
-```
-CREATE DATABASE OpenID;
-CREATE TABLE [OpenID].[dbo].[Acrs](
-	[Id] [uniqueidentifier] NULL,
-	[Name] [nvarchar](255) NULL
-) ON [PRIMARY]
-GO
-INSERT INTO [OpenID].[dbo].[Acrs] VALUES (NEWID(), 'acr1')
-INSERT INTO [OpenID].[dbo].[Acrs] VALUES (NEWID(), 'acr2')
-INSERT INTO [OpenID].[dbo].[Acrs] VALUES (NEWID(), 'acr3')
-```
-
-Deploy your first API operation. If there is no error during the deployment then the message `Configuration is applied` is displayed.
-
-```
-FaasNet.CLI.exe apply -u https://raw.githubusercontent.com/simpleidserver/FaasNet/master/faasnet.yml
-```
-
-Open Postman or an another tool, execute the HTTP POST request against `http://localhost:30001/clients`.

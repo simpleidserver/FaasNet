@@ -2,6 +2,8 @@
 using FaasNet.Gateway.Core.Functions.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,8 +22,16 @@ namespace FaasNet.Gateway.SqlServer.Startup.Controllers
         [HttpPost]
         public async Task<IActionResult> Publish([FromBody] PublishFunctionCommand cmd, CancellationToken cancellationToken)
         {
-            await _mediator.Send(cmd, cancellationToken);
-            return new NoContentResult();
+            var result = await _mediator.Send(cmd, cancellationToken);
+            return new ContentResult
+            {
+                StatusCode = (int)HttpStatusCode.Created,
+                Content = JsonConvert.SerializeObject(new
+                {
+                    id = result
+                }),
+                ContentType = "application/json"
+            };
         }
 
 

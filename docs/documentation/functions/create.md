@@ -69,7 +69,7 @@ FaasNet.CLI function -dp <IMAGENAME>
 Finally, execute the latest command line to deploy the function into the Gateway API. Replace the `FUNCTIONNAME` variable by the name of your function and replace the `IMAGENAME` variable by the name of your Docker image.
 
 ```
-FaasNet.CLI function deploy -name <FUNCTIONAME> -image <IMAGENAME>
+FaasNet.CLI function deploy -name <FUNCTIONAME> -image <IMAGENAME> -version latest
 ```
 
 # Execute a function
@@ -77,10 +77,10 @@ FaasNet.CLI function deploy -name <FUNCTIONAME> -image <IMAGENAME>
 > [!WARNING]
 > Before you start, Make sure you have a function deployed in the Gateway API.
 
-Execute the following command to invoke a function. Replace the `FUNCTIONNAME` variable by the name of your function.
+Execute the following command to invoke a function. Replace the `FUNCTIONID` variable by the identifier of your function.
 
 ```
-FaasNet.CLI function invoke -name <FUNCTIONNAME> -input {} -configuration {'firstName':'coucou'}
+FaasNet.CLI function invoke -id <FUNCTIONID> -input {} -configuration {'firstName':'coucou'}
 ```
 
 The following message is displayed

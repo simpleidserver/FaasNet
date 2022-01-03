@@ -35,7 +35,7 @@ namespace FaasNet.CLI.Commands
             }
 
             var gatewayClient = new GatewayClient();
-            var jObj = gatewayClient.InvokeFunction(configuration.Provider.Gateway, parameter.Name, parameter.Configuration, parameter.Input);
+            var jObj = gatewayClient.InvokeFunction(configuration.Provider.Gateway, parameter.Id, parameter.Configuration, parameter.Input);
             Console.WriteLine(jObj.ToString());
         }
     }
