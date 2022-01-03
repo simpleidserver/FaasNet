@@ -7,6 +7,8 @@ branches:
 image: Visual Studio 2019
 nuget:
   disable_publish_on_pr: true
+install:
+  - git submodule update --init --recursive
 build_script:
 - cmd: >-
     .\psake.cmd ci
