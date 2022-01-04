@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Manage Functions </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Manage Functions ">
+    <meta name="generator" content="docfx 2.58.3.0">
+    
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../styles/docfx.css">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <meta property="docfx:navrel" content="../../toc.html">
+    <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="manage-functions">Manage Functions</h1>
+
+<div class="WARNING">
+<h5>Warning</h5>
+<p>Make sure your working environment is <a href="/documentation/gettingstarted/index.html">properly configured</a>.</p>
+</div>
+<p>A Portal is available at the following <a href="http://localhost:30003">address</a>. It can be used by developers to manage functions.
+The following chapters describe how functions can easily be managed.</p>
+<h1 id="publish-a-function">Publish a function</h1>
+<div class="WARNING">
+<h5>Warning</h5>
+<p>Before publishing a function, it should be available in an online store for example DockerHub. For more information please refer to this <a href="/documentation/functions/create.html#deploy-a-function">chapter</a>.</p>
+</div>
+<p>In the website, click on the <code>Add a function</code> button and fill in the form with the following information and click on <code>Create</code>.</p>
+<ul>
+<li><strong>Name</strong> : This parameter is used to uniquely identify a function for example <code>test</code>.</li>
+<li><strong>Image</strong>: Name of the Docker image for example : <code>simpleidserver/faastransform:0.0.3</code>.</li>
+</ul>
+<p><img src="images/manage1.png" alt="Publish function"></p>
+<p>The function will be published and displayed in the table.</p>
+<p><img src="images/manage2.png" alt="Published functions"></p>
+<h1 id="unpublish-a-function">Unpublish a function</h1>
+<p>Navigate to the function and click on the <code>Delete</code> button present in the <code>Information</code> tab.</p>
+<p>The function will be unpublished and removed from the table.</p>
+<p><img src="images/manage3.png" alt="Unpublish function"></p>
+<h1 id="invoke-a-function">Invoke a function</h1>
+<p>Navigate to the function and click on the <code>Invoke</code> tab.</p>
+<p>There are two types of parameter :</p>
+<ul>
+<li><strong>Configuration parameters</strong> : The content is similar to what can be found in configuration files (web.conf or app.conf) for example : mapping rules between Input and Output fields or ConnectionString.</li>
+<li><strong>Input parameters</strong> : Input parameters directly passed to the function.</li>
+</ul>
+<p>If <code>faastransform</code> is published, it can be invoked like this :</p>
+<ul>
+<li><strong>Output parameters</strong> : Add a new parameter and set the first field value to <code>firstname</code>, and specify <code>FIRSTNAME</code> in the second field.</li>
+<li><strong>Input parameter</strong> : Specify the following JSON content.</li>
+</ul>
+<pre><code>{ &quot;firstname&quot; : &quot;sid&quot; }
+</code></pre>
+<p>Click on the <code>Launch</code> button. The JSON object above will be transformed into a new object which looks like to something like this :</p>
+<pre><code>{ &quot;FIRSTNAME&quot;: &quot;sid&quot; }
+</code></pre>
+<p><img src="images/manage4.png" alt="Invoke function"></p>
+<h1 id="monitor-a-function">Monitor a function</h1>
+<p>Navigate to the function and click on the <code>Monitoring</code> tab.</p>
+<p>There are several panels displayed in the UI. Each of them enable developers to follow the performance of the published function for examples : CPU Usage, Memory Usage or Number of request.</p>
+<p><img src="images/manage5.png" alt="Monitoring function"></p>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/portal/manage.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>
