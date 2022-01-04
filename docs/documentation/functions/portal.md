@@ -16,7 +16,7 @@ In the website, click on the `Add a function` button and fill in the form with t
 * **Name** : Name of the function for example `test`.
 * **Description** : A short description.
 * **Image**: Name of the Docker image for example : `simpleidserver/faastransform`.
-* **Version** : Version of the Docker image for example : `latest`.
+* **Version** : Version of the Docker image for example : `0.0.4`.
 
 ![Publish function](images/manage1.png)
 

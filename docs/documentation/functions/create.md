@@ -54,7 +54,7 @@ FaasNet.CLI function -df <DIRECTORY>
 ```
 
 Execute the following instruction to locally build the Docker image. 
-The `DIRECTORY` variable must be replaced by the directory of the Function.csproj project, and the `IMAGENAME` variable must be replaced by the name of the Docker image for example : localhost:5000/function.
+The `DIRECTORY` variable must be replaced by the directory of the Function.csproj project, and the `IMAGENAME` variable must be replaced by the name of the Docker image for example : `localhost:5000/function`.
 
 ```
 FaasNet.CLI function -db <DIRECTORY> -t <IMAGENAME>
