@@ -12,6 +12,8 @@
   items:
    - name: Hello World workflow
      href: serverlessworkflows/helloworld.md
+   - name: REST.API call
+     href: serverlessworkflows/restapi.md
 - name: CLI
   items:
    - name: Overview

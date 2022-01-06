@@ -22,6 +22,19 @@ namespace FaasNet.Runtime.OpenAPI
             _httpClientFactory = httpClientFactory;
         }
 
+        public bool TryParseUrl(string url, out OpenAPIUrlResult result)
+        {
+            var splitted = url.Split('#');
+            if (splitted.Count() != 2)
+            {
+                result = null;
+                return false;
+            }
+
+            result = new OpenAPIUrlResult(splitted.First(), splitted.Last());
+            return true;
+        }
+
         public async Task<JToken> Invoke(string url, string operationId, JToken input, CancellationToken cancellationToken)
         {
             var httpClient = _httpClientFactory.Build();

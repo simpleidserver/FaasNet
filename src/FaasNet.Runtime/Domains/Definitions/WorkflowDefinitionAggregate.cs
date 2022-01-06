@@ -125,10 +125,10 @@ namespace FaasNet.Runtime.Domains.Definitions
 
         public void RefreshTechnicalId()
         {
-            TechnicalId = $"{Id}.{Version}";
+            TechnicalId = Guid.NewGuid().ToString();
             foreach(var state in States)
             {
-                state.TechnicalId = $"{state.Id}.{Version}";
+                state.TechnicalId = Guid.NewGuid().ToString();
             }
         }
     }

@@ -1,11 +1,8 @@
 ﻿using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Domains.Enums;
 using FaasNet.Runtime.Domains.Instances;
-using FaasNet.Runtime.Exceptions;
 using FaasNet.Runtime.OpenAPI;
-using FaasNet.Runtime.Resources;
 using Newtonsoft.Json.Linq;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,23 +11,31 @@ namespace FaasNet.Runtime.Processors.Functions
     public class RestApiFunctionProcessor : IFunctionProcessor
     {
         private readonly IOpenAPIParser _openAPIParser;
+        private readonly Factories.IHttpClientFactory _httpClientFactory;
 
-        public RestApiFunctionProcessor(IOpenAPIParser openAPIParser)
+        public RestApiFunctionProcessor(
+            IOpenAPIParser openAPIParser,
+            Factories.IHttpClientFactory httpClientFactory)
         {
             _openAPIParser = openAPIParser;
+            _httpClientFactory = httpClientFactory;
         }
 
         public WorkflowDefinitionTypes Type => WorkflowDefinitionTypes.REST;
 
         public async Task<JToken> Process(JToken input, WorkflowDefinitionFunction function, WorkflowInstanceState instanceState, CancellationToken cancellationToken)
         {
-            var splitted = function.Operation.Split('#');
-            if (splitted.Count() != 2)
+            OpenAPIUrlResult openApiUrl = null;
+            if (!_openAPIParser.TryParseUrl(function.Operation, out openApiUrl))
             {
-                throw new ProcessorException(string.Format(Global.BadRESTApiUrl, function.Operation));
+                var httpClient = _httpClientFactory.Build();
+                var httpResult = await httpClient.GetAsync(function.Operation);
+                httpResult.EnsureSuccessStatusCode();
+                var json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
+                return JToken.Parse(json);
             }
 
-            return await _openAPIParser.Invoke(splitted.First(), splitted.Last(), input, cancellationToken);
+            return await _openAPIParser.Invoke(openApiUrl.Url, openApiUrl.OperationId, input, cancellationToken);
         }
     }
 }

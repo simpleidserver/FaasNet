@@ -56,6 +56,7 @@ export class OperationStateMachineState extends FlowableStateMachineState {
 export class OperationAction {
   name: string | undefined;
   functionRef: OperationActionFunctionRef | undefined;
+  actionDataFilter: ActionDataFilter | undefined;
 
   public getJSON() {
     var result: any = {
@@ -63,6 +64,10 @@ export class OperationAction {
     };
     if (this.functionRef) {
       result['functionRef'] = this.functionRef.getJson();
+    }
+
+    if (this.actionDataFilter) {
+      result["actionDataFilter"] = this.actionDataFilter.getJson();
     }
 
     return result;
@@ -73,6 +78,10 @@ export class OperationAction {
     result.name = json["name"];
     if (json["functionRef"]) {
       result.functionRef = OperationActionFunctionRef.build(json["functionRef"]);
+    }
+
+    if (json["actionDataFilter"]) {
+      result.actionDataFilter = ActionDataFilter.build(json["actionDataFilter"]);
     }
 
     return result;
@@ -94,6 +103,28 @@ export class OperationActionFunctionRef {
     var result = new OperationActionFunctionRef();
     result.arguments = json["arguments"];
     result.refName = json["refName"];
+    return result;
+  }
+}
+
+export class ActionDataFilter {
+  useResults: boolean = true;
+  results: string | undefined;
+  toStateData: string | undefined;
+
+  public getJson(): any {
+    return {
+      useResults: this.useResults,
+      results: this.results,
+      toStateData: this.toStateData
+    }
+  }
+
+  public static build(json: any) {
+    var result = new ActionDataFilter();
+    result.useResults = json["useResults"];
+    result.results = json["results"];
+    result.toStateData = json["toStateData"];
     return result;
   }
 }

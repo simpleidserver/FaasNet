@@ -75,7 +75,7 @@ export class FunctionsEditorComponent {
     let type = this.editFunctionFormGroup.get('type')?.value;
     switch (type) {
       case 'rest':
-        return 'OPEN API url';
+        return 'API url or OPENAPI url';
     }
 
     return '';

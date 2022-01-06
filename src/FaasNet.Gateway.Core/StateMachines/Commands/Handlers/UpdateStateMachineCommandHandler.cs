@@ -52,6 +52,7 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
                 }
 
                 workflowDefinition.IsLast = false;
+                request.WorkflowDefinition.Id = workflowDefinition.Id;
                 request.WorkflowDefinition.Version = workflowDefinition.Version + 1;
                 request.WorkflowDefinition.CreateDateTime = DateTime.UtcNow;
                 request.WorkflowDefinition.UpdateDateTime = DateTime.UtcNow;

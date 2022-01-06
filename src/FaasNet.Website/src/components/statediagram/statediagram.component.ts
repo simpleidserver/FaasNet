@@ -12,6 +12,7 @@ import { BehaviorSubject } from 'rxjs';
 import { FunctionsEditorComponent, FunctionsEditorData } from './components/functionseditor/functionseditor.component';
 import { JsonComponent } from './components/json/json.component';
 import { YamlComponent } from './components/yaml/yaml.component';
+import * as YAML from 'yaml';
 
 class DiagramNode {
   constructor(public x: number, public y: number, public level: number, public state: StateMachineState | undefined) {
@@ -438,11 +439,20 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   openYaml() {
-    this.dialog.open(YamlComponent, {
+    const dialogRef = this.dialog.open(YamlComponent, {
       width: '800px',
       data: {
         stateMachine: this.stateMachine
       }
+    });
+    dialogRef.afterClosed().subscribe((e) => {
+      if (!e) {
+        return;
+      }
+
+      let json = YAML.parse(e);
+      this._stateMachine = StateMachineModel.build(json);
+      this.refreshUI();
     });
   }
 

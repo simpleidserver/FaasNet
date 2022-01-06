@@ -13,6 +13,32 @@
           </mat-error>
         </div>
         <mat-divider></mat-divider>
+        <!-- Use the results -->
+        <div class="form-control">
+          <div class="title">Use results</div>
+          <p class="description">Use the operation results.</p>
+          <select formControlName="useResults" class="full-width">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+        <mat-divider></mat-divider>
+        <div *ngIf="addActionFormGroup.get('useResults')?.value == 'true'">
+          <!-- Results -->
+          <div class="form-control">
+            <div class="title">Filter data results</div>
+            <p class="description">Workflow expression that filters the actions data result</p>
+            <input (click)="editResults()" formControlName="results" type="text" class="condition full-width" readonly />
+          </div>
+          <mat-divider></mat-divider>
+          <!-- ToStateData -->
+          <div class="form-control">
+            <div class="title">Select state data element</div>
+            <p class="description">Workflow expression that selects a state data element to which the action results should be added/merged into</p>
+            <input (click)="editToStateData()" formControlName="toStateData" type="text" class="condition full-width" readonly />
+          </div>
+          <mat-divider></mat-divider>
+        </div>
         <!-- Type -->
         <div class="form-control">
           <div class="title">Type</div>

@@ -5,12 +5,16 @@ export class StateMachineFunction {
   metadata: any;
 
   getJson(): any {
-    return {
+    var result : any = {
       name: this.name,
       type: this.type,
-      operation: this.operation,
-      metadata: this.metadata
+      operation: this.operation
     };
+    if (this.metadata) {
+      result['metadata'] = this.metadata;
+    }
+
+    return result;
   }
 
   public static build(json: any): StateMachineFunction {

@@ -3,5 +3,6 @@
   <ngx-monaco-editor [options]="yamlOptions" [(ngModel)]="yaml"></ngx-monaco-editor>
 </div>
 <div mat-dialog-actions align="end">
+  <button mat-button color="primary" (click)="save()">Save</button>
   <button mat-button mat-dialog-close>Close</button>
 </div>

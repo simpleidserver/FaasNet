@@ -23,4 +23,8 @@ export class YamlComponent {
       this.yaml = doc.toString();
     }
   }
+
+  save() {
+    this.dialogRef.close(this.yaml);
+  }
 }
