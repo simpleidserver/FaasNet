@@ -24,11 +24,11 @@ Edit the transitions like this :
 1. Condition property must be equals to `.message == "first"`.
 2. Condition property must be equals to `.message == "second"`.
 
-At the end, the workflow must look like to something like this :
+At the end, the workflow must look like this :
 
 ![Workflow](images/switch2.png)
 
-The YAML file looks like this.
+YAML file :
 
 ```
 id: helloWorld

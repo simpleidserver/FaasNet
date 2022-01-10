@@ -45,7 +45,7 @@ When the workflow is executed :
 
 ![Workflow result](images/restapi5.png)
 
-The YAML file looks like this.
+YAML file :
 
 ```
 id: d6a139d2-5fd3-45d8-842b-9c5be23b59d3
