@@ -8,18 +8,18 @@
 }
 
 .panel > .content {
-  opacity: 0;
-  padding: 5px;
+  height: 100%;
+  position: relative;
+  display: none;
+}
+
+.panel.displayed > .content {
+  display: block;
 }
 
 .panel.displayed {
   transition: width 800ms;
   width: 100%;
-}
-
-.panel.displayed > .content {
-  transition: opacity 800ms;
-  opacity: 1;
 }
 
 .panel .close {

@@ -1,5 +1,9 @@
 @mixin app-theme($theme) {
   $primary: map-get($theme, primary);
+
+  .mat-row.highlight {
+    background-color: whitesmoke;
+  }
 }
 
 @mixin component-themes($theme) {

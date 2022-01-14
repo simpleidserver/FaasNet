@@ -1,8 +1,9 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { StateMachineFunction } from '@stores/statemachines/models/statemachine-function.model';
+import { MatPanelComponent } from '../../../matpanel/matpanel.component';
+import { MatPanelContent } from '../../../matpanel/matpanelcontent';
 
 export class FunctionsEditorData {
   functions: StateMachineFunction[] = [];
@@ -16,13 +17,16 @@ export class FunctionsEditorData {
     '../state-editor.component.scss'
   ]
 })
-export class FunctionsEditorComponent {
+export class FunctionsEditorComponent extends MatPanelContent {
   functions: MatTableDataSource<StateMachineFunction> = new MatTableDataSource<StateMachineFunction>();
+  panel: MatPanelComponent | null = null;
+  functionIndex: number = 0;
   editFunctionFormGroup: FormGroup = new FormGroup({
     name: new FormControl('', [Validators.required]),
     type: new FormControl('', [Validators.required]),
     operation: new FormControl(),
   });
+  edit: boolean = false;
   editKubernetesFormGroup: FormGroup = new FormGroup({
     image: new FormControl('', [Validators.required]),
     version: new FormControl('', [Validators.required]),
@@ -30,15 +34,20 @@ export class FunctionsEditorComponent {
   });
   displayedColumns: string[] = ['actions', 'name', 'type' ];
 
-  constructor(
-    //@Inject(MAT_DIALOG_DATA) public data: FunctionsEditorData,
-    /*¨private dialogRef: MatDialogRef<FunctionsEditorComponent>*/) {
-    // this.functions.data = data.functions;
+  constructor() {
+    super();
+  }
+
+  override init(data: any): void {
+    this.functions.data = (data as FunctionsEditorData).functions;
   }
 
   deleteFunction(i: number) {
     this.functions.data.splice(i, 1);
     this.functions.data = this.functions.data;
+    this.editFunctionFormGroup.reset();
+    this.editKubernetesFormGroup.reset();
+    this.edit = false;
   }
 
   addFunction() {
@@ -46,7 +55,11 @@ export class FunctionsEditorComponent {
       return;
     }
 
-    let record = new StateMachineFunction();
+    var record = new StateMachineFunction();
+    if (this.edit) {
+      record = this.functions.data[this.functionIndex];
+    }
+
     record.name = this.editFunctionFormGroup.get('name')?.value;
     record.operation = this.editFunctionFormGroup.get('operation')?.value;
     let type = this.editFunctionFormGroup.get('type')?.value;
@@ -66,9 +79,42 @@ export class FunctionsEditorComponent {
     }
 
     record.type = type;
-    this.functions.data.push(record);
+    if (!this.edit) {
+      this.functions.data.push(record);
+    }
+
     this.functions.data = this.functions.data;
     this.editFunctionFormGroup.reset();
+    this.editKubernetesFormGroup.reset();
+    this.edit = false;
+  }
+
+  editFunction(fn: StateMachineFunction, index: number) {
+    this.editFunctionFormGroup.reset();
+    this.editKubernetesFormGroup.reset();
+    this.functionIndex = index;
+    this.edit = true;
+    this.editFunctionFormGroup.get('name')?.setValue(fn.name);
+    this.editFunctionFormGroup.get('operation')?.setValue(fn.operation);
+    this.editFunctionFormGroup.get('type')?.setValue(fn.type);
+    if (fn.metadata) {
+      if (fn.metadata.version && fn.metadata.image) {
+        this.editFunctionFormGroup.get('type')?.setValue('kubernetes');
+        this.editKubernetesFormGroup.get('version')?.setValue(fn.metadata.version);
+        this.editKubernetesFormGroup.get('image')?.setValue(fn.metadata.image);
+        if (fn.metadata.configuration) {
+          this.editKubernetesFormGroup.get('configuration')?.setValue(JSON.stringify(fn.metadata.configuration));
+        }
+      }
+    }
+  }
+
+  isSelected(i: number) {
+    if (!this.edit) {
+      return false;
+    }
+
+    return this.functionIndex == i;
   }
 
   getOperationTranslationKey() {
@@ -95,6 +141,6 @@ export class FunctionsEditorComponent {
   }
 
   save() {
-    // this.dialogRef.close(this.functions.data);
+    this.onClosed.emit(this.functions.data);
   }
 }

@@ -1,4 +1,5 @@
-import { Component, ComponentFactoryResolver, ComponentRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ComponentFactoryResolver, ViewChild, ViewContainerRef } from '@angular/core';
+import { MatPanelContent } from './matpanelcontent';
 
 @Component({
   selector: 'mat-panel',
@@ -11,15 +12,21 @@ export class MatPanelComponent {
 
   constructor(private compFactoryResolver: ComponentFactoryResolver) { }
 
-  public open(type: any) {
+  public open(type: any, data : any) : MatPanelContent | null {
     if (!this.container) {
-      return;
+      return null;
     }
 
     this.isDisplayed = true;
     this.container.clear();
     const factory = this.compFactoryResolver.resolveComponentFactory(type);
-    this.container.createComponent(factory);
+    const component = this.container.createComponent(factory);
+    var panelContent = component.instance as MatPanelContent;
+    panelContent.init(data);
+    panelContent.onClosed.subscribe(() => {
+      this.isDisplayed = false;
+    });
+    return panelContent;
   }
 
   public close() {

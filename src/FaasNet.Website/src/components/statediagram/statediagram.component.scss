@@ -4,7 +4,12 @@ $default-color: #ECECFF;
 $red: red;
 $orange: orange;
 
-.statediagram {
+#container {
+  position: relative;
+  height: 100%;
+}
+
+.statediagram, #container {
   height: 100%;
 }
 
@@ -18,7 +23,7 @@ $orange: orange;
 /* Wrapper & Pane */
 .wrapper {
   display: flex;
-  height: 100%;
+  flex: auto;
 }
 
 .wrapper > .pane {
@@ -253,6 +258,8 @@ $orange: orange;
   flex: 1 1 100%;
   box-sizing: border-box;
   max-width: 80%;
+  display: flex;
+  flex-direction: column;
 }
 
 .secondColumn.full {

@@ -470,24 +470,14 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   editFunctions() {
-    console.log(this.panel);
-    this.panel?.open(FunctionsEditorComponent);
-    /*
-    const self = this;
     let data = new FunctionsEditorData();
     data.functions = this.stateMachine.functions;
-    const dialogRef = this.dialog.open(FunctionsEditorComponent, {
-      data: data,
-      width: '800px'
-    });
-    dialogRef.afterClosed().subscribe((e: any) => {
-      if (!e) {
-        return;
-      }
-
-      self.stateMachine.functions = e;
-    });
-    */
+    const panelRef = this.panel?.open(FunctionsEditorComponent, data);
+    if (panelRef) {
+      panelRef.onClosed.subscribe((e) => {
+        this.stateMachine.functions = e;
+      });
+    }
   }
 
   displayToken(token: DiagramNodeToken) {

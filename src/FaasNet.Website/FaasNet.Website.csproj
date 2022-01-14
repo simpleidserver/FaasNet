@@ -20,6 +20,8 @@
     <None Remove="src\app\shared\material.module.ts" />
     <None Remove="src\app\shared\shared.module.ts" />
     <None Remove="src\components\loader\loader.component.ts" />
+    <None Remove="src\components\matpanel\matpanel.component.ts" />
+    <None Remove="src\components\matpanel\matpanelcontent.ts" />
     <None Remove="src\components\monaco-editor\base-editor.ts" />
     <None Remove="src\components\monaco-editor\config.ts" />
     <None Remove="src\components\monaco-editor\editor.module.ts" />
@@ -45,6 +47,10 @@
     <None Remove="src\stores\statemachines\models\statemachinemodel.model.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="src\components\matpanel\matpanel.component.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\components\matpanel\matpanelcontent.ts" />
     <TypeScriptCompile Include="src\stores\statemachines\models\statemachine-function.model.ts" />
   </ItemGroup>
   <ItemGroup>

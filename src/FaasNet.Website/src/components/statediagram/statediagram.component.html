@@ -1,222 +1,224 @@
-<div [attr.fxLayout]="editMode ? 'row' : null" class="statediagram">
-  <div fxFlex="20%" class="toolbox" *ngIf="editMode">
-    <!-- Inject -->
-    <div class="toolbox-item" draggable="true" (dragstart)="onDragStart($event, 'inject')">
-      <div class="selector">
+<div id="container">
+  <div [attr.fxLayout]="editMode ? 'row' : null" class="statediagram">
+    <div fxFlex="20%" class="toolbox" *ngIf="editMode">
+      <!-- Inject -->
+      <div class="toolbox-item" draggable="true" (dragstart)="onDragStart($event, 'inject')">
+        <div class="selector">
 
-      </div>
-      <div class="content">
-        <div class="title">
-          Inject
         </div>
-        <div class="description">
-          Inject static data into state data input
-        </div>
-      </div>
-    </div>
-    <!-- Switch -->
-    <div class="toolbox-item" draggable="true" (dragstart)="onDragStart($event, 'switch')">
-      <div class="selector"></div>
-      <div class="content">
-        <div class="title">
-          Switch
-        </div>
-        <div class="description">
-          Direct transitions of a workflow based on certain conditions
-        </div>
-      </div>
-    </div>
-    <!-- Foreach -->
-    <div class="toolbox-item" draggable="true" (dragstart)="onDragStart($event, 'foreach')">
-      <div class="selector"></div>
-      <div class="content">
-        <div class="title">
-          Foreach
-        </div>
-        <div class="description">
-          Execute actions for each element of a data set.
-        </div>
-      </div>
-    </div>
-    <!-- Operation -->
-    <div class="toolbox-item"  draggable="true" (dragstart)="onDragStart($event, 'operation')">
-      <div class="selector"></div>
-      <div class="content">
-        <div class="title">
-          Operation
-        </div>
-        <div class="description">
-          Defines a set of actions to be performed in sequence or in parallel.
-        </div>
-      </div>
-    </div>
-  </div>
-  <div [attr.class]="editMode ? 'secondColumn' : 'secondColumn full'">
-    <div class="toolbar">
-      <ul>
-        <li (click)="zoomIn()">
-          <mat-icon>zoom_in</mat-icon>
-          <span class="item">
-            Zoom In
-          </span>
-        </li>
-        <li (click)="zoomOut()">
-          <mat-icon>zoom_out</mat-icon>
-          <span class="item">
-            Zoom Out
-          </span>
-        </li>
-        <li (click)="startMove()" [attr.class]="startMoving ? 'hidden' : ''">
-          <mat-icon>open_with</mat-icon>
-          <span class="item">
-            Move
-          </span>
-        </li>
-        <li (click)="startEdit()" [attr.class]="!startMoving ? 'hidden' : ''">
-          <mat-icon>edit</mat-icon>
-          <span class="item">
-            Edit
-          </span>
-        </li>
-        <li (click)="editFunctions()">
-          <mat-icon>functions</mat-icon>
-          <span class="item">
-            Functions
-          </span>
-        </li>
-        <li (click)="openYaml()">
-          <mat-icon>insert_drive_file</mat-icon>
-          <span class="item">
-            Yaml
-          </span>
-        </li>
-        <li (click)="openJson()">
-          <div class="picture">
-            <img src="/assets/images/json.png" />
+        <div class="content">
+          <div class="title">
+            Inject
           </div>
-          <span class="item">
-            Json
-          </span>
-        </li>
-        <li (click)="save()" *ngIf="editMode">
-          <mat-icon>save</mat-icon>
-          <span class="item">
-            Save
-          </span>
-        </li>
-        <li (click)="launch()" *ngIf="editMode">
-          <mat-icon>launch</mat-icon>
-          <span class="item">
-            Launch
-          </span>
-        </li>
-      </ul>
+          <div class="description">
+            Inject static data into state data input
+          </div>
+        </div>
+      </div>
+      <!-- Switch -->
+      <div class="toolbox-item" draggable="true" (dragstart)="onDragStart($event, 'switch')">
+        <div class="selector"></div>
+        <div class="content">
+          <div class="title">
+            Switch
+          </div>
+          <div class="description">
+            Direct transitions of a workflow based on certain conditions
+          </div>
+        </div>
+      </div>
+      <!-- Foreach -->
+      <div class="toolbox-item" draggable="true" (dragstart)="onDragStart($event, 'foreach')">
+        <div class="selector"></div>
+        <div class="content">
+          <div class="title">
+            Foreach
+          </div>
+          <div class="description">
+            Execute actions for each element of a data set.
+          </div>
+        </div>
+      </div>
+      <!-- Operation -->
+      <div class="toolbox-item" draggable="true" (dragstart)="onDragStart($event, 'operation')">
+        <div class="selector"></div>
+        <div class="content">
+          <div class="title">
+            Operation
+          </div>
+          <div class="description">
+            Defines a set of actions to be performed in sequence or in parallel.
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="wrapper">
-      <div [attr.class]="startMoving ? 'editor zoom pane' : 'editor pane'" #stateDiagramContainer>
-        <svg [attr.viewBox]="viewBox" [attr.width]="options.canvasWidth" [attr.height]="options.canvasHeight" #stateDiagram>
-          <g>
-            <defs>
-              <marker id="statediagram-barbEnd" refX="19" refY="7" markerWidth="20" markerHeight="14" markerUnits="strokeWidth" orient="auto">
-                <path d="M 19,7 L9,13 L14,7 L9,1 Z"></path>
-              </marker>
-              <marker id="statediagram-barbEndDefault" refX="19" refY="7" markerWidth="20" markerHeight="14" markerUnits="strokeWidth" orient="auto">
-                <path d="M 19,7 L9,13 L14,7 L9,1 Z"></path>
-              </marker>
-            </defs>
-            <g class="root">
-              <g>
-                <!--  Start Circle -->
+    <div [attr.class]="editMode ? 'secondColumn' : 'secondColumn full'">
+      <div class="toolbar">
+        <ul>
+          <li (click)="zoomIn()">
+            <mat-icon>zoom_in</mat-icon>
+            <span class="item">
+              Zoom In
+            </span>
+          </li>
+          <li (click)="zoomOut()">
+            <mat-icon>zoom_out</mat-icon>
+            <span class="item">
+              Zoom Out
+            </span>
+          </li>
+          <li (click)="startMove()" [attr.class]="startMoving ? 'hidden' : ''">
+            <mat-icon>open_with</mat-icon>
+            <span class="item">
+              Move
+            </span>
+          </li>
+          <li (click)="startEdit()" [attr.class]="!startMoving ? 'hidden' : ''">
+            <mat-icon>edit</mat-icon>
+            <span class="item">
+              Edit
+            </span>
+          </li>
+          <li (click)="editFunctions()">
+            <mat-icon>functions</mat-icon>
+            <span class="item">
+              Functions
+            </span>
+          </li>
+          <li (click)="openYaml()">
+            <mat-icon>insert_drive_file</mat-icon>
+            <span class="item">
+              Yaml
+            </span>
+          </li>
+          <li (click)="openJson()">
+            <div class="picture">
+              <img src="/assets/images/json.png" />
+            </div>
+            <span class="item">
+              Json
+            </span>
+          </li>
+          <li (click)="save()" *ngIf="editMode">
+            <mat-icon>save</mat-icon>
+            <span class="item">
+              Save
+            </span>
+          </li>
+          <li (click)="launch()" *ngIf="editMode">
+            <mat-icon>launch</mat-icon>
+            <span class="item">
+              Launch
+            </span>
+          </li>
+        </ul>
+      </div>
+      <div class="wrapper">
+        <div [attr.class]="startMoving ? 'editor zoom pane' : 'editor pane'" #stateDiagramContainer>
+          <svg [attr.viewBox]="viewBox" [attr.width]="options.canvasWidth" [attr.height]="options.canvasHeight" #stateDiagram>
+            <g>
+              <defs>
+                <marker id="statediagram-barbEnd" refX="19" refY="7" markerWidth="20" markerHeight="14" markerUnits="strokeWidth" orient="auto">
+                  <path d="M 19,7 L9,13 L14,7 L9,1 Z"></path>
+                </marker>
+                <marker id="statediagram-barbEndDefault" refX="19" refY="7" markerWidth="20" markerHeight="14" markerUnits="strokeWidth" orient="auto">
+                  <path d="M 19,7 L9,13 L14,7 L9,1 Z"></path>
+                </marker>
+              </defs>
+              <g class="root">
                 <g>
-                  <circle [attr.class]="circleStartSelected ? 'start selected' : 'start'" [attr.r]="options.circleRadius" [attr.cx]="circleStartPosition.x" [attr.cy]="circleStartPosition.y"></circle>
-                  <foreignObject [attr.width]="options.circleRadius * 2" [attr.height]="options.circleRadius * 2" [attr.x]="circleStartPosition.x - options.circleRadius" [attr.cy]="circleStartPosition.y">
-                    <div class="draggableZone" (drop)="onDropCircleStart($event)" (dragover)="onDragOverCircleStart($event)" (dragleave)="onDragLeaveCircleStart($event)"></div>
-                  </foreignObject>
-                </g>
-                <!-- States -->
-                <g *ngFor="let node of nodes" [attr.class]="node.status ? 'state ' + node.status : 'state'" [attr.transform]="node.transform" (click)="selectState(node)">
-                  <rect [attr.width]="options.nodeWidth" [attr.height]="options.nodeHeight" [attr.class]="(selectedState && node.state?.id === selectedState?.id) ? 'selected' : ''"></rect>
-                  <line x1="0" [attr.y1]="options.titleHeight" [attr.x2]="options.nodeWidth" [attr.y2]="options.titleHeight" class="separator"></line>
+                  <!--  Start Circle -->
                   <g>
-                    <foreignObject [attr.width]="options.nodeWidth" [attr.height]="options.titleHeight">
-                      <div class="header">
-                        {{node.state?.name}}
-                        <div class="actions" *ngIf="editMode">
-                          <mat-icon (click)="removeNode(node)">delete</mat-icon>
-                        </div>
-                      </div>
-                    </foreignObject>
-                    <foreignObject [attr.width]="options.nodeWidth" [attr.height]="options.bodyHeight" [attr.transform]="'translate(0, '+options.titleHeight+')'">
-                      <div>description</div>
+                    <circle [attr.class]="circleStartSelected ? 'start selected' : 'start'" [attr.r]="options.circleRadius" [attr.cx]="circleStartPosition.x" [attr.cy]="circleStartPosition.y"></circle>
+                    <foreignObject [attr.width]="options.circleRadius * 2" [attr.height]="options.circleRadius * 2" [attr.x]="circleStartPosition.x - options.circleRadius" [attr.cy]="circleStartPosition.y">
+                      <div class="draggableZone" (drop)="onDropCircleStart($event)" (dragover)="onDragOverCircleStart($event)" (dragleave)="onDragLeaveCircleStart($event)"></div>
                     </foreignObject>
                   </g>
-                </g>
-                <!-- Tokens -->
-                <g *ngFor="let token of tokens" class="token">
-                  <foreignObject [attr.width]="options.tokenWidth" [attr.height]="options.tokenHeight" [attr.x]="token.posX" [attr.y]="token.posY">
-                    <div [attr.style]="'line-height:' + options.tokenHeight + 'px'" (click)="displayToken(token)">
-                      {{ token.isInput ? 'Input' : 'Output' }}
-                    </div>
-                  </foreignObject>
-                </g>
-                <!-- Edge Paths -->
-                <g class="edgePaths">
-                  <path [attr.d]="edgePathCircleStart" marker-end="url(#statediagram-barbEnd)" [style.display]="stateMachine?.isEmpty ? 'none' : 'block'" />
-                  <path [attr.d]="edgePath.path" *ngFor="let edgePath of edgePaths" [attr.marker-end]="edgePath.getMarkerEnd()" [attr.class]="edgePath.isDefault() ? 'isDefault' : ''" />
-                </g>
-                <!-- Anchors -->
-                <g class="anchors">
-                  <g *ngFor="let anchor of anchors" [attr.transform]="anchor.transform" [attr.class]="anchor.selected ? 'anchor selected' : 'anchor'">
-                    <circle [attr.r]="options.circleRadius" class="outer"></circle>
-                    <circle r="4" class="inner"></circle>
+                  <!-- States -->
+                  <g *ngFor="let node of nodes" [attr.class]="node.status ? 'state ' + node.status : 'state'" [attr.transform]="node.transform" (click)="selectState(node)">
+                    <rect [attr.width]="options.nodeWidth" [attr.height]="options.nodeHeight" [attr.class]="(selectedState && node.state?.id === selectedState?.id) ? 'selected' : ''"></rect>
+                    <line x1="0" [attr.y1]="options.titleHeight" [attr.x2]="options.nodeWidth" [attr.y2]="options.titleHeight" class="separator"></line>
+                    <g>
+                      <foreignObject [attr.width]="options.nodeWidth" [attr.height]="options.titleHeight">
+                        <div class="header">
+                          {{node.state?.name}}
+                          <div class="actions" *ngIf="editMode">
+                            <mat-icon (click)="removeNode(node)">delete</mat-icon>
+                          </div>
+                        </div>
+                      </foreignObject>
+                      <foreignObject [attr.width]="options.nodeWidth" [attr.height]="options.bodyHeight" [attr.transform]="'translate(0, '+options.titleHeight+')'">
+                        <div>description</div>
+                      </foreignObject>
+                    </g>
                   </g>
-                </g>
-                <!-- Edge Labels -->
-                <g class="edgeLabels">
-                  <foreignObject *ngFor="let edgeLabel of edgeLabels; let i = index" [attr.x]="edgeLabel.posX" [attr.y]="edgeLabel.posY" [attr.width]="edgeLabel.width" [attr.height]="edgeLabel.height">
-                    <div [attr.class]="edgeLabel.selected ? 'edgeLabel selected' : 'edgeLabel'">
-                      <div class="textContainer">
-                        <div class="text" (contextmenu)="onContextMenu($event, edgeLabel, i)" (click)="selectLabel(edgeLabel)">
-                          <span [matMenuTriggerFor]="contextMenu">
-                            {{ edgeLabel.label | async }}
-                          </span>
+                  <!-- Tokens -->
+                  <g *ngFor="let token of tokens" class="token">
+                    <foreignObject [attr.width]="options.tokenWidth" [attr.height]="options.tokenHeight" [attr.x]="token.posX" [attr.y]="token.posY">
+                      <div [attr.style]="'line-height:' + options.tokenHeight + 'px'" (click)="displayToken(token)">
+                        {{ token.isInput ? 'Input' : 'Output' }}
+                      </div>
+                    </foreignObject>
+                  </g>
+                  <!-- Edge Paths -->
+                  <g class="edgePaths">
+                    <path [attr.d]="edgePathCircleStart" marker-end="url(#statediagram-barbEnd)" [style.display]="stateMachine?.isEmpty ? 'none' : 'block'" />
+                    <path [attr.d]="edgePath.path" *ngFor="let edgePath of edgePaths" [attr.marker-end]="edgePath.getMarkerEnd()" [attr.class]="edgePath.isDefault() ? 'isDefault' : ''" />
+                  </g>
+                  <!-- Anchors -->
+                  <g class="anchors">
+                    <g *ngFor="let anchor of anchors" [attr.transform]="anchor.transform" [attr.class]="anchor.selected ? 'anchor selected' : 'anchor'">
+                      <circle [attr.r]="options.circleRadius" class="outer"></circle>
+                      <circle r="4" class="inner"></circle>
+                    </g>
+                  </g>
+                  <!-- Edge Labels -->
+                  <g class="edgeLabels">
+                    <foreignObject *ngFor="let edgeLabel of edgeLabels; let i = index" [attr.x]="edgeLabel.posX" [attr.y]="edgeLabel.posY" [attr.width]="edgeLabel.width" [attr.height]="edgeLabel.height">
+                      <div [attr.class]="edgeLabel.selected ? 'edgeLabel selected' : 'edgeLabel'">
+                        <div class="textContainer">
+                          <div class="text" (contextmenu)="onContextMenu($event, edgeLabel, i)" (click)="selectLabel(edgeLabel)">
+                            <span [matMenuTriggerFor]="contextMenu">
+                              {{ edgeLabel.label | async }}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <mat-menu #contextMenu="matMenu">
-                      <ng-template matMenuContent>
-                        <button mat-menu-item (click)="setDefaultCondition(edgeLabel)">Set default condition</button>
-                      </ng-template>
-                    </mat-menu>
-                  </foreignObject>
-                </g>
-                <!-- Draggable Zone -->
-                <g class="draggableZones">
-                  <foreignObject *ngFor="let draggableZone of draggableZoneLst" [attr.x]="draggableZone.x" [attr.y]="draggableZone.y" [attr.width]="draggableZone.width" [attr.height]="draggableZone.height">
-                    <div class="draggableZone" (drop)="onDrop($event, draggableZone)" (dragover)="onDragOver($event, draggableZone)" (dragleave)="onDragLeave($event, draggableZone)"></div>
-                  </foreignObject>
+                      <mat-menu #contextMenu="matMenu">
+                        <ng-template matMenuContent>
+                          <button mat-menu-item (click)="setDefaultCondition(edgeLabel)">Set default condition</button>
+                        </ng-template>
+                      </mat-menu>
+                    </foreignObject>
+                  </g>
+                  <!-- Draggable Zone -->
+                  <g class="draggableZones">
+                    <foreignObject *ngFor="let draggableZone of draggableZoneLst" [attr.x]="draggableZone.x" [attr.y]="draggableZone.y" [attr.width]="draggableZone.width" [attr.height]="draggableZone.height">
+                      <div class="draggableZone" (drop)="onDrop($event, draggableZone)" (dragover)="onDragOver($event, draggableZone)" (dragleave)="onDragLeave($event, draggableZone)"></div>
+                    </foreignObject>
+                  </g>
                 </g>
               </g>
             </g>
-          </g>
-        </svg>
-      </div>
-      <div class="properties pane">
-        <div class="container">
-          <div [ngSwitch]="selectedState?.type">
-            <switch-state-editor *ngSwitchCase="'switch'" [state]="selectedState" (closed)="closePanel()"></switch-state-editor>
-            <inject-state-editor *ngSwitchCase="'inject'" [state]="selectedState" (closed)="closePanel()"></inject-state-editor>
-            <operation-state-editor *ngSwitchCase="'operation'" [state]="selectedState" [stateMachine]="stateMachine" (closed)="closePanel()"></operation-state-editor>
-          </div>
-          <div [ngSwitch]="selectedTransition?.getType()">
-            <evtcondition-editor *ngSwitchCase="'event'" [transition]="selectedTransition" (closed)="closePanel()"></evtcondition-editor>
-            <datacondition-editor *ngSwitchCase="'data'" [transition]="selectedTransition" (closed)="closePanel()"></datacondition-editor>
-            <defaultcondition-editor *ngSwitchCase="'empty'" (closed)="closePanel()"></defaultcondition-editor>
-          </div>
+          </svg>
         </div>
-        <div class="gutter" #gutter></div>
+        <div class="properties pane">
+          <div class="container">
+            <div [ngSwitch]="selectedState?.type">
+              <switch-state-editor *ngSwitchCase="'switch'" [state]="selectedState" (closed)="closePanel()"></switch-state-editor>
+              <inject-state-editor *ngSwitchCase="'inject'" [state]="selectedState" (closed)="closePanel()"></inject-state-editor>
+              <operation-state-editor *ngSwitchCase="'operation'" [state]="selectedState" [stateMachine]="stateMachine" (closed)="closePanel()"></operation-state-editor>
+            </div>
+            <div [ngSwitch]="selectedTransition?.getType()">
+              <evtcondition-editor *ngSwitchCase="'event'" [transition]="selectedTransition" (closed)="closePanel()"></evtcondition-editor>
+              <datacondition-editor *ngSwitchCase="'data'" [transition]="selectedTransition" (closed)="closePanel()"></datacondition-editor>
+              <defaultcondition-editor *ngSwitchCase="'empty'" (closed)="closePanel()"></defaultcondition-editor>
+            </div>
+          </div>
+          <div class="gutter" #gutter></div>
+        </div>
       </div>
     </div>
   </div>
+  <mat-panel #panel></mat-panel>
 </div>
-<mat-panel #panel></mat-panel>
