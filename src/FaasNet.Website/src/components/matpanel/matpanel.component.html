@@ -1,0 +1,8 @@
+<div [attr.class]="isDisplayed ? 'panel displayed' : 'panel'">
+  <div class="content">
+    <div class="close" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </div>
+    <div #container></div>
+  </div>
+</div>

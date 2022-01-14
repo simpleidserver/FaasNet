@@ -1,0 +1,30 @@
+.panel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 0;
+  height: 100%;
+  background-color: white;
+}
+
+.panel > .content {
+  opacity: 0;
+  padding: 5px;
+}
+
+.panel.displayed {
+  transition: width 800ms;
+  width: 100%;
+}
+
+.panel.displayed > .content {
+  transition: opacity 800ms;
+  opacity: 1;
+}
+
+.panel .close {
+  position: absolute;
+  right: 0px;
+  top: 10px;
+  cursor: pointer;
+}

@@ -4,6 +4,10 @@ $default-color: #ECECFF;
 $red: red;
 $orange: orange;
 
+.statediagram {
+  height: 100%;
+}
+
 .statediagram .editor {
   background-image: url('../../assets/images/tile.png');
   background-repeat: repeat;
@@ -14,6 +18,7 @@ $orange: orange;
 /* Wrapper & Pane */
 .wrapper {
   display: flex;
+  height: 100%;
 }
 
 .wrapper > .pane {

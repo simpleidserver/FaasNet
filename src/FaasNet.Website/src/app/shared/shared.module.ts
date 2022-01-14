@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslateObjPipe } from '../pipes/translateobj.pipe';
 
-
 @NgModule({
   imports: [
   ],

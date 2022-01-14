@@ -9,10 +9,11 @@ import { BaseTransition, EmptyTransition, StateMachineState } from '@stores/stat
 import { SwitchStateMachineState } from '@stores/statemachines/models/statemachine-switch-state.model';
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { BehaviorSubject } from 'rxjs';
+import * as YAML from 'yaml';
+import { MatPanelComponent } from '../matpanel/matpanel.component';
 import { FunctionsEditorComponent, FunctionsEditorData } from './components/functionseditor/functionseditor.component';
 import { JsonComponent } from './components/json/json.component';
 import { YamlComponent } from './components/yaml/yaml.component';
-import * as YAML from 'yaml';
 
 class DiagramNode {
   constructor(public x: number, public y: number, public level: number, public state: StateMachineState | undefined) {
@@ -199,6 +200,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   @ViewChild("stateDiagram") stateDiagram: any;
   @ViewChild("gutter") gutter: any;
   @ViewChild("stateDiagramContainer") stateDiagramContainer: any;
+  @ViewChild("panel") panel: MatPanelComponent | null = null;
   @ViewChildren(MatMenuTrigger) contextMenu: QueryList<MatMenuTrigger> | null = null;
   circleStartPosition: { x: number, y: number } = { x: 0, y: 0 };
   circleStartSelected: boolean = false;
@@ -220,7 +222,8 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   handleMouseUpRef: any | null = null;
   gutterBoundingRect: any | null = null;
 
-  constructor(private dialog: MatDialog) {
+  constructor(
+    private dialog: MatDialog) {
   }
 
   ngOnInit() {
@@ -438,7 +441,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     matMenuTrigger?.openMenu();
   }
 
-  openYaml() {
+  openYaml() {    
     const dialogRef = this.dialog.open(YamlComponent, {
       width: '800px',
       data: {
@@ -467,6 +470,9 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   editFunctions() {
+    console.log(this.panel);
+    this.panel?.open(FunctionsEditorComponent);
+    /*
     const self = this;
     let data = new FunctionsEditorData();
     data.functions = this.stateMachine.functions;
@@ -481,6 +487,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
       self.stateMachine.functions = e;
     });
+    */
   }
 
   displayToken(token: DiagramNodeToken) {

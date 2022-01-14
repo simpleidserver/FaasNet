@@ -31,9 +31,9 @@ export class FunctionsEditorComponent {
   displayedColumns: string[] = ['actions', 'name', 'type' ];
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: FunctionsEditorData,
-    private dialogRef: MatDialogRef<FunctionsEditorComponent>) {
-    this.functions.data = data.functions;
+    //@Inject(MAT_DIALOG_DATA) public data: FunctionsEditorData,
+    /*¨private dialogRef: MatDialogRef<FunctionsEditorComponent>*/) {
+    // this.functions.data = data.functions;
   }
 
   deleteFunction(i: number) {
@@ -95,6 +95,6 @@ export class FunctionsEditorComponent {
   }
 
   save() {
-    this.dialogRef.close(this.functions.data);
+    // this.dialogRef.close(this.functions.data);
   }
 }

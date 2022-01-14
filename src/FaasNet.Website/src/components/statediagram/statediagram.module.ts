@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { MaterialModule } from "@app/shared/material.module";
 import { SharedModule } from "@app/shared/shared.module";
+import { MatPanelComponent } from '../matpanel/matpanel.component';
 import { MonacoEditorModule } from '../monaco-editor/editor.module';
 import { DataConditionComponent } from './components/datacondition/datacondition.component';
 import { DefaultConditionComponent } from './components/defaultcondition/defaultcondition.component';
@@ -33,7 +34,8 @@ import { StateDiagramComponent } from './statediagram.component';
     JsonComponent,
     OperationStateEditorComponent,
     FunctionsEditorComponent,
-    ActionsEditorComponent
+    ActionsEditorComponent,
+    MatPanelComponent
   ],
   exports: [
     StateDiagramComponent,
@@ -47,7 +49,8 @@ import { StateDiagramComponent } from './statediagram.component';
     JsonComponent,
     OperationStateEditorComponent,
     FunctionsEditorComponent,
-    ActionsEditorComponent
+    ActionsEditorComponent,
+    MatPanelComponent
   ]
 })
 
