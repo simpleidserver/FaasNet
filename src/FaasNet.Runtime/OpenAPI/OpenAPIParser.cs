@@ -58,6 +58,7 @@ namespace FaasNet.Runtime.OpenAPI
 
         protected virtual HttpRequestMessage BuildHttpRequestMessage(string url, OpenApiResult openApiResult, string operationId, JToken input)
         {
+            // TODO : Dynamically build the HTTP Message in order to call the OPENAPI.
             var path = openApiResult.Paths.FirstOrDefault(p => p.Value.Any(v => v.Value.OperationId == operationId));
             if (string.IsNullOrWhiteSpace(path.Key))
             {

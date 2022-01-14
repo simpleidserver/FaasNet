@@ -52,7 +52,7 @@
             <div class="form-control">
               <div class="title">Configuration</div>
               <p class="description">Configuration passed to the serverless function</p>
-              <input type="text" formControlName="configuration" class="full-width" />
+              <ngx-monaco-editor [options]="jsonOptions" formControlName="configuration"></ngx-monaco-editor>
             </div>
           </div>
           <mat-divider></mat-divider>

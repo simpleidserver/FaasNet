@@ -21,6 +21,22 @@ export class FunctionsEditorComponent extends MatPanelContent {
   functions: MatTableDataSource<StateMachineFunction> = new MatTableDataSource<StateMachineFunction>();
   panel: MatPanelComponent | null = null;
   functionIndex: number = 0;
+  jsonOptions: any = {
+    theme: 'vs',
+    language: 'json',
+    minimap: { enabled: false },
+    overviewRulerBorder: false,
+    overviewRulerLanes: 0,
+    lineNumbers: 'off',
+    lineNumbersMinChars: 0,
+    lineDecorationsWidth: 0,
+    renderLineHighlight: 'none',
+    scrollbar: {
+      horizontal: 'hidden',
+      vertical: 'hidden',
+      alwaysConsumeMouseWheel: false,
+    }
+  };
   editFunctionFormGroup: FormGroup = new FormGroup({
     name: new FormControl('', [Validators.required]),
     type: new FormControl('', [Validators.required]),

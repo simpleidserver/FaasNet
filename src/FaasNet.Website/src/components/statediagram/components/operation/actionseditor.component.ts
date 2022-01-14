@@ -4,6 +4,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { MatTableDataSource } from '@angular/material/table';
 import { StateMachineFunction } from '@stores/statemachines/models/statemachine-function.model';
 import { ActionDataFilter, OperationAction, OperationActionFunctionRef } from '@stores/statemachines/models/statemachine-operation-state.model';
+import { MatPanelContent } from '../../../matpanel/matpanelcontent';
 import { ExpressionEditorComponent } from '../expressioneditor/expressioneditor.component';
 
 export class ActionsEditorData {
@@ -19,10 +20,26 @@ export class ActionsEditorData {
     '../state-editor.component.scss'
   ]
 })
-export class ActionsEditorComponent {
+export class ActionsEditorComponent extends MatPanelContent {
   displayedColumns: string[] = ['actions', 'name', 'type'];
   functions: StateMachineFunction[] = [];
   actions: MatTableDataSource<OperationAction> = new MatTableDataSource<OperationAction>();
+  jsonOptions: any = {
+    theme: 'vs',
+    language: 'json',
+    minimap: { enabled: false },
+    overviewRulerBorder: false,
+    overviewRulerLanes: 0,
+    lineNumbers: 'off',
+    lineNumbersMinChars: 0,
+    lineDecorationsWidth: 0,
+    renderLineHighlight: 'none',
+    scrollbar: {
+      horizontal: 'hidden',
+      vertical: 'hidden',
+      alwaysConsumeMouseWheel: false,
+    }
+  };
   addActionFormGroup: FormGroup = new FormGroup({
     name: new FormControl('', [Validators.required]),
     type: new FormControl('1'),
@@ -35,12 +52,13 @@ export class ActionsEditorComponent {
     arguments: new FormControl()
   });
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: ActionsEditorData,
-    private dialogRef: MatDialogRef<any>,
-    private dialog: MatDialog) {
-    this.functions = [...data.functions];
-    this.actions.data = [...data.actions];
+  constructor(private matDialog: MatDialog) {
+    super();
+  }
+
+  override init(data: any): void {
+    this.functions = (data as ActionsEditorData).functions;
+    this.actions.data = (data as ActionsEditorData).actions;
   }
 
   removeAction(index : number) {
@@ -96,7 +114,7 @@ export class ActionsEditorComponent {
   }
 
   save() {
-    this.dialogRef.close(this.actions.data);
+    this.onClosed.emit(this.actions.data);
   }
 
   isDisabled() {
@@ -115,7 +133,7 @@ export class ActionsEditorComponent {
 
   editResults() {
     const filter = this.addActionFormGroup.get('results')?.value;
-    const dialogRef = this.dialog.open(ExpressionEditorComponent, {
+    const dialogRef = this.matDialog.open(ExpressionEditorComponent, {
       width: '800px',
       data: {
         filter: filter
@@ -132,7 +150,7 @@ export class ActionsEditorComponent {
 
   editToStateData() {
     const filter = this.addActionFormGroup.get('toStateData')?.value;
-    const dialogRef = this.dialog.open(ExpressionEditorComponent, {
+    const dialogRef = this.matDialog.open(ExpressionEditorComponent, {
       width: '800px',
       data: {
         filter: filter

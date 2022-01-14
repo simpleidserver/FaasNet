@@ -207,7 +207,7 @@
             <div [ngSwitch]="selectedState?.type">
               <switch-state-editor *ngSwitchCase="'switch'" [state]="selectedState" (closed)="closePanel()"></switch-state-editor>
               <inject-state-editor *ngSwitchCase="'inject'" [state]="selectedState" (closed)="closePanel()"></inject-state-editor>
-              <operation-state-editor *ngSwitchCase="'operation'" [state]="selectedState" [stateMachine]="stateMachine" (closed)="closePanel()"></operation-state-editor>
+              <operation-state-editor *ngSwitchCase="'operation'" [state]="selectedState" [panel]="panel" [stateMachine]="stateMachine" (closed)="closePanel()"></operation-state-editor>
             </div>
             <div [ngSwitch]="selectedTransition?.getType()">
               <evtcondition-editor *ngSwitchCase="'event'" [transition]="selectedTransition" (closed)="closePanel()"></evtcondition-editor>

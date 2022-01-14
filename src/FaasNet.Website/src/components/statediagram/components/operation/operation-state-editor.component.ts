@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
 import { OperationStateMachineState } from "@stores/statemachines/models/statemachine-operation-state.model";
 import { StateMachineState } from "@stores/statemachines/models/statemachine-state.model";
 import { StateMachineModel } from "@stores/statemachines/models/statemachinemodel.model";
+import { MatPanelComponent } from "../../../matpanel/matpanel.component";
 import { ActionsEditorComponent, ActionsEditorData } from "./actionseditor.component";
 
 @Component({
@@ -24,6 +24,7 @@ export class OperationStateEditorComponent implements OnDestroy {
   get state(): StateMachineState | null {
     return this._state;
   }
+  @Input() panel: MatPanelComponent | null = null;
   set state(v: StateMachineState | null) {
     this._state = v;
     this._operationState = v as OperationStateMachineState;
@@ -39,9 +40,6 @@ export class OperationStateEditorComponent implements OnDestroy {
     end: new FormControl(),
     actionMode: new FormControl()
   });
-
-  constructor(private dialog: MatDialog) {
-  }
 
   ngOnInit() {
   }
@@ -74,17 +72,9 @@ export class OperationStateEditorComponent implements OnDestroy {
       data.actions = this._operationState.actions;
     }
 
-    const dialogRef = this.dialog.open(ActionsEditorComponent, {
-      data: data,
-      width: '800px'
-    });
-    dialogRef.afterClosed().subscribe((e) => {
-      if (!e) {
-        return;
-      }
-
-      if (this._operationState) {
-        console.log(e);
+    const dialogRef = this.panel?.open(ActionsEditorComponent, data);
+    dialogRef?.onClosed.subscribe((e) => {
+      if (e && this._operationState) {
         this._operationState.actions = e;
       }
     });
