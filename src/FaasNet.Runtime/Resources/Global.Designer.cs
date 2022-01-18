@@ -79,11 +79,38 @@ namespace FaasNet.Runtime.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to the input {0} is not a valid object.
+        /// </summary>
+        internal static string InvalidObjectInput {
+            get {
+                return ResourceManager.GetString("InvalidObjectInput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the input {0} is not a valid string.
+        /// </summary>
+        internal static string InvalidStringInput {
+            get {
+                return ResourceManager.GetString("InvalidStringInput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to at least one OnEvent must be specified.
         /// </summary>
         internal static string MissingOnEvents {
             get {
                 return ResourceManager.GetString("MissingOnEvents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the parameter {0} is missing from the input.
+        /// </summary>
+        internal static string MissingPropertyFromInput {
+            get {
+                return ResourceManager.GetString("MissingPropertyFromInput", resourceCulture);
             }
         }
         
@@ -97,6 +124,24 @@ namespace FaasNet.Runtime.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to the content-type exposed by the operation {0} are not supported.
+        /// </summary>
+        internal static string NoContentTypeSupportedInOperation {
+            get {
+                return ResourceManager.GetString("NoContentTypeSupportedInOperation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to no schema attribute is specified in the operation {0}.
+        /// </summary>
+        internal static string NoSchemaSpecifiedInContentType {
+            get {
+                return ResourceManager.GetString("NoSchemaSpecifiedInContentType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to there is no processor for the function {0}.
         /// </summary>
         internal static string UnknownFunctionProcessor {
@@ -106,11 +151,29 @@ namespace FaasNet.Runtime.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to the HTTP operation {0} doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownHttpAPIOperation {
+            get {
+                return ResourceManager.GetString("UnknownHttpAPIOperation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to the OpenAPI operation {0} doesn&apos;t exist.
         /// </summary>
         internal static string UnknownOpenAPIOperation {
             get {
                 return ResourceManager.GetString("UnknownOpenAPIOperation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the schema {0} doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownSchema {
+            get {
+                return ResourceManager.GetString("UnknownSchema", resourceCulture);
             }
         }
         
@@ -129,6 +192,15 @@ namespace FaasNet.Runtime.Resources {
         internal static string UnknownWorkflowState {
             get {
                 return ResourceManager.GetString("UnknownWorkflowState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the type {0} is not supported.
+        /// </summary>
+        internal static string UnsupportedType {
+            get {
+                return ResourceManager.GetString("UnsupportedType", resourceCulture);
             }
         }
     }

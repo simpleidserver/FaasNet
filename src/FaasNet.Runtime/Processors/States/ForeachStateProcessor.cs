@@ -1,6 +1,5 @@
 ﻿using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Domains.Enums;
-using FaasNet.Runtime.Extensions;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Threading;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Runtime.Processors.States
 {
-    public class ForeachStateProcessor : BaseFlowableStateProcessor, IStateProcessor
+    public class ForeachStateProcessor : BaseFlowableStateProcessor
     {
         private readonly IActionExecutor _actionExecutor;
 
@@ -17,9 +16,9 @@ namespace FaasNet.Runtime.Processors.States
             _actionExecutor = actionExecutor;
         }
 
-        public WorkflowDefinitionStateTypes Type => WorkflowDefinitionStateTypes.ForEach;
+        public override WorkflowDefinitionStateTypes Type => WorkflowDefinitionStateTypes.ForEach;
 
-        public async Task<StateProcessorResult> Process(WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
+        protected override async Task<StateProcessorResult> Handle(WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
             var foreachState = executionContext.StateDef as WorkflowDefinitionForeachState;
             if(string.IsNullOrWhiteSpace(foreachState.InputCollection))

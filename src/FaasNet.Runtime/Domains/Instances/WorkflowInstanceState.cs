@@ -12,6 +12,7 @@ namespace FaasNet.Runtime.Domains.Instances
         public WorkflowInstanceState()
         {
             Events = new List<WorkflowInstanceStateEvent>();
+            Histories = new List<WorkflowInstanceStateHistory>();
         }
 
         #region Properties
@@ -45,6 +46,7 @@ namespace FaasNet.Runtime.Domains.Instances
                 return JObject.Parse(OutputStr);
             }
         }
+        public ICollection<WorkflowInstanceStateHistory> Histories { get; set; }
         public virtual ICollection<WorkflowInstanceStateEvent> Events { get; set; }
 
         #endregion
@@ -55,17 +57,26 @@ namespace FaasNet.Runtime.Domains.Instances
         {
             InputStr = input.ToString();
             Status = WorkflowInstanceStateStatus.ACTIVE;
+            Histories.Add(WorkflowInstanceStateHistory.Create(Status, DateTime.UtcNow));
         }
 
         public void Complete(JToken output)
         {
             OutputStr = output.ToString();
             Status = WorkflowInstanceStateStatus.COMPLETE;
+            Histories.Add(WorkflowInstanceStateHistory.Create(Status, DateTime.UtcNow));
         }
 
         public void Block()
         {
             Status = WorkflowInstanceStateStatus.PENDING;
+            Histories.Add(WorkflowInstanceStateHistory.Create(Status, DateTime.UtcNow));
+        }
+
+        public void Error(string exception)
+        {
+            Status = WorkflowInstanceStateStatus.ERROR;
+            Histories.Add(WorkflowInstanceStateHistory.Create(Status, DateTime.UtcNow, exception));
         }
 
         public void AddEvent(string name, string source, string type)
@@ -156,7 +167,8 @@ namespace FaasNet.Runtime.Domains.Instances
                 OutputStr = OutputStr,
                 Status = Status,
                 InputStr = InputStr,
-                Events = Events.Select(e => (WorkflowInstanceStateEvent)e.Clone()).ToList()
+                Events = Events.Select(e => (WorkflowInstanceStateEvent)e.Clone()).ToList(),
+                Histories = Histories.Select(h => (WorkflowInstanceStateHistory)h.Clone()).ToList()
             };
         }
 

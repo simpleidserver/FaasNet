@@ -80,9 +80,14 @@ namespace FaasNet.Runtime
             var stateProcessorResult = await stateProcessor.Process(executionContext, cancellationToken);
             if (stateProcessorResult.Status != StateProcessorStatus.OK)
             {
-                if (stateProcessorResult.Status == StateProcessorStatus.BLOCKED)
+                switch (stateProcessorResult.Status)
                 {
-                    workflowInstance.BlockState(stateInstance.Id);
+                    case StateProcessorStatus.BLOCKED:
+                        workflowInstance.BlockState(stateInstance.Id);
+                        break;
+                    case StateProcessorStatus.ERROR:
+                        workflowInstance.ErrorState(stateInstance.Id, stateProcessorResult.Exception);
+                        break;
                 }
 
                 return;

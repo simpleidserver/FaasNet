@@ -123,22 +123,46 @@
   <data name="BadRESTApiUrl" xml:space="preserve">
     <value>the RestApi URL {0} doesn't match the format : url#operationid</value>
   </data>
+  <data name="InvalidObjectInput" xml:space="preserve">
+    <value>the input {0} is not a valid object</value>
+  </data>
+  <data name="InvalidStringInput" xml:space="preserve">
+    <value>the input {0} is not a valid string</value>
+  </data>
   <data name="MissingOnEvents" xml:space="preserve">
     <value>at least one OnEvent must be specified</value>
+  </data>
+  <data name="MissingPropertyFromInput" xml:space="preserve">
+    <value>the parameter {0} is missing from the input</value>
   </data>
   <data name="MissingRequiredParameters" xml:space="preserve">
     <value>the parameters {0} are missing</value>
   </data>
+  <data name="NoContentTypeSupportedInOperation" xml:space="preserve">
+    <value>the content-type exposed by the operation {0} are not supported</value>
+  </data>
+  <data name="NoSchemaSpecifiedInContentType" xml:space="preserve">
+    <value>no schema attribute is specified in the operation {0}</value>
+  </data>
   <data name="UnknownFunctionProcessor" xml:space="preserve">
     <value>there is no processor for the function {0}</value>
   </data>
+  <data name="UnknownHttpAPIOperation" xml:space="preserve">
+    <value>the HTTP operation {0} doesn't exist</value>
+  </data>
   <data name="UnknownOpenAPIOperation" xml:space="preserve">
     <value>the OpenAPI operation {0} doesn't exist</value>
+  </data>
+  <data name="UnknownSchema" xml:space="preserve">
+    <value>the schema {0} doesn't exist</value>
   </data>
   <data name="UnknownWorkflowDefinition" xml:space="preserve">
     <value>the workflow definition {0} doesn't exist</value>
   </data>
   <data name="UnknownWorkflowState" xml:space="preserve">
     <value>the workflow state {0} doesn't exist</value>
+  </data>
+  <data name="UnsupportedType" xml:space="preserve">
+    <value>the type {0} is not supported</value>
   </data>
 </root>

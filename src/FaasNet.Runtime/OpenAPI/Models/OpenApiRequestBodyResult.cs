@@ -1,7 +1,9 @@
-﻿namespace FaasNet.Runtime.OpenAPI.Models
+﻿using System.Collections.Generic;
+
+namespace FaasNet.Runtime.OpenAPI.Models
 {
     public class OpenApiRequestBodyResult
     {
-        public OpenApiContentResult Content { get; set; }
+        public Dictionary<string, OpenApiRequestBodySchemaResult> Content { get; set; }
     }
 }

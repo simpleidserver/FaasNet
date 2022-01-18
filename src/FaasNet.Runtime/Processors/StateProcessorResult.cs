@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 
 namespace FaasNet.Runtime.Processors
 {
@@ -19,6 +20,7 @@ namespace FaasNet.Runtime.Processors
         }
 
         public JToken Output { get; private set; }
+        public string Exception { get; private set; }
         public bool IsEnd { get; private set; }
         public string Transition { get; private set; }
         public StateProcessorStatus Status { get; set; }
@@ -46,6 +48,15 @@ namespace FaasNet.Runtime.Processors
             return new StateProcessorResult
             {
                 Status = StateProcessorStatus.BLOCKED
+            };
+        }
+
+        public static StateProcessorResult Error(Exception exception)
+        {
+            return new StateProcessorResult
+            {
+                Status = StateProcessorStatus.ERROR,
+                Exception = exception.ToString()
             };
         }
     }

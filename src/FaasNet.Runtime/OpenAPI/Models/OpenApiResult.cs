@@ -7,5 +7,6 @@ namespace FaasNet.Runtime.OpenAPI.Models
         public string Openapi { get; set; }
         public OpenApiInfoResult Info { get; set; }
         public Dictionary<string, Dictionary<string, OpenApiOperationResult>> Paths { get; set; }
+        public OpenApiComponentsSchemaResult Components { get; set; }
     }
 }

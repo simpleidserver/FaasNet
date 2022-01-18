@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Runtime.Processors.States
 {
-    public class CallbackEventStateProcessor : BaseFlowableStateProcessor, IStateProcessor
+    public class CallbackEventStateProcessor : BaseFlowableStateProcessor
     {
         private readonly IActionExecutor _actionExecutor;
 
@@ -16,9 +16,9 @@ namespace FaasNet.Runtime.Processors.States
             _actionExecutor = actionExecutor;
         }
 
-        public WorkflowDefinitionStateTypes Type => WorkflowDefinitionStateTypes.Callback;
+        public override WorkflowDefinitionStateTypes Type => WorkflowDefinitionStateTypes.Callback;
 
-        public async Task<StateProcessorResult> Process(WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
+        protected async override Task<StateProcessorResult> Handle(WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
             var callbackState = executionContext.StateDef as WorkflowDefinitionCallbackState;
             await ExecuteOperation(executionContext, callbackState, cancellationToken);

@@ -10,16 +10,16 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Runtime.Processors.States
 {
-    public class SwitchStateProcessor : IStateProcessor
+    public class SwitchStateProcessor : BaseStateProcessor
     {
         public SwitchStateProcessor()
         {
 
         }
 
-        public WorkflowDefinitionStateTypes Type => WorkflowDefinitionStateTypes.Switch;
+        public override WorkflowDefinitionStateTypes Type => WorkflowDefinitionStateTypes.Switch;
 
-        public Task<StateProcessorResult> Process(WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
+        protected override Task<StateProcessorResult> Handle(WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
             var swichState = executionContext.StateDef as WorkflowDefinitionSwitchState;
             if (swichState.Conditions.Any(c => c.ConditionType == WorkflowDefinitionEventConditionTypes.DATA))

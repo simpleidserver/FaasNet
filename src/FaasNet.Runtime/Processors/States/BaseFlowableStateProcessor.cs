@@ -3,10 +3,11 @@ using Newtonsoft.Json.Linq;
 
 namespace FaasNet.Runtime.Processors.States
 {
-    public class BaseFlowableStateProcessor
+    public abstract class BaseFlowableStateProcessor : BaseStateProcessor
     {
         public StateProcessorResult Ok(JToken jObj, BaseWorkflowDefinitionFlowableState stateDef)
         {
+            // State with a "transition" property.
             if(stateDef.End)
             {
                 return StateProcessorResult.End(jObj);

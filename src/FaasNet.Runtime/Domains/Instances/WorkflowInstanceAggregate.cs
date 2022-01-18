@@ -121,6 +121,12 @@ namespace FaasNet.Runtime.Domains.Instances
             state.Block();
         }
 
+        public void ErrorState(string stateId, string exception)
+        {
+            var state = GetState(stateId);
+            state.Error(exception);
+        }
+
         #endregion
 
         #region Manage Events

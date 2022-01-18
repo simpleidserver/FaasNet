@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Runtime.Processors.States
 {
-    public class EventStateProcessor : BaseFlowableStateProcessor, IStateProcessor
+    public class EventStateProcessor : BaseFlowableStateProcessor
     {
         private readonly IActionExecutor _actionExecutor;
 
@@ -19,9 +19,9 @@ namespace FaasNet.Runtime.Processors.States
             _actionExecutor = actionExecutor;
         }
 
-        public WorkflowDefinitionStateTypes Type => WorkflowDefinitionStateTypes.Event;
+        public override WorkflowDefinitionStateTypes Type => WorkflowDefinitionStateTypes.Event;
 
-        public async Task<StateProcessorResult> Process(WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
+        protected override async Task<StateProcessorResult> Handle(WorkflowInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
             var eventState = executionContext.StateDef as WorkflowDefinitionEventState;
             await ConsumeEvents(executionContext, eventState, cancellationToken);

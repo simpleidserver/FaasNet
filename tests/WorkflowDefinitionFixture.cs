@@ -361,6 +361,39 @@ namespace FaasNet.Runtime.Tests
             Assert.Equal("{\r\n  \"name\": \"firstEvent\"\r\n}", instance.OutputStr);
         }
 
+        [Fact]
+        public async Task When_Run_SendEmail()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("sendcustomemail", 1, "name", "description")
+                .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmail"))
+                .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("SendEmail",
+                (act) => act.SetFunctionRef("sendEmailFunction", "{ \"address\" : .person.email, \"body\" : .message, \"parameter\" : { \"name\" : .name } }")
+                .SetActionDataFilter(string.Empty, ".emailResult", string.Empty))
+                .End())
+                .Build();
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'email': 'agentsimpleidserver@gmail.com' }, 'message': 'Hello', 'name': 'Name' }");
+            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
+        }
+
+        [Fact]
+        public async Task When_Run_SendEmailAndParameterIsMissing()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("sendcustomemail", 1, "name", "description")
+                .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmail"))
+                .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("SendEmail",
+                (act) => act.SetFunctionRef("sendEmailFunction", "{ \"address\" : .person.email, \"body\" : .message }")
+                .SetActionDataFilter(string.Empty, string.Empty, ".emailResult"))
+                .End())
+                .Build();
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'email': 'agentsimpleidserver@gmail.com' }, 'message': 'Hello', 'name': 'Name' }");
+            var state = instance.States.First();
+            Assert.Equal(WorkflowInstanceStatus.ACTIVE, instance.Status);
+            Assert.Equal(WorkflowInstanceStateStatus.ERROR, state.Status);
+            Assert.Equal(2, state.Histories.Count);
+        }
+
         public class RuntimeJob
         {
             private readonly IServiceProvider _serviceProvider;
