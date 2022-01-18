@@ -92,6 +92,15 @@ namespace FaasNet.Runtime.OpenAPI
             var operation = path.Value.First(v => v.Value.OperationId == operationId).Value;
             var uri = new Uri(url);
             var baseUrl = uri.AbsoluteUri.Replace(uri.AbsolutePath, string.Empty);
+            if (openApiResult.Schemes != null && openApiResult.Schemes.Any() && !string.IsNullOrWhiteSpace(openApiResult.Host))
+            {
+                baseUrl = $"{openApiResult.Schemes.First()}://{openApiResult.Host}";
+                if (!string.IsNullOrWhiteSpace(openApiResult.BasePath))
+                {
+                    baseUrl = $"{baseUrl}{openApiResult.BasePath}";
+                }
+            }
+
             var validationErrors = new List<string>();
             var operationUrl = BuildHTTPTarget($"{baseUrl}{path.Key}", input, operation, validationErrors);
             var content = BuildHTTPContent(input, operation, openApiResult.Components, validationErrors);
