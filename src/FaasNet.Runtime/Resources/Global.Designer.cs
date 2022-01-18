@@ -79,6 +79,15 @@ namespace FaasNet.Runtime.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to the input {0} is not a valid array.
+        /// </summary>
+        internal static string InvalidArrayInput {
+            get {
+                return ResourceManager.GetString("InvalidArrayInput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to the input {0} is not a valid object.
         /// </summary>
         internal static string InvalidObjectInput {
@@ -192,6 +201,15 @@ namespace FaasNet.Runtime.Resources {
         internal static string UnknownWorkflowState {
             get {
                 return ResourceManager.GetString("UnknownWorkflowState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the in parameter type {0} is not supported.
+        /// </summary>
+        internal static string UnsupportedInParameter {
+            get {
+                return ResourceManager.GetString("UnsupportedInParameter", resourceCulture);
             }
         }
         

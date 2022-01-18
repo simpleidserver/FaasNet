@@ -42,7 +42,7 @@ export class ActionsEditorComponent extends MatPanelContent {
   };
   addActionFormGroup: FormGroup = new FormGroup({
     name: new FormControl('', [Validators.required]),
-    type: new FormControl('1'),
+    type: new FormControl(''),
     useResults: new FormControl('true'),
     results: new FormControl(),
     toStateData: new FormControl()

@@ -92,8 +92,14 @@ namespace FaasNet.Runtime.OpenAPI
             var operation = path.Value.First(v => v.Value.OperationId == operationId).Value;
             var uri = new Uri(url);
             var baseUrl = uri.AbsoluteUri.Replace(uri.AbsolutePath, string.Empty);
-            var operationUrl = BuildUrl($"{baseUrl}{path.Key}", input, operation);
-            var content = BuildContent(input, operation, openApiResult.Components);
+            var validationErrors = new List<string>();
+            var operationUrl = BuildHTTPTarget($"{baseUrl}{path.Key}", input, operation, validationErrors);
+            var content = BuildHTTPContent(input, operation, openApiResult.Components, validationErrors);
+            if(validationErrors.Any())
+            {
+                throw new OpenAPIException(string.Join(',', validationErrors));
+            }
+
             return new HttpRequestMessage
             {
                 Method = httpMethod,
@@ -102,47 +108,64 @@ namespace FaasNet.Runtime.OpenAPI
             };
         }
 
-        protected string BuildUrl(string operationUrl, JToken input, OpenApiOperationResult openApiOperationResult)
+        protected string BuildHTTPTarget(string operationUrl, JToken input, OpenApiOperationResult openApiOperationResult, List<string> validationErrors)
         {
             var result = operationUrl;
             var jObj = input as JObject;
-            if (jObj != null)
+            var queryParameters = new Dictionary<string, string>();
+            if (openApiOperationResult.Parameters == null)
             {
-                var missingRequiredParameters = new List<string>();
-                if (openApiOperationResult.Parameters != null && openApiOperationResult.Parameters.Any())
-                {
-                    foreach (var parameter in openApiOperationResult.Parameters)
-                    {
-                        var containsKey = jObj.ContainsKey(parameter.Name);
-                        if (parameter.Required && !containsKey)
-                        {
-                            missingRequiredParameters.Add(parameter.Name);
-                            continue;
-                        }
+                return result;
+            }
 
-                        var value = input[parameter.Name].ToString();
-                        result = result.Replace("{" + parameter.Name + "}", value);
+            foreach(var parameter in openApiOperationResult.Parameters)
+            {
+                JToken token = null;
+                if (input.Type == JTokenType.Object && parameter.Required && (token = jObj.SelectToken(parameter.Name)) == null)
+                {
+                    validationErrors.Add(string.Format(Global.MissingPropertyFromInput, parameter.Name));
+                    continue;
+                }
+
+                if(parameter.In == "path")
+                {
+                    switch(input.Type)
+                    {
+                        case JTokenType.String:
+                            result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(input.ToString()));
+                            break;
+                        case JTokenType.Object:
+                            result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(token.ToString()));
+                            break;
                     }
                 }
-
-                if (missingRequiredParameters.Any())
+                else if(parameter.In == "query")
                 {
-                    throw new OpenAPIException(string.Format(Global.MissingRequiredParameters, string.Join(',', missingRequiredParameters)));
+                    switch(input.Type)
+                    {
+                        case JTokenType.String:
+                            queryParameters.Add(parameter.Name, input.ToString());
+                            break;
+                        case JTokenType.Object:
+                            queryParameters.Add(parameter.Name, token.ToString());
+                            break;
+                    }
+                }
+                else
+                {
+                    throw new OpenAPIException(string.Format(Global.UnsupportedInParameter, parameter.In));
                 }
             }
-            else
-            {
-                foreach (var parameter in openApiOperationResult.Parameters)
-                {
-                    result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(input.ToString()));
-                }
 
+            if (queryParameters.Any())
+            {
+                result = $"{result}?{string.Join('&', queryParameters.Select(kvp => $"{kvp.Key}={kvp.Value}"))}";
             }
 
             return result;
         }
 
-        protected HttpContent BuildContent(JToken input, OpenApiOperationResult openApiOperationResult, OpenApiComponentsSchemaResult components)
+        protected HttpContent BuildHTTPContent(JToken input, OpenApiOperationResult openApiOperationResult, OpenApiComponentsSchemaResult components, List<string> validationErrors)
         {
             var requestBody = openApiOperationResult.RequestBody;
             if (requestBody == null)
@@ -169,13 +192,13 @@ namespace FaasNet.Runtime.OpenAPI
             }
 
             var schema = components.Schemas.First(s => s.Key == schemaReference).Value;
-            var inputToken = Parse(input, schema, components);
+            var inputToken = Parse(input, schema, components, validationErrors);
             return bodyBuilder.Build(content.Key, inputToken);
         }
 
         #region Build Input
 
-        private static JToken Parse(JToken input, OpenApiSchemaResult openApiSchema, OpenApiComponentsSchemaResult components, string parentPath = null, List<string> validationErrors = null)
+        private static JToken Parse(JToken input, OpenApiSchemaResult openApiSchema, OpenApiComponentsSchemaResult components, List<string> validationErrors, string parentPath = null)
         {
             JToken result = null;
             if (openApiSchema.Type == "object")
@@ -187,19 +210,9 @@ namespace FaasNet.Runtime.OpenAPI
                 result = new JArray();
             }
 
-            if (validationErrors == null)
-            {
-                validationErrors = new List<string>();
-            }
-
             foreach (var property in openApiSchema.Properties)
             {
                 Parse(input, result, parentPath, property.Key, property.Value, openApiSchema.Required, components, validationErrors);
-            }
-
-            if (validationErrors.Any() && string.IsNullOrWhiteSpace(parentPath))
-            {
-                throw new OpenAPIException(string.Join(',', validationErrors));
             }
 
             return result;
@@ -207,6 +220,20 @@ namespace FaasNet.Runtime.OpenAPI
 
         private static bool Parse(JToken input, JToken parent, string parentPath, string propertyName, OpenApiSchemaPropertyResult propertyResult, IEnumerable<string> required, OpenApiComponentsSchemaResult components, List<string> validationErrors)
         {
+            Func<JToken, string, List<string>, string, JToken> callback = (inpt, reference, errs, fp) =>
+            {
+                var record = new JObject();
+                var schemaReference = reference.Split("/").Last();
+                if (!components.Schemas.ContainsKey(schemaReference))
+                {
+                    errs.Add(string.Format(Global.UnknownSchema, schemaReference));
+                    return null;
+                }
+
+                var schema = components.Schemas.First(s => s.Key == schemaReference).Value;
+                return Parse(inpt, schema, components, validationErrors, fp);
+            };
+
             var nullable = propertyResult.Nullable;
             var fullPath = string.IsNullOrWhiteSpace(parentPath) ? propertyName : $"{parentPath}.{propertyName}";
             var token = input.SelectToken(fullPath);
@@ -214,6 +241,11 @@ namespace FaasNet.Runtime.OpenAPI
             {
                 validationErrors.Add(string.Format(Global.MissingPropertyFromInput, fullPath));
                 return false;
+            }
+
+            if (token == null)
+            {
+                return true;
             }
 
             switch (propertyResult.Type)
@@ -227,6 +259,34 @@ namespace FaasNet.Runtime.OpenAPI
 
                     Add(parent, new JProperty(propertyName, token));
                     break;
+                case "array":
+                    if (token.Type != JTokenType.Array)
+                    {
+                        validationErrors.Add(string.Format(Global.InvalidArrayInput, fullPath));
+                        return false;
+                    }
+
+                    var jArr = new JArray();
+                    var tokens = token as JArray;
+                    foreach(var child in tokens)
+                    {
+                        if (string.IsNullOrWhiteSpace(propertyResult.Items.Reference))
+                        {
+                            jArr.Add(child);
+                            continue;
+                        }
+
+                        var r = callback(child, propertyResult.Items.Reference, validationErrors, string.Empty);
+                        if (r == null)
+                        {
+                            return false;
+                        }
+
+                        jArr.Add(r);
+                    }
+
+                    Add(parent, new JProperty(propertyName, tokens));
+                    break;
                 default:
                     if (string.IsNullOrWhiteSpace(propertyResult.Reference))
                     {
@@ -234,16 +294,12 @@ namespace FaasNet.Runtime.OpenAPI
                         return false;
                     }
 
-                    var record = new JObject();
-                    var schemaReference = propertyResult.Reference.Split("/").Last();
-                    if (!components.Schemas.ContainsKey(schemaReference))
+                    var inputToken = callback(input, propertyResult.Reference, validationErrors, fullPath);
+                    if (inputToken == null)
                     {
-                        validationErrors.Add(string.Format(Global.UnknownSchema, schemaReference));
                         return false;
                     }
 
-                    var schema = components.Schemas.First(s => s.Key == schemaReference).Value;
-                    var inputToken = Parse(input, schema, components, fullPath, validationErrors);
                     Add(parent, new JProperty(propertyName, inputToken));
                     break;
             }

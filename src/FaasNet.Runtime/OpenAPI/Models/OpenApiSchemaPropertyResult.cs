@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace FaasNet.Runtime.OpenAPI.Models
 {
@@ -9,5 +8,6 @@ namespace FaasNet.Runtime.OpenAPI.Models
         public bool? Nullable { get; set; }
         [JsonProperty("$ref")]
         public string Reference { get; set; }
+        public OpenApiSchemaPropertyResult Items { get; set; }
     }
 }

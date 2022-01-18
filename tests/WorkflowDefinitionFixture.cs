@@ -362,13 +362,28 @@ namespace FaasNet.Runtime.Tests
         }
 
         [Fact]
-        public async Task When_Run_SendEmail()
+        public async Task When_Run_SendEmailWithHttpPost()
         {
             var runtimeJob = new RuntimeJob();
             var workflowDefinition = WorkflowDefinitionBuilder.New("sendcustomemail", 1, "name", "description")
-                .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmail"))
+                .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmailPost"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("SendEmail",
-                (act) => act.SetFunctionRef("sendEmailFunction", "{ \"address\" : .person.email, \"body\" : .message, \"parameter\" : { \"name\" : .name } }")
+                (act) => act.SetFunctionRef("sendEmailFunction", "{ \"address\" : .person.email, \"body\" : .message, \"parameter\" : { \"name\" : .name }, \"destinations\" : [\"destination1\"], \"pictures\" : [ { \"url\" : \"url1\" } ] }")
+                .SetActionDataFilter(string.Empty, ".emailResult", string.Empty))
+                .End())
+                .Build();
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'email': 'agentsimpleidserver@gmail.com' }, 'message': 'Hello', 'name': 'Name' }");
+            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
+        }
+
+        [Fact]
+        public async Task When_Run_SendEmailWithHttpGet()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("sendEmailGet", 1, "name", "description")
+                .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmailGet"))
+                .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("SendEmail",
+                (act) => act.SetFunctionRef("sendEmailFunction", "{ \"Address\" : .person.email, \"Body\" : .message }")
                 .SetActionDataFilter(string.Empty, ".emailResult", string.Empty))
                 .End())
                 .Build();

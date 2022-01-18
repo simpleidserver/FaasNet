@@ -123,6 +123,9 @@
   <data name="BadRESTApiUrl" xml:space="preserve">
     <value>the RestApi URL {0} doesn't match the format : url#operationid</value>
   </data>
+  <data name="InvalidArrayInput" xml:space="preserve">
+    <value>the input {0} is not a valid array</value>
+  </data>
   <data name="InvalidObjectInput" xml:space="preserve">
     <value>the input {0} is not a valid object</value>
   </data>
@@ -161,6 +164,9 @@
   </data>
   <data name="UnknownWorkflowState" xml:space="preserve">
     <value>the workflow state {0} doesn't exist</value>
+  </data>
+  <data name="UnsupportedInParameter" xml:space="preserve">
+    <value>the in parameter type {0} is not supported</value>
   </data>
   <data name="UnsupportedType" xml:space="preserve">
     <value>the type {0} is not supported</value>
