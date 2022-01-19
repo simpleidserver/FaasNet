@@ -102,18 +102,16 @@ namespace FaasNet.Runtime.OpenAPI
             var operation = path.Value.First(v => v.Value.OperationId == operationId).Value;
             var uri = new Uri(url);
             var baseUrl = uri.AbsoluteUri.Replace(uri.AbsolutePath, string.Empty);
-            if (openApiResult.Schemes != null && openApiResult.Schemes.Any() && !string.IsNullOrWhiteSpace(openApiResult.Host))
+            if (openApiResult.Servers != null && openApiResult.Servers.Any())
             {
-                baseUrl = $"{openApiResult.Schemes.First()}://{openApiResult.Host}";
-                if (!string.IsNullOrWhiteSpace(openApiResult.BasePath))
-                {
-                    baseUrl = $"{baseUrl}{openApiResult.BasePath}";
-                }
+                baseUrl = baseUrl + openApiResult.Servers.First().Url;
             }
 
             var validationErrors = new List<string>();
-            var operationUrl = BuildHTTPTarget($"{baseUrl}{path.Key}", input, operation, validationErrors);
-            var content = BuildHTTPContent(input, operation, openApiResult.Components, validationErrors);
+            var queries = input.SelectToken("queries") ?? input;
+            var properties = input.SelectToken("properties");
+            var operationUrl = BuildHTTPTarget($"{baseUrl}{path.Key}", queries, operation, validationErrors);
+            var content = BuildHTTPContent(properties, operation, openApiResult.Components, validationErrors);
             if(validationErrors.Any())
             {
                 throw new OpenAPIException(string.Join(',', validationErrors));
@@ -137,7 +135,7 @@ namespace FaasNet.Runtime.OpenAPI
                 return result;
             }
 
-            foreach(var parameter in openApiOperationResult.Parameters)
+            foreach (var parameter in openApiOperationResult.Parameters)
             {
                 JToken token = null;
                 if (input.Type == JTokenType.Object && parameter.Required && (token = jObj.SelectToken(parameter.Name)) == null)
@@ -146,9 +144,9 @@ namespace FaasNet.Runtime.OpenAPI
                     continue;
                 }
 
-                if(parameter.In == "path")
+                if (parameter.In == "path")
                 {
-                    switch(input.Type)
+                    switch (input.Type)
                     {
                         case JTokenType.String:
                             result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(input.ToString()));
@@ -158,9 +156,9 @@ namespace FaasNet.Runtime.OpenAPI
                             break;
                     }
                 }
-                else if(parameter.In == "query")
+                else if (parameter.In == "query")
                 {
-                    switch(input.Type)
+                    switch (input.Type)
                     {
                         case JTokenType.String:
                             queryParameters.Add(parameter.Name, input.ToString());
@@ -187,7 +185,7 @@ namespace FaasNet.Runtime.OpenAPI
         protected HttpContent BuildHTTPContent(JToken input, OpenApiOperationResult openApiOperationResult, OpenApiComponentsSchemaResult components, List<string> validationErrors)
         {
             var requestBody = openApiOperationResult.RequestBody;
-            if (requestBody == null)
+            if (requestBody == null || input == null)
             {
                 return null;
             }

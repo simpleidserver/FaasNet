@@ -463,7 +463,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     this.dialog.open(JsonComponent, {
       width: '800px',
       data: {
-        json: JSON.stringify(this.stateMachine.getJson()),
+        json: JSON.stringify(this.stateMachine.getJson(), undefined, 4),
         title: 'State Machine JSON'
       }
     });
@@ -484,7 +484,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     this.dialog.open(JsonComponent, {
       width: '800px',
       data: {
-        json: JSON.stringify(token.data),
+        json: JSON.stringify(token.data, undefined, 4),
         title: token.isInput ? 'Input Token' : 'Output Token'
       }
     });
