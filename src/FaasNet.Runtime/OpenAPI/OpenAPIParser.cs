@@ -48,21 +48,20 @@ namespace FaasNet.Runtime.OpenAPI
             return true;
         }
 
+        public Task<OpenApiResult> GetConfiguration(string url, CancellationToken cancellationToken)
+        {
+            var httpClient = _httpClientFactory.Build();
+            return GetConfiguration(url, httpClient, cancellationToken);
+        }
+
         public async Task<JToken> Invoke(string url, string operationId, JToken input, CancellationToken cancellationToken)
         {
             var httpClient = _httpClientFactory.Build();
-            var httpResult = await httpClient.GetAsync(url, cancellationToken);
+            var openApiResult = await GetConfiguration(url, httpClient, cancellationToken);
+            var httpRequestMessage = BuildHttpRequestMessage(url, openApiResult, operationId, input);
+            var httpResult = await httpClient.SendAsync(httpRequestMessage, cancellationToken);
             httpResult.EnsureSuccessStatusCode();
             var json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
-            var settings = new JsonSerializerSettings
-            {
-                MetadataPropertyHandling = MetadataPropertyHandling.Ignore
-            };
-            var openApiResult = JsonConvert.DeserializeObject<OpenApiResult>(json, settings);
-            var httpRequestMessage = BuildHttpRequestMessage(url, openApiResult, operationId, input);
-            httpResult = await httpClient.SendAsync(httpRequestMessage, cancellationToken);
-            httpResult.EnsureSuccessStatusCode();
-            json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
             try
             {
                 return JToken.Parse(json);
@@ -71,6 +70,17 @@ namespace FaasNet.Runtime.OpenAPI
             {
                 return json;
             }
+        }
+
+        protected virtual async Task<OpenApiResult> GetConfiguration(string url, HttpClient httpClient, CancellationToken cancellationToken)
+        {
+            var httpResult = await httpClient.GetAsync(url, cancellationToken);
+            var json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
+            var settings = new JsonSerializerSettings
+            {
+                MetadataPropertyHandling = MetadataPropertyHandling.Ignore
+            };
+            return JsonConvert.DeserializeObject<OpenApiResult>(json, settings);
         }
 
         protected virtual HttpRequestMessage BuildHttpRequestMessage(string url, OpenApiResult openApiResult, string operationId, JToken input)

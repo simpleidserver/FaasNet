@@ -88,6 +88,15 @@ namespace FaasNet.Gateway.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to the open api url {0} is not valid.
+        /// </summary>
+        internal static string InvalidOpenApiUrl {
+            get {
+                return ResourceManager.GetString("InvalidOpenApiUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to operation &apos;{0}&apos; already exists.
         /// </summary>
         internal static string OperationExists {
@@ -138,6 +147,15 @@ namespace FaasNet.Gateway.Core.Resources {
         internal static string UnknownFunction {
             get {
                 return ResourceManager.GetString("UnknownFunction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the open api operation {0} doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownOpenApiOperation {
+            get {
+                return ResourceManager.GetString("UnknownOpenApiOperation", resourceCulture);
             }
         }
         

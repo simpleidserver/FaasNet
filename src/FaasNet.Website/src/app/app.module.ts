@@ -12,6 +12,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { appReducer } from '../stores/appstate';
 import { FunctionEffects } from '../stores/functions/effects/function.effects';
 import { FunctionService } from '../stores/functions/services/function.service';
+import { OpenApiService } from '../stores/openapi/services/openapi.service';
 import { StateMachineInstancesEffects } from '../stores/statemachineinstances/effects/statemachineinstances.effects';
 import { StateMachineInstancesService } from '../stores/statemachineinstances/services/statemachineinstances.service';
 import { StateMachineEffects } from '../stores/statemachines/effects/statemachines.effects';
@@ -49,7 +50,7 @@ export function createTranslateLoader(http: HttpClient) {
       maxAge: 10
     })
   ],
-  providers: [FunctionService, StateMachinesService, StateMachineInstancesService],
+  providers: [FunctionService, StateMachinesService, StateMachineInstancesService, OpenApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

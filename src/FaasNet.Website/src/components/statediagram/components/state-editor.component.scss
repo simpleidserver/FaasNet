@@ -37,7 +37,7 @@ $background: whitesmoke;
     border: 1px solid #c1c1c1;
   }
 
-  input, select {
+  input:not([type=checkbox]), select {
     height: 30px;
   }
 
@@ -54,4 +54,9 @@ $background: whitesmoke;
   .condition {
     cursor: pointer;
   }
+}
+
+
+.text-center {
+    text-align: center;
 }

@@ -22,13 +22,47 @@
             </select>
             <mat-error *ngIf="editFunctionFormGroup.get('type')?.errors?.required">{{ 'functions.typeRequired' | translate }}</mat-error>
           </div>
-          <div *ngIf="editFunctionFormGroup.get('type')?.value == 'rest'">
+          <div *ngIf="editFunctionFormGroup.get('type')?.value == 'rest'" [formGroup]="editRestFormGroup">
             <mat-divider></mat-divider>
-            <!-- Operation -->
+            <!-- Select the type of operation -->
             <div class="form-control">
-              <div class="title">Operation</div>
-              <p class="description">{{ getOperationTranslationKey() }}</p>
-              <input type="text" formControlName="operation" class="full-width" />
+              <input type="checkbox" formControlName="isOpenApiUrl" />
+              <label>Is OPENAPI url ?</label>
+            </div>
+            <!-- OpenAPI operation -->
+            <div *ngIf="editRestFormGroup.get('isOpenApiUrl')?.value == true">
+              <mat-divider></mat-divider>
+              <div class="form-control">
+                <div class="title">OpenAPI URL</div>
+                <p class="description">OpenAPI URL</p>
+                <div fxLayout="row">
+                  <input type="text" fxFlex="auto" formControlName="url" />
+                  <div fxFlex="10%" class="text-center">
+                    <button mat-raised-button (click)="extract($event)">Extract</button>
+                  </div>
+                </div>
+                <mat-error *ngIf="editRestFormGroup.get('url')?.errors?.required">URL is required</mat-error>
+              </div>
+              <mat-divider></mat-divider>
+              <div class="form-control">
+                <div class="title">Operation</div>
+                <p class="description">Please select an Operation</p>
+                <select class="full-width" formControlName="operationId">
+                  <option *ngFor="let operation of operations" [value]="operation.operationId">{{ operation.operationId }}</option>
+                </select>
+                <p class="description">{{ displaySelectedOperation() }}</p>
+                <mat-error *ngIf="editRestFormGroup.get('operationId')?.errors?.required">Operation must be selected</mat-error>
+              </div>
+              <div *ngIf="isOpenApiErrorDisplayed" class="alert alert-danger">
+                An error occured while trying to get the operations from the OPENAPI URL
+              </div>
+            </div>
+            <!-- REST.API url -->
+            <div class="form-control" *ngIf="editRestFormGroup.get('isOpenApiUrl')?.value == false">
+              <div class="title">REST.API URL</div>
+              <p class="description">REST.API URL</p>
+              <input type="text" class="full-width" formControlName="url" />
+              <mat-error *ngIf="editRestFormGroup.get('url')?.errors?.required">URL is required</mat-error>
             </div>
           </div>
           <div *ngIf="editFunctionFormGroup.get('type')?.value == 'kubernetes'" [formGroup]="editKubernetesFormGroup">
@@ -56,7 +90,7 @@
             </div>
           </div>
           <mat-divider></mat-divider>
-          <button mat-raised-button color="primary" [disabled]="!editFunctionFormGroup.valid" class="mt-10">{{ edit ? 'Update' : 'Add' }}</button>
+          <button mat-raised-button color="primary" [disabled]="isDisabled()" class="mt-10">{{ edit ? 'Update' : 'Add' }}</button>
         </form>
       </div>
       <div fxFlex="50%" class="secondColumn">
