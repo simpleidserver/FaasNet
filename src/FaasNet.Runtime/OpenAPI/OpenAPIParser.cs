@@ -2,7 +2,6 @@
 using FaasNet.Runtime.OpenAPI.Builders;
 using FaasNet.Runtime.OpenAPI.Models;
 using FaasNet.Runtime.Resources;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -26,13 +25,16 @@ namespace FaasNet.Runtime.OpenAPI
         };
         private readonly IEnumerable<IRequestBodyBuilder> _requestBodyBuilders;
         private readonly Factories.IHttpClientFactory _httpClientFactory;
+        private readonly IEnumerable<IOpenAPIConfigurationParser> _openAPIConfigurationParsers;
 
         public OpenAPIParser(
             Factories.IHttpClientFactory httpClientFactory,
-            IEnumerable<IRequestBodyBuilder> requestBodyBuilders)
+            IEnumerable<IRequestBodyBuilder> requestBodyBuilders,
+            IEnumerable<IOpenAPIConfigurationParser> openAPIConfigurationParsers)
         {
             _httpClientFactory = httpClientFactory;
             _requestBodyBuilders = requestBodyBuilders;
+            _openAPIConfigurationParsers = openAPIConfigurationParsers;
         }
 
         public bool TryParseUrl(string url, out OpenAPIUrlResult result)
@@ -76,11 +78,23 @@ namespace FaasNet.Runtime.OpenAPI
         {
             var httpResult = await httpClient.GetAsync(url, cancellationToken);
             var json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
-            var settings = new JsonSerializerSettings
+            var jObj = JObject.Parse(json);
+            var parser = _openAPIConfigurationParsers.FirstOrDefault(p =>
             {
-                MetadataPropertyHandling = MetadataPropertyHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<OpenApiResult>(json, settings);
+                var version = jObj.SelectToken(p.VersionPath);
+                if (version == null)
+                {
+                    return false;
+                }
+
+                return p.SupportedVersions.Contains(version.ToString());
+            });
+            if (parser == null)
+            {
+                throw new OpenAPIException(Global.UnsupportedOpenApiVersion);
+            }
+
+            return parser.Deserialize(json);
         }
 
         protected virtual HttpRequestMessage BuildHttpRequestMessage(string url, OpenApiResult openApiResult, string operationId, JToken input)

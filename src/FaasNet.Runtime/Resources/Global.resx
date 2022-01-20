@@ -168,6 +168,9 @@
   <data name="UnsupportedInParameter" xml:space="preserve">
     <value>the in parameter type {0} is not supported</value>
   </data>
+  <data name="UnsupportedOpenApiVersion" xml:space="preserve">
+    <value>the OPENAPI version is not supported</value>
+  </data>
   <data name="UnsupportedType" xml:space="preserve">
     <value>the type {0} is not supported</value>
   </data>

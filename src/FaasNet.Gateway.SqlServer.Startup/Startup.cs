@@ -1,5 +1,6 @@
 using FaasNet.Gateway.EF;
 using FaasNet.Gateway.SqlServer.Startup.Infrastructure;
+using FaasNet.Gateway.SqlServer.Startup.Infrastructure.Filters;
 using FaasNet.Runtime.EF;
 using FaasNet.Runtime.Serializer;
 using Microsoft.AspNetCore.Builder;
@@ -52,6 +53,7 @@ namespace FaasNet.Gateway.SqlServer.Startup
             {
                 opts.InputFormatters.Add(new YamlInputFormatter());
                 opts.OutputFormatters.Add(new YamlOutputFormatter());
+                opts.Filters.Add(new FaasNetExceptionFilter());
                 opts.RespectBrowserAcceptHeader = true;
             }).AddNewtonsoftJson(opts =>
             {

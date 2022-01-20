@@ -214,6 +214,15 @@ namespace FaasNet.Runtime.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to the OPENAPI version is not supported.
+        /// </summary>
+        internal static string UnsupportedOpenApiVersion {
+            get {
+                return ResourceManager.GetString("UnsupportedOpenApiVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to the type {0} is not supported.
         /// </summary>
         internal static string UnsupportedType {

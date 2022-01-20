@@ -53,8 +53,8 @@
                 <p class="description">{{ displaySelectedOperation() }}</p>
                 <mat-error *ngIf="editRestFormGroup.get('operationId')?.errors?.required">Operation must be selected</mat-error>
               </div>
-              <div *ngIf="isOpenApiErrorDisplayed" class="alert alert-danger">
-                An error occured while trying to get the operations from the OPENAPI URL
+              <div *ngIf="openApiErrorMessage" class="alert alert-danger">
+                {{ openApiErrorMessage }}
               </div>
             </div>
             <!-- REST.API url -->
@@ -90,8 +90,9 @@
             </div>
           </div>
           <mat-divider></mat-divider>
-          <button mat-raised-button color="primary" [disabled]="isDisabled()" class="mt-10">{{ edit ? 'Update' : 'Add' }}</button>
-        </form>
+          <button mat-raised-button color="primary" [disabled]="isDisabled()" class="mt-10">{{ edit ? 'Update' : 'Add'
+                }}</button>
+</form>
       </div>
       <div fxFlex="50%" class="secondColumn">
         <div class="mat-elevation-z8 overflow-hidden">

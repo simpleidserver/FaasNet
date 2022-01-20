@@ -9,6 +9,7 @@ using FaasNet.Runtime.Infrastructure;
 using FaasNet.Runtime.Infrastructure.Handlers;
 using FaasNet.Runtime.OpenAPI;
 using FaasNet.Runtime.OpenAPI.Builders;
+using FaasNet.Runtime.OpenAPI.ThreeDotZero;
 using FaasNet.Runtime.Persistence;
 using FaasNet.Runtime.Persistence.InMemory;
 using FaasNet.Runtime.Processors;
@@ -63,6 +64,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IOpenAPIParser, OpenAPIParser>();
             services.AddTransient<IHttpClientFactory, HttpClientFactory>();
             services.AddTransient<IIntegrationEventProcessor, IntegrationEventProcessor>();
+            services.AddTransient<IOpenAPIConfigurationParser, ThreeDotZeroOpenAPIConfigurationParser>();
             services.AddTransient<IIntegrationEventHandler<EventListenedEvent>, EventListenedEventHandler>();
             services.AddTransient<IIntegrationEventHandler<EventUnlistenedEvent>, EventUnlistenedEventHandler>();
             services.AddTransient<IRequestBodyBuilder, JsonRequestBodyBuilder>();

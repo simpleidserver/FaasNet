@@ -39,7 +39,7 @@ export class FunctionsEditorComponent extends MatPanelContent {
       alwaysConsumeMouseWheel: false,
     }
   };
-  isOpenApiErrorDisplayed: boolean = false;
+  openApiErrorMessage: string | null = null;
   editFunctionFormGroup: FormGroup = new FormGroup({
     name: new FormControl('', [Validators.required]),
     type: new FormControl('', [Validators.required])
@@ -226,11 +226,15 @@ export class FunctionsEditorComponent extends MatPanelContent {
     const url = this.editRestFormGroup.get('url')?.value;
     this.operations = [{ 'operationId' : 'Loading...' }]
     this.openApiService.getOperations(url).subscribe((e) => {
-      this.isOpenApiErrorDisplayed = false;
+      this.openApiErrorMessage = null;
       this.operations = e;
-    }, () => {
+    }, (e) => {
       this.operations = [];
-      this.isOpenApiErrorDisplayed = true;
+      if (e.error && e.error.Message) {
+        this.openApiErrorMessage = e.error.Message;
+      } else {
+        this.openApiErrorMessage = "An error occured while trying to get the operations from the OPENAPI URL";
+      }
     });
   }
 }
