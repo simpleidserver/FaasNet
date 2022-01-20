@@ -46,6 +46,11 @@ namespace FaasNet.Runtime.Serializer
 
         private object Build(ICollection<TreeNode> nodes, Type type)
         {
+            if (!nodes.Any())
+            {
+                return null;
+            }
+
             var result = Activator.CreateInstance(type);
             foreach(var node in nodes)
             {
@@ -84,7 +89,10 @@ namespace FaasNet.Runtime.Serializer
                         foreach (var child in node.Children)
                         {
                             var v = Build(child.Children, genericType);
-                            addMethod.Invoke(lst, new object[] { v });
+                            if (v != null)
+                            {
+                                addMethod.Invoke(lst, new object[] { v });
+                            }
                         }
 
                         property.SetValue(result, lst);

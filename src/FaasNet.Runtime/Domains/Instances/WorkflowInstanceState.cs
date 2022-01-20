@@ -1,5 +1,6 @@
 ﻿using Coeus;
 using FaasNet.Runtime.Domains.Enums;
+using FaasNet.Runtime.Extensions;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -46,7 +47,7 @@ namespace FaasNet.Runtime.Domains.Instances
                 return JObject.Parse(OutputStr);
             }
         }
-        public ICollection<WorkflowInstanceStateHistory> Histories { get; set; }
+        public virtual ICollection<WorkflowInstanceStateHistory> Histories { get; set; }
         public virtual ICollection<WorkflowInstanceStateEvent> Events { get; set; }
 
         #endregion
@@ -137,6 +138,7 @@ namespace FaasNet.Runtime.Domains.Instances
 
         public bool EvaluateCondition(string expression)
         {
+            expression = JTokenExtensions.CleanExpression(expression);
             var token = JQ.EvalToToken(expression, Input);
             return bool.Parse(token.ToString());
         }

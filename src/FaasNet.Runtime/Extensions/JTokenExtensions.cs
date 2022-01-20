@@ -1,10 +1,13 @@
 ﻿using Coeus;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 
 namespace FaasNet.Runtime.Extensions
 {
     public static class JTokenExtensions
     {
+        private const string REGEX_STR = "\"?\\$\\{( |\\w|\\.|>|<|=|\\[|\\]|\\)|\\(|\\|)*\\}\"?";
+
         public static JToken Transform(this JToken token, string filter)
         {
             if (string.IsNullOrWhiteSpace(filter))
@@ -12,7 +15,29 @@ namespace FaasNet.Runtime.Extensions
                 return token;
             }
 
-            var result = JQ.EvalToToken(filter, token);
+            var regex = new Regex(REGEX_STR);
+            var str  = regex.Replace(filter, (m) =>
+            {
+                var value = Clean(m.Value);
+                var r = JQ.EvalToToken(value, token);
+                var str = r.ToString().Trim('#');
+                if (r.Type == JTokenType.String)
+                {
+                    return $"\"{str}\"";
+                }
+
+                return str;
+            });
+            JToken result = null;
+            try
+            {
+                result = JToken.Parse(str);
+            }
+            catch
+            {
+                result = str;
+            }
+
             return result;
         }
 
@@ -39,6 +64,11 @@ namespace FaasNet.Runtime.Extensions
                 return;
             }
 
+            var regex = new Regex(REGEX_STR);
+            targetPath = regex.Replace(targetPath, (m) =>
+            {
+                return Clean(m.Value);
+            });
             var tok = JQ.EvalToToken(targetPath, jObj);
             if (tok.Type == JTokenType.Null)
             {
@@ -49,6 +79,15 @@ namespace FaasNet.Runtime.Extensions
             }
 
             tok.Replace(token);
+        }
+
+        public static string CleanExpression(string filter)
+        {
+            var regex = new Regex(REGEX_STR);
+            return regex.Replace(filter, (m) =>
+            {
+                return Clean(m.Value);
+            });
         }
 
         private static void Merge(JToken jObj, JToken token)
@@ -66,6 +105,15 @@ namespace FaasNet.Runtime.Extensions
                     MergeArrayHandling = MergeArrayHandling.Union
                 });
             }
+        }
+
+        private static string Clean(string str)
+        {
+            return str.Trim('"')
+                       .Trim('#')
+                       .TrimStart('$').TrimStart('{')
+                       .TrimEnd('}')
+                       .Trim();
         }
     }
 }

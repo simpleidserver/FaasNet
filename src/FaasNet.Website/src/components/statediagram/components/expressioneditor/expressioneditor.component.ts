@@ -58,13 +58,23 @@ export class ExpressionEditorComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<ExpressionEditorComponent>) {
     if (data && data.filter) {
-      this._filter = data.filter;
+      var filter = data.filter.replace('$', '')
+        .replace('{', '')
+        .replace('}', '')
+        .trim();
+      this._filter = filter;
     }
   }
 
   save() {
+    if (!this._filter || this.filter === "") {
+      this.dialogRef.close();
+      return;
+    }
+
+    let filter = "${ " + this._filter + " }";
     this.dialogRef.close({
-      filter: this._filter
+      filter: filter
     });
   }
 

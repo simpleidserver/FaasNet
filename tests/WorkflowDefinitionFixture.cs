@@ -63,7 +63,7 @@ namespace FaasNet.Runtime.Tests
                         age = 30
                     }
                 }
-                }).End().SetOutputFilter("{ \"people\" : (.people | select(.[].age < 40)) }"))
+                }).End().SetOutputFilter("{ \"people\" : \"${ (.people | select(.[].age < 40)) }\" }"))
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
@@ -77,8 +77,8 @@ namespace FaasNet.Runtime.Tests
             var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("Greet",
-                (act) => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : .person.name } }")
-                .SetActionDataFilter(string.Empty, ".person.message", ".result"))
+                (act) => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : \"${ .person.name }\" } }")
+                .SetActionDataFilter(string.Empty, "${ .person.message }", "${ .result }"))
                 .End())
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'name': 'simpleidserver', 'message': 'message' }}");
@@ -96,7 +96,7 @@ namespace FaasNet.Runtime.Tests
                 .StartsWith(o => o.Event()
                     .SetExclusive(false)
                     .AddOnEvent(
-                        onevt => onevt.AddEventRef("GreetingEvent").AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : .person.message } }").SetActionDataFilter(string.Empty, ".person.message", ".result")).Build()
+                        onevt => onevt.AddEventRef("GreetingEvent").AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : \"${ .person.message }\" } }").SetActionDataFilter(string.Empty, "${ .person.message }", "${ .result }")).Build()
                     ).End()
                 )
                 .Build();
@@ -130,8 +130,8 @@ namespace FaasNet.Runtime.Tests
                     .AddOnEvent(
                         onevt => onevt
                             .AddEventRef("FirstEvent").AddEventRef("SecondEvent")
-                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : .name } }").SetActionDataFilter(string.Empty, ".firstEvent", ".result"))
-                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : .name } }").SetActionDataFilter(string.Empty, ".secondEvent", ".result"))
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : \"${ .name }\" } }").SetActionDataFilter(string.Empty, "${ .firstEvent }", "${ .result }"))
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : \"${ .name }\" } }").SetActionDataFilter(string.Empty, "${ .secondEvent }", "${ .result }"))
                             .Build()
                     )
                     .End()
@@ -192,8 +192,8 @@ namespace FaasNet.Runtime.Tests
                     .AddOnEvent(
                         onevt => onevt
                             .AddEventRef("FirstEvent").AddEventRef("SecondEvent")
-                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : .name } }").SetActionDataFilter(string.Empty, ".firstEvent", ".result"))
-                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : .name } }").SetActionDataFilter(string.Empty, ".secondEvent", ".result"))
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" :  \"${ .name }\" } }").SetActionDataFilter(string.Empty, "${ .firstEvent }", "${ .result }"))
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" :  \"${ .name }\" } }").SetActionDataFilter(string.Empty, "${ .secondEvent }", "${ .result }"))
                             .Build()
                     )
                     .End()
@@ -249,8 +249,8 @@ namespace FaasNet.Runtime.Tests
             var runtimeJob = new RuntimeJob();
             var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
                 .StartsWith(o => o.Switch()
-                    .AddDataCondition("MoreThan18", "StartApplication", ".applicant.age >= 18")
-                    .AddDataCondition("LessThan18", "RejectApplication", ".applicant.age < 18")
+                    .AddDataCondition("MoreThan18", "StartApplication", "${ .applicant.age >= 18 }")
+                    .AddDataCondition("LessThan18", "RejectApplication", "${ .applicant.age < 18 }")
                 )
                 .Then(o => o.Inject().Data(new { reason = "accepted" }).End().SetName("StartApplication"))
                 .Then(o => o.Inject().Data(new { reason = "rejected" }).End().SetName("RejectApplication"))
@@ -315,8 +315,8 @@ namespace FaasNet.Runtime.Tests
             var workflowDefinition = WorkflowDefinitionBuilder.New("solvemathproblems", 1, "name", "description")
                 .AddFunction(o => o.RestAPI("solveMathExpressionFunction", "http://localhost/swagger/v1/swagger.json#calculator"))
                 .StartsWith(o => o.Foreach()
-                    .SetInputCollection(".expressions")
-                    .SetOutputCollection(".results")
+                    .SetInputCollection("${ .expressions }")
+                    .SetOutputCollection("${ .results }")
                     .SetMode(WorkflowDefinitionForeachStateModes.Sequential)
                     .AddAction("", (act) =>
                     {
@@ -368,8 +368,8 @@ namespace FaasNet.Runtime.Tests
             var workflowDefinition = WorkflowDefinitionBuilder.New("sendcustomemail", 1, "name", "description")
                 .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmailPost"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("SendEmail",
-                (act) => act.SetFunctionRef("sendEmailFunction", "{ \"properties\" : { \"address\" : .person.email, \"body\" : .message, \"parameter\" : { \"name\" : .name }, \"destinations\" : [\"destination1\"], \"pictures\" : [ { \"url\" : \"url1\" } ] } }")
-                .SetActionDataFilter(string.Empty, ".emailResult", string.Empty))
+                (act) => act.SetFunctionRef("sendEmailFunction", "{ \"properties\" : { \"address\" : \"${ .person.email }\", \"body\" : \"${ .message }\", \"parameter\" : { \"name\" : \"${ .name }\" }, \"destinations\" : [\"destination1\"], \"pictures\" : [ { \"url\" : \"url1\" } ] } }")
+                .SetActionDataFilter(string.Empty, "${ .emailResult }", string.Empty))
                 .End())
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'email': 'agentsimpleidserver@gmail.com' }, 'message': 'Hello', 'name': 'Name' }");
@@ -383,7 +383,7 @@ namespace FaasNet.Runtime.Tests
             var workflowDefinition = WorkflowDefinitionBuilder.New("sendcustomemail", 1, "name", "description")
                 .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmailPost"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("SendEmail",
-                (act) => act.SetFunctionRef("sendEmailFunction", "{ \"properties\" : { \"address\" : .person.email, \"body\" : .message, parameter : { } } }")
+                (act) => act.SetFunctionRef("sendEmailFunction", "{ \"properties\" : { \"address\" : \"${ .person.email }\", \"body\" : \"${ .message }\", parameter : { } } }")
                 .SetActionDataFilter(string.Empty, string.Empty, ".emailResult"))
                 .End())
                 .Build();
@@ -401,7 +401,7 @@ namespace FaasNet.Runtime.Tests
             var workflowDefinition = WorkflowDefinitionBuilder.New("sendEmailGet", 1, "name", "description")
                 .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmailGet"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("SendEmail",
-                (act) => act.SetFunctionRef("sendEmailFunction", "{ \"queries\" : { \"Address\" : .person.email, \"Body\" : .message } }")
+                (act) => act.SetFunctionRef("sendEmailFunction", "{ \"queries\" : { \"Address\" : \"${ .person.email }\", \"Body\" : \"${ .message }\" } }")
                 .SetActionDataFilter(string.Empty, ".emailResult", string.Empty))
                 .End())
                 .Build();

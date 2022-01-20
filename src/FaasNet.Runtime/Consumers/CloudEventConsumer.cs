@@ -51,7 +51,7 @@ namespace FaasNet.Runtime.Consumers
                 var subscriptions = GetSubscriptions(context);
                 foreach(var subscription in subscriptions)
                 {
-                    var workflowDef = _workflowDefinitionRepository.Query(true).FirstOrDefault(w => w.Id == subscription.WorkflowInstance.WorkflowDefId);
+                    var workflowDef = _workflowDefinitionRepository.Query().FirstOrDefault(w => w.Id == subscription.WorkflowInstance.WorkflowDefId);
                     using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
                         foreach (var sub in subscription.Subscriptions)

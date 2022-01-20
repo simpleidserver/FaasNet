@@ -448,6 +448,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
         stateMachine: this.stateMachine
       }
     });
+    console.log(this.stateMachine);
     dialogRef.afterClosed().subscribe((e) => {
       if (!e) {
         return;

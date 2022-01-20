@@ -40,6 +40,7 @@ namespace FaasNet.Gateway.SqlServer.Startup
             })
                 .AddRuntimeEF(opt =>
                 {
+                    opt.UseLazyLoadingProxies();
                     opt.UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));
                 })
                 .AddGatewayEF(opt =>

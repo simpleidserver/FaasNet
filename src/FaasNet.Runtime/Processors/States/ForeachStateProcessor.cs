@@ -1,5 +1,7 @@
-﻿using FaasNet.Runtime.Domains.Definitions;
+﻿using Coeus;
+using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Domains.Enums;
+using FaasNet.Runtime.Extensions;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Threading;
@@ -26,7 +28,8 @@ namespace FaasNet.Runtime.Processors.States
                 return Ok(executionContext.StateInstance.Input, foreachState);
             }
 
-            var tokens = executionContext.StateInstance.Input.SelectToken(foreachState.InputCollection) as JArray;
+            var inputCollection = JTokenExtensions.CleanExpression(foreachState.InputCollection);
+            var tokens = JQ.EvalToToken(inputCollection, executionContext.StateInstance.Input) as JArray;
             var result = new JArray();
             Func<JToken, Task> callback = async (token) =>
             {

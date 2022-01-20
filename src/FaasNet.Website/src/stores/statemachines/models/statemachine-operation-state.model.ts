@@ -113,18 +113,31 @@ export class ActionDataFilter {
   toStateData: string | undefined;
 
   public getJson(): any {
-    return {
-      useResults: this.useResults,
-      results: this.results,
-      toStateData: this.toStateData
+    var result : any = {
+      useResults: this.useResults
+    };
+    if (this.results) {
+      result["results"] = this.results;
     }
+
+    if (this.toStateData) {
+      result["toStateData"] = this.toStateData;
+    }
+
+    return result;
   }
 
   public static build(json: any) {
     var result = new ActionDataFilter();
     result.useResults = json["useResults"];
-    result.results = json["results"];
-    result.toStateData = json["toStateData"];
+    if (json["results"]) {
+      result.results = json["results"];
+    }
+
+    if (json["toStateData"]) {
+      result.toStateData = json["toStateData"];
+    }
+
     return result;
   }
 }

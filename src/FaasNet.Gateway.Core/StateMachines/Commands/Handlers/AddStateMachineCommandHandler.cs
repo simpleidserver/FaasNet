@@ -27,7 +27,7 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands.Handlers
 
         public async Task<AddStateMachineResult> Handle(AddStateMachineCommand request, CancellationToken cancellationToken)
         {
-            var workflowDefinition = _workflowDefinitionRepository.Query(true).FirstOrDefault(w=> w.Id == request.WorkflowDefinition.Id);
+            var workflowDefinition = _workflowDefinitionRepository.Query().FirstOrDefault(w=> w.Id == request.WorkflowDefinition.Id);
             if (workflowDefinition != null)
             {
                 throw new BadRequestException(ErrorCodes.StateMachineExists, Global.StateMachineExists);

@@ -63,7 +63,6 @@ export class ActionsEditorComponent extends MatPanelContent {
   override init(data: any): void {
     this.functions = (data as ActionsEditorData).functions;
     this.actions.data = (data as ActionsEditorData).actions;
-    console.log(data);
   }
 
   removeAction(index: number) {
@@ -87,8 +86,15 @@ export class ActionsEditorComponent extends MatPanelContent {
         const useResults = Boolean(this.addActionFormGroup.get('useResults')?.value);
         record.actionDataFilter.useResults = useResults;
         if (useResults == true) {
-          record.actionDataFilter.toStateData = this.addActionFormGroup.get('toStateData')?.value;
-          record.actionDataFilter.results = this.addActionFormGroup.get('results')?.value;
+          const toStateData = this.addActionFormGroup.get('toStateData')?.value;
+          const results = this.addActionFormGroup.get('results')?.value;
+          if (toStateData) {
+            record.actionDataFilter.toStateData = toStateData;
+          }
+
+          if (results) {
+            record.actionDataFilter.results = results;
+          }
         }
 
         let args : any = {};

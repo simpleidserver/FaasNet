@@ -1,6 +1,5 @@
 ﻿using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Persistence;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,18 +27,9 @@ namespace FaasNet.Runtime.EF.Persistence
             return Task.CompletedTask;
         }
 
-        public IQueryable<WorkflowDefinitionAggregate> Query(bool include)
+        public IQueryable<WorkflowDefinitionAggregate> Query()
         {
-            if (!include)
-            {
-                return _dbContext.WorkflowDefinitions;
-            }
-
-            return _dbContext.WorkflowDefinitions
-                .Include(w => w.States).ThenInclude(s => ((WorkflowDefinitionSwitchState)s).Conditions)
-                .Include(w => w.States).ThenInclude(s => ((WorkflowDefinitionOperationState)s).Actions)
-                .Include(w => w.Functions)
-                .Include(w => w.Events);
+            return _dbContext.WorkflowDefinitions;
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)

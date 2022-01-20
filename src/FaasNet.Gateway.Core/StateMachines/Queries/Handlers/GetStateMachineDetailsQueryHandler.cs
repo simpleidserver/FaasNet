@@ -20,7 +20,7 @@ namespace FaasNet.Gateway.Core.StateMachines.Queries.Handlers
 
         public Task<WorkflowDefinitionAggregate> Handle(GetStateMachineDetailsQuery request, CancellationToken cancellationToken)
         {
-            var workflowDefinition = _workflowDefinitionRepository.Query(true).FirstOrDefault(w => w.TechnicalId == request.Id);
+            var workflowDefinition = _workflowDefinitionRepository.Query().FirstOrDefault(w => w.TechnicalId == request.Id);
             if (workflowDefinition == null)
             {
                 throw new StateMachineNotFoundException(ErrorCodes.StateMachineExists, string.Format(Global.UnknownStateMachine, request.Id));
