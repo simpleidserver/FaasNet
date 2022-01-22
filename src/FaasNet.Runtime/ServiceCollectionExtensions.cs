@@ -1,4 +1,5 @@
 ﻿using FaasNet.Runtime;
+using FaasNet.Runtime.AsyncAPI;
 using FaasNet.Runtime.Consumers;
 using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Domains.Instances;
@@ -9,7 +10,6 @@ using FaasNet.Runtime.Infrastructure;
 using FaasNet.Runtime.Infrastructure.Handlers;
 using FaasNet.Runtime.OpenAPI;
 using FaasNet.Runtime.OpenAPI.Builders;
-using FaasNet.Runtime.OpenAPI.ThreeDotZero;
 using FaasNet.Runtime.Persistence;
 using FaasNet.Runtime.Persistence.InMemory;
 using FaasNet.Runtime.Processors;
@@ -19,6 +19,7 @@ using MassTransit;
 using MassTransit.ExtensionsDependencyInjectionIntegration;
 using System;
 using System.Collections.Concurrent;
+using v3 = FaasNet.Runtime.OpenAPI.v3;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -61,13 +62,15 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IStateProcessor, ForeachStateProcessor>();
             services.AddTransient<IStateProcessor, CallbackEventStateProcessor>();
             services.AddTransient<IFunctionProcessor, RestApiFunctionProcessor>();
+            services.AddTransient<IFunctionProcessor, AsyncApiFunctionProcessor>();
             services.AddTransient<IOpenAPIParser, OpenAPIParser>();
             services.AddTransient<IHttpClientFactory, HttpClientFactory>();
             services.AddTransient<IIntegrationEventProcessor, IntegrationEventProcessor>();
-            services.AddTransient<IOpenAPIConfigurationParser, ThreeDotZeroOpenAPIConfigurationParser>();
+            services.AddTransient<IOpenAPIConfigurationParser, v3.OpenAPIConfigurationParser>();
             services.AddTransient<IIntegrationEventHandler<EventListenedEvent>, EventListenedEventHandler>();
             services.AddTransient<IIntegrationEventHandler<EventUnlistenedEvent>, EventUnlistenedEventHandler>();
             services.AddTransient<IRequestBodyBuilder, JsonRequestBodyBuilder>();
+            services.AddTransient<IAsyncAPIParser, AsyncAPIParser>();
             services.AddSingleton<IDistributedLock, InMemoryDistributedLock>();
             return services;
         }

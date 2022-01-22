@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.OpenAPI.Models;
+﻿using FaasNet.Runtime.OpenAPI.v3.Models;
 using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Threading.Tasks;

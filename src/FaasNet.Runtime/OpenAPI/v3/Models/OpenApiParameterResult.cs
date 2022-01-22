@@ -1,4 +1,6 @@
-﻿namespace FaasNet.Runtime.OpenAPI.Models
+﻿using FaasNet.Runtime.JSchemas;
+
+namespace FaasNet.Runtime.OpenAPI.v3.Models
 {
     public class OpenApiParameterResult
     {
@@ -6,6 +8,6 @@
         public string In { get; set; }
         public string Description { get; set; }
         public bool Required { get; set; }
-        public OpenApiSchemaPropertyResult Schema { get; set; }
+        public FaasNetJsonSchema Schema { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿namespace FaasNet.Runtime.OpenAPI.Models
+﻿
+namespace FaasNet.Runtime.OpenAPI.v3.Models
 {
     public class OpenApiInfoResult
     {

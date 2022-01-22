@@ -7,6 +7,11 @@
             return new RESTAPIFunctionDefinitionBuilder(name, operation);
         }
 
+        public ASYNCAPIFunctionDefinitionBuilder AsyncAPI(string name, string operation)
+        {
+            return new ASYNCAPIFunctionDefinitionBuilder(name, operation);
+        }
+
         public KubernetesFunctionDefinitionBuilder KubernetesAPI(string name)
         {
             return new KubernetesFunctionDefinitionBuilder(name);

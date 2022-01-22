@@ -409,6 +409,21 @@ namespace FaasNet.Runtime.Tests
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
         }
 
+        [Fact]
+        public async Task When_Publish_Event()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("publishEvent", 1, "name", "description")
+                .AddFunction(o => o.AsyncAPI("publishEvent", "http://localhost/asyncapi/asyncapi.json#operation"))
+                .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("publishEvent",
+                (act) => act.SetFunctionRef("publishEvent", "{ \"message\" : \"Hello\" } ")
+                .SetActionDataFilter(string.Empty, ".emailResult", string.Empty))
+                .End())
+                .Build();
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{ }");
+            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
+        }
+
         public class RuntimeJob
         {
             private readonly IServiceProvider _serviceProvider;

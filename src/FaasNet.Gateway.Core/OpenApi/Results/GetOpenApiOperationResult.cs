@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.OpenAPI.Models;
+﻿using FaasNet.Runtime.OpenAPI.v3.Models;
 
 namespace FaasNet.Gateway.Core.OpenApi.Results
 {

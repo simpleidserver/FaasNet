@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NJsonSchema" Version="10.4.6" />
     <PackageReference Include="prometheus-net" Version="5.0.1" />
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.2.4" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />

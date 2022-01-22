@@ -1,6 +1,6 @@
 ﻿using FaasNet.Runtime.Exceptions;
 using FaasNet.Runtime.OpenAPI.Builders;
-using FaasNet.Runtime.OpenAPI.Models;
+using FaasNet.Runtime.OpenAPI.v3.Models;
 using FaasNet.Runtime.Resources;
 using Newtonsoft.Json.Linq;
 using System;
@@ -99,6 +99,8 @@ namespace FaasNet.Runtime.OpenAPI
 
         protected virtual HttpRequestMessage BuildHttpRequestMessage(string url, OpenApiResult openApiResult, string operationId, JToken input)
         {
+            const string queriesName = "queries";
+            const string propertiesName = "properties";
             var path = openApiResult.Paths.FirstOrDefault(p => p.Value.Any(v => v.Value.OperationId == operationId));
             if (string.IsNullOrWhiteSpace(path.Key))
             {
@@ -122,8 +124,8 @@ namespace FaasNet.Runtime.OpenAPI
             }
 
             var validationErrors = new List<string>();
-            var queries = input.SelectToken("queries") ?? input;
-            var properties = input.SelectToken("properties");
+            var queries = input.SelectToken(queriesName) ?? input;
+            var properties = input.SelectToken(propertiesName);
             var operationUrl = BuildHTTPTarget($"{baseUrl}{path.Key}", queries, operation, validationErrors);
             var content = BuildHTTPContent(properties, operation, openApiResult.Components, validationErrors);
             if(validationErrors.Any())
@@ -216,143 +218,14 @@ namespace FaasNet.Runtime.OpenAPI
                 throw new OpenAPIException(string.Format(Global.NoSchemaSpecifiedInContentType, $"{openApiOperationResult.OperationId}/{content.Key}"));
             }
 
-            var schemaReference = content.Value.Schema.Ref.Split("/").Last();
-            if (!components.Schemas.ContainsKey(schemaReference))
+            var schema = content.Value.Schema;
+            var validation = schema.Validate(input.ToString());
+            if(validation.Any())
             {
-                throw new OpenAPIException(string.Format(Global.UnknownSchema, schemaReference));
+                validationErrors.AddRange(validation.Select(v => $"{v.Kind.ToString()}:{v.Path}").ToList());
             }
 
-            var schema = components.Schemas.First(s => s.Key == schemaReference).Value;
-            var inputToken = Parse(input, schema, components, validationErrors);
-            return bodyBuilder.Build(content.Key, inputToken);
+            return bodyBuilder.Build(content.Key, input);
         }
-
-        #region Build Input
-
-        private static JToken Parse(JToken input, OpenApiSchemaResult openApiSchema, OpenApiComponentsSchemaResult components, List<string> validationErrors, string parentPath = null)
-        {
-            JToken result = null;
-            if (openApiSchema.Type == "object")
-            {
-                result = new JObject();
-            }
-            else if (openApiSchema.Type == "array")
-            {
-                result = new JArray();
-            }
-
-            foreach (var property in openApiSchema.Properties)
-            {
-                Parse(input, result, parentPath, property.Key, property.Value, openApiSchema.Required, components, validationErrors);
-            }
-
-            return result;
-        }
-
-        private static bool Parse(JToken input, JToken parent, string parentPath, string propertyName, OpenApiSchemaPropertyResult propertyResult, IEnumerable<string> required, OpenApiComponentsSchemaResult components, List<string> validationErrors)
-        {
-            Func<JToken, string, List<string>, string, JToken> callback = (inpt, reference, errs, fp) =>
-            {
-                var record = new JObject();
-                var schemaReference = reference.Split("/").Last();
-                if (!components.Schemas.ContainsKey(schemaReference))
-                {
-                    errs.Add(string.Format(Global.UnknownSchema, schemaReference));
-                    return null;
-                }
-
-                var schema = components.Schemas.First(s => s.Key == schemaReference).Value;
-                return Parse(inpt, schema, components, validationErrors, fp);
-            };
-
-            var nullable = propertyResult.Nullable;
-            var fullPath = string.IsNullOrWhiteSpace(parentPath) ? propertyName : $"{parentPath}.{propertyName}";
-            var token = input.SelectToken(fullPath);
-            if ((required != null && required.Contains(propertyName)) && token == null)
-            {
-                validationErrors.Add(string.Format(Global.MissingPropertyFromInput, fullPath));
-                return false;
-            }
-
-            if (token == null)
-            {
-                return true;
-            }
-
-            switch (propertyResult.Type)
-            {
-                case "string":
-                    if(token.Type != JTokenType.String)
-                    {
-                        validationErrors.Add(string.Format(Global.InvalidStringInput, fullPath));
-                        return false;
-                    }
-
-                    Add(parent, new JProperty(propertyName, token));
-                    break;
-                case "array":
-                    if (token.Type != JTokenType.Array)
-                    {
-                        validationErrors.Add(string.Format(Global.InvalidArrayInput, fullPath));
-                        return false;
-                    }
-
-                    var jArr = new JArray();
-                    var tokens = token as JArray;
-                    foreach(var child in tokens)
-                    {
-                        if (string.IsNullOrWhiteSpace(propertyResult.Items.Reference))
-                        {
-                            jArr.Add(child);
-                            continue;
-                        }
-
-                        var r = callback(child, propertyResult.Items.Reference, validationErrors, string.Empty);
-                        if (r == null)
-                        {
-                            return false;
-                        }
-
-                        jArr.Add(r);
-                    }
-
-                    Add(parent, new JProperty(propertyName, tokens));
-                    break;
-                default:
-                    if (string.IsNullOrWhiteSpace(propertyResult.Reference))
-                    {
-                        validationErrors.Add(string.Format(Global.UnsupportedType, propertyResult.Type));
-                        return false;
-                    }
-
-                    var inputToken = callback(input, propertyResult.Reference, validationErrors, fullPath);
-                    if (inputToken == null)
-                    {
-                        return false;
-                    }
-
-                    Add(parent, new JProperty(propertyName, inputToken));
-                    break;
-            }
-
-            return true;
-        }
-
-        private static void Add(JToken parent, JToken value)
-        {
-            switch (parent.Type)
-            {
-                case JTokenType.Array:
-                    var jArr = parent as JArray;
-                    jArr.Add(value);
-                    break;
-                case JTokenType.Object:
-                    var jObj = parent as JObject;
-                    jObj.Add(value);
-                    break;
-            }
-        }
-
-        #endregion
     }
 }

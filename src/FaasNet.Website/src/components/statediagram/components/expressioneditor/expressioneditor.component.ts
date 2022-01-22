@@ -68,7 +68,9 @@ export class ExpressionEditorComponent {
 
   save() {
     if (!this._filter || this.filter === "") {
-      this.dialogRef.close();
+      this.dialogRef.close({
+        filter: null
+      });
       return;
     }
 

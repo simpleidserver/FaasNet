@@ -1,10 +1,11 @@
-﻿using FaasNet.Runtime.OpenAPI.Models;
+﻿using FaasNet.Runtime.JSchemas;
+using FaasNet.Runtime.OpenAPI.v3.Models;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace FaasNet.Runtime.OpenAPI.ThreeDotZero
+namespace FaasNet.Runtime.OpenAPI.v3
 {
-    public class ThreeDotZeroOpenAPIConfigurationParser : IOpenAPIConfigurationParser
+    public class OpenAPIConfigurationParser : IOpenAPIConfigurationParser
     {
         public string VersionPath => "openapi";
         public IEnumerable<string> SupportedVersions => new string[]
@@ -19,9 +20,10 @@ namespace FaasNet.Runtime.OpenAPI.ThreeDotZero
         {
             var settings = new JsonSerializerSettings
             {
-                MetadataPropertyHandling = MetadataPropertyHandling.Ignore
+                ReferenceResolverProvider = () => new FaasNetReferenceResolver()
             };
-            return JsonConvert.DeserializeObject<OpenApiResult>(json, settings);
+            var result = JsonConvert.DeserializeObject<OpenApiResult>(json, settings);
+            return result;
         }
     }
 }

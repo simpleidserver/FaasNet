@@ -1,7 +1,7 @@
 ﻿using FaasNet.Gateway.Core.Resources;
 using FaasNet.Runtime.Exceptions;
 using FaasNet.Runtime.OpenAPI;
-using FaasNet.Runtime.OpenAPI.Models;
+using FaasNet.Runtime.OpenAPI.v3.Models;
 using MediatR;
 using System.Collections.Generic;
 using System.Linq;

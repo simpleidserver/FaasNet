@@ -2,12 +2,12 @@
 
 namespace FaasNet.Runtime.Builders
 {
-    public class RESTAPIFunctionDefinitionBuilder : IFunctionBuilder
+    public class ASYNCAPIFunctionDefinitionBuilder : IFunctionBuilder
     {
         private string _name;
         private string _operation;
 
-        internal RESTAPIFunctionDefinitionBuilder(string name, string operation)
+        internal ASYNCAPIFunctionDefinitionBuilder(string name, string operation)
         {
             _name = name;
             _operation = operation;
@@ -19,7 +19,7 @@ namespace FaasNet.Runtime.Builders
             {
                 Operation = _operation,
                 Name = _name,
-                Type = Domains.Enums.WorkflowDefinitionTypes.REST
+                Type = Domains.Enums.WorkflowDefinitionTypes.ASYNCAPI
             };
         }
     }
