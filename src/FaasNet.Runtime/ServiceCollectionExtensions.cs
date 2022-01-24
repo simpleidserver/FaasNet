@@ -1,5 +1,6 @@
 ﻿using FaasNet.Runtime;
 using FaasNet.Runtime.AsyncAPI;
+using FaasNet.Runtime.AsyncAPI.Channels.Amqp;
 using FaasNet.Runtime.Consumers;
 using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Domains.Instances;
@@ -66,6 +67,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IOpenAPIParser, OpenAPIParser>();
             services.AddTransient<IHttpClientFactory, HttpClientFactory>();
             services.AddTransient<IIntegrationEventProcessor, IntegrationEventProcessor>();
+            services.AddTransient<IAmqpChannelClientFactory, AmqpChannelUserPasswordClientFactory>();
             services.AddTransient<IOpenAPIConfigurationParser, v3.OpenAPIConfigurationParser>();
             services.AddTransient<IIntegrationEventHandler<EventListenedEvent>, EventListenedEventHandler>();
             services.AddTransient<IIntegrationEventHandler<EventUnlistenedEvent>, EventUnlistenedEventHandler>();

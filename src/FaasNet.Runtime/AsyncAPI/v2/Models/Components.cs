@@ -1,4 +1,5 @@
-﻿using FaasNet.Runtime.JSchemas;
+﻿using FaasNet.Runtime.AsyncAPI.v2.Models.Bindings;
+using FaasNet.Runtime.JSchemas;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
@@ -17,5 +18,13 @@ namespace FaasNet.Runtime.AsyncAPI.v2.Models
         /// </summary>
         [JsonProperty("messages")]
         public IDictionary<string, Message> Messages { get; set; }
+        /// <summary>
+        /// Security Schemes.
+        /// </summary>
+        public IDictionary<string, SecurityScheme> SecuritySchemes { get; set; }
+        /// <summary>
+        /// Channel Binding Objects.
+        /// </summary>
+        public IDictionary<string, ChannelBindings> ChannelBindings { get; set; }
     }
 }

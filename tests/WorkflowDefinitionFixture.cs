@@ -414,9 +414,9 @@ namespace FaasNet.Runtime.Tests
         {
             var runtimeJob = new RuntimeJob();
             var workflowDefinition = WorkflowDefinitionBuilder.New("publishEvent", 1, "name", "description")
-                .AddFunction(o => o.AsyncAPI("publishEvent", "http://localhost/asyncapi/asyncapi.json#operation"))
+                .AddFunction(o => o.AsyncAPI("publishEvent", "http://localhost/asyncapi/asyncapi.json#PublishLightMeasuredEvent"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("publishEvent",
-                (act) => act.SetFunctionRef("publishEvent", "{ \"message\" : \"Hello\" } ")
+                (act) => act.SetFunctionRef("publishEvent", "{ \"id\" : 1, \"lumens\" : 3 } ")
                 .SetActionDataFilter(string.Empty, ".emailResult", string.Empty))
                 .End())
                 .Build();

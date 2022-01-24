@@ -88,6 +88,15 @@ namespace FaasNet.Runtime.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to the asyncapi URL {0} is invalid.
+        /// </summary>
+        internal static string InvalidAsyncApiUrl {
+            get {
+                return ResourceManager.GetString("InvalidAsyncApiUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to the input {0} is not a valid object.
         /// </summary>
         internal static string InvalidObjectInput {
@@ -147,6 +156,15 @@ namespace FaasNet.Runtime.Resources {
         internal static string NoSchemaSpecifiedInContentType {
             get {
                 return ResourceManager.GetString("NoSchemaSpecifiedInContentType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the ASYNCAPI operation {0} doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownAsyncAPIOperation {
+            get {
+                return ResourceManager.GetString("UnknownAsyncAPIOperation", resourceCulture);
             }
         }
         
@@ -219,6 +237,24 @@ namespace FaasNet.Runtime.Resources {
         internal static string UnsupportedOpenApiVersion {
             get {
                 return ResourceManager.GetString("UnsupportedOpenApiVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to no protocol is supported.
+        /// </summary>
+        internal static string UnsupportedProtocol {
+            get {
+                return ResourceManager.GetString("UnsupportedProtocol", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the security scheme {0} is not supported.
+        /// </summary>
+        internal static string UnsupportedSecurityScheme {
+            get {
+                return ResourceManager.GetString("UnsupportedSecurityScheme", resourceCulture);
             }
         }
         

@@ -126,6 +126,9 @@
   <data name="InvalidArrayInput" xml:space="preserve">
     <value>the input {0} is not a valid array</value>
   </data>
+  <data name="InvalidAsyncApiUrl" xml:space="preserve">
+    <value>the asyncapi URL {0} is invalid</value>
+  </data>
   <data name="InvalidObjectInput" xml:space="preserve">
     <value>the input {0} is not a valid object</value>
   </data>
@@ -146,6 +149,9 @@
   </data>
   <data name="NoSchemaSpecifiedInContentType" xml:space="preserve">
     <value>no schema attribute is specified in the operation {0}</value>
+  </data>
+  <data name="UnknownAsyncAPIOperation" xml:space="preserve">
+    <value>the ASYNCAPI operation {0} doesn't exist</value>
   </data>
   <data name="UnknownFunctionProcessor" xml:space="preserve">
     <value>there is no processor for the function {0}</value>
@@ -170,6 +176,12 @@
   </data>
   <data name="UnsupportedOpenApiVersion" xml:space="preserve">
     <value>the OPENAPI version is not supported</value>
+  </data>
+  <data name="UnsupportedProtocol" xml:space="preserve">
+    <value>no protocol is supported</value>
+  </data>
+  <data name="UnsupportedSecurityScheme" xml:space="preserve">
+    <value>the security scheme {0} is not supported</value>
   </data>
   <data name="UnsupportedType" xml:space="preserve">
     <value>the type {0} is not supported</value>
