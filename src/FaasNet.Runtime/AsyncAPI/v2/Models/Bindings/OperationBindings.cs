@@ -6,10 +6,10 @@ using NJsonSchema.References;
 namespace FaasNet.Runtime.AsyncAPI.v2.Models.Bindings
 {
     [JsonConverter(typeof(ReferenceConverter))]
-    public class ChannelBindings : JsonReferenceBase<ChannelBindings>, IJsonReference
+    public class OperationBindings : JsonReferenceBase<OperationBindings>, IJsonReference
     {
         [JsonProperty("amqp")]
-        public AmqpChannelBinding Amqp { get; set; }
+        public AmqpOperationBinding Amqp { get; set; }
 
         public IJsonReference ActualObject { get; }
 

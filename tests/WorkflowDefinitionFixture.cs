@@ -420,7 +420,7 @@ namespace FaasNet.Runtime.Tests
                 .SetActionDataFilter(string.Empty, ".emailResult", string.Empty))
                 .End())
                 .Build();
-            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{ }");
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{ }", new Dictionary<string, string> { { "userName", "guest" }, { "password", "guest" } });
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
         }
 
@@ -452,6 +452,12 @@ namespace FaasNet.Runtime.Tests
             {
                 var runtimeEngine = _serviceProvider.GetRequiredService<IRuntimeEngine>();
                 return runtimeEngine.InstanciateAndLaunch(workflowDef, input, CancellationToken.None);
+            }
+
+            public Task<WorkflowInstanceAggregate> InstanciateAndLaunch(WorkflowDefinitionAggregate workflowDef, string input, Dictionary<string, string> parameters)
+            {
+                var runtimeEngine = _serviceProvider.GetRequiredService<IRuntimeEngine>();
+                return runtimeEngine.InstanciateAndLaunch(workflowDef, input, parameters, CancellationToken.None);
             }
 
             public void Start()

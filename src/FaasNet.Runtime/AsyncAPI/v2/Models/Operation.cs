@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using FaasNet.Runtime.AsyncAPI.v2.Models.Bindings;
+using FaasNet.Runtime.JSchemas;
+using Newtonsoft.Json;
 
 namespace FaasNet.Runtime.AsyncAPI.v2.Models
 {
@@ -25,6 +27,11 @@ namespace FaasNet.Runtime.AsyncAPI.v2.Models
         /// A definition of the message that will be published or received on this channel.
         /// </summary>
         [JsonProperty("message")]
-        public IMessage Message { get; set; }
+        public Message Message { get; set; }
+        /// <summary>
+        /// A free-form map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the operation.
+        /// </summary>
+        [JsonProperty("bindings")]
+        public OperationBindings Bindings { get; set; }
     }
 }

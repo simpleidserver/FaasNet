@@ -14,7 +14,6 @@ namespace FaasNet.Runtime.Domains.Instances
         {
             Events = new List<WorkflowInstanceStateEvent>();
             Histories = new List<WorkflowInstanceStateHistory>();
-            Parameters = new Dictionary<string, string>();
         }
 
         #region Properties
@@ -48,7 +47,6 @@ namespace FaasNet.Runtime.Domains.Instances
                 return JObject.Parse(OutputStr);
             }
         }
-        public Dictionary<string, string> Parameters { get; set; }
         public virtual ICollection<WorkflowInstanceStateHistory> Histories { get; set; }
         public virtual ICollection<WorkflowInstanceStateEvent> Events { get; set; }
 

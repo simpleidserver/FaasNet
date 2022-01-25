@@ -5,6 +5,7 @@ using FaasNet.Runtime.Domains.Instances;
 using FaasNet.Runtime.Exceptions;
 using FaasNet.Runtime.Resources;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +22,7 @@ namespace FaasNet.Runtime.Processors.Functions
 
         public WorkflowDefinitionTypes Type => WorkflowDefinitionTypes.ASYNCAPI;
 
-        public async Task<JToken> Process(JToken input, WorkflowDefinitionFunction function, WorkflowInstanceState instanceState, CancellationToken cancellationToken)
+        public async Task<JToken> Process(JToken input, WorkflowDefinitionFunction function, WorkflowInstanceState instanceState, Dictionary<string, string> parameters, CancellationToken cancellationToken)
         {
             AsyncApiResult apiResult;
             if (!_asyncAPIParser.TryParseUrl(function.Operation, out apiResult))
@@ -29,7 +30,7 @@ namespace FaasNet.Runtime.Processors.Functions
                 throw new ProcessorException(string.Format(Global.InvalidAsyncApiUrl, function.Operation));
             }
 
-            await _asyncAPIParser.Invoke(apiResult.Url, apiResult.OperationId, input, instanceState.Parameters, cancellationToken);
+            await _asyncAPIParser.Invoke(apiResult.Url, apiResult.OperationId, input, parameters, cancellationToken);
             return JToken.Parse("{}");
         }
     }

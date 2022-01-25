@@ -1,7 +1,8 @@
 ﻿using FaasNet.Runtime.AsyncAPI.Channels;
 using FaasNet.Runtime.AsyncAPI.Exceptions;
-using FaasNet.Runtime.AsyncAPI.v2.Converters;
 using FaasNet.Runtime.AsyncAPI.v2.Models;
+using FaasNet.Runtime.AsyncAPI.v2.Models.Bindings;
+using FaasNet.Runtime.JSchemas;
 using FaasNet.Runtime.Resources;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -40,36 +41,66 @@ namespace FaasNet.Runtime.AsyncAPI
 
         public async Task Invoke(string url, string operationId, JToken input, Dictionary<string, string> parameters, CancellationToken cancellationToken)
         {
+            var doc = await GetConfiguration(url, cancellationToken);
+            var channel = GetChannel(doc, operationId);
+            var channelBindings = GetChannelBindings(channel);
+            var operationBindings = GetOperationBindings(channel.Publish);
+            var server = GetServer(channel, doc);
+            var securitySchemes = GetSecuritySchemes(doc, server);
+            ValidateMessage(input, channel);
+            var ch = _channels.Single(c => c.Protocol == server.Protocol);
+            await ch.Invoke(input, server, channelBindings, operationBindings, securitySchemes, parameters, cancellationToken);
+        }
+
+        protected virtual async Task<AsyncApiDocument> GetConfiguration(string url, CancellationToken cancellationToken)
+        {
             var httpClient = _httpClientFactory.Build();
             var httpResult = await httpClient.GetAsync(url, cancellationToken);
             var json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
             var settings = new JsonSerializerSettings
             {
-                ReferenceResolverProvider = () => new AsyncApiReferenceResolver()
+                ReferenceResolverProvider = () => new FaasNetReferenceResolver()
             };
             var doc = JsonConvert.DeserializeObject<AsyncApiDocument>(json, settings);
+            return doc;
+        }
+
+        protected virtual ChannelItem GetChannel(AsyncApiDocument doc, string operationId)
+        {
             var channel = doc.Channels.FirstOrDefault(s => s.Value != null && s.Value.Publish != null && s.Value.Publish.OperationId == operationId);
-            if(channel.Equals(default(KeyValuePair<string, ChannelItem>)) || channel.Value == null)
+            if (channel.Equals(default(KeyValuePair<string, ChannelItem>)) || channel.Value == null)
             {
                 throw new AsyncAPIException(string.Format(Global.UnknownAsyncAPIOperation, operationId));
             }
 
-            var message = (channel.Value.Publish.Message as MessageReference).Reference;
-            var validationResult = message.Payload.Validate(input);
-            if (validationResult.Any())
-            {
-                throw new AsyncAPIException(string.Join(',', validationResult.Select(r => $"{r.Kind}:{r.Path}")));
-            }
-
-            var server = ResolveServer(channel, doc);
-            var ch = _channels.First(c => c.Protocol == server.Protocol);
-            // TODO : Add BINDING into Channel !!!
-            // channel.Value.
+            return channel.Value;
         }
 
-        private Server ResolveServer(KeyValuePair<string, ChannelItem> kvp, AsyncApiDocument doc)
+        protected virtual ChannelBindings GetChannelBindings(ChannelItem channel)
         {
-            var serverName = kvp.Value.Servers?.FirstOrDefault(s =>
+            var binding = channel.Bindings;
+            if (binding.Reference != null)
+            {
+                binding = binding.Reference;
+            }
+
+            return binding;
+        }
+
+        protected virtual OperationBindings GetOperationBindings(Operation operation)
+        {
+            var binding = operation.Bindings;
+            if (binding.Reference != null)
+            {
+                binding = binding.Reference;
+            }
+
+            return binding;
+        }
+
+        protected virtual Server GetServer(ChannelItem channel, AsyncApiDocument doc)
+        {
+            var serverName = channel.Servers?.FirstOrDefault(s =>
             {
                 var server = doc.Servers.FirstOrDefault(se => se.Key == s);
                 if (server.Equals(default(KeyValuePair<string, Server>)) || server.Value == null)
@@ -87,6 +118,28 @@ namespace FaasNet.Runtime.AsyncAPI
             }
 
             return server.Value;
+        }
+
+        protected virtual IEnumerable<SecurityScheme> GetSecuritySchemes(AsyncApiDocument doc, Server server)
+        {
+            return doc.Components.SecuritySchemes.Where(kvp => server.Security.Any(rec => rec.ContainsKey(kvp.Key)))
+                .Select(s => s.Value);
+        }
+
+
+        protected virtual void ValidateMessage(JToken input, ChannelItem item)
+        {
+            var message = item.Publish.Message.Payload != null ? item.Publish.Message : item.Publish.Message.Reference;
+            if (message.Payload == null && message.Reference != null)
+            {
+                message = message.Reference;
+            }
+
+            var validationResult = message.Payload.Validate(input);
+            if (validationResult.Any())
+            {
+                throw new AsyncAPIException(string.Join(',', validationResult.Select(r => $"{r.Kind}:{r.Path}")));
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace FaasNet.Runtime.AsyncAPI.v2.Models
 {
@@ -26,5 +27,13 @@ namespace FaasNet.Runtime.AsyncAPI.v2.Models
         /// </summary>
         [JsonProperty("description")]
         public string Description { get; set; }
+        /// <summary>
+        /// A declaration of which security mechanisms can be used with this server.
+        /// The list of values includes alternative security requirement objects
+        /// that can be used. Only one of the security requirement objects need to
+        /// be satisfied to authorize a connection or operation.
+        /// </summary>
+        [JsonProperty("security")]
+        public IList<Dictionary<string, List<string>>> Security { get; set; }
     }
 }

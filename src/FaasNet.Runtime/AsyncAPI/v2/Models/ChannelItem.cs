@@ -1,16 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using FaasNet.Runtime.AsyncAPI.v2.Models.Bindings;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace FaasNet.Runtime.AsyncAPI.v2.Models
 {
-    public class ChannelItem
+    public class ChannelItem 
     {
-        /// <summary>
-        /// Allows for an external definition of this channel item. 
-        /// The referenced structure MUST be in the format of a Channel Item Object. I
-        /// </summary>
-        [JsonProperty("$ref")]
-        public string Reference { get; set; }
         /// <summary>
         /// An optional description of this channel item. CommonMark syntax can be used for rich text representation.
         /// </summary>
@@ -31,5 +26,10 @@ namespace FaasNet.Runtime.AsyncAPI.v2.Models
         /// </summary>
         [JsonProperty("publish")]
         public Operation Publish { get; set; }
+        /// <summary>
+        /// A free-form map where the keys describe the name of the protocol and the values describe protocol-specific definitions for the channel.
+        /// </summary>
+        [JsonProperty("bindings")]
+        public ChannelBindings Bindings { get; set; }
     }
 }

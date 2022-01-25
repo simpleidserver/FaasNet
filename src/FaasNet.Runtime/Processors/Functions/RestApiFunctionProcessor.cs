@@ -3,6 +3,7 @@ using FaasNet.Runtime.Domains.Enums;
 using FaasNet.Runtime.Domains.Instances;
 using FaasNet.Runtime.OpenAPI;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,7 +24,7 @@ namespace FaasNet.Runtime.Processors.Functions
 
         public WorkflowDefinitionTypes Type => WorkflowDefinitionTypes.REST;
 
-        public async Task<JToken> Process(JToken input, WorkflowDefinitionFunction function, WorkflowInstanceState instanceState, CancellationToken cancellationToken)
+        public async Task<JToken> Process(JToken input, WorkflowDefinitionFunction function, WorkflowInstanceState instanceState, Dictionary<string, string> parameters, CancellationToken cancellationToken)
         {
             OpenAPIUrlResult openApiUrl = null;
             if (!_openAPIParser.TryParseUrl(function.Operation, out openApiUrl))

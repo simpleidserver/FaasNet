@@ -4,50 +4,19 @@ using System;
 
 namespace FaasNet.Runtime.JSchemas
 {
-    public class JsonSchemaConverter : JsonConverter
+    public class JsonSchemaConverter : ReferenceConverter
     {
-        private const string REFERENCE_NAME = "$ref";
-
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(FaasNetJsonSchema);
-        }
-
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var resolver = serializer.ReferenceResolver as FaasNetReferenceResolver;
-            var jObject = JObject.Load(reader);
-            var result = new FaasNetJsonSchema();
-            serializer.Populate(jObject.CreateReader(), result);
-            UpdateReferenceJsonSchema(reader, resolver, result, jObject);
-            UpdateReferenceJsonSchemaProperties(reader, resolver, result, jObject);
-            return result;
+            var parseResult = ParseJson(reader, objectType, existingValue, serializer);
+            var schema = parseResult.Obj as FaasNetJsonSchema;
+            UpdateReferenceJsonSchemaProperties(reader, resolver, schema, parseResult.JObj);
+            return parseResult.Obj;
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            // base.WriteJson(writer, value, serializer);
-        }
-
-        public static void UpdateReferenceJsonSchema(JsonReader reader, FaasNetReferenceResolver resolver, FaasNetJsonSchema schema, JObject jObj)
-        {
-            if (jObj.ContainsKey(REFERENCE_NAME))
-            {
-                var reference = jObj.SelectToken(REFERENCE_NAME).ToString();
-                var resolvedReference = resolver.ResolveReference(reader, reference) as FaasNetJsonSchema;
-                if (resolvedReference != null)
-                {
-                    schema.Reference = resolvedReference;
-                }
-                else
-                {
-                    resolver.AddUnprocessedJsonSchema(schema, reference);
-                }
-            }
-            else
-            {
-                resolver.AddReference(reader, FormatPath(reader.Path), schema);
-            }
         }
 
         public static void UpdateReferenceJsonSchemaProperties(JsonReader reader, FaasNetReferenceResolver resolver, FaasNetJsonSchema schema, JObject jObj)
@@ -80,15 +49,10 @@ namespace FaasNet.Runtime.JSchemas
                     }
                     else
                     {
-                        resolver.AddUnprocessedJsonSchemaProperty(schemaProperty, reference, isArray);
+                        resolver.AddUnprocessedObject(schemaProperty, reference, isArray);
                     }
                 }
             }
-        }
-
-        public static string FormatPath(string path)
-        {
-            return $"#/{path.Replace('.', '/')}";
         }
     }
 }

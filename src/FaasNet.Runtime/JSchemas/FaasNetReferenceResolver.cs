@@ -1,31 +1,36 @@
 ﻿using Newtonsoft.Json.Serialization;
-using NJsonSchema;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace FaasNet.Runtime.JSchemas
 {
     public class FaasNetReferenceResolver : IReferenceResolver
     {
+        private class UnprocessedObject
+        {
+            public UnprocessedObject(object obj, bool isArray)
+            {
+                Obj = obj;
+                IsArray = isArray;
+            }
+
+            public object Obj { get; set; }
+            public bool IsArray { get; set; }
+        }
+
         private Dictionary<string, object> _dic;
-        private Dictionary<FaasNetJsonSchema, string> _unprocessedJsonSchemaDic;
-        private Dictionary<KeyValuePair<JsonSchemaProperty, bool>, string> _unprocessedJsonSchemaPropertyDic;
+        private Dictionary<UnprocessedObject, string> _unprocessedObjects;
 
         public FaasNetReferenceResolver()
         {
             _dic = new Dictionary<string, object>();
-            _unprocessedJsonSchemaDic = new Dictionary<FaasNetJsonSchema, string>();
-            _unprocessedJsonSchemaPropertyDic = new Dictionary<KeyValuePair<JsonSchemaProperty, bool>, string>();
+            _unprocessedObjects = new Dictionary<UnprocessedObject, string>();
         }
 
         public virtual void AddReference(object context, string reference, object value)
         {   
             _dic.Add(reference, value);
-            var schema = value as FaasNetJsonSchema;
-            if (schema != null)
-            {
-                ResolveUnprocessedJsonSchema(reference, value as FaasNetJsonSchema);
-                ResolveUnprocessedJsonSchemaProperty(reference, value as FaasNetJsonSchema);
-            }
+            ResolveUnprocessedObject(reference, value);
         }
 
         public string GetReference(object context, object value)
@@ -48,40 +53,31 @@ namespace FaasNet.Runtime.JSchemas
             return _dic[reference];
         }
 
-        public void AddUnprocessedJsonSchema(FaasNetJsonSchema schema, string reference)
+        public void AddUnprocessedObject(object obj, string reference, bool isArray = false)
         {
-            _unprocessedJsonSchemaDic.Add(schema, reference);
+            _unprocessedObjects.Add(new UnprocessedObject(obj, isArray), reference);
         }
 
-        public void AddUnprocessedJsonSchemaProperty(JsonSchemaProperty property, string reference, bool isArray = false)
+        private void ResolveUnprocessedObject(string reference, object value)
         {
-            _unprocessedJsonSchemaPropertyDic.Add(new KeyValuePair<JsonSchemaProperty, bool>(property, isArray), reference);
-        }
-
-        private void ResolveUnprocessedJsonSchema(string reference, FaasNetJsonSchema value)
-        {
-            foreach(var kvp in _unprocessedJsonSchemaDic)
+            var col = typeof(ICollection<>);
+            var addMethod = col.GetMethod("Add", BindingFlags.Instance | BindingFlags.Public);
+            foreach(var kvp in _unprocessedObjects)
             {
-                if (kvp.Value == reference)
+                if(kvp.Value == reference)
                 {
-                    kvp.Key.Reference = value;
-                }
-            }
-        }
-
-        private void ResolveUnprocessedJsonSchemaProperty(string reference, FaasNetJsonSchema value)
-        {
-            foreach (var kvp in _unprocessedJsonSchemaPropertyDic)
-            {
-                if (kvp.Value == reference)
-                {
-                    if (kvp.Key.Value)
+                    var unprocessedObj = kvp.Key;
+                    var obj = kvp.Key.Obj;
+                    var referenceType = kvp.Key.Obj.GetType().GetProperty("Reference");
+                    var itemsType = kvp.Key.Obj.GetType().GetProperty("Items");
+                    if(kvp.Key.IsArray)
                     {
-                        kvp.Key.Key.Items.Add(value);
+                        var items = itemsType.GetValue(obj);
+                        addMethod.Invoke(items, new object[] { value });
                     }
                     else
                     {
-                        kvp.Key.Key.Reference = value;
+                        referenceType.SetValue(obj, value);
                     }
                 }
             }

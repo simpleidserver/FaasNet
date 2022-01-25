@@ -26,6 +26,7 @@ namespace FaasNet.Runtime.Domains.Instances
         public string WorkflowDefDescription { get; set; }
         public int WorkflowDefVersion { get; set; }
         public DateTime CreateDateTime { get; set; }
+        public Dictionary<string, string> Parameters { get; set; }
         public WorkflowInstanceStatus Status { get; set; }
         public virtual ICollection<WorkflowInstanceState> States { get; set; }
         public virtual ICollection<IntegrationEvent> IntegrationEvents { get; set; }

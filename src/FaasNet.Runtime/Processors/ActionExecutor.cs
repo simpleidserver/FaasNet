@@ -77,7 +77,7 @@ namespace FaasNet.Runtime.Processors
                 }
 
                 var functionInput = GetInput(action, input);
-                var functionResult = await functionProcessor.Process(functionInput, function, executionContext.StateInstance, cancellationToken);
+                var functionResult = await functionProcessor.Process(functionInput, function, executionContext.StateInstance, executionContext.Instance.Parameters, cancellationToken);
                 result.Add(action, functionResult);
             }
 

@@ -39,15 +39,25 @@ namespace FaasNet.Runtime.Tests
                         {
                             { "user-password", new SecurityScheme(SecuritySchemeType.UserPassword) }
                         },
+                        OperationBindings = new Dictionary<string, OperationBindings>
+                        {
+                            { "publishLightAmqpOperation", new OperationBindings
+                            {
+                                Amqp = new AmqpOperationBinding
+                                {
+                                    Cc = new string[] { "r1" }
+                                }
+                            } }
+                        },
                         ChannelBindings = new Dictionary<string, ChannelBindings>
                         {
-                            { "publishLightAmqp", new ChannelBindings
+                            { "publishLightAmqpChannel", new ChannelBindings
                             {
                                 Amqp = new AmqpChannelBinding
                                 {
                                     Exchange = new AmqpChannelBindingExchange
                                     {
-                                        Name = "",
+                                        Name = "testExchange",
                                         Type = AmqpChannelBindingExchangeType.Fanout
                                     },
                                     Queue = new AmqpChannelBindingQueue

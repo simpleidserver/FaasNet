@@ -29,12 +29,23 @@ namespace FaasNet.Runtime
 
         public Task<WorkflowInstanceAggregate> InstanciateAndLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, string input, CancellationToken cancellationToken)
         {
-            return InstanciateAndLaunch(workflowDefinitionAggregate, JObject.Parse(input), cancellationToken);
+            return InstanciateAndLaunch(workflowDefinitionAggregate, input, new Dictionary<string, string>(), cancellationToken);
         }
 
-        public async Task<WorkflowInstanceAggregate> InstanciateAndLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, JObject input, CancellationToken cancellationToken)
+        public Task<WorkflowInstanceAggregate> InstanciateAndLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, string input, Dictionary<string, string> parameters, CancellationToken cancellationToken)
+        {
+            return InstanciateAndLaunch(workflowDefinitionAggregate, JObject.Parse(input), parameters, cancellationToken);
+        }
+
+        public Task<WorkflowInstanceAggregate> InstanciateAndLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, JObject input, CancellationToken cancellationToken)
+        {
+            return InstanciateAndLaunch(workflowDefinitionAggregate, input, new Dictionary<string, string>(), cancellationToken);
+        }
+
+        public async Task<WorkflowInstanceAggregate> InstanciateAndLaunch(WorkflowDefinitionAggregate workflowDefinitionAggregate, JObject input, Dictionary<string, string> parameters, CancellationToken cancellationToken)
         {
             var workflowInstance = Instanciate(workflowDefinitionAggregate);
+            workflowInstance.Parameters = parameters;
             await Launch(workflowDefinitionAggregate, workflowInstance, input, cancellationToken);
             await _workflowInstanceRepository.Add(workflowInstance, cancellationToken);
             await _workflowInstanceRepository.SaveChanges(cancellationToken);

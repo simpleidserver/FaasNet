@@ -26,5 +26,9 @@ namespace FaasNet.Runtime.AsyncAPI.v2.Models
         /// Channel Binding Objects.
         /// </summary>
         public IDictionary<string, ChannelBindings> ChannelBindings { get; set; }
+        /// <summary>
+        /// Operation Binding Objects.
+        /// </summary>
+        public IDictionary<string, OperationBindings> OperationBindings { get; set; }
     }
 }

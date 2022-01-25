@@ -41,9 +41,12 @@ namespace FaasNet.Runtime.Tests.Bus
     [AsyncApi]
     public class StreetlightMessageBus
     {
-        [Channel("publish/light/measured", BindingsRef = "publishLightAmqp")]
+        [Channel("publish/light/measured",
+            BindingsRef = "publishLightAmqpChannel", 
+            Servers = new string[] { "rabbitmq" })]
         [PublishOperation(typeof(LightMeasuredEvent),
-            Summary = "Inform about environmental lighting conditions for a particular streetlight.")] // A simple Publish operation.
+            Summary = "Inform about environmental lighting conditions for a particular streetlight.",
+            BindingsRef = "publishLightAmqpOperation")] // A simple Publish operation.
         public void PublishLightMeasuredEvent(Streetlight streetlight, int lumens) 
         { 
         

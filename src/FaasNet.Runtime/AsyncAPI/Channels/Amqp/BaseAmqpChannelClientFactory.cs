@@ -6,7 +6,7 @@ namespace FaasNet.Runtime.AsyncAPI.Channels.Amqp
 {
     public abstract class BaseAmqpChannelClientFactory : IAmqpChannelClientFactory
     {
-        public abstract string SecurityScheme { get; }
+        public abstract string SecurityType { get; }
 
         public abstract IConnectionFactory Build(string url, Dictionary<string, string> parameters);
 

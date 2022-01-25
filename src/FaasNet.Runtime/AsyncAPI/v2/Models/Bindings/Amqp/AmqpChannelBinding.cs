@@ -1,14 +1,19 @@
 ﻿namespace FaasNet.Runtime.AsyncAPI.v2.Models.Bindings.Amqp
 {
     public class AmqpChannelBinding
-    {
+    { 
         /// <summary>
-        /// The name of the exchange.
+        /// Defines whe type of channel is it.
+        /// Can be either queue or routingKey.
         /// </summary>
-        public string Name { get; set; }
+        public AmqpChannelBindingIs Is { get; set; }
         /// <summary>
-        /// The type of the exchange.
+        /// When is=routingKey, this object defines the exchange properties.
         /// </summary>
-        public string Type { get; set; }
+        public AmqpChannelBindingExchange Exchange { get; set; }
+        /// <summary>
+        /// When is=queue, this object defines the queue properties.
+        /// </summary>
+        public AmqpChannelBindingQueue Queue { get; set; }
     }
 }

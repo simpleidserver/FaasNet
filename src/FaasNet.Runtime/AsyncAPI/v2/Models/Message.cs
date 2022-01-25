@@ -1,9 +1,11 @@
 ﻿using FaasNet.Runtime.JSchemas;
 using Newtonsoft.Json;
+using NJsonSchema.References;
 
 namespace FaasNet.Runtime.AsyncAPI.v2.Models
 {
-    public class Message : IMessage
+    [JsonConverter(typeof(ReferenceConverter))]
+    public class Message : JsonReferenceBase<Message>, IJsonReference
     {
         /// <summary>
         /// Schema definition of the application headers. 
@@ -46,5 +48,7 @@ namespace FaasNet.Runtime.AsyncAPI.v2.Models
         [JsonProperty("description")]
         public string Description { get; set; }
 
+        public IJsonReference ActualObject { get; }
+        public object PossibleRoot { get; }
     }
 }
