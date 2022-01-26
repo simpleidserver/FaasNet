@@ -5,6 +5,8 @@ namespace FaasNet.Runtime.AsyncAPI.Channels.Amqp
 {
     public class AmqpChannelUserPasswordClientFactory : BaseAmqpChannelClientFactory
     {
+        public static string SECURITY_TYPE = "userPassword";
+
         public override string SecurityType => "userPassword";
 
         public override IConnectionFactory Build(string url, Dictionary<string, string> parameters)

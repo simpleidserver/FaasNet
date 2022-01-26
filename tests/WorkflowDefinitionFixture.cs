@@ -1,4 +1,5 @@
-﻿using FaasNet.Runtime.Builders;
+﻿using FaasNet.Runtime.AsyncAPI.Channels.Amqp;
+using FaasNet.Runtime.Builders;
 using FaasNet.Runtime.CloudEvent.Models;
 using FaasNet.Runtime.Domains.Definitions;
 using FaasNet.Runtime.Domains.Enums;
@@ -9,9 +10,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json.Linq;
+using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -409,25 +412,41 @@ namespace FaasNet.Runtime.Tests
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
         }
 
+        #region AsyncAPI
+
         [Fact]
         public async Task When_Publish_Event()
         {
+            const string json = "{ \"id\" : 1, \"lumens\" : 3 }";
+            var payload = Encoding.UTF8.GetBytes(JToken.Parse(json).ToString());
             var runtimeJob = new RuntimeJob();
             var workflowDefinition = WorkflowDefinitionBuilder.New("publishEvent", 1, "name", "description")
                 .AddFunction(o => o.AsyncAPI("publishEvent", "http://localhost/asyncapi/asyncapi.json#PublishLightMeasuredEvent"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("publishEvent",
-                (act) => act.SetFunctionRef("publishEvent", "{ \"id\" : 1, \"lumens\" : 3 } ")
-                .SetActionDataFilter(string.Empty, ".emailResult", string.Empty))
+                (act) => act.SetFunctionRef("publishEvent", json)
+                .SetActionDataFilter(string.Empty, string.Empty, string.Empty))
                 .End())
                 .Build();
+            var connectionFactory = new Mock<IConnectionFactory>();
+            var connection = new Mock<IConnection>();
+            var model = new Mock<IModel>();
+            connectionFactory.Setup(c => c.CreateConnection()).Returns(connection.Object);
+            connection.Setup(c => c.CreateModel()).Returns(model.Object);
+            runtimeJob.AmpqChannelClientFactory.Setup(v => v.Build(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
+                .Returns(connectionFactory.Object);
+            runtimeJob.AmpqChannelClientFactory.SetupGet(s => s.SecurityType).Returns(AmqpChannelUserPasswordClientFactory.SECURITY_TYPE);
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{ }", new Dictionary<string, string> { { "userName", "guest" }, { "password", "guest" } });
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
+            model.Verify(m => m.BasicPublish("testExchange", "r1", false, null, It.IsAny<ReadOnlyMemory<byte>>()));
         }
+
+        #endregion
 
         public class RuntimeJob
         {
             private readonly IServiceProvider _serviceProvider;
             private readonly IBusControl _busControl;
+            private readonly Mock<IAmqpChannelClientFactory> _ampqChannelClientFactory;
 
             public RuntimeJob()
             {
@@ -435,11 +454,22 @@ namespace FaasNet.Runtime.Tests
                 var serviceCollection = new ServiceCollection();
                 serviceCollection.AddRuntime();
                 serviceCollection.AddMassTransitHostedService();
+                serviceCollection.Remove(serviceCollection.First(s => s.ServiceType == typeof(IAmqpChannelClientFactory)));
                 var mcq = new Mock<Factories.IHttpClientFactory>();
                 mcq.Setup(c => c.Build()).Returns(factory.CreateClient());
                 serviceCollection.AddSingleton<Factories.IHttpClientFactory>(mcq.Object);
+                _ampqChannelClientFactory = new Mock<IAmqpChannelClientFactory>();
+                serviceCollection.AddSingleton<IAmqpChannelClientFactory>(_ampqChannelClientFactory.Object);
                 _serviceProvider = serviceCollection.BuildServiceProvider();
                 _busControl = _serviceProvider.GetRequiredService<IBusControl>();
+            }
+
+            public Mock<IAmqpChannelClientFactory> AmpqChannelClientFactory
+            {
+                get
+                {
+                    return _ampqChannelClientFactory;
+                }
             }
 
             public Task RegisterWorkflowDefinition(WorkflowDefinitionAggregate workflowDef)
