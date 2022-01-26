@@ -2,15 +2,22 @@
   position: absolute;
   right: 0;
   top: 0;
-  width: 0;
   height: 100%;
-  background-color: white;
+  width: 100%;
+  visibility: hidden;
+  background-color: rgba(0, 0, 0, 0.32);
+  transition: opacity 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
+  opacity: 0;
 }
 
 .panel > .content {
-  height: 100%;
+  margin: 10px;
   position: relative;
+  padding: 5px;
   display: none;
+  background-color: white;
+  box-shadow: 0px 11px 15px -7px rgb(0 0 0 / 20%), 0px 24px 38px 3px rgb(0 0 0 / 14%), 0px 9px 46px 8px rgb(0 0 0 / 12%);
+  border-radius: 4px;
 }
 
 .panel.displayed > .content {
@@ -18,8 +25,8 @@
 }
 
 .panel.displayed {
-  transition: width 800ms;
-  width: 100%;
+  visibility: visible;
+  opacity: 1;
 }
 
 .panel .close {

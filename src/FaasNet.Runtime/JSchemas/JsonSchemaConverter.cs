@@ -15,10 +15,6 @@ namespace FaasNet.Runtime.JSchemas
             return parseResult.Obj;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-        }
-
         public static void UpdateReferenceJsonSchemaProperties(JsonReader reader, FaasNetReferenceResolver resolver, FaasNetJsonSchema schema, JObject jObj)
         {
             if(schema.Properties == null)

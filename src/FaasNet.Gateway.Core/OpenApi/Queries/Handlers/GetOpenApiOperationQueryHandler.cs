@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Gateway.Core.OpenApi.Queries.Handlers
 {
-    public class GetOpenApiOperationQueryHandler : IRequestHandler<GetOpenApiOperationQuery, GetOpenApiOperationResult>
+    public class GetOpenApiOperationQueryHandler : IRequestHandler<GetOpenApiOperationQuery, GetOpenApiApiOperationResult>
     {
         private readonly IOpenAPIParser _openAPIParser;
 
@@ -19,7 +19,7 @@ namespace FaasNet.Gateway.Core.OpenApi.Queries.Handlers
             _openAPIParser = openAPIParser;
         }
 
-        public async Task<GetOpenApiOperationResult> Handle(GetOpenApiOperationQuery request, CancellationToken cancellationToken)
+        public async Task<GetOpenApiApiOperationResult> Handle(GetOpenApiOperationQuery request, CancellationToken cancellationToken)
         {
             if (_openAPIParser.TryParseUrl(request.Endpoint, out OpenAPIUrlResult result))
             {
@@ -34,7 +34,7 @@ namespace FaasNet.Gateway.Core.OpenApi.Queries.Handlers
                 throw new OpenApiOperationNotFoundException(ErrorCodes.UnknownOpenApiOperation, string.Format(Global.UnknownOpenApiOperation, request.OperationId));
             }
 
-            return new GetOpenApiOperationResult
+            return new GetOpenApiApiOperationResult
             {
                 Components = configuration.Components,
                 OpenApiOperation = operation

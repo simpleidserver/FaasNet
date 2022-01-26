@@ -47,6 +47,11 @@ namespace FaasNet.Runtime.AsyncAPI.v2.Models
         /// </summary>
         [JsonProperty("description")]
         public string Description { get; set; }
+        [JsonProperty("reference")]
+        public Message Ref
+        {
+            get { return Reference; }
+        }
 
         public IJsonReference ActualObject { get; }
         public object PossibleRoot { get; }

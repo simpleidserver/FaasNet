@@ -71,7 +71,7 @@ export class SwitchStateEditorComponent implements OnDestroy {
       }
     });
     dialogRef.afterClosed().subscribe((r: any) => {
-      if (!r || !r.filter) {
+      if (!r) {
         return;
       }
 
@@ -96,7 +96,7 @@ export class SwitchStateEditorComponent implements OnDestroy {
       }
     });
     dialogRef.afterClosed().subscribe((r: any) => {
-      if (!r || !r.filter) {
+      if (!r) {
         return;
       }
 

@@ -20,6 +20,8 @@ namespace FaasNet.Runtime.JSchemas
             public JObject JObj { get; }
         }
 
+        public override bool CanWrite => false;
+
         public override bool CanConvert(Type objectType)
         {
             return true;

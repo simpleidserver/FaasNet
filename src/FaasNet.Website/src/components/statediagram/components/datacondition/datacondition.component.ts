@@ -59,7 +59,7 @@ export class DataConditionComponent {
       }
     });
     dialogRef.afterClosed().subscribe((r: any) => {
-      if (!r || !r.filter) {
+      if (!r) {
         return;
       }
 

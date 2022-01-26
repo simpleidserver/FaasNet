@@ -19,9 +19,11 @@
             <select formControlName="type" class="full-width">
               <option value="rest">RESTful service invocation</option>
               <option value="kubernetes">Serverless function invocation</option>
+              <option value="asyncapi">ASYNCAPI service invocation</option>
             </select>
             <mat-error *ngIf="editFunctionFormGroup.get('type')?.errors?.required">{{ 'functions.typeRequired' | translate }}</mat-error>
           </div>
+          <!-- REST.API -->
           <div *ngIf="editFunctionFormGroup.get('type')?.value == 'rest'" [formGroup]="editRestFormGroup">
             <mat-divider></mat-divider>
             <!-- Select the type of operation -->
@@ -65,6 +67,7 @@
               <mat-error *ngIf="editRestFormGroup.get('url')?.errors?.required">URL is required</mat-error>
             </div>
           </div>
+          <!-- KUBERNETES -->
           <div *ngIf="editFunctionFormGroup.get('type')?.value == 'kubernetes'" [formGroup]="editKubernetesFormGroup">
             <mat-divider></mat-divider>
             <!-- Image -->
@@ -89,10 +92,38 @@
               <ngx-monaco-editor [options]="jsonOptions" formControlName="configuration"></ngx-monaco-editor>
             </div>
           </div>
+          <!-- ASYNCAPI -->
+          <div *ngIf="editFunctionFormGroup.get('type')?.value == 'asyncapi'" [formGroup]="editAsyncApiFormGroup">
+            <mat-divider></mat-divider>
+            <!-- URL -->
+            <div class="form-control">
+              <div class="title">ASYNCAPI URL</div>
+              <p class="description">ASYNCAPI URL</p>
+              <div fxLayout="row">
+                <input type="text" fxFlex="auto" formControlName="url" />
+                <div fxFlex="10%" class="text-center">
+                  <button mat-raised-button (click)="extractAsyncApi($event)">Extract</button>
+                </div>
+              </div>
+              <mat-error *ngIf="editAsyncApiFormGroup.get('url')?.errors?.required">URL is required</mat-error>
+            </div>
+            <!-- Operation -->
+            <div class="form-control">
+              <div class="title">Operation</div>
+              <p class="description">Please select an Operation</p>
+              <select class="full-width" formControlName="operationId">
+                <option *ngFor="let operation of asyncApiOperations" [value]="operation.operationId">{{ operation.operationId }}</option>
+              </select>
+              <p class="description">{{ displaySelectedAsyncOperation() }}</p>
+              <mat-error *ngIf="editAsyncApiFormGroup.get('operationId')?.errors?.required">Operation must be selected</mat-error>
+            </div>
+            <div *ngIf="asyncApiErrorMessage" class="alert alert-danger">
+              {{ asyncApiErrorMessage }}
+            </div>
+          </div>
           <mat-divider></mat-divider>
-          <button mat-raised-button color="primary" [disabled]="isDisabled()" class="mt-10">{{ edit ? 'Update' : 'Add'
-                }}</button>
-</form>
+          <button mat-raised-button color="primary" [disabled]="isDisabled()" class="mt-10">{{ edit ? 'Update' : 'Add' }}</button>
+        </form>
       </div>
       <div fxFlex="50%" class="secondColumn">
         <div class="mat-elevation-z8 overflow-hidden">

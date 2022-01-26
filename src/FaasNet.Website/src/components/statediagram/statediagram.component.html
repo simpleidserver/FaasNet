@@ -203,7 +203,7 @@
           </svg>
         </div>
         <div class="properties pane">
-          <div class="container">
+          <div class="container-pane">
             <div [ngSwitch]="selectedState?.type">
               <switch-state-editor *ngSwitchCase="'switch'" [state]="selectedState" (closed)="closePanel()"></switch-state-editor>
               <inject-state-editor *ngSwitchCase="'inject'" [state]="selectedState" (closed)="closePanel()"></inject-state-editor>

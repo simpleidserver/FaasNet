@@ -9,6 +9,7 @@
         public const string UnknownFunction = "UnknownFunction";
         public const string UnknownStateMachine = "UnknownStateMachine";
         public const string UnknownOpenApiOperation = "UnknownOpenApiOperation";
+        public const string UnknownAsyncApiOperation = "UnknownAsyncApiOperation";
         public const string StateMachineExists = "StateMachineExists";
         public const string FunctionExists = "FunctionExists";
     }

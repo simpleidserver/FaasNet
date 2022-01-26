@@ -10,6 +10,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { appReducer } from '../stores/appstate';
+import { AsyncApiService } from '../stores/asyncapi/services/asyncapi.service';
 import { FunctionEffects } from '../stores/functions/effects/function.effects';
 import { FunctionService } from '../stores/functions/services/function.service';
 import { OpenApiService } from '../stores/openapi/services/openapi.service';
@@ -50,7 +51,7 @@ export function createTranslateLoader(http: HttpClient) {
       maxAge: 10
     })
   ],
-  providers: [FunctionService, StateMachinesService, StateMachineInstancesService, OpenApiService],
+  providers: [FunctionService, StateMachinesService, StateMachineInstancesService, OpenApiService, AsyncApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

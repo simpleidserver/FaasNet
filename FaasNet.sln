@@ -41,6 +41,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Coeus.Core", "lib\Coeus\src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Gateway.EF", "src\FaasNet.Gateway.EF\FaasNet.Gateway.EF.csproj", "{E06FDF2D-89CE-48B5-A530-8692390F8F7B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Bus.Startup", "src\FaasNet.Bus.Startup\FaasNet.Bus.Startup.csproj", "{9DEBEE4B-C360-4517-A97F-7461C163FDDF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{E06FDF2D-89CE-48B5-A530-8692390F8F7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E06FDF2D-89CE-48B5-A530-8692390F8F7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E06FDF2D-89CE-48B5-A530-8692390F8F7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DEBEE4B-C360-4517-A97F-7461C163FDDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DEBEE4B-C360-4517-A97F-7461C163FDDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DEBEE4B-C360-4517-A97F-7461C163FDDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DEBEE4B-C360-4517-A97F-7461C163FDDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +125,7 @@ Global
 		{46AADC73-6C25-48B3-AF89-2F603EA16EA1} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
 		{17702567-1DF1-4FA0-9C36-27B292C62981} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
 		{E06FDF2D-89CE-48B5-A530-8692390F8F7B} = {8D35E32C-AB12-44C8-8FAF-D9FF8CF805B7}
+		{9DEBEE4B-C360-4517-A97F-7461C163FDDF} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46764455-0D10-4266-9C37-35D7BD67517C}

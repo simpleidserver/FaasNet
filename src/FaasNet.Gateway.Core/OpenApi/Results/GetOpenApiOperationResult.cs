@@ -2,7 +2,7 @@
 
 namespace FaasNet.Gateway.Core.OpenApi.Results
 {
-    public class GetOpenApiOperationResult
+    public class GetOpenApiApiOperationResult
     {
         public OpenApiOperationResult OpenApiOperation { get; set; }
         public OpenApiComponentsSchemaResult Components { get; set; }

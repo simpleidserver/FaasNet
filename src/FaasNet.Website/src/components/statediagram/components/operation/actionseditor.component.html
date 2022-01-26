@@ -63,10 +63,10 @@
                   </select>
                   <mat-error *ngIf="addFunctionFormGroup.get('refName')?.errors?.required">A function must be selected</mat-error>
                 </div>
-                <div *ngIf="isOpenApiUrl()">
+                <div *ngIf="isOpenApiUrl() || isAsyncApiUrl()">
                   <mat-divider></mat-divider>
                   <!-- Queries -->
-                  <div class="form-control">
+                  <div class="form-control" *ngIf="isOpenApiUrl()">
                     <div class="title">Queries</div>
                     <p class="description">Arguments (inputs) passed to the query parameters.</p>
                     <ngx-monaco-editor [options]="jsonOptions" formControlName="queries"></ngx-monaco-editor>
@@ -78,7 +78,7 @@
                     <p class="description">Arguments (inputs) passed into the HTTP BODY.</p>
                     <ngx-monaco-editor [options]="jsonOptions" formControlName="properties"></ngx-monaco-editor>
                   </div>
-                  <button mat-raised-button (click)="generateFakeOpenApiArguments($event)">Generate Fake Arguments</button>
+                  <button mat-raised-button (click)="generateFakeArguments($event)">Generate Fake Arguments</button>
                 </div>
               </div>
             </div>

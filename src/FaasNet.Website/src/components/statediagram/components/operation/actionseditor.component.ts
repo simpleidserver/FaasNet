@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { StateMachineFunction } from '@stores/statemachines/models/statemachine-function.model';
 import { ActionDataFilter, OperationAction, OperationActionFunctionRef } from '@stores/statemachines/models/statemachine-operation-state.model';
+import { AsyncApiService } from '../../../../stores/asyncapi/services/asyncapi.service';
 import { OpenApiService } from '../../../../stores/openapi/services/openapi.service';
 import { MatPanelContent } from '../../../matpanel/matpanelcontent';
 import { ExpressionEditorComponent } from '../expressioneditor/expressioneditor.component';
@@ -56,7 +57,8 @@ export class ActionsEditorComponent extends MatPanelContent {
 
   constructor(
     private matDialog: MatDialog,
-    private openApiService: OpenApiService) {
+    private openApiService: OpenApiService,
+    private asyncApiService: AsyncApiService) {
     super();
   }
 
@@ -154,7 +156,7 @@ export class ActionsEditorComponent extends MatPanelContent {
       }
     });
     dialogRef.afterClosed().subscribe((r: any) => {
-      if (!r || !r.filter) {
+      if (!r) {
         return;
       }
 
@@ -171,7 +173,7 @@ export class ActionsEditorComponent extends MatPanelContent {
       }
     });
     dialogRef.afterClosed().subscribe((r: any) => {
-      if (!r || !r.filter) {
+      if (!r) {
         return;
       }
 
@@ -179,11 +181,34 @@ export class ActionsEditorComponent extends MatPanelContent {
     });
   }
 
-  generateFakeOpenApiArguments(evt: any) {
+  generateFakeArguments(evt: any) {
     evt.preventDefault();
-    const applicationJson = "application/json";
     const refName = this.addFunctionFormGroup.get('refName')?.value;
     const fn = this.functions.filter((f) => f.name === refName)[0];
+    switch (fn.type) {
+      case 'asyncapi':
+        this.generateFakeAsyncApiArguments(fn);
+        break;
+      case 'rest':
+        this.generateFakeOpenApiArguments(fn);
+        break;
+    }
+  }
+
+  generateFakeAsyncApiArguments(fn: StateMachineFunction) {
+    const splitted = fn.operation?.split('#');
+    if (splitted) {
+      this.asyncApiService.getOperation(splitted[0], splitted[1]).subscribe((e) => {
+        const asyncApiOperation = e.asyncApiOperation;
+        // TODO : CONTINUE
+      }, () => {
+
+      });
+    }
+  }
+
+  generateFakeOpenApiArguments(fn: StateMachineFunction) {
+    const applicationJson = "application/json";
     const splitted = fn.operation?.split('#');
     if (splitted) {
       this.openApiService.getOperation(splitted[0], splitted[1]).subscribe((e) => {
@@ -216,7 +241,25 @@ export class ActionsEditorComponent extends MatPanelContent {
       return false;
     }
 
-    const fn = this.functions.filter((f) => f.name === refName)[0];
+    const fn = this.functions.filter((f) => f.name === refName && f.type === 'rest')[0];
+    if (!fn) {
+      return false;
+    }
+
+    return fn.operation?.split('#').length === 2;
+  }
+
+  isAsyncApiUrl() {
+    const refName = this.addFunctionFormGroup.get('refName')?.value;
+    if (!refName) {
+      return false;
+    }
+
+    const fn = this.functions.filter((f) => f.name === refName && f.type === 'asyncapi')[0];
+    if (!fn) {
+      return false;
+    }
+
     return fn.operation?.split('#').length === 2;
   }
 

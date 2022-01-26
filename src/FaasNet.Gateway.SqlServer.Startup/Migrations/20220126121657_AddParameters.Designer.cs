@@ -4,14 +4,16 @@ using FaasNet.Runtime.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FaasNet.Gateway.SqlServer.Startup.Migrations
 {
     [DbContext(typeof(RuntimeDBContext))]
-    partial class RuntimeDBContextModelSnapshot : ModelSnapshot
+    [Migration("20220126121657_AddParameters")]
+    partial class AddParameters
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

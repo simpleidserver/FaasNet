@@ -61,7 +61,6 @@ namespace FaasNet.Runtime.JSchemas
         private void ResolveUnprocessedObject(string reference, object value)
         {
             var col = typeof(ICollection<>);
-            var addMethod = col.GetMethod("Add", BindingFlags.Instance | BindingFlags.Public);
             foreach(var kvp in _unprocessedObjects)
             {
                 if(kvp.Value == reference)
@@ -73,6 +72,7 @@ namespace FaasNet.Runtime.JSchemas
                     if(kvp.Key.IsArray)
                     {
                         var items = itemsType.GetValue(obj);
+                        var addMethod = items.GetType().GetMethod("Add", BindingFlags.Instance | BindingFlags.Public);
                         addMethod.Invoke(items, new object[] { value });
                     }
                     else

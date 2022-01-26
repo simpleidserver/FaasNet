@@ -79,6 +79,15 @@ namespace FaasNet.Gateway.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to the async api url {0} is not valid.
+        /// </summary>
+        internal static string InvalidAsyncApiUrl {
+            get {
+                return ResourceManager.GetString("InvalidAsyncApiUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The provided JSON input data is invalid.
         /// </summary>
         internal static string InvalidExecutionInput {
@@ -138,6 +147,15 @@ namespace FaasNet.Gateway.Core.Resources {
         internal static string UnknownApiDefOperation {
             get {
                 return ResourceManager.GetString("UnknownApiDefOperation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the async api operation {0} doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownAsyncApiOperation {
+            get {
+                return ResourceManager.GetString("UnknownAsyncApiOperation", resourceCulture);
             }
         }
         

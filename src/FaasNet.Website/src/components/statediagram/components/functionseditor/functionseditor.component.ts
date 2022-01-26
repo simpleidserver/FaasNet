@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { StateMachineFunction } from '@stores/statemachines/models/statemachine-function.model';
+import { AsyncApiService } from '../../../../stores/asyncapi/services/asyncapi.service';
 import { OpenApiService } from '../../../../stores/openapi/services/openapi.service';
 import { MatPanelComponent } from '../../../matpanel/matpanel.component';
 import { MatPanelContent } from '../../../matpanel/matpanelcontent';
@@ -22,6 +23,8 @@ export class FunctionsEditorComponent extends MatPanelContent {
   functions: MatTableDataSource<StateMachineFunction> = new MatTableDataSource<StateMachineFunction>();
   panel: MatPanelComponent | null = null;
   operations: any[] = [];
+  asyncApiErrorMessage: string | null = null;
+  asyncApiOperations: any[] = [];
   functionIndex: number = 0;
   jsonOptions: any = {
     theme: 'vs',
@@ -50,6 +53,10 @@ export class FunctionsEditorComponent extends MatPanelContent {
     isOpenApiUrl: new FormControl(false),
     operationId: new FormControl('', [Validators.required])
   });
+  editAsyncApiFormGroup: FormGroup = new FormGroup({
+    url: new FormControl('', [Validators.required]),
+    operationId: new FormControl('', [Validators.required])
+  });
   editKubernetesFormGroup: FormGroup = new FormGroup({
     image: new FormControl('', [Validators.required]),
     version: new FormControl('', [Validators.required]),
@@ -57,7 +64,7 @@ export class FunctionsEditorComponent extends MatPanelContent {
   });
   displayedColumns: string[] = ['actions', 'name', 'type' ];
 
-  constructor(private openApiService: OpenApiService) {
+  constructor(private openApiService: OpenApiService, private asyncApiService : AsyncApiService) {
     super();
   }
 
@@ -107,6 +114,11 @@ export class FunctionsEditorComponent extends MatPanelContent {
           url = url + '#' + this.editRestFormGroup.get('operationId')?.value;
         }
 
+        record.operation = url;
+        break;
+      case 'asyncapi':
+        var url = this.editAsyncApiFormGroup.get('url')?.value;
+        url = url + '#' + this.editAsyncApiFormGroup.get('operationId')?.value;
         record.operation = url;
         break;
     }
@@ -159,6 +171,17 @@ export class FunctionsEditorComponent extends MatPanelContent {
         this.refreshOpenApiOperations();
       }
     }
+
+    if (fn.type === 'asyncapi') {
+      const splittedOperation = fn.operation?.split('#');
+      if (splittedOperation) {
+        const url = splittedOperation[0];
+        const operationId = splittedOperation[1];
+        this.editAsyncApiFormGroup.get('operationId')?.setValue(operationId);
+        this.editAsyncApiFormGroup.get('url')?.setValue(url);
+        this.refreshAsyncApiOperations();
+      }
+    }
   }
 
   isSelected(i: number) {
@@ -198,6 +221,10 @@ export class FunctionsEditorComponent extends MatPanelContent {
       return this.editRestFormGroup.get('url')?.errors?.required;
     }
 
+    if (type === 'asyncapi' && !this.editAsyncApiFormGroup.valid) {
+      return true;
+    }
+
     return false;
   }
 
@@ -207,13 +234,19 @@ export class FunctionsEditorComponent extends MatPanelContent {
     this.refreshOpenApiOperations();
   }
 
+  extractAsyncApi(evt: any) {
+    evt.preventDefault();
+    this.editAsyncApiFormGroup.get('operationId')?.setValue('');
+    this.refreshAsyncApiOperations();
+  }
+
   save() {
     this.onClosed.emit(this.functions.data);
   }
 
   displaySelectedOperation() {
     const operationId = this.editRestFormGroup.get('operationId')?.value;
-    const filtered = this.operations.filter((o) => o.operationId == operationId);
+    const filtered = this.asyncApiOperations.filter((o) => o.operationId == operationId);
     if (filtered.length !== 1) {
       return "";
     }
@@ -221,6 +254,15 @@ export class FunctionsEditorComponent extends MatPanelContent {
     return "Summary: " + filtered[0].summary;
   }
 
+  displaySelectedAsyncOperation() {
+    const operationId = this.editAsyncApiFormGroup.get('operationId')?.value;
+    const filtered = this.asyncApiOperations.filter((o) => o.operationId == operationId);
+    if (filtered.length !== 1) {
+      return "";
+    }
+
+    return "Summary: " + filtered[0].summary;
+  }
 
   private refreshOpenApiOperations() {
     const url = this.editRestFormGroup.get('url')?.value;
@@ -228,6 +270,7 @@ export class FunctionsEditorComponent extends MatPanelContent {
     this.openApiService.getOperations(url).subscribe((e) => {
       this.openApiErrorMessage = null;
       this.operations = e;
+      this.editRestFormGroup.get('operationId')?.setValue(e[0].operationId);
     }, (e) => {
       this.operations = [];
       if (e.error && e.error.Message) {
@@ -236,5 +279,22 @@ export class FunctionsEditorComponent extends MatPanelContent {
         this.openApiErrorMessage = "An error occured while trying to get the operations from the OPENAPI URL";
       }
     });
+  }
+
+  private refreshAsyncApiOperations() {
+    const url = this.editAsyncApiFormGroup.get('url')?.value;
+    this.asyncApiOperations = [{ 'operationId': 'Loading...' }];
+    this.asyncApiService.getOperations(url).subscribe((e) => {
+      this.asyncApiErrorMessage = null;
+      this.asyncApiOperations = e;
+      this.editAsyncApiFormGroup.get('operationId')?.setValue(e[0].operationId);
+    }, (e) => {
+      if (e.error && e.error.Message) {
+        this.asyncApiErrorMessage = e.error.Message;
+      } else {
+        this.asyncApiErrorMessage = "An error occured while trying to get the operations from the ASYNCAPI URL";
+      }
+    });
+    
   }
 }

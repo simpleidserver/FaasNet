@@ -1,10 +1,8 @@
 <div class="container">
-  <div fxLayout="row" class="breadcrumb">
-    <div fxFlex="80%">
-      <ul>
-        <li><div class="mat-h1">{{ "stateMachines.list" | translate }}</div></li>
-      </ul>
-    </div>
+  <div class="breadcrumb">
+    <ul>
+      <li><div class="mat-h1">{{ "stateMachines.list" | translate }}</div></li>
+    </ul>
   </div>
   <div class="mb-10">
     <button mat-raised-button color="primary" (click)="addStateMachine()">{{ 'stateMachines.add' | translate }}</button>
@@ -51,4 +49,5 @@
     </mat-table>
     <mat-paginator [length]="length" [pageSize]="50" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
   </div>
+
 </div>

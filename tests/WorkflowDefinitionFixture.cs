@@ -23,6 +23,8 @@ namespace FaasNet.Runtime.Tests
 {
     public class WorkflowDefinitionFixture : IClassFixture<WebApplicationFactory<FakeStartup>>
     {
+        #region Inject
+
         [Fact]
         public async Task When_Run_HelloWorld()
         {
@@ -73,52 +75,9 @@ namespace FaasNet.Runtime.Tests
             Assert.Equal("{\r\n  \"people\": [\r\n    {\r\n      \"fname\": \"Marry\",\r\n      \"lname\": \"Allice\",\r\n      \"address\": \"1234 SomeStreet\",\r\n      \"age\": 25\r\n    },\r\n    {\r\n      \"fname\": \"Kelly\",\r\n      \"lname\": \"Mill\",\r\n      \"address\": \"1234 SomeStreet\",\r\n      \"age\": 30\r\n    }\r\n  ]\r\n}", instance.OutputStr);
         }
 
-        [Fact]
-        public async Task When_Run_GreetingFunction()
-        {
-            var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
-                .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
-                .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("Greet",
-                (act) => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : \"${ .person.name }\" } }")
-                .SetActionDataFilter(string.Empty, "${ .person.message }", "${ .result }"))
-                .End())
-                .Build();
-            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'name': 'simpleidserver', 'message': 'message' }}");
-            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("{\r\n  \"person\": {\r\n    \"name\": \"simpleidserver\",\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
-        }
+        #endregion
 
-        [Fact]
-        public async Task When_Call_GreetingFunction_With_Event()
-        {
-            var runtimeJob = new RuntimeJob();
-            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
-                .AddConsumedEvent("GreetingEvent", "greetingEventSource", "greetingEventType")
-                .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
-                .StartsWith(o => o.Event()
-                    .SetExclusive(false)
-                    .AddOnEvent(
-                        onevt => onevt.AddEventRef("GreetingEvent").AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : \"${ .person.message }\" } }").SetActionDataFilter(string.Empty, "${ .person.message }", "${ .result }")).Build()
-                    ).End()
-                )
-                .Build();
-            await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
-            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
-            runtimeJob.Start();
-            var jObj = JObject.Parse("{'person': {'message': 'simpleidserver'}}");
-            await runtimeJob.Publish(new CloudEventMessage
-            {
-                Id = "id",
-                Source = "greetingEventSource",
-                Type = "greetingEventType",
-                SpecVersion = "1.0",
-                Data = jObj
-            });
-            instance = runtimeJob.WaitTerminate(instance.Id);
-            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
-        }
+        #region Event
 
         [Fact]
         public async Task When_Send_Two_Events_And_Set_Exlusive_To_False()
@@ -247,6 +206,41 @@ namespace FaasNet.Runtime.Tests
         }
 
         [Fact]
+        public async Task When_Call_GreetingFunction_With_Event()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
+                .AddConsumedEvent("GreetingEvent", "greetingEventSource", "greetingEventType")
+                .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
+                .StartsWith(o => o.Event()
+                    .SetExclusive(false)
+                    .AddOnEvent(
+                        onevt => onevt.AddEventRef("GreetingEvent").AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : \"${ .person.message }\" } }").SetActionDataFilter(string.Empty, "${ .person.message }", "${ .result }")).Build()
+                    ).End()
+                )
+                .Build();
+            await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
+            runtimeJob.Start();
+            var jObj = JObject.Parse("{'person': {'message': 'simpleidserver'}}");
+            await runtimeJob.Publish(new CloudEventMessage
+            {
+                Id = "id",
+                Source = "greetingEventSource",
+                Type = "greetingEventType",
+                SpecVersion = "1.0",
+                Data = jObj
+            });
+            instance = runtimeJob.WaitTerminate(instance.Id);
+            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
+            Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
+        }
+
+        #endregion
+
+        #region Switch
+
+        [Fact]
         public async Task When_Run_Switch_Data_Condition()
         {
             var runtimeJob = new RuntimeJob();
@@ -311,6 +305,10 @@ namespace FaasNet.Runtime.Tests
             Assert.Equal("{\r\n  \"reason\": \"rejected\"\r\n}", secondInstance.OutputStr);
         }
 
+        #endregion
+
+        #region Foreach
+
         [Fact]
         public async Task When_Run_ForeachState()
         {
@@ -333,6 +331,10 @@ namespace FaasNet.Runtime.Tests
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
             Assert.Equal("[\r\n  4,\r\n  3,\r\n  30\r\n]", instance.OutputStr);
         }
+
+        #endregion
+
+        #region Callback
 
         [Fact]
         public async Task When_Run_CallbackState()
@@ -364,6 +366,28 @@ namespace FaasNet.Runtime.Tests
             Assert.Equal("{\r\n  \"name\": \"firstEvent\"\r\n}", instance.OutputStr);
         }
 
+        #endregion
+
+        #region Operation
+
+        #region OPENAPI
+
+        [Fact]
+        public async Task When_Run_GreetingFunction()
+        {
+            var runtimeJob = new RuntimeJob();
+            var workflowDefinition = WorkflowDefinitionBuilder.New("greeting", 1, "name", "description")
+                .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
+                .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("Greet",
+                (act) => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : \"${ .person.name }\" } }")
+                .SetActionDataFilter(string.Empty, "${ .person.message }", "${ .result }"))
+                .End())
+                .Build();
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'name': 'simpleidserver', 'message': 'message' }}");
+            Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
+            Assert.Equal("{\r\n  \"person\": {\r\n    \"name\": \"simpleidserver\",\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
+        }
+
         [Fact]
         public async Task When_Run_SendEmailWithHttpPost()
         {
@@ -387,7 +411,7 @@ namespace FaasNet.Runtime.Tests
                 .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmailPost"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("SendEmail",
                 (act) => act.SetFunctionRef("sendEmailFunction", "{ \"properties\" : { \"address\" : \"${ .person.email }\", \"body\" : \"${ .message }\", parameter : { } } }")
-                .SetActionDataFilter(string.Empty, string.Empty, ".emailResult"))
+                .SetActionDataFilter(string.Empty, string.Empty, "${ .emailResult }"))
                 .End())
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'email': 'agentsimpleidserver@gmail.com' }, 'message': 'Hello', 'name': 'Name' }");
@@ -405,12 +429,14 @@ namespace FaasNet.Runtime.Tests
                 .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmailGet"))
                 .StartsWith(o => o.Operation().SetActionMode(WorkflowDefinitionActionModes.Sequential).AddAction("SendEmail",
                 (act) => act.SetFunctionRef("sendEmailFunction", "{ \"queries\" : { \"Address\" : \"${ .person.email }\", \"Body\" : \"${ .message }\" } }")
-                .SetActionDataFilter(string.Empty, ".emailResult", string.Empty))
+                .SetActionDataFilter(string.Empty, "${ .emailResult }", string.Empty))
                 .End())
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'email': 'agentsimpleidserver@gmail.com' }, 'message': 'Hello', 'name': 'Name' }");
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
         }
+
+        #endregion
 
         #region AsyncAPI
 
@@ -439,6 +465,8 @@ namespace FaasNet.Runtime.Tests
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
             model.Verify(m => m.BasicPublish("testExchange", "r1", false, null, It.IsAny<ReadOnlyMemory<byte>>()));
         }
+
+        #endregion
 
         #endregion
 

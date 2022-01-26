@@ -52,7 +52,7 @@ namespace FaasNet.Runtime.AsyncAPI
             await ch.Invoke(input, server, channelBindings, operationBindings, securitySchemes, parameters, cancellationToken);
         }
 
-        protected virtual async Task<AsyncApiDocument> GetConfiguration(string url, CancellationToken cancellationToken)
+        public async Task<AsyncApiDocument> GetConfiguration(string url, CancellationToken cancellationToken)
         {
             var httpClient = _httpClientFactory.Build();
             var httpResult = await httpClient.GetAsync(url, cancellationToken);

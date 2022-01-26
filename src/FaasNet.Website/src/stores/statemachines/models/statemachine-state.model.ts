@@ -20,10 +20,16 @@ export class StateDataFilter {
   output: string = "";
 
   public getJson() {
-    return {
-      input: this.input,
-      output: this.output
-    };
+    var result: any = {};
+    if (this.input) {
+      result["input"] = this.input;
+    }
+
+    if (this.output) {
+      result["output"] = this.output;
+    }
+
+    return result;
   }
 
   public static build(json: any): StateDataFilter | undefined {

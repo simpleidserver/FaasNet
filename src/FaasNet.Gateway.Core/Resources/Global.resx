@@ -123,6 +123,9 @@
   <data name="FunctionNameAlreadyExists" xml:space="preserve">
     <value>a function with the name '{0}' already exists</value>
   </data>
+  <data name="InvalidAsyncApiUrl" xml:space="preserve">
+    <value>the async api url {0} is not valid</value>
+  </data>
   <data name="InvalidExecutionInput" xml:space="preserve">
     <value>The provided JSON input data is invalid</value>
   </data>
@@ -143,6 +146,9 @@
   </data>
   <data name="UnknownApiDefOperation" xml:space="preserve">
     <value>operation '{0}' doesn't exist</value>
+  </data>
+  <data name="UnknownAsyncApiOperation" xml:space="preserve">
+    <value>the async api operation {0} doesn't exist</value>
   </data>
   <data name="UnknownFunction" xml:space="preserve">
     <value>the function doesn't exist</value>

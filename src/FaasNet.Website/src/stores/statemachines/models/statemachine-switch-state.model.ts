@@ -70,15 +70,23 @@ export class DataCondition extends BaseTransition {
   }
 
   public getJson(): any {
-    return {
+    var result : any = {
       name: this.name,
-      condition: this.condition,
       transition: this.transition
     };
+    if (this.condition) {
+      result["condition"] = this.condition;
+    }
+
+    return result;
   }
 
   public static build(json: any) {
     var result = new DataCondition();
+    if (json["condition"]) {
+      result.condition = json["condition"];
+    }
+
     result.condition = json["condition"];
     result.name = json["name"];
     result.transition = json["transition"];
