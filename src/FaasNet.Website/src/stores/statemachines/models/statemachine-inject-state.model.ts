@@ -6,18 +6,20 @@ export class InjectStateMachineState extends FlowableStateMachineState {
   constructor() {
     super();
     this.type = InjectStateMachineState.TYPE;
-    this.stateDataFilter = new StateDataFilter();
   }
 
   public override getJson() {
     let result : any = {
       id: this.id,
       name: this.name,
-      stateDataFilter: this.stateDataFilter?.getJson(),
       transition: this.transition,
       type: InjectStateMachineState.TYPE,
       end: this.end
     };
+    if (this.stateDataFilter) {
+      result['stateDataFilter'] = this.stateDataFilter.getJson();
+    }
+
     if (this.data && Object.keys(this.data).length > 0) {
       result['data'] = this.data;
     }
