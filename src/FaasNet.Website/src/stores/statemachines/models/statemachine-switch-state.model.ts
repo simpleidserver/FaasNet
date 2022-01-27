@@ -212,7 +212,6 @@ export class SwitchStateMachineState extends StateMachineState {
     var result : any = {
       id: this.id,
       name: this.name,
-      stateDataFilter: this.stateDataFilter?.getJson(),
       type: SwitchStateMachineState.TYPE,
       end: this.end,
       dataConditions: this.dataConditions.map((d: DataCondition) => {
@@ -220,6 +219,11 @@ export class SwitchStateMachineState extends StateMachineState {
       }),
       defaultCondition: this.defaultCondition?.transition
     };
+
+    if (this.stateDataFilter) {
+      result.stateDataFilter = this.stateDataFilter.getJson();
+    }
+
     if (this.eventConditions && this.eventConditions.length > 0) {
       result.eventConditions = this.eventConditions.map((e: EventCondition) => {
         return e.getJson();

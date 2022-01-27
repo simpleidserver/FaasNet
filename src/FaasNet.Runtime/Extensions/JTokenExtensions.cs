@@ -6,7 +6,7 @@ namespace FaasNet.Runtime.Extensions
 {
     public static class JTokenExtensions
     {
-        private const string REGEX_STR = "\"?\\$\\{( |\\w|\\.|>|<|=|\\[|\\]|\\)|\\(|\\|)*\\}\"?";
+        private const string REGEX_STR = "\"?\\$\\{(\"| |\\w|\\.|>|<|=|\\[|\\]|\\)|\\(|\\|)*\\}\"?";
 
         public static JToken Transform(this JToken token, string filter)
         {

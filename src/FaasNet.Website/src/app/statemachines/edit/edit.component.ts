@@ -107,7 +107,7 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
       }
 
       this.isLoading = true;
-      const action = startLaunch({ id: this.id, input: opt.json });
+      const action = startLaunch({ id: this.id, input: opt.json, parameters: opt.parameters });
       this.store.dispatch(action);
     });
   }

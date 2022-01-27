@@ -1,9 +1,11 @@
 using FaasNet.Bus.Startup.Consumers;
 using MassTransit;
+using MassTransit.CloudEvents;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Saunter;
 using Saunter.AsyncApiSchema.v2;
 using Saunter.AsyncApiSchema.v2.Bindings;
@@ -46,6 +48,7 @@ namespace FaasNet.Bus.Startup
                     {
                         x.Consumer<ClientConsumer>();
                         x.Bind("submitclient");
+                        x.UseCloudEvents();
                     });
                 });
             });
@@ -121,6 +124,25 @@ namespace FaasNet.Bus.Startup
                 endpoints.MapAsyncApiDocuments();
                 endpoints.MapControllers();
             });
+        }
+    }
+
+    public class CustomJsonConverter : JsonConverter
+    {
+        public override bool CanConvert(System.Type objectType)
+        {
+            return true;
+        }
+
+        public override object ReadJson(JsonReader reader, System.Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            
+            throw new System.NotImplementedException();
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

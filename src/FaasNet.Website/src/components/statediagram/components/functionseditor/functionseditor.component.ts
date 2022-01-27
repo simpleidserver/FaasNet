@@ -4,6 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { StateMachineFunction } from '@stores/statemachines/models/statemachine-function.model';
 import { AsyncApiService } from '../../../../stores/asyncapi/services/asyncapi.service';
 import { OpenApiService } from '../../../../stores/openapi/services/openapi.service';
+import { OperationTypes } from '../../../../stores/statemachines/models/operation-types.model';
 import { MatPanelComponent } from '../../../matpanel/matpanel.component';
 import { MatPanelContent } from '../../../matpanel/matpanelcontent';
 
@@ -94,7 +95,7 @@ export class FunctionsEditorComponent extends MatPanelContent {
     let type = this.editFunctionFormGroup.get('type')?.value;
     switch (type) {
       case 'kubernetes':
-        type = 'custom';
+        type = OperationTypes.Custom;
         record.metadata = {
           version: this.editKubernetesFormGroup.get('version')?.value,
           image: this.editKubernetesFormGroup.get('image')?.value
@@ -107,7 +108,7 @@ export class FunctionsEditorComponent extends MatPanelContent {
           } catch { }
         }
         break;
-      case 'rest':
+      case OperationTypes.Rest:
         var url = this.editRestFormGroup.get('url')?.value;
         const isOpenApiUrl = this.editRestFormGroup.get('isOpenApiUrl')?.value;
         if (isOpenApiUrl) {
@@ -116,7 +117,7 @@ export class FunctionsEditorComponent extends MatPanelContent {
 
         record.operation = url;
         break;
-      case 'asyncapi':
+      case OperationTypes.AsyncApi:
         var url = this.editAsyncApiFormGroup.get('url')?.value;
         url = url + '#' + this.editAsyncApiFormGroup.get('operationId')?.value;
         record.operation = url;
@@ -154,7 +155,7 @@ export class FunctionsEditorComponent extends MatPanelContent {
       }
     }
 
-    if (fn.type === 'rest') {
+    if (fn.type === OperationTypes.Rest) {
       const splittedOperation = fn.operation?.split('#');
       let isOpenApiUrl = false;
       let url = fn.operation;
@@ -172,7 +173,7 @@ export class FunctionsEditorComponent extends MatPanelContent {
       }
     }
 
-    if (fn.type === 'asyncapi') {
+    if (fn.type === OperationTypes.AsyncApi) {
       const splittedOperation = fn.operation?.split('#');
       if (splittedOperation) {
         const url = splittedOperation[0];
@@ -213,15 +214,15 @@ export class FunctionsEditorComponent extends MatPanelContent {
     }
 
     const isOpenApiUrl = this.editRestFormGroup.get('isOpenApiUrl')?.value;
-    if (type === 'rest' && isOpenApiUrl) {
+    if (type === OperationTypes.Rest && isOpenApiUrl) {
       return !this.editRestFormGroup.valid;
     }
 
-    if (type === 'rest' && !isOpenApiUrl) {
+    if (type === OperationTypes.Rest && !isOpenApiUrl) {
       return this.editRestFormGroup.get('url')?.errors?.required;
     }
 
-    if (type === 'asyncapi' && !this.editAsyncApiFormGroup.valid) {
+    if (type === OperationTypes.AsyncApi && !this.editAsyncApiFormGroup.valid) {
       return true;
     }
 

@@ -7,5 +7,6 @@ namespace FaasNet.Gateway.Core.StateMachines.Commands
     {
         public string Id { get; set; }
         public string Input { get; set; }
+        public string Parameters { get; set; }
     }
 }

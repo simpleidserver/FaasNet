@@ -5,6 +5,11 @@
     <div class="title">JSON Input</div>
     <ngx-monaco-editor [options]="jsonEditorOptions" [(ngModel)]="json"></ngx-monaco-editor>
   </div>
+  <!-- Parameters -->
+  <div class="form-control">
+    <div class="title">Parameters</div>
+    <ngx-monaco-editor [options]="jsonEditorOptions" [(ngModel)]="parameters"></ngx-monaco-editor>
+  </div>
 </div>
 <div mat-dialog-actions>
   <button mat-button color="primary" (click)="launch()">{{ 'shared.launch' | translate }}</button>

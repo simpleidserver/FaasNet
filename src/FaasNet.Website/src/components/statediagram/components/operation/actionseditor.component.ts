@@ -6,12 +6,21 @@ import { StateMachineFunction } from '@stores/statemachines/models/statemachine-
 import { ActionDataFilter, OperationAction, OperationActionFunctionRef } from '@stores/statemachines/models/statemachine-operation-state.model';
 import { AsyncApiService } from '../../../../stores/asyncapi/services/asyncapi.service';
 import { OpenApiService } from '../../../../stores/openapi/services/openapi.service';
+import { OperationTypes } from '../../../../stores/statemachines/models/operation-types.model';
 import { MatPanelContent } from '../../../matpanel/matpanelcontent';
 import { ExpressionEditorComponent } from '../expressioneditor/expressioneditor.component';
 
 export class ActionsEditorData {
   functions: StateMachineFunction[] = [];
   actions: OperationAction[] = [];
+}
+
+class JSchemaStandardTypes {
+  public static Integer: string = "integer";
+  public static String: string = "string";
+  public static Array: string = "array";
+  public static Object: string = "object";
+  public static All: string[] = [JSchemaStandardTypes.Integer, JSchemaStandardTypes.String, JSchemaStandardTypes.Array, JSchemaStandardTypes.Object]
 }
 
 @Component({
@@ -24,6 +33,7 @@ export class ActionsEditorData {
 })
 export class ActionsEditorComponent extends MatPanelContent {
   displayedColumns: string[] = ['actions', 'name', 'type'];
+  supportedTypes: string[] = [''];
   functions: StateMachineFunction[] = [];
   actions: MatTableDataSource<OperationAction> = new MatTableDataSource<OperationAction>();
   jsonOptions: any = {
@@ -85,6 +95,7 @@ export class ActionsEditorComponent extends MatPanelContent {
         record.functionRef = new OperationActionFunctionRef();
         record.actionDataFilter = new ActionDataFilter();
         record.functionRef.refName = this.addFunctionFormGroup.get('refName')?.value;
+        const fn = this.functions.filter((f) => f.name === record.functionRef?.refName)[0];
         const useResults = Boolean(this.addActionFormGroup.get('useResults')?.value);
         record.actionDataFilter.useResults = useResults;
         if (useResults == true) {
@@ -99,15 +110,22 @@ export class ActionsEditorComponent extends MatPanelContent {
           }
         }
 
-        let args : any = {};
-        var queries = JSON.parse(this.addFunctionFormGroup.get('queries')?.value);
+        let args: any = {};
         var properties = JSON.parse(this.addFunctionFormGroup.get('properties')?.value);
-        if (Object.keys(queries).length > 0) {
-          args['queries'] = queries;
-        }
+        switch (fn.type) {
+          case OperationTypes.AsyncApi:
+            args = properties;
+            break;
+          case OperationTypes.Rest:
+            const queries = JSON.parse(this.addFunctionFormGroup.get('queries')?.value);
+            if (Object.keys(queries).length > 0) {
+              args['queries'] = queries;
+            }
 
-        if (Object.keys(properties).length > 0) {
-          args['properties'] = properties;
+            if (Object.keys(properties).length > 0) {
+              args['properties'] = properties;
+            }
+            break;
         }
 
         record.functionRef.arguments = args;
@@ -186,10 +204,10 @@ export class ActionsEditorComponent extends MatPanelContent {
     const refName = this.addFunctionFormGroup.get('refName')?.value;
     const fn = this.functions.filter((f) => f.name === refName)[0];
     switch (fn.type) {
-      case 'asyncapi':
+      case OperationTypes.AsyncApi:
         this.generateFakeAsyncApiArguments(fn);
         break;
-      case 'rest':
+      case OperationTypes.Rest:
         this.generateFakeOpenApiArguments(fn);
         break;
     }
@@ -199,8 +217,11 @@ export class ActionsEditorComponent extends MatPanelContent {
     const splitted = fn.operation?.split('#');
     if (splitted) {
       this.asyncApiService.getOperation(splitted[0], splitted[1]).subscribe((e) => {
-        const asyncApiOperation = e.asyncApiOperation;
-        // TODO : CONTINUE
+        const payload = e.asyncApiOperation.message.payload;
+        const components = e.components;
+        let json: any = {};
+        this.extractJsonFromComponent(payload['$ref'], json, components);
+        this.addFunctionFormGroup.get('properties')?.setValue(JSON.stringify(json, undefined, 4));
       }, () => {
 
       });
@@ -255,7 +276,7 @@ export class ActionsEditorComponent extends MatPanelContent {
       return false;
     }
 
-    const fn = this.functions.filter((f) => f.name === refName && f.type === 'asyncapi')[0];
+    const fn = this.functions.filter((f) => f.name === refName && f.type === OperationTypes.AsyncApi)[0];
     if (!fn) {
       return false;
     }
@@ -263,11 +284,11 @@ export class ActionsEditorComponent extends MatPanelContent {
     return fn.operation?.split('#').length === 2;
   }
 
-  private extractPathParameter(parameter: any, components: any, json: any = null, isArray : boolean = false) {
-    var type = parameter.schema["type"];
+  private extractPathParameter(parameter: any, components: any, json: any = null, isArray: boolean = false) {
+    var type = this.getJSchemaStandardType(parameter.schema["type"]);
     if (!json) {
       json = {};
-      if (type == "array") {
+      if (type == JSchemaStandardTypes.Array) {
         json = [];
         isArray = true;
       }
@@ -275,7 +296,7 @@ export class ActionsEditorComponent extends MatPanelContent {
 
     var name = parameter.name;
     switch (type) {
-      case "string":
+      case JSchemaStandardTypes.String:
         var value = this.getDefaultSchemaStrValue(parameter.schema);
         if (!isArray) {
           json[name] = value;
@@ -283,7 +304,7 @@ export class ActionsEditorComponent extends MatPanelContent {
           json[name].push(value);
         }
         break;
-      case "integer":
+      case JSchemaStandardTypes.Integer:
         if (!isArray) {
           json[name] = 0;
         } else {
@@ -291,7 +312,7 @@ export class ActionsEditorComponent extends MatPanelContent {
         }
         json[name] = 0;
         break;
-      case "array":
+      case JSchemaStandardTypes.Array:
         var arr: any = [];
         this.extractPathParameter(parameter.items, arr, components, true);
         if (!isArray) {
@@ -317,16 +338,17 @@ export class ActionsEditorComponent extends MatPanelContent {
     }
   }
 
-  private extractJsonFromProperty(property: any, propertyName: string, json: any, components: any, isArray : boolean = false) {
-    switch (property.type) {
-      case "integer":
+  private extractJsonFromProperty(property: any, propertyName: string, json: any, components: any, isArray: boolean = false) {
+    var type = this.getJSchemaStandardType(property.type);
+    switch (type) {
+      case JSchemaStandardTypes.Integer:
         if (!isArray) {
           json[propertyName] = 0;
         } else {
           json.push(0);
         }
         break;
-      case "string":
+      case JSchemaStandardTypes.String:
         let str = this.getDefaultSchemaStrValue(property);
         if (!isArray) {
           json[propertyName] = str;
@@ -334,7 +356,7 @@ export class ActionsEditorComponent extends MatPanelContent {
           json.push(str);
         }
         break;
-      case "array":
+      case JSchemaStandardTypes.Array:
         var arr: any[] = [];
         this.extractJsonFromProperty(property.items, "", arr, components, true);
         if (!isArray) {
@@ -343,7 +365,7 @@ export class ActionsEditorComponent extends MatPanelContent {
           arr.forEach((r) => json.push(r));
         }
         break;
-      case "object":
+      case JSchemaStandardTypes.Object:
         var obj: any = {};
         for (var key in property.properties) {
           const child = property.properties[key];
@@ -360,6 +382,15 @@ export class ActionsEditorComponent extends MatPanelContent {
         }
         break;
     }
+  }
+
+  private getJSchemaStandardType(type: any) {
+    if (Array.isArray(type)) {
+      const filtered = type.filter((t: string) => JSchemaStandardTypes.All.filter(a => a === t).length > 0);
+      return filtered[0];
+    }
+
+    return type;
   }
 
   private getDefaultSchemaStrValue(schema: any) {

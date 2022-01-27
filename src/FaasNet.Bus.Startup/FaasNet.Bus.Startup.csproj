@@ -6,5 +6,6 @@
     <PackageReference Include="Saunter" Version="0.9.1" />
     <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="7.3.1" />
+    <PackageReference Include="CloudEventify.MassTransit" Version="1.2.12" />
   </ItemGroup>
 </Project>

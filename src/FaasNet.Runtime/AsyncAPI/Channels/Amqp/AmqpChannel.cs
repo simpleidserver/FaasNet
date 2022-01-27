@@ -1,10 +1,13 @@
-﻿using FaasNet.Runtime.AsyncAPI.Exceptions;
+﻿using CloudNative.CloudEvents.NewtonsoftJson;
+using FaasNet.Runtime.AsyncAPI.Exceptions;
 using FaasNet.Runtime.AsyncAPI.v2.Models;
 using FaasNet.Runtime.AsyncAPI.v2.Models.Bindings;
 using FaasNet.Runtime.Resources;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,7 +50,18 @@ namespace FaasNet.Runtime.AsyncAPI.Channels.Amqp
             {
                 using (var channel = connection.CreateModel())
                 {
-                    var payload = Encoding.UTF8.GetBytes(input.ToString());
+                    var basicProperties = channel.CreateBasicProperties();
+                    basicProperties.ContentType = "application/cloudevents+json";
+                    var cloudEvent = new CloudNative.CloudEvents.CloudEvent
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Type = "type",
+                        Source = new Uri("http://localhost"),
+                        DataContentType = MediaTypeNames.Application.Json,
+                        Data = input
+                    };
+                    var encoded = new JsonEventFormatter().EncodeStructuredModeMessage(cloudEvent, out var contentType);
+                    var payload = Encoding.UTF8.GetBytes(cloudEvent.ToString());
                     switch (channelBindings.Amqp.Is)
                     {
                         case v2.Models.Bindings.Amqp.AmqpChannelBindingIs.RoutingKey:
@@ -55,8 +69,8 @@ namespace FaasNet.Runtime.AsyncAPI.Channels.Amqp
                             channel.BasicPublish(channelBindings.Amqp.Exchange.Name,
                                 routingKey,
                                 operationBinding.Amqp.Mandatory,
-                                null,
-                                payload);
+                                basicProperties,
+                                encoded);
                             break;
                     }
                 }

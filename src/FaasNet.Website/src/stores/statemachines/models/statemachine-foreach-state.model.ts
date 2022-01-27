@@ -37,7 +37,7 @@ export class ForeachStateMachineState extends StateMachineState {
   }
 
   public override getJson() {
-    return {
+    var result = {
       id: this.id,
       name: this.name,
       stateDataFilter: this.stateDataFilter?.getJson(),
@@ -45,5 +45,10 @@ export class ForeachStateMachineState extends StateMachineState {
       type: ForeachStateMachineState.TYPE,
       end: this.end
     };
+    if (this.stateDataFilter) {
+      result['stateDataFilter'] = this.stateDataFilter.getJson();
+    }
+
+    return result;
   }
 }

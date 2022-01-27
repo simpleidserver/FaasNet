@@ -73,8 +73,8 @@ export class StateMachineEffects {
   launchStateMachine = this.actions$
     .pipe(
       ofType(startLaunch),
-      mergeMap((evt: { id: string, input : any }) => {
-        return this.stateMachinesService.launch(evt.id, evt.input)
+      mergeMap((evt: { id: string, input : any, parameters: any }) => {
+        return this.stateMachinesService.launch(evt.id, evt.input, evt.parameters)
           .pipe(
             map(content => completeLaunch({ id: content.id, launchDateTime: content.launchDateTime })),
             catchError(() => of(errorLaunch()))

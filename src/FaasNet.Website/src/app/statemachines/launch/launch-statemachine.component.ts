@@ -7,6 +7,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class LaunchStateMachineComponent {
   json: any = null;
+  parameters: any = null;
   jsonEditorOptions = { theme: 'vs', language: 'json' };
 
   constructor(
@@ -14,6 +15,6 @@ export class LaunchStateMachineComponent {
   }
 
   launch() {
-    this.dialogRef.close({ json: this.json });
+    this.dialogRef.close({ json: this.json, parameters: this.parameters });
   }
 }

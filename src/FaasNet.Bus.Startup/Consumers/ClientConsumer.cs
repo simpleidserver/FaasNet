@@ -15,6 +15,8 @@ namespace FaasNet.Bus.Startup.Consumers
             BindingsRef = "addClientOperation")]
         public Task Consume(ConsumeContext<ClientAddedEvent> context)
         {
+            var message = context.Message;
+            System.Console.WriteLine($"FirstName = {message.FirstName}, LastName = {message.LastName}");
             return Task.CompletedTask;
         }
     }
