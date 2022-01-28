@@ -1,14 +1,9 @@
 <ng-container>
-  <mat-toolbar>
-    <button mat-icon-button (click)="drawer.toggle()">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <img src="/assets/images/logo.svg" class="logo" />
-    FaasNet
-    <span class="spacer"></span>
-  </mat-toolbar>
   <mat-drawer-container class="drawer-container">
     <mat-drawer #drawer mode="side" opened>
+      <div class="logo">
+        <img src="/assets/images/logo.svg" />
+      </div>
       <mat-nav-list>
         <a mat-list-item [routerLink]="['/functions']">{{ 'functions.list' | translate }}</a>
       </mat-nav-list>

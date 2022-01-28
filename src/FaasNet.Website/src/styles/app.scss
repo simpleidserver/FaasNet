@@ -1,7 +1,10 @@
+$descriptionColor: rgb(127, 133, 140);
+$background: whitesmoke;
+
 html, body {
   height: 100%;
+  font-family: "Heebo",sans-serif;
 }
-
 
 body, h1 {
   margin: 0;
@@ -41,13 +44,20 @@ body, h1 {
   margin-right: 10px !important;
 }
 
-.mat-drawer-content {
-  position: unset !important;
+/* Actions */
+.actions {
+  display: flex;
 }
 
+
 /* Breadcrumb */
+.actions, .breadcrumb {
+  padding: 10px 0px 10px 20px;
+  background-color: white;
+}
+
 .breadcrumb {
-  padding: 20px 0px 20px 0px;
+  border-bottom: 1px solid #eff3f5;
 }
 
 .breadcrumb ul {
@@ -63,7 +73,10 @@ body, h1 {
 
 .breadcrumb ul li {
   display: inline-block;
+  font-size: .8em;
 }
+
+/* Actions */
 
 /* Alert */
 .alert {
@@ -112,4 +125,45 @@ body, h1 {
 
 .panel-content > .actions button {
   float: right;
+}
+
+.form {
+  position: relative;
+}
+
+.form-control {
+  padding: 10px 10px 5px 10px;
+  position: relative;
+
+  .title {
+    font-weight: bold;
+  }
+
+  .description {
+    color: $descriptionColor;
+    font-size: 0.7em;
+    font-weight: bold;
+  }
+
+  textarea, input, select {
+    border: 1px solid #c1c1c1;
+  }
+
+  input:not([type=checkbox]), select {
+    height: 30px;
+  }
+
+  input:read-only {
+    color: $descriptionColor;
+    background-color: $background;
+  }
+
+  textarea {
+    min-height: 50px;
+    resize: vertical;
+  }
+
+  .condition {
+    cursor: pointer;
+  }
 }

@@ -9,11 +9,7 @@ import { BaseTransition, EmptyTransition, StateMachineState } from '@stores/stat
 import { SwitchStateMachineState } from '@stores/statemachines/models/statemachine-switch-state.model';
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { BehaviorSubject } from 'rxjs';
-import * as YAML from 'yaml';
 import { MatPanelComponent } from '../matpanel/matpanel.component';
-import { FunctionsEditorComponent, FunctionsEditorData } from './components/functionseditor/functionseditor.component';
-import { JsonComponent } from './components/json/json.component';
-import { YamlComponent } from './components/yaml/yaml.component';
 
 class DiagramNode {
   constructor(public x: number, public y: number, public level: number, public state: StateMachineState | undefined) {
@@ -238,7 +234,7 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.viewBox = "0 0 " + this.options.canvasWidth + " " + this.options.canvasHeight;
+    this.viewBox = "0 0 " + this.stateDiagramContainer.nativeElement.offsetWidth + " " + this.stateDiagramContainer.nativeElement.offsetHeight;
     this.initListener();
   }
 
@@ -441,54 +437,8 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
     matMenuTrigger?.openMenu();
   }
 
-  openYaml() {    
-    const dialogRef = this.dialog.open(YamlComponent, {
-      width: '800px',
-      data: {
-        stateMachine: this.stateMachine
-      }
-    });
-    console.log(this.stateMachine);
-    dialogRef.afterClosed().subscribe((e) => {
-      if (!e) {
-        return;
-      }
-
-      let json = YAML.parse(e);
-      this._stateMachine = StateMachineModel.build(json);
-      this.refreshUI();
-    });
-  }
-
-  openJson() {
-    this.dialog.open(JsonComponent, {
-      width: '800px',
-      data: {
-        json: JSON.stringify(this.stateMachine.getJson(), undefined, 4),
-        title: 'State Machine JSON'
-      }
-    });
-  }
-
-  editFunctions() {
-    let data = new FunctionsEditorData();
-    data.functions = this.stateMachine.functions;
-    const panelRef = this.panel?.open(FunctionsEditorComponent, data);
-    if (panelRef) {
-      panelRef.onClosed.subscribe((e) => {
-        this.stateMachine.functions = e;
-      });
-    }
-  }
-
   displayToken(token: DiagramNodeToken) {
-    this.dialog.open(JsonComponent, {
-      width: '800px',
-      data: {
-        json: JSON.stringify(token.data, undefined, 4),
-        title: token.isInput ? 'Input Token' : 'Output Token'
-      }
-    });
+    // TODO ...
   }
 
   save() {
@@ -508,7 +458,6 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
 
   private initListener() {
     this.initStateDiagramListeners();
-    this.initGutterListeners();
   }
 
   private initStateDiagramListeners() {
@@ -532,19 +481,9 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
       const diffY = -(e.clientY - self.previousMousePosition.y);
       self.viewBox = diffX + " " + diffY + " " + viewBox.animVal.width + " " + viewBox.animVal.height;
     };
-  }
-
-  private initGutterListeners() {
-    const self = this;
-    const native = this.gutter.nativeElement;
-    const stateDiagramContainer = this.stateDiagramContainer.nativeElement;
-    native.onmousedown = function (e: any) {
-      self.isResizing = true;
-      self.previousMousePosition = { x: e.x, y: e.y };
-      self.gutterBoundingRect = stateDiagramContainer.getBoundingClientRect();
+    native.onmouseup = function (e: any) {
+      self.isMoving = false;
     };
-    window.addEventListener('mousemove', this.handleMouseMoveWindowRef);
-    window.addEventListener('mouseup', this.handleMouseUpRef);
   }
 
   private handleMouseMoveWindow(e: any) {

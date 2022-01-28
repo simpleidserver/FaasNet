@@ -7,13 +7,10 @@ import { DataConditionComponent } from './components/datacondition/datacondition
 import { DefaultConditionComponent } from './components/defaultcondition/defaultcondition.component';
 import { EvtConditionComponent } from './components/evtcondition/evtcondition.component';
 import { ExpressionEditorComponent } from './components/expressioneditor/expressioneditor.component';
-import { FunctionsEditorComponent } from './components/functionseditor/functionseditor.component';
 import { InjectStateEditorComponent } from './components/inject/inject-state-editor.component';
-import { JsonComponent } from './components/json/json.component';
 import { ActionsEditorComponent } from './components/operation/actionseditor.component';
 import { OperationStateEditorComponent } from './components/operation/operation-state-editor.component';
 import { SwitchStateEditorComponent } from './components/switch/switch-state-editor.component';
-import { YamlComponent } from './components/yaml/yaml.component';
 import { StateDiagramComponent } from './statediagram.component';
 
 @NgModule({
@@ -30,10 +27,7 @@ import { StateDiagramComponent } from './statediagram.component';
     InjectStateEditorComponent,
     SwitchStateEditorComponent,
     DefaultConditionComponent,
-    YamlComponent,
-    JsonComponent,
     OperationStateEditorComponent,
-    FunctionsEditorComponent,
     ActionsEditorComponent,
     MatPanelComponent
   ],
@@ -45,10 +39,7 @@ import { StateDiagramComponent } from './statediagram.component';
     InjectStateEditorComponent,
     SwitchStateEditorComponent,
     DefaultConditionComponent,
-    YamlComponent,
-    JsonComponent,
     OperationStateEditorComponent,
-    FunctionsEditorComponent,
     ActionsEditorComponent,
     MatPanelComponent
   ]

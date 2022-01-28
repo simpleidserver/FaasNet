@@ -1,0 +1,170 @@
+<div class="container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Functions Editor</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div fxLayout="row" fxFlex="auto">
+        <div fxFlex="50%" class="firstColumn column">
+          <form [formGroup]="editFunctionFormGroup" class="form" (ngSubmit)="addFunction()">
+            <!-- Name -->
+            <div class="form-control">
+              <div class="title">Name</div>
+              <p class="description">Name of the function</p>
+              <input type="text" formControlName="name" class="full-width" />
+              <mat-error *ngIf="editFunctionFormGroup.get('name')?.errors?.required">Name is required</mat-error>
+            </div>
+            <mat-divider></mat-divider>
+            <!-- Type -->
+            <div class="form-control">
+              <div class="title">Type</div>
+              <p class="description">Select the type of function</p>
+              <select formControlName="type" class="full-width">
+                <option value="rest">RESTful service invocation</option>
+                <option value="kubernetes">Serverless function invocation</option>
+                <option value="asyncapi">ASYNCAPI service invocation</option>
+              </select>
+              <mat-error *ngIf="editFunctionFormGroup.get('type')?.errors?.required">{{ 'functions.typeRequired' | translate }}</mat-error>
+            </div>
+            <!-- REST.API -->
+            <div *ngIf="editFunctionFormGroup.get('type')?.value == 'rest'" [formGroup]="editRestFormGroup">
+              <mat-divider></mat-divider>
+              <!-- Select the type of operation -->
+              <div class="form-control">
+                <input type="checkbox" formControlName="isOpenApiUrl" />
+                <label>Is OPENAPI url ?</label>
+              </div>
+              <!-- OpenAPI operation -->
+              <div *ngIf="editRestFormGroup.get('isOpenApiUrl')?.value == true">
+                <mat-divider></mat-divider>
+                <div class="form-control">
+                  <div class="title">OpenAPI URL</div>
+                  <p class="description">OpenAPI URL</p>
+                  <div fxLayout="row">
+                    <input type="text" fxFlex="auto" formControlName="url" />
+                    <div fxFlex="10%" class="text-center">
+                      <button mat-raised-button (click)="extract($event)">Extract</button>
+                    </div>
+                  </div>
+                  <mat-error *ngIf="editRestFormGroup.get('url')?.errors?.required">URL is required</mat-error>
+                </div>
+                <mat-divider></mat-divider>
+                <div class="form-control">
+                  <div class="title">Operation</div>
+                  <p class="description">Please select an Operation</p>
+                  <select class="full-width" formControlName="operationId">
+                    <option *ngFor="let operation of operations" [value]="operation.operationId">{{ operation.operationId }}</option>
+                  </select>
+                  <p class="description">{{ displaySelectedOperation() }}</p>
+                  <mat-error *ngIf="editRestFormGroup.get('operationId')?.errors?.required">Operation must be selected</mat-error>
+                </div>
+                <div *ngIf="openApiErrorMessage" class="alert alert-danger">
+                  {{ openApiErrorMessage }}
+                </div>
+              </div>
+              <!-- REST.API url -->
+              <div class="form-control" *ngIf="editRestFormGroup.get('isOpenApiUrl')?.value == false">
+                <div class="title">REST.API URL</div>
+                <p class="description">REST.API URL</p>
+                <input type="text" class="full-width" formControlName="url" />
+                <mat-error *ngIf="editRestFormGroup.get('url')?.errors?.required">URL is required</mat-error>
+              </div>
+            </div>
+            <!-- KUBERNETES -->
+            <div *ngIf="editFunctionFormGroup.get('type')?.value == 'kubernetes'" [formGroup]="editKubernetesFormGroup">
+              <mat-divider></mat-divider>
+              <!-- Image -->
+              <div class="form-control">
+                <div class="title">Image</div>
+                <p class="description">Docker image</p>
+                <input type="text" formControlName="image" class="full-width" />
+                <mat-error *ngIf="editKubernetesFormGroup.get('image')?.errors?.required">Image is required</mat-error>
+              </div>
+              <!-- Version -->
+              <div class="form-control">
+                <div class="title">Version</div>
+                <p class="description">Docker version</p>
+                <input type="text" formControlName="version" class="full-width" />
+                <mat-error *ngIf="editKubernetesFormGroup.get('version')?.errors?.required">Version is required</mat-error>
+              </div>
+              <mat-divider></mat-divider>
+              <!-- Configuration -->
+              <div class="form-control">
+                <div class="title">Configuration</div>
+                <p class="description">Configuration passed to the serverless function</p>
+                <ngx-monaco-editor [options]="jsonOptions" formControlName="configuration"></ngx-monaco-editor>
+              </div>
+            </div>
+            <!-- ASYNCAPI -->
+            <div *ngIf="editFunctionFormGroup.get('type')?.value == 'asyncapi'" [formGroup]="editAsyncApiFormGroup">
+              <mat-divider></mat-divider>
+              <!-- URL -->
+              <div class="form-control">
+                <div class="title">ASYNCAPI URL</div>
+                <p class="description">ASYNCAPI URL</p>
+                <div fxLayout="row">
+                  <input type="text" fxFlex="auto" formControlName="url" />
+                  <div fxFlex="10%" class="text-center">
+                    <button mat-raised-button (click)="extractAsyncApi($event)">Extract</button>
+                  </div>
+                </div>
+                <mat-error *ngIf="editAsyncApiFormGroup.get('url')?.errors?.required">URL is required</mat-error>
+              </div>
+              <!-- Operation -->
+              <div class="form-control">
+                <div class="title">Operation</div>
+                <p class="description">Please select an Operation</p>
+                <select class="full-width" formControlName="operationId">
+                  <option *ngFor="let operation of asyncApiOperations" [value]="operation.operationId">{{ operation.operationId }}</option>
+                </select>
+                <p class="description">{{ displaySelectedAsyncOperation() }}</p>
+                <mat-error *ngIf="editAsyncApiFormGroup.get('operationId')?.errors?.required">Operation must be selected</mat-error>
+              </div>
+              <div *ngIf="asyncApiErrorMessage" class="alert alert-danger">
+                {{ asyncApiErrorMessage }}
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+            <button mat-raised-button color="primary" [disabled]="isDisabled()" class="mt-10">{{ edit ? 'Update' : 'Add' }}</button>
+          </form>
+        </div>
+        <div fxFlex="50%" class="secondColumn">
+          <div class="mat-elevation-z8 overflow-hidden">
+            <mat-table class="full-width" [dataSource]="functions">
+              <!-- Actions -->
+              <ng-container matColumnDef="actions">
+                <mat-header-cell *matHeaderCellDef></mat-header-cell>
+                <mat-cell *matCellDef="let function; let i = index;">
+                  <button mat-icon-button (click)="deleteFunction(i)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="editFunction(function, i)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </mat-cell>
+              </ng-container>
+              <!-- Name -->
+              <ng-container matColumnDef="name">
+                <mat-header-cell *matHeaderCellDef>
+                  {{ "functions.name" | translate }}
+                </mat-header-cell>
+                <mat-cell *matCellDef="let function;">
+                  {{ function.name }}
+                </mat-cell>
+              </ng-container>
+              <!-- Type -->
+              <ng-container matColumnDef="type">
+                <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+                <mat-cell *matCellDef="let function">
+                  {{ function.type }}
+                </mat-cell>
+              </ng-container>
+              <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+              <mat-row *matRowDef="let row; columns: displayedColumns; let i = index;" [ngClass]="{'highlight': isSelected(i) }"></mat-row>
+            </mat-table>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

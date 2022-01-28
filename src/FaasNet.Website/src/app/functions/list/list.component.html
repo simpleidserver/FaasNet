@@ -1,14 +1,12 @@
+<div class="breadcrumb">
+  <ul>
+    <li>{{ "functions.list" | translate }}</li>
+  </ul>
+</div>
+<div class="actions">
+  <button mat-raised-button color="primary" (click)="addFunction()">{{ 'functions.add' | translate }}</button>
+</div>
 <div class="container">
-  <div fxLayout="row" class="breadcrumb">
-    <div fxFlex="80%">
-      <ul>
-        <li><div class="mat-h1">{{ "functions.list" | translate }}</div></li>
-      </ul>
-    </div>
-  </div>
-  <div class="mb-10">
-    <button mat-raised-button color="primary" (click)="addFunction()">{{ 'functions.add' | translate }}</button>
-  </div>
   <div class="mat-elevation-z8 overflow-hidden">
     <mat-table class="full-width" [dataSource]="functions" matSortActive="createDateTime" matSortDirection="desc" matSort>
       <!-- Name -->
@@ -58,5 +56,4 @@
     </mat-table>
     <mat-paginator [length]="length" [pageSize]="50" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
   </div>
-
 </div>

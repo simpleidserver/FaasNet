@@ -1,4 +1,3 @@
-$descriptionColor: rgb(127, 133, 140);
 $background: whitesmoke;
 
 .state-title {
@@ -14,46 +13,6 @@ $background: whitesmoke;
   right: 0px;
   top: 10px;
   cursor: pointer;
-}
-
-.form {
-  padding-left: 2px;
-}
-
-.form-control {
-  padding: 10px 10px 5px 10px;
-
-  .title {
-    font-weight: bold;
-  }
-
-  .description {
-    color: $descriptionColor;
-    font-size: 0.7em;
-    font-weight: bold;
-  }
-
-  textarea, input, select {
-    border: 1px solid #c1c1c1;
-  }
-
-  input:not([type=checkbox]), select {
-    height: 30px;
-  }
-
-  input:read-only {
-    color: $descriptionColor;
-    background-color: $background;
-  }
-
-  textarea {
-    min-height: 50px;
-    resize: vertical;
-  }
-
-  .condition {
-    cursor: pointer;
-  }
 }
 
 

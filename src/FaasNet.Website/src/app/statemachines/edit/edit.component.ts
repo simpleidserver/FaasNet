@@ -19,6 +19,8 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
   stateMachineDef: StateMachineModel = new StateMachineModel();
   isLoading: boolean = false;
   id: string = "";
+  action: string = "";
+  routeSubscription: any;
 
   constructor(
     private store: Store<fromReducers.AppState>,
@@ -81,11 +83,18 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
 
       this.stateMachineDef = StateMachineModel.build(stateMachine);
     });
-    self.id = this.activatedRoute.snapshot.params["id"];
+    self.id = self.activatedRoute.snapshot.params["id"];
+    self.action = self.activatedRoute.snapshot.params['action'];
+    self.routeSubscription = self.activatedRoute.params.subscribe(() => {
+      self.action = self.activatedRoute.snapshot.params['action'];
+    });
     self.init();
   }
 
   ngOnDestroy() {
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
   }
 
   onSave(stateMachineModel: StateMachineModel) {

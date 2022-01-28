@@ -1,2 +1,23 @@
+<div class="breadcrumb">
+  <ul>
+    <li><a [routerLink]="['/statemachines']">{{ "stateMachines.list" | translate }}</a></li>
+    <li class="separator">\</li>
+    <li>{{ stateMachineDef.name }}</li>
+  </ul>
+</div>
+<div class="actions">
+  <div class="spacer"></div>
+  <ul class="navigation">
+    <li [class.active]="action == 'functions'"><a [routerLink]="['/statemachines/' + id + '/functions']" matTooltip="Edit the functions"><mat-icon>functions</mat-icon></a></li>
+    <li [class.active]="action == 'yaml'"><a [routerLink]="['/statemachines/' + id + '/yaml']" matTooltip="Display YAML"><mat-icon>insert_drive_file</mat-icon></a></li>
+    <li [class.active]="action == 'json'"><a [routerLink]="['/statemachines/' + id + '/json']" matTooltip="Display JSON"><img src="/assets/images/json.png" /></a></li>
+    <li [class.active]="action == 'workflow'"><a [routerLink]="['/statemachines/' + id + '/workflow']" matTooltip="Edit the workflow"><mat-icon>account_tree</mat-icon></a></li>
+  </ul>
+</div>
 <loader *ngIf="isLoading"></loader>
-<state-diagram [stateMachine]="stateMachineDef" (saved)="onSave($event)" (launched)="onLaunch()"></state-diagram>
+<div>
+  <state-diagram [stateMachine]="stateMachineDef" (saved)="onSave($event)" (launched)="onLaunch()" [style.visibility]="action == 'workflow' ? 'visible': 'hidden'"></state-diagram>
+  <display-state-machine-json [stateMachine]="stateMachineDef" *ngIf="action === 'json'"></display-state-machine-json>
+  <display-state-machine-yaml [stateMachine]="stateMachineDef" *ngIf="action === 'yaml'"></display-state-machine-yaml>
+  <edit-functions-statemachine [stateMachine]="stateMachineDef" *ngIf="action === 'functions'"></edit-functions-statemachine>
+</div>

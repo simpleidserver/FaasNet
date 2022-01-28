@@ -1,11 +1,9 @@
+<div class="breadcrumb">
+  <ul>
+    <li>{{ "stateMachineInstance.list" | translate }}</li>
+  </ul>
+</div>
 <div class="container">
-  <div fxLayout="row" class="breadcrumb">
-    <div fxFlex="80%">
-      <ul>
-        <li><div class="mat-h1">{{ "stateMachineInstance.list" | translate }}</div></li>
-      </ul>
-    </div>
-  </div>
   <div class="mat-elevation-z8 overflow-hidden">
     <mat-table class="full-width" [dataSource]="stateMachineInstances" matSortActive="createDateTime" matSortDirection="desc" matSort>
       <!-- workflowDefName -->

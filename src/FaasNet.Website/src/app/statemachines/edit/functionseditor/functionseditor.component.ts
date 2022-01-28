@@ -1,28 +1,35 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
+import { AsyncApiService } from '@stores/asyncapi/services/asyncapi.service';
+import { OpenApiService } from '@stores/openapi/services/openapi.service';
+import { OperationTypes } from '@stores/statemachines/models/operation-types.model';
 import { StateMachineFunction } from '@stores/statemachines/models/statemachine-function.model';
-import { AsyncApiService } from '../../../../stores/asyncapi/services/asyncapi.service';
-import { OpenApiService } from '../../../../stores/openapi/services/openapi.service';
-import { OperationTypes } from '../../../../stores/statemachines/models/operation-types.model';
-import { MatPanelComponent } from '../../../matpanel/matpanel.component';
-import { MatPanelContent } from '../../../matpanel/matpanelcontent';
+import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 
 export class FunctionsEditorData {
   functions: StateMachineFunction[] = [];
 }
 
 @Component({
-  selector: 'functionseditor',
+  selector: 'edit-functions-statemachine',
   templateUrl: './functionseditor.component.html',
   styleUrls: [
     './functionseditor.component.scss',
-    '../state-editor.component.scss'
   ]
 })
-export class FunctionsEditorComponent extends MatPanelContent {
+export class FunctionsEditorComponent {
+  private _stateMachineModel: StateMachineModel = new StateMachineModel();
   functions: MatTableDataSource<StateMachineFunction> = new MatTableDataSource<StateMachineFunction>();
-  panel: MatPanelComponent | null = null;
+  @Input()
+  get stateMachine() {
+    return this._stateMachineModel;
+  }
+  set stateMachine(value: StateMachineModel) {
+    this._stateMachineModel = value;
+    this.functions.data = value.functions;
+  }
+
   operations: any[] = [];
   asyncApiErrorMessage: string | null = null;
   asyncApiOperations: any[] = [];
@@ -66,11 +73,6 @@ export class FunctionsEditorComponent extends MatPanelContent {
   displayedColumns: string[] = ['actions', 'name', 'type' ];
 
   constructor(private openApiService: OpenApiService, private asyncApiService : AsyncApiService) {
-    super();
-  }
-
-  override init(data: any): void {
-    this.functions.data = (data as FunctionsEditorData).functions;
   }
 
   deleteFunction(i: number) {
@@ -242,7 +244,7 @@ export class FunctionsEditorComponent extends MatPanelContent {
   }
 
   save() {
-    this.onClosed.emit(this.functions.data);
+    // this.onClosed.emit(this.functions.data);
   }
 
   displaySelectedOperation() {

@@ -1,19 +1,19 @@
+<div class="breadcrumb">
+  <ul>
+    <li>{{ "stateMachines.list" | translate }}</li>
+  </ul>
+</div>
+<div class="actions">
+  <button mat-raised-button color="primary" (click)="addStateMachine()">{{ 'stateMachines.add' | translate }}</button>
+</div>
 <div class="container">
-  <div class="breadcrumb">
-    <ul>
-      <li><div class="mat-h1">{{ "stateMachines.list" | translate }}</div></li>
-    </ul>
-  </div>
-  <div class="mb-10">
-    <button mat-raised-button color="primary" (click)="addStateMachine()">{{ 'stateMachines.add' | translate }}</button>
-  </div>
   <div class="mat-elevation-z8 overflow-hidden">
     <mat-table class="full-width" [dataSource]="stateMachines" matSortActive="createDateTime" matSortDirection="desc" matSort>
       <!-- Name -->
       <ng-container matColumnDef="name">
         <mat-header-cell *matHeaderCellDef>{{ "stateMachines.name" | translate }}</mat-header-cell>
         <mat-cell *matCellDef="let stateMachine">
-          <a href="#" [routerLink]="['/statemachines/' + stateMachine.technicalId]">{{ stateMachine.name }}</a>
+          <a href="#" [routerLink]="['/statemachines/' + stateMachine.technicalId + '/workflow']">{{ stateMachine.name }}</a>
         </mat-cell>
       </ng-container>
       <!-- Description -->
@@ -49,5 +49,4 @@
     </mat-table>
     <mat-paginator [length]="length" [pageSize]="50" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
   </div>
-
 </div>

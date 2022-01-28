@@ -5,7 +5,7 @@ import { ListStateMachinesComponent } from './list/list.component';
 
 const routes: Routes = [
   {
-    path: ':id',
+    path: ':id/:action',
     component: EditStateMachineComponent
   },
   {

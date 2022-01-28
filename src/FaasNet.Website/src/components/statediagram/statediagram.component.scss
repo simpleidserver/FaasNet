@@ -1,16 +1,18 @@
 $border-color: #d6d2d2;
-$gutter-width: 10px;
 $default-color: #ECECFF;
 $red: red;
 $orange: orange;
 
 #container {
   position: relative;
-  height: 100%;
 }
 
-.statediagram, #container {
-  height: 100%;
+.statediagram {
+  position: absolute;
+  top: 110px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
 }
 
 .statediagram .editor {
@@ -18,26 +20,56 @@ $orange: orange;
   background-repeat: repeat;
   background-size: 30px 30px;
   user-select: none;
-}
-
-/* Wrapper & Pane */
-.wrapper {
   display: flex;
+  flex-direction: row;
   flex: auto;
 }
 
-.wrapper > .pane {
-  min-width: 200px;
+/* Toolbox */
+.statediagram .toolbox, .statediagram .states, .statediagram .properties {
+  background-color: white;
+  box-shadow: 1px 1px 3px #8fa4b1;
+  position: absolute;
+}
+
+.statediagram .toolbox {
+  top: 10px;
+  left: 10px;
+  height: 40px;
+  width: 300px;
 }
 
 /* Toolbox */
-.statediagram .toolbox {
-  background-color: white;
-  border-right: 1px solid $border-color;
-  overflow: hidden;
+.toolbox ul {
+  padding: 0;
+  margin: 0;
 }
 
-.statediagram .toolbox .toolbox-item {
+.toolbox ul > li {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.toolbox ul > li > mat-icon {
+  padding: 10px 0px 0px 5px;
+}
+
+.statediagram .toolbox > ul > li.hidden {
+  display: none;
+}
+
+.toolbox, .states {
+  z-index: 2;
+}
+
+/* States */
+.statediagram .states {
+  overflow: hidden;
+  top: 60px;
+  left: 10px;
+}
+
+.statediagram .states .state-item {
   cursor: pointer;
   user-select: none;
   border: 1px solid gray;
@@ -46,50 +78,24 @@ $orange: orange;
   display: flex;
 }
 
-.statediagram .toolbox .toolbox-item .selector {
+.statediagram .states .state-item .selector {
   width: 20px;
 }
 
-.statediagram .toolbox .toolbox-item .content {
+.statediagram .states .state-item .content {
   border-left: 1px solid #d6d2d2;
   padding: 10px 0px 10px 5px;
   flex: auto;
 }
 
-.statediagram .toolbox .toolbox-item .title {
+.statediagram .states .state-item .title {
   font-weight: bold;
 }
 
-.statediagram .toolbox .toolbox-item .description {
+.statediagram .states .state-item .description {
   color: rgb(127, 133, 140);
   font-size: 0.7em;
   font-weight: bold;
-}
-
-/* Toolbar */
-.statediagram .toolbar > ul {
-  margin: 0;
-  padding: 0;
-  border-bottom: 1px solid $border-color;
-}
-
-.statediagram .toolbar > ul > li {
-  display: inline-block;
-  border-right: 1px solid $border-color;
-  padding: 10px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.statediagram .toolbar > ul > li > .picture {
-  width: 24px;
-  height: 24px;
-  vertical-align: middle;
-  display: inline-block;
-}
-
-.statediagram .toolbar > ul > li.hidden {
-  display: none;
 }
 
 .statediagram .toolbar > ul > li > .item, .statediagram .toolbar > ul > li > mat-icon {
@@ -97,30 +103,24 @@ $orange: orange;
 }
 
 /* Properties */
-.statediagram .wrapper .properties {
-  position: relative;
-  flex: auto;
-  width: 200px;
-}
-
-.statediagram .wrapper .properties .container-pane {
-  margin-left: $gutter-width;
-}
-
-.statediagram .wrapper .properties .gutter {
-  width: $gutter-width;
-  height: 100%;
-  border-right: 1px solid $border-color;
-  border-left: 1px solid $border-color;
-  position: absolute;
-  top: 0;
-  left: 0;
-  cursor: col-resize;
+.statediagram .properties {
+  top: 10px;
+  right: 10px;
+  bottom: 10px;
+  width: 500px;
 }
 
 /* Editor */
 .statediagram .editor {
   overflow-x: auto;
+}
+
+.statediagram .editor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
 }
 
 .statediagram .editor.zoom {
@@ -186,6 +186,9 @@ $orange: orange;
   position: absolute;
   right: 0px;
   top: 5px;
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
 }
 
 .statediagram .editor.zoom .state .header > .actions > mat-icon {
@@ -224,7 +227,6 @@ $orange: orange;
   z-index: 10;
 }
 
-
 .statediagram .editor .edgeLabel > .textContainer > .text > span {
   pointer-events: none;
 }
@@ -250,18 +252,6 @@ $orange: orange;
 }
 
 .statediagram .editor .draggableZone {
-  width: 100%;
-  height: 100%;
-}
-
-.secondColumn {
-  flex: 1 1 100%;
-  box-sizing: border-box;
-  max-width: 80%;
-  display: flex;
-  flex-direction: column;
-}
-
-.secondColumn.full {
-  max-width: 100% !important;
+    width: 100%;
+    height: 100%;
 }
