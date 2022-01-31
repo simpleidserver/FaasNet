@@ -1,42 +1,4 @@
 <div class="statediagram">
-  <!--
-  <div class="toolbar">
-    <ul>
-      <li (click)="editFunctions()">
-        <mat-icon>functions</mat-icon>
-        <span class="item">
-          Functions
-        </span>
-      </li>
-      <li (click)="openYaml()">
-        <mat-icon>insert_drive_file</mat-icon>
-        <span class="item">
-          Yaml
-        </span>
-      </li>
-      <li (click)="openJson()">
-        <div class="picture">
-          <img src="/assets/images/json.png" />
-        </div>
-        <span class="item">
-          Json
-        </span>
-      </li>
-      <li (click)="save()" *ngIf="editMode">
-        <mat-icon>save</mat-icon>
-        <span class="item">
-          Save
-        </span>
-      </li>
-      <li (click)="launch()" *ngIf="editMode">
-        <mat-icon>launch</mat-icon>
-        <span class="item">
-          Launch
-        </span>
-      </li>
-    </ul>
-  </div>
-  -->
   <!-- Edition -->
   <div class="toolbox">
     <ul>
@@ -202,7 +164,7 @@
       <div [ngSwitch]="selectedState?.type">
         <switch-state-editor *ngSwitchCase="'switch'" [state]="selectedState" (closed)="closePanel()"></switch-state-editor>
         <inject-state-editor *ngSwitchCase="'inject'" [state]="selectedState" (closed)="closePanel()"></inject-state-editor>
-        <operation-state-editor *ngSwitchCase="'operation'" [state]="selectedState" [panel]="panel" [stateMachine]="stateMachine" (closed)="closePanel()"></operation-state-editor>
+        <operation-state-editor *ngSwitchCase="'operation'" [state]="selectedState" [stateMachine]="stateMachine" (closed)="closePanel()"></operation-state-editor>
       </div>
       <div [ngSwitch]="selectedTransition?.getType()">
         <evtcondition-editor *ngSwitchCase="'event'" [transition]="selectedTransition" (closed)="closePanel()"></evtcondition-editor>
@@ -211,5 +173,4 @@
       </div>
     </div>
   </div>
-  <mat-panel #panel></mat-panel>
 </div>

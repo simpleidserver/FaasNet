@@ -1,2 +1,11 @@
+<div class="breadcrumb">
+  <ul>
+    <li><a [routerLink]="['/statemachines']">{{ "stateMachines.list" | translate }}</a></li>
+    <li class="separator">\</li>
+    <li>{{ stateMachineDef.name }}</li>
+  </ul>
+</div>
 <loader *ngIf="isLoading"></loader>
-<state-diagram [stateMachine]="stateMachineDef" [stateMachineInstance]="stateMachineInstance" [editMode]="false"></state-diagram>
+<div class="view">
+  <state-diagram [stateMachine]="stateMachineDef" [stateMachineInstance]="stateMachineInstance" [editMode]="false"></state-diagram>
+</div>

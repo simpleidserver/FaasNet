@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\app\functions\list\" />
+    <Folder Include="src\components\statediagram\components\functionseditor\" />
     <Folder Include="src\stores\functions\reducers\" />
   </ItemGroup>
   <ItemGroup>

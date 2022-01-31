@@ -1,13 +1,3 @@
-@keyframes changePosition {
-  from {
-    top: 3px;
-  }
-
-  to {
-    top: 29px;
-  }
-}
-
 .loader {
   position: absolute;
   top: 0px;
@@ -34,16 +24,5 @@
 }
 
 .loader > .loaderInner > .pictureContainer > .picture > img {
-  width: 40px;
-  height: 40px;
-}
-
-.loader > .loaderInner > .pictureContainer > .picture > .rect {
-  background: black;
-  width: 7.8px;
-  height: 8px;
-  position: absolute;
-  top: 3px;
-  left: 16px;
-  animation: 1s ease-out 0s infinite running changePosition;
+  width: 80px;
 }

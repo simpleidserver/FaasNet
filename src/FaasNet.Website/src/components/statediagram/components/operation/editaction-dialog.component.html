@@ -1,0 +1,87 @@
+<h1 mat-dialog-title>Add/Edit function</h1>
+<form [formGroup]="addActionFormGroup" class="form" (ngSubmit)="save()">
+  <div mat-dialog-content>
+    <div fxLayout="row">
+      <div fxFlex="50%" class="firstColumn">
+        <!-- Name -->
+        <div class="form-control">
+          <div class="title">Name</div>
+          <p class="description">Action name</p>
+          <input type="text" formControlName="name" class="full-width" />
+          <mat-error *ngIf="addActionFormGroup.get('name')?.errors?.required">
+            {{ 'functions.nameRequired' | translate }}
+          </mat-error>
+        </div>
+        <mat-divider></mat-divider>
+        <!-- Use the results -->
+        <div class="form-control">
+          <div class="title">Use results</div>
+          <p class="description">Use the operation results.</p>
+          <select formControlName="useResults" class="full-width">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+        <mat-divider></mat-divider>
+        <div *ngIf="addActionFormGroup.get('useResults')?.value == 'true'">
+          <!-- Results -->
+          <div class="form-control">
+            <div class="title">Filter data results</div>
+            <p class="description">Workflow expression that filters the actions data result</p>
+            <input (click)="editResults()" formControlName="results" type="text" class="condition full-width" readonly />
+          </div>
+          <mat-divider></mat-divider>
+          <!-- ToStateData -->
+          <div class="form-control">
+            <div class="title">Select state data element</div>
+            <p class="description">Workflow expression that selects a state data element to which the action results should be added/merged into</p>
+            <input (click)="editToStateData()" formControlName="toStateData" type="text" class="condition full-width" readonly />
+          </div>
+          <mat-divider></mat-divider>
+        </div>
+        <!-- Type -->
+        <div class="form-control">
+          <div class="title">Type</div>
+          <p class="description">Select the type of action</p>
+          <select formControlName="type" class="full-width">
+            <option value="1">Function</option>
+          </select>
+        </div>
+        <mat-divider></mat-divider>
+      </div>
+      <div fxFlex="50%" class="secondColumn">
+        <div *ngIf="addActionFormGroup.get('type')?.value == 1" [formGroup]="addFunctionFormGroup">
+          <!-- Reference Name -->
+          <div class="form-control">
+            <div class="title">Reference Name</div>
+            <p class="description">Name of the references function</p>
+            <select formControlName="refName" class="full-width">
+              <option *ngFor="let function of functions" [value]="function.name">{{ function.name + ' (' + function.type + ')'}}</option>
+            </select>
+            <mat-error *ngIf="addFunctionFormGroup.get('refName')?.errors?.required">A function must be selected</mat-error>
+          </div>
+          <div *ngIf="isOpenApiUrl() || isAsyncApiUrl()">
+            <mat-divider></mat-divider>
+            <!-- Queries -->
+            <div class="form-control" *ngIf="isOpenApiUrl()">
+              <div class="title">Queries</div>
+              <p class="description">Arguments (inputs) passed to the query parameters.</p>
+              <ngx-monaco-editor [options]="jsonOptions" formControlName="queries"></ngx-monaco-editor>
+            </div>
+            <mat-divider></mat-divider>
+            <!-- Properties -->
+            <div class="form-control">
+              <div class="title">Body</div>
+              <p class="description">Arguments (inputs) passed into the HTTP BODY.</p>
+              <ngx-monaco-editor [options]="jsonOptions" formControlName="properties"></ngx-monaco-editor>
+            </div>
+            <button mat-raised-button (click)="generateFakeArguments($event)">Generate Fake Arguments</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" [disabled]="isDisabled()">Save</button>
+  </div>
+</form>

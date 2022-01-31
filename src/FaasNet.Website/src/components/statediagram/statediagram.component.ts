@@ -10,6 +10,7 @@ import { SwitchStateMachineState } from '@stores/statemachines/models/statemachi
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { BehaviorSubject } from 'rxjs';
 import { MatPanelComponent } from '../matpanel/matpanel.component';
+import { TokenComponent } from './components/token/token.component';
 
 class DiagramNode {
   constructor(public x: number, public y: number, public level: number, public state: StateMachineState | undefined) {
@@ -191,12 +192,9 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
   @Input() options: DiagramOptions = new DiagramOptions();
   @Input() editMode: boolean = true;
-  @Output() saved: EventEmitter<StateMachineModel> = new EventEmitter<StateMachineModel>();
-  @Output() launched: EventEmitter<StateMachineModel> = new EventEmitter<StateMachineModel>();
   @ViewChild("stateDiagram") stateDiagram: any;
   @ViewChild("gutter") gutter: any;
   @ViewChild("stateDiagramContainer") stateDiagramContainer: any;
-  @ViewChild("panel") panel: MatPanelComponent | null = null;
   @ViewChildren(MatMenuTrigger) contextMenu: QueryList<MatMenuTrigger> | null = null;
   circleStartPosition: { x: number, y: number } = { x: 0, y: 0 };
   circleStartSelected: boolean = false;
@@ -438,15 +436,10 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
   }
 
   displayToken(token: DiagramNodeToken) {
-    // TODO ...
-  }
-
-  save() {
-    this.saved.emit(this._stateMachine);
-  }
-
-  launch() {
-    this.launched.emit(this._stateMachine);
+    this.dialog.open(TokenComponent, {
+      data: token.data,
+      width: '800px'
+    });
   }
 
   setDefaultCondition(edgeLabel: EdgeLabel) {

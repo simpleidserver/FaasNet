@@ -9,8 +9,10 @@ import { EvtConditionComponent } from './components/evtcondition/evtcondition.co
 import { ExpressionEditorComponent } from './components/expressioneditor/expressioneditor.component';
 import { InjectStateEditorComponent } from './components/inject/inject-state-editor.component';
 import { ActionsEditorComponent } from './components/operation/actionseditor.component';
+import { EditActionDialogComponent } from './components/operation/editaction-dialog.component';
 import { OperationStateEditorComponent } from './components/operation/operation-state-editor.component';
 import { SwitchStateEditorComponent } from './components/switch/switch-state-editor.component';
+import { TokenComponent } from './components/token/token.component';
 import { StateDiagramComponent } from './statediagram.component';
 
 @NgModule({
@@ -29,7 +31,9 @@ import { StateDiagramComponent } from './statediagram.component';
     DefaultConditionComponent,
     OperationStateEditorComponent,
     ActionsEditorComponent,
-    MatPanelComponent
+    MatPanelComponent,
+    EditActionDialogComponent,
+    TokenComponent
   ],
   exports: [
     StateDiagramComponent,
@@ -41,7 +45,9 @@ import { StateDiagramComponent } from './statediagram.component';
     DefaultConditionComponent,
     OperationStateEditorComponent,
     ActionsEditorComponent,
-    MatPanelComponent
+    MatPanelComponent,
+    EditActionDialogComponent,
+    TokenComponent
   ]
 })
 

@@ -1,10 +1,19 @@
-ul.navigation {
+::ng-deep {
+  .edit .statediagram {
+    top: 110px !important;
+  }
+}
+
+ul.navigation, ul.stateMachineActions {
   margin: 0;
   padding: 0;
 }
 
-ul.navigation > li {
+ul.navigation > li, ul.stateMachineActions > li {
   display: inline-block;
+}
+
+ul.navigation > li {
   padding: 10px;
   cursor: pointer;
 }
@@ -12,4 +21,8 @@ ul.navigation > li {
 ul.navigation > li.active {
   background-color: #e4e4e4;
   border-radius: 5px;
+}
+
+ul.stateMachineActions > li {
+  margin-right: 5px;
 }

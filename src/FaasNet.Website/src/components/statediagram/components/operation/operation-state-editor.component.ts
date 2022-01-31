@@ -4,6 +4,7 @@ import { OperationStateMachineState } from "@stores/statemachines/models/statema
 import { StateMachineState } from "@stores/statemachines/models/statemachine-state.model";
 import { StateMachineModel } from "@stores/statemachines/models/statemachinemodel.model";
 import { MatPanelComponent } from "../../../matpanel/matpanel.component";
+import { MatPanelService } from "../../../matpanel/matpanelservice";
 import { ActionsEditorComponent, ActionsEditorData } from "./actionseditor.component";
 
 @Component({
@@ -24,7 +25,6 @@ export class OperationStateEditorComponent implements OnDestroy {
   get state(): StateMachineState | null {
     return this._state;
   }
-  @Input() panel: MatPanelComponent | null = null;
   set state(v: StateMachineState | null) {
     this._state = v;
     this._operationState = v as OperationStateMachineState;
@@ -40,6 +40,8 @@ export class OperationStateEditorComponent implements OnDestroy {
     end: new FormControl(),
     actionMode: new FormControl()
   });
+
+  constructor(private matPanelService: MatPanelService) { }
 
   ngOnInit() {
   }
@@ -72,12 +74,15 @@ export class OperationStateEditorComponent implements OnDestroy {
       data.actions = this._operationState.actions;
     }
 
+    this.matPanelService.open(ActionsEditorComponent, data);
+    /*
     const dialogRef = this.panel?.open(ActionsEditorComponent, data);
     dialogRef?.onClosed.subscribe((e) => {
       if (e && this._operationState) {
         this._operationState.actions = e;
       }
     });
+    */
   }
 
   private init() {

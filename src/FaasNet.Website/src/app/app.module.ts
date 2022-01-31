@@ -9,6 +9,8 @@ import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { MatPanelService } from '../components/matpanel/matpanelservice';
+import { MonacoEditorModule } from '../components/monaco-editor/editor.module';
 import { appReducer } from '../stores/appstate';
 import { AsyncApiService } from '../stores/asyncapi/services/asyncapi.service';
 import { FunctionEffects } from '../stores/functions/effects/function.effects';
@@ -34,6 +36,7 @@ export function createTranslateLoader(http: HttpClient) {
   ],
   imports: [
     RouterModule.forRoot(routes),
+    MonacoEditorModule.forRoot(),
     MaterialModule,
     BrowserModule,
     HttpClientModule,
@@ -51,7 +54,7 @@ export function createTranslateLoader(http: HttpClient) {
       maxAge: 10
     })
   ],
-  providers: [FunctionService, StateMachinesService, StateMachineInstancesService, OpenApiService, AsyncApiService],
+  providers: [FunctionService, StateMachinesService, StateMachineInstancesService, OpenApiService, AsyncApiService, MatPanelService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

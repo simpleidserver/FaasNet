@@ -1,11 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { AsyncApiService } from '@stores/asyncapi/services/asyncapi.service';
-import { OpenApiService } from '@stores/openapi/services/openapi.service';
-import { OperationTypes } from '@stores/statemachines/models/operation-types.model';
 import { StateMachineFunction } from '@stores/statemachines/models/statemachine-function.model';
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
+import { EditFunctionDialogComponent } from './editfunction-dialog.component';
 
 export class FunctionsEditorData {
   functions: StateMachineFunction[] = [];
@@ -29,275 +27,43 @@ export class FunctionsEditorComponent {
     this._stateMachineModel = value;
     this.functions.data = value.functions;
   }
+  displayedColumns: string[] = ['actions', 'name', 'type', 'operation' ];
 
-  operations: any[] = [];
-  asyncApiErrorMessage: string | null = null;
-  asyncApiOperations: any[] = [];
-  functionIndex: number = 0;
-  jsonOptions: any = {
-    theme: 'vs',
-    language: 'json',
-    minimap: { enabled: false },
-    overviewRulerBorder: false,
-    overviewRulerLanes: 0,
-    lineNumbers: 'off',
-    lineNumbersMinChars: 0,
-    lineDecorationsWidth: 0,
-    renderLineHighlight: 'none',
-    scrollbar: {
-      horizontal: 'hidden',
-      vertical: 'hidden',
-      alwaysConsumeMouseWheel: false,
-    }
-  };
-  openApiErrorMessage: string | null = null;
-  editFunctionFormGroup: FormGroup = new FormGroup({
-    name: new FormControl('', [Validators.required]),
-    type: new FormControl('', [Validators.required])
-  });
-  edit: boolean = false;
-  editRestFormGroup: FormGroup = new FormGroup({
-    url: new FormControl('', [Validators.required]),
-    isOpenApiUrl: new FormControl(false),
-    operationId: new FormControl('', [Validators.required])
-  });
-  editAsyncApiFormGroup: FormGroup = new FormGroup({
-    url: new FormControl('', [Validators.required]),
-    operationId: new FormControl('', [Validators.required])
-  });
-  editKubernetesFormGroup: FormGroup = new FormGroup({
-    image: new FormControl('', [Validators.required]),
-    version: new FormControl('', [Validators.required]),
-    configuration: new FormControl()
-  });
-  displayedColumns: string[] = ['actions', 'name', 'type' ];
-
-  constructor(private openApiService: OpenApiService, private asyncApiService : AsyncApiService) {
+  constructor(private dialog: MatDialog) {
   }
 
   deleteFunction(i: number) {
     this.functions.data.splice(i, 1);
     this.functions.data = this.functions.data;
-    this.editFunctionFormGroup.reset();
-    this.editKubernetesFormGroup.reset();
-    this.edit = false;
   }
 
   addFunction() {
-    if (this.isDisabled()) {
-      return;
-    }
+    const dialogRef = this.dialog.open(EditFunctionDialogComponent, {
+      data: null,
+      width: '800px'
+    });
+    dialogRef.afterClosed().subscribe((d) => {
+      if (!d) {
+        return;
+      }
 
-    var record = new StateMachineFunction();
-    if (this.edit) {
-      record = this.functions.data[this.functionIndex];
-    }
-
-    record.name = this.editFunctionFormGroup.get('name')?.value;
-    let type = this.editFunctionFormGroup.get('type')?.value;
-    switch (type) {
-      case 'kubernetes':
-        type = OperationTypes.Custom;
-        record.metadata = {
-          version: this.editKubernetesFormGroup.get('version')?.value,
-          image: this.editKubernetesFormGroup.get('image')?.value
-        };
-        var configuration = this.editKubernetesFormGroup.get('configuration')?.value;
-        if (configuration) {
-          try {
-            var o = JSON.parse(configuration);
-            record.metadata['configuration'] = o;
-          } catch { }
-        }
-        break;
-      case OperationTypes.Rest:
-        var url = this.editRestFormGroup.get('url')?.value;
-        const isOpenApiUrl = this.editRestFormGroup.get('isOpenApiUrl')?.value;
-        if (isOpenApiUrl) {
-          url = url + '#' + this.editRestFormGroup.get('operationId')?.value;
-        }
-
-        record.operation = url;
-        break;
-      case OperationTypes.AsyncApi:
-        var url = this.editAsyncApiFormGroup.get('url')?.value;
-        url = url + '#' + this.editAsyncApiFormGroup.get('operationId')?.value;
-        record.operation = url;
-        break;
-    }
-
-    record.type = type;
-    if (!this.edit) {
-      this.functions.data.push(record);
-    }
-
-    this.functions.data = this.functions.data;
-    this.editFunctionFormGroup.reset();
-    this.editKubernetesFormGroup.reset();
-    this.editRestFormGroup.reset();
-    this.edit = false;
+      this.functions.data.push(d);
+      this.functions.data = this.functions.data;
+    });
   }
 
   editFunction(fn: StateMachineFunction, index: number) {
-    this.editFunctionFormGroup.reset();
-    this.editKubernetesFormGroup.reset();
-    this.editRestFormGroup.reset();
-    this.functionIndex = index;
-    this.edit = true;
-    this.editFunctionFormGroup.get('name')?.setValue(fn.name);
-    this.editFunctionFormGroup.get('type')?.setValue(fn.type);
-    if (fn.metadata) {
-      if (fn.metadata.version && fn.metadata.image) {
-        this.editFunctionFormGroup.get('type')?.setValue('kubernetes');
-        this.editKubernetesFormGroup.get('version')?.setValue(fn.metadata.version);
-        this.editKubernetesFormGroup.get('image')?.setValue(fn.metadata.image);
-        if (fn.metadata.configuration) {
-          this.editKubernetesFormGroup.get('configuration')?.setValue(JSON.stringify(fn.metadata.configuration));
-        }
-      }
-    }
-
-    if (fn.type === OperationTypes.Rest) {
-      const splittedOperation = fn.operation?.split('#');
-      let isOpenApiUrl = false;
-      let url = fn.operation;
-      if (splittedOperation?.length === 2) {
-        url = splittedOperation[0];
-        isOpenApiUrl = true;
-        const operationId = splittedOperation[1];
-        this.editRestFormGroup.get('operationId')?.setValue(operationId);
-      }
-
-      this.editRestFormGroup.get('url')?.setValue(url);
-      this.editRestFormGroup.get('isOpenApiUrl')?.setValue(isOpenApiUrl);
-      if (isOpenApiUrl) {
-        this.refreshOpenApiOperations();
-      }
-    }
-
-    if (fn.type === OperationTypes.AsyncApi) {
-      const splittedOperation = fn.operation?.split('#');
-      if (splittedOperation) {
-        const url = splittedOperation[0];
-        const operationId = splittedOperation[1];
-        this.editAsyncApiFormGroup.get('operationId')?.setValue(operationId);
-        this.editAsyncApiFormGroup.get('url')?.setValue(url);
-        this.refreshAsyncApiOperations();
-      }
-    }
-  }
-
-  isSelected(i: number) {
-    if (!this.edit) {
-      return false;
-    }
-
-    return this.functionIndex == i;
-  }
-
-  getOperationTranslationKey() {
-    let type = this.editFunctionFormGroup.get('type')?.value;
-    switch (type) {
-      case 'rest':
-        return 'API url or OPENAPI url';
-    }
-
-    return '';
-  }
-
-  isDisabled() {
-    if (!this.editFunctionFormGroup.valid) {
-      return true;
-    }
-
-    let type = this.editFunctionFormGroup.get('type')?.value;
-    if (type == 'kubernetes') {
-      return !this.editKubernetesFormGroup.valid;
-    }
-
-    const isOpenApiUrl = this.editRestFormGroup.get('isOpenApiUrl')?.value;
-    if (type === OperationTypes.Rest && isOpenApiUrl) {
-      return !this.editRestFormGroup.valid;
-    }
-
-    if (type === OperationTypes.Rest && !isOpenApiUrl) {
-      return this.editRestFormGroup.get('url')?.errors?.required;
-    }
-
-    if (type === OperationTypes.AsyncApi && !this.editAsyncApiFormGroup.valid) {
-      return true;
-    }
-
-    return false;
-  }
-
-  extract(evt: any) {
-    evt.preventDefault();
-    this.editRestFormGroup.get('operationId')?.setValue('');
-    this.refreshOpenApiOperations();
-  }
-
-  extractAsyncApi(evt: any) {
-    evt.preventDefault();
-    this.editAsyncApiFormGroup.get('operationId')?.setValue('');
-    this.refreshAsyncApiOperations();
-  }
-
-  save() {
-    // this.onClosed.emit(this.functions.data);
-  }
-
-  displaySelectedOperation() {
-    const operationId = this.editRestFormGroup.get('operationId')?.value;
-    const filtered = this.asyncApiOperations.filter((o) => o.operationId == operationId);
-    if (filtered.length !== 1) {
-      return "";
-    }
-
-    return "Summary: " + filtered[0].summary;
-  }
-
-  displaySelectedAsyncOperation() {
-    const operationId = this.editAsyncApiFormGroup.get('operationId')?.value;
-    const filtered = this.asyncApiOperations.filter((o) => o.operationId == operationId);
-    if (filtered.length !== 1) {
-      return "";
-    }
-
-    return "Summary: " + filtered[0].summary;
-  }
-
-  private refreshOpenApiOperations() {
-    const url = this.editRestFormGroup.get('url')?.value;
-    this.operations = [{ 'operationId' : 'Loading...' }]
-    this.openApiService.getOperations(url).subscribe((e) => {
-      this.openApiErrorMessage = null;
-      this.operations = e;
-      this.editRestFormGroup.get('operationId')?.setValue(e[0].operationId);
-    }, (e) => {
-      this.operations = [];
-      if (e.error && e.error.Message) {
-        this.openApiErrorMessage = e.error.Message;
-      } else {
-        this.openApiErrorMessage = "An error occured while trying to get the operations from the OPENAPI URL";
-      }
+    const dialogRef = this.dialog.open(EditFunctionDialogComponent, {
+      data: fn,
+      width: '800px'
     });
-  }
-
-  private refreshAsyncApiOperations() {
-    const url = this.editAsyncApiFormGroup.get('url')?.value;
-    this.asyncApiOperations = [{ 'operationId': 'Loading...' }];
-    this.asyncApiService.getOperations(url).subscribe((e) => {
-      this.asyncApiErrorMessage = null;
-      this.asyncApiOperations = e;
-      this.editAsyncApiFormGroup.get('operationId')?.setValue(e[0].operationId);
-    }, (e) => {
-      if (e.error && e.error.Message) {
-        this.asyncApiErrorMessage = e.error.Message;
-      } else {
-        this.asyncApiErrorMessage = "An error occured while trying to get the operations from the ASYNCAPI URL";
+    dialogRef.afterClosed().subscribe((d) => {
+      if (!d) {
+        return;
       }
+
+      this.functions.data.splice(index, 1);
+      this.functions.data = this.functions.data;
     });
-    
   }
 }

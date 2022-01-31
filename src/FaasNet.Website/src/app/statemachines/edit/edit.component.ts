@@ -8,7 +8,7 @@ import * as fromReducers from '@stores/appstate';
 import { startGetJson, startLaunch, startUpdate } from '@stores/statemachines/actions/statemachines.actions';
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { filter } from 'rxjs/operators';
-import { LaunchStateMachineComponent } from '../launch/launch-statemachine.component';
+import { LaunchStateMachineComponent } from './launch/launch-statemachine.component';
 
 @Component({
   selector: 'edit-state-machine',
@@ -45,11 +45,12 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
       filter((action: any) => action.type === '[StateMachines] COMPLETE_UPDATE_STATE_MACHINE'))
       .subscribe((evt : any) => {
         this.isLoading = false;
-        this.router.navigate(['/statemachines/' + evt.id]);
+        this.router.navigate(['/statemachines/' + evt.id + '/' + this.action]);
         self.id = evt.id;
         self.snackBar.open(this.translateService.instant('stateMachines.messages.stateMachineUpdated'), this.translateService.instant('undo'), {
           duration: 2000
         });
+        self.init();
       });
     self.actions$.pipe(
       filter((action: any) => action.type === '[StateMachines] ERROR_UPDATE_STATE_MACHINE'))
@@ -97,13 +98,13 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSave(stateMachineModel: StateMachineModel) {
+  update() {
     this.isLoading = true;
-    const command = startUpdate({ id : this.id, stateMachine: stateMachineModel.getJson() });
+    const command = startUpdate({ id : this.id, stateMachine: this.stateMachineDef.getJson() });
     this.store.dispatch(command);
   }
 
-  onLaunch() {
+  launch() {
     const dialogRef = this.dialog.open(LaunchStateMachineComponent, {
       width: '800px',
       data: {
