@@ -457,13 +457,15 @@ namespace FaasNet.Runtime.Tests
             var connection = new Mock<IConnection>();
             var model = new Mock<IModel>();
             connectionFactory.Setup(c => c.CreateConnection()).Returns(connection.Object);
+            var basicProperties = new Mock<IBasicProperties>();
+            model.Setup(c => c.CreateBasicProperties()).Returns(basicProperties.Object);
             connection.Setup(c => c.CreateModel()).Returns(model.Object);
             runtimeJob.AmpqChannelClientFactory.Setup(v => v.Build(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
                 .Returns(connectionFactory.Object);
             runtimeJob.AmpqChannelClientFactory.SetupGet(s => s.SecurityType).Returns(AmqpChannelUserPasswordClientFactory.SECURITY_TYPE);
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{ }", new Dictionary<string, string> { { "userName", "guest" }, { "password", "guest" } });
             Assert.Equal(WorkflowInstanceStatus.TERMINATE, instance.Status);
-            model.Verify(m => m.BasicPublish("testExchange", "r1", false, null, It.IsAny<ReadOnlyMemory<byte>>()));
+            model.Verify(m => m.BasicPublish("testExchange", "r1", false, It.IsAny<IBasicProperties>(), It.IsAny<ReadOnlyMemory<byte>>()));
         }
 
         #endregion
