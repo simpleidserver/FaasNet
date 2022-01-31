@@ -159,7 +159,7 @@
     </svg>
   </div>
   <!-- Properties -->
-  <div class="properties pane" *ngIf="selectedState">
+  <div class="properties pane" *ngIf="selectedState || selectedTransition">
     <div class="container-pane">
       <div [ngSwitch]="selectedState?.type">
         <switch-state-editor *ngSwitchCase="'switch'" [state]="selectedState" (closed)="closePanel()"></switch-state-editor>

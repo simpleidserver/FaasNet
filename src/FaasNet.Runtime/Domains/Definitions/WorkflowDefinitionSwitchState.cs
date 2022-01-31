@@ -21,6 +21,12 @@ namespace FaasNet.Runtime.Domains.Definitions
         [JsonIgnore]
         [YamlIgnore]
         public virtual ICollection<BaseEventCondition> Conditions { get; set; }
+        /// <summary>
+        /// Default transition of the workflow if there is no matching data conditions or event timeout is reached. 
+        /// </summary>
+        [JsonIgnore]
+        [YamlIgnore]
+        public string DefaultConditionStr { get; set; }
         public ICollection<WorkflowDefinitionSwitchDataCondition> DataConditions
         {
             get
@@ -55,6 +61,24 @@ namespace FaasNet.Runtime.Domains.Definitions
                 }
             }
         }
+        public WorkflowDefinitionDefaultCondition DefaultCondition
+        {
+            get
+            {
+                return string.IsNullOrWhiteSpace(DefaultConditionStr) ? null : new WorkflowDefinitionDefaultCondition
+                {
+                    Transition = DefaultConditionStr
+                };
+            }
+            set
+            {
+                if (value != null)
+                {
+                    DefaultConditionStr = value.Transition;
+                }
+            }
+        }
+
 
         public static WorkflowDefinitionSwitchState Create()
         {

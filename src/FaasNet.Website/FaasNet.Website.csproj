@@ -19,9 +19,11 @@
     <None Remove="src\app\functions\function-rendering\function-rendering.component.ts" />
     <None Remove="src\app\shared\material.module.ts" />
     <None Remove="src\app\shared\shared.module.ts" />
+    <None Remove="src\app\statemachines\edit\functionseditor\editfunction-dialog.component.ts" />
     <None Remove="src\components\loader\loader.component.ts" />
     <None Remove="src\components\matpanel\matpanel.component.ts" />
     <None Remove="src\components\matpanel\matpanelcontent.ts" />
+    <None Remove="src\components\matpanel\matpanelservice.ts" />
     <None Remove="src\components\monaco-editor\base-editor.ts" />
     <None Remove="src\components\monaco-editor\config.ts" />
     <None Remove="src\components\monaco-editor\editor.module.ts" />
@@ -32,6 +34,7 @@
     <None Remove="src\components\statediagram\components\defaultcondition\defaultcondition.component.ts" />
     <None Remove="src\components\statediagram\components\evtcondition\evtcondition.component.ts" />
     <None Remove="src\components\statediagram\components\inject\inject-state-editor.component.ts" />
+    <None Remove="src\components\statediagram\components\operation\editaction-dialog.component.ts" />
     <None Remove="src\components\statediagram\components\operation\operation-state-editor.component.ts" />
     <None Remove="src\components\statediagram\components\switch\switch-state-editor.component.ts" />
     <None Remove="src\components\statediagram\statediagram.module.ts" />
@@ -48,16 +51,20 @@
     <None Remove="src\stores\statemachines\models\statemachinemodel.model.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="src\app\statemachines\edit\functionseditor\editfunction-dialog.component.ts" />
     <TypeScriptCompile Include="src\components\matpanel\matpanel.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="src\components\matpanel\matpanelcontent.ts" />
+    <TypeScriptCompile Include="src\components\matpanel\matpanelservice.ts" />
+    <TypeScriptCompile Include="src\components\statediagram\components\operation\editaction-dialog.component.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\stores\statemachines\models\operation-types.model.ts" />
     <TypeScriptCompile Include="src\stores\statemachines\models\statemachine-function.model.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\app\functions\list\" />
-    <Folder Include="src\components\statediagram\components\functionseditor\" />
     <Folder Include="src\stores\functions\reducers\" />
   </ItemGroup>
   <ItemGroup>

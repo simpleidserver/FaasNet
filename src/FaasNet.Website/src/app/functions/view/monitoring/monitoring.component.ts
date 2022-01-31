@@ -12,7 +12,8 @@ import { Label } from 'ng2-charts';
 
 @Component({
   selector: 'monitoring-function',
-  templateUrl: './monitoring.component.html'
+  templateUrl: './monitoring.component.html',
+  styleUrls: ['./monitoring.component.scss']
 })
 export class MonitoringFunctionComponent implements OnInit, OnDestroy {
   threadValues: ChartDataSets[] = [];

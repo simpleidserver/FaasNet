@@ -154,7 +154,7 @@ export class StateMachineModel {
               });
             }
             if (s["defaultCondition"]) {
-              return switchResult.defaultCondition = EmptyTransition.build(s["defaultCondition"]);
+              switchResult.defaultCondition = EmptyTransition.build(s["defaultCondition"]);
             }
 
             return switchResult;

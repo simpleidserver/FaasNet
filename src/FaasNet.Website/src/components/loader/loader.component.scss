@@ -1,10 +1,11 @@
 .loader {
-  position: absolute;
+  position: fixed;
   top: 0px;
   left: 0px;
   right: 0px;
   bottom: 0px;
   background-color: #f5f5f587;
+  z-index: 5;
 }
 
 .loader > .loaderInner {

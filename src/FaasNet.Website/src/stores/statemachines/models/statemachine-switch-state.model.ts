@@ -1,4 +1,3 @@
-import { transition } from "@angular/animations";
 import { BehaviorSubject } from "rxjs";
 import { BaseTransition, EmptyTransition, StateMachineState } from "./statemachine-state.model";
 
@@ -24,7 +23,7 @@ export class EventCondition extends BaseTransition {
   }
 
   public override getLabel(): BehaviorSubject<string> | undefined {
-    return this.label;
+    return new BehaviorSubject("event");
   }
 
   public getJson(): any {
@@ -216,9 +215,14 @@ export class SwitchStateMachineState extends StateMachineState {
       end: this.end,
       dataConditions: this.dataConditions.map((d: DataCondition) => {
         return d.getJson()
-      }),
-      defaultCondition: this.defaultCondition?.transition
+      })
     };
+
+    if (this.defaultCondition && this.defaultCondition.transition) {
+      result.defaultCondition = {
+        transition: this.defaultCondition.transition
+      };
+    }
 
     if (this.stateDataFilter) {
       result.stateDataFilter = this.stateDataFilter.getJson();

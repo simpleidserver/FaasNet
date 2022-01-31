@@ -10,6 +10,10 @@ body, h1 {
   margin: 0;
 }
 
+a.is-active {
+  background-color: #eaeaea;
+}
+
 /* Common */
 .container {
   padding: 10px 10px 0px 10px;

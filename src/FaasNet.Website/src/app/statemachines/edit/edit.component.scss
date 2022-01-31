@@ -9,6 +9,10 @@ ul.navigation, ul.stateMachineActions {
   padding: 0;
 }
 
+ul.navigation a:visited, ul.navigation a {
+  color: black;
+}
+
 ul.navigation > li, ul.stateMachineActions > li {
   display: inline-block;
 }

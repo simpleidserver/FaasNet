@@ -2,37 +2,40 @@
 <form [formGroup]="addFunctionFormGroup" (ngSubmit)="save()">
   <div mat-dialog-content>
     <!-- Name -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>{{ 'functions.name' | translate }}</mat-label>
-      <input matInput formControlName="name" />
+    <div class="form-control">
+      <div class="title">{{ 'functions.name' | translate }}</div>
+      <input type="text" formControlName="name" class="full-width" />
       <mat-error *ngIf="addFunctionFormGroup.get('name')?.hasError('required')">
         {{ 'functions.nameRequired' | translate }}
       </mat-error>
-    </mat-form-field>
+    </div>
+    <mat-divider></mat-divider>
     <!-- Description -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>{{ 'functions.description' | translate }}</mat-label>
-      <textarea formControlName="description" matInput></textarea>
-    </mat-form-field>
+    <div class="form-control">
+      <div class="title">{{ 'functions.description' | translate }}</div>
+      <textarea formControlName="description" class="full-width"></textarea>
+    </div>
+    <mat-divider></mat-divider>
     <!-- Image -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>{{ 'functions.image' | translate }}</mat-label>
-      <input matInput formControlName="image" />
+    <div class="form-control">
+      <div class="title">{{ 'functions.image' | translate }}</div>
+      <input type="text" class="full-width" formControlName="image" />
       <mat-error *ngIf="addFunctionFormGroup.get('image')?.hasError('required')">
         {{ 'functions.imageRequired' | translate }}
       </mat-error>
-    </mat-form-field>
+    </div>
+    <mat-divider></mat-divider>
     <!-- Version -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>{{ 'functions.version' | translate }}</mat-label>
-      <input matInput formControlName="version" />
+    <div class="form-control">
+      <div class="title">{{ 'functions.version' | translate }}</div>
+      <input type="text" class="full-width" formControlName="version" />
       <mat-error *ngIf="addFunctionFormGroup.get('version')?.hasError('required')">
         {{ 'functions.versionRequired' | translate }}
       </mat-error>
-    </mat-form-field>
+    </div>
   </div>
   <div mat-dialog-actions>
-    <button mat-button color="primary">{{ 'shared.create' | translate }}</button>
-    <button mat-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
+    <button mat-raised-button color="primary" [disabled]="!addFunctionFormGroup.valid">{{ 'shared.create' | translate }}</button>
+    <button mat-stroked-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
   </div>
 </form>

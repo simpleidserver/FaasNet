@@ -1,22 +1,22 @@
 <div fxLayout="row wrap" fxLayoutGap="1%" class="mt-10">
   <!-- Form -->
   <mat-card fxFlex="100%" class="mb-10">
-    <form [formGroup]="updateMonitoringStatusFormGroup">
-      <mat-form-field appearance="outline" class="mr-10">
-        <mat-label>{{ "functions.startDate" | translate }}</mat-label>
-        <mat-select formControlName="range">
-          <mat-option value="5">{{ "functions.startDateTypes.5Minutes" | translate }}</mat-option>
-          <mat-option value="15">{{ "functions.startDateTypes.15Minutes" | translate }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>{{ "functions.duration" | translate }}</mat-label>
-        <mat-select formControlName="duration">
-          <mat-option value="1">{{ "functions.durationTypes.1Minute" | translate }}</mat-option>
-          <mat-option value="5">{{ "functions.durationTypes.5Minutes" | translate }}</mat-option>
-          <mat-option value="15">{{ "functions.durationTypes.15Minutes" | translate }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+    <form [formGroup]="updateMonitoringStatusFormGroup" class="form-periods">
+      <div class="form-control">
+        <div class="title">{{ 'functions.startDate' | translate }}</div>
+        <select formControlName="range">
+          <option value="5">{{ "functions.startDateTypes.5Minutes" | translate }}</option>
+          <option value="15">{{ "functions.startDateTypes.15Minutes" | translate }}</option>
+        </select>
+      </div>
+      <div class="form-control">
+        <div class="title">{{ 'functions.duration' | translate }}</div>
+        <select formControlName="duration">
+          <option value="1">{{ "functions.durationTypes.1Minute" | translate }}</option>
+          <option value="5">{{ "functions.durationTypes.5Minutes" | translate }}</option>
+          <option value="15">{{ "functions.durationTypes.15Minutes" | translate }}</option>
+        </select>
+      </div>
     </form>
   </mat-card>
   <!-- Display number of HTTP requests -->

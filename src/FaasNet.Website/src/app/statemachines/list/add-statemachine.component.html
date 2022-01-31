@@ -2,24 +2,25 @@
 <form [formGroup]="addStateMachineFormGroup" (ngSubmit)="save()">
   <div mat-dialog-content>
     <!-- Name -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>{{ 'stateMachines.name' | translate }}</mat-label>
-      <input matInput formControlName="name" />
+    <div class="form-control">
+      <div class="title">{{ 'stateMachines.name' | translate }}</div>
+      <input formControlName="name" class="full-width" />
       <mat-error *ngIf="addStateMachineFormGroup.get('name')?.hasError('required')">
         {{ 'stateMachines.validations.nameRequired' | translate }}
       </mat-error>
-    </mat-form-field>
+    </div>
+    <mat-divider></mat-divider>
     <!-- Description -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>{{ 'stateMachines.description' | translate }}</mat-label>
-      <textarea matInput formControlName="description"></textarea>
+    <div class="form-control">
+      <div class="title">{{ 'stateMachines.description' | translate }}</div>
+      <textarea formControlName="description" class="full-width"></textarea>
       <mat-error *ngIf="addStateMachineFormGroup.get('description')?.hasError('required')">
         {{ 'stateMachines.validations.descriptionRequired' | translate }}
       </mat-error>
-    </mat-form-field>
+    </div>
   </div>
   <div mat-dialog-actions>
-    <button mat-button color="primary">{{ 'shared.create' | translate }}</button>
-    <button mat-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
+    <button mat-raised-button color="primary" [disabled]="!this.addStateMachineFormGroup.valid">{{ 'shared.create' | translate }}</button>
+    <button mat-stroked-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
   </div>
 </form>

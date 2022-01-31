@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { StateMachineInstanceDetails } from '@stores/statemachineinstances/models/statemachineinstance-details.model';
@@ -9,7 +9,6 @@ import { BaseTransition, EmptyTransition, StateMachineState } from '@stores/stat
 import { SwitchStateMachineState } from '@stores/statemachines/models/statemachine-switch-state.model';
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { BehaviorSubject } from 'rxjs';
-import { MatPanelComponent } from '../matpanel/matpanel.component';
 import { TokenComponent } from './components/token/token.component';
 
 class DiagramNode {

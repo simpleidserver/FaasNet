@@ -49,6 +49,10 @@ export class OperationStateMachineState extends FlowableStateMachineState {
       end: this.end,
       actions: this.actions.map((a) => a.getJSON())
     };
+    if (this.transition) {
+      result.transition = this.transition;
+    }
+
     return result;
   }
 }

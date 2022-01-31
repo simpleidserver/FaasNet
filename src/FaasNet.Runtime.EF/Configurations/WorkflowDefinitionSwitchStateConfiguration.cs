@@ -11,6 +11,7 @@ namespace FaasNet.Runtime.EF.Configurations
             builder.HasMany(_ => _.Conditions).WithOne().OnDelete(DeleteBehavior.Cascade);
             builder.Ignore(_ => _.DataConditions);
             builder.Ignore(_ => _.EventConditions);
+            builder.Ignore(_ => _.DefaultCondition);
         }
     }
 }
