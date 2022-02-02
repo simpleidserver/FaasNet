@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29503.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01. Core Layer", "01. Core Layer", "{6E495E0A-0DC8-4E42-8C58-3C48506D3D24}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventMesh.Runtime", "src\EventMesh.Runtime\EventMesh.Runtime.csproj", "{D2CC2EC6-5499-4D4E-88DC-ECFCCBEC0278}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03. Testing Layer", "03. Testing Layer", "{2A14F697-FFC8-402F-82B4-8128FE897DC9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventMesh.Runtime.Tests", "tests\EventMesh.Runtime.Tests\EventMesh.Runtime.Tests.csproj", "{BC28994B-7B8A-4C6B-99E5-9167130ADC04}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D2CC2EC6-5499-4D4E-88DC-ECFCCBEC0278}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2CC2EC6-5499-4D4E-88DC-ECFCCBEC0278}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2CC2EC6-5499-4D4E-88DC-ECFCCBEC0278}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2CC2EC6-5499-4D4E-88DC-ECFCCBEC0278}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC28994B-7B8A-4C6B-99E5-9167130ADC04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC28994B-7B8A-4C6B-99E5-9167130ADC04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC28994B-7B8A-4C6B-99E5-9167130ADC04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC28994B-7B8A-4C6B-99E5-9167130ADC04}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D2CC2EC6-5499-4D4E-88DC-ECFCCBEC0278} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
+		{BC28994B-7B8A-4C6B-99E5-9167130ADC04} = {2A14F697-FFC8-402F-82B4-8128FE897DC9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B9BD3B8C-B2C9-468F-BF54-66BFE9B565EC}
+	EndGlobalSection
+EndGlobal
