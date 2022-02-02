@@ -94,7 +94,7 @@ namespace EventMesh.Runtime
             }
 
             var messageHandler = _messageHandlers.First(m => m.Command == package.Header.Command);
-            var result = await messageHandler.Run(package, _cancellationToken);
+            var result = await messageHandler.Run(package, receiveResult.RemoteEndPoint, _cancellationToken);
             var writeCtx = new EventMeshWriterBufferContext();
             result.Serialize(writeCtx);
             var resultPayload = writeCtx.Buffer.ToArray();

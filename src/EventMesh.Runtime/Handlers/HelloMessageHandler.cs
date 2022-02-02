@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace EventMesh.Runtime.Handlers
 {
-    public class HeartbeatMessageHandler : IMessageHandler
+    public class HelloMessageHandler : IMessageHandler
     {
         public EventMeshCommands Command => EventMeshCommands.HEARTBEAT_REQUEST;
 
         public Task<EventMeshPackage> Run(EventMeshPackage package, IPEndPoint sender, CancellationToken cancellationToken)
         {
-            return Task.FromResult(EventMeshMessageResponseBuilder.HeartBeat(package.Header.Seq));
+            throw new System.NotImplementedException();
         }
     }
 }

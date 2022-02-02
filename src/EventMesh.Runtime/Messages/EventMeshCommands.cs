@@ -12,6 +12,23 @@ namespace EventMesh.Runtime.Messages
         /// Server reply heartbeat response to client.
         /// </summary>
         public static EventMeshCommands HEARTBEAT_RESPONSE = new EventMeshCommands(1);
+        /// <summary>
+        /// Client send connect request to server.
+        /// </summary>
+        public static EventMeshCommands HELLO_REQUEST = new EventMeshCommands(2);
+        /// <summary>
+        /// Server reply connect response to client.
+        /// </summary>
+        public static EventMeshCommands HELLO_RESPONSE = new EventMeshCommands(3);
+
+        /// <summary>
+        /// Client send subscribe request to server.
+        /// </summary>
+        public static EventMeshCommands SUBSCRIBE_REQUEST = new EventMeshCommands(8);
+        /// <summary>
+        /// Server reply subscribe response to client.
+        /// </summary>
+        public static EventMeshCommands SUBSCRIBE_RESPONSE = new EventMeshCommands(9);
 
         private EventMeshCommands(int code)
         {
