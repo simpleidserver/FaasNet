@@ -4,7 +4,6 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EventMesh.Runtime.RabbitMQ\EventMesh.Runtime.RabbitMQ.csproj" />
-    <ProjectReference Include="..\EventMesh.Runtime\EventMesh.Runtime.csproj" />
+    <ProjectReference Include="..\EventMesh.Runtime.MQTT\EventMesh.Runtime.MQTT.csproj" />
   </ItemGroup>
 </Project>

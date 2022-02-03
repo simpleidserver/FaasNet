@@ -7,11 +7,11 @@ namespace EventMesh.Runtime.Handlers
 {
     public class HeartbeatMessageHandler : IMessageHandler
     {
-        public EventMeshCommands Command => EventMeshCommands.HEARTBEAT_REQUEST;
+        public Commands Command => Commands.HEARTBEAT_REQUEST;
 
-        public Task<EventMeshPackage> Run(EventMeshPackage package, IPEndPoint sender, CancellationToken cancellationToken)
+        public Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
-            return Task.FromResult(EventMeshMessageResponseBuilder.HeartBeat(package.Header.Seq));
+            return Task.FromResult(PackageResponseBuilder.HeartBeat(package.Header.Seq));
         }
     }
 }

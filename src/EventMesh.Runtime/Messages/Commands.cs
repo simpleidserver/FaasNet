@@ -2,47 +2,46 @@
 
 namespace EventMesh.Runtime.Messages
 {
-    public class EventMeshCommands : IEquatable<EventMeshCommands>
+    public class Commands : IEquatable<Commands>
     {
         /// <summary>
         /// Client send heartbeat request to server.
         /// </summary>
-        public static EventMeshCommands HEARTBEAT_REQUEST = new EventMeshCommands(0);
+        public static Commands HEARTBEAT_REQUEST = new Commands(0);
         /// <summary>
         /// Server reply heartbeat response to client.
         /// </summary>
-        public static EventMeshCommands HEARTBEAT_RESPONSE = new EventMeshCommands(1);
+        public static Commands HEARTBEAT_RESPONSE = new Commands(1);
         /// <summary>
         /// Client send connect request to server.
         /// </summary>
-        public static EventMeshCommands HELLO_REQUEST = new EventMeshCommands(2);
+        public static Commands HELLO_REQUEST = new Commands(2);
         /// <summary>
         /// Server reply connect response to client.
         /// </summary>
-        public static EventMeshCommands HELLO_RESPONSE = new EventMeshCommands(3);
-
+        public static Commands HELLO_RESPONSE = new Commands(3);
         /// <summary>
         /// Client send subscribe request to server.
         /// </summary>
-        public static EventMeshCommands SUBSCRIBE_REQUEST = new EventMeshCommands(8);
+        public static Commands SUBSCRIBE_REQUEST = new Commands(8);
         /// <summary>
         /// Server reply subscribe response to client.
         /// </summary>
-        public static EventMeshCommands SUBSCRIBE_RESPONSE = new EventMeshCommands(9);
+        public static Commands SUBSCRIBE_RESPONSE = new Commands(9);
 
-        private EventMeshCommands(int code)
+        private Commands(int code)
         {
             Code = code;
         }
 
         public int Code { get; private set; }
 
-        public void Serialize(EventMeshWriterBufferContext context)
+        public void Serialize(WriteBufferContext context)
         {
             context.WriteInteger(Code);
         }
 
-        public static bool operator ==(EventMeshCommands a, EventMeshCommands b)
+        public static bool operator ==(Commands a, Commands b)
         {
             if ((object)a == null || (object)b == null)
             {
@@ -52,7 +51,7 @@ namespace EventMesh.Runtime.Messages
             return a.Equals(b);
         }
 
-        public static bool operator !=(EventMeshCommands a, EventMeshCommands b)
+        public static bool operator !=(Commands a, Commands b)
         {
             if (a == null || b == null)
             {
@@ -62,12 +61,12 @@ namespace EventMesh.Runtime.Messages
             return !a.Equals(b);
         }
 
-        public static EventMeshCommands Deserialize(EventMeshReaderBufferContext context)
+        public static Commands Deserialize(ReadBufferContext context)
         {
-            return new EventMeshCommands(context.NextInt());
+            return new Commands(context.NextInt());
         }
 
-        public bool Equals(EventMeshCommands other)
+        public bool Equals(Commands other)
         {
             if (other == null)
             {
@@ -84,7 +83,7 @@ namespace EventMesh.Runtime.Messages
                 return false;
             }
 
-            var other = obj as EventMeshCommands;
+            var other = obj as Commands;
             return Equals(other);
         }
 

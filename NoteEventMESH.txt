@@ -1,0 +1,14 @@
+NOTE
+Implémenter l'interface Consumer
+
+On peut souscrire à un topic
+Quand un message arrive dans le topic alors la méthode EventListener.consume(message, consumeContext) est call.
+Quand le mode est "Broadcast" et plusieurs sessions sont actives alors il faut broadcast le message partout.
+Pour chaque session active :
+=> 
+Quand one session se trouve dans le "broadcast" a
+
+Les différents paramètres:
+SYNC_TOPIC
+CLUSTERING
+SYNC

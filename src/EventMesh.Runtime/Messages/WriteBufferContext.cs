@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EventMesh.Runtime.Messages
 {
-    public class EventMeshWriterBufferContext
+    public class WriteBufferContext
     {
         public List<byte> Buffer { get; } = new List<byte>();
 

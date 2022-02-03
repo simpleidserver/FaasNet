@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace EventMesh.Runtime.Messages
 {
-    public class EventMeshReaderBufferContext
+    public class ReadBufferContext
     {
-        public EventMeshReaderBufferContext(byte[] buffer)
+        public ReadBufferContext(byte[] buffer)
         {
             Buffer = new Queue<byte>(buffer);
             CurrentOffset = 0;

@@ -1,4 +1,7 @@
-﻿using EventMesh.Runtime.Messages;
+﻿using EventMesh.Runtime.Exceptions;
+using EventMesh.Runtime.Messages;
+using EventMesh.Runtime.Stores;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,21 +10,42 @@ namespace EventMesh.Runtime.Handlers
 {
     public class SubscribeMessageHandler : IMessageHandler
     {
-        public EventMeshCommands Command => EventMeshCommands.SUBSCRIBE_REQUEST;
+        private readonly IClientSessionStore _clientSessionStore;
+        private readonly IEnumerable<IMessageConsumer> _messageConsumers;
 
-        public Task<EventMeshPackage> Run(EventMeshPackage package, IPEndPoint sender, CancellationToken cancellationToken)
+        public SubscribeMessageHandler(
+            IClientSessionStore clientSessionStore,
+            IEnumerable<IMessageConsumer> messageConsumers)
         {
-            // Récupérer la session active.
-            // Récupérer les "subscriptions" venant de la requête.
-            EventMeshSubscription subscription = new EventMeshSubscription();
-            foreach(var topic in subscription.Topics)
-            {
+            _clientSessionStore = clientSessionStore;
+            _messageConsumers = messageConsumers;
+        }
 
+        public Commands Command => Commands.SUBSCRIBE_REQUEST;
+
+        public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
+        {
+            var clientSession = _clientSessionStore.Get(sender);
+            if (clientSession == null)
+            {
+                throw new RuntimeException(package.Header.Command, package.Header.Seq, Errors.NO_ACTIVE_SESSION);
             }
 
-            // Nous avons un groupe "Dictionary<string(topic>, List<Session>>()".
-            // Quand un message est reçu de RABBITMQ / KAFKA ou autre alors on va appeler la session.
+            var subscriptionRequest = package as SubscriptionRequest;
+            await Subscribe(subscriptionRequest, cancellationToken);
+
             throw new System.NotImplementedException();
+        }
+
+        private async Task Subscribe(SubscriptionRequest subscriptionRequest, CancellationToken cancellationToken)
+        {
+            foreach(var item in subscriptionRequest.Topics)
+            {
+                foreach(var messageConsumer in _messageConsumers)
+                {
+                    await messageConsumer.Subscribe(item.Topic, cancellationToken);
+                }
+            }
         }
     }
 }

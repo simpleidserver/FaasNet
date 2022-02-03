@@ -7,7 +7,7 @@ namespace EventMesh.Runtime.Handlers
 {
     public interface IMessageHandler
     {
-        EventMeshCommands Command { get; }
-        Task<EventMeshPackage> Run(EventMeshPackage package, IPEndPoint sender, CancellationToken cancellationToken);
+        Commands Command { get; }
+        Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken);
     }
 }
