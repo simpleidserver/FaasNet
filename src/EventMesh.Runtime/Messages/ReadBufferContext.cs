@@ -30,5 +30,13 @@ namespace EventMesh.Runtime.Messages
             CurrentOffset += size;
             return result;
         }
+
+        public byte[] NextByteArray()
+        {
+            var size = Buffer.First();
+            CurrentOffset += size;
+            var result = Buffer.GetByteArray();
+            return result;
+        }
     }
 }

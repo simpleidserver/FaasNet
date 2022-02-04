@@ -28,6 +28,14 @@ namespace EventMesh.Runtime.Messages
         /// Server reply subscribe response to client.
         /// </summary>
         public static Commands SUBSCRIBE_RESPONSE = new Commands(9);
+        /// <summary>
+        /// Server push async message to client.
+        /// </summary>
+        public static Commands ASYNC_MESSAGE_TO_CLIENT = new Commands(10);
+        /// <summary>
+        /// Client reply ack of async msg to server.
+        /// </summary>
+        public static Commands ASYNC_MESSAGE_TO_CLIENT_ACK = new Commands(11);
 
         private Commands(int code)
         {

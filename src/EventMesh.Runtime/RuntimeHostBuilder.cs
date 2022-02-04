@@ -1,4 +1,5 @@
-﻿using EventMesh.Runtime.Handlers;
+﻿using EventMesh.Runtime.Acl;
+using EventMesh.Runtime.Handlers;
 using EventMesh.Runtime.Stores;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,7 +14,8 @@ namespace EventMesh.Runtime
             ServiceCollection.AddTransient<IMessageHandler, HeartbeatMessageHandler>();
             ServiceCollection.AddTransient<IMessageHandler, HelloMessageHandler>();
             ServiceCollection.AddTransient<IMessageHandler, SubscribeMessageHandler>();
-            ServiceCollection.AddSingleton<IClientSessionStore, ClientSessionStore>();
+            ServiceCollection.AddTransient<IACLService, ACLService>();
+            ServiceCollection.AddSingleton<IClientStore, ClientStore>();
         }
 
         public IServiceCollection ServiceCollection { get; }

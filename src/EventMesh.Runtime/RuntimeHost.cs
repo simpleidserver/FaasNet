@@ -1,4 +1,5 @@
-﻿using EventMesh.Runtime.Events;
+﻿using CloudNative.CloudEvents;
+using EventMesh.Runtime.Events;
 using EventMesh.Runtime.Extensions;
 using EventMesh.Runtime.Handlers;
 using EventMesh.Runtime.Messages;
@@ -20,16 +21,16 @@ namespace EventMesh.Runtime
         private UdpClient _udpClient;
         private readonly IEnumerable<IMessageHandler> _messageHandlers;
         private readonly IEnumerable<IMessageConsumer> _messageConsumers;
-        private readonly IClientSessionStore _clientSessionStore;
+        private readonly IClientStore _clientStore;
 
         public RuntimeHost(
             IEnumerable<IMessageHandler> messageHandlers,
             IEnumerable<IMessageConsumer> messageConsumers,
-            IClientSessionStore clientSessionStore)
+            IClientStore clientStore)
         {
             _messageHandlers = messageHandlers;
             _messageConsumers = messageConsumers;
-            _clientSessionStore = clientSessionStore;
+            _clientStore = clientStore;
             IsRunning = true;
         }
 
@@ -106,6 +107,11 @@ namespace EventMesh.Runtime
 
             var messageHandler = _messageHandlers.First(m => m.Command == package.Header.Command);
             var result = await messageHandler.Run(package, receiveResult.RemoteEndPoint, _cancellationToken);
+            if (result == null)
+            {
+                return;
+            }
+
             var writeCtx = new WriteBufferContext();
             result.Serialize(writeCtx);
             var resultPayload = writeCtx.Buffer.ToArray();
@@ -129,11 +135,28 @@ namespace EventMesh.Runtime
             }
         }
 
-        private void HandleCloudEventReceived(object sender, CloudEventArgs e)
+        private async void HandleCloudEventReceived(object sender, CloudEventArgs e)
         {
-            var cloudEvt = e.Evt;
-            // GET SESSIONS WHICH HAVE SUBSCRIPTION TO A TOPIC.
+            ICollection<CloudEvent> pendingCloudEvts;
+            if (e.ClientSession.TryAddPendingCloudEvent(e.BrokerName, e.Topic, e.Evt, out pendingCloudEvts))
+            {
+                return;
+            }
 
+            var writeCtx = new WriteBufferContext();
+            PackageResponseBuilder.AsyncMessageToClient(e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await _udpClient.SendAsync(payload, payload.Count(), e.ClientSession.Endpoint);
+            /*
+            var resultPayload = await udpClient.ReceiveAsync();
+            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            var ackResponse = Package.Deserialize(readCtx) as AsyncMessageAckToServer;
+            if(ackResponse != null)
+            {
+                var client = _clientStore.GetByActiveSession(e.ClientSession.Endpoint);
+                client.ConsumeCloudEvents(e.Topic, e.BrokerName, ackResponse.NbCloudEventsConsumed);
+            }
+            */
         }
 
         #endregion

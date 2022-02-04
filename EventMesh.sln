@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventMesh.Runtime.CLI", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventMesh.Runtime.MQTT", "src\EventMesh.Runtime.MQTT\EventMesh.Runtime.MQTT.csproj", "{3A4E5679-1063-4437-BABF-F1ED95BA3414}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventMesh.Runtime.AMQP", "src\EventMesh.Runtime.AMQP\EventMesh.Runtime.AMQP.csproj", "{0478428F-225D-4541-BC67-805A2041C12C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{3A4E5679-1063-4437-BABF-F1ED95BA3414}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A4E5679-1063-4437-BABF-F1ED95BA3414}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A4E5679-1063-4437-BABF-F1ED95BA3414}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0478428F-225D-4541-BC67-805A2041C12C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0478428F-225D-4541-BC67-805A2041C12C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0478428F-225D-4541-BC67-805A2041C12C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0478428F-225D-4541-BC67-805A2041C12C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +54,7 @@ Global
 		{BC28994B-7B8A-4C6B-99E5-9167130ADC04} = {2A14F697-FFC8-402F-82B4-8128FE897DC9}
 		{01C1CEBB-6265-4C9A-95B7-F9830C4B5538} = {20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}
 		{3A4E5679-1063-4437-BABF-F1ED95BA3414} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
+		{0478428F-225D-4541-BC67-805A2041C12C} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9BD3B8C-B2C9-468F-BF54-66BFE9B565EC}

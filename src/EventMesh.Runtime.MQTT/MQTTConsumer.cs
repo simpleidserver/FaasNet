@@ -2,6 +2,7 @@
 using CloudNative.CloudEvents.Mqtt;
 using CloudNative.CloudEvents.SystemTextJson;
 using EventMesh.Runtime.Events;
+using EventMesh.Runtime.Models;
 using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace EventMesh.Runtime.MQTT
 {
+    /*
     public class MQTTConsumer : IMessageConsumer
     {
         private readonly MQTTOptions _options;
@@ -45,16 +47,16 @@ namespace EventMesh.Runtime.MQTT
             }
         }
 
-        public async Task Subscribe(string topic, CancellationToken cancellationToken)
+        public async Task Subscribe(string topicName, Client client, CancellationToken cancellationToken)
         {
-            var subscription = GetSubscriptionRecord(topic);
+            var subscription = GetSubscriptionRecord(topicName);
             if (subscription != null)
             {
                 return;
             }
 
-            await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(topic).Build());
-            _records.Add(new MQTTSubscriptionRecord(topic));
+            await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(topicName).Build());
+            _records.Add(new MQTTSubscriptionRecord(topicName));
         }
 
         public async Task Unsubscribe(string topic, CancellationToken cancellationToken)
@@ -98,6 +100,9 @@ namespace EventMesh.Runtime.MQTT
             {
                 CloudEventReceived(this, new CloudEventArgs(args.ApplicationMessage.Topic, cloudEvent));
             }
+
+            // IL SE PEUT QUE LE SERVEUR NE SUPPORTE PAS D EVENT STORE PAR DEFAULT.
+            // IL FAUT DONC OFFRIR LA POSSIBILITE DE STOCKER DANS L EVENT STORE ET METTRE A JOUR L OFFSET.
         }
 
         private MQTTSubscriptionRecord GetSubscriptionRecord(string topic)
@@ -105,4 +110,5 @@ namespace EventMesh.Runtime.MQTT
             return _records.FirstOrDefault(r => r.Topic == topic);
         }
     }
+    */
 }

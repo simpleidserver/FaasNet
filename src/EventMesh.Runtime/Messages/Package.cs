@@ -39,6 +39,26 @@
                 return result;
             }
 
+            if (Commands.ASYNC_MESSAGE_TO_CLIENT == header.Command)
+            {
+                var result = new AsyncMessageToClient
+                {
+                    Header = header
+                };
+                result.Extract(context);
+                return result;
+            }
+
+            if (Commands.ASYNC_MESSAGE_TO_CLIENT_ACK == header.Command)
+            {
+                var result = new AsyncMessageAckToServer
+                {
+                    Header = header
+                };
+                result.Extract(context);
+                return result;
+            }
+
             return new Package
             {
                 Header = header

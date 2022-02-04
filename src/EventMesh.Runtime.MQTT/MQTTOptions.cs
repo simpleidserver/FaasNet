@@ -10,8 +10,10 @@ namespace EventMesh.Runtime.MQTT
                 .WithTcpServer("127.0.0.1", 1883)
                 .WithCredentials("guest", "guest");
             MqttClientOptions = options.Build();
+            BrokerName = "mqtt";
         }
 
         public IMqttClientOptions MqttClientOptions { get; set; }
+        public string BrokerName { get; set; }
     }
 }

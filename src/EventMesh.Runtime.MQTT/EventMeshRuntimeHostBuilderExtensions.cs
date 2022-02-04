@@ -17,7 +17,7 @@ namespace EventMesh.Runtime
                 eventMeshRuntime.ServiceCollection.Configure<MQTTOptions>(opt => { });
             }
 
-            eventMeshRuntime.ServiceCollection.AddTransient<IMessageConsumer, MQTTConsumer>();
+            // eventMeshRuntime.ServiceCollection.AddTransient<IMessageConsumer, MQTTConsumer>();
             return eventMeshRuntime;
         }
     }

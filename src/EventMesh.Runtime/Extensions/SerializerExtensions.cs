@@ -47,6 +47,12 @@ namespace EventMesh.Runtime.Extensions
             return Encoding.ASCII.GetString(queue.Dequeue(size).ToArray());
         }
 
+        public static byte[] GetByteArray(this Queue<byte> queue)
+        {
+            var size = queue.Dequeue();
+            return queue.Dequeue(size).ToArray();
+        }
+
         public static IEnumerable<byte> Dequeue(this Queue<byte> queue, uint number)
         {
             var result = new List<byte>();

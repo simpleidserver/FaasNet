@@ -9,6 +9,32 @@ Pour chaque session active :
 Quand one session se trouve dans le "broadcast" a
 
 Les différents paramètres:
+
+Type de "subscription":
+=> SYNC : Retourne le résultat uniquement lorsque le message est complètement envoyé.
+=> Problème avec cette approche : temps de recevoir le résultat de façon synchrone.
+
 SYNC_TOPIC
 CLUSTERING
 SYNC
+
+Voici le protocol pour envoyer un message de façon synchrone :
+1. REQUEST_TO_SERVER : le client (producer) envoie un message synchrone au serveur.
+2. REQUEST_TO_CLIENT : le serveur "push" le message au client (consumer).
+3. REQUEST_TO_CLIENT_ACK : le client (consumer) envoie un message de "ACK" au serveur.
+4. RESPONSE_TO_SERVER : le client (consumer) envoie un message de réponse au serveur.
+5. RESPONSE_TO_CLIENT : le serveur envoie un message de réponse au producteur.
+6. RESPONSE_TO_CLIENT_ACK : le client (producer) envoie un message de ACK au serveur.
+
+Pour le ACK il faut voir la classe : "ClientAckContext".
+
+1. Créer une session
+2. Souscrire à un topic.
+3. Envoyer un messge de façon asynchrone au client.
+
+1. Créer une session
+2. Souscrire à un topic
+3. L'eventmesh runtime va souscrire à un autre eventmesh runtime sur le réseau
+4. Le second eventmesh runtime va récupérer la requête et renvoie au premier.
+5. Le premier eventmesh va retourner l'événement à son client.
+

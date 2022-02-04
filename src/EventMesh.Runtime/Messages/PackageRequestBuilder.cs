@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace EventMesh.Runtime.Messages
@@ -22,6 +23,28 @@ namespace EventMesh.Runtime.Messages
             {
                 Header = new Header(Commands.HELLO_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
                 UserAgent = userAgent
+            };
+            return result;
+        }
+
+        public static SubscriptionRequest Subscribe(ICollection<SubscriptionItem> subscriptionItems)
+        {
+            var result = new SubscriptionRequest
+            {
+                Header = new Header(Commands.SUBSCRIBE_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
+                Topics = subscriptionItems
+            };
+            return result;
+        }
+
+        public static Package AsyncMessageAckToServer(string brokerName, string topic, int nbCloudEventsConsumed, string seq)
+        {
+            var result = new AsyncMessageAckToServer
+            {
+                Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT_ACK, HeaderStatus.SUCCESS, seq),
+                BrokerName = brokerName,
+                Topic = topic,
+                NbCloudEventsConsumed = nbCloudEventsConsumed
             };
             return result;
         }

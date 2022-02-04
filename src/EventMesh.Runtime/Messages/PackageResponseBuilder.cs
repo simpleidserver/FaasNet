@@ -1,4 +1,7 @@
-﻿namespace EventMesh.Runtime.Messages
+﻿using CloudNative.CloudEvents;
+using System.Collections.Generic;
+
+namespace EventMesh.Runtime.Messages
 {
     public static class PackageResponseBuilder
     {
@@ -25,6 +28,18 @@
             var result = new Package
             {
                 Header = new Header(Commands.SUBSCRIBE_RESPONSE, HeaderStatus.SUCCESS, seq)
+            };
+            return result;
+        }
+
+        public static Package AsyncMessageToClient(string brokerName, string topicName, ICollection<CloudEvent> cloudEvts, string seq)
+        {
+            var result = new AsyncMessageToClient
+            {
+                Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT, HeaderStatus.SUCCESS, seq),
+                BrokerName = brokerName,
+                Topic = topicName,
+                CloudEvents = cloudEvts
             };
             return result;
         }
