@@ -14,6 +14,7 @@ namespace EventMesh.Runtime
             ServiceCollection.AddTransient<IMessageHandler, HeartbeatMessageHandler>();
             ServiceCollection.AddTransient<IMessageHandler, HelloMessageHandler>();
             ServiceCollection.AddTransient<IMessageHandler, SubscribeMessageHandler>();
+            ServiceCollection.AddTransient<IMessageHandler, AsyncMessageAckToServerHandler>();
             ServiceCollection.AddTransient<IACLService, ACLService>();
             ServiceCollection.AddSingleton<IClientStore, ClientStore>();
         }

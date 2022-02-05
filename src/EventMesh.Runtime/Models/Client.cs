@@ -59,7 +59,7 @@ namespace EventMesh.Runtime.Models
             return result;
         }
 
-        public void ConsumeCloudEvents(string topicName, string brokerName, int nbEventsConsumed)
+        public void ConsumeCloudEvents(string brokerName, string topicName, int nbEventsConsumed)
         {
             var topic = Topics.First(t => t.Name == topicName && t.BrokerName == brokerName);
             topic.Offset += nbEventsConsumed;

@@ -3,7 +3,6 @@ using EventMesh.Runtime.Events;
 using EventMesh.Runtime.Extensions;
 using EventMesh.Runtime.Handlers;
 using EventMesh.Runtime.Messages;
-using EventMesh.Runtime.Stores;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,16 +20,13 @@ namespace EventMesh.Runtime
         private UdpClient _udpClient;
         private readonly IEnumerable<IMessageHandler> _messageHandlers;
         private readonly IEnumerable<IMessageConsumer> _messageConsumers;
-        private readonly IClientStore _clientStore;
 
         public RuntimeHost(
             IEnumerable<IMessageHandler> messageHandlers,
-            IEnumerable<IMessageConsumer> messageConsumers,
-            IClientStore clientStore)
+            IEnumerable<IMessageConsumer> messageConsumers)
         {
             _messageHandlers = messageHandlers;
             _messageConsumers = messageConsumers;
-            _clientStore = clientStore;
             IsRunning = true;
         }
 
@@ -80,6 +76,10 @@ namespace EventMesh.Runtime
 
                 _udpClient.Close();
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         #region Handle EventMesh package
@@ -99,7 +99,6 @@ namespace EventMesh.Runtime
 
             var buffer = receiveResult.Buffer;
             var package = Package.Deserialize(new ReadBufferContext(buffer));
-
             if (EventMeshPackageReceived != null)
             {
                 EventMeshPackageReceived(this, new PackageEventArgs(package));
@@ -131,11 +130,11 @@ namespace EventMesh.Runtime
             foreach (var messageConsumer in _messageConsumers)
             {
                 await messageConsumer.Start(_cancellationToken);
-                messageConsumer.CloudEventReceived += HandleCloudEventReceived;
+                messageConsumer.CloudEventReceived += async(s, e) => await HandleCloudEventReceived(s, e);
             }
         }
 
-        private async void HandleCloudEventReceived(object sender, CloudEventArgs e)
+        private async Task HandleCloudEventReceived(object sender, CloudEventArgs e)
         {
             ICollection<CloudEvent> pendingCloudEvts;
             if (e.ClientSession.TryAddPendingCloudEvent(e.BrokerName, e.Topic, e.Evt, out pendingCloudEvts))
@@ -146,17 +145,7 @@ namespace EventMesh.Runtime
             var writeCtx = new WriteBufferContext();
             PackageResponseBuilder.AsyncMessageToClient(e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
-            await _udpClient.SendAsync(payload, payload.Count(), e.ClientSession.Endpoint);
-            /*
-            var resultPayload = await udpClient.ReceiveAsync();
-            var readCtx = new ReadBufferContext(resultPayload.Buffer);
-            var ackResponse = Package.Deserialize(readCtx) as AsyncMessageAckToServer;
-            if(ackResponse != null)
-            {
-                var client = _clientStore.GetByActiveSession(e.ClientSession.Endpoint);
-                client.ConsumeCloudEvents(e.Topic, e.BrokerName, ackResponse.NbCloudEventsConsumed);
-            }
-            */
+            await _udpClient.SendAsync(payload, payload.Count(), e.ClientSession.Endpoint).WithCancellation(_cancellationToken);
         }
 
         #endregion
