@@ -43,14 +43,24 @@ namespace EventMesh.Runtime.Handlers
                 throw new RuntimeException(request.Header.Command, request.Header.Seq, Errors.NOT_AUTHORIZED);
             }
 
+            bool isUpdated = true;
             var client = _clientSessionStore.Get(request.UserAgent.ClientId);
             if (client == null)
             {
                 client = Client.Create(request.UserAgent.ClientId);
+                isUpdated = false;
             }
 
             client.AddSession(sender, request.UserAgent.Environment, request.UserAgent.Pid, request.Header.Seq, request.UserAgent.Purpose, request.UserAgent.BufferCloudEvents);
-            _clientSessionStore.Update(client);
+            if (isUpdated)
+            {
+                _clientSessionStore.Update(client);
+            }
+            else
+            {
+                _clientSessionStore.Add(client);
+            }
+
             return;
         }
     }

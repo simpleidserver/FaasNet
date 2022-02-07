@@ -28,6 +28,7 @@ namespace EventMesh.Runtime.Handlers
 
             var ackResponse = package as AsyncMessageAckToServer;
             client.ConsumeCloudEvents(ackResponse.BrokerName, ackResponse.Topic, ackResponse.NbCloudEventsConsumed);
+            _clientStore.Update(client);
             return Task.FromResult((Package)null);
         }
     }

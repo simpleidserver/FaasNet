@@ -1,0 +1,35 @@
+﻿using CloudNative.CloudEvents;
+using EventMesh.Runtime.Events;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace EventMesh.Runtime.MessageBroker
+{
+    public class InMemoryTopic
+    {
+        public InMemoryTopic()
+        {
+            CloudEvts = new List<CloudEvent>();
+            Subscriptions = new List<InMemoryTopicSubscription>();
+        }
+
+        public string TopicName { get; set; }
+        public ICollection<CloudEvent> CloudEvts { get; set; }
+        public ICollection<InMemoryTopicSubscription> Subscriptions { get; set; }
+        public event EventHandler<CloudEventArgs> CloudEventReceived;
+
+        public void PublishMessage(CloudEvent cloudEvt)
+        {
+            CloudEvts.Add(cloudEvt);
+            foreach(var subscription in Subscriptions)
+            {
+                var pendingCloudEvents = CloudEvts.Skip(subscription.Offset);
+                foreach(var pendingCloudEvt in pendingCloudEvents)
+                {
+                    CloudEventReceived(this, new CloudEventArgs(TopicName, Constants.InMemoryBrokername, pendingCloudEvt, subscription.Session));
+                }
+            }
+        }
+    }
+}

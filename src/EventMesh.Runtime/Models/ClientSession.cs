@@ -18,10 +18,34 @@ namespace EventMesh.Runtime.Models
 
         #region Properties
 
-        public IPEndPoint Endpoint { get; set; }
+        public IPEndPoint Endpoint
+        {
+            get
+            {
+                return new IPEndPoint(new IPAddress(IPAddressData), Port);
+            }
+            set
+            {
+                Port = value.Port;
+                IPAddressData = value.Address.GetAddressBytes();
+            }
+        }
+        public byte[] IPAddressData { get; set; }
+        public int Port { get; set; }
         public string Environment { get; set; }
         public int Pid { get; set; }
-        public UserAgentPurpose Purpose { get; set; }
+        public UserAgentPurpose Purpose
+        {
+            get
+            {
+                return new UserAgentPurpose(PurposeCode);
+            }
+            set
+            {
+                PurposeCode = value.Code;
+            }
+        }
+        public int PurposeCode { get; set; }
         public string Seq { get; set; }
         public int BufferCloudEvents { get; set; }
         public ClientSessionState State { get; set; }

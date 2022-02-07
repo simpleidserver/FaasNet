@@ -105,17 +105,20 @@ namespace EventMesh.Runtime.AMQP
                 });
             channel.QueueBind(queue, _options.TopicName, topicName);
             var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += ReceiveMessage;
+            consumer.Received += (sender, e) => ReceiveMessage(sender, topicName, e);
+            // TODO : Update BasicQos.
             channel.BasicQos(0, 100, false);
             channel.BasicConsume(queue, false, string.Empty, new Dictionary<string, object> { { "x-stream-offset", topic.Offset } }, consumer);
             return channel;
         }
 
-        private void ReceiveMessage(object sender, BasicDeliverEventArgs e)
+        private void ReceiveMessage(object sender, string topicName, BasicDeliverEventArgs e)
         {
             var jsonEventFormatter = new JsonEventFormatter();
             var model = (sender as EventingBasicConsumer).Model;
-            var cloudEvent = e.ToCloudEvent(jsonEventFormatter);
+            var cloudEvent = e.ToCloudEvent(jsonEventFormatter,
+                _options.Source, 
+                topicName);
             var record = _records.FirstOrDefault(r => r.Model.Equals(model));
             if (CloudEventReceived != null)
             {

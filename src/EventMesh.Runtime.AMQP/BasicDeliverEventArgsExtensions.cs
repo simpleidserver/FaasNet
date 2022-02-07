@@ -15,6 +15,8 @@ namespace EventMesh.Runtime.AMQP
 
         public static CloudEvent ToCloudEvent(this BasicDeliverEventArgs message,
             CloudEventFormatter cloudEventFormatter,
+            string source,
+            string topicName,
             params CloudEventAttribute[]? extensionAttributes)
         {
             var properties = message.BasicProperties;
@@ -23,21 +25,19 @@ namespace EventMesh.Runtime.AMQP
                 return cloudEventFormatter.DecodeStructuredModeMessage(new MemoryStream(message.Body.ToArray()), new ContentType(contentType), extensionAttributes);
             }
 
-            CloudEventsSpecVersion specVersion = null;
+            var cloudEvent = new CloudEvent();
             if (properties.Headers.ContainsKey(SpecVersionAmqpHeader))
             {
                 var version = Encoding.ASCII.GetString(properties.Headers[SpecVersionAmqpHeader] as byte[]);
-                specVersion = CloudEventsSpecVersion.FromVersionId(version);
+                var specVersion = CloudEventsSpecVersion.FromVersionId(version);
+                cloudEvent = new CloudEvent(specVersion);
             }
 
-            var cloudEvent = new CloudEvent
-            {
-                Id = Guid.NewGuid().ToString(),
-                Source = new System.Uri("urn:example-com"),
-                Type = message.RoutingKey,
-                DataContentType = properties.ContentType,
-                Data = Encoding.UTF8.GetString(message.Body.ToArray())
-            };
+            cloudEvent.Id = Guid.NewGuid().ToString();
+            cloudEvent.Source = new Uri($"{source}:{topicName}");
+            cloudEvent.Type = message.RoutingKey;
+            cloudEvent.DataContentType = properties.ContentType;
+            cloudEvent.Data = Encoding.UTF8.GetString(message.Body.ToArray());
             return cloudEvent;
         }
 

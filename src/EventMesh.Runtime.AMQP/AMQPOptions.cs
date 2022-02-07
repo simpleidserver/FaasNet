@@ -17,11 +17,13 @@ namespace EventMesh.Runtime.AMQP
             TopicName = "amq.topic";
             QueueName = "streamQueue";
             BrokerName = "amqp";
+            Source = "urn:eventmesh";
         }
 
         public Action<ConnectionFactory> ConnectionFactory { get; set; }
         public string TopicName { get; set; }
         public string QueueName { get; set; }
         public string BrokerName { get; set; }
+        public string Source { get; set; }
     }
 }
