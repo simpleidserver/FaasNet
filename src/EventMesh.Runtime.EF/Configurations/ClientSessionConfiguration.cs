@@ -1,5 +1,4 @@
-﻿using EventMesh.Runtime.Messages;
-using EventMesh.Runtime.Models;
+﻿using EventMesh.Runtime.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,6 +15,7 @@ namespace EventMesh.Runtime.EF.Configurations
             builder.HasMany(cs => cs.Histories).WithOne().OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(cs => cs.Topics).WithOne().OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(cs => cs.PendingCloudEvents).WithOne().OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(cs => cs.Bridges).WithOne().OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -59,6 +59,26 @@
                 return result;
             }
 
+            if (Commands.ASYNC_MESSAGE_TO_SERVER == header.Command)
+            {
+                var result = new AsyncMessageToServer
+                {
+                    Header = header
+                };
+                result.Extract(context);
+                return result;
+            }
+
+            if (Commands.ADD_BRIDGE_REQUEST == header.Command)
+            {
+                var result = new AddBridgeRequest
+                {
+                    Header = header
+                };
+                result.Extract(context);
+                return result;
+            }
+
             return new Package
             {
                 Header = header

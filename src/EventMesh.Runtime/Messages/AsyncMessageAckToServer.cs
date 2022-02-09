@@ -2,9 +2,13 @@
 {
     public class AsyncMessageAckToServer : Package
     {
+        #region Properties
+
         public int NbCloudEventsConsumed { get; set; }
         public string Topic { get; set; }
         public string BrokerName { get; set; }
+
+        #endregion
 
         public override void Serialize(WriteBufferContext context)
         {

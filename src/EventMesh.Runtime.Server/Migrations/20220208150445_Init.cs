@@ -8,10 +8,23 @@ namespace EventMesh.Runtime.Server.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "BridgeServers",
+                columns: table => new
+                {
+                    Urn = table.Column<string>(type: "TEXT", nullable: false),
+                    Port = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BridgeServers", x => x.Urn);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Clients",
                 columns: table => new
                 {
                     ClientId = table.Column<string>(type: "TEXT", nullable: false),
+                    Urn = table.Column<string>(type: "TEXT", nullable: true),
                     CreateDateTime = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -30,8 +43,10 @@ namespace EventMesh.Runtime.Server.Migrations
                     Environment = table.Column<string>(type: "TEXT", nullable: true),
                     Pid = table.Column<int>(type: "INTEGER", nullable: false),
                     PurposeCode = table.Column<int>(type: "INTEGER", nullable: false),
+                    ExpirationDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Seq = table.Column<string>(type: "TEXT", nullable: true),
                     BufferCloudEvents = table.Column<int>(type: "INTEGER", nullable: false),
+                    Type = table.Column<int>(type: "INTEGER", nullable: false),
                     State = table.Column<int>(type: "INTEGER", nullable: false),
                     ClientId = table.Column<string>(type: "TEXT", nullable: true)
                 },
@@ -43,6 +58,26 @@ namespace EventMesh.Runtime.Server.Migrations
                         column: x => x.ClientId,
                         principalTable: "Clients",
                         principalColumn: "ClientId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientSessionBridge",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Urn = table.Column<string>(type: "TEXT", nullable: true),
+                    ClientSessionId = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientSessionBridge", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClientSessionBridge_ClientSession_ClientSessionId",
+                        column: x => x.ClientSessionId,
+                        principalTable: "ClientSession",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -125,6 +160,11 @@ namespace EventMesh.Runtime.Server.Migrations
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ClientSessionBridge_ClientSessionId",
+                table: "ClientSessionBridge",
+                column: "ClientSessionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ClientSessionHistory_ClientSessionId",
                 table: "ClientSessionHistory",
                 column: "ClientSessionId");
@@ -147,6 +187,12 @@ namespace EventMesh.Runtime.Server.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "BridgeServers");
+
+            migrationBuilder.DropTable(
+                name: "ClientSessionBridge");
+
             migrationBuilder.DropTable(
                 name: "ClientSessionHistory");
 

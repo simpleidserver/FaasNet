@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventMesh.Runtime.Server.Migrations
 {
     [DbContext(typeof(EventMeshDBContext))]
-    [Migration("20220207141119_Init")]
+    [Migration("20220208150445_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,12 +18,28 @@ namespace EventMesh.Runtime.Server.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "5.0.13");
 
+            modelBuilder.Entity("EventMesh.Runtime.Models.BridgeServer", b =>
+                {
+                    b.Property<string>("Urn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Urn");
+
+                    b.ToTable("BridgeServers");
+                });
+
             modelBuilder.Entity("EventMesh.Runtime.Models.Client", b =>
                 {
                     b.Property<string>("ClientId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Urn")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ClientId");
@@ -46,6 +62,9 @@ namespace EventMesh.Runtime.Server.Migrations
                     b.Property<string>("Environment")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("ExpirationDateTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<byte[]>("IPAddressData")
                         .HasColumnType("BLOB");
 
@@ -64,11 +83,33 @@ namespace EventMesh.Runtime.Server.Migrations
                     b.Property<int>("State")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
 
                     b.ToTable("ClientSession");
+                });
+
+            modelBuilder.Entity("EventMesh.Runtime.Models.ClientSessionBridge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ClientSessionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Urn")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientSessionId");
+
+                    b.ToTable("ClientSessionBridge");
                 });
 
             modelBuilder.Entity("EventMesh.Runtime.Models.ClientSessionHistory", b =>
@@ -169,6 +210,14 @@ namespace EventMesh.Runtime.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("EventMesh.Runtime.Models.ClientSessionBridge", b =>
+                {
+                    b.HasOne("EventMesh.Runtime.Models.ClientSession", null)
+                        .WithMany("Bridges")
+                        .HasForeignKey("ClientSessionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("EventMesh.Runtime.Models.ClientSessionHistory", b =>
                 {
                     b.HasOne("EventMesh.Runtime.Models.ClientSession", null)
@@ -210,6 +259,8 @@ namespace EventMesh.Runtime.Server.Migrations
 
             modelBuilder.Entity("EventMesh.Runtime.Models.ClientSession", b =>
                 {
+                    b.Navigation("Bridges");
+
                     b.Navigation("Histories");
 
                     b.Navigation("PendingCloudEvents");

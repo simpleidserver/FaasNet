@@ -14,6 +14,7 @@ namespace EventMesh.Runtime.Models
             Histories = new List<ClientSessionHistory>();
             Topics = new List<Topic>();
             PendingCloudEvents = new List<ClientSessionPendingCloudEvent>();
+            Bridges = new List<ClientSessionBridge>();
         }
 
         #region Properties
@@ -46,12 +47,16 @@ namespace EventMesh.Runtime.Models
             }
         }
         public int PurposeCode { get; set; }
+        public DateTime ExpirationDateTime { get; set; }
         public string Seq { get; set; }
         public int BufferCloudEvents { get; set; }
+        public ClientSessionTypes Type { get; set; }
         public ClientSessionState State { get; set; }
         public ICollection<ClientSessionHistory> Histories { get; set; }
         public ICollection<Topic> Topics { get; set; }
         public ICollection<ClientSessionPendingCloudEvent> PendingCloudEvents { get; set; }
+        public ICollection<ClientSessionBridge> Bridges { get; set; }
+
 
         #endregion
 
@@ -103,9 +108,25 @@ namespace EventMesh.Runtime.Models
             return true;
         }
 
+        public ClientSessionBridge GetBridge(string urn)
+        {
+            return Bridges.FirstOrDefault(b => b.Urn == urn);
+        }
+
+        public void AddBridge(ClientSessionBridge bridge)
+        {
+            Bridges.Add(bridge);
+        }
+
+        public void Close()
+        {
+            State = ClientSessionState.FINISH;
+            Histories.Add(new ClientSessionHistory {  State = ClientSessionState.FINISH, Timestamp = DateTime.UtcNow });
+        }
+
         #endregion
 
-        public static ClientSession Create(IPEndPoint edp, string env, int pid, string seq, UserAgentPurpose purpose, int bufferCloudEvents)
+        public static ClientSession Create(IPEndPoint edp, string env, int pid, string seq, UserAgentPurpose purpose, int bufferCloudEvents, ClientSessionTypes type)
         {
             var result = new ClientSession
             {
@@ -114,7 +135,8 @@ namespace EventMesh.Runtime.Models
                 Pid = pid,
                 Seq = seq,
                 Purpose = purpose,
-                BufferCloudEvents = bufferCloudEvents
+                BufferCloudEvents = bufferCloudEvents,
+                Type = type
             };
             return result;
         }

@@ -1,40 +1,10 @@
-NOTE
-Implémenter l'interface Consumer
+Créer un bridge entre deux runtime
+Le protocol :
+* HeartbeatRequest
+* BridgeRequest: username, password
+* BridgeResonse
 
-On peut souscrire à un topic
-Quand un message arrive dans le topic alors la méthode EventListener.consume(message, consumeContext) est call.
-Quand le mode est "Broadcast" et plusieurs sessions sont actives alors il faut broadcast le message partout.
-Pour chaque session active :
-=> 
-Quand one session se trouve dans le "broadcast" a
-
-Les différents paramètres:
-
-Type de "subscription":
-=> SYNC : Retourne le résultat uniquement lorsque le message est complètement envoyé.
-=> Problème avec cette approche : temps de recevoir le résultat de façon synchrone.
-
-SYNC_TOPIC
-CLUSTERING
-SYNC
-
-Voici le protocol pour envoyer un message de façon synchrone :
-1. REQUEST_TO_SERVER : le client (producer) envoie un message synchrone au serveur.
-2. REQUEST_TO_CLIENT : le serveur "push" le message au client (consumer).
-3. REQUEST_TO_CLIENT_ACK : le client (consumer) envoie un message de "ACK" au serveur.
-4. RESPONSE_TO_SERVER : le client (consumer) envoie un message de réponse au serveur.
-5. RESPONSE_TO_CLIENT : le serveur envoie un message de réponse au producteur.
-6. RESPONSE_TO_CLIENT_ACK : le client (producer) envoie un message de ACK au serveur.
-
-Pour le ACK il faut voir la classe : "ClientAckContext".
-
-1. Créer une session
-2. Souscrire à un topic.
-3. Envoyer un messge de façon asynchrone au client.
-
-1. Créer une session
-2. Souscrire à un topic
-3. L'eventmesh runtime va souscrire à un autre eventmesh runtime sur le réseau
-4. Le second eventmesh runtime va récupérer la requête et renvoie au premier.
-5. Le premier eventmesh va retourner l'événement à son client.
-
+Quand un client fait la souscription alors :
+* Créer une session sur un autre noeud.
+* Créer la souscription sur un autre noeud.
+* Ecouter les message ASYNC_MESSAGE_TO_CLIENT et transmettre vers toutes les sessions actives.

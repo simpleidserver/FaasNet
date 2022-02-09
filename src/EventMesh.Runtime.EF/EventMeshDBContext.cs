@@ -8,6 +8,7 @@ namespace EventMesh.Runtime.EF
         public EventMeshDBContext(DbContextOptions<EventMeshDBContext> dbContextOptions) : base(dbContextOptions) { }
 
         public virtual DbSet<Client> Clients { get; set; }
+        public virtual DbSet<BridgeServer> BridgeServers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

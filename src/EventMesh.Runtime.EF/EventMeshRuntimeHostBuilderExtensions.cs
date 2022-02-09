@@ -12,9 +12,12 @@ namespace EventMesh.Runtime
     {
         public static RuntimeHostBuilder AddEF(this RuntimeHostBuilder eventMeshRuntime, Action<DbContextOptionsBuilder> options = null)
         {
-            var clientStoreType = eventMeshRuntime.ServiceCollection.FirstOrDefault(s => s.ServiceType == typeof(IClientStore));
+            var clientStoreType = eventMeshRuntime.ServiceCollection.First(s => s.ServiceType == typeof(IClientStore));
+            var bridgeServerStoreType = eventMeshRuntime.ServiceCollection.First(s => s.ServiceType == typeof(IBridgeServerStore));
             eventMeshRuntime.ServiceCollection.Remove(clientStoreType);
+            eventMeshRuntime.ServiceCollection.Remove(bridgeServerStoreType);
             eventMeshRuntime.ServiceCollection.AddTransient<IClientStore, EFClientStore>();
+            eventMeshRuntime.ServiceCollection.AddTransient<IBridgeServerStore, EFBridgeServerStore>();
             eventMeshRuntime.ServiceCollection.AddDbContext<EventMeshDBContext>(options);
             return eventMeshRuntime;
         }

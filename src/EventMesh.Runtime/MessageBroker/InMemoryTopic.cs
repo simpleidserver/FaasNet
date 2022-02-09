@@ -27,7 +27,7 @@ namespace EventMesh.Runtime.MessageBroker
                 var pendingCloudEvents = CloudEvts.Skip(subscription.Offset);
                 foreach(var pendingCloudEvt in pendingCloudEvents)
                 {
-                    CloudEventReceived(this, new CloudEventArgs(TopicName, Constants.InMemoryBrokername, pendingCloudEvt, subscription.Session));
+                    CloudEventReceived(this, new CloudEventArgs(TopicName, Constants.InMemoryBrokername, pendingCloudEvt, subscription.ClientId, subscription.Session));
                 }
             }
         }

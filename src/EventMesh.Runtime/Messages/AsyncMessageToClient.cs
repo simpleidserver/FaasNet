@@ -12,13 +12,19 @@ namespace EventMesh.Runtime.Messages
             CloudEvents = new List<CloudEvent>();
         }
 
+        #region Properties
+
+        public string Urn { get; set; }
         public string Topic { get; set; }
         public string BrokerName { get; set; }
         public ICollection<CloudEvent> CloudEvents { get; set; }
 
+        #endregion
+
         public override void Serialize(WriteBufferContext context)
         {
             base.Serialize(context);
+            context.WriteString(Urn);
             context.WriteString(Topic);
             context.WriteString(BrokerName);
             context.WriteInteger(CloudEvents.Count());
@@ -32,6 +38,7 @@ namespace EventMesh.Runtime.Messages
 
         public void Extract(ReadBufferContext context)
         {
+            Urn = context.NextString();
             Topic = context.NextString();
             BrokerName = context.NextString();
             int nbCloudEvents = context.NextInt();

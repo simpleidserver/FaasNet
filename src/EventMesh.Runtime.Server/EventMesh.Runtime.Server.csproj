@@ -6,7 +6,6 @@
   <ItemGroup>
     <ProjectReference Include="..\EventMesh.Runtime.AMQP\EventMesh.Runtime.AMQP.csproj" />
     <ProjectReference Include="..\EventMesh.Runtime.EF\EventMesh.Runtime.EF.csproj" />
-    <ProjectReference Include="..\EventMesh.Runtime.MQTT\EventMesh.Runtime.MQTT.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.13" />

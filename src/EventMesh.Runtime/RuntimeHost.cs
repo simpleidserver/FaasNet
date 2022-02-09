@@ -1,12 +1,13 @@
 ﻿using CloudNative.CloudEvents;
 using EventMesh.Runtime.Events;
+using EventMesh.Runtime.Exceptions;
 using EventMesh.Runtime.Extensions;
 using EventMesh.Runtime.Handlers;
 using EventMesh.Runtime.Messages;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,18 +16,24 @@ namespace EventMesh.Runtime
 {
     public class RuntimeHost: IRuntimeHost
     {
+        private readonly IEnumerable<IMessageHandler> _messageHandlers;
+        private readonly IEnumerable<IMessageConsumer> _messageConsumers;
+        private readonly IUdpClientServerFactory _udpClientFactory;
+        private readonly RuntimeOptions _options;
         private CancellationTokenSource _tokenSource;
         private CancellationToken _cancellationToken;
         private UdpClient _udpClient;
-        private readonly IEnumerable<IMessageHandler> _messageHandlers;
-        private readonly IEnumerable<IMessageConsumer> _messageConsumers;
 
         public RuntimeHost(
             IEnumerable<IMessageHandler> messageHandlers,
-            IEnumerable<IMessageConsumer> messageConsumers)
+            IEnumerable<IMessageConsumer> messageConsumers,
+            IUdpClientServerFactory udpClientFactory,
+            IOptions<RuntimeOptions> options)
         {
             _messageHandlers = messageHandlers;
             _messageConsumers = messageConsumers;
+            _udpClientFactory = udpClientFactory;
+            _options = options.Value;
             IsRunning = true;
         }
 
@@ -36,11 +43,11 @@ namespace EventMesh.Runtime
         public event EventHandler<PackageEventArgs> EventMeshPackageSent;
         public event EventHandler<EventArgs> EventMeshRuntimeStopped;
 
-        public void Run(string ipAddr = Constants.DefaultIpAddr, int port = Constants.DefaultPort)
+        public void Run()
         {
             _tokenSource = new CancellationTokenSource();
             _cancellationToken = _tokenSource.Token;
-            _udpClient = new UdpClient(new IPEndPoint(IPAddress.Parse(ipAddr), port));
+            _udpClient = _udpClientFactory.Build();
             IsRunning = true;
             Task.Run(async () => await InternalRun());
         }
@@ -105,7 +112,16 @@ namespace EventMesh.Runtime
             }
 
             var messageHandler = _messageHandlers.First(m => m.Command == package.Header.Command);
-            var result = await messageHandler.Run(package, receiveResult.RemoteEndPoint, _cancellationToken);
+            Package result = null;
+            try
+            {
+                result = await messageHandler.Run(package, receiveResult.RemoteEndPoint, _cancellationToken);
+            }
+            catch(RuntimeException ex)
+            {
+                result = PackageResponseBuilder.Error(ex.SourceCommand, ex.SourceSeq, ex.Error);
+            }
+
             if (result == null)
             {
                 return;
@@ -143,7 +159,16 @@ namespace EventMesh.Runtime
             }
 
             var writeCtx = new WriteBufferContext();
-            PackageResponseBuilder.AsyncMessageToClient(e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
+            switch (e.ClientSession.Type)
+            {
+                case Models.ClientSessionTypes.SERVER:
+                    PackageResponseBuilder.AsyncMessageToServer(e.ClientId, _options.Urn, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
+                    break;
+                case Models.ClientSessionTypes.CLIENT:
+                    PackageResponseBuilder.AsyncMessageToClient(_options.Urn, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
+                    break;
+            }
+
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), e.ClientSession.Endpoint).WithCancellation(_cancellationToken);
         }

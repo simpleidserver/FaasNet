@@ -10,7 +10,11 @@ namespace EventMesh.Runtime.Messages
             Topics = new List<SubscriptionItem>();
         }
 
+        #region Properties
+
         public ICollection<SubscriptionItem> Topics { get; set; }
+
+        #endregion
 
         public override void Serialize(WriteBufferContext context)
         {

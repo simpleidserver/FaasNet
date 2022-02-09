@@ -38,5 +38,12 @@ namespace EventMesh.Runtime.Messages
             var result = Buffer.GetByteArray();
             return result;
         }
+
+        public bool NextBoolean()
+        {
+            var result = Buffer.GetBoolean();
+            CurrentOffset += 1;
+            return result;
+        }
     }
 }

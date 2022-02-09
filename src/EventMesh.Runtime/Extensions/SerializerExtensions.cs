@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -51,6 +52,12 @@ namespace EventMesh.Runtime.Extensions
         {
             var size = queue.Dequeue();
             return queue.Dequeue(size).ToArray();
+        }
+
+        public static bool GetBoolean(this Queue<byte> queue)
+        {
+            var payload = queue.Dequeue(1);
+            return Convert.ToBoolean(payload.ElementAt(0));
         }
 
         public static IEnumerable<byte> Dequeue(this Queue<byte> queue, uint number)

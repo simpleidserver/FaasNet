@@ -55,7 +55,7 @@ namespace EventMesh.Runtime.AMQP
 
             var channel = ListenTopic(topicName, client);
             client.ActiveSession.SubscribeTopic(topicName, _options.BrokerName);
-            _records.Add(new AMQPSubscriptionRecord(channel, client.ActiveSession, topicName));
+            _records.Add(new AMQPSubscriptionRecord(channel, client.ClientId, client.ActiveSession, topicName));
             return Task.CompletedTask;
         }
 
@@ -116,13 +116,11 @@ namespace EventMesh.Runtime.AMQP
         {
             var jsonEventFormatter = new JsonEventFormatter();
             var model = (sender as EventingBasicConsumer).Model;
-            var cloudEvent = e.ToCloudEvent(jsonEventFormatter,
-                _options.Source, 
-                topicName);
+            var cloudEvent = e.ToCloudEvent(jsonEventFormatter, _options.Source, topicName);
             var record = _records.FirstOrDefault(r => r.Model.Equals(model));
             if (CloudEventReceived != null)
             {
-                CloudEventReceived(this, new CloudEventArgs(e.RoutingKey, _options.BrokerName, cloudEvent, record.ClientSession));
+                CloudEventReceived(this, new CloudEventArgs(e.RoutingKey, _options.BrokerName, cloudEvent, record.ClientId, record.ClientSession));
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using EventMesh.Runtime.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,6 +17,11 @@ namespace EventMesh.Runtime.Messages
         public void WriteInteger(int it)
         {
             Buffer.AddRange(it.ToBytes());
+        }
+
+        public void WriteBoolean(bool i)
+        {
+            Buffer.Add(Convert.ToByte(i));
         }
 
         public void WriteByteArray(byte[] b)

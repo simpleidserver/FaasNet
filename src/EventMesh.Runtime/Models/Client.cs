@@ -10,14 +10,18 @@ namespace EventMesh.Runtime.Models
     {
         private Client() { }
 
-        private Client(string clientId)
+        private Client(string clientId, string urn)
         {
             ClientId = clientId;
+            Urn = urn;
             Topics = new List<ClientTopic>();
             Sessions = new List<ClientSession>();
         }
 
+        #region Properties
+
         public string ClientId { get; set; }
+        public string Urn { get; set; }
         public DateTime CreateDateTime { get; set; }
         public ClientSession ActiveSession
         {
@@ -29,18 +33,13 @@ namespace EventMesh.Runtime.Models
         public ICollection<ClientTopic> Topics { get; set; }
         public ICollection<ClientSession> Sessions { get; set; }
 
+        #endregion
+
         #region Actions
 
         public bool HasActiveSession(IPEndPoint edp)
         {
             return ActiveSession.Endpoint.Equals(edp);
-        }
-
-        public void AddSession(IPEndPoint edp, string env, int pid, string seq, UserAgentPurpose purpose, int bufferCloudEvents)
-        {
-            var session = ClientSession.Create(edp, env, pid, seq, purpose, bufferCloudEvents);
-            session.Activate();
-            Sessions.Add(session);
         }
 
         public ClientTopic GetTopic(string topic, string messageBrokerName)
@@ -65,11 +64,23 @@ namespace EventMesh.Runtime.Models
             topic.Offset += nbEventsConsumed;
         }
 
+        public void AddSession(IPEndPoint endpoint, string env, int pid, string seq, UserAgentPurpose purpose, int bufferCloudEvents, bool isServer)
+        {
+            var session = ClientSession.Create(endpoint, env, pid, seq, purpose, bufferCloudEvents, isServer ? ClientSessionTypes.SERVER : ClientSessionTypes.CLIENT);
+            session.Activate();
+            Sessions.Add(session);
+        }
+
+        public void CloseActiveSession()
+        {
+            ActiveSession.Close();
+        }
+
         #endregion
 
-        public static Client Create(string clientId)
+        public static Client Create(string clientId, string urn)
         {
-            return new Client(clientId)
+            return new Client(clientId, urn)
             {
                 CreateDateTime = DateTime.UtcNow
             };

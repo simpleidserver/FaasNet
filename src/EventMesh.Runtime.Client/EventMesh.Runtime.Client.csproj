@@ -5,6 +5,5 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventMesh.Runtime.AMQP\EventMesh.Runtime.AMQP.csproj" />
-    <ProjectReference Include="..\EventMesh.Runtime.MQTT\EventMesh.Runtime.MQTT.csproj" />
   </ItemGroup>
 </Project>

@@ -27,31 +27,32 @@ namespace EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var helloRequest = package as HelloRequest;
-            var client = _clientSessionStore.GetByActiveSession(sender);
-            if (client == null)
+            if (!await _aclService.Check(helloRequest.UserAgent, PossibleActions.AUTHENTICATE, cancellationToken))
             {
-                await TryCreateSession(helloRequest, sender, cancellationToken);
+                throw new RuntimeException(helloRequest.Header.Command, helloRequest.Header.Seq, Errors.NOT_AUTHORIZED);
             }
 
+            TryCreateSession(helloRequest, sender);
             return PackageResponseBuilder.Hello(package.Header.Seq);
         }
 
-        private async Task TryCreateSession(HelloRequest request, IPEndPoint sender, CancellationToken cancellationToken)
+        private void TryCreateSession(HelloRequest request, IPEndPoint sender)
         {
-            if (!await _aclService.Check(request.UserAgent, PossibleActions.AUTHENTICATE, cancellationToken))
-            {
-                throw new RuntimeException(request.Header.Command, request.Header.Seq, Errors.NOT_AUTHORIZED);
-            }
-
             bool isUpdated = true;
             var client = _clientSessionStore.Get(request.UserAgent.ClientId);
             if (client == null)
             {
-                client = Client.Create(request.UserAgent.ClientId);
+                client = Client.Create(request.UserAgent.ClientId, request.UserAgent.Urn);
                 isUpdated = false;
             }
 
-            client.AddSession(sender, request.UserAgent.Environment, request.UserAgent.Pid, request.Header.Seq, request.UserAgent.Purpose, request.UserAgent.BufferCloudEvents);
+            client.AddSession(sender,
+                request.UserAgent.Environment, 
+                request.UserAgent.Pid, 
+                request.Header.Seq, 
+                request.UserAgent.Purpose, 
+                request.UserAgent.BufferCloudEvents, 
+                request.UserAgent.IsServer);
             if (isUpdated)
             {
                 _clientSessionStore.Update(client);
@@ -60,8 +61,6 @@ namespace EventMesh.Runtime.Handlers
             {
                 _clientSessionStore.Add(client);
             }
-
-            return;
         }
     }
 }

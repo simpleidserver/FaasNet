@@ -27,11 +27,20 @@ namespace EventMesh.Runtime.Messages
             return result;
         }
 
-        public static SubscriptionRequest Subscribe(ICollection<SubscriptionItem> subscriptionItems)
+        public static Package Disconnect()
+        {
+            var result = new Package
+            {
+                Header = new Header(Commands.DISCONNECT_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq())
+            };
+            return result;
+        }
+
+        public static SubscriptionRequest Subscribe(ICollection<SubscriptionItem> subscriptionItems, string seq = null)
         {
             var result = new SubscriptionRequest
             {
-                Header = new Header(Commands.SUBSCRIBE_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
+                Header = new Header(Commands.SUBSCRIBE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
                 Topics = subscriptionItems
             };
             return result;
@@ -45,6 +54,17 @@ namespace EventMesh.Runtime.Messages
                 BrokerName = brokerName,
                 Topic = topic,
                 NbCloudEventsConsumed = nbCloudEventsConsumed
+            };
+            return result;
+        }
+
+        public static Package AddBridge(string urn, int port, string seq = null)
+        {
+            var result = new AddBridgeRequest
+            {
+                Header = new Header(Commands.ADD_BRIDGE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
+                Port = port,
+                Urn = urn
             };
             return result;
         }

@@ -27,6 +27,7 @@ namespace EventMesh.Runtime.EF.Stores
                 .Include(c => c.Sessions).ThenInclude(c => c.Histories)
                 .Include(c => c.Sessions).ThenInclude(c => c.Topics)
                 .Include(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
+                .Include(c => c.Sessions).ThenInclude(c => c.Bridges)
                 .Include(c => c.Topics)
                 .FirstOrDefault(c => c.ClientId == clientId);
         }
@@ -38,6 +39,7 @@ namespace EventMesh.Runtime.EF.Stores
                 .Include(c => c.Sessions).ThenInclude(c => c.Histories)
                 .Include(c => c.Sessions).ThenInclude(c => c.Topics)
                 .Include(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
+                .Include(c => c.Sessions).ThenInclude(c => c.Bridges)
                 .Include(c => c.Topics)
                 .FirstOrDefault(c => c.Sessions.Any(s => s.IPAddressData.SequenceEqual(payload) && s.Port == edp.Port));
         }

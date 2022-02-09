@@ -3,23 +3,37 @@ using EventMesh.Runtime.Handlers;
 using EventMesh.Runtime.MessageBroker;
 using EventMesh.Runtime.Stores;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 
 namespace EventMesh.Runtime
 {
     public class RuntimeHostBuilder
     {
-        public RuntimeHostBuilder()
+        public RuntimeHostBuilder(Action<RuntimeOptions> callback = null)
         {
             ServiceCollection = new ServiceCollection();
-            var clientStore = new ClientStore();
+            if (callback != null)
+            {
+                ServiceCollection.Configure(callback);
+            }
+            else
+            {
+                ServiceCollection.Configure<RuntimeOptions>(opt => { });
+            }
+
             ServiceCollection.AddTransient<IRuntimeHost, RuntimeHost>();
             ServiceCollection.AddTransient<IMessageHandler, HeartbeatMessageHandler>();
             ServiceCollection.AddTransient<IMessageHandler, HelloMessageHandler>();
             ServiceCollection.AddTransient<IMessageHandler, SubscribeMessageHandler>();
-            ServiceCollection.AddTransient<IMessageHandler, AsyncMessageAckToServerHandler>();
+            ServiceCollection.AddTransient<IMessageHandler, AsyncMessageToClientAckHandler>();
+            ServiceCollection.AddTransient<IMessageHandler, AsyncMessageToServerHandler>();
+            ServiceCollection.AddTransient<IMessageHandler, AddBridgeMessageHandler>();
+            ServiceCollection.AddTransient<IMessageHandler, DisconnectMessageHandler>();
             ServiceCollection.AddTransient<IACLService, ACLService>();
-            ServiceCollection.AddSingleton<IClientStore>(clientStore);
+            ServiceCollection.AddSingleton<IUdpClientServerFactory, UdpClientServerFactory>();
+            ServiceCollection.AddSingleton<IClientStore>(new ClientStore());
+            ServiceCollection.AddSingleton<IBridgeServerStore>(new BridgeServerStore());
         }
 
         public IServiceCollection ServiceCollection { get; }
