@@ -32,12 +32,12 @@ namespace EventMesh.Runtime.Messages
             return result;
         }
 
-        public static Package AsyncMessageToClient(string urn, string brokerName, string topicName, ICollection<CloudEvent> cloudEvts, string seq)
+        public static Package AsyncMessageToClient(ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicName, ICollection<CloudEvent> cloudEvts, string seq)
         {
             var result = new AsyncMessageToClient
             {
                 Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT, HeaderStatus.SUCCESS, seq),
-                Urn = urn,
+                BridgeServers = bridgeServers,
                 BrokerName = brokerName,
                 Topic = topicName,
                 CloudEvents = cloudEvts,
@@ -46,13 +46,13 @@ namespace EventMesh.Runtime.Messages
             return result;
         }
 
-        public static Package AsyncMessageToServer(string clientId, string urn, string brokerName, string topicName, ICollection<CloudEvent> cloudEvts, string seq)
+        public static Package AsyncMessageToServer(string clientId, ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicName, ICollection<CloudEvent> cloudEvts, string seq)
         {
             var result = new AsyncMessageToServer
             {
                 Header = new Header(Commands.ASYNC_MESSAGE_TO_SERVER, HeaderStatus.SUCCESS, seq),
                 ClientId = clientId,
-                Urn = urn,
+                BridgeServers = bridgeServers,
                 BrokerName = brokerName,
                 Topic = topicName,
                 CloudEvents = cloudEvts
@@ -83,6 +83,15 @@ namespace EventMesh.Runtime.Messages
             var result = new Package
             {
                 Header = new Header(Commands.DISCONNECT_RESPONSE, HeaderStatus.SUCCESS, seq)
+            };
+            return result;
+        }
+
+        public static Package AsyncMessageToClient(string seq)
+        {
+            var result = new Package
+            {
+                Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT_ACK_RESPONSE, HeaderStatus.SUCCESS, seq)
             };
             return result;
         }

@@ -46,7 +46,7 @@ namespace EventMesh.Runtime.Client
             }, (msg) =>
             {
                 var cloudEvts = string.Join(",", msg.CloudEvents.Select(c => c.Data));
-                Console.WriteLine($"Receive '{msg.CloudEvents.Count()}' messages: {cloudEvts}, urn : {msg.Urn}");
+                Console.WriteLine($"Receive '{msg.CloudEvents.Count()}' messages: {cloudEvts}, urn : {string.Join(',', msg.BridgeServers.Select(b => b.Urn))}");
             });
         }
     }

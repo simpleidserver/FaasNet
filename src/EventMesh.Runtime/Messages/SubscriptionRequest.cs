@@ -12,6 +12,7 @@ namespace EventMesh.Runtime.Messages
 
         #region Properties
 
+        public string ClientId { get; set; }
         public ICollection<SubscriptionItem> Topics { get; set; }
 
         #endregion
@@ -19,6 +20,7 @@ namespace EventMesh.Runtime.Messages
         public override void Serialize(WriteBufferContext context)
         {
             base.Serialize(context);
+            context.WriteString(ClientId);
             context.WriteInteger(Topics.Count());
             foreach(var topic in Topics)
             {
@@ -28,6 +30,7 @@ namespace EventMesh.Runtime.Messages
 
         public void Extract(ReadBufferContext context)
         {
+            ClientId = context.NextString();
             int nbTopics = context.NextInt();
             for(int i = 0; i < nbTopics; i++)
             {

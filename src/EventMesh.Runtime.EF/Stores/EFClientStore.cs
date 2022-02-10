@@ -32,7 +32,7 @@ namespace EventMesh.Runtime.EF.Stores
                 .FirstOrDefault(c => c.ClientId == clientId);
         }
 
-        public Client GetByActiveSession(IPEndPoint edp)
+        public Client GetByActiveSession(string clientId, IPEndPoint edp)
         {
             var payload = edp.Address.GetAddressBytes();
             return _dbContext.Clients
@@ -41,7 +41,7 @@ namespace EventMesh.Runtime.EF.Stores
                 .Include(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
                 .Include(c => c.Sessions).ThenInclude(c => c.Bridges)
                 .Include(c => c.Topics)
-                .FirstOrDefault(c => c.Sessions.Any(s => s.IPAddressData.SequenceEqual(payload) && s.Port == edp.Port));
+                .FirstOrDefault(c => c.ClientId == clientId && c.Sessions.Any(s => s.IPAddressData.SequenceEqual(payload) && s.Port == edp.Port));
         }
 
         public void Update(Client client)

@@ -52,6 +52,7 @@ namespace EventMesh.Runtime.Tests
             var client = new RuntimeClient(port: 4990);
             var response = await client.Hello(new UserAgent
             {
+                ClientId = "clientId",
                 Environment = "TST",
                 Password = "password",
                 Pid = 2000,
@@ -64,6 +65,121 @@ namespace EventMesh.Runtime.Tests
             Assert.Equal(Commands.HELLO_RESPONSE, response.Header.Command);
             Assert.Equal(HeaderStatus.SUCCESS.Code, response.Header.Status.Code);
             Assert.Equal(HeaderStatus.SUCCESS.Desc, response.Header.Status.Desc);
+        }
+
+        #endregion
+
+        #region Disconnect
+
+        [Fact]
+        public async Task When_Disconnect_And_ThereIsNoActiveSession_Then_ErrorIsReturned()
+        {
+            // ARRANGE
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 4994;
+            });
+            var host = builder.Build();
+            host.Run();
+
+            // ACT
+            var client = new RuntimeClient(port: 4994);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Disconnect("clientid"));
+            host.Stop();
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.INVALID_CLIENT, exception.Error);
+        }
+
+        [Fact]
+        public async Task When_Disconnect_Then_SessionIsNotActive()
+        {
+            // ARRANGE
+            const string clientId = "clientId";
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 4995;
+            });
+            var host = builder.Build();
+            host.Run();
+
+            // ACT
+            var client = new RuntimeClient(port: 4995);
+            await client.Hello(new UserAgent
+            {
+                ClientId = clientId,
+                Environment = "TST",
+                Password = "password",
+                Pid = 2000,
+                Purpose = UserAgentPurpose.SUB,
+                Version = "0"
+            });
+            var disconnectResponse = await client.Disconnect(clientId);
+            host.Stop();
+
+            // ASSERT
+            Assert.Equal(Commands.DISCONNECT_RESPONSE, disconnectResponse.Header.Command);
+            Assert.Equal(HeaderStatus.SUCCESS, disconnectResponse.Header.Status);
+        }
+
+        #endregion
+
+        #region Add Bridge
+
+        [Fact]
+        public async Task When_Add_NotReachableBridge_Then_ErrorIsReturned()
+        {
+            // ARRANGE
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 4996;
+            });
+            var host = builder.Build();
+            host.Run();
+
+            // ACT
+            var client = new RuntimeClient(port: 4996);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge("urn", 4997, CancellationToken.None));
+            host.Stop();
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.INVALID_BRIDGE, exception.Error);
+        }
+
+        [Fact]
+        public async Task When_AddSameBridgeTwice_Then_ErrorIsReturned()
+        {
+            // ARRANGE
+            var firstBuilder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 4997;
+                opt.Urn = "localhost";
+            });
+            var secondBuilder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 4998;
+                opt.Urn = "localhost";
+            });
+            var firstHost = firstBuilder.Build();
+            firstHost.Run();
+            var secondHost = secondBuilder.Build();
+            secondHost.Run();
+
+            // ACT
+            var client = new RuntimeClient(port: 4997);
+            await client.AddBridge("localhost", 4998, CancellationToken.None);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge("localhost", 4998, CancellationToken.None));
+            firstHost.Stop();
+            secondHost.Stop();
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.BRIDGE_EXISTS, exception.Error);
         }
 
         #endregion
@@ -96,7 +212,7 @@ namespace EventMesh.Runtime.Tests
                 Version = "0"
             });
             client.UdpClient.Close();
-            var exception = await Assert.ThrowsAsync<RuntimeClientSessionClosedException>(async() => await client.Subscribe(new List<SubscriptionItem>
+            var exception = await Assert.ThrowsAsync<RuntimeClientSessionClosedException>(async () => await client.Subscribe(clientId, new List<SubscriptionItem>
             {
                 new SubscriptionItem
                 {
@@ -126,8 +242,8 @@ namespace EventMesh.Runtime.Tests
             host.Run();
 
             // ACT
-            var client = new RuntimeClient(port : 4992);
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Subscribe(new List<SubscriptionItem>
+            var client = new RuntimeClient(port: 4992);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Subscribe("clientId", new List<SubscriptionItem>
             {
                 new SubscriptionItem
                 {
@@ -178,7 +294,7 @@ namespace EventMesh.Runtime.Tests
             host.Run();
 
             // ACT
-            var client = new RuntimeClient(port : 4993);
+            var client = new RuntimeClient(port: 4993);
             await client.Hello(new UserAgent
             {
                 ClientId = "id",
@@ -189,7 +305,7 @@ namespace EventMesh.Runtime.Tests
                 Version = "0",
                 BufferCloudEvents = 1
             });
-            await client.Subscribe(new List<SubscriptionItem>
+            await client.Subscribe("id", new List<SubscriptionItem>
             {
                 new SubscriptionItem
                 {
@@ -210,72 +326,95 @@ namespace EventMesh.Runtime.Tests
             var topic = storedClient.Topics.First();
             Assert.NotNull(msg);
             Assert.Equal(Constants.InMemoryBrokername, topic.BrokerName);
-            // Assert.Equal(1, topic.Offset);
+            Assert.Equal(1, topic.Offset);
             Assert.Equal(topicName, topic.Name);
         }
 
-        #endregion
-
-        #region Disconnect
-
         [Fact]
-        public async Task When_Disconnect_And_ThereIsNoActiveSession_Then_ErrorIsReturned()
+        public async Task When_AddBridge_And_Subscribe_ToOneTopic_Then_MessageIsReceivedFromSecondServer()
         {
             // ARRANGE
-            var builder = new RuntimeHostBuilder(opt =>
+            const string topicName = "Test.COUCOU";
+            AsyncMessageToClient msg = null;
+            var cloudEvent = new CloudEvent
             {
-                opt.Port = 4994;
+                Type = "com.github.pull.create",
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "testttt",
+                ["comexampleextension1"] = "value"
+            };
+            var topics = new List<InMemoryTopic>
+            {
+                new InMemoryTopic
+                {
+                    TopicName = topicName
+                }
+            };
+            var firstBuilder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 5001;
+                opt.Urn = "localhost";
             });
-            var host = builder.Build();
-            host.Run();
+            var secondBuilder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 5002;
+                opt.Urn = "localhost";
+            }).AddInMemoryMessageBroker(topics);
+            var firstServiceProvider = firstBuilder.ServiceCollection.BuildServiceProvider();
+            var secondServiceProvider = secondBuilder.ServiceCollection.BuildServiceProvider();
+            var messagePublisher = secondServiceProvider.GetRequiredService<IMessagePublisher>();
+            var firstClientStore = firstServiceProvider.GetRequiredService<IClientStore>();
+            var secondClientStore = secondServiceProvider.GetRequiredService<IClientStore>();
+            var firstHost = firstBuilder.Build();
+            firstHost.Run();
+            var secondHost = secondBuilder.Build();
+            secondHost.Run();
 
             // ACT
-            var client = new RuntimeClient(port: 4994);
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Disconnect());
-            host.Stop();
-
-            // ASSERT
-            Assert.NotNull(exception);
-            Assert.Equal(HeaderStatus.FAIL, exception.Status);
-            Assert.Equal(Errors.INVALID_CLIENT, exception.Error);
-        }
-
-        [Fact]
-        public async Task When_Disconnect_Then_SessionIsNotActive()
-        {
-            // ARRANGE
-            const string clientId = "clientId";
-            var builder = new RuntimeHostBuilder(opt =>
-            {
-                opt.Port = 4995;
-            });
-            var host = builder.Build();
-            host.Run();
-
-            // ACT
-            var client = new RuntimeClient(port: 4995);
+            var client = new RuntimeClient(port: 5001);
+            await client.AddBridge("localhost", 5002, CancellationToken.None);
             await client.Hello(new UserAgent
             {
-                ClientId = clientId,
+                ClientId = "id",
                 Environment = "TST",
                 Password = "password",
                 Pid = 2000,
                 Purpose = UserAgentPurpose.SUB,
-                Version = "0"
+                Version = "0",
+                BufferCloudEvents = 1
             });
-            var disconnectResponse = await client.Disconnect();
-            host.Stop();
+            await client.Subscribe("id", new List<SubscriptionItem>
+            {
+                new SubscriptionItem
+                {
+                    Topic = topicName
+                }
+            }, (m) =>
+            {
+                msg = m;
+            });
+            await messagePublisher.Publish(cloudEvent, topicName);
+            while (msg == null)
+            {
+                Thread.Sleep(100);
+            }
+
+            await client.Disconnect("id");
+            firstHost.Stop();
+            secondHost.Stop();
 
             // ASSERT
-            Assert.Equal(Commands.DISCONNECT_RESPONSE, disconnectResponse.Header.Command);
-            Assert.Equal(HeaderStatus.SUCCESS, disconnectResponse.Header.Status);
+            var firstServerClient = firstClientStore.Get("id");
+            var secondServerClient = secondClientStore.Get("id");
+            var topic = secondServerClient.Topics.First();
+            Assert.Equal(ClientSessionState.FINISH, firstServerClient.Sessions.First().State);
+            Assert.Equal(1, topic.Offset);
+            // UNE SESSION EST IDENTIFIEE DE FACON UNIQUE DE CETTE FACON : IPADDRESS + PORT + CLIENTID
         }
-
-        #endregion
-
-        #region Add Bridge
-
-
 
         #endregion
     }

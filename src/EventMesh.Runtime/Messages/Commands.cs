@@ -56,6 +56,7 @@ namespace EventMesh.Runtime.Messages
         /// Reply disconnect response.
         /// </summary>
         public static Commands DISCONNECT_RESPONSE = new Commands(12);
+        public static Commands ASYNC_MESSAGE_TO_CLIENT_ACK_RESPONSE = new Commands(13);
 
         private Commands(int code)
         {

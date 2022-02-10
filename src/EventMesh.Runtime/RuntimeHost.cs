@@ -111,6 +111,7 @@ namespace EventMesh.Runtime
                 EventMeshPackageReceived(this, new PackageEventArgs(package));
             }
 
+            var cmd = package.Header.Command;
             var messageHandler = _messageHandlers.First(m => m.Command == package.Header.Command);
             Package result = null;
             try
@@ -159,13 +160,21 @@ namespace EventMesh.Runtime
             }
 
             var writeCtx = new WriteBufferContext();
+            var bridgeServers = new List<AsyncMessageBridgeServer>
+            {
+                new AsyncMessageBridgeServer
+                {
+                    Port = _options.Port,
+                    Urn = _options.Urn
+                }
+            };
             switch (e.ClientSession.Type)
             {
                 case Models.ClientSessionTypes.SERVER:
-                    PackageResponseBuilder.AsyncMessageToServer(e.ClientId, _options.Urn, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
+                    PackageResponseBuilder.AsyncMessageToServer(e.ClientId, bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
                     break;
                 case Models.ClientSessionTypes.CLIENT:
-                    PackageResponseBuilder.AsyncMessageToClient(_options.Urn, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
+                    PackageResponseBuilder.AsyncMessageToClient(bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
                     break;
             }
 

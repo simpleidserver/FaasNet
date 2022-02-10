@@ -19,9 +19,9 @@ namespace EventMesh.Runtime.Stores
             return _clients.FirstOrDefault(c => c.ClientId == clientId);
         }
 
-        public Client GetByActiveSession(IPEndPoint edp)
+        public Client GetByActiveSession(string clientId, IPEndPoint edp)
         {
-            return _clients.FirstOrDefault(s => s.HasActiveSession(edp));
+            return _clients.FirstOrDefault(s => s.ClientId == clientId && s.HasActiveSession(edp));
         }
 
         public void Add(Client session)

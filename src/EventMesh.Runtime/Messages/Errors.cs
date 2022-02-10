@@ -6,11 +6,14 @@ namespace EventMesh.Runtime.Messages
     {
         public static Errors NO_ACTIVE_SESSION = new Errors("NO_ACTIVE_SESSION");
         public static Errors NOT_AUTHORIZED = new Errors("NOT_AUTHORIZED");
+        public static Errors NO_BRIDGE_SERVER = new Errors("NO_BRIDGE_SERVER");
         public static Errors INVALID_URL = new Errors("INVALID_URL");
         public static Errors INVALID_CLIENT = new Errors("INVALID_CLIENT");
         public static Errors INVALID_SEQ = new Errors("INVALID_SEQ");
+        public static Errors INVALID_BRIDGE = new Errors("INVALID_BRIDGE");
         public static Errors BRIDGE_NOT_ACTIVE = new Errors("BRIDGE_NOT_ACTIVE");
         public static Errors BRIDGE_EXISTS = new Errors("BRIDGE_EXISTS");
+        public static Errors UNKNOWN_BRIDGE = new Errors("UNKNOWN_BRIDGE");
 
         private Errors(string code)
         {

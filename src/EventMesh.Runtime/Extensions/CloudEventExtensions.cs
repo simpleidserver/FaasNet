@@ -1,6 +1,7 @@
 ﻿using CloudNative.CloudEvents;
 using CloudNative.CloudEvents.SystemTextJson;
 using EventMesh.Runtime.Messages;
+using System;
 using System.Linq;
 
 namespace EventMesh.Runtime.Extensions
@@ -32,9 +33,17 @@ namespace EventMesh.Runtime.Extensions
             for (int i = 0; i < nbAttributes; i++)
             {
                 var attrName = context.NextString();
-                context.NextString();
+                var type = context.NextString();
                 var attrValue = context.NextString();
-                cloudEvt.SetAttributeFromString(attrName, attrValue);
+                switch(type)
+                {
+                    case "Timestamp":
+                        cloudEvt.Time = DateTime.Parse(attrValue);
+                        break;
+                    default:
+                        cloudEvt.SetAttributeFromString(attrName, attrValue);
+                        break;
+                }
             }
 
             return cloudEvt;

@@ -74,7 +74,7 @@ namespace EventMesh.Runtime
 
         public Task<Package> Hello(UserAgent userAgent, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return HandleException(async () =>
+            return HandleException(userAgent.ClientId, async () =>
             {
                 var writeCtx = new WriteBufferContext();
                 var package = PackageRequestBuilder.Hello(userAgent);
@@ -89,12 +89,12 @@ namespace EventMesh.Runtime
             });
         }
 
-        public Task<Package> Subscribe(ICollection<SubscriptionItem> subscriptionItems, Action<AsyncMessageToClient> callback = null, string seq = null, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Package> Subscribe(string clientId, ICollection<SubscriptionItem> subscriptionItems, Action<AsyncMessageToClient> callback = null, string seq = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return HandleException(async () =>
+            return HandleException(clientId, async() =>
             {
                 var writeCtx = new WriteBufferContext();
-                var package = PackageRequestBuilder.Subscribe(subscriptionItems, seq);
+                var package = PackageRequestBuilder.Subscribe(clientId, subscriptionItems, seq);
                 package.Serialize(writeCtx);
                 var payload = writeCtx.Buffer.ToArray();
                 await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
@@ -104,7 +104,7 @@ namespace EventMesh.Runtime
                 EnsureSuccessStatus(package, result);
                 if (callback != null)
                 {
-                    var listener = new MessageCallbackListener(_udpClient, callback, _ipAddr, _port);
+                    var listener = new MessageCallbackListener(clientId, _udpClient, callback, _ipAddr, _port);
                     listener.Listen(CancellationToken.None);
                 }
 
@@ -126,10 +126,10 @@ namespace EventMesh.Runtime
             return packageResult;
         }
 
-        public async Task<Package> Disconnect(bool ignoreException = false)
+        public async Task<Package> Disconnect(string clientId, bool ignoreException = false)
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.Disconnect();
+            var package = PackageRequestBuilder.Disconnect(clientId);
             package.Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
@@ -141,6 +141,20 @@ namespace EventMesh.Runtime
                 EnsureSuccessStatus(package, packageResult);
             }
 
+            return packageResult;
+        }
+
+        public async Task<Package> TransferMessageToServer(string clientId, string brokerName, string topic, int nbEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string seq = null)
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.AsyncMessageAckToServer(clientId, brokerName, topic, nbEventsConsumed, bridgeServers);
+            package.Serialize(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
+            var resultPayload = await _udpClient.ReceiveAsync();
+            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            var packageResult = Package.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
             return packageResult;
         }
 
@@ -172,7 +186,7 @@ namespace EventMesh.Runtime
             }
         }
 
-        private async Task<Package> HandleException(Func<Task<Package>> callback)
+        private async Task<Package> HandleException(string clientId, Func<Task<Package>> callback)
         {
             try
             {
@@ -185,7 +199,7 @@ namespace EventMesh.Runtime
                     using (var udpClient = new UdpClient(new IPEndPoint(_clientIPAddress, _clientPort)))
                     {
                         var runtimeClient = new RuntimeClient(udpClient, _ipAddr, _port);
-                        await runtimeClient.Disconnect();
+                        await runtimeClient.Disconnect(clientId);
                     }
 
                     throw new RuntimeClientSessionClosedException(ex.ToString());
@@ -198,17 +212,20 @@ namespace EventMesh.Runtime
 
     public class MessageCallbackListener
     {
+        private readonly string _clientId;
         private readonly UdpClient _udpClient;
         private readonly Action<AsyncMessageToClient> _callback;
         private readonly IPAddress _ipAddr;
         private readonly int _port;
 
         public MessageCallbackListener(
+            string clientId,
             UdpClient udpClient, 
             Action<AsyncMessageToClient> callback,
             IPAddress ipAddr,
             int port)
         {
+            _clientId = clientId;
             _udpClient = udpClient;
             _callback = callback;
             _ipAddr = ipAddr;
@@ -240,11 +257,10 @@ namespace EventMesh.Runtime
                 if (package.Header.Command == Commands.ASYNC_MESSAGE_TO_CLIENT)
                 {
                     var asyncMessage = package as AsyncMessageToClient;
+                    var runtimeClient = new RuntimeClient(_udpClient, _ipAddr, _port);
+                    await runtimeClient.TransferMessageToServer(_clientId, asyncMessage.BrokerName, asyncMessage.Topic, asyncMessage.CloudEvents.Count(), asyncMessage.BridgeServers);
                     _callback(asyncMessage);
-                    var writeCtx = new WriteBufferContext();
-                    PackageRequestBuilder.AsyncMessageAckToServer(asyncMessage.BrokerName, asyncMessage.Topic, asyncMessage.CloudEvents.Count(), asyncMessage.Header.Seq).Serialize(writeCtx);
-                    var payload = writeCtx.Buffer.ToArray();
-                    await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
+                    return;
                 }
             }
         }

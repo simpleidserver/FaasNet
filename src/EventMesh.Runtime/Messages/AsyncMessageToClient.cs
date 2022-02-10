@@ -9,12 +9,13 @@ namespace EventMesh.Runtime.Messages
     {
         public AsyncMessageToClient()
         {
+            BridgeServers = new List<AsyncMessageBridgeServer>();
             CloudEvents = new List<CloudEvent>();
         }
 
         #region Properties
 
-        public string Urn { get; set; }
+        public ICollection<AsyncMessageBridgeServer> BridgeServers { get; set; }
         public string Topic { get; set; }
         public string BrokerName { get; set; }
         public ICollection<CloudEvent> CloudEvents { get; set; }
@@ -24,7 +25,12 @@ namespace EventMesh.Runtime.Messages
         public override void Serialize(WriteBufferContext context)
         {
             base.Serialize(context);
-            context.WriteString(Urn);
+            context.WriteInteger(BridgeServers.Count());
+            foreach (var bridgeServer in BridgeServers)
+            {
+                bridgeServer.Serialize(context);
+            }
+
             context.WriteString(Topic);
             context.WriteString(BrokerName);
             context.WriteInteger(CloudEvents.Count());
@@ -38,7 +44,12 @@ namespace EventMesh.Runtime.Messages
 
         public void Extract(ReadBufferContext context)
         {
-            Urn = context.NextString();
+            var numberOfBridgeServers = context.NextInt();
+            for (int i = 0; i < numberOfBridgeServers; i++)
+            {
+                BridgeServers.Add(AsyncMessageBridgeServer.Deserialize(context));
+            }
+
             Topic = context.NextString();
             BrokerName = context.NextString();
             int nbCloudEvents = context.NextInt();

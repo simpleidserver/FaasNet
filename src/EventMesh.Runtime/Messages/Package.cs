@@ -79,6 +79,16 @@
                 return result;
             }
 
+            if (Commands.DISCONNECT_REQUEST == header.Command)
+            {
+                var result = new DisconnectRequest
+                {
+                    Header = header
+                };
+                result.Extract(context);
+                return result;
+            }
+
             return new Package
             {
                 Header = header

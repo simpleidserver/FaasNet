@@ -2,6 +2,7 @@
 using EventMesh.Runtime.Extensions;
 using EventMesh.Runtime.Messages;
 using EventMesh.Runtime.Stores;
+using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -13,13 +14,16 @@ namespace EventMesh.Runtime.Handlers
     {
         private readonly IClientStore _clientStore;
         private readonly IUdpClientServerFactory _udpClientFactory;
+        private readonly RuntimeOptions _options;
 
         public AsyncMessageToServerHandler(
             IClientStore clientStore,
-            IUdpClientServerFactory udpClientFactory)
+            IUdpClientServerFactory udpClientFactory,
+            IOptions<RuntimeOptions> options)
         {
             _clientStore = clientStore;
             _udpClientFactory = udpClientFactory;
+            _options = options.Value;
         }
 
         public Commands Command => Commands.ASYNC_MESSAGE_TO_SERVER;
@@ -40,13 +44,15 @@ namespace EventMesh.Runtime.Handlers
 
             var writeCtx = new WriteBufferContext();
             var udpClient = _udpClientFactory.Build();
-            switch(client.ActiveSession.Type)
+            switch (client.ActiveSession.Type)
             {
                 case Models.ClientSessionTypes.SERVER:
-                    PackageResponseBuilder.AsyncMessageToServer(pkg.ClientId, pkg.Urn, pkg.BrokerName, pkg.Topic, pkg.CloudEvents, pkg.Header.Seq).Serialize(writeCtx);
+                    var bridgeServers = pkg.BridgeServers;
+                    bridgeServers.Add(new AsyncMessageBridgeServer { Port = _options.Port, Urn = _options.Urn });
+                    PackageResponseBuilder.AsyncMessageToServer(pkg.ClientId, bridgeServers, pkg.BrokerName, pkg.Topic, pkg.CloudEvents, pkg.Header.Seq).Serialize(writeCtx);
                     break;
                 case Models.ClientSessionTypes.CLIENT:
-                    PackageResponseBuilder.AsyncMessageToClient(pkg.Urn, pkg.BrokerName, pkg.Topic, pkg.CloudEvents, pkg.Header.Seq).Serialize(writeCtx);
+                    PackageResponseBuilder.AsyncMessageToClient(pkg.BridgeServers, pkg.BrokerName, pkg.Topic, pkg.CloudEvents, pkg.Header.Seq).Serialize(writeCtx);
                     break;
             }
 

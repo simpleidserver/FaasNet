@@ -27,38 +27,42 @@ namespace EventMesh.Runtime.Messages
             return result;
         }
 
-        public static Package Disconnect()
+        public static DisconnectRequest Disconnect(string clientId)
         {
-            var result = new Package
+            var result = new DisconnectRequest
             {
-                Header = new Header(Commands.DISCONNECT_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq())
+                Header = new Header(Commands.DISCONNECT_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
+                ClientId = clientId
             };
             return result;
         }
 
-        public static SubscriptionRequest Subscribe(ICollection<SubscriptionItem> subscriptionItems, string seq = null)
+        public static SubscriptionRequest Subscribe(string clientId, ICollection<SubscriptionItem> subscriptionItems, string seq = null)
         {
             var result = new SubscriptionRequest
             {
                 Header = new Header(Commands.SUBSCRIBE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
-                Topics = subscriptionItems
+                Topics = subscriptionItems,
+                ClientId = clientId
             };
             return result;
         }
 
-        public static Package AsyncMessageAckToServer(string brokerName, string topic, int nbCloudEventsConsumed, string seq)
+        public static Package AsyncMessageAckToServer(string clientId, string brokerName, string topic, int nbCloudEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string seq = null)
         {
             var result = new AsyncMessageAckToServer
             {
-                Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT_ACK, HeaderStatus.SUCCESS, seq),
+                Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT_ACK, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
                 BrokerName = brokerName,
                 Topic = topic,
-                NbCloudEventsConsumed = nbCloudEventsConsumed
+                NbCloudEventsConsumed = nbCloudEventsConsumed,
+                BridgeServers = bridgeServers,
+                ClientId = clientId
             };
             return result;
         }
 
-        public static Package AddBridge(string urn, int port, string seq = null)
+        public static Package AddBridge(string urn, int port,string seq = null)
         {
             var result = new AddBridgeRequest
             {

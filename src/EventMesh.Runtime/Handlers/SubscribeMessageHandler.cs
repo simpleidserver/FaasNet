@@ -35,9 +35,9 @@ namespace EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var subscriptionRequest = package as SubscriptionRequest;
-            var client = GetActiveSession(package, sender);
-            await SubscribeLocalTopics(subscriptionRequest, client, cancellationToken);
+            var client = GetActiveSession(package, subscriptionRequest.ClientId, sender);
             await SubscribeBridgeServerTopics(subscriptionRequest, client);
+            await SubscribeLocalTopics(subscriptionRequest, client, cancellationToken);
             ClientStore.Update(client);
             return PackageResponseBuilder.Subscription(package.Header.Seq);
         }
@@ -91,7 +91,7 @@ namespace EventMesh.Runtime.Handlers
                 client.ActiveSession.AddBridge(bridge);
             }
 
-            await runtimeClient.Subscribe(subscriptionRequest.Topics);
+            await runtimeClient.Subscribe(subscriptionRequest.ClientId, subscriptionRequest.Topics);
         }
 
         #endregion
