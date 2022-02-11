@@ -160,17 +160,15 @@ namespace EventMesh.Runtime
             }
 
             var writeCtx = new WriteBufferContext();
-            var bridgeServers = new List<AsyncMessageBridgeServer>
-            {
-                new AsyncMessageBridgeServer
-                {
-                    Port = _options.Port,
-                    Urn = _options.Urn
-                }
-            };
+            var bridgeServers = new List<AsyncMessageBridgeServer>();
             switch (e.ClientSession.Type)
             {
                 case Models.ClientSessionTypes.SERVER:
+                    bridgeServers.Add(new AsyncMessageBridgeServer
+                    {
+                        Port = _options.Port,
+                        Urn = _options.Urn
+                    });
                     PackageResponseBuilder.AsyncMessageToServer(e.ClientId, bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
                     break;
                 case Models.ClientSessionTypes.CLIENT:

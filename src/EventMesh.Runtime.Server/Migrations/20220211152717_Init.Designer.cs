@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventMesh.Runtime.Server.Migrations
 {
     [DbContext(typeof(EventMeshDBContext))]
-    [Migration("20220208150445_Init")]
+    [Migration("20220211152717_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

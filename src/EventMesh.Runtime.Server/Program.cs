@@ -1,6 +1,4 @@
-﻿using CloudNative.CloudEvents;
-using CloudNative.CloudEvents.SystemTextJson;
-using EventMesh.Runtime.EF;
+﻿using EventMesh.Runtime.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;

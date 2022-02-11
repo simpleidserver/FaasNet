@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventMesh.Runtime.Client", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventMesh.Runtime.EF", "src\EventMesh.Runtime.EF\EventMesh.Runtime.EF.csproj", "{5A4AE409-D86A-435A-B6DA-2FA57896067C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventMesh.Runtime.Website", "src\EventMesh.Runtime.Website\EventMesh.Runtime.Website.csproj", "{99809234-C3D5-45ED-8699-E1DD1337682B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{5A4AE409-D86A-435A-B6DA-2FA57896067C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A4AE409-D86A-435A-B6DA-2FA57896067C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A4AE409-D86A-435A-B6DA-2FA57896067C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99809234-C3D5-45ED-8699-E1DD1337682B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99809234-C3D5-45ED-8699-E1DD1337682B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99809234-C3D5-45ED-8699-E1DD1337682B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99809234-C3D5-45ED-8699-E1DD1337682B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +68,7 @@ Global
 		{C4C745A5-DFFF-4803-883A-B7F4F8888338} = {20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}
 		{3F30FA61-B630-4EB3-959C-9AD5FEEDB2E4} = {20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}
 		{5A4AE409-D86A-435A-B6DA-2FA57896067C} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
+		{99809234-C3D5-45ED-8699-E1DD1337682B} = {20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9BD3B8C-B2C9-468F-BF54-66BFE9B565EC}

@@ -410,10 +410,14 @@ namespace EventMesh.Runtime.Tests
             // ASSERT
             var firstServerClient = firstClientStore.Get("id");
             var secondServerClient = secondClientStore.Get("id");
-            var topic = secondServerClient.Topics.First();
-            Assert.Equal(ClientSessionState.FINISH, firstServerClient.Sessions.First().State);
-            Assert.Equal(1, topic.Offset);
-            // UNE SESSION EST IDENTIFIEE DE FACON UNIQUE DE CETTE FACON : IPADDRESS + PORT + CLIENTID
+            var secondTopic = secondServerClient.Topics.First();
+            var firstSession = firstServerClient.Sessions.First();
+            var secondSession = secondServerClient.Sessions.First();
+            Assert.Equal(ClientSessionState.FINISH, firstSession.State);
+            Assert.Equal(ClientSessionState.FINISH, secondSession.State);
+            Assert.Equal(1, secondTopic.Offset);
+            Assert.Equal("inmemory", secondTopic.BrokerName);
+            Assert.Equal("Test.COUCOU", secondTopic.Name);
         }
 
         #endregion
