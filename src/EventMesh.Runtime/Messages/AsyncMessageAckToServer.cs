@@ -16,6 +16,7 @@ namespace EventMesh.Runtime.Messages
         public int NbCloudEventsConsumed { get; set; }
         public string Topic { get; set; }
         public string BrokerName { get; set; }
+        public string SessionId { get; set; }
         public ICollection<AsyncMessageBridgeServer> BridgeServers { get; set; }
 
         #endregion
@@ -27,6 +28,7 @@ namespace EventMesh.Runtime.Messages
             context.WriteInteger(NbCloudEventsConsumed);
             context.WriteString(Topic);
             context.WriteString(BrokerName);
+            context.WriteString(SessionId);
             context.WriteInteger(BridgeServers.Count());
             foreach (var bridgeServer in BridgeServers)
             {
@@ -40,6 +42,7 @@ namespace EventMesh.Runtime.Messages
             NbCloudEventsConsumed = context.NextInt();
             Topic = context.NextString();
             BrokerName = context.NextString();
+            SessionId = context.NextString();
             var numberOfBridgeServers = context.NextInt();
             for (int i = 0; i < numberOfBridgeServers; i++)
             {

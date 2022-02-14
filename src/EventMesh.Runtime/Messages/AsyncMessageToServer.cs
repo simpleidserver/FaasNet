@@ -19,6 +19,7 @@ namespace EventMesh.Runtime.Messages
         public ICollection<AsyncMessageBridgeServer> BridgeServers { get; set; }
         public string Topic { get; set; }
         public string BrokerName { get; set; }
+        public string SessionId { get; set; }
         public ICollection<CloudEvent> CloudEvents { get; set; }
 
         #endregion
@@ -35,6 +36,7 @@ namespace EventMesh.Runtime.Messages
 
             context.WriteString(Topic);
             context.WriteString(BrokerName);
+            context.WriteString(SessionId);
             context.WriteInteger(CloudEvents.Count());
             foreach (var cloudEvt in CloudEvents)
             {
@@ -53,6 +55,7 @@ namespace EventMesh.Runtime.Messages
 
             Topic = context.NextString();
             BrokerName = context.NextString();
+            SessionId = context.NextString();
             int nbCloudEvents = context.NextInt();
             for (int i = 0; i < nbCloudEvents; i++)
             {

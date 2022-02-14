@@ -8,8 +8,7 @@ namespace EventMesh.Runtime.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<ClientSession> builder)
         {
-            builder.Property<int>("Id").ValueGeneratedOnAdd();
-            builder.HasKey("Id");
+            builder.HasKey(cs => cs.Id);
             builder.Ignore(cs => cs.Endpoint);
             builder.Ignore(cs => cs.Purpose);
             builder.HasMany(cs => cs.Histories).WithOne().OnDelete(DeleteBehavior.Cascade);

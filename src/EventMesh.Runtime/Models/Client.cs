@@ -23,11 +23,11 @@ namespace EventMesh.Runtime.Models
         public string ClientId { get; set; }
         public string Urn { get; set; }
         public DateTime CreateDateTime { get; set; }
-        public ClientSession ActiveSession
+        public IEnumerable<ClientSession> ActiveSessions
         {
             get
             {
-                return Sessions.FirstOrDefault(s => s.State == ClientSessionState.ACTIVE);
+                return Sessions.Where(s => s.State == ClientSessionState.ACTIVE);
             }
         }
         public ICollection<ClientTopic> Topics { get; set; }
@@ -37,9 +37,19 @@ namespace EventMesh.Runtime.Models
 
         #region Actions
 
-        public bool HasActiveSession(IPEndPoint edp)
+        public bool HasActiveSession(string sessionId)
         {
-            return ActiveSession.Endpoint.Equals(edp);
+            return GetActiveSession(sessionId) != null;
+        }
+
+        public ClientSession GetActiveSession(string sessionId)
+        {
+            return ActiveSessions.FirstOrDefault(s => s.Id == sessionId);
+        }
+
+        public ClientSession GetActiveSession(string sessionId, string bridgeUrn)
+        {
+            return ActiveSessions.FirstOrDefault(s => s.Bridges.Any(b => b.Urn == bridgeUrn && b.SessionId == sessionId));
         }
 
         public ClientTopic GetTopic(string topic, string messageBrokerName)
@@ -64,16 +74,17 @@ namespace EventMesh.Runtime.Models
             topic.Offset += nbEventsConsumed;
         }
 
-        public void AddSession(IPEndPoint endpoint, string env, int pid, string seq, UserAgentPurpose purpose, int bufferCloudEvents, bool isServer)
+        public string AddSession(IPEndPoint endpoint, string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, bool isServer)
         {
-            var session = ClientSession.Create(endpoint, env, pid, seq, purpose, bufferCloudEvents, isServer ? ClientSessionTypes.SERVER : ClientSessionTypes.CLIENT);
+            var session = ClientSession.Create(endpoint, env, pid, purpose, bufferCloudEvents, isServer ? ClientSessionTypes.SERVER : ClientSessionTypes.CLIENT);
             session.Activate();
             Sessions.Add(session);
+            return session.Id;
         }
 
-        public void CloseActiveSession()
+        public void CloseActiveSession(string sessionId)
         {
-            ActiveSession.Close();
+            GetActiveSession(sessionId).Close();
         }
 
         #endregion

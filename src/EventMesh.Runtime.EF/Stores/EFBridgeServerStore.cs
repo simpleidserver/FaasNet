@@ -20,6 +20,11 @@ namespace EventMesh.Runtime.EF.Stores
             _dbContext.SaveChanges();
         }
 
+        public int Count()
+        {
+            return _dbContext.BridgeServers.Count();
+        }
+
         public BridgeServer Get(string urn)
         {
             return _dbContext.BridgeServers.FirstOrDefault(b => b.Urn == urn);

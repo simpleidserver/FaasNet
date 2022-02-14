@@ -9,6 +9,7 @@ namespace EventMesh.Runtime.EF
 
         public virtual DbSet<Client> Clients { get; set; }
         public virtual DbSet<BridgeServer> BridgeServers { get; set; }
+        public virtual DbSet<BrokerConfiguration> BrokerConfigurations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

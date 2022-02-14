@@ -1,10 +1,11 @@
-using EventMesh.Runtime.Website.Data;
-using EventMesh.Runtime.Website.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.IO;
 
 namespace EventMesh.Runtime.Website
 {
@@ -19,15 +20,14 @@ namespace EventMesh.Runtime.Website
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var path = Path.Combine(Environment.CurrentDirectory, "Runtime.db");
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.Configure<RuntimeOptions>(opt =>
+            services.AddRuntimeWebsite(opt =>
             {
                 opt.Urn = "localhost";
                 opt.Port = 4000;
-            });
-            services.AddScoped<BreadcrumbState>();
-            services.AddSingleton<WeatherForecastService>();
+            }).AddRuntimeEF(opt => opt.UseSqlite($"Data Source={path}"), isScoped: true);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

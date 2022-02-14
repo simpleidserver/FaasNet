@@ -31,6 +31,8 @@ namespace EventMesh.Runtime.Models
                 IPAddressData = value.Address.GetAddressBytes();
             }
         }
+
+        public string Id { get; set; }
         public byte[] IPAddressData { get; set; }
         public int Port { get; set; }
         public string Environment { get; set; }
@@ -48,7 +50,6 @@ namespace EventMesh.Runtime.Models
         }
         public int PurposeCode { get; set; }
         public DateTime ExpirationDateTime { get; set; }
-        public string Seq { get; set; }
         public int BufferCloudEvents { get; set; }
         public ClientSessionTypes Type { get; set; }
         public ClientSessionState State { get; set; }
@@ -126,14 +127,14 @@ namespace EventMesh.Runtime.Models
 
         #endregion
 
-        public static ClientSession Create(IPEndPoint edp, string env, int pid, string seq, UserAgentPurpose purpose, int bufferCloudEvents, ClientSessionTypes type)
+        public static ClientSession Create(IPEndPoint edp, string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, ClientSessionTypes type)
         {
             var result = new ClientSession
             {
+                Id = Guid.NewGuid().ToString(),
                 Endpoint = edp,
                 Environment = env,
                 Pid = pid,
-                Seq = seq,
                 Purpose = purpose,
                 BufferCloudEvents = bufferCloudEvents,
                 Type = type

@@ -19,9 +19,9 @@ namespace EventMesh.Runtime.Stores
             return _clients.FirstOrDefault(c => c.ClientId == clientId);
         }
 
-        public Client GetByActiveSession(string clientId, IPEndPoint edp)
+        public Client GetByActiveSession(string clientId, string sessionId)
         {
-            return _clients.FirstOrDefault(s => s.ClientId == clientId && s.HasActiveSession(edp));
+            return _clients.FirstOrDefault(s => s.ClientId == clientId && s.HasActiveSession(sessionId));
         }
 
         public void Add(Client session)
@@ -38,6 +38,21 @@ namespace EventMesh.Runtime.Stores
             }
 
             _clients.Add(client);
+        }
+
+        public int Count()
+        {
+            return _clients.Count();
+        }
+
+        public int CountActiveSessions()
+        {
+            return _clients.SelectMany(c => c.Sessions).Count(c => c.State == ClientSessionState.ACTIVE);
+        }
+
+        public IEnumerable<Client> GetAll()
+        {
+            return _clients;
         }
     }
 }

@@ -169,10 +169,10 @@ namespace EventMesh.Runtime
                         Port = _options.Port,
                         Urn = _options.Urn
                     });
-                    PackageResponseBuilder.AsyncMessageToServer(e.ClientId, bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
+                    PackageResponseBuilder.AsyncMessageToServer(e.ClientId, bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Id).Serialize(writeCtx);
                     break;
                 case Models.ClientSessionTypes.CLIENT:
-                    PackageResponseBuilder.AsyncMessageToClient(bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Seq).Serialize(writeCtx);
+                    PackageResponseBuilder.AsyncMessageToClient(bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts).Serialize(writeCtx);
                     break;
             }
 

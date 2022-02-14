@@ -25,10 +25,11 @@ namespace EventMesh.Runtime.Client
         private static async Task Subscribe()
         {
             Console.WriteLine("Subscribe to topic 'Test.Coucou'");
+            const string clientId = "7127b7d9-a4b3-4728-b8d6-7c573503be98";
             // Create a session.
-            await _runtimeClient.Hello(new UserAgent
+            var helloResponse = await _runtimeClient.Hello(new UserAgent
             {
-                ClientId = "7127b7d9-a4b3-4728-b8d6-7c573503be98",
+                ClientId = clientId,
                 Environment = "TST",
                 Password = "password",
                 Pid = 2000,
@@ -37,7 +38,7 @@ namespace EventMesh.Runtime.Client
                 BufferCloudEvents = 2
             });
             // Subscribe to a topic.
-            await _runtimeClient.Subscribe(new List<SubscriptionItem>
+            await _runtimeClient.Subscribe(clientId, helloResponse.SessionId, new List<SubscriptionItem>
             {
                 new SubscriptionItem
                 {

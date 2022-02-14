@@ -10,8 +10,8 @@ namespace EventMesh.Runtime
     {
         Task Start(CancellationToken cancellationToken);
         Task Stop(CancellationToken cancellationToken);
-        Task Subscribe(string topic, Client client, CancellationToken cancellationToken);
-        Task Unsubscribe(string topic, Client client, CancellationToken cancellationToken);
+        Task Subscribe(string topic, Client client, string sessionId, CancellationToken cancellationToken);
+        Task Unsubscribe(string topic, Client client, string sessionId, CancellationToken cancellationToken);
         event EventHandler<CloudEventArgs> CloudEventReceived;
     }
 }

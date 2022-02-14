@@ -88,6 +88,16 @@
                 result.Extract(context);
                 return result;
             }
+            
+            if (Commands.HELLO_RESPONSE == header.Command)
+            {
+                var result = new HelloResponse
+                {
+                    Header = header
+                };
+                result.Extract(context);
+                return result;
+            }
 
             return new Package
             {

@@ -20,6 +20,18 @@ namespace EventMesh.Runtime.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BrokerConfigurations",
+                columns: table => new
+                {
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Protocol = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BrokerConfigurations", x => x.Name);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Clients",
                 columns: table => new
                 {
@@ -33,18 +45,37 @@ namespace EventMesh.Runtime.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClientSession",
+                name: "BrokerConfigurationRecord",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    Key = table.Column<string>(type: "TEXT", nullable: true),
+                    Value = table.Column<string>(type: "TEXT", nullable: true),
+                    BrokerConfigurationName = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BrokerConfigurationRecord", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BrokerConfigurationRecord_BrokerConfigurations_BrokerConfigurationName",
+                        column: x => x.BrokerConfigurationName,
+                        principalTable: "BrokerConfigurations",
+                        principalColumn: "Name",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientSession",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
                     IPAddressData = table.Column<byte[]>(type: "BLOB", nullable: true),
                     Port = table.Column<int>(type: "INTEGER", nullable: false),
                     Environment = table.Column<string>(type: "TEXT", nullable: true),
                     Pid = table.Column<int>(type: "INTEGER", nullable: false),
                     PurposeCode = table.Column<int>(type: "INTEGER", nullable: false),
                     ExpirationDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Seq = table.Column<string>(type: "TEXT", nullable: true),
                     BufferCloudEvents = table.Column<int>(type: "INTEGER", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
                     State = table.Column<int>(type: "INTEGER", nullable: false),
@@ -68,7 +99,7 @@ namespace EventMesh.Runtime.Server.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Urn = table.Column<string>(type: "TEXT", nullable: true),
-                    ClientSessionId = table.Column<int>(type: "INTEGER", nullable: true)
+                    ClientSessionId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -89,7 +120,7 @@ namespace EventMesh.Runtime.Server.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     State = table.Column<int>(type: "INTEGER", nullable: false),
                     Timestamp = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ClientSessionId = table.Column<int>(type: "INTEGER", nullable: true)
+                    ClientSessionId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -111,7 +142,7 @@ namespace EventMesh.Runtime.Server.Migrations
                     EvtPayload = table.Column<byte[]>(type: "BLOB", nullable: true),
                     BrokerName = table.Column<string>(type: "TEXT", nullable: true),
                     Topic = table.Column<string>(type: "TEXT", nullable: true),
-                    ClientSessionId = table.Column<int>(type: "INTEGER", nullable: true)
+                    ClientSessionId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -132,7 +163,7 @@ namespace EventMesh.Runtime.Server.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: true),
                     BrokerName = table.Column<string>(type: "TEXT", nullable: true),
-                    ClientSessionId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ClientSessionId = table.Column<string>(type: "TEXT", nullable: true),
                     Discriminator = table.Column<string>(type: "TEXT", nullable: false),
                     Offset = table.Column<int>(type: "INTEGER", nullable: true),
                     ClientId = table.Column<string>(type: "TEXT", nullable: true)
@@ -153,6 +184,11 @@ namespace EventMesh.Runtime.Server.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BrokerConfigurationRecord_BrokerConfigurationName",
+                table: "BrokerConfigurationRecord",
+                column: "BrokerConfigurationName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientSession_ClientId",
@@ -191,6 +227,9 @@ namespace EventMesh.Runtime.Server.Migrations
                 name: "BridgeServers");
 
             migrationBuilder.DropTable(
+                name: "BrokerConfigurationRecord");
+
+            migrationBuilder.DropTable(
                 name: "ClientSessionBridge");
 
             migrationBuilder.DropTable(
@@ -201,6 +240,9 @@ namespace EventMesh.Runtime.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "Topic");
+
+            migrationBuilder.DropTable(
+                name: "BrokerConfigurations");
 
             migrationBuilder.DropTable(
                 name: "ClientSession");

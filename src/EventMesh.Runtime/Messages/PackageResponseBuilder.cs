@@ -14,11 +14,12 @@ namespace EventMesh.Runtime.Messages
             return result;
         }
 
-        public static Package Hello(string seq)
+        public static Package Hello(string seq, string sessionId)
         {
-            var result = new Package
+            var result = new HelloResponse
             {
-                Header = new Header(Commands.HELLO_RESPONSE, HeaderStatus.SUCCESS, seq)
+                Header = new Header(Commands.HELLO_RESPONSE, HeaderStatus.SUCCESS, seq),
+                SessionId = sessionId
             };
             return result;
         }
@@ -32,30 +33,30 @@ namespace EventMesh.Runtime.Messages
             return result;
         }
 
-        public static Package AsyncMessageToClient(ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicName, ICollection<CloudEvent> cloudEvts, string seq)
+        public static Package AsyncMessageToClient(ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicName, ICollection<CloudEvent> cloudEvts)
         {
             var result = new AsyncMessageToClient
             {
-                Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT, HeaderStatus.SUCCESS, seq),
-                BridgeServers = bridgeServers,
-                BrokerName = brokerName,
-                Topic = topicName,
-                CloudEvents = cloudEvts,
-
-            };
-            return result;
-        }
-
-        public static Package AsyncMessageToServer(string clientId, ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicName, ICollection<CloudEvent> cloudEvts, string seq)
-        {
-            var result = new AsyncMessageToServer
-            {
-                Header = new Header(Commands.ASYNC_MESSAGE_TO_SERVER, HeaderStatus.SUCCESS, seq),
-                ClientId = clientId,
+                Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT, HeaderStatus.SUCCESS, null),
                 BridgeServers = bridgeServers,
                 BrokerName = brokerName,
                 Topic = topicName,
                 CloudEvents = cloudEvts
+            };
+            return result;
+        }
+
+        public static Package AsyncMessageToServer(string clientId, ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicName, ICollection<CloudEvent> cloudEvts, string sessionId)
+        {
+            var result = new AsyncMessageToServer
+            {
+                Header = new Header(Commands.ASYNC_MESSAGE_TO_SERVER, HeaderStatus.SUCCESS, null),
+                ClientId = clientId,
+                BridgeServers = bridgeServers,
+                BrokerName = brokerName,
+                Topic = topicName,
+                CloudEvents = cloudEvts,
+                SessionId = sessionId
             };
             return result;
         }

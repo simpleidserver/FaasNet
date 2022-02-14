@@ -7,6 +7,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventMesh.Runtime.EF\EventMesh.Runtime.EF.csproj" />
+    <ProjectReference Include="..\EventMesh.Runtime.Server\EventMesh.Runtime.Server.csproj" />
     <ProjectReference Include="..\EventMesh.Runtime\EventMesh.Runtime.csproj" />
   </ItemGroup>
   <ItemGroup>

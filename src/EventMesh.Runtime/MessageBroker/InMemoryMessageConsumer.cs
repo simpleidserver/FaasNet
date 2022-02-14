@@ -28,7 +28,7 @@ namespace EventMesh.Runtime.MessageBroker
             return Task.CompletedTask;
         }
 
-        public Task Subscribe(string topicName, Client client, CancellationToken cancellationToken)
+        public Task Subscribe(string topicName, Client client, string sessionId, CancellationToken cancellationToken)
         {
             var topic = _topics.First(t => t.TopicName == topicName);
             var t = client.GetTopic(topicName, Constants.InMemoryBrokername);
@@ -37,13 +37,14 @@ namespace EventMesh.Runtime.MessageBroker
                 t = client.AddTopic(topicName, Constants.InMemoryBrokername);
             }
 
-            var subscription = new InMemoryTopicSubscription { Session = client.ActiveSession, Offset = t.Offset, ClientId = client.ClientId };
+            var activeSession = client.GetActiveSession(sessionId);
+            var subscription = new InMemoryTopicSubscription { Session = activeSession, Offset = t.Offset, ClientId = client.ClientId };
             topic.Subscriptions.Add(subscription);
             topic.CloudEventReceived += (e, o) => CloudEventReceived(e, o);
             return Task.CompletedTask;
         }
 
-        public Task Unsubscribe(string topic, Client client, CancellationToken cancellationToken)
+        public Task Unsubscribe(string topic, Client client, string sessionId, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

@@ -27,28 +27,30 @@ namespace EventMesh.Runtime.Messages
             return result;
         }
 
-        public static DisconnectRequest Disconnect(string clientId)
+        public static DisconnectRequest Disconnect(string clientId, string sessionId)
         {
             var result = new DisconnectRequest
             {
                 Header = new Header(Commands.DISCONNECT_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
-                ClientId = clientId
+                ClientId = clientId,
+                SessionId = sessionId
             };
             return result;
         }
 
-        public static SubscriptionRequest Subscribe(string clientId, ICollection<SubscriptionItem> subscriptionItems, string seq = null)
+        public static SubscriptionRequest Subscribe(string clientId, ICollection<SubscriptionItem> subscriptionItems, string sessionId, string seq = null)
         {
             var result = new SubscriptionRequest
             {
                 Header = new Header(Commands.SUBSCRIBE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
                 Topics = subscriptionItems,
-                ClientId = clientId
+                ClientId = clientId,
+                SessionId = sessionId
             };
             return result;
         }
 
-        public static Package AsyncMessageAckToServer(string clientId, string brokerName, string topic, int nbCloudEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string seq = null)
+        public static Package AsyncMessageAckToServer(string clientId, string brokerName, string topic, int nbCloudEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null)
         {
             var result = new AsyncMessageAckToServer
             {
@@ -57,7 +59,8 @@ namespace EventMesh.Runtime.Messages
                 Topic = topic,
                 NbCloudEventsConsumed = nbCloudEventsConsumed,
                 BridgeServers = bridgeServers,
-                ClientId = clientId
+                ClientId = clientId,
+                SessionId = sessionId
             };
             return result;
         }

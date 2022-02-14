@@ -10,9 +10,12 @@ namespace EventMesh.Runtime
 {
     public class RuntimeHostBuilder
     {
+        private ICollection<Action<ServiceProvider>> _initScriptLst;
+
         public RuntimeHostBuilder(Action<RuntimeOptions> callback = null)
         {
             ServiceCollection = new ServiceCollection();
+            _initScriptLst = new List<Action<ServiceProvider>>();
             if (callback != null)
             {
                 ServiceCollection.Configure(callback);
@@ -42,12 +45,38 @@ namespace EventMesh.Runtime
         {
             ServiceCollection.AddSingleton<IMessageConsumer>(new InMemoryMessageConsumer(topics));
             ServiceCollection.AddSingleton<IMessagePublisher>(new InMemoryMessagePublisher(topics));
+            ServiceCollection.AddSingleton<IBrokerConfigurationStore>(new BrokerConfigurationStore());
+            AddInitScript((s) =>
+            {
+                var brokerConfigurationStore = s.GetRequiredService<IBrokerConfigurationStore>();
+                var conf = brokerConfigurationStore.Get("inmemory");
+                if (conf == null)
+                {
+                    brokerConfigurationStore.Add(new Models.BrokerConfiguration
+                    {
+                        Name = "inmemory",
+                        Protocol = "inmemory"
+                    });
+                    brokerConfigurationStore.SaveChanges();
+                }
+            });
+            return this;
+        }
+
+        public RuntimeHostBuilder AddInitScript(Action<ServiceProvider> callback)
+        {
+            _initScriptLst.Add(callback);
             return this;
         }
 
         public IRuntimeHost Build()
         {
             var serviceProvider = ServiceCollection.BuildServiceProvider();
+            foreach(var callback in _initScriptLst)
+            {
+                callback(serviceProvider);
+            }
+
             return serviceProvider.GetService<IRuntimeHost>();
         }
     }

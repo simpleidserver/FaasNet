@@ -32,11 +32,11 @@ namespace EventMesh.Runtime.Handlers
                 throw new RuntimeException(helloRequest.Header.Command, helloRequest.Header.Seq, Errors.NOT_AUTHORIZED);
             }
 
-            TryCreateSession(helloRequest, sender);
-            return PackageResponseBuilder.Hello(package.Header.Seq);
+            var sessionId = TryCreateSession(helloRequest, sender);
+            return PackageResponseBuilder.Hello(package.Header.Seq, sessionId);
         }
 
-        private void TryCreateSession(HelloRequest request, IPEndPoint sender)
+        private string TryCreateSession(HelloRequest request, IPEndPoint sender)
         {
             bool isUpdated = true;
             var client = _clientSessionStore.Get(request.UserAgent.ClientId);
@@ -46,10 +46,9 @@ namespace EventMesh.Runtime.Handlers
                 isUpdated = false;
             }
 
-            client.AddSession(sender,
+            var sessionId = client.AddSession(sender,
                 request.UserAgent.Environment, 
                 request.UserAgent.Pid, 
-                request.Header.Seq, 
                 request.UserAgent.Purpose, 
                 request.UserAgent.BufferCloudEvents, 
                 request.UserAgent.IsServer);
@@ -61,6 +60,8 @@ namespace EventMesh.Runtime.Handlers
             {
                 _clientSessionStore.Add(client);
             }
+
+            return sessionId;
         }
     }
 }

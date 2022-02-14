@@ -35,7 +35,7 @@ namespace EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var subscriptionRequest = package as SubscriptionRequest;
-            var client = GetActiveSession(package, subscriptionRequest.ClientId, sender);
+            var client = GetActiveSession(package, subscriptionRequest.ClientId, subscriptionRequest.SessionId);
             await SubscribeBridgeServerTopics(subscriptionRequest, client);
             await SubscribeLocalTopics(subscriptionRequest, client, cancellationToken);
             ClientStore.Update(client);
@@ -50,7 +50,7 @@ namespace EventMesh.Runtime.Handlers
             {
                 foreach (var messageConsumer in _messageConsumers)
                 {
-                    await messageConsumer.Subscribe(item.Topic, client, cancellationToken);
+                    await messageConsumer.Subscribe(item.Topic, client, subscriptionRequest.SessionId, cancellationToken);
                 }
             }
         }
@@ -70,28 +70,29 @@ namespace EventMesh.Runtime.Handlers
 
         private async Task SubscribeBridgeServer(Client client, BridgeServer bridgeServer, SubscriptionRequest subscriptionRequest)
         {
+            var activeSession = client.GetActiveSession(subscriptionRequest.SessionId);
             var udpClient = _udpClientFactory.Build();
             var pid = Process.GetCurrentProcess().Id;
-            var bridge = client.ActiveSession.GetBridge(bridgeServer.Urn);
+            var bridge = activeSession.GetBridge(bridgeServer.Urn);
             var runtimeClient = new RuntimeClient(udpClient, bridgeServer.Urn, bridgeServer.Port);
             if (bridge == null)
             {
-                await runtimeClient.Hello(new UserAgent
+                var helloResponse = await runtimeClient.Hello(new UserAgent
                 {
                     ClientId = client.ClientId,
-                    Purpose = client.ActiveSession.Purpose,
-                    Environment = client.ActiveSession.Environment,
-                    BufferCloudEvents = client.ActiveSession.BufferCloudEvents,
+                    Purpose = activeSession.Purpose,
+                    Environment = activeSession.Environment,
+                    BufferCloudEvents = activeSession.BufferCloudEvents,
                     Urn = _options.Urn,
                     Port = _options.Port,
                     Pid = pid,
                     IsServer = true
                 });
-                bridge = ClientSessionBridge.Create(bridgeServer.Urn);
-                client.ActiveSession.AddBridge(bridge);
+                bridge = ClientSessionBridge.Create(bridgeServer.Urn, bridgeServer.Port, helloResponse.SessionId);
+                activeSession.AddBridge(bridge);
             }
 
-            await runtimeClient.Subscribe(subscriptionRequest.ClientId, subscriptionRequest.Topics);
+            await runtimeClient.Subscribe(client.ClientId, bridge.SessionId, subscriptionRequest.Topics);
         }
 
         #endregion

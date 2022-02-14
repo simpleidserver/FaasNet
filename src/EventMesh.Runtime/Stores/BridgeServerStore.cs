@@ -18,6 +18,11 @@ namespace EventMesh.Runtime.Stores
             _bridgeServers.Add(bridgeServer);
         }
 
+        public int Count()
+        {
+            return _bridgeServers.Count();
+        }
+
         public BridgeServer Get(string urn)
         {
             return _bridgeServers.FirstOrDefault(b => b.Urn == urn);

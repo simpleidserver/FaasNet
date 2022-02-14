@@ -1,0 +1,122 @@
+﻿@page "/"
+@page "/status"
+@implements IDisposable
+@inject BreadcrumbState ServerState
+@inject IOptions<RuntimeOptions> Opts
+@inject IBridgeServerStore BridgeServerStore
+@inject IClientStore ClientStore
+
+<div class="card">
+    <div class="card-body">
+        <ul class="summary">
+            <!-- Server status -->
+            <li>
+                Server status :
+                @if (IsRunning)
+                {
+                    <span class="badge badge-success">Is Running</span>
+                }
+                else
+                {
+                    <span class="badge badge-danger">Is not running</span>
+                }
+            </li>
+            <!-- Display Refresh DateTime -->
+            <li>
+                @if (LastRefreshDateTime == null)
+                {
+                    <span>Not been refreshed</span>
+                }
+                else
+                {
+                    <span>Last refresh time : @LastRefreshDateTime?.ToString("HH:mm:s")</span>
+                }
+            </li>
+            <!-- Number of clients -->
+            <li>
+                <span>Number of clients : @NbClients</span>
+            </li>
+            <!-- Number of active sessions -->
+            <li>
+                <span>Number of active sessions : @NbActiveSessions</span>
+            </li>
+            <!-- Number of configured bridge -->
+            <li>
+                <span>Number of configured bridge : @NbConfiguredBridges</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+@code {
+    private bool _isDisposed = false;
+    private static System.Timers.Timer _timer;
+    public bool IsRunning { get; set; } = false;
+    public DateTime? LastRefreshDateTime = null;
+    public int NbClients = 0;
+    public int NbActiveSessions = 0;
+    public int NbConfiguredBridges = 0;
+
+    protected override Task OnInitializedAsync()
+    {
+        _timer = new System.Timers.Timer(5000);
+        _timer.Elapsed += Refresh;
+        _timer.Enabled = true;
+        _timer.Start();
+        ServerState.SetItems(new List<BreadcrumbItem> { new BreadcrumbItem("Status") });
+        Refresh(null, null);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        _timer?.Stop();
+        _timer?.Dispose();
+        _timer = null;
+        _isDisposed = true;
+    }
+
+    private async void Refresh(Object source, System.Timers.ElapsedEventArgs e)
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        RefreshClients();
+        RefreshActiveSessions();
+        await CheckHeartbeat();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void RefreshClients()
+    {
+        NbClients = ClientStore.Count();
+    }
+
+    private void RefreshActiveSessions()
+    {
+        NbActiveSessions = ClientStore.Count();
+    }
+
+    private void RefreshBridges()
+    {
+        NbConfiguredBridges = BridgeServerStore.GetAll().Count();
+    }
+
+    private async Task CheckHeartbeat()
+    {
+        var runtimeClient = new RuntimeClient(Opts.Value.Urn, Opts.Value.Port);
+        try
+        {
+            await runtimeClient.HeartBeat();
+            IsRunning = true;
+            LastRefreshDateTime = DateTime.UtcNow;
+        }
+        catch
+        {
+            IsRunning = false;
+            LastRefreshDateTime = DateTime.UtcNow;
+        }
+    }
+}

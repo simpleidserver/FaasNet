@@ -1,9 +1,11 @@
 using EventMesh.Runtime.EF;
+using EventMesh.Runtime.MessageBroker;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
@@ -35,6 +37,7 @@ namespace EventMesh.Runtime.Website
                 opt.Urn = "localhost";
                 opt.Port = 4000;
             })
+                .AddInMemoryMessageBroker(new List<InMemoryTopic> { new InMemoryTopic { TopicName = "firstTopic" } })
                 .AddEF(opt => opt.UseSqlite($"Data Source={path}", optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
             Migrate(builder);
             var runtimeHost = builder.Build();

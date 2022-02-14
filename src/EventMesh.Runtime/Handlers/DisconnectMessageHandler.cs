@@ -26,25 +26,26 @@ namespace EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var disconnectRequest = package as DisconnectRequest;
-            var client = GetActiveSession(package, disconnectRequest.ClientId, sender);
-            CloseLocalSession(client);
-            await CloseRemoteSessions(disconnectRequest);
+            var client = GetActiveSession(package, disconnectRequest.ClientId, disconnectRequest.SessionId);
+            await CloseRemoteSessions(client, disconnectRequest);
+            CloseLocalSession(client, disconnectRequest.SessionId);
             return PackageResponseBuilder.Disconnect(package.Header.Seq);
         }
 
-        private void CloseLocalSession(Client client)
+        private void CloseLocalSession(Client client, string sessionId)
         {
-            client.CloseActiveSession();
+            client.CloseActiveSession(sessionId);
             ClientStore.Update(client);
         }
 
-        private async Task CloseRemoteSessions(DisconnectRequest disconnectRequest)
+        private async Task CloseRemoteSessions(Client client, DisconnectRequest disconnectRequest)
         {
             var udpClient = _udpClientFactory.Build();
-            foreach (var bridgeServer in _bridgeServerStore.GetAll())
+            var activeSession = client.GetActiveSession(disconnectRequest.SessionId);
+            foreach (var bridgeServer in activeSession.Bridges)
             {
                 var runtimeClient = new RuntimeClient(udpClient, bridgeServer.Urn, bridgeServer.Port);
-                await runtimeClient.Disconnect(disconnectRequest.ClientId, true);
+                await runtimeClient.Disconnect(disconnectRequest.ClientId, bridgeServer.SessionId, true);
             }
         }
     }

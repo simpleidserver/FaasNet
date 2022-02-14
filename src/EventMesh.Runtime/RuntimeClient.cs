@@ -72,9 +72,9 @@ namespace EventMesh.Runtime
             return packageResult;
         }
 
-        public Task<Package> Hello(UserAgent userAgent, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<HelloResponse> Hello(UserAgent userAgent, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return HandleException(userAgent.ClientId, async () =>
+            return HandleException(userAgent.ClientId, string.Empty, async () =>
             {
                 var writeCtx = new WriteBufferContext();
                 var package = PackageRequestBuilder.Hello(userAgent);
@@ -85,16 +85,16 @@ namespace EventMesh.Runtime
                 var readCtx = new ReadBufferContext(resultPayload.Buffer);
                 var packageResult = Package.Deserialize(readCtx);
                 EnsureSuccessStatus(package, packageResult);
-                return packageResult;
+                return packageResult as HelloResponse;
             });
         }
 
-        public Task<Package> Subscribe(string clientId, ICollection<SubscriptionItem> subscriptionItems, Action<AsyncMessageToClient> callback = null, string seq = null, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Package> Subscribe(string clientId, string sessionId, ICollection<SubscriptionItem> subscriptionItems, Action<AsyncMessageToClient> callback = null, string seq = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return HandleException(clientId, async() =>
+            return HandleException(clientId, sessionId, async() =>
             {
                 var writeCtx = new WriteBufferContext();
-                var package = PackageRequestBuilder.Subscribe(clientId, subscriptionItems, seq);
+                var package = PackageRequestBuilder.Subscribe(clientId, subscriptionItems, sessionId, seq);
                 package.Serialize(writeCtx);
                 var payload = writeCtx.Buffer.ToArray();
                 await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
@@ -104,7 +104,7 @@ namespace EventMesh.Runtime
                 EnsureSuccessStatus(package, result);
                 if (callback != null)
                 {
-                    var listener = new MessageCallbackListener(clientId, _udpClient, callback, _ipAddr, _port);
+                    var listener = new MessageCallbackListener(clientId, _udpClient, callback, _ipAddr, _port, sessionId);
                     listener.Listen(CancellationToken.None);
                 }
 
@@ -126,10 +126,10 @@ namespace EventMesh.Runtime
             return packageResult;
         }
 
-        public async Task<Package> Disconnect(string clientId, bool ignoreException = false)
+        public async Task<Package> Disconnect(string clientId, string sessionId, bool ignoreException = false)
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.Disconnect(clientId);
+            var package = PackageRequestBuilder.Disconnect(clientId, sessionId);
             package.Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
@@ -144,10 +144,10 @@ namespace EventMesh.Runtime
             return packageResult;
         }
 
-        public async Task<Package> TransferMessageToServer(string clientId, string brokerName, string topic, int nbEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string seq = null)
+        public async Task<Package> TransferMessageToServer(string clientId, string brokerName, string topic, int nbEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null)
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AsyncMessageAckToServer(clientId, brokerName, topic, nbEventsConsumed, bridgeServers);
+            var package = PackageRequestBuilder.AsyncMessageAckToServer(clientId, brokerName, topic, nbEventsConsumed, bridgeServers, sessionId, seq);
             package.Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
@@ -186,7 +186,7 @@ namespace EventMesh.Runtime
             }
         }
 
-        private async Task<Package> HandleException(string clientId, Func<Task<Package>> callback)
+        private async Task<T> HandleException<T>(string clientId, string sessionId, Func<Task<T>> callback) where T : Package
         {
             try
             {
@@ -199,7 +199,7 @@ namespace EventMesh.Runtime
                     using (var udpClient = new UdpClient(new IPEndPoint(_clientIPAddress, _clientPort)))
                     {
                         var runtimeClient = new RuntimeClient(udpClient, _ipAddr, _port);
-                        await runtimeClient.Disconnect(clientId);
+                        await runtimeClient.Disconnect(clientId, sessionId);
                     }
 
                     throw new RuntimeClientSessionClosedException(ex.ToString());
@@ -217,19 +217,22 @@ namespace EventMesh.Runtime
         private readonly Action<AsyncMessageToClient> _callback;
         private readonly IPAddress _ipAddr;
         private readonly int _port;
+        private readonly string _sessionId;
 
         public MessageCallbackListener(
             string clientId,
             UdpClient udpClient, 
             Action<AsyncMessageToClient> callback,
             IPAddress ipAddr,
-            int port)
+            int port,
+            string sessionId)
         {
             _clientId = clientId;
             _udpClient = udpClient;
             _callback = callback;
             _ipAddr = ipAddr;
             _port = port;
+            _sessionId = sessionId;
         }
 
         public void Listen(CancellationToken cancellationToken)
@@ -258,7 +261,7 @@ namespace EventMesh.Runtime
                 {
                     var asyncMessage = package as AsyncMessageToClient;
                     var runtimeClient = new RuntimeClient(_udpClient, _ipAddr, _port);
-                    await runtimeClient.TransferMessageToServer(_clientId, asyncMessage.BrokerName, asyncMessage.Topic, asyncMessage.CloudEvents.Count(), asyncMessage.BridgeServers);
+                    await runtimeClient.TransferMessageToServer(_clientId, asyncMessage.BrokerName, asyncMessage.Topic, asyncMessage.CloudEvents.Count(), asyncMessage.BridgeServers, _sessionId);
                     _callback(asyncMessage);
                     return;
                 }

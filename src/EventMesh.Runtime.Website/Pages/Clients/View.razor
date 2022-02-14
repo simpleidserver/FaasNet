@@ -1,0 +1,13 @@
+﻿@page "/clients/{id}"
+@inject BreadcrumbState ServerState
+
+@code {
+    [Parameter]
+    public string ClientId { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        ServerState.SetItems(new List<BreadcrumbItem> { new BreadcrumbItem("Clients") });
+        return Task.CompletedTask;
+    }
+}

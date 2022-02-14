@@ -3,16 +3,14 @@ using System;
 using EventMesh.Runtime.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace EventMesh.Runtime.Server.Migrations
+namespace EventMesh.Runtime.Website.Migrations
 {
     [DbContext(typeof(EventMeshDBContext))]
-    [Migration("20220211152717_Init")]
-    partial class Init
+    partial class EventMeshDBContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,6 +27,41 @@ namespace EventMesh.Runtime.Server.Migrations
                     b.HasKey("Urn");
 
                     b.ToTable("BridgeServers");
+                });
+
+            modelBuilder.Entity("EventMesh.Runtime.Models.BrokerConfiguration", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Protocol")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("BrokerConfigurations");
+                });
+
+            modelBuilder.Entity("EventMesh.Runtime.Models.BrokerConfigurationRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("BrokerConfigurationName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Key")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BrokerConfigurationName");
+
+                    b.ToTable("BrokerConfigurationRecord");
                 });
 
             modelBuilder.Entity("EventMesh.Runtime.Models.Client", b =>
@@ -49,9 +82,8 @@ namespace EventMesh.Runtime.Server.Migrations
 
             modelBuilder.Entity("EventMesh.Runtime.Models.ClientSession", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("BufferCloudEvents")
                         .HasColumnType("INTEGER");
@@ -77,9 +109,6 @@ namespace EventMesh.Runtime.Server.Migrations
                     b.Property<int>("PurposeCode")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Seq")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("State")
                         .HasColumnType("INTEGER");
 
@@ -99,8 +128,8 @@ namespace EventMesh.Runtime.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ClientSessionId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ClientSessionId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Urn")
                         .HasColumnType("TEXT");
@@ -118,8 +147,8 @@ namespace EventMesh.Runtime.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ClientSessionId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ClientSessionId")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("State")
                         .HasColumnType("INTEGER");
@@ -143,8 +172,8 @@ namespace EventMesh.Runtime.Server.Migrations
                     b.Property<string>("BrokerName")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ClientSessionId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ClientSessionId")
+                        .HasColumnType("TEXT");
 
                     b.Property<byte[]>("EvtPayload")
                         .HasColumnType("BLOB");
@@ -168,8 +197,8 @@ namespace EventMesh.Runtime.Server.Migrations
                     b.Property<string>("BrokerName")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ClientSessionId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ClientSessionId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
@@ -200,6 +229,14 @@ namespace EventMesh.Runtime.Server.Migrations
                     b.HasIndex("ClientId");
 
                     b.HasDiscriminator().HasValue("ClientTopic");
+                });
+
+            modelBuilder.Entity("EventMesh.Runtime.Models.BrokerConfigurationRecord", b =>
+                {
+                    b.HasOne("EventMesh.Runtime.Models.BrokerConfiguration", null)
+                        .WithMany("Records")
+                        .HasForeignKey("BrokerConfigurationName")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("EventMesh.Runtime.Models.ClientSession", b =>
@@ -248,6 +285,11 @@ namespace EventMesh.Runtime.Server.Migrations
                         .WithMany("Topics")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("EventMesh.Runtime.Models.BrokerConfiguration", b =>
+                {
+                    b.Navigation("Records");
                 });
 
             modelBuilder.Entity("EventMesh.Runtime.Models.Client", b =>

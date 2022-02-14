@@ -84,7 +84,7 @@ namespace EventMesh.Runtime.Tests
 
             // ACT
             var client = new RuntimeClient(port: 4994);
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Disconnect("clientid"));
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Disconnect("clientid", "sessionid"));
             host.Stop();
 
             // ASSERT
@@ -107,7 +107,7 @@ namespace EventMesh.Runtime.Tests
 
             // ACT
             var client = new RuntimeClient(port: 4995);
-            await client.Hello(new UserAgent
+            var helloResponse = await client.Hello(new UserAgent
             {
                 ClientId = clientId,
                 Environment = "TST",
@@ -116,7 +116,7 @@ namespace EventMesh.Runtime.Tests
                 Purpose = UserAgentPurpose.SUB,
                 Version = "0"
             });
-            var disconnectResponse = await client.Disconnect(clientId);
+            var disconnectResponse = await client.Disconnect(clientId, helloResponse.SessionId);
             host.Stop();
 
             // ASSERT
@@ -212,7 +212,7 @@ namespace EventMesh.Runtime.Tests
                 Version = "0"
             });
             client.UdpClient.Close();
-            var exception = await Assert.ThrowsAsync<RuntimeClientSessionClosedException>(async () => await client.Subscribe(clientId, new List<SubscriptionItem>
+            var exception = await Assert.ThrowsAsync<RuntimeClientSessionClosedException>(async () => await client.Subscribe(clientId, response.SessionId, new List<SubscriptionItem>
             {
                 new SubscriptionItem
                 {
@@ -224,7 +224,7 @@ namespace EventMesh.Runtime.Tests
             // ASSERT
             var cl = clientStore.Get(clientId);
             var lastSession = cl.Sessions.First();
-            Assert.Null(cl.ActiveSession);
+            Assert.False(cl.ActiveSessions.Any());
             Assert.True(cl.Sessions.Count() == 1);
             Assert.Equal(ClientSessionState.FINISH, lastSession.State);
             Assert.NotNull(exception);
@@ -243,7 +243,7 @@ namespace EventMesh.Runtime.Tests
 
             // ACT
             var client = new RuntimeClient(port: 4992);
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Subscribe("clientId", new List<SubscriptionItem>
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Subscribe("clientId", "sessionId", new List<SubscriptionItem>
             {
                 new SubscriptionItem
                 {
@@ -295,7 +295,7 @@ namespace EventMesh.Runtime.Tests
 
             // ACT
             var client = new RuntimeClient(port: 4993);
-            await client.Hello(new UserAgent
+            var helloResponse = await client.Hello(new UserAgent
             {
                 ClientId = "id",
                 Environment = "TST",
@@ -305,7 +305,7 @@ namespace EventMesh.Runtime.Tests
                 Version = "0",
                 BufferCloudEvents = 1
             });
-            await client.Subscribe("id", new List<SubscriptionItem>
+            await client.Subscribe("id", helloResponse.SessionId, new List<SubscriptionItem>
             {
                 new SubscriptionItem
                 {
@@ -377,7 +377,7 @@ namespace EventMesh.Runtime.Tests
             // ACT
             var client = new RuntimeClient(port: 5001);
             await client.AddBridge("localhost", 5002, CancellationToken.None);
-            await client.Hello(new UserAgent
+            var helloResponse = await client.Hello(new UserAgent
             {
                 ClientId = "id",
                 Environment = "TST",
@@ -387,7 +387,7 @@ namespace EventMesh.Runtime.Tests
                 Version = "0",
                 BufferCloudEvents = 1
             });
-            await client.Subscribe("id", new List<SubscriptionItem>
+            await client.Subscribe("id", helloResponse.SessionId, new List<SubscriptionItem>
             {
                 new SubscriptionItem
                 {
@@ -403,7 +403,7 @@ namespace EventMesh.Runtime.Tests
                 Thread.Sleep(100);
             }
 
-            await client.Disconnect("id");
+            await client.Disconnect("id", helloResponse.SessionId);
             firstHost.Stop();
             secondHost.Stop();
 

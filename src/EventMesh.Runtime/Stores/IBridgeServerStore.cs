@@ -8,5 +8,6 @@ namespace EventMesh.Runtime.Stores
         BridgeServer Get(string urn);
         void Add(BridgeServer bridgeServer);
         IEnumerable<BridgeServer> GetAll();
+        int Count();
     }
 }

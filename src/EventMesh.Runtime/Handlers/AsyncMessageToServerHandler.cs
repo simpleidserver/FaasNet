@@ -37,27 +37,29 @@ namespace EventMesh.Runtime.Handlers
                 throw new RuntimeException(pkg.Header.Command, pkg.Header.Seq, Errors.INVALID_CLIENT);
             }
 
-            if (client.ActiveSession == null)
+            var lastBridge = pkg.BridgeServers.Last();
+            var activeSession = client.GetActiveSession(pkg.SessionId, lastBridge.Urn);
+            if (activeSession == null)
             {
                 throw new RuntimeException(pkg.Header.Command, pkg.Header.Seq, Errors.NO_ACTIVE_SESSION);
             }
 
             var writeCtx = new WriteBufferContext();
             var udpClient = _udpClientFactory.Build();
-            switch (client.ActiveSession.Type)
+            switch (activeSession.Type)
             {
                 case Models.ClientSessionTypes.SERVER:
                     var bridgeServers = pkg.BridgeServers;
                     bridgeServers.Add(new AsyncMessageBridgeServer { Port = _options.Port, Urn = _options.Urn });
-                    PackageResponseBuilder.AsyncMessageToServer(pkg.ClientId, bridgeServers, pkg.BrokerName, pkg.Topic, pkg.CloudEvents, pkg.Header.Seq).Serialize(writeCtx);
+                    PackageResponseBuilder.AsyncMessageToServer(pkg.ClientId, bridgeServers, pkg.BrokerName, pkg.Topic, pkg.CloudEvents, pkg.SessionId).Serialize(writeCtx);
                     break;
                 case Models.ClientSessionTypes.CLIENT:
-                    PackageResponseBuilder.AsyncMessageToClient(pkg.BridgeServers, pkg.BrokerName, pkg.Topic, pkg.CloudEvents, pkg.Header.Seq).Serialize(writeCtx);
+                    PackageResponseBuilder.AsyncMessageToClient(pkg.BridgeServers, pkg.BrokerName, pkg.Topic, pkg.CloudEvents).Serialize(writeCtx);
                     break;
             }
 
             var payload = writeCtx.Buffer.ToArray();
-            await udpClient.SendAsync(payload, payload.Count(), client.ActiveSession.Endpoint).WithCancellation(cancellationToken);
+            await udpClient.SendAsync(payload, payload.Count(), activeSession.Endpoint).WithCancellation(cancellationToken);
             return null;
         }
     }

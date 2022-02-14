@@ -11,6 +11,7 @@ namespace EventMesh.Runtime.EF.Configurations
             builder.HasKey(c => c.ClientId);
             builder.HasMany(c => c.Sessions).WithOne().OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(c => c.Topics).WithOne().OnDelete(DeleteBehavior.Cascade);
+            builder.Ignore(c => c.ActiveSessions);
         }
     }
 }
