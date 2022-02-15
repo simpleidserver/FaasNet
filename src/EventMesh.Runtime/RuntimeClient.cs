@@ -13,7 +13,7 @@ namespace EventMesh.Runtime
 {
     public class RuntimeClient
     {
-        private readonly UdpClient _udpClient;
+        private UdpClient _udpClient;
         private readonly IPAddress _clientIPAddress;
         private readonly int _clientPort;
         private readonly IPAddress _ipAddr;
@@ -89,9 +89,9 @@ namespace EventMesh.Runtime
             });
         }
 
-        public Task<Package> Subscribe(string clientId, string sessionId, ICollection<SubscriptionItem> subscriptionItems, Action<AsyncMessageToClient> callback = null, string seq = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<SubscriptionResult> Subscribe(string clientId, string sessionId, ICollection<SubscriptionItem> subscriptionItems, Action<AsyncMessageToClient> callback = null, string seq = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return HandleException(clientId, sessionId, async() =>
+            var result = await HandleException(clientId, sessionId, async() =>
             {
                 var writeCtx = new WriteBufferContext();
                 var package = PackageRequestBuilder.Subscribe(clientId, subscriptionItems, sessionId, seq);
@@ -102,14 +102,19 @@ namespace EventMesh.Runtime
                 var readCtx = new ReadBufferContext(resultPayload.Buffer);
                 var result = Package.Deserialize(readCtx);
                 EnsureSuccessStatus(package, result);
-                if (callback != null)
-                {
-                    var listener = new MessageCallbackListener(clientId, _udpClient, callback, _ipAddr, _port, sessionId);
-                    listener.Listen(CancellationToken.None);
-                }
-
                 return result;
             });
+            MessageCallbackListener listener = null;
+            if (callback != null)
+            {
+                listener = new MessageCallbackListener(clientId, _udpClient, callback, _ipAddr, _port, sessionId, () =>
+                {
+                    _udpClient = BuildNewUdpClient();
+                });
+                listener.Listen();
+            }
+
+            return new SubscriptionResult(result, listener);
         }
 
         public async Task<Package> AddBridge(string urn, int port, CancellationToken cancellationToken = default(CancellationToken))
@@ -144,7 +149,7 @@ namespace EventMesh.Runtime
             return packageResult;
         }
 
-        public async Task<Package> TransferMessageToServer(string clientId, string brokerName, string topic, int nbEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null)
+        public async Task<Package> TransferMessageToServerFromServer(string clientId, string brokerName, string topic, int nbEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null)
         {
             var writeCtx = new WriteBufferContext();
             var package = PackageRequestBuilder.AsyncMessageAckToServer(clientId, brokerName, topic, nbEventsConsumed, bridgeServers, sessionId, seq);
@@ -156,6 +161,15 @@ namespace EventMesh.Runtime
             var packageResult = Package.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
             return packageResult;
+        }
+
+        public async Task TransferMessageToServerFromClient(string clientId, string brokerName, string topic, int nbEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null)
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.AsyncMessageAckToServer(clientId, brokerName, topic, nbEventsConsumed, bridgeServers, sessionId, seq, true);
+            package.Serialize(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
         }
 
         #endregion
@@ -171,6 +185,11 @@ namespace EventMesh.Runtime
             {
                 throw new RuntimeClientException($"The url : '{url}' is not correct");
             }
+        }
+
+        private UdpClient BuildNewUdpClient()
+        {
+            return new UdpClient(new IPEndPoint(_clientIPAddress, _clientPort));
         }
 
         private static void EnsureSuccessStatus(Package packageRequest, Package packageResponse)
@@ -196,7 +215,7 @@ namespace EventMesh.Runtime
             {
                 if (ex is ObjectDisposedException || ex is OperationCanceledException)
                 {
-                    using (var udpClient = new UdpClient(new IPEndPoint(_clientIPAddress, _clientPort)))
+                    using (var udpClient = BuildNewUdpClient())
                     {
                         var runtimeClient = new RuntimeClient(udpClient, _ipAddr, _port);
                         await runtimeClient.Disconnect(clientId, sessionId);
@@ -218,6 +237,8 @@ namespace EventMesh.Runtime
         private readonly IPAddress _ipAddr;
         private readonly int _port;
         private readonly string _sessionId;
+        private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly Action _resetConnection;
 
         public MessageCallbackListener(
             string clientId,
@@ -225,7 +246,8 @@ namespace EventMesh.Runtime
             Action<AsyncMessageToClient> callback,
             IPAddress ipAddr,
             int port,
-            string sessionId)
+            string sessionId,
+            Action resetConnection)
         {
             _clientId = clientId;
             _udpClient = udpClient;
@@ -233,11 +255,20 @@ namespace EventMesh.Runtime
             _ipAddr = ipAddr;
             _port = port;
             _sessionId = sessionId;
+            _resetConnection = resetConnection;
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        public void Listen(CancellationToken cancellationToken)
+        public void Listen()
         {
-            Task.Run(async () => await Run(cancellationToken));
+            Task.Run(async () => await Run(_cancellationTokenSource.Token));
+        }
+
+        public void Close()
+        {
+            _cancellationTokenSource.Cancel();
+            _udpClient.Close();
+            _resetConnection();
         }
 
         private async Task Run(CancellationToken cancellationToken)
@@ -250,22 +281,40 @@ namespace EventMesh.Runtime
                 {
                     receiveResult = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
                 }
-                catch (SocketException)
+                catch (Exception ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     return;
                 }
 
                 var buffer = receiveResult.Buffer;
                 var package = Package.Deserialize(new ReadBufferContext(buffer));
+                Console.WriteLine(package.Header.Command.Code);
                 if (package.Header.Command == Commands.ASYNC_MESSAGE_TO_CLIENT)
                 {
                     var asyncMessage = package as AsyncMessageToClient;
                     var runtimeClient = new RuntimeClient(_udpClient, _ipAddr, _port);
-                    await runtimeClient.TransferMessageToServer(_clientId, asyncMessage.BrokerName, asyncMessage.Topic, asyncMessage.CloudEvents.Count(), asyncMessage.BridgeServers, _sessionId);
+                    await runtimeClient.TransferMessageToServerFromClient(_clientId, asyncMessage.BrokerName, asyncMessage.Topic, asyncMessage.CloudEvents.Count(), asyncMessage.BridgeServers, _sessionId);
                     _callback(asyncMessage);
-                    return;
                 }
             }
+        }
+    }
+
+    public class SubscriptionResult
+    {
+        public SubscriptionResult(Package package, MessageCallbackListener listener)
+        {
+            Package = package;
+            Listener = listener;
+        }
+
+        public Package Package { get; set; }
+        public MessageCallbackListener Listener { get; set; }
+
+        public void Stop()
+        {
+            Listener.Close();
         }
     }
 }

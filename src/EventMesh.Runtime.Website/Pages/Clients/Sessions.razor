@@ -1,0 +1,42 @@
+﻿@page "/clients/{ClientId}/sessions"
+@layout ViewClientLayout
+@inject BreadcrumbState ServerState
+@inject ViewClientState ClientState
+@inject IClientStore ClientStore
+
+@if(ClientState.Client != null)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Endpoint</th>
+                <th>PID</th>
+                <th>State</th>
+                <th>Topics</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var session in ClientState.Client.Sessions)
+                {
+                    <tr>
+                        <td>@session.Endpoint.ToString()</td>
+                        <td>@session.Pid</td>
+                        <td>@Enum.GetName(typeof(ClientSessionState), session.State)</td>
+                        <td>@string.Join(",", session.Topics.Select(t => t.Name))</td>
+                    </tr>
+                }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public string ClientId { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ClientState.Client = ClientStore.Get(ClientId);
+        ServerState.SetItems(new List<BreadcrumbItem> { new BreadcrumbItem("Clients"), new BreadcrumbItem(ClientState.Client.ClientId) });
+        StateHasChanged();
+    }
+}

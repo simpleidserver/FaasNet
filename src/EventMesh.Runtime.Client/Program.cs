@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace EventMesh.Runtime.Client
 {
@@ -7,9 +6,8 @@ namespace EventMesh.Runtime.Client
     {
         static async Task<int> Main(string[] args)
         {
-            await Scenario1SubscribeBridge.Launch();
-            Console.WriteLine("Please press enter to quit the application ...");
-            Console.ReadLine();
+            // await Scenario1CreateSubSession.Launch();
+            await Scenario2SubscribeToOneTopic.Launch();
             return 1;
         }
     }

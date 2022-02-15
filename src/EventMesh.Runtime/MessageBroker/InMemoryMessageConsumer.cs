@@ -41,6 +41,11 @@ namespace EventMesh.Runtime.MessageBroker
             var subscription = new InMemoryTopicSubscription { Session = activeSession, Offset = t.Offset, ClientId = client.ClientId };
             topic.Subscriptions.Add(subscription);
             topic.CloudEventReceived += (e, o) => CloudEventReceived(e, o);
+            foreach(var evt in topic.CloudEvts)
+            {
+                CloudEventReceived(this, new CloudEventArgs(topic.TopicName, Constants.InMemoryBrokername, evt, client.ClientId, activeSession));
+            }
+
             return Task.CompletedTask;
         }
 

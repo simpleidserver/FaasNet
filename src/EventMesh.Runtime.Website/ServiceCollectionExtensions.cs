@@ -1,5 +1,4 @@
 ﻿using EventMesh.Runtime;
-using EventMesh.Runtime.Website.Data;
 using EventMesh.Runtime.Website.Services;
 using System;
 
@@ -18,9 +17,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure(callback);
             }
 
-
             services.AddScoped<BreadcrumbState>();
-            services.AddSingleton<WeatherForecastService>();
+            services.AddScoped<ViewClientState>();
             return services;
         }
     }

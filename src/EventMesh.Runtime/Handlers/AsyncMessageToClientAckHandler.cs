@@ -27,14 +27,19 @@ namespace EventMesh.Runtime.Handlers
 
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
+            Package result = null;
             var ackResponse = package as AsyncMessageAckToServer;
             var client = GetActiveSession(ackResponse, ackResponse.ClientId, ackResponse.SessionId);
             if (ConsumeCloudEvents(ackResponse, client))
             {
-                return PackageResponseBuilder.AsyncMessageToClient(package.Header.Seq);
+                result = PackageResponseBuilder.AsyncMessageToClient(package.Header.Seq);
+            }
+            else
+            {
+                result = await TransmitCloudEvents(ackResponse, client);
             }
 
-            return await TransmitCloudEvents(ackResponse, client);
+            return ackResponse.IsClient ? null : result;
         }
 
         private bool ConsumeCloudEvents(AsyncMessageAckToServer ackResponse, Client client)
@@ -63,7 +68,7 @@ namespace EventMesh.Runtime.Handlers
             var udpClient = _udpClientFactory.Build();
             var runtimeClient = new RuntimeClient(udpClient, lastBridgeServer.Urn, lastBridgeServer.Port);
             ackResponse.BridgeServers.Remove(lastBridgeServer);
-            return await runtimeClient.TransferMessageToServer(ackResponse.ClientId, ackResponse.BrokerName, ackResponse.Topic, ackResponse.NbCloudEventsConsumed, ackResponse.BridgeServers, bridgeSessionId);
+            return await runtimeClient.TransferMessageToServerFromServer(ackResponse.ClientId, ackResponse.BrokerName, ackResponse.Topic, ackResponse.NbCloudEventsConsumed, ackResponse.BridgeServers, bridgeSessionId);
         }
     }
 }

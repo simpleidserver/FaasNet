@@ -15,7 +15,8 @@ namespace EventMesh.Runtime.Website
     {
         public static void Main(string[] args)
         {
-            LaunchEventMeshServer();
+            // LaunchInMemoryEventMeshServer();
+            LaunchAMQPEventMeshServer();
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -27,7 +28,7 @@ namespace EventMesh.Runtime.Website
                 });
 
 
-        private static IRuntimeHost LaunchEventMeshServer()
+        private static IRuntimeHost LaunchInMemoryEventMeshServer()
         {
             var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
             Console.WriteLine("Launch EventMesh server...");
@@ -38,6 +39,25 @@ namespace EventMesh.Runtime.Website
                 opt.Port = 4000;
             })
                 .AddInMemoryMessageBroker(new List<InMemoryTopic> { new InMemoryTopic { TopicName = "firstTopic" } })
+                .AddEF(opt => opt.UseSqlite($"Data Source={path}", optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
+            Migrate(builder);
+            var runtimeHost = builder.Build();
+            runtimeHost.Run();
+            Console.WriteLine("EventMesh server is launched !");
+            return runtimeHost;
+        }
+
+        private static IRuntimeHost LaunchAMQPEventMeshServer()
+        {
+            var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
+            Console.WriteLine("Launch EventMesh server...");
+            var path = Path.Combine(Environment.CurrentDirectory, "Runtime.db");
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Urn = "localhost";
+                opt.Port = 4000;
+            })
+                .AddAMQP()
                 .AddEF(opt => opt.UseSqlite($"Data Source={path}", optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
             Migrate(builder);
             var runtimeHost = builder.Build();

@@ -131,6 +131,12 @@ namespace EventMesh.Runtime.Website.Migrations
                     b.Property<string>("ClientSessionId")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Port")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SessionId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Urn")
                         .HasColumnType("TEXT");
 

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventMesh.Runtime.Website.Migrations
 {
     [DbContext(typeof(EventMeshDBContext))]
-    [Migration("20220214201621_Init")]
+    [Migration("20220215120954_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -131,6 +131,12 @@ namespace EventMesh.Runtime.Website.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ClientSessionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SessionId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Urn")

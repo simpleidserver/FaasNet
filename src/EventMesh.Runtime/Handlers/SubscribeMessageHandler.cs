@@ -37,9 +37,15 @@ namespace EventMesh.Runtime.Handlers
             var subscriptionRequest = package as SubscriptionRequest;
             var client = GetActiveSession(package, subscriptionRequest.ClientId, subscriptionRequest.SessionId);
             await SubscribeBridgeServerTopics(subscriptionRequest, client);
-            await SubscribeLocalTopics(subscriptionRequest, client, cancellationToken);
+            await Subscribe(subscriptionRequest, client);
             ClientStore.Update(client);
             return PackageResponseBuilder.Subscription(package.Header.Seq);
+        }
+
+        private async Task Subscribe(SubscriptionRequest subscriptionRequest, Client client)
+        {
+            Thread.Sleep(_options.WaitLocalSubscriptionIntervalMS);
+            await SubscribeLocalTopics(subscriptionRequest, client, CancellationToken.None);
         }
 
         #region Register Local Topics

@@ -17,7 +17,7 @@
                 @foreach(var client in Cls)
                 {
                     <tr>
-                        <td><a href="/clients/@client.ClientId">@client.ClientId</a></td>
+                        <td><a href="/clients/@client.ClientId/info">@client.ClientId</a></td>
                         <td>@client.CreateDateTime</td>
                         <td>@client.ActiveSessions.Count()</td>
                         <td>@client.Topics.Count()</td>

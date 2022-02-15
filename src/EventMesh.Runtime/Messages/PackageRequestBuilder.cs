@@ -50,7 +50,7 @@ namespace EventMesh.Runtime.Messages
             return result;
         }
 
-        public static Package AsyncMessageAckToServer(string clientId, string brokerName, string topic, int nbCloudEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null)
+        public static Package AsyncMessageAckToServer(string clientId, string brokerName, string topic, int nbCloudEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null, bool isClient = false)
         {
             var result = new AsyncMessageAckToServer
             {
@@ -60,7 +60,8 @@ namespace EventMesh.Runtime.Messages
                 NbCloudEventsConsumed = nbCloudEventsConsumed,
                 BridgeServers = bridgeServers,
                 ClientId = clientId,
-                SessionId = sessionId
+                SessionId = sessionId,
+                IsClient = isClient
             };
             return result;
         }

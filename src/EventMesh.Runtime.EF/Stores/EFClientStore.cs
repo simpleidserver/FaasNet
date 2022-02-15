@@ -3,7 +3,6 @@ using EventMesh.Runtime.Stores;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 
 namespace EventMesh.Runtime.EF.Stores
 {
@@ -47,7 +46,20 @@ namespace EventMesh.Runtime.EF.Stores
         {
             return _dbContext.Clients
                 .Include(c => c.Sessions)
-                .Include(c => c.Topics).ToList();
+                .Include(c => c.Topics)
+                .ToList();
+        }
+
+        public IEnumerable<Client> GetAllBySubscribedTopics(string brokerName, string topicName)
+        {
+            return _dbContext.Clients
+                .Include(c => c.Sessions).ThenInclude(c => c.Histories)
+                .Include(c => c.Sessions).ThenInclude(c => c.Topics)
+                .Include(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
+                .Include(c => c.Sessions).ThenInclude(c => c.Bridges)
+                .Include(c => c.Topics)
+                .Where(c => c.Sessions.Any(s => s.State == ClientSessionState.ACTIVE && s.Topics.Any(t => t.BrokerName == brokerName && t.Name == topicName)))
+                .ToList();
         }
 
         public Client GetByActiveSession(string clientId, string sessionId)

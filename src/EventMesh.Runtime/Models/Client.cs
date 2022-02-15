@@ -52,6 +52,11 @@ namespace EventMesh.Runtime.Models
             return ActiveSessions.FirstOrDefault(s => s.Bridges.Any(b => b.Urn == bridgeUrn && b.SessionId == sessionId));
         }
 
+        public ClientSession GetActiveSessionByTopic(string brokerName, string topicName)
+        {
+            return ActiveSessions.FirstOrDefault(s => s.HasTopic(topicName, brokerName));
+        }
+
         public ClientTopic GetTopic(string topic, string messageBrokerName)
         {
             return Topics.FirstOrDefault(t => t.Name == topic && t.BrokerName == messageBrokerName);

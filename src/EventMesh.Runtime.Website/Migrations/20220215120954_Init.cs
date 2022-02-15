@@ -99,6 +99,8 @@ namespace EventMesh.Runtime.Website.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Urn = table.Column<string>(type: "TEXT", nullable: true),
+                    Port = table.Column<int>(type: "INTEGER", nullable: false),
+                    SessionId = table.Column<string>(type: "TEXT", nullable: true),
                     ClientSessionId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
