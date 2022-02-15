@@ -18,6 +18,14 @@ namespace EventMesh.Runtime.MessageBroker
             _topics = topics;
         }
 
+        public string BrokerName
+        {
+            get
+            {
+                return Constants.InMemoryBrokername;
+            }
+        }
+
         public Task Start(CancellationToken cancellationToken)
         {
             return Task.CompletedTask;

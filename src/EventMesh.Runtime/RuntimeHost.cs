@@ -172,7 +172,6 @@ namespace EventMesh.Runtime
                     PackageResponseBuilder.AsyncMessageToServer(e.ClientId, bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Id).Serialize(writeCtx);
                     break;
                 case Models.ClientSessionTypes.CLIENT:
-                    Console.WriteLine("Send to client");
                     PackageResponseBuilder.AsyncMessageToClient(bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts).Serialize(writeCtx);
                     break;
             }

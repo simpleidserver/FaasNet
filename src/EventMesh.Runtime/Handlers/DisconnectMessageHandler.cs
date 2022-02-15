@@ -1,6 +1,8 @@
 ﻿using EventMesh.Runtime.Messages;
 using EventMesh.Runtime.Models;
 using EventMesh.Runtime.Stores;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,16 +11,16 @@ namespace EventMesh.Runtime.Handlers
 {
     public class DisconnectMessageHandler : BaseMessageHandler, IMessageHandler
     {
-        private readonly IBridgeServerStore _bridgeServerStore;
+        private readonly IEnumerable<IMessageConsumer> _messageConsumers;
         private readonly IUdpClientServerFactory _udpClientFactory;
 
         public DisconnectMessageHandler(
             IClientStore clientStore,
-            IBridgeServerStore bridgeServerStore,
+            IEnumerable<IMessageConsumer> messageConsumers,
             IUdpClientServerFactory udpClientServerFactory) : base(clientStore)
         {
-            _bridgeServerStore = bridgeServerStore;
             _udpClientFactory = udpClientServerFactory;
+            _messageConsumers = messageConsumers;
         }
 
         public Commands Command => Commands.DISCONNECT_REQUEST;
@@ -28,12 +30,19 @@ namespace EventMesh.Runtime.Handlers
             var disconnectRequest = package as DisconnectRequest;
             var client = GetActiveSession(package, disconnectRequest.ClientId, disconnectRequest.SessionId);
             await CloseRemoteSessions(client, disconnectRequest);
-            CloseLocalSession(client, disconnectRequest.SessionId);
+            await CloseLocalSession(client, disconnectRequest.SessionId);
             return PackageResponseBuilder.Disconnect(package.Header.Seq);
         }
 
-        private void CloseLocalSession(Client client, string sessionId)
+        private async Task CloseLocalSession(Client client, string sessionId)
         {
+            var activeSession = client.GetActiveSession(sessionId);
+            foreach (var topic in activeSession.Topics)
+            {
+                var messageConsumer = _messageConsumers.First(m => m.BrokerName == topic.BrokerName);
+                await messageConsumer.Unsubscribe(topic.Name, client, sessionId, CancellationToken.None);
+            }
+
             client.CloseActiveSession(sessionId);
             ClientStore.Update(client);
         }

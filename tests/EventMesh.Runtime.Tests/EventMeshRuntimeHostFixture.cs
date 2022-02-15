@@ -305,7 +305,6 @@ namespace EventMesh.Runtime.Tests
                 Version = "0",
                 BufferCloudEvents = 1
             });
-            await messagePublisher.Publish(cloudEvent, topicName);
             await client.Subscribe("id", helloResponse.SessionId, new List<SubscriptionItem>
             {
                 new SubscriptionItem
@@ -316,6 +315,7 @@ namespace EventMesh.Runtime.Tests
             {
                 msg = m;
             });
+            await messagePublisher.Publish(cloudEvent, topicName);
             while (msg == null)
             {
                 Thread.Sleep(100);
@@ -387,7 +387,6 @@ namespace EventMesh.Runtime.Tests
                 Version = "0",
                 BufferCloudEvents = 1
             });
-            await messagePublisher.Publish(cloudEvent, topicName);
             var subscriptionResult = await client.Subscribe("id", helloResponse.SessionId, new List<SubscriptionItem>
             {
                 new SubscriptionItem
@@ -398,6 +397,7 @@ namespace EventMesh.Runtime.Tests
             {
                 msg = m;
             });
+            await messagePublisher.Publish(cloudEvent, topicName);
             while (msg == null)
             {
                 Thread.Sleep(100);

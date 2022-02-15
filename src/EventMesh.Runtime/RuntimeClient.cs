@@ -281,15 +281,13 @@ namespace EventMesh.Runtime
                 {
                     receiveResult = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine(ex.ToString());
                     return;
                 }
 
                 var buffer = receiveResult.Buffer;
                 var package = Package.Deserialize(new ReadBufferContext(buffer));
-                Console.WriteLine(package.Header.Command.Code);
                 if (package.Header.Command == Commands.ASYNC_MESSAGE_TO_CLIENT)
                 {
                     var asyncMessage = package as AsyncMessageToClient;

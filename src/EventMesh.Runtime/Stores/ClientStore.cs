@@ -54,10 +54,5 @@ namespace EventMesh.Runtime.Stores
         {
             return _clients;
         }
-
-        public IEnumerable<Client> GetAllBySubscribedTopics(string brokerName, string topicName)
-        {
-            return _clients.Where(c => c.ActiveSessions.Any(a => a.HasTopic(topicName, brokerName)));
-        }
     }
 }

@@ -7,7 +7,6 @@ namespace EventMesh.Runtime.Stores
     {
         Client Get(string clientId);
         Client GetByActiveSession(string clientId, string sessionId);
-        IEnumerable<Client> GetAllBySubscribedTopics(string brokerName, string topicName);
         int Count();
         int CountActiveSessions();
         IEnumerable<Client> GetAll();

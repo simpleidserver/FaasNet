@@ -82,12 +82,6 @@ namespace EventMesh.Runtime.Models
             });
         }
 
-        public void UnsubscribeTopic(string topicName, string brokerName)
-        {
-            var topic = Topics.First(t => t.Name == topicName && t.BrokerName == brokerName);
-            Topics.Remove(topic);
-        }
-
         public bool HasTopic(string topicName, string brokerName)
         {
             return Topics.Any(t => t.Name == topicName && t.BrokerName == brokerName);

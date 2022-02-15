@@ -8,6 +8,7 @@ namespace EventMesh.Runtime.EF.Stores
 {
     public class EFClientStore : IClientStore
     {
+        private static object _obj = new object();
         private readonly EventMeshDBContext _dbContext;
 
         public EFClientStore(EventMeshDBContext dbContext)
@@ -17,66 +18,65 @@ namespace EventMesh.Runtime.EF.Stores
 
         public void Add(Client session)
         {
-            _dbContext.Clients.Add(session);
-            _dbContext.SaveChanges();
+            lock (_obj)
+            {
+                _dbContext.Clients.Add(session);
+                _dbContext.SaveChanges();
+            }
         }
 
         public int Count()
         {
-            return _dbContext.Clients.Count();
+            lock(_obj)
+                return _dbContext.Clients.Count();
         }
 
         public int CountActiveSessions()
         {
-            return _dbContext.Clients.SelectMany(c => c.Sessions).Count(c => c.State == ClientSessionState.ACTIVE);
+            lock(_obj)
+                return _dbContext.Clients.SelectMany(c => c.Sessions).Count(c => c.State == ClientSessionState.ACTIVE);
         }
 
         public Client Get(string clientId)
         {
-            return _dbContext.Clients
-                .Include(c => c.Sessions).ThenInclude(c => c.Histories)
-                .Include(c => c.Sessions).ThenInclude(c => c.Topics)
-                .Include(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
-                .Include(c => c.Sessions).ThenInclude(c => c.Bridges)
-                .Include(c => c.Topics)
-                .FirstOrDefault(c => c.ClientId == clientId);
+            lock(_obj)
+                return _dbContext.Clients
+                    .Include(c => c.Sessions).ThenInclude(c => c.Histories)
+                    .Include(c => c.Sessions).ThenInclude(c => c.Topics)
+                    .Include(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
+                    .Include(c => c.Sessions).ThenInclude(c => c.Bridges)
+                    .Include(c => c.Topics)
+                    .FirstOrDefault(c => c.ClientId == clientId);
         }
 
         public IEnumerable<Client> GetAll()
         {
-            return _dbContext.Clients
-                .Include(c => c.Sessions)
-                .Include(c => c.Topics)
-                .ToList();
-        }
-
-        public IEnumerable<Client> GetAllBySubscribedTopics(string brokerName, string topicName)
-        {
-            return _dbContext.Clients
-                .Include(c => c.Sessions).ThenInclude(c => c.Histories)
-                .Include(c => c.Sessions).ThenInclude(c => c.Topics)
-                .Include(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
-                .Include(c => c.Sessions).ThenInclude(c => c.Bridges)
-                .Include(c => c.Topics)
-                .Where(c => c.Sessions.Any(s => s.State == ClientSessionState.ACTIVE && s.Topics.Any(t => t.BrokerName == brokerName && t.Name == topicName)))
-                .ToList();
+            lock(_obj)
+                return _dbContext.Clients
+                    .Include(c => c.Sessions)
+                    .Include(c => c.Topics)
+                    .ToList();
         }
 
         public Client GetByActiveSession(string clientId, string sessionId)
         {
-            return _dbContext.Clients
-                .Include(c => c.Sessions).ThenInclude(c => c.Histories)
-                .Include(c => c.Sessions).ThenInclude(c => c.Topics)
-                .Include(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
-                .Include(c => c.Sessions).ThenInclude(c => c.Bridges)
-                .Include(c => c.Topics)
-                .FirstOrDefault(c => c.ClientId == clientId && c.Sessions.Any(s => s.Id == sessionId));
+            lock(_obj)
+                return _dbContext.Clients
+                    .Include(c => c.Sessions).ThenInclude(c => c.Histories)
+                    .Include(c => c.Sessions).ThenInclude(c => c.Topics)
+                    .Include(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
+                    .Include(c => c.Sessions).ThenInclude(c => c.Bridges)
+                    .Include(c => c.Topics)
+                    .FirstOrDefault(c => c.ClientId == clientId && c.Sessions.Any(s => s.Id == sessionId));
         }
 
         public void Update(Client client)
         {
-            _dbContext.Clients.Update(client);
-            _dbContext.SaveChanges();
+            lock(_obj)
+            {
+                _dbContext.Clients.Update(client);
+                _dbContext.SaveChanges();
+            }
         }
     }
 }

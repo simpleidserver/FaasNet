@@ -8,6 +8,7 @@ namespace EventMesh.Runtime
 {
     public interface IMessageConsumer : IDisposable
     {
+        string BrokerName { get; }
         Task Start(CancellationToken cancellationToken);
         Task Stop(CancellationToken cancellationToken);
         Task Subscribe(string topic, Client client, string sessionId, CancellationToken cancellationToken);
