@@ -13,6 +13,7 @@ namespace EventMesh.Runtime
         Task Stop(CancellationToken cancellationToken);
         Task Subscribe(string topic, Client client, string sessionId, CancellationToken cancellationToken);
         Task Unsubscribe(string topic, Client client, string sessionId, CancellationToken cancellationToken);
+        void Commit(string topicName, Client client, string sessionId, int nbEvts);
         event EventHandler<CloudEventArgs> CloudEventReceived;
     }
 }

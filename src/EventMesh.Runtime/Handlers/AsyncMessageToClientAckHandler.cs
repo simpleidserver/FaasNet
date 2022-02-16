@@ -2,6 +2,7 @@
 using EventMesh.Runtime.Messages;
 using EventMesh.Runtime.Models;
 using EventMesh.Runtime.Stores;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -13,14 +14,17 @@ namespace EventMesh.Runtime.Handlers
     {
         private readonly IBridgeServerStore _bridgeServerStore;
         private readonly IUdpClientServerFactory _udpClientFactory;
+        private readonly IEnumerable<IMessageConsumer> _messageConsumers;
 
         public AsyncMessageToClientAckHandler(
             IClientStore clientStore,
             IBridgeServerStore bridgeServerStore,
-            IUdpClientServerFactory udpClientServerFactory) : base(clientStore) 
+            IUdpClientServerFactory udpClientServerFactory,
+            IEnumerable<IMessageConsumer> messageConsumers) : base(clientStore) 
         {
             _bridgeServerStore = bridgeServerStore;
             _udpClientFactory = udpClientServerFactory;
+            _messageConsumers = messageConsumers;
         }
 
         public Commands Command => Commands.ASYNC_MESSAGE_TO_CLIENT_ACK;
@@ -49,6 +53,8 @@ namespace EventMesh.Runtime.Handlers
                 return false;
             }
 
+            var messageConsumer = _messageConsumers.First(m => m.BrokerName == ackResponse.BrokerName);
+            messageConsumer.Commit(ackResponse.Topic, client, ackResponse.SessionId, ackResponse.NbCloudEventsConsumed);
             client.ConsumeCloudEvents(ackResponse.BrokerName, ackResponse.Topic, ackResponse.NbCloudEventsConsumed);
             ClientStore.Update(client);
             return true;

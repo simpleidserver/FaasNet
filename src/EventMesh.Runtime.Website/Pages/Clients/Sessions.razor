@@ -22,7 +22,7 @@
                         <td>@session.Endpoint.ToString()</td>
                         <td>@session.Pid</td>
                         <td>@Enum.GetName(typeof(ClientSessionState), session.State)</td>
-                        <td>@string.Join(",", session.Topics.Select(t => t.Name))</td>
+                        <td>@string.Join(",", session.Topics.Select(t => $"{t.Name}:{t.BrokerName}"))</td>
                     </tr>
                 }
         </tbody>

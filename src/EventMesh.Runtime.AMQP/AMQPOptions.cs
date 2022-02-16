@@ -3,7 +3,7 @@ using System;
 
 namespace EventMesh.Runtime.AMQP
 {
-    public class AMQPOptions
+    public class AMQPOptions : BaseBrokerOptions
     {
         public AMQPOptions()
         {
@@ -23,7 +23,6 @@ namespace EventMesh.Runtime.AMQP
         public Action<ConnectionFactory> ConnectionFactory { get; set; }
         public string TopicName { get; set; }
         public string QueueName { get; set; }
-        public string BrokerName { get; set; }
         public string Source { get; set; }
     }
 }

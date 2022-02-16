@@ -13,32 +13,30 @@ using System.Threading.Tasks;
 
 namespace EventMesh.Runtime.AMQP
 {
-    public class AMQPConsumer : IMessageConsumer
+    public class AMQPConsumer : BaseMessageConsumer<AMQPOptions>
     {
         private readonly List<AMQPSubscriptionRecord> _subscriptions = new List<AMQPSubscriptionRecord>();
         private readonly IBrokerConfigurationStore _brokerConfigurationStore;
         private readonly AMQPOptions _opts;
         private readonly IClientStore _clientStore;
-        private readonly RuntimeOptions _runtimeOpts;
         private IConnection _connection;
-
-        public event EventHandler<CloudEventArgs> CloudEventReceived;
 
         public AMQPConsumer(
             IBrokerConfigurationStore brokerConfigurationStore,
             IClientStore clientStore,
             IOptions<AMQPOptions> opts,
-            IOptions<RuntimeOptions> runtimeOpts)
+            IOptions<RuntimeOptions> runtimeOpts) : base(runtimeOpts)
         {
             _opts = opts.Value;
             _brokerConfigurationStore = brokerConfigurationStore;
             _clientStore = clientStore;
-            _runtimeOpts = runtimeOpts.Value;
         }
+
+        public override event EventHandler<CloudEventArgs> CloudEventReceived;
 
         #region Actions
 
-        public string BrokerName
+        public override string BrokerName
         {
             get
             {
@@ -46,7 +44,7 @@ namespace EventMesh.Runtime.AMQP
             }
         }
 
-        public Task Start(CancellationToken cancellationToken)
+        public override Task Start(CancellationToken cancellationToken)
         {
             var options = GetOptions();
             var connectionFactory = new ConnectionFactory();
@@ -55,7 +53,7 @@ namespace EventMesh.Runtime.AMQP
             return Task.CompletedTask;
         }
 
-        public Task Stop(CancellationToken cancellationToken)
+        public override Task Stop(CancellationToken cancellationToken)
         {
             if (_connection != null)
             {
@@ -65,53 +63,16 @@ namespace EventMesh.Runtime.AMQP
             return Task.CompletedTask;
         }
 
-        public Task Subscribe(string topicName, Client client, string sessionId, CancellationToken cancellationToken)
-        {
-            var options = GetOptions();
-            var activeSession = client.GetActiveSession(sessionId);
-            if (activeSession.HasTopic(topicName, options.BrokerName))
-            {
-                return Task.CompletedTask;
-            }
-
-            var topic = client.GetTopic(topicName, options.BrokerName);
-            if (topic == null)
-            {
-                topic = client.AddTopic(topicName, options.BrokerName);
-            }
-
-            Task.Run(() =>
-            {
-                Thread.Sleep(_runtimeOpts.WaitLocalSubscriptionIntervalMS);
-                ListenTopic(options, topicName, topic, client.ClientId, activeSession.Id);
-            });
-            activeSession.SubscribeTopic(topicName, options.BrokerName);
-            return Task.CompletedTask;
-        }
-
-        public Task Unsubscribe(string topicName, Client client, string sessionId, CancellationToken cancellationToken)
-        {
-            var options = GetOptions();
-            var activeSession = client.GetActiveSession(sessionId);
-            if (!activeSession.HasTopic(topicName, options.BrokerName))
-            {
-                return Task.CompletedTask;
-            }
-
-            var subscription = _subscriptions.First(s => s.ClientSessionId == sessionId && s.ClientId == client.ClientId && s.TopicName == topicName);
-            subscription.Channel.BasicCancel(subscription.ConsumerTag);
-            _subscriptions.Remove(subscription);
-            return Task.CompletedTask;
-        }
-
-        public void Dispose()
+        public override void Dispose()
         {
             Stop(CancellationToken.None).Wait();
         }
 
-        #endregion
+        public override void Commit(string topicName, Client client, string sessionId, int nbEvts)
+        {
+        }
 
-        private void ListenTopic(AMQPOptions options, string topicName, ClientTopic topic, string clientId, string clientSessionId)
+        protected override void ListenTopic(AMQPOptions options, string topicName, ClientTopic topic, string clientId, string clientSessionId)
         {
             if (_subscriptions.Any(s => s.BrokerName == options.BrokerName && s.TopicName == topicName && s.ClientSessionId == clientSessionId && s.ClientId == clientId))
             {
@@ -137,6 +98,21 @@ namespace EventMesh.Runtime.AMQP
             _subscriptions.Add(new AMQPSubscriptionRecord(topicName, options.BrokerName, clientId, clientSessionId, channel, tag));
         }
 
+        protected override void UnsubscribeTopic(string topicName, Client client, string sessionId)
+        {
+            var subscription = _subscriptions.First(s => s.ClientSessionId == sessionId && s.ClientId == client.ClientId && s.TopicName == topicName);
+            subscription.Channel.BasicCancel(subscription.ConsumerTag);
+            _subscriptions.Remove(subscription);
+        }
+
+        protected override AMQPOptions GetOptions()
+        {
+            return _brokerConfigurationStore.Get(_opts.BrokerName).ToAMQPOptions();
+        }
+
+        #endregion
+
+
         private void ReceiveMessage(object sender, string clientId, string clientSessionId, string topicName, string source, string brokerName, BasicDeliverEventArgs e)
         {
             var jsonEventFormatter = new JsonEventFormatter();
@@ -150,11 +126,6 @@ namespace EventMesh.Runtime.AMQP
 
             var clientSession = client.GetActiveSessionByTopic(brokerName, topicName);
             CloudEventReceived(this, new CloudEventArgs(topicName, brokerName, cloudEvent, client.ClientId, clientSession));
-        }
-
-        private AMQPOptions GetOptions()
-        {
-           return _brokerConfigurationStore.Get(_opts.BrokerName).ToAMQPOptions();
         }
     }
 }

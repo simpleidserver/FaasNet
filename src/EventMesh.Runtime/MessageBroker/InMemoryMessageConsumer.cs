@@ -57,6 +57,10 @@ namespace EventMesh.Runtime.MessageBroker
             return Task.CompletedTask;
         }
 
+        public void Commit(string topicName, Client client, string sessionId, int nbEvts)
+        {
+        }
+
         public Task Unsubscribe(string topic, Client client, string sessionId, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;

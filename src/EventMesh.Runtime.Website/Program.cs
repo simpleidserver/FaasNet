@@ -16,7 +16,9 @@ namespace EventMesh.Runtime.Website
         public static void Main(string[] args)
         {
             // LaunchInMemoryEventMeshServer();
-            LaunchAMQPEventMeshServer();
+            // LaunchAMQPEventMeshServer();
+            // LaunchKafkaEventMeshServer();
+            LaunchFullEventMeshServer();
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -57,6 +59,45 @@ namespace EventMesh.Runtime.Website
                 opt.Urn = "localhost";
                 opt.Port = 4000;
             })
+                .AddAMQP()
+                .AddEF(opt => opt.UseSqlite($"Data Source={path}", optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
+            Migrate(builder);
+            var runtimeHost = builder.Build();
+            runtimeHost.Run();
+            Console.WriteLine("EventMesh server is launched !");
+            return runtimeHost;
+        }
+
+        private static IRuntimeHost LaunchKafkaEventMeshServer()
+        {
+            var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
+            Console.WriteLine("Launch EventMesh server...");
+            var path = Path.Combine(Environment.CurrentDirectory, "Runtime.db");
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Urn = "localhost";
+                opt.Port = 4000;
+            })
+                .AddKafka()
+                .AddEF(opt => opt.UseSqlite($"Data Source={path}", optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
+            Migrate(builder);
+            var runtimeHost = builder.Build();
+            runtimeHost.Run();
+            Console.WriteLine("EventMesh server is launched !");
+            return runtimeHost;
+        }
+
+        private static IRuntimeHost LaunchFullEventMeshServer()
+        {
+            var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
+            Console.WriteLine("Launch EventMesh server...");
+            var path = Path.Combine(Environment.CurrentDirectory, "Runtime.db");
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Urn = "localhost";
+                opt.Port = 4000;
+            })
+                .AddKafka()
                 .AddAMQP()
                 .AddEF(opt => opt.UseSqlite($"Data Source={path}", optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
             Migrate(builder);
