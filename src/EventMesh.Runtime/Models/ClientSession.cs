@@ -50,6 +50,7 @@ namespace EventMesh.Runtime.Models
         }
         public int PurposeCode { get; set; }
         public DateTime ExpirationDateTime { get; set; }
+        public DateTime CreateDateTime { get; set; }
         public int BufferCloudEvents { get; set; }
         public ClientSessionTypes Type { get; set; }
         public ClientSessionState State { get; set; }
@@ -131,7 +132,8 @@ namespace EventMesh.Runtime.Models
                 Pid = pid,
                 Purpose = purpose,
                 BufferCloudEvents = bufferCloudEvents,
-                Type = type
+                Type = type,
+                CreateDateTime = DateTime.UtcNow
             };
             return result;
         }

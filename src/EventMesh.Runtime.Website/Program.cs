@@ -40,7 +40,7 @@ namespace EventMesh.Runtime.Website
                 opt.Urn = "localhost";
                 opt.Port = 4000;
             })
-                .AddInMemoryMessageBroker(new List<InMemoryTopic> { new InMemoryTopic { TopicName = "firstTopic" } })
+                .AddInMemoryMessageBroker(new System.Collections.Concurrent.ConcurrentBag<InMemoryTopic> { new InMemoryTopic { TopicName = "firstTopic" } })
                 .AddEF(opt => opt.UseSqlite($"Data Source={path}", optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
             Migrate(builder);
             var runtimeHost = builder.Build();

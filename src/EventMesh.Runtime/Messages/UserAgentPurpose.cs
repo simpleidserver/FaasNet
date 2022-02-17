@@ -21,7 +21,7 @@ namespace EventMesh.Runtime.Messages
 
         public static bool operator ==(UserAgentPurpose a, UserAgentPurpose b)
         {
-            if (a == null || b == null)
+            if ((object)a == null || (object)b == null)
             {
                 return false;
             }
@@ -31,7 +31,7 @@ namespace EventMesh.Runtime.Messages
 
         public static bool operator !=(UserAgentPurpose a, UserAgentPurpose b)
         {
-            if (a == null || b == null)
+            if ((object)a == null || (object)b == null)
             {
                 return true;
             }

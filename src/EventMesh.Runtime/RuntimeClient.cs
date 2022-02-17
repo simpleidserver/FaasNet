@@ -1,4 +1,5 @@
-﻿using EventMesh.Runtime.Exceptions;
+﻿using CloudNative.CloudEvents;
+using EventMesh.Runtime.Exceptions;
 using EventMesh.Runtime.Extensions;
 using EventMesh.Runtime.Messages;
 using System;
@@ -170,6 +171,20 @@ namespace EventMesh.Runtime
             package.Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
+        }
+
+        public async Task<Package> PublishMessage(string clientId, string sessionId, string topicName, CloudEvent cloudEvent, string urn = null, int port = default(int), string seq = null)
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.PublishMessage(clientId, sessionId, topicName, cloudEvent, urn, port, seq);
+            package.Serialize(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
+            var resultPayload = await _udpClient.ReceiveAsync();
+            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            var packageResult = Package.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult;
         }
 
         #endregion

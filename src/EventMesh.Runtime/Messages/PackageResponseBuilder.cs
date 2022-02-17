@@ -61,6 +61,15 @@ namespace EventMesh.Runtime.Messages
             return result;
         }
 
+        public static Package PublishMessage(string seq)
+        {
+            var result = new Package
+            {
+                Header = new Header(Commands.PUBLISH_MESSAGE_RESONSE, HeaderStatus.SUCCESS, seq)
+            };
+            return result;
+        }
+
         public static Package Bridge(string seq)
         {
             var result = new Package

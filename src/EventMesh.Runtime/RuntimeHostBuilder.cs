@@ -4,6 +4,7 @@ using EventMesh.Runtime.MessageBroker;
 using EventMesh.Runtime.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace EventMesh.Runtime
@@ -33,6 +34,7 @@ namespace EventMesh.Runtime
             ServiceCollection.AddTransient<IMessageHandler, AsyncMessageToServerHandler>();
             ServiceCollection.AddTransient<IMessageHandler, AddBridgeMessageHandler>();
             ServiceCollection.AddTransient<IMessageHandler, DisconnectMessageHandler>();
+            ServiceCollection.AddTransient<IMessageHandler, PublishMessageRequestHandler>();
             ServiceCollection.AddTransient<IACLService, ACLService>();
             ServiceCollection.AddSingleton<IUdpClientServerFactory, UdpClientServerFactory>();
             ServiceCollection.AddSingleton<IClientStore>(new ClientStore());
@@ -41,7 +43,7 @@ namespace EventMesh.Runtime
 
         public IServiceCollection ServiceCollection { get; }
 
-        public RuntimeHostBuilder AddInMemoryMessageBroker(ICollection<InMemoryTopic> topics)
+        public RuntimeHostBuilder AddInMemoryMessageBroker(ConcurrentBag<InMemoryTopic> topics)
         {
             ServiceCollection.AddSingleton<IMessageConsumer>(new InMemoryMessageConsumer(topics));
             ServiceCollection.AddSingleton<IMessagePublisher>(new InMemoryMessagePublisher(topics));

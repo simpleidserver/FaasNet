@@ -3,14 +3,16 @@ using System;
 using EventMesh.Runtime.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace EventMesh.Runtime.Server.Migrations
+namespace EventMesh.Runtime.Website.Migrations
 {
     [DbContext(typeof(EventMeshDBContext))]
-    partial class EventMeshDBContextModelSnapshot : ModelSnapshot
+    [Migration("20220217154943_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,6 +93,9 @@ namespace EventMesh.Runtime.Server.Migrations
                     b.Property<string>("ClientId")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Environment")
                         .HasColumnType("TEXT");
 
@@ -129,6 +134,12 @@ namespace EventMesh.Runtime.Server.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ClientSessionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SessionId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Urn")

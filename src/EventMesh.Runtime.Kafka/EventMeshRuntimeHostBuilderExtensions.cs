@@ -32,6 +32,7 @@ namespace EventMesh.Runtime
                 }
             });
             eventMeshRuntime.ServiceCollection.AddSingleton<IMessageConsumer, KafkaConsumer>();
+            eventMeshRuntime.ServiceCollection.AddSingleton<IMessagePublisher, KafkaPublisher>();
             return eventMeshRuntime;
         }
     }

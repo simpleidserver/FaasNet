@@ -10,7 +10,7 @@ namespace EventMesh.Runtime.Kafka
     public class KafkaListenerMessage
     {
         public long Offset { get; set; }
-        public ConsumeResult<Ignore, string> Message { get; set; }
+        public ConsumeResult<string?, byte[]> Message { get; set; }
     }
 
     public class KafkaListener
@@ -19,13 +19,13 @@ namespace EventMesh.Runtime.Kafka
         private readonly string _topic;
         private readonly string _clientId;
         private readonly string _sessionId;
-        private readonly Action<string, string, string, ConsumeResult<Ignore, string>> _callback;
+        private readonly Action<string, string, string, ConsumeResult<string?, byte[]>> _callback;
         private CancellationTokenSource _cancellationTokenSource;
         private ICollection<KafkaListenerMessage> _messages;
-        private IConsumer<Ignore, string> _consumer;
+        private IConsumer<string?, byte[]> _consumer;
         private static object _obj = new object();
 
-        public KafkaListener(KafkaOptions options, string topic, string clientId, string sessionId, Action<string, string, string, ConsumeResult<Ignore, string>> callback)
+        public KafkaListener(KafkaOptions options, string topic, string clientId, string sessionId, Action<string, string, string, ConsumeResult<string?, byte[]>> callback)
         {
             _options = options;
             _topic = topic;
@@ -72,7 +72,7 @@ namespace EventMesh.Runtime.Kafka
                 AutoOffsetReset = AutoOffsetReset.Earliest,
                 EnableAutoCommit = false
             };
-            using (_consumer = new ConsumerBuilder<Ignore, string>(config).Build())
+            using (_consumer = new ConsumerBuilder<string, byte[]>(config).Build())
             {
                 _consumer.Subscribe("^" + _topic);
                 while(!_cancellationTokenSource.IsCancellationRequested)

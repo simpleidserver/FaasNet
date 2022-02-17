@@ -6,6 +6,7 @@ using EventMesh.Runtime.Models;
 using EventMesh.Runtime.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -259,6 +260,67 @@ namespace EventMesh.Runtime.Tests
         }
 
         [Fact]
+        public async Task When_Subscribe_And_SessionDoesntHaveCorrectPurpose_ThenExceptionIsThrown()
+        {
+            // ARRANGE
+            const string topicName = "Test.COUCOU";
+            AsyncMessageToClient msg = null;
+            var cloudEvent = new CloudEvent
+            {
+                Type = "com.github.pull.create",
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "testttt",
+                ["comexampleextension1"] = "value"
+            };
+            var topics = new ConcurrentBag<InMemoryTopic>
+            {
+                new InMemoryTopic
+                {
+                    TopicName = topicName
+                }
+            };
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 5003;
+            });
+            builder.AddInMemoryMessageBroker(topics);
+            var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
+            var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
+            var host = builder.Build();
+            host.Run();
+
+            // ACT
+            var client = new RuntimeClient(port: 5003);
+            var helloResponse = await client.Hello(new UserAgent
+            {
+                ClientId = "id",
+                Environment = "TST",
+                Password = "password",
+                Pid = 2000,
+                Purpose = UserAgentPurpose.PUB,
+                Version = "0",
+                BufferCloudEvents = 1
+            });
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Subscribe("id", helloResponse.SessionId, new List<SubscriptionItem>
+            {
+                new SubscriptionItem
+                {
+                    Topic = topicName
+                }
+            }));
+            host.Stop();
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.UNAUTHORIZED_SUBSCRIBE, exception.Error);
+        }
+
+        [Fact]
         public async Task When_Subscribe_ToOneTopic_Then_MessagesAreReceived()
         {
             // ARRANGE
@@ -275,7 +337,7 @@ namespace EventMesh.Runtime.Tests
                 Data = "testttt",
                 ["comexampleextension1"] = "value"
             };
-            var topics = new List<InMemoryTopic>
+            var topics = new ConcurrentBag<InMemoryTopic>
             {
                 new InMemoryTopic
                 {
@@ -315,7 +377,7 @@ namespace EventMesh.Runtime.Tests
             {
                 msg = m;
             });
-            await messagePublisher.Publish(cloudEvent, topicName);
+            await messagePublisher.Publish(cloudEvent, topicName, Client.Create("clientId", "urn"));
             while (msg == null)
             {
                 Thread.Sleep(100);
@@ -347,7 +409,7 @@ namespace EventMesh.Runtime.Tests
                 Data = "testttt",
                 ["comexampleextension1"] = "value"
             };
-            var topics = new List<InMemoryTopic>
+            var topics = new ConcurrentBag<InMemoryTopic>
             {
                 new InMemoryTopic
                 {
@@ -397,7 +459,7 @@ namespace EventMesh.Runtime.Tests
             {
                 msg = m;
             });
-            await messagePublisher.Publish(cloudEvent, topicName);
+            await messagePublisher.Publish(cloudEvent, topicName, Client.Create("clientId", "urn"));
             while (msg == null)
             {
                 Thread.Sleep(100);
@@ -411,6 +473,284 @@ namespace EventMesh.Runtime.Tests
             // ASSERT
             var firstServerClient = firstClientStore.Get("id");
             var secondServerClient = secondClientStore.Get("id");
+            var secondTopic = secondServerClient.Topics.First();
+            var firstSession = firstServerClient.Sessions.First();
+            var secondSession = secondServerClient.Sessions.First();
+            Assert.Equal(ClientSessionState.FINISH, firstSession.State);
+            Assert.Equal(ClientSessionState.FINISH, secondSession.State);
+            Assert.Equal(1, secondTopic.Offset);
+            Assert.Equal("inmemory", secondTopic.BrokerName);
+            Assert.Equal("Test.COUCOU", secondTopic.Name);
+        }
+
+        #endregion
+
+        #region Publish Message
+
+        [Fact]
+        public async Task When_PublishMessage_And_ThereIsNoActiveSession_Then_ExceptionIsThrown()
+        {
+            // ARRANGE
+            var cloudEvent = new CloudEvent
+            {
+                Type = "com.github.pull.create",
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "testttt",
+                ["comexampleextension1"] = "value"
+            };
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 5004;
+            });
+            var host = builder.Build();
+            host.Run();
+
+            // ACT
+            var client = new RuntimeClient(port: 5004);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.PublishMessage("clientId", "sessionId", "topic", cloudEvent));
+            host.Stop();
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.INVALID_CLIENT, exception.Error);
+        }
+
+        [Fact]
+        public async Task When_PublishMessage_And_SessionDoesntHaveCorrectPurpose_ThenExceptionIsThrown()
+        {
+            // ARRANGE
+            const string topicName = "Test.COUCOU";
+            var cloudEvent = new CloudEvent
+            {
+                Type = "com.github.pull.create",
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "testttt",
+                ["comexampleextension1"] = "value"
+            };
+            var topics = new ConcurrentBag<InMemoryTopic>
+            {
+                new InMemoryTopic
+                {
+                    TopicName = topicName
+                }
+            };
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 5005;
+            });
+            builder.AddInMemoryMessageBroker(topics);
+            var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
+            var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
+            var host = builder.Build();
+            host.Run();
+
+            // ACT
+            var client = new RuntimeClient(port: 5005);
+            var helloResponse = await client.Hello(new UserAgent
+            {
+                ClientId = "id",
+                Environment = "TST",
+                Password = "password",
+                Pid = 2000,
+                Purpose = UserAgentPurpose.SUB,
+                Version = "0",
+                BufferCloudEvents = 1
+            });
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.PublishMessage("id", helloResponse.SessionId, "topic", cloudEvent));
+            host.Stop();
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.UNAUTHORIZED_PUBLISH, exception.Error);
+        }
+
+        [Fact]
+        public async Task When_PublishMessage_And_SubscribeToOneTopic_Then_MessageIsReceived()
+        {
+            // ARRANGE
+            const string topicName = "Test.COUCOU";
+            AsyncMessageToClient msg = null;
+            var cloudEvent = new CloudEvent
+            {
+                Type = "com.github.pull.create",
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "testttt",
+                ["comexampleextension1"] = "value"
+            };
+            var topics = new ConcurrentBag<InMemoryTopic>
+            {
+                new InMemoryTopic
+                {
+                    TopicName = topicName
+                }
+            };
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 5006;
+            });
+            builder.AddInMemoryMessageBroker(topics);
+            var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
+            var clientStore = serviceProvider.GetRequiredService<IClientStore>();
+            var host = builder.Build();
+            host.Run();
+
+            // ACT
+            var subClient = new RuntimeClient(port: 5006);
+            var subClientHelloResponse = await subClient.Hello(new UserAgent
+            {
+                ClientId = "subClientId",
+                Environment = "TST",
+                Password = "password",
+                Pid = 2000,
+                Purpose = UserAgentPurpose.SUB,
+                Version = "0",
+                BufferCloudEvents = 1
+            });
+            await subClient.Subscribe("subClientId", subClientHelloResponse.SessionId, new List<SubscriptionItem>
+            {
+                new SubscriptionItem
+                {
+                    Topic = topicName
+                }
+            }, (m) =>
+            {
+                msg = m;
+            });
+            var pubClient = new RuntimeClient(port: 5006);
+            var pubClientHelloResponse = await pubClient.Hello(new UserAgent
+            {
+                ClientId = "pubClientId",
+                Environment = "TST",
+                Password = "password",
+                Pid = 2000,
+                Purpose = UserAgentPurpose.PUB,
+                Version = "0",
+                BufferCloudEvents = 1
+            });
+            await pubClient.PublishMessage("pubClientId", pubClientHelloResponse.SessionId, topicName, cloudEvent);
+            while (msg == null)
+            {
+                Thread.Sleep(100);
+            }
+
+            host.Stop();
+
+            // ASSERT
+            var storedClient = clientStore.Get("subClientId");
+            var topic = storedClient.Topics.First();
+            Assert.NotNull(msg);
+            Assert.Equal(Constants.InMemoryBrokername, topic.BrokerName);
+            Assert.Equal(1, topic.Offset);
+            Assert.Equal(topicName, topic.Name);
+        }
+
+        [Fact]
+        public async Task When_Publishmessage_And_Subscribe_ToOneTopic_Then_MessageIsReceivedFromSecondServer()
+        {
+            // ARRANGE
+            const string topicName = "Test.COUCOU";
+            AsyncMessageToClient msg = null;
+            var cloudEvent = new CloudEvent
+            {
+                Type = "com.github.pull.create",
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "testttt",
+                ["comexampleextension1"] = "value"
+            };
+            var topics = new ConcurrentBag<InMemoryTopic>
+            {
+                new InMemoryTopic
+                {
+                    TopicName = topicName
+                }
+            };
+            var firstBuilder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 5007;
+                opt.Urn = "localhost";
+            });
+            var secondBuilder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 5008;
+                opt.Urn = "localhost";
+            }).AddInMemoryMessageBroker(topics);
+            var firstServiceProvider = firstBuilder.ServiceCollection.BuildServiceProvider();
+            var secondServiceProvider = secondBuilder.ServiceCollection.BuildServiceProvider();
+            var firstClientStore = firstServiceProvider.GetRequiredService<IClientStore>();
+            var secondClientStore = secondServiceProvider.GetRequiredService<IClientStore>();
+            var firstHost = firstBuilder.Build();
+            firstHost.Run();
+            var secondHost = secondBuilder.Build();
+            secondHost.Run();
+
+            // ACT
+            var addBridgeClient = new RuntimeClient(port: 5007);
+            await addBridgeClient.AddBridge("localhost", 5008, CancellationToken.None);
+            var subClient = new RuntimeClient(port: 5007);
+            var subClientHelloResponse = await subClient.Hello(new UserAgent
+            {
+                ClientId = "subClientId",
+                Environment = "TST",
+                Password = "password",
+                Pid = 2000,
+                Purpose = UserAgentPurpose.SUB,
+                Version = "0",
+                BufferCloudEvents = 1
+            });
+            var subscriptionResult = await subClient.Subscribe("subClientId", subClientHelloResponse.SessionId, new List<SubscriptionItem>
+            {
+                new SubscriptionItem
+                {
+                    Topic = topicName
+                }
+            }, (m) =>
+            {
+                msg = m;
+            });
+            var pubClient = new RuntimeClient(port: 5007);
+            var pubClientHelloResponse = await pubClient.Hello(new UserAgent
+            {
+                ClientId = "pubClientId",
+                Environment = "TST",
+                Password = "password",
+                Pid = 2000,
+                Purpose = UserAgentPurpose.PUB,
+                Version = "0",
+                BufferCloudEvents = 1
+            });
+            await pubClient.PublishMessage("pubClientId", pubClientHelloResponse.SessionId, topicName, cloudEvent);
+            while (msg == null)
+            {
+                Thread.Sleep(100);
+            }
+
+            subscriptionResult.Stop();
+
+            await subClient.Disconnect("subClientId", subClientHelloResponse.SessionId);
+            firstHost.Stop();
+            secondHost.Stop();
+
+            // ASSERT
+            var firstServerClient = firstClientStore.Get("subClientId");
+            var secondServerClient = secondClientStore.Get("subClientId");
             var secondTopic = secondServerClient.Topics.First();
             var firstSession = firstServerClient.Sessions.First();
             var secondSession = secondServerClient.Sessions.First();

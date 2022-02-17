@@ -20,7 +20,7 @@
                         <td><a href="/clients/@client.ClientId/info">@client.ClientId</a></td>
                         <td>@client.CreateDateTime</td>
                         <td>@client.ActiveSessions.Count()</td>
-                        <td>@client.Topics.Count()</td>
+                        <td>@client.Topics.Select(t => t.Name).Distinct().Count()</td>
                     </tr>
                 }
             </tbody>

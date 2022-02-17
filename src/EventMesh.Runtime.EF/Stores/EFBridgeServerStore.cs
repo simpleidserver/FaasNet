@@ -16,23 +16,35 @@ namespace EventMesh.Runtime.EF.Stores
 
         public void Add(BridgeServer bridgeServer)
         {
-            _dbContext.BridgeServers.Add(bridgeServer);
-            _dbContext.SaveChanges();
+            lock(EventMeshDBContext.Lock)
+            {
+                _dbContext.BridgeServers.Add(bridgeServer);
+                _dbContext.SaveChanges();
+            }
         }
 
         public int Count()
         {
-            return _dbContext.BridgeServers.Count();
+            lock (EventMeshDBContext.Lock)
+            {
+                return _dbContext.BridgeServers.Count();
+            }
         }
 
         public BridgeServer Get(string urn)
         {
-            return _dbContext.BridgeServers.FirstOrDefault(b => b.Urn == urn);
+            lock (EventMeshDBContext.Lock)
+            {
+                return _dbContext.BridgeServers.FirstOrDefault(b => b.Urn == urn);
+            }
         }
 
         public IEnumerable<BridgeServer> GetAll()
         {
-            return _dbContext.BridgeServers.ToList();
+            lock (EventMeshDBContext.Lock)
+            {
+                return _dbContext.BridgeServers.ToList();
+            }
         }
     }
 }

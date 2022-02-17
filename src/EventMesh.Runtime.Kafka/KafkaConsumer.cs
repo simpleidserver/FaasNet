@@ -84,7 +84,7 @@ namespace EventMesh.Runtime.Kafka
             return _brokerConfigurationStore.Get(_opts.BrokerName).ToKafkaOptions();
         }
 
-        private void HandleMessage(string clientId, string clientSessionId, string topicName, ConsumeResult<Ignore, string> message)
+        private void HandleMessage(string clientId, string clientSessionId, string topicName, ConsumeResult<string?, byte[]> message)
         {
             var jsonEventFormatter = new JsonEventFormatter();
             var cloudEvent = message.ToCloudEvent(jsonEventFormatter, "source", topicName);

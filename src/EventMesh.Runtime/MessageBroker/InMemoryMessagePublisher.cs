@@ -1,5 +1,6 @@
 ﻿using CloudNative.CloudEvents;
-using System.Collections.Generic;
+using EventMesh.Runtime.Models;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,14 +8,16 @@ namespace EventMesh.Runtime.MessageBroker
 {
     public class InMemoryMessagePublisher : IMessagePublisher
     {
-        private readonly ICollection<InMemoryTopic> _topics;
+        private readonly ConcurrentBag<InMemoryTopic> _topics;
 
-        public InMemoryMessagePublisher(ICollection<InMemoryTopic> topics)
+        public InMemoryMessagePublisher(ConcurrentBag<InMemoryTopic> topics)
         {
             _topics = topics;
         }
 
-        public Task Publish(CloudEvent cloudEvent, string topicName)
+        public string BrokerName => Constants.InMemoryBrokername;
+
+        public Task Publish(CloudEvent cloudEvent, string topicName, Client client)
         {
             var topic = _topics.First(t => t.TopicName == topicName);
             topic.PublishMessage(cloudEvent);

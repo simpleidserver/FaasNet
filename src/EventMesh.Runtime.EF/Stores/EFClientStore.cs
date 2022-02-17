@@ -8,7 +8,6 @@ namespace EventMesh.Runtime.EF.Stores
 {
     public class EFClientStore : IClientStore
     {
-        private static object _obj = new object();
         private readonly EventMeshDBContext _dbContext;
 
         public EFClientStore(EventMeshDBContext dbContext)
@@ -18,7 +17,7 @@ namespace EventMesh.Runtime.EF.Stores
 
         public void Add(Client session)
         {
-            lock (_obj)
+            lock (EventMeshDBContext.Lock)
             {
                 _dbContext.Clients.Add(session);
                 _dbContext.SaveChanges();
@@ -27,19 +26,19 @@ namespace EventMesh.Runtime.EF.Stores
 
         public int Count()
         {
-            lock(_obj)
+            lock(EventMeshDBContext.Lock)
                 return _dbContext.Clients.Count();
         }
 
         public int CountActiveSessions()
         {
-            lock(_obj)
+            lock(EventMeshDBContext.Lock)
                 return _dbContext.Clients.SelectMany(c => c.Sessions).Count(c => c.State == ClientSessionState.ACTIVE);
         }
 
         public Client Get(string clientId)
         {
-            lock(_obj)
+            lock(EventMeshDBContext.Lock)
                 return _dbContext.Clients
                     .Include(c => c.Sessions).ThenInclude(c => c.Histories)
                     .Include(c => c.Sessions).ThenInclude(c => c.Topics)
@@ -51,7 +50,7 @@ namespace EventMesh.Runtime.EF.Stores
 
         public IEnumerable<Client> GetAll()
         {
-            lock(_obj)
+            lock(EventMeshDBContext.Lock)
                 return _dbContext.Clients
                     .Include(c => c.Sessions)
                     .Include(c => c.Topics)
@@ -60,7 +59,7 @@ namespace EventMesh.Runtime.EF.Stores
 
         public Client GetByActiveSession(string clientId, string sessionId)
         {
-            lock(_obj)
+            lock(EventMeshDBContext.Lock)
                 return _dbContext.Clients
                     .Include(c => c.Sessions).ThenInclude(c => c.Histories)
                     .Include(c => c.Sessions).ThenInclude(c => c.Topics)
@@ -72,7 +71,7 @@ namespace EventMesh.Runtime.EF.Stores
 
         public void Update(Client client)
         {
-            lock(_obj)
+            lock(EventMeshDBContext.Lock)
             {
                 _dbContext.Clients.Update(client);
                 _dbContext.SaveChanges();

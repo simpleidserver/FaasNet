@@ -7,7 +7,8 @@ namespace EventMesh.Runtime.Client
         static async Task<int> Main(string[] args)
         {
             // await Scenario1CreateSubSession.Launch();
-            await Scenario2SubscribeToOneTopic.Launch();
+            // await Scenario2SubscribeToOneTopic.Launch();
+            await Scenario3SubscribeToOneTopicAndPublishMessage.Launch();
             return 1;
         }
     }

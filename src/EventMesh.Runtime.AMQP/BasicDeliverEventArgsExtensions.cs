@@ -1,7 +1,10 @@
 ﻿using CloudNative.CloudEvents;
 using CloudNative.CloudEvents.Core;
+using CloudNative.CloudEvents.SystemTextJson;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Mime;
 using System.Text;
@@ -13,16 +16,12 @@ namespace EventMesh.Runtime.AMQP
         internal const string AmqpHeaderPrefix = "cloudEvents:";
         internal const string SpecVersionAmqpHeader = AmqpHeaderPrefix + "specversion";
 
-        public static CloudEvent ToCloudEvent(this BasicDeliverEventArgs message,
-            CloudEventFormatter cloudEventFormatter,
-            string source,
-            string topicName,
-            params CloudEventAttribute[]? extensionAttributes)
+        public static CloudEvent ToCloudEvent(this BasicDeliverEventArgs message, CloudEventFormatter cloudEventFormatter, string source, string topicName)
         {
             var properties = message.BasicProperties;
             if (HasCloudEventsContentType(message, out var contentType))
             {
-                return cloudEventFormatter.DecodeStructuredModeMessage(new MemoryStream(message.Body.ToArray()), new ContentType(contentType), extensionAttributes);
+                return cloudEventFormatter.DecodeStructuredModeMessage(new MemoryStream(message.Body.ToArray()), new ContentType(contentType), null);
             }
 
             var cloudEvent = new CloudEvent();
@@ -39,6 +38,21 @@ namespace EventMesh.Runtime.AMQP
             cloudEvent.DataContentType = properties.ContentType;
             cloudEvent.Data = Encoding.UTF8.GetString(message.Body.ToArray());
             return cloudEvent;
+        }
+
+        public static byte[] SerializeBody(this CloudEvent cloudEvt)
+        {
+            var formatter = new JsonEventFormatter();
+            return formatter.EncodeBinaryModeEventData(cloudEvt).ToArray();
+        }
+
+        public static void EnrichBasicProperties(this CloudEvent cloudEvt, IBasicProperties basicProperties)
+        {
+            basicProperties.ContentType = "application/json";
+            basicProperties.Headers = new Dictionary<string, object>
+            {
+                { SpecVersionAmqpHeader, CloudEventsSpecVersion.Default.VersionId }
+            };
         }
 
         private static bool HasCloudEventsContentType(BasicDeliverEventArgs message, out string? contentType)

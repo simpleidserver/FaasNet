@@ -14,7 +14,8 @@ namespace EventMesh.Runtime.Messages
         public static Errors BRIDGE_NOT_ACTIVE = new Errors("BRIDGE_NOT_ACTIVE");
         public static Errors BRIDGE_EXISTS = new Errors("BRIDGE_EXISTS");
         public static Errors UNKNOWN_BRIDGE = new Errors("UNKNOWN_BRIDGE");
-
+        public static Errors UNAUTHORIZED_PUBLISH = new Errors("UNAUTHORIZED_PUBLISH");
+        public static Errors UNAUTHORIZED_SUBSCRIBE = new Errors("UNAUTHORIZED_SUBSCRIBE");
         private Errors(string code)
         {
             Code = code;

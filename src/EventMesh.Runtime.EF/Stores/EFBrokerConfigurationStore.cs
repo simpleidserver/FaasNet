@@ -17,22 +17,34 @@ namespace EventMesh.Runtime.EF.Stores
 
         public IEnumerable<BrokerConfiguration> GetAll()
         {
-            return _dbContext.BrokerConfigurations.Include(b => b.Records).ToList();
+            lock (EventMeshDBContext.Lock)
+            {
+                return _dbContext.BrokerConfigurations.Include(b => b.Records).ToList();
+            }
         }
 
         public BrokerConfiguration Get(string name)
         {
-            return _dbContext.BrokerConfigurations.Include(b => b.Records).FirstOrDefault(b => b.Name == name);
+            lock (EventMeshDBContext.Lock)
+            {
+                return _dbContext.BrokerConfigurations.Include(b => b.Records).FirstOrDefault(b => b.Name == name);
+            }
         }
 
         public void Add(BrokerConfiguration brokerConfiguration)
         {
-            _dbContext.BrokerConfigurations.Add(brokerConfiguration);
+            lock (EventMeshDBContext.Lock)
+            {
+                _dbContext.BrokerConfigurations.Add(brokerConfiguration);
+            }
         }
 
         public int SaveChanges()
         {
-            return _dbContext.SaveChanges();
+            lock (EventMeshDBContext.Lock)
+            {
+                return _dbContext.SaveChanges();
+            }
         }
     }
 }

@@ -91,6 +91,9 @@ namespace EventMesh.Runtime.Website.Migrations
                     b.Property<string>("ClientId")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Environment")
                         .HasColumnType("TEXT");
 

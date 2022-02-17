@@ -112,7 +112,6 @@ namespace EventMesh.Runtime.AMQP
 
         #endregion
 
-
         private void ReceiveMessage(object sender, string clientId, string clientSessionId, string topicName, string source, string brokerName, BasicDeliverEventArgs e)
         {
             var jsonEventFormatter = new JsonEventFormatter();

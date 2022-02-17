@@ -99,6 +99,16 @@
                 return result;
             }
 
+            if (Commands.PUBLISH_MESSAGE_REQUEST == header.Command)
+            {
+                var result = new PublishMessageRequest
+                {
+                    Header= header
+                };
+                result.Extract(context);
+                return result;
+            }
+
             return new Package
             {
                 Header = header

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CloudNative.CloudEvents;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -62,6 +63,21 @@ namespace EventMesh.Runtime.Messages
                 ClientId = clientId,
                 SessionId = sessionId,
                 IsClient = isClient
+            };
+            return result;
+        }
+
+        public static Package PublishMessage(string clientId, string sessionId, string topicName, CloudEvent cloudEvent, string urn = null, int port = default(int), string seq = null)
+        {
+            var result = new PublishMessageRequest
+            {
+                Header = new Header(Commands.PUBLISH_MESSAGE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
+                ClientId = clientId,
+                CloudEvent = cloudEvent,
+                Port = port,
+                Urn = urn,
+                SessionId = sessionId,
+                Topic = topicName
             };
             return result;
         }

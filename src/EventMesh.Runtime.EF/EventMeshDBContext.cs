@@ -7,6 +7,9 @@ namespace EventMesh.Runtime.EF
     {
         public EventMeshDBContext(DbContextOptions<EventMeshDBContext> dbContextOptions) : base(dbContextOptions) { }
 
+
+        public static object Lock = new object();
+
         public virtual DbSet<Client> Clients { get; set; }
         public virtual DbSet<BridgeServer> BridgeServers { get; set; }
         public virtual DbSet<BrokerConfiguration> BrokerConfigurations { get; set; }

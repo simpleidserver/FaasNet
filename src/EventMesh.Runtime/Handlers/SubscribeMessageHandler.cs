@@ -1,4 +1,5 @@
-﻿using EventMesh.Runtime.Messages;
+﻿using EventMesh.Runtime.Exceptions;
+using EventMesh.Runtime.Messages;
 using EventMesh.Runtime.Models;
 using EventMesh.Runtime.Stores;
 using Microsoft.Extensions.Options;
@@ -36,6 +37,12 @@ namespace EventMesh.Runtime.Handlers
         {
             var subscriptionRequest = package as SubscriptionRequest;
             var client = GetActiveSession(package, subscriptionRequest.ClientId, subscriptionRequest.SessionId);
+            var activeSession = client.GetActiveSession(subscriptionRequest.SessionId);
+            if (activeSession.Purpose != UserAgentPurpose.SUB)
+            {
+                throw new RuntimeException(subscriptionRequest.Header.Command, subscriptionRequest.Header.Seq, Errors.UNAUTHORIZED_SUBSCRIBE);
+            }
+
             await SubscribeBridgeServerTopics(subscriptionRequest, client);
             await Subscribe(subscriptionRequest, client);
             ClientStore.Update(client);

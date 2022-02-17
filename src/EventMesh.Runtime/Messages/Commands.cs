@@ -57,6 +57,14 @@ namespace EventMesh.Runtime.Messages
         /// </summary>
         public static Commands DISCONNECT_RESPONSE = new Commands(12);
         public static Commands ASYNC_MESSAGE_TO_CLIENT_ACK_RESPONSE = new Commands(13);
+        /// <summary>
+        /// Client send message request to the server.
+        /// </summary>
+        public static Commands PUBLISH_MESSAGE_REQUEST = new Commands(14);
+        /// <summary>
+        /// Server reply message response to the client.
+        /// </summary>
+        public static Commands PUBLISH_MESSAGE_RESONSE = new Commands(15);
 
         private Commands(int code)
         {
@@ -82,7 +90,7 @@ namespace EventMesh.Runtime.Messages
 
         public static bool operator !=(Commands a, Commands b)
         {
-            if (a == null || b == null)
+            if ((object)a == null || (object)b == null)
             {
                 return true;
             }

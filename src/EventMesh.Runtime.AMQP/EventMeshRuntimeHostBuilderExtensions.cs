@@ -32,6 +32,7 @@ namespace EventMesh.Runtime
                 }
             });
             eventMeshRuntime.ServiceCollection.AddSingleton<IMessageConsumer, AMQPConsumer>();
+            eventMeshRuntime.ServiceCollection.AddSingleton<IMessagePublisher, AMQPPublisher>();
             return eventMeshRuntime;
         }
     }

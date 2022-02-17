@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace EventMesh.Runtime.Server.Migrations
+namespace EventMesh.Runtime.Website.Migrations
 {
     public partial class Init : Migration
     {
@@ -76,6 +76,7 @@ namespace EventMesh.Runtime.Server.Migrations
                     Pid = table.Column<int>(type: "INTEGER", nullable: false),
                     PurposeCode = table.Column<int>(type: "INTEGER", nullable: false),
                     ExpirationDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreateDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     BufferCloudEvents = table.Column<int>(type: "INTEGER", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
                     State = table.Column<int>(type: "INTEGER", nullable: false),
@@ -99,6 +100,8 @@ namespace EventMesh.Runtime.Server.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Urn = table.Column<string>(type: "TEXT", nullable: true),
+                    Port = table.Column<int>(type: "INTEGER", nullable: false),
+                    SessionId = table.Column<string>(type: "TEXT", nullable: true),
                     ClientSessionId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>

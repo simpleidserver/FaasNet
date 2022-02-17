@@ -1,7 +1,7 @@
 ﻿using EventMesh.Runtime.Events;
 using EventMesh.Runtime.Models;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,9 +11,9 @@ namespace EventMesh.Runtime.MessageBroker
     public class InMemoryMessageConsumer : IMessageConsumer
     {
         public event EventHandler<CloudEventArgs> CloudEventReceived;
-        private readonly ICollection<InMemoryTopic> _topics;
+        private readonly ConcurrentBag<InMemoryTopic> _topics;
 
-        public InMemoryMessageConsumer(ICollection<InMemoryTopic> topics)
+        public InMemoryMessageConsumer(ConcurrentBag<InMemoryTopic> topics)
         {
             _topics = topics;
         }

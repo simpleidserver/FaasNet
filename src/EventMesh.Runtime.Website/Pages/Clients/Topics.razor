@@ -9,17 +9,17 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Topic</th>
                 <th>Broker</th>
+                <th>Topic</th>
                 <th>Offset</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var topic in ClientState.Client.Topics)
+            @foreach (var topic in ClientState.Client.Topics.OrderBy(t => t.BrokerName))
             {
                 <tr>
-                    <td>@topic.Name</td>
                     <td>@topic.BrokerName</td>
+                    <td>@topic.Name</td>
                     <td>@topic.Offset</td>
                 </tr>
             }
