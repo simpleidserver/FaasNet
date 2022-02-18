@@ -1,34 +1,6 @@
 # EventMesh protocol
 
-## Concepts
-
-### EventMesh Server
-
-Acts as a proxy between message brokers and clients.
-
-### Client
-
-Client can be any types of application which implements the EventMesh protocol.
-
-### Session
-
-Client can have one or more sessions. 
-There are two types of session :
-* SUB : subscribe to one or more topics.
-* PUB : publish messages.
-
-### Bridge
-
-Link between two servers.
-When a bridge is established, messages can transit from one server to an another.
-
-### CloudEvent
-
-All messages coming from Brokers are translated into CloudEvent and vice versa.
-
-## Common Structure
-
-### Message structure
+## Message structure
 
 | Description        | Data Type | Comment                                                                       | Default Value |
 | ------------------ | --------- | ----------------------------------------------------------------------------- | ------------- |
@@ -71,19 +43,38 @@ Known status:
 | 2    | aclFail     |
 | 3    | tpsOverload |
 
+Error status:
+
+| Code                   |
+| ---------------------- |
+| NO_ACTIVE_SESSION      |
+| NOT_AUTHORIZED         |
+| NO_BRIDGE_SERVER       |
+| INVALID_URL            |
+| INVALID_CLIENT         |
+| INVALID_SEQ            |
+| INVALID_BRIDGE         |
+| BRIDGE_NOT_ACTIVE      |
+| BRIDGE_EXISTS          |
+| UNKNOWN_BRIDGE         |
+| UNAUTHORIZED_PUBLISH   |
+| UNAUTHORIZED_SUBSCRIBE |
+
 ## Commands
 
 ### Heartbeat request
 
-*Request* : HEARBEAT_REQUEST.
-*Response* : HEARTBEAT_RESPONSE.
+**Request** : HEARBEAT_REQUEST.
+
+**Response** : HEARTBEAT_RESPONSE.
 
 Heartbeat request are sent by client to check the availablity of an EventMesh Server.
 
 ### Hello request
 
-*Request* : HELLO_REQUEST.
-*Response* : HELLO_RESPONSE.
+**Request** : HELLO_REQUEST.
+
+**Response** : HELLO_RESPONSE.
 
 Client send hello request to EventMesh server to create a session.
 The following informations are passed in the request. They are used by the EventMesh server to check if the client is authorized to subscribe or publish.
@@ -101,7 +92,7 @@ The following informations are passed in the request. They are used by the Event
 | Pid               | int32     | Identifier of the process.                                                                                                    |
 
 > [!WARNING]
-> When a bridge is created between two EventMesh servers. The parameters `Urn` and `Port` will be used to transmit messages from one server to the second and to the client.
+> When a bridge is created between two EventMesh servers. The parameters `Urn` and `Port` will be used to transmit messages from one server to the second server and to the client.
 
 When a session is created, an hello response is sent by the EventMesh server to the client.
 It contains a unique session identifier. This value will be used by the client to perform future operations.
@@ -112,8 +103,9 @@ It contains a unique session identifier. This value will be used by the client t
 
 ### Subscribe request
 
-*Request* : SUBSCRIBE_REQUEST.
-*Response* : SUBSCRIBE_RESPONSE.
+**Request** : SUBSCRIBE_REQUEST.
+
+**Response** : SUBSCRIBE_RESPONSE.
 
 > [!WARNING]
 > A session is required to perform a subscription.
@@ -129,12 +121,47 @@ The following informations are passed in the request.
 
 ### Add Bridge request
 
-TODO
+**Request** : ADD_BRIDGE_REQUEST.
+
+**Response** : ADD_BRIDGE_RESPONSE.
+
+Bridge request are sent to create a bridge between two EventMesh servers.
+The following informations are passed in the request :
+
+| Description | Data Type | Comment                             |
+| ----------- | --------- | ----------------------------------- |
+| Urn         | string    | URN of the second EventMesh server  |
+| Port        | int32     | Port of the second EventMesh server |
+
 
 ### Disconnect request
 
-TODO
+**Request** : DISCONNECT_REQUEST.
+
+**Response** : DISCONNECT_RESPONSE.
+
+Disconnect request are sent by the client to close the session. When the session is closed, client cannot perform any future operations.
+The following informations are passed in the request :
+
+| Description | Data Type | Comment                   |
+| ----------- | --------- | ------------------------- |
+| ClientId    | string    | Identifier of the client  |
+| SessionId   | string    | Identifier of the session |
 
 ### Publish Message request
 
-TODO
+**Request** : PUBLISH_MESSAGE_REQUEST.
+
+**Response** : PUBLISH_MESSAGE_RESPONSE.
+
+Publish message request are sent by the client to publish one message to a Topic.
+The following informations are passed in the request :
+
+| Description | Data Type | Comment                                                                                                                                                                     |
+| ----------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ClientId    | string    | Identifier of the client                                                                 																					|
+| SessionId   | string    | Identifier of the session                                                                																					|
+| Topic       | string    | Topic filter                                                                             																					|
+| Urn         | string    | URN of the targeted EventMesh server. When the value is specified then the message is sent to the targeted server. Otherwise the message is broadcast to all the servers. 	|
+| Port        | int32     | Port of the targeted EventMesh server                                																										|
+| CloudEvent  | object    | Message to send                                                                                                                                                             |

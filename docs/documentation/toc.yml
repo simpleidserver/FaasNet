@@ -18,6 +18,12 @@
      href: serverlessworkflows/switch.md
    - name: Inject
      href: serverlessworkflows/inject.md
+- name: EventMesh
+  items:
+    - name: Concepts
+      href: eventmesh/concepts.md
+    - name: Protocol
+      href: eventmesh/protocol.md
 - name: CLI
   items:
    - name: Overview
