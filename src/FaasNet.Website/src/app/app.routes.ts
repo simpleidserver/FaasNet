@@ -15,5 +15,9 @@ export const routes: Routes = [
   {
     path: 'statemachineinstances',
     loadChildren: async () => (await import('./statemachineinstances/statemachineinstances.module')).StateMachineInstancesModule
+  },
+  {
+    path: 'eventmeshservers',
+    loadChildren: async () => (await import('./eventmeshservers/eventmeshservers.module')).EventMeshServersModule
   }
 ];

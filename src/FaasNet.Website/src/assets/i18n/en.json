@@ -1,4 +1,15 @@
 {
+  "eventmeshservers": {
+    "list": "EventMesh Servers",
+    "add": "Add eventmesh server",
+    "isLocalhost": "Is Localhost ?",
+    "urn": "Urn",
+    "port": "Port",
+    "messages": {
+      "eventMeshServerAdded": "EventMesh Server has been added",
+      "errorAddEventMeshServer": "An error occured while trying to add the EventMesh Server"
+    }
+  },
   "functions": {
     "list": "Functions",
     "name": "Name",

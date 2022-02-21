@@ -1,0 +1,27 @@
+<h1 mat-dialog-title>{{ 'eventmeshservers.add' | translate }}</h1>
+<form [formGroup]="addEventMeshServerFormGroup" (ngSubmit)="save()">
+  <div mat-dialog-content>
+    <!-- IsLocalhost -->
+    <div class="form-control">
+      <input type="checkbox" formControlName="isLocalHost"/>
+      <label>{{ 'eventmeshservers.isLocalhost' | translate }}</label>
+    </div>
+    <mat-divider></mat-divider>
+    <!-- Urn -->
+    <div class="form-control">
+      <div class="title">{{ 'eventmeshservers.urn' | translate }}</div>
+      <input type="text" formControlName="urn" class="full-width" [attr.disabled]="addEventMeshServerFormGroup.get('isLocalHost')?.value == true ? 'true' : null" />
+    </div>
+    <mat-divider></mat-divider>
+    <!-- Port -->
+    <div class="form-control">
+      <div class="title">{{ 'eventmeshservers.port' | translate }}</div>
+      <input type="number" class="full-width" formControlName="port" />
+    </div>
+    <mat-divider></mat-divider>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-raised-button color="primary" [disabled]="!addEventMeshServerFormGroup.valid">{{ 'shared.create' | translate }}</button>
+    <button mat-stroked-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
+  </div>
+</form>

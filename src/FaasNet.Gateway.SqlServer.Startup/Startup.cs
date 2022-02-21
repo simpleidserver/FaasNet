@@ -38,6 +38,11 @@ namespace FaasNet.Gateway.SqlServer.Startup
                 opt.FunctionApi = Configuration["KubernetesApi"];
                 opt.PromotheusApi = Configuration["PromotheusApi"];
                 opt.PrometheusFilePath = Configuration["PrometheusFilePath"];
+            }, opt =>
+            {
+                opt.AccountId = 678128;
+                opt.LicenseKey = "gubXjBR4DMjsdqw3";
+                opt.Host = "geolite.info";
             })
                 .AddRuntimeEF(opt =>
                 {

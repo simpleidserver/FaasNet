@@ -12,5 +12,6 @@
         public const string UnknownAsyncApiOperation = "UnknownAsyncApiOperation";
         public const string StateMachineExists = "StateMachineExists";
         public const string FunctionExists = "FunctionExists";
+        public const string EventMeshServerExists = "EventMeshServerExists";
     }
 }

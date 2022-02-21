@@ -6,12 +6,13 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
+    <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\EventMesh.Runtime\EventMesh.Runtime.csproj" />
     <ProjectReference Include="..\FaasNet.Runtime\FaasNet.Runtime.csproj" />
   </ItemGroup>
 

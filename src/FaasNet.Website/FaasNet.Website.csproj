@@ -10,6 +10,8 @@
     <None Remove="src\app\apis\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="src\app\eventmeshservers\eventmeshservers.module.ts" />
+    <None Remove="src\app\eventmeshservers\eventmeshservers.routes.ts" />
     <None Remove="src\app\functions\function-rendering\function-rendering.module.ts" />
     <None Remove="src\app\functions\function-rendering\string\string-rendering.component.ts" />
     <None Remove="src\app\functions\functions.module.ts" />
@@ -40,6 +42,7 @@
     <None Remove="src\components\statediagram\statediagram.module.ts" />
     <None Remove="src\stores\common\prometheus-queryrange-result.model.ts" />
     <None Remove="src\stores\common\search.model.ts" />
+    <None Remove="src\stores\eventmeshservers\models\eventmeshserver.model.ts" />
     <None Remove="src\stores\functions\models\function.model.ts" />
     <None Remove="src\stores\statemachines\models\operation-types.model.ts" />
     <None Remove="src\stores\statemachines\models\statemachine-foreach-state.model.ts" />
@@ -51,6 +54,8 @@
     <None Remove="src\stores\statemachines\models\statemachinemodel.model.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="src\app\eventmeshservers\eventmeshservers.module.ts" />
+    <TypeScriptCompile Include="src\app\eventmeshservers\eventmeshservers.routes.ts" />
     <TypeScriptCompile Include="src\app\statemachines\edit\functionseditor\editfunction-dialog.component.ts" />
     <TypeScriptCompile Include="src\components\matpanel\matpanel.component.ts">
       <SubType>Code</SubType>
@@ -60,6 +65,7 @@
     <TypeScriptCompile Include="src\components\statediagram\components\operation\editaction-dialog.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="src\stores\eventmeshservers\models\eventmeshserver.model.ts" />
     <TypeScriptCompile Include="src\stores\statemachines\models\operation-types.model.ts" />
     <TypeScriptCompile Include="src\stores\statemachines\models\statemachine-function.model.ts" />
   </ItemGroup>

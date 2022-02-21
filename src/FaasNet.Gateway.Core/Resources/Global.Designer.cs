@@ -61,6 +61,15 @@ namespace FaasNet.Gateway.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to eventmesh server &apos;{0}:{1}&apos; already exists.
+        /// </summary>
+        internal static string EventMeshServerExists {
+            get {
+                return ResourceManager.GetString("EventMeshServerExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to function &apos;{0}&apos; already exists.
         /// </summary>
         internal static string FunctionExists {

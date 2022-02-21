@@ -43,6 +43,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Bus.Startup", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Runtime.Tests", "tests\FaasNet.Runtime.Tests\FaasNet.Runtime.Tests.csproj", "{A35870C0-7553-4A66-95EE-7226535FED0F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03. EventMesh", "03. EventMesh", "{95825677-4D42-420E-8126-220CDD2B4D8C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventMesh.Runtime", "src\EventMesh.Runtime\EventMesh.Runtime.csproj", "{EE1A17AD-05D1-425F-8B23-19C1D69BE588}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +109,10 @@ Global
 		{A35870C0-7553-4A66-95EE-7226535FED0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A35870C0-7553-4A66-95EE-7226535FED0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A35870C0-7553-4A66-95EE-7226535FED0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE1A17AD-05D1-425F-8B23-19C1D69BE588}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE1A17AD-05D1-425F-8B23-19C1D69BE588}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE1A17AD-05D1-425F-8B23-19C1D69BE588}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE1A17AD-05D1-425F-8B23-19C1D69BE588}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,6 +134,8 @@ Global
 		{E06FDF2D-89CE-48B5-A530-8692390F8F7B} = {8D35E32C-AB12-44C8-8FAF-D9FF8CF805B7}
 		{9DEBEE4B-C360-4517-A97F-7461C163FDDF} = {B0C38F6D-3F83-458A-A493-428AB3DD9F85}
 		{A35870C0-7553-4A66-95EE-7226535FED0F} = {472FC125-267E-422D-AFFE-E33C5FFB3344}
+		{95825677-4D42-420E-8126-220CDD2B4D8C} = {1064A767-7322-4A14-BFD4-97FDD40E76B4}
+		{EE1A17AD-05D1-425F-8B23-19C1D69BE588} = {95825677-4D42-420E-8126-220CDD2B4D8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46764455-0D10-4266-9C37-35D7BD67517C}
