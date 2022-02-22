@@ -1,6 +1,6 @@
 <form (ngSubmit)="onSave($event)" class="mt-10">
   <!-- Configuration parameters -->
-  <div>
+  <div class="mb-10">
     <h3>{{ 'functions.configurationParameters' | translate }}</h3>
     <div *ngFor="let parameter of option?.Parameters">
       <function-rendering-component [option]="parameter" [form]="form"></function-rendering-component>
@@ -8,7 +8,7 @@
   </div>
   <mat-divider></mat-divider>
   <!-- Input parameters -->
-  <div>
+  <div class="mb-10">
     <h3>{{ 'functions.inputParameters' | translate }}</h3>
     <div class="form-control">
       <div class="title">{{ 'functions.input' | translate }}</div>

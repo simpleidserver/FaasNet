@@ -1,9 +1,9 @@
 #map {
-    position: absolute;
-    top: 40px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
+  position: absolute;
+  top: 40px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
 }
 
 
@@ -20,4 +20,22 @@
   background-color: #6690b9;
   border: 1px solid #305880;
   border-radius: 2px;
+}
+
+#popup {
+  background-color: white;
+  border-radius: 5px;
+}
+
+#popup .item {
+  border-bottom: 1px solid gray;
+  padding: 5px 10px 5px 10px;
+}
+
+#popup .item:last-child {
+  border-bottom: none !important;
+}
+
+#popup .title {
+  font-weight: bold;
 }

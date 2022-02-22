@@ -9,6 +9,7 @@ import { EventMeshServerResult } from '@stores/eventmeshservers/models/eventmesh
 import { filter } from 'rxjs/operators';
 import { AddEventMeshServerComponent } from './add-eventmeshserver.component';
 declare var ol: any;
+declare var $: any;
 
 @Component({
   selector: 'list-eventmeshservers',
@@ -17,7 +18,9 @@ declare var ol: any;
 })
 export class ListEventMeshServersComponent implements OnInit {
   private _map: any;
-  private _markersLayer : any;
+  private _markersLayer: any;
+  private _overlay: any;
+  selectedEventMeshServer: EventMeshServerResult | null = null;
 
   constructor(
     private store: Store<fromReducers.AppState>,
@@ -61,9 +64,44 @@ export class ListEventMeshServersComponent implements OnInit {
       })
     });
     self._markersLayer = new ol.layer.Vector({
-      source: new ol.source.Vector()
+      source: new ol.source.Vector(),
+      style: new ol.style.Style({
+        image: new ol.style.Icon({
+          anchor: [0.5, 0.5],
+          anchorXUnits: "fraction",
+          anchorYUnits: "fraction",
+          src: "/assets/images/marker.svg"
+        })
+      })
+    });
+    self._overlay = new ol.Overlay({
+      element: document.getElementById("popup"),
+      autoPan: true,
+      autoPanAnimation: {
+        duration: 250
+      }
     });
     self._map.addLayer(self._markersLayer);
+    self._map.addOverlay(self._overlay);
+    self._map.on('click', function (evt: any) {
+        var feature = self._map.forEachFeatureAtPixel(evt.pixel,
+          function (f : any) {
+            return f;
+          });
+      if (feature) {
+        const coordinate = evt.coordinate;
+        self.selectedEventMeshServer = feature.server;
+        self._overlay.setPosition(coordinate);
+      } else {
+        self._overlay.setPosition(undefined);
+        self.selectedEventMeshServer = null;
+      }
+    });
+    self._map.on('pointermove', function (e : any) {
+      const pixel = self._map.getEventPixel(e.originalEvent);
+      const hit = self._map.hasFeatureAtPixel(pixel);
+      document.body.style.cursor = hit ? 'pointer' : '';
+    });
     this.store.pipe(select(fromReducers.selectEventMeshServersResult)).subscribe((state: EventMeshServerResult[] | null) => {
       if (!state) {
         return;
@@ -71,6 +109,8 @@ export class ListEventMeshServersComponent implements OnInit {
 
       state.forEach((s: EventMeshServerResult) => {
         var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([s.longitude, s.latitude])));
+        marker.server = s;
+        marker.description = 'coucou';
         self._markersLayer.getSource().addFeature(marker);
       });
     });

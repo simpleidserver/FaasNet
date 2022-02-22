@@ -8,3 +8,19 @@
     <button (click)="add()">{{ 'eventmeshservers.add' | translate }}</button>
   </div>
 </div>
+<div id="popup">
+  <div id="popup-content" *ngIf="selectedEventMeshServer">
+    <div class="item">
+      <div class="title">Urn</div>
+      <span>{{ selectedEventMeshServer.urn }}</span>
+    </div>
+    <div class="item">
+      <div class="title">Port</div>
+      <span>{{ selectedEventMeshServer.port }}</span>
+    </div>
+    <div class="item">
+      <div class="title">Create Datetime</div>
+      <span>{{ selectedEventMeshServer.createDateTime | date:'short' }}</span>
+    </div>
+  </div>
+</div>
