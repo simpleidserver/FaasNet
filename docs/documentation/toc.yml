@@ -22,6 +22,8 @@
   items:
     - name: Concepts
       href: eventmesh/concepts.md
+    - name: Installation
+      href: eventmesh/installation.md
     - name: Protocol
       href: eventmesh/protocol.md
 - name: CLI

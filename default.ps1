@@ -49,6 +49,7 @@ task compile -depends clean {
 	exec { msbuild -version }
 	
     exec { dotnet build .\FaasNet.sln -c $config --version-suffix=$buildSuffix }
+    exec { dotnet build .\EventMesh.sln -c $config --version-suffix=$buildSuffix }
 }
 
 task publishHelmAndWebsite {
@@ -133,10 +134,40 @@ task builderDockerImage -depends publish {
 	exec { docker push simpleidserver/faasprometheus:0.0.4 }
 }
 
-task pack -depends release, compile {
-	exec { dotnet pack $source_dir\FaasNet.Runtime\FaasNet.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
-	# exec { dotnet pack $source_dir\FaasNet.Templates\FaasNet.Templates.csproj -c $config --no-build $versionSuffix --output $result_dir }
+task packTemplate {
+	exec { dotnet pack $source_dir\FaasNet.Templates\FaasNet.Templates.csproj -c $config --no-build --output $result_dir }
 }
 
-task test {
+task pack -depends release, compile {
+	exec { dotnet pack $source_dir\FaasNet.Runtime\FaasNet.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
+	exec { dotnet pack $source_dir\EventMesh.Runtime\EventMesh.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
+	exec { dotnet pack $source_dir\EventMesh.Runtime.AMQP\EventMesh.Runtime.AMQP.csproj -c $config --no-build $versionSuffix --output $result_dir }
+	exec { dotnet pack $source_dir\EventMesh.Runtime.EF\EventMesh.Runtime.EF.csproj -c $config --no-build $versionSuffix --output $result_dir }
+	exec { dotnet pack $source_dir\EventMesh.Runtime.Kafka\EventMesh.Runtime.Kafka.csproj -c $config --no-build $versionSuffix --output $result_dir }
+}
+
+task packNoSuffix -depends release, compile {
+	exec { dotnet pack $source_dir\FaasNet.Runtime\FaasNet.Runtime.csproj -c $config --output $result_dir }
+	exec { dotnet pack $source_dir\EventMesh.Runtime\EventMesh.Runtime.csproj -c $config --output $result_dir }
+	exec { dotnet pack $source_dir\EventMesh.Runtime.AMQP\EventMesh.Runtime.AMQP.csproj -c $config --output $result_dir }
+	exec { dotnet pack $source_dir\EventMesh.Runtime.EF\EventMesh.Runtime.EF.csproj -c $config --output $result_dir }
+	exec { dotnet pack $source_dir\EventMesh.Runtime.Kafka\EventMesh.Runtime.Kafka.csproj -c $config --output $result_dir }
+}
+
+task test {	
+    Push-Location -Path $base_dir\tests\EventMesh.Runtime.Tests
+
+    try {
+        exec { & dotnet test -c $config --no-build --no-restore }
+    } finally {
+        Pop-Location
+    }
+	
+    Push-Location -Path $base_dir\tests\FaasNet.Runtime.Tests
+
+    try {
+        exec { & dotnet test -c $config --no-build --no-restore }
+    } finally {
+        Pop-Location
+    }
 }

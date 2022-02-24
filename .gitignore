@@ -216,3 +216,6 @@ wwwroot/
 
 # Ignore DB
 *.db
+
+# Ignore Nuget
+Nuget.config
