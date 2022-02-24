@@ -1,5 +1,7 @@
 ﻿using FaasNet.Gateway.Core.Domains;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FaasNet.Gateway.Core.EventMeshServer.Queries.Results
 {
@@ -12,6 +14,7 @@ namespace FaasNet.Gateway.Core.EventMeshServer.Queries.Results
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
         public DateTime CreateDateTime { get; set; }
+        public IEnumerable<EventMeshServerBridgeResult> Bridges { get; set; }
 
         public static EventMeshServerResult ToDto(EventMeshServerAggregate eventMeshServer)
         {
@@ -23,7 +26,8 @@ namespace FaasNet.Gateway.Core.EventMeshServer.Queries.Results
                 Longitude = eventMeshServer.Longitude,
                 Port = eventMeshServer.Port,
                 PostalCode = eventMeshServer.PostalCode,
-                Urn = eventMeshServer.Urn
+                Urn = eventMeshServer.Urn,
+                Bridges = eventMeshServer.Bridges.Select(b => EventMeshServerBridgeResult.ToDto(b))
             };
         }
     }

@@ -5,22 +5,24 @@
 </div>
 <div id="map">
   <div class="acts">
+    <button (click)="toggleEdit()">{{ (edit ? 'eventmeshservers.view': 'eventmeshservers.edit') | translate }}</button>
     <button (click)="add()">{{ 'eventmeshservers.add' | translate }}</button>
   </div>
 </div>
 <div id="popup">
   <div id="popup-content" *ngIf="selectedEventMeshServer">
     <div class="item">
-      <div class="title">Urn</div>
+      <div class="title">{{ "eventmeshservers.urn" | translate }}</div>
       <span>{{ selectedEventMeshServer.urn }}</span>
     </div>
     <div class="item">
-      <div class="title">Port</div>
+      <div class="title">{{ "eventmeshservers.port" | translate }}</div>
       <span>{{ selectedEventMeshServer.port }}</span>
     </div>
     <div class="item">
-      <div class="title">Create Datetime</div>
+      <div class="title">{{ "eventmeshservers.createDateTime" | translate }}</div>
       <span>{{ selectedEventMeshServer.createDateTime | date:'short' }}</span>
     </div>
   </div>
 </div>
+<loader *ngIf="isLoading"></loader>

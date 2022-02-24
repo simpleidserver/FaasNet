@@ -14,6 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var services = builder.Services;
             services.AddDbContext<GatewayDBContext>(optionsBuilder);
             services.AddTransient<IFunctionRepository, FunctionRepository>();
+            services.AddTransient<IEventMeshServerRepository, EventMeshServerRepository>();
             return builder;
         }
     }

@@ -1,5 +1,8 @@
-﻿using System;
+﻿using FaasNet.Gateway.Core.Exceptions;
+using FaasNet.Gateway.Core.Resources;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FaasNet.Gateway.Core.Domains
 {
@@ -7,7 +10,7 @@ namespace FaasNet.Gateway.Core.Domains
     {
         public EventMeshServerAggregate()
         {
-            Bridges = new List<EventMeshServerAggregate>();
+            Bridges = new List<EventMeshServerBridge>();
         }
 
         public string Urn { get; set; }
@@ -17,7 +20,7 @@ namespace FaasNet.Gateway.Core.Domains
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
         public DateTime CreateDateTime { get; set; }
-        public ICollection<EventMeshServerAggregate> Bridges { get; set; }
+        public ICollection<EventMeshServerBridge> Bridges { get; set; }
 
         public static EventMeshServerAggregate Create(string urn, int port, string countryIsoCode, string postalCode, double? latitude, double? longitude)
         {
@@ -31,6 +34,20 @@ namespace FaasNet.Gateway.Core.Domains
                 PostalCode = postalCode,
                 Urn = urn 
             };
+        }
+
+        public void AddBridge(string urn, int port)
+        {
+            if(Bridges.Any(b => b.Urn == urn && b.Port == port))
+            {
+                throw new DomainException(ErrorCodes.BridgeAlreadyExists, Global.BridgeAlreadyExists);
+            }
+
+            Bridges.Add(new EventMeshServerBridge
+            {
+                Port = port,
+                Urn = urn
+            });
         }
     }
 }

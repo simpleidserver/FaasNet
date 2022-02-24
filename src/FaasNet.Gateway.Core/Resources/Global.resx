@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BridgeAlreadyExists" xml:space="preserve">
+    <value>the bridge already exists</value>
+  </data>
   <data name="EventMeshServerExists" xml:space="preserve">
     <value>eventmesh server '{0}:{1}' already exists</value>
   </data>
@@ -152,6 +155,9 @@
   </data>
   <data name="UnknownAsyncApiOperation" xml:space="preserve">
     <value>the async api operation {0} doesn't exist</value>
+  </data>
+  <data name="UnknownEventMeshServer" xml:space="preserve">
+    <value>eventmeshserver '{0}:{1}' doesn't exist</value>
   </data>
   <data name="UnknownFunction" xml:space="preserve">
     <value>the function doesn't exist</value>

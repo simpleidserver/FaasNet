@@ -61,6 +61,15 @@ namespace FaasNet.Gateway.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to the bridge already exists.
+        /// </summary>
+        internal static string BridgeAlreadyExists {
+            get {
+                return ResourceManager.GetString("BridgeAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to eventmesh server &apos;{0}:{1}&apos; already exists.
         /// </summary>
         internal static string EventMeshServerExists {
@@ -165,6 +174,15 @@ namespace FaasNet.Gateway.Core.Resources {
         internal static string UnknownAsyncApiOperation {
             get {
                 return ResourceManager.GetString("UnknownAsyncApiOperation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to eventmeshserver &apos;{0}:{1}&apos; doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownEventMeshServer {
+            get {
+                return ResourceManager.GetString("UnknownEventMeshServer", resourceCulture);
             }
         }
         

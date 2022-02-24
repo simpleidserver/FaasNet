@@ -1,0 +1,51 @@
+<div class="panel-content">
+  <h1>{{ 'eventmeshservers.addBridge' | translate }}</h1>
+  <div class="body">
+    <div fxLayout="row" fxLayoutGap="20px">
+      <div fxFlex="50%">
+        <h3>{{ 'eventmeshservers.sourceBridge' | translate }}</h3>
+        <!-- Urn -->
+        <div class="form-control">
+          <div class="title">{{ 'eventmeshservers.urn' | translate }}</div>
+          <input class="full-width" type="text" [value]="from?.urn" readonly />
+        </div>
+        <mat-divider></mat-divider>
+        <!-- Port -->
+        <div class="form-control">
+          <div class="title">{{ 'eventmeshservers.port' | translate }}</div>
+          <input class="full-width" type="number" [value]="from?.port" readonly />
+        </div>
+        <mat-divider></mat-divider>
+        <!-- Port -->
+        <div class="form-control">
+          <div class="title">{{ 'eventmeshservers.createDateTime' | translate }}</div>
+          <span>{{ from?.createDateTime | date:'short' }}</span>
+        </div>
+      </div>
+      <div fxFlex>
+        <h3>{{ 'eventmeshservers.targetBridge' | translate }}</h3>
+        <!-- Urn -->
+        <div class="form-control">
+          <div class="title">{{ 'eventmeshservers.urn' | translate }}</div>
+          <input class="full-width" type="text" [value]="to?.urn" readonly />
+        </div>
+        <mat-divider></mat-divider>
+        <!-- Port -->
+        <div class="form-control">
+          <div class="title">{{ 'eventmeshservers.port' | translate }}</div>
+          <input class="full-width" type="number" [value]="to?.port" readonly />
+        </div>
+        <mat-divider></mat-divider>
+        <!-- Port -->
+        <div class="form-control">
+          <div class="title">{{ 'eventmeshservers.createDateTime' | translate }}</div>
+          <span>{{ to?.createDateTime | date:'short' }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="save()" class="mr-10">{{ 'shared.add' | translate }}</button>
+      <button mat-raised-button color="warn" (click)="cancel()">{{  'shared.cancel' | translate }}</button>
+    </div>
+  </div>
+</div>

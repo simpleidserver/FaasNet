@@ -1,8 +1,14 @@
 export class EventMeshServerResult {
-  urn: string | undefined;
-  port: number | undefined;
-  countryIsoCode: string | undefined;
-  latitude: number | undefined;
-  longitude: number | undefined;
+  urn: string = "";;
+  port: number = 0;
+  countryIsoCode: string = "";
+  latitude: number = 0;
+  longitude: number = 0;
   createDateTime: Date | undefined;
+  bridges: EventMeshServerBridgeResult[] = [];
+}
+
+export class EventMeshServerBridgeResult {
+  urn: string = "";
+  port: number = 0;
 }

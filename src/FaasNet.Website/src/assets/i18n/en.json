@@ -3,11 +3,21 @@
     "list": "EventMesh Servers",
     "add": "Add eventmesh server",
     "isLocalhost": "Is Localhost ?",
+    "addBridge": "Add bridge",
+    "edit": "Add bridge",
+    "view": "View",
+    "sourceBridge": "Source",
+    "targetBridge": "Target",
     "urn": "Urn",
     "port": "Port",
+    "createDateTime": "Creation Datetime",
     "messages": {
       "eventMeshServerAdded": "EventMesh Server has been added",
-      "errorAddEventMeshServer": "An error occured while trying to add the EventMesh Server"
+      "errorAddEventMeshServer": "An error occured while trying to add the EventMesh Server",
+      "eventMeshBridgeAdded": "Bridge has been added",
+      "errorAddEventMeshBridge": "An error occured while trying to add the bridge",
+      "errorAddBridgeSameNode": "Bridge cannot be added to the same node",
+      "errorBridgeExists": "Bridge already exists"
     }
   },
   "functions": {
@@ -154,7 +164,8 @@
     "create": "Create",
     "close": "Close",
     "choose": "Choose",
-    "launch": "Launch"
+    "launch": "Launch",
+    "cancel":  "Cancel"
   },
   "undo": "Undo"
 }

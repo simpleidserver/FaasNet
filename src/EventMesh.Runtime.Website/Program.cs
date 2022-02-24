@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
@@ -19,6 +18,7 @@ namespace EventMesh.Runtime.Website
             // LaunchAMQPEventMeshServer();
             // LaunchKafkaEventMeshServer();
             LaunchFullEventMeshServer();
+            LaunchFullEventMeshServer(4001, "Runtime2.db");
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -87,15 +87,15 @@ namespace EventMesh.Runtime.Website
             return runtimeHost;
         }
 
-        private static IRuntimeHost LaunchFullEventMeshServer()
+        private static IRuntimeHost LaunchFullEventMeshServer(int port = 4000, string dbName = "Runtime.db")
         {
             var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
             Console.WriteLine("Launch EventMesh server...");
-            var path = Path.Combine(Environment.CurrentDirectory, "Runtime.db");
+            var path = Path.Combine(Environment.CurrentDirectory, dbName);
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Urn = "localhost";
-                opt.Port = 4000;
+                opt.Port = port;
             })
                 .AddKafka()
                 .AddAMQP()

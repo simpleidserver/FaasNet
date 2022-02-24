@@ -12,6 +12,7 @@
   <ItemGroup>
     <None Remove="src\app\eventmeshservers\eventmeshservers.module.ts" />
     <None Remove="src\app\eventmeshservers\eventmeshservers.routes.ts" />
+    <None Remove="src\app\eventmeshservers\list\addbridge.component.ts" />
     <None Remove="src\app\functions\function-rendering\function-rendering.module.ts" />
     <None Remove="src\app\functions\function-rendering\string\string-rendering.component.ts" />
     <None Remove="src\app\functions\functions.module.ts" />
@@ -56,6 +57,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="src\app\eventmeshservers\eventmeshservers.module.ts" />
     <TypeScriptCompile Include="src\app\eventmeshservers\eventmeshservers.routes.ts" />
+    <TypeScriptCompile Include="src\app\eventmeshservers\list\addbridge.component.ts" />
     <TypeScriptCompile Include="src\app\statemachines\edit\functionseditor\editfunction-dialog.component.ts" />
     <TypeScriptCompile Include="src\components\matpanel\matpanel.component.ts">
       <SubType>Code</SubType>

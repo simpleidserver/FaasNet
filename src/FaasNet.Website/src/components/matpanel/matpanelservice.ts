@@ -12,7 +12,7 @@ export class MatPanelService {
 
   }
 
-  open(type: any, data: any) {
+  open(type: any, data: any): MatPanelComponent {
     const self = this;
     self._componentRef = this.componentFactoryResolver
       .resolveComponentFactory(MatPanelComponent)
@@ -25,6 +25,7 @@ export class MatPanelService {
     instance.closed.subscribe(() => {
       this.close();
     });
+    return instance;
   }
 
   close() {

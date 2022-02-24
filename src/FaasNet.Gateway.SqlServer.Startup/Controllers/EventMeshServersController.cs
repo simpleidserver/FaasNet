@@ -30,5 +30,12 @@ namespace FaasNet.Gateway.SqlServer.Startup.Controllers
             var result = await _mediator.Send(new GetAllEventMeshServerQuery(), cancellationToken);
             return new OkObjectResult(result);
         }
+
+        [HttpPost("bridge")]
+        public async Task<IActionResult> AddBridge([FromBody] AddEventMeshServerBridgeCommand cmd, CancellationToken cancellationToken)
+        {
+            await _mediator.Send(cmd, cancellationToken);
+            return new NoContentResult();
+        }
     }
 }

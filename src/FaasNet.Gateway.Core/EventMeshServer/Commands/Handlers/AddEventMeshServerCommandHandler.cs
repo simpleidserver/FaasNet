@@ -34,12 +34,11 @@ namespace FaasNet.Gateway.Core.EventMeshServer.Commands.Handlers
         {
             var urn = request.IsLocalhost ? Constants.DefaultUrl : request.Urn;
             var port = request.Port ?? Constants.DefaultPort;
-            var eventMeshServer = _eventMeshServerRepository.Get(urn, port);
-            if (eventMeshServer == null)
+            var eventMeshServer = await _eventMeshServerRepository.Get(urn, port);
+            if (eventMeshServer != null)
             {
                 throw new BadRequestException(ErrorCodes.EventMeshServerExists, string.Format(Global.EventMeshServerExists, urn, port));
             }
-
 
             await CheckEventMeshServer(urn, port, cancellationToken);
             var city = await GetCity(request.IsLocalhost, request.Urn);
@@ -65,7 +64,7 @@ namespace FaasNet.Gateway.Core.EventMeshServer.Commands.Handlers
 
         private async Task<CityResponse> GetCity(bool isLocalhost, string urn)
         {
-            CityResponse cityResponse = null;
+            CityResponse cityResponse = null; // new CityResponse(country: new MaxMind.GeoIP2.Model.Country(isoCode: "BE"), postal: new MaxMind.GeoIP2.Model.Postal(code: "1342"), location: new MaxMind.GeoIP2.Model.Location(longitude: 4.555060, latitude: 50.676090));
             if (isLocalhost)
             {
                 cityResponse = await _maxMindClient.CityAsync();

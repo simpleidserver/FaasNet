@@ -13,7 +13,7 @@ export class EventMeshServerService {
     let headers = new HttpHeaders();
     headers = headers.set('Accept', 'application/json');
     let targetUrl = environment.apiUrl + "/eventmesh";
-    return this.http.post<any>(targetUrl, { isLocalhost: isLocalhost, urn: urn, port: port }, { headers: headers });
+    return this.http.post<EventMeshServerResult>(targetUrl, { isLocalhost: isLocalhost, urn: urn, port: port }, { headers: headers });
   }
 
   getAll(): Observable<EventMeshServerResult[]> {
@@ -21,5 +21,12 @@ export class EventMeshServerService {
     headers = headers.set('Accept', 'application/json');
     let targetUrl = environment.apiUrl + "/eventmesh";
     return this.http.get<EventMeshServerResult[]>(targetUrl, { headers: headers });
+  }
+
+  addBridge(from: string, fromPort: number, to: string, toPort: number) : Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = environment.apiUrl + "/eventmesh/bridge";
+    return this.http.post<any>(targetUrl, { from: { urn: from, port: fromPort }, to: { urn: to, port: toPort }}, { headers: headers })
   }
 }

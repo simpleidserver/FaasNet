@@ -213,3 +213,6 @@ docs/_build/
 
 ## Ignore Javascript
 wwwroot/
+
+# Ignore DB
+*.db
