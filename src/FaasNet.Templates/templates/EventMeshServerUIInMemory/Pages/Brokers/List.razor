@@ -1,0 +1,36 @@
+@page "/brokers"
+@inject BreadcrumbState ServerState
+@inject IBrokerConfigurationStore BrokerConfigurationStore
+
+<div class="card">
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Protocol</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var brokerConfiguration in BrokerConfigurations)
+                {
+                    <tr>
+                        <td>@brokerConfiguration.Name</td>
+                        <td>@brokerConfiguration.Protocol</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    public IEnumerable<BrokerConfiguration> BrokerConfigurations { get; set; } = new List<BrokerConfiguration>();
+
+    protected override Task OnInitializedAsync()
+    {
+        ServerState.SetItems(new List<BreadcrumbItem> { new BreadcrumbItem("Brokers") });
+        BrokerConfigurations = BrokerConfigurationStore.GetAll();
+        return Task.CompletedTask;
+    }
+}

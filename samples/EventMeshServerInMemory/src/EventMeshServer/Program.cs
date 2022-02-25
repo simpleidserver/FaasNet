@@ -1,5 +1,7 @@
 ﻿using EventMesh.Runtime;
+using EventMesh.Runtime.MessageBroker;
 using System;
+using System.Collections.Concurrent;
 
 namespace EventMeshServer
 {
@@ -24,7 +26,7 @@ namespace EventMeshServer
             {
                 opt.Port = port;
                 opt.Urn = urn;
-            });
+            }).AddInMemoryMessageBroker(new ConcurrentBag<InMemoryTopic>());
             var host = builder.Build();
             host.Run();
             Console.WriteLine($"The EventMeshServer is started on '{urn}:{port}'");

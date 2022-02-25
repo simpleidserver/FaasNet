@@ -1,0 +1,61 @@
+@page "/clients/{ClientId}/sessions"
+@layout ViewClientLayout
+@inject BreadcrumbState ServerState
+@inject ViewClientState ClientState
+@inject IClientStore ClientStore
+
+@if(ClientState.Client != null)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Endpoint</th>
+                <th>Purpose</th>
+                <th>PID</th>
+                <th>State</th>
+                <th>Topics</th>
+                <th>CreationDateTime</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var session in ClientState.Client.Sessions.OrderByDescending(s => s.CreateDateTime))
+            {
+                    var purpose = session.Purpose == UserAgentPurpose.SUB ? "Subscribe" : "Publish";
+                    <tr>
+                        <td>@session.Endpoint.ToString()</td>
+                        <td>@purpose</td>
+                        <td>@session.Pid</td>
+                        <td>
+                            @if (session.State == ClientSessionState.ACTIVE)
+                            {
+                                <span class="badge badge-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-danger">Incative</span>
+                            }
+                        </td>
+                        <td>
+                            @foreach (var grp in session.Topics.GroupBy(t => t.BrokerName))
+                            {
+                                <span class="badge badge-info" style="margin-right: 5px;">@grp.Key:@string.Join(",", grp.Select(_ => _.Name))</span>
+                            }
+                        </td>
+                        <td>@session.CreateDateTime</td>
+                    </tr>
+                }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public string ClientId { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ClientState.Client = ClientStore.Get(ClientId);
+        ServerState.SetItems(new List<BreadcrumbItem> { new BreadcrumbItem("Clients"), new BreadcrumbItem(ClientState.Client.ClientId) });
+        StateHasChanged();
+    }
+}

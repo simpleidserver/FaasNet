@@ -1,0 +1,35 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject BreadcrumbState _ServerState
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+    <div class="main">
+        <div class="content">
+            <Breadcrumb Items="_ServerState.Items" />
+            <div class="body">
+                @Body
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {     
+    protected override void OnInitialized()
+    {
+        _ServerState.StateChanged += StateChanged;
+    }
+
+    public void StateChanged() 
+    {
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _ServerState.StateChanged -= StateChanged;
+    }
+}

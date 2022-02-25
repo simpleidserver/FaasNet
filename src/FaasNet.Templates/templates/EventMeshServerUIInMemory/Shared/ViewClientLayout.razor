@@ -1,0 +1,20 @@
+@inherits LayoutComponentBase
+@layout MainLayout
+@inject ViewClientState ClientState
+
+<div class="card">
+    <div class="card-body">
+        @if (ClientState.Client != null)
+         {
+             var infoUrl = "/clients/" + ClientState.Client.ClientId + "/info";
+             var sessionUrl = "/clients/" + ClientState.Client.ClientId + "/sessions";
+             var topicUrl = "/clients/" + ClientState.Client.ClientId + "/topics";
+             <ul class="nav nav-tabs">
+                <NavLink class="nav-link" href="@infoUrl">Info</NavLink>
+                <NavLink class="nav-link" href="@sessionUrl">Sessions</NavLink>
+                <NavLink class="nav-link" href="@topicUrl">Topics</NavLink>
+             </ul>
+        }
+        @Body
+    </div>
+</div>

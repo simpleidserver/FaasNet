@@ -1,0 +1,32 @@
+@page "/clients/{ClientId}"
+@page "/clients/{ClientId}/info"
+@layout ViewClientLayout
+@inject BreadcrumbState ServerState
+@inject ViewClientState ClientState
+@inject IClientStore ClientStore
+
+@if (ClientState.Client != null)
+{
+    <!-- Identifier -->
+    <div>
+        <label class="form-label">Identifier</label>
+        <input type="text" class="form-control" disabled value="@ClientState.Client.ClientId" />
+    </div>
+    <!-- CreateDateTime -->
+    <div>
+        <label class="form-label">Creation Datetime</label>
+        <input type="text" class="form-control" disabled value="@ClientState.Client.CreateDateTime" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string ClientId { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ClientState.Client = ClientStore.Get(ClientId);
+        ServerState.SetItems(new List<BreadcrumbItem> { new BreadcrumbItem("Clients"), new BreadcrumbItem(ClientState.Client.ClientId) });
+        StateHasChanged();
+    }
+}

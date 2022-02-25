@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddRuntimeEF(this IServiceCollection serviceCollection, Action<DbContextOptionsBuilder> options = null, bool isScoped = false)
+        public static IServiceCollection AddRuntimeEF(this IServiceCollection serviceCollection, Action<DbContextOptionsBuilder> options = null)
         {
             var clientStoreType = serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IClientStore));
             var bridgeServerStoreType = serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IBridgeServerStore));
@@ -20,19 +20,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 serviceCollection.Remove(bridgeServerStoreType);
             if (brokerConfigurationStoreType != null)
                 serviceCollection.Remove(brokerConfigurationStoreType);
-            if (!isScoped)
-            {
-                serviceCollection.AddTransient<IClientStore, EFClientStore>();
-                serviceCollection.AddTransient<IBridgeServerStore, EFBridgeServerStore>();
-                serviceCollection.AddTransient<IBrokerConfigurationStore, EFBrokerConfigurationStore>();
-            }
-            else
-            {
-                serviceCollection.AddScoped<IClientStore, EFClientStore>();
-                serviceCollection.AddScoped<IBridgeServerStore, EFBridgeServerStore>();
-                serviceCollection.AddScoped<IBrokerConfigurationStore, EFBrokerConfigurationStore>();
-            }
-
+            serviceCollection.AddTransient<IClientStore, EFClientStore>();
+            serviceCollection.AddTransient<IBridgeServerStore, EFBridgeServerStore>();
+            serviceCollection.AddTransient<IBrokerConfigurationStore, EFBrokerConfigurationStore>();
             serviceCollection.AddDbContext<EventMeshDBContext>(options);
             return serviceCollection;
         }

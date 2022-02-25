@@ -19,7 +19,13 @@ namespace EventMesh.Runtime.MessageBroker
 
         public Task Publish(CloudEvent cloudEvent, string topicName, Client client)
         {
-            var topic = _topics.First(t => t.TopicName == topicName);
+            var topic = _topics.FirstOrDefault(t => t.TopicName == topicName);
+            if (topic == null)
+            {
+                topic = new InMemoryTopic { TopicName = topicName };
+                _topics.Add(topic);
+            }
+
             topic.PublishMessage(cloudEvent);
             return Task.CompletedTask;
         }

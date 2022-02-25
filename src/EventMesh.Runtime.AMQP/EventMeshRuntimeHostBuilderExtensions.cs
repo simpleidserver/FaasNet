@@ -10,30 +10,25 @@ namespace EventMesh.Runtime
     {
         public static RuntimeHostBuilder AddAMQP(this RuntimeHostBuilder eventMeshRuntime, Action<AMQPOptions> callback = null)
         {
-            if (callback != null)
-            {
-                eventMeshRuntime.ServiceCollection.Configure(callback);
-            }
-            else
-            {
-                eventMeshRuntime.ServiceCollection.Configure<AMQPOptions>(opt => { });
-            }
-
+            eventMeshRuntime.ServiceCollection.AddAMQP(callback);
             eventMeshRuntime.AddInitScript((s) =>
             {
-                var amqpOptions = s.GetRequiredService<IOptions<AMQPOptions>>().Value;
-                var brokerConfigurationStore = s.GetRequiredService<IBrokerConfigurationStore>();
-                var brokerConfiguration = brokerConfigurationStore.Get(amqpOptions.BrokerName);
-                if(brokerConfiguration == null)
-                {
-                    brokerConfiguration = amqpOptions.ToConfiguration();
-                    brokerConfigurationStore.Add(brokerConfiguration);
-                    brokerConfigurationStore.SaveChanges();
-                }
+                SeedAMQPOptions(s);
             });
-            eventMeshRuntime.ServiceCollection.AddSingleton<IMessageConsumer, AMQPConsumer>();
-            eventMeshRuntime.ServiceCollection.AddSingleton<IMessagePublisher, AMQPPublisher>();
             return eventMeshRuntime;
+        }
+
+        public static void SeedAMQPOptions(this IServiceProvider serviceProvider)
+        {
+            var amqpOptions = serviceProvider.GetRequiredService<IOptions<AMQPOptions>>().Value;
+            var brokerConfigurationStore = serviceProvider.GetRequiredService<IBrokerConfigurationStore>();
+            var brokerConfiguration = brokerConfigurationStore.Get(amqpOptions.BrokerName);
+            if (brokerConfiguration == null)
+            {
+                brokerConfiguration = amqpOptions.ToConfiguration();
+                brokerConfigurationStore.Add(brokerConfiguration);
+                brokerConfigurationStore.SaveChanges();
+            }
         }
     }
 }

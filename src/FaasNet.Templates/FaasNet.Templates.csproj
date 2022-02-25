@@ -11,7 +11,7 @@
     <NoWarn>$(NoWarn);NU5128</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**;templates\**\wwwroot\**" />
+    <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**;" />
     <Compile Remove="**\*" />
   </ItemGroup>
 </Project>

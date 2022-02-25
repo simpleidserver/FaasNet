@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{59D7B5DC-BCAA-4D92-BAFE-B8ACB3938CF1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventMeshClientSubscribe", "src\EventMeshClientSubscribe\EventMeshClientSubscribe.csproj", "{B69700FE-44B7-49E3-BFE6-D4EB29A3A549}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B69700FE-44B7-49E3-BFE6-D4EB29A3A549}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B69700FE-44B7-49E3-BFE6-D4EB29A3A549}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B69700FE-44B7-49E3-BFE6-D4EB29A3A549}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B69700FE-44B7-49E3-BFE6-D4EB29A3A549}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B69700FE-44B7-49E3-BFE6-D4EB29A3A549} = {59D7B5DC-BCAA-4D92-BAFE-B8ACB3938CF1}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {39996192-2263-4EA5-8E34-B6F564446302}
+	EndGlobalSection
+EndGlobal

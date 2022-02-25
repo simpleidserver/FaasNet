@@ -38,7 +38,13 @@ namespace EventMesh.Runtime.MessageBroker
 
         public Task Subscribe(string topicName, Client client, string sessionId, CancellationToken cancellationToken)
         {
-            var topic = _topics.First(t => t.TopicName == topicName);
+            var topic = _topics.FirstOrDefault(t => t.TopicName == topicName);
+            if (topic == null)
+            {
+                topic = new InMemoryTopic { TopicName = topicName };
+                _topics.Add(topic);
+            }
+
             var t = client.GetTopic(topicName, Constants.InMemoryBrokername);
             if(t == null)
             {
@@ -59,6 +65,19 @@ namespace EventMesh.Runtime.MessageBroker
 
         public void Commit(string topicName, Client client, string sessionId, int nbEvts)
         {
+            var topic = _topics.FirstOrDefault(t => t.TopicName == topicName);
+            if (topic == null)
+            {
+                return;
+            }
+
+            var subscription = topic.Subscriptions.FirstOrDefault(s => s.ClientId == client.ClientId);
+            if (subscription == null)
+            {
+                return;
+            }
+
+            subscription.Offset += nbEvts;
         }
 
         public Task Unsubscribe(string topic, Client client, string sessionId, CancellationToken cancellationToken)

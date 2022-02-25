@@ -1,6 +1,4 @@
-﻿using EventMesh.Runtime.Acl;
-using EventMesh.Runtime.Handlers;
-using EventMesh.Runtime.MessageBroker;
+﻿using EventMesh.Runtime.MessageBroker;
 using EventMesh.Runtime.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -17,37 +15,14 @@ namespace EventMesh.Runtime
         {
             ServiceCollection = new ServiceCollection();
             _initScriptLst = new List<Action<ServiceProvider>>();
-            if (callback != null)
-            {
-                ServiceCollection.Configure(callback);
-            }
-            else
-            {
-                ServiceCollection.Configure<RuntimeOptions>(opt => { });
-            }
-
-            ServiceCollection.AddTransient<IRuntimeHost, RuntimeHost>();
-            ServiceCollection.AddTransient<IMessageHandler, HeartbeatMessageHandler>();
-            ServiceCollection.AddTransient<IMessageHandler, HelloMessageHandler>();
-            ServiceCollection.AddTransient<IMessageHandler, SubscribeMessageHandler>();
-            ServiceCollection.AddTransient<IMessageHandler, AsyncMessageToClientAckHandler>();
-            ServiceCollection.AddTransient<IMessageHandler, AsyncMessageToServerHandler>();
-            ServiceCollection.AddTransient<IMessageHandler, AddBridgeMessageHandler>();
-            ServiceCollection.AddTransient<IMessageHandler, DisconnectMessageHandler>();
-            ServiceCollection.AddTransient<IMessageHandler, PublishMessageRequestHandler>();
-            ServiceCollection.AddTransient<IACLService, ACLService>();
-            ServiceCollection.AddSingleton<IUdpClientServerFactory, UdpClientServerFactory>();
-            ServiceCollection.AddSingleton<IClientStore>(new ClientStore());
-            ServiceCollection.AddSingleton<IBridgeServerStore>(new BridgeServerStore());
+            ServiceCollection.AddRuntime(callback);
         }
 
         public IServiceCollection ServiceCollection { get; }
 
         public RuntimeHostBuilder AddInMemoryMessageBroker(ConcurrentBag<InMemoryTopic> topics)
         {
-            ServiceCollection.AddSingleton<IMessageConsumer>(new InMemoryMessageConsumer(topics));
-            ServiceCollection.AddSingleton<IMessagePublisher>(new InMemoryMessagePublisher(topics));
-            ServiceCollection.AddSingleton<IBrokerConfigurationStore>(new BrokerConfigurationStore());
+            ServiceCollection.AddInMemoryMessageBroker(topics);
             AddInitScript((s) =>
             {
                 var brokerConfigurationStore = s.GetRequiredService<IBrokerConfigurationStore>();

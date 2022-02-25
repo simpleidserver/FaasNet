@@ -1,0 +1,40 @@
+@page "/clients/{ClientId}/topics"
+@layout ViewClientLayout
+@inject BreadcrumbState ServerState
+@inject ViewClientState ClientState
+@inject IClientStore ClientStore
+
+@if (ClientState.Client != null)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Broker</th>
+                <th>Topic</th>
+                <th>Offset</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var topic in ClientState.Client.Topics.OrderBy(t => t.BrokerName))
+            {
+                <tr>
+                    <td>@topic.BrokerName</td>
+                    <td>@topic.Name</td>
+                    <td>@topic.Offset</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public string ClientId { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ClientState.Client = ClientStore.Get(ClientId);
+        ServerState.SetItems(new List<BreadcrumbItem> { new BreadcrumbItem("Clients"), new BreadcrumbItem(ClientState.Client.ClientId) });
+        StateHasChanged();
+    }
+}

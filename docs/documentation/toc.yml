@@ -24,6 +24,16 @@
       href: eventmesh/concepts.md
     - name: Installation
       href: eventmesh/installation.md
+    - name: Message brokers
+      items:
+      - name: RabbitMQ
+        href: eventmesh/rabbitmq.md
+    - name: Portal
+      href: eventmesh/portal.md
+    - name: Listen topics
+      href: eventmesh/listentopics.md
+    - name: Publish messages
+      href: eventmesh/publishmessages.md
     - name: Protocol
       href: eventmesh/protocol.md
 - name: CLI

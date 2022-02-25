@@ -1,0 +1,18 @@
+{
+  "author": "SimpleIdServer",
+  "classifications": [
+    "FaasNet",
+    "eventmesh"
+  ],
+  "name": "EventMeshServer InMemory with UI",
+  "identity": "EventMeshServerUIInMemory",
+  "groupIdentity": "EventMeshServerUIInMemory",
+  "shortName": "evtmeshinmemui",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "EventMeshServerUIInMemory",
+  "preferNameDirectory": "true",
+  "primaryOutputs": [ { "path": "EventMeshServerUIInMemory.csproj" } ]
+}

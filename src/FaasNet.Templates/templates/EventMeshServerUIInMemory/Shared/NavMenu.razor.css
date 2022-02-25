@@ -1,0 +1,17 @@
+.logo {
+    text-align: center;
+}
+
+.logo img {
+    width: 100px;
+}
+
+.nav-item ::deep .active {
+    background-color: #eaeaea;
+}
+
+.nav-item ::deep a,
+.nav-item ::deep a:visited,
+.nav-item ::deep a:focus {
+    color: rgba(0, 0, 0, 0.87);
+}

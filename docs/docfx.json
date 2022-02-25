@@ -28,7 +28,8 @@
       {
         "files": [
           "documentation/**.png",
-          "charts/**"
+          "charts/**",
+		  "logo.svg"
         ]
       }
     ],
