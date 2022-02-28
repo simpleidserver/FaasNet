@@ -30,7 +30,7 @@ namespace EventMesh.Runtime.Website
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddHostedService<RuntimeHostedService>();
-            RegisterInMemoryEventMeshServer(services).AddRuntimeEF(opt => opt.UseSqlite($"Data Source={path}", optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
+            RegisterEventMeshService(services).AddRuntimeEF(opt => opt.UseSqlite($"Data Source={path}", optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -54,40 +54,55 @@ namespace EventMesh.Runtime.Website
             });
         }
 
-        private static IServiceCollection RegisterInMemoryEventMeshServer(IServiceCollection services)
+        private IServiceCollection RegisterEventMeshService(IServiceCollection services)
         {
-            return services.AddRuntimeWebsite(opt =>
+            const string rabbitmq = "RabbitMQ";
+            const string kafka = "Kafka";
+            var broker = services.AddRuntimeWebsite(opt =>
             {
                 opt.Urn = "localhost";
                 opt.Port = 4000;
-            }).AddInMemoryMessageBroker(new ConcurrentBag<InMemoryTopic>());
-        }
+            });
+            if (GetBoolean(Configuration, "InMemory.Enabled"))
+            {
+                broker.AddInMemoryMessageBroker(new ConcurrentBag<InMemoryTopic>());
+            }
 
-        private static IServiceCollection RegisterAMQPEventMeshServer(IServiceCollection services)
-        {
-            return services.AddRuntimeWebsite(opt =>
+            if (GetBoolean(Configuration, $"{rabbitmq}.Enabled"))
             {
-                opt.Urn = "localhost";
-                opt.Port = 4000;
-            }).AddAMQP();
-        }
+                broker.AddAMQP(opt =>
+                {
+                    int? port = null;
+                    string host = null, userName = null, password = null;
+                    if(TryGetStr(Configuration, $"{rabbitmq}.HostName", out host) || 
+                        TryGetInt(Configuration, $"{rabbitmq}.Port", out port) ||
+                        TryGetStr(Configuration, $"{rabbitmq}.UserName", out userName) ||
+                        TryGetStr(Configuration, $"{rabbitmq}.Password", out password))
+                    {
+                        opt.ConnectionFactory = (o) =>
+                        {
+                            if (!string.IsNullOrWhiteSpace(host)) o.HostName = host;
+                            if (port != null) o.Port = port.Value;
+                            if (!string.IsNullOrWhiteSpace(userName)) o.UserName = userName;
+                            if (!string.IsNullOrWhiteSpace(password)) o.UserName = userName;
+                        };
+                    }
+                });
+            }
 
-        private static IServiceCollection RegisterKafkaEventMeshServer(IServiceCollection services)
-        {
-            return services.AddRuntimeWebsite(opt =>
+            if(GetBoolean(Configuration, $"{kafka}.Enabled"))
             {
-                opt.Urn = "localhost";
-                opt.Port = 4000;
-            }).AddKafka();
-        }
+                broker.AddKafka(opt =>
+                {
+                    string bootstrapServers = null;
+                    if (TryGetStr(Configuration, $"{kafka}.BootstrapServers", out bootstrapServers))
+                    {
+                        opt.BootstrapServers = bootstrapServers;
+                    }
+                });
+            }
 
-        private static IServiceCollection RegisterFullEventMeshServer(IServiceCollection services)
-        {
-            return services.AddRuntimeWebsite(opt =>
-            {
-                opt.Urn = "localhost";
-                opt.Port = 4000;
-            }).AddAMQP().AddKafka();
+            return services;
         }
 
         private static void Migrate(IServiceProvider serviceProvider)
@@ -99,6 +114,51 @@ namespace EventMesh.Runtime.Website
                 scope.ServiceProvider.SeedAMQPOptions();
                 scope.ServiceProvider.SeedKafkaOptions();
             }
+        }
+
+        private static bool TryGetInt(IConfiguration configuration, string name, out int? result)
+        {
+            result = null;
+            var str = configuration[name];
+            if (!string.IsNullOrWhiteSpace(str))
+            {
+                if (int.TryParse(str, out int r))
+                {
+                    result = r;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TryGetStr(IConfiguration configuration, string name, out string result)
+        {
+            result = null;
+            var str = configuration[name];
+            if (!string.IsNullOrWhiteSpace(str))
+            {
+                result = str;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool GetBoolean(IConfiguration configuration, string name)
+        {
+            var str = configuration[name];
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                return false;
+            }
+
+            if(bool.TryParse(str, out bool result))
+            {
+                return result;
+            }
+
+            return false;
         }
     }
 }

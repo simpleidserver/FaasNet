@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventmeshserver
+spec:
+  selector:
+    matchLabels:
+      run: eventmeshserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: eventmeshserver
+    spec:
+      containers:
+      - name: eventmeshserver
+        image: localhost:5000/eventmeshserver
+        ports:
+        - containerPort: 4000
+          protocol: UDP
+        - containerPort: 5001
+        env:
+        - name: InMemory.Enabled
+          value: "true"

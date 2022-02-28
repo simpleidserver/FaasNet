@@ -1,6 +1,6 @@
 # Portal
 
-A portal can be installed to administrate an EventMesh Server.
+A portal can be installed to administrate the EventMesh Server.
 
 ```
 mkdir QuickStart

@@ -28,3 +28,19 @@ If the `faasnet` repository is already installed, its latest version can be down
 ```
 helm repo update
 ```
+
+## Template
+
+Install FaasNet template :
+
+```
+dotnet new --install FaasNet.Templates
+```
+
+| Command line               | Description                                                         |
+|  ------------------------- | ------------------------------------------------------------------- |
+| dotnet new evtmeshinmem    | Standalone EventMesh server plugged with an InMemory broker         |
+| dotnet new evtmeshkafka    | Standalone EventMesh server plugged with an Apache Kafka broker     |
+| dotnet new evtmeshrabbitmq | Standalone EventMesh server plugged with a RabbitMQ broker          |
+| dotnet new evtmeshinmemui  | EventMesh server with a UI plugged with an InMemory broker          |
+| dotnet new faasnetfn       | Empty function project                                              |

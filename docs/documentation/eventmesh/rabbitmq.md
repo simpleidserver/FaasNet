@@ -17,7 +17,7 @@ The Nuget package `EventMesh.Runtime.AMQP` must be installed.
 dotnet add package EventMesh.Runtime.AMQP
 ```
 
-Edit the file which contains the configuration of the EventMesh server and add the line `AddAMQP()` after `RuntimeHostBuilder` or `AddRuntime`.
+Edit the file containing the configuration of the EventMesh server and add the line `AddAMQP()` after `RuntimeHostBuilder` or `AddRuntime`.
 
 Standalone EventMesh server :
 
@@ -40,5 +40,12 @@ EventMesh server with UI :
 }).AddAMQP();
 ```
 
-The `AddAMQP` accepts one optional parameter in entry. It can be used to update update the options.
+The function `AddAMQP` accepts one optional parameter in entry. It can be used to configure the behavior of the library.
+The following properties can be configured :
 
+| Property           | Description                                                                                                             | Default value                                                             |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| TopicName          | Name of the RabbitMQ exchange. Used during publish-subscribe                                                            | amq.topic                                                                 |
+| QueueName          | A queue with the following pattern `{QueueName}-{TopicName}` is created when a session subscribe to a topic             | streamQueue                                                               |
+| BrokerName         | Name of the configured message broker. This value must be unique for each configure message broker                      | amqp                                                                      |
+| ConnectionFactory  | Contains the configuration used to establish connection with RabbitMQ                                                   | HostName: 127.0.0.1, Port: 5672, UserName: guest, Password: guest         |

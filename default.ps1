@@ -17,17 +17,12 @@ task default -depends local
 task local -depends compile, test
 task ci -depends clean, release, local, pack, publish
 
-task publish {
-	exec { dotnet publish $source_dir\FaasNet.Function.GetSql\FaasNet.Function.GetSql.csproj -c $config -o $result_dir\services\RuntimeGetSql }
-	exec { dotnet publish $source_dir\FaasNet.Function.Transform\FaasNet.Function.Transform.csproj -c $config -o $result_dir\services\RuntimeTransform }
-	exec { dotnet publish $source_dir\FaasNet.Kubernetes\FaasNet.Kubernetes.csproj -c $config -o $result_dir\services\Kubernetes }
-	exec { dotnet publish $source_dir\FaasNet.Gateway.SqlServer.Startup\FaasNet.Gateway.SqlServer.Startup.csproj -c $config -o $result_dir\services\Gateway }
-	exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
-}
+# DEV tasks
+task packDev -depends clean, packNoSuffix, packTemplate
+task dockerDev -depends clean, publishDockerDev
 
-task publishTemplate {
-	exec { dotnet pack $source_dir\FaasNet.Templates\FaasNet.Templates.csproj -c $config --no-build --output $result_dir }
-}
+# CI tasks
+task dockerCI -depends clean, publishDockerCI
 
 task clean {
 	rd "$source_dir\artifacts" -recurse -force  -ErrorAction SilentlyContinue | out-null
@@ -76,22 +71,6 @@ task publishHelmAndWebsite {
 	exec { git checkout master }
 }
 
-task buildLocalDockerImage -depends publish {
-	exec { npm run docker --prefix $source_dir\FaasNet.Website }
-	exec { docker build -f RuntimeGetSqlDockerfile -t localhost:5000/faasgetsql . }
-	exec { docker build -f RuntimeTransformDockerfile -t localhost:5000/faastransform . }
-	exec { docker build -f KubernetesDockerfile -t localhost:5000/faaskubernetes . }
-	exec { docker build -f GatewayDockerfile -t localhost:5000/faasgateway . }
-	exec { docker build -f WebsiteDockerfile -t localhost:5000/faaswebsite . }
-	exec { docker build -f PrometheusDockerfile -t localhost:5000/faasprometheus . }
-	exec { docker push localhost:5000/faasgetsql }
-	exec { docker push localhost:5000/faastransform }
-	exec { docker push localhost:5000/faaskubernetes }
-	exec { docker push localhost:5000/faasgateway }
-	exec { docker push localhost:5000/faaswebsite }
-	exec { docker push localhost:5000/faasprometheus }
-}
-
 task initLocalKubernetes {
 	exec { kubectl apply -f ./kubernetes/faas-namespace.yml }
     exec { kubectl apply -f ./kubernetes/run-mssql.yml --namespace=faas }
@@ -118,26 +97,20 @@ task initDevKubernetes {
 	exec { kubectl apply -f ./kubernetes/faas-kubernetes-external-svc.yml --namespace=faas }	
 }
 
-task builderDockerImage -depends publish {
-	exec { npm run docker --prefix $source_dir\FaasNet.Website }
-	exec { docker build -f RuntimeGetSqlDockerfile -t simpleidserver/faasgetsql:0.0.4 . }
-	exec { docker build -f RuntimeTransformDockerfile -t simpleidserver/faastransform:0.0.4 . }
-	exec { docker build -f KubernetesDockerfile -t simpleidserver/faaskubernetes:0.0.4 . }
-	exec { docker build -f GatewayDockerfile -t simpleidserver/faasgateway:0.0.4 . }
-	exec { docker build -f WebsiteDockerfile -t simpleidserver/faaswebsite:0.0.4 . }
-	exec { docker build -f PrometheusDockerfile -t simpleidserver/faasprometheus:0.0.4 . }
-	exec { docker push simpleidserver/faasgetsql:0.0.4 }
-	exec { docker push simpleidserver/faastransform:0.0.4 }
-	exec { docker push simpleidserver/faaskubernetes:0.0.4 }
-	exec { docker push simpleidserver/faasgateway:0.0.4 }
-	exec { docker push simpleidserver/faaswebsite:0.0.4 }
-	exec { docker push simpleidserver/faasprometheus:0.0.4 }
+# Publish assets
+task publishCLI {
+	exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
 }
 
-task packTemplate {
-	exec { dotnet pack $source_dir\FaasNet.Templates\FaasNet.Templates.csproj -c $config --no-build --output $result_dir }
+task publishDocker {
+	exec { dotnet publish $source_dir\FaasNet.Function.GetSql\FaasNet.Function.GetSql.csproj -c $config -o $result_dir\services\RuntimeGetSql }
+	exec { dotnet publish $source_dir\FaasNet.Function.Transform\FaasNet.Function.Transform.csproj -c $config -o $result_dir\services\RuntimeTransform }
+	exec { dotnet publish $source_dir\FaasNet.Kubernetes\FaasNet.Kubernetes.csproj -c $config -o $result_dir\services\Kubernetes }
+	exec { dotnet publish $source_dir\FaasNet.Gateway.SqlServer.Startup\FaasNet.Gateway.SqlServer.Startup.csproj -c $config -o $result_dir\services\Gateway }
+	exec { dotnet publish $source_dir\EventMesh.Runtime.Website\EventMesh.Runtime.Website.csproj -c $config -o $result_dir\services\EventMeshServer }
 }
 
+# Pack
 task pack -depends release, compile {
 	exec { dotnet pack $source_dir\FaasNet.Runtime\FaasNet.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh.Runtime\EventMesh.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
@@ -152,6 +125,53 @@ task packNoSuffix -depends release, compile {
 	exec { dotnet pack $source_dir\EventMesh.Runtime.AMQP\EventMesh.Runtime.AMQP.csproj -c $config --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh.Runtime.EF\EventMesh.Runtime.EF.csproj -c $config --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh.Runtime.Kafka\EventMesh.Runtime.Kafka.csproj -c $config --output $result_dir }
+}
+
+task packTemplate {
+	exec { dotnet pack $source_dir\FaasNet.Templates\FaasNet.Templates.csproj -c $config --no-build --output $result_dir }
+}
+
+# Docker
+task buildDockerDev -depends publishDocker {
+	exec { npm run docker --prefix $source_dir\FaasNet.Website }
+	exec { docker build -f RuntimeGetSqlDockerfile -t localhost:5000/faasgetsql . }
+	exec { docker build -f RuntimeTransformDockerfile -t localhost:5000/faastransform . }
+	exec { docker build -f KubernetesDockerfile -t localhost:5000/faaskubernetes . }
+	exec { docker build -f GatewayDockerfile -t localhost:5000/faasgateway . }
+	exec { docker build -f WebsiteDockerfile -t localhost:5000/faaswebsite . }
+	exec { docker build -f PrometheusDockerfile -t localhost:5000/faasprometheus . }
+	exec { docker build -f EventMeshDockerFile -t localhost:5000/eventmeshserver . }
+}
+
+task buildDockerCI -depends publishDocker {
+	exec { npm run docker --prefix $source_dir\FaasNet.Website }
+	exec { docker build -f RuntimeGetSqlDockerfile -t simpleidserver/faasgetsql:0.0.5 . }
+	exec { docker build -f RuntimeTransformDockerfile -t simpleidserver/faastransform:0.0.5 . }
+	exec { docker build -f KubernetesDockerfile -t simpleidserver/faaskubernetes:0.0.5 . }
+	exec { docker build -f GatewayDockerfile -t simpleidserver/faasgateway:0.0.5 . }
+	exec { docker build -f WebsiteDockerfile -t simpleidserver/faaswebsite:0.0.5 . }
+	exec { docker build -f PrometheusDockerfile -t simpleidserver/faasprometheus:0.0.5 . }
+	exec { docker build -f EventMeshDockerFile -t simpleidserver/eventmeshserver:0.0.5 . }
+}
+
+task publishDockerDev -depends buildDockerDev {
+	exec { docker push localhost:5000/faasgetsql }
+	exec { docker push localhost:5000/faastransform }
+	exec { docker push localhost:5000/faaskubernetes }
+	exec { docker push localhost:5000/faasgateway }
+	exec { docker push localhost:5000/faaswebsite }
+	exec { docker push localhost:5000/faasprometheus }
+	exec { docker push localhost:5000/eventmeshserver }
+}
+
+task publishDockerCI -depends publishDocker {
+	exec { docker push simpleidserver/faasgetsql:0.0.5 }
+	exec { docker push simpleidserver/faastransform:0.0.5 }
+	exec { docker push simpleidserver/faaskubernetes:0.0.5 }
+	exec { docker push simpleidserver/faasgateway:0.0.5 }
+	exec { docker push simpleidserver/faaswebsite:0.0.5 }
+	exec { docker push simpleidserver/faasprometheus:0.0.5 }
+	exec { docker push simpleidserver/eventmeshserver:0.0.5 }
 }
 
 task test {	

@@ -1,11 +1,5 @@
 # Create a function
 
-Install FaasNet template. This utility can be used to generate Function project in C#.
-
-```
-dotnet new --install FaasNet.Templates
-```
-
 Create a Function project
 
 ```

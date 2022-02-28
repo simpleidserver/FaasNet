@@ -22,18 +22,26 @@
   items:
     - name: Concepts
       href: eventmesh/concepts.md
-    - name: Installation
-      href: eventmesh/installation.md
+    - name: Install server
+      items:
+      - name: Nuget
+        href: eventmesh/nuget.md
+      - name: Docker
+        href: eventmesh/docker.md
+    - name: Portal
+      href: eventmesh/portal.md
     - name: Message brokers
       items:
       - name: RabbitMQ
         href: eventmesh/rabbitmq.md
-    - name: Portal
-      href: eventmesh/portal.md
-    - name: Listen topics
-      href: eventmesh/listentopics.md
-    - name: Publish messages
-      href: eventmesh/publishmessages.md
+      - name: Apache Kafka
+        href: eventmesh/kafka.md
+    - name: Configure client
+      items:
+       - name: Listen topics
+         href: eventmesh/listentopics.md
+       - name: Publish messages
+         href: eventmesh/publishmessages.md
     - name: Protocol
       href: eventmesh/protocol.md
 - name: CLI

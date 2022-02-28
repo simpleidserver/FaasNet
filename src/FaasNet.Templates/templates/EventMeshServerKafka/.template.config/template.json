@@ -1,0 +1,18 @@
+{
+  "author": "SimpleIdServer",
+  "classifications": [
+    "FaasNet",
+    "eventmesh"
+  ],
+  "name": "EventMeshServer Kafka",
+  "identity": "EventMeshServerKafka",
+  "groupIdentity": "EventMeshServerKafka",
+  "shortName": "evtmeshkafka",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "EventMeshServer",
+  "preferNameDirectory": "true",
+  "primaryOutputs": [ { "path": "EventMeshServer.csproj" } ]
+}

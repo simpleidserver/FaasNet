@@ -3,7 +3,7 @@
 > [!NOTE]
 > The source code of this project can be found [here](https://github.com/simpleidserver/FaasNet/tree/master/samples/EventMeshServerInMemory).
 
-An EventMesh Server can be hosted in a console application.
+A standalone EventMesh Server can be hosted in a console application.
 
 ```
 mkdir QuickStart
