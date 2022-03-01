@@ -1,10 +1,12 @@
 ﻿@page "/"
 @page "/status"
+@using Microsoft.Extensions.Hosting 
 @implements IDisposable
 @inject BreadcrumbState ServerState
 @inject IOptions<RuntimeOptions> Opts
 @inject IBridgeServerStore BridgeServerStore
 @inject IClientStore ClientStore
+@inject IEnumerable<IHostedService> hostedServices
 
 <div class="card">
     <div class="card-body">
@@ -22,7 +24,10 @@
                 }
                 else
                 {
-                    <span class="badge badge-danger">Is not running</span>
+                    <div>
+                        <span class="badge badge-danger">Is not running</span>
+                    </div>
+                    <button class="btn btn-primary" @onclick="Restart">Restart</button>
                 }
             </li>
             <!-- Display Refresh DateTime -->
@@ -60,9 +65,17 @@
     public int NbClients = 0;
     public int NbActiveSessions = 0;
     public int NbConfiguredBridges = 0;
+    public RuntimeHostedService _runtimeHostedService;
+
+    private void Restart()
+    {
+        _runtimeHostedService.Restart();
+        Refresh(null, null);
+    }
 
     protected override Task OnInitializedAsync()
     {
+        _runtimeHostedService = hostedServices.First(h => h.GetType().Equals(typeof(RuntimeHostedService))) as RuntimeHostedService;
         _timer = new System.Timers.Timer(5000);
         _timer.Elapsed += Refresh;
         _timer.Enabled = true;

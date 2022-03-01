@@ -18,7 +18,7 @@ namespace EventMesh.Runtime
         {
             if (_udpClient == null)
             {
-                _udpClient = new UdpClient(new IPEndPoint(IPAddress.Parse(_options.IPAddress), _options.Port));
+                _udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, _options.Port));
             }
 
             return _udpClient;

@@ -18,8 +18,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure<AMQPOptions>(opt => { });
             }
 
-            services.AddSingleton<IMessageConsumer, AMQPConsumer>();
-            services.AddSingleton<IMessagePublisher, AMQPPublisher>();
+            services.AddScoped<IMessageConsumer, AMQPConsumer>();
+            services.AddScoped<IMessagePublisher, AMQPPublisher>();
             return services;
         }
     }

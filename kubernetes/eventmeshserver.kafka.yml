@@ -1,0 +1,137 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: faas
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventmeshserver-entry
+spec:
+  type: NodePort
+  selector:
+    run: eventmeshserver
+  ports:
+  - port: 4000
+    name: server
+    protocol: UDP
+    targetPort: 4000
+    nodePort: 30005
+  - port: 5001
+    name: website
+    protocol: TCP
+    targetPort: 5001
+    nodePort: 30004
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventmeshserver
+spec:
+  selector:
+    matchLabels:
+      run: eventmeshserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: eventmeshserver
+    spec:
+      containers:
+      - name: eventmeshserver
+        image: localhost:5000/eventmeshserver
+        ports:
+        - containerPort: 4000
+          protocol: UDP
+        - containerPort: 5001
+        env:
+        - name: Kafka.Enabled
+          value: "true"
+        - name: Kafka.BootstrapServers
+          value: "kafka-service.faas.svc.cluster.local:9092"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 9092
+    name: kafka-port
+    protocol: TCP
+  selector:
+    app: kafka
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zoo1
+spec:
+  type: LoadBalancer
+  ports:
+  - name: client
+    port: 2181
+    protocol: TCP
+  - name: follower
+    port: 2888
+    protocol: TCP
+  - name: leader
+    port: 3888
+    protocol: TCP
+  selector:
+    app: zookeeper-1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper-deployment-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper-1
+  template:
+    metadata:
+      labels:
+        app: zookeeper-1
+    spec:
+      containers:
+        - name: zoo1
+          image: digitalwonderland/zookeeper
+          ports:
+            - containerPort: 2181
+          env:
+            - name: ZOOKEEPER_ID
+              value: "1"
+            - name: ZOOKEEPER_SERVER_1
+              value: zoo1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-broker1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: wurstmeister/kafka
+          env:
+            - name: KAFKA_ADVERTISED_PORT
+              value: "9092"
+            - name: KAFKA_ADVERTISED_HOST_NAME
+              value: "kafka-service"
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: zoo1:2181
+            - name: KAFKA_BROKER_ID
+              value: "1"
+          ports:
+            - containerPort: 9092

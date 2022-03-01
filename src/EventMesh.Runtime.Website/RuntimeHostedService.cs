@@ -27,5 +27,10 @@ namespace EventMesh.Runtime.Website
             _runtimeHost.Stop();
             return Task.CompletedTask;
         }
+
+        public void Restart()
+        {
+            _runtimeHost.Run();
+        }
     }
 }

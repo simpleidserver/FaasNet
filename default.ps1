@@ -174,6 +174,19 @@ task publishDockerCI -depends publishDocker {
 	exec { docker push simpleidserver/eventmeshserver:0.0.5 }
 }
 
+# Kubernetes
+task deployEventMeshServerInMemoryBroker {
+	exec { kubectl apply -f ./kubernetes/eventmeshserver.yml --namespace=faas }	
+}
+
+task deployEventMeshServerRabbitMQ {
+	exec { kubectl apply -f ./kubernetes/eventmeshserver.rabbitmq.yml --namespace=faas }	
+}
+
+task deployEventMeshServerKafka {
+	exec { kubectl apply -f ./kubernetes/eventmeshserver.kafka.yml --namespace=faas }	
+}
+
 task test {	
     Push-Location -Path $base_dir\tests\EventMesh.Runtime.Tests
 

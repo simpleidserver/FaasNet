@@ -16,10 +16,30 @@ namespace EventMesh.Runtime.AMQP
                 TopicName = conf.GetValue("topicName"),
                 ConnectionFactory = (opt) =>
                 {
-                    opt.HostName = conf.GetValue("connectionFactory.hostName");
-                    opt.Port = int.Parse(conf.GetValue("connectionFactory.port"));
-                    opt.UserName = conf.GetValue("connectionFactory.username");
-                    opt.Password = conf.GetValue("connectionFactory.password");
+                    var hostName = conf.GetValue("connectionFactory.hostName");
+                    if (!string.IsNullOrWhiteSpace(hostName))
+                    {
+                        opt.HostName = hostName;
+                    }
+
+                    var port = int.Parse(conf.GetValue("connectionFactory.port"));
+                    if (port == -1)
+                    {
+                        port = 5672;
+                    }
+
+                    opt.Port = port;
+                    var userName = conf.GetValue("connectionFactory.username");
+                    if (!string.IsNullOrWhiteSpace(userName))
+                    {
+                        opt.UserName = userName;
+                    }
+
+                    var password = conf.GetValue("connectionFactory.password");
+                    if (!string.IsNullOrWhiteSpace(password))
+                    {
+                        opt.Password = password;
+                    }
                 }
             };
         }

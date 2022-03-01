@@ -17,8 +17,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure<KafkaOptions>(opt => { });
             }
 
-           services.AddSingleton<IMessageConsumer, KafkaConsumer>();
-           services.AddSingleton<IMessagePublisher, KafkaPublisher>();
+           services.AddScoped<IMessageConsumer, KafkaConsumer>();
+           services.AddScoped<IMessagePublisher, KafkaPublisher>();
             return services;
         }
     }

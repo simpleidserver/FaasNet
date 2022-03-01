@@ -1,5 +1,4 @@
 using EventMesh.Runtime;
-using EventMesh.Runtime.EF;
 using EventMesh.Runtime.MessageBroker;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,8 +28,9 @@ namespace EventMesh.Runtime.Website
             var path = Path.Combine(Environment.CurrentDirectory, "Runtime.db");
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddHostedService<RuntimeHostedService>();
             RegisterEventMeshService(services).AddRuntimeEF(opt => opt.UseSqlite($"Data Source={path}", optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
+            services.AddHostedService<RuntimeHostedService>();
+            services.AddSingleton(Configuration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -44,7 +44,6 @@ namespace EventMesh.Runtime.Website
                 app.UseExceptionHandler("/Error");
             }
 
-            Migrate(app.ApplicationServices);
             app.UseStaticFiles();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
@@ -74,17 +73,21 @@ namespace EventMesh.Runtime.Website
                 {
                     int? port = null;
                     string host = null, userName = null, password = null;
-                    if(TryGetStr(Configuration, $"{rabbitmq}.HostName", out host) || 
-                        TryGetInt(Configuration, $"{rabbitmq}.Port", out port) ||
-                        TryGetStr(Configuration, $"{rabbitmq}.UserName", out userName) ||
-                        TryGetStr(Configuration, $"{rabbitmq}.Password", out password))
+                    TryGetStr(Configuration, $"{rabbitmq}.HostName", out host);
+                    TryGetInt(Configuration, $"{rabbitmq}.Port", out port);
+                    TryGetStr(Configuration, $"{rabbitmq}.UserName", out userName);
+                    TryGetStr(Configuration, $"{rabbitmq}.Password", out password);
+                    if (!string.IsNullOrWhiteSpace(host) || 
+                        port != null ||
+                        !string.IsNullOrWhiteSpace(userName) ||
+                        !string.IsNullOrWhiteSpace(password))
                     {
                         opt.ConnectionFactory = (o) =>
                         {
                             if (!string.IsNullOrWhiteSpace(host)) o.HostName = host;
                             if (port != null) o.Port = port.Value;
                             if (!string.IsNullOrWhiteSpace(userName)) o.UserName = userName;
-                            if (!string.IsNullOrWhiteSpace(password)) o.UserName = userName;
+                            if (!string.IsNullOrWhiteSpace(password)) o.UserName = password;
                         };
                     }
                 });
@@ -105,18 +108,7 @@ namespace EventMesh.Runtime.Website
             return services;
         }
 
-        private static void Migrate(IServiceProvider serviceProvider)
-        {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<EventMeshDBContext>();
-                dbContext.Database.Migrate();
-                scope.ServiceProvider.SeedAMQPOptions();
-                scope.ServiceProvider.SeedKafkaOptions();
-            }
-        }
-
-        private static bool TryGetInt(IConfiguration configuration, string name, out int? result)
+        public static bool TryGetInt(IConfiguration configuration, string name, out int? result)
         {
             result = null;
             var str = configuration[name];
@@ -132,7 +124,7 @@ namespace EventMesh.Runtime.Website
             return false;
         }
 
-        private static bool TryGetStr(IConfiguration configuration, string name, out string result)
+        public static bool TryGetStr(IConfiguration configuration, string name, out string result)
         {
             result = null;
             var str = configuration[name];
@@ -145,7 +137,7 @@ namespace EventMesh.Runtime.Website
             return false;
         }
 
-        private static bool GetBoolean(IConfiguration configuration, string name)
+        public static bool GetBoolean(IConfiguration configuration, string name)
         {
             var str = configuration[name];
             if (string.IsNullOrWhiteSpace(str))

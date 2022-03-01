@@ -65,7 +65,16 @@ namespace EventMesh.Runtime
                 EventMeshRuntimeStarted(this, new EventArgs());
             }
 
-            await InitMessageConsumers();
+            try
+            {
+                await InitMessageConsumers();
+            }
+            catch(Exception)
+            {
+                IsRunning = false;
+                throw;
+            }
+
             try
             {
                 while(true)

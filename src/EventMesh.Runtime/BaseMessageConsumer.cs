@@ -36,7 +36,6 @@ namespace EventMesh.Runtime
                 return Task.CompletedTask;
             }
 
-
             var topic = client.GetTopic(topicName, options.BrokerName);
             if (topic == null)
             {
