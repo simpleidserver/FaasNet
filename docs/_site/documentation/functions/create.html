@@ -69,9 +69,6 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="create-a-function">Create a function</h1>
 
-<p>Install FaasNet template. This utility can be used to generate Function project in C#.</p>
-<pre><code>dotnet new --install FaasNet.Templates
-</code></pre>
 <p>Create a Function project</p>
 <pre><code>mkdir QuickStart
 cd QuickStart
@@ -87,7 +84,7 @@ dotnet new faasnetfn -n Function
 </li>
 <li><p><em>HelloWorldConfiguration.cs</em>: configuration properties of the function.</p>
 </li>
-<li><p><em>FunctionHandler.cs</em>: contains the business logic. This class has one function which accepts one parameter and returns a JSON result. The input parameter has two distinct properties :</p>
+<li><p><em>FunctionHandler.cs</em>: contains the business logic. This class has one function with one parameter and returns a JSON result. The input parameter has two distinct properties :</p>
 <ul>
 <li>Configuration: its value is coming from the gateway, it will be used to configure the behavior of the function for example : <code>ConnectionString</code> and <code>SQL Statement</code>.</li>
 <li>Input: value passed by caller.</li>
@@ -143,7 +140,7 @@ The <code>DIRECTORY</code> variable must be replaced by the directory of the Fun
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/functions/create.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.5/docs/documentation/functions/create.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

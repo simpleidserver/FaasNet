@@ -69,24 +69,55 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="before-you-start">Before you start</h1>
 
-<p>Make sure you have <a href="https://kubernetes.io/docs/tasks/tools/">Kubernetes</a> and <a href="https://helm.sh/docs/intro/install/">Helm</a> installed.</p>
+<p>Make sure you have <a href="https://kubernetes.io/docs/tasks/tools/">Kubernetes</a> installed.</p>
 <p>Download and install the FaasNet CLI tool :</p>
 <ol>
 <li>Download your <a href="https://github.com/simpleidserver/FaasNet/releases">desired version</a>.</li>
 <li>Unpack it.</li>
 <li>Add the Directory path into the PATH environment variable.</li>
 </ol>
+<p>This utility can be used to create and deploy serverless functions.</p>
 <h1 id="start-faasnet">Start FaasNet</h1>
-<p>Open a command prompt and create a <code>faas</code> namespace in kubernetes.</p>
-<pre><code>kubectl create namespace faas
+<p>Open a command prompt and execute the following command line.</p>
+<pre><code>kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/release/serverlessworkflow.yml --namespace=faas
 </code></pre>
-<p>Install and launch the <code>faasnet</code> project.</p>
-<pre><code>helm repo add faasnet https://simpleidserver.github.io/FaasNet/charts/
-helm install my-faasnet faasnet/faasnet --version 0.0.4 --namespace=faas
+<p>The project will be deployed into Kubernetes.</p>
+<p>A portal is available <a href="http://localhost:30003">here</a>, it can be used to perform some administrative tasks like : managing <code>functions</code> and <code>serverless workflows</code>.</p>
+<h1 id="template">Template</h1>
+<p>A DOTNET project template can be installed.</p>
+<p>It contains a list of projects which can be used to create EventMesh servers and serverless functions.</p>
+<pre><code>dotnet new --install FaasNet.Templates
 </code></pre>
-<p>If the <code>faasnet</code> repository is already installed, its latest version can be downloaded by executing the following command.</p>
-<pre><code>helm repo update
-</code></pre>
+<table>
+<thead>
+<tr>
+<th>Command line</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dotnet new evtmeshinmem</td>
+<td>Standalone EventMesh server plugged with an InMemory broker</td>
+</tr>
+<tr>
+<td>dotnet new evtmeshkafka</td>
+<td>Standalone EventMesh server plugged with an Apache Kafka broker</td>
+</tr>
+<tr>
+<td>dotnet new evtmeshrabbitmq</td>
+<td>Standalone EventMesh server plugged with a RabbitMQ broker</td>
+</tr>
+<tr>
+<td>dotnet new evtmeshinmemui</td>
+<td>EventMesh server with a UI plugged with an InMemory broker</td>
+</tr>
+<tr>
+<td>dotnet new faasnetfn</td>
+<td>Empty function project</td>
+</tr>
+</tbody>
+</table>
 </article>
           </div>
           
@@ -95,7 +126,7 @@ helm install my-faasnet faasnet/faasnet --version 0.0.4 --namespace=faas
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/gettingstarted/index.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.5/docs/documentation/gettingstarted/index.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

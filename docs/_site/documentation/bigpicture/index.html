@@ -69,14 +69,13 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="introduction">Introduction</h1>
 
-<p>The FaasNet architecture is made of 6 blocks :</p>
+<p>FaasNet architecture is made of five blocks :</p>
 <ul>
-<li><strong>Function</strong> : Each function is deployed into one or more Kubernetes PODs.</li>
-<li><strong>Gateway</strong> : Expose operations to the angular website &amp; CLI. They are used to manage the lifecyle of the functions and workflows.</li>
-<li><strong>Monitoring</strong> : Prometheus product is configured by default in order to monitor the published functions.</li>
-<li><strong>Website</strong> : Portal application which can be used by developers to manage the functions.</li>
-<li><strong>CLI</strong> : Command Line Interface (CLI) which can be used by developers to manage the functions.</li>
-<li><strong>FaasNet Kubernetes</strong> : API used by the gateway to interact with Kubernetes.</li>
+<li><strong>Function</strong> : One function can be deployed into one or more Kubernetes PODs.</li>
+<li><strong>Gateway</strong> : Expose operations to the portal and CLI. They can be used to perform administrative tasks on <code>function</code>, <code>serverless workflow</code> and <code>EventMesh server</code>.</li>
+<li><strong>Monitoring</strong> : Prometheus product is configured by default to monitor published functions.</li>
+<li><strong>Portal/CLI</strong> : Used by developers to perform administrative tasks.</li>
+<li><strong>Kubernetes</strong> : Execute operations on Kubernetes like : deploying / removing functions.</li>
 </ul>
 <p><img src="images/bigpicture1.png" alt="Big Picture"></p>
 </article>
@@ -87,7 +86,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/bigpicture/index.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.5/docs/documentation/bigpicture/index.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

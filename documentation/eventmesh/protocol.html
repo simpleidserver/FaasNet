@@ -1,0 +1,541 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>EventMesh protocol </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="EventMesh protocol ">
+    <meta name="generator" content="docfx 2.58.3.0">
+    
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../styles/docfx.css">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <meta property="docfx:navrel" content="../../toc.html">
+    <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="eventmesh-protocol">EventMesh protocol</h1>
+
+<h2 id="message-structure">Message structure</h2>
+<table>
+<thead>
+<tr>
+<th>Description</th>
+<th>Data Type</th>
+<th>Comment</th>
+<th>Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Magic Value</td>
+<td>string</td>
+<td>Magic value.</td>
+<td>EventMesh</td>
+</tr>
+<tr>
+<td>Protocol Version</td>
+<td>string</td>
+<td>Protocol version.</td>
+<td>0000</td>
+</tr>
+<tr>
+<td>Command</td>
+<td>int32</td>
+<td>Identifier of the command.</td>
+<td></td>
+</tr>
+<tr>
+<td>Status</td>
+<td>int32</td>
+<td>Identifier of the status.</td>
+<td></td>
+</tr>
+<tr>
+<td>Status description</td>
+<td>string</td>
+<td>Short description of the status.</td>
+<td></td>
+</tr>
+<tr>
+<td>Error</td>
+<td>string</td>
+<td>Short description of the error .</td>
+<td></td>
+</tr>
+<tr>
+<td>Seq</td>
+<td>string</td>
+<td>Correlation number. Request and response must have the same seq number.</td>
+<td></td>
+</tr>
+<tr>
+<td>Body</td>
+<td>ANY</td>
+<td>Contains the properties of the command.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Known commands:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>HEARBEAT_REQUEST</td>
+</tr>
+<tr>
+<td>1</td>
+<td>HEARTBEAT_RESPONSE</td>
+</tr>
+<tr>
+<td>2</td>
+<td>HELLO_REQUEST</td>
+</tr>
+<tr>
+<td>3</td>
+<td>HELLO_RESPONSE</td>
+</tr>
+<tr>
+<td>4</td>
+<td>SUBSCRIBE_REQUEST</td>
+</tr>
+<tr>
+<td>5</td>
+<td>SUBSCRIBE_RESPONSE</td>
+</tr>
+<tr>
+<td>6</td>
+<td>ASYNC_MESSAGE_TO_CLIENT</td>
+</tr>
+<tr>
+<td>7</td>
+<td>ASYNC_MESSAGE_TO_CLIENT_ACK</td>
+</tr>
+<tr>
+<td>8</td>
+<td>ADD_BRIDGE_REQUEST</td>
+</tr>
+<tr>
+<td>9</td>
+<td>ADD_BRIDGE_RESPONSE</td>
+</tr>
+<tr>
+<td>10</td>
+<td>ASYNC_MESSAGE_TO_SERVER</td>
+</tr>
+<tr>
+<td>11</td>
+<td>DISCONNECT_REQUEST</td>
+</tr>
+<tr>
+<td>12</td>
+<td>DISCONNECT_RESPONSE</td>
+</tr>
+<tr>
+<td>13</td>
+<td>ASYNC_MESSAGE_TO_CLIENT_ACK_RESPONSE</td>
+</tr>
+<tr>
+<td>14</td>
+<td>PUBLISH_MESSAGE_REQUEST</td>
+</tr>
+<tr>
+<td>15</td>
+<td>PUBLISH_MESSAGE_RESPONSE</td>
+</tr>
+</tbody>
+</table>
+<p>Known status:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>success</td>
+</tr>
+<tr>
+<td>1</td>
+<td>fail</td>
+</tr>
+<tr>
+<td>2</td>
+<td>aclFail</td>
+</tr>
+<tr>
+<td>3</td>
+<td>tpsOverload</td>
+</tr>
+</tbody>
+</table>
+<p>Error status:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NO_ACTIVE_SESSION</td>
+</tr>
+<tr>
+<td>NOT_AUTHORIZED</td>
+</tr>
+<tr>
+<td>NO_BRIDGE_SERVER</td>
+</tr>
+<tr>
+<td>INVALID_URL</td>
+</tr>
+<tr>
+<td>INVALID_CLIENT</td>
+</tr>
+<tr>
+<td>INVALID_SEQ</td>
+</tr>
+<tr>
+<td>INVALID_BRIDGE</td>
+</tr>
+<tr>
+<td>BRIDGE_NOT_ACTIVE</td>
+</tr>
+<tr>
+<td>BRIDGE_EXISTS</td>
+</tr>
+<tr>
+<td>UNKNOWN_BRIDGE</td>
+</tr>
+<tr>
+<td>UNAUTHORIZED_PUBLISH</td>
+</tr>
+<tr>
+<td>UNAUTHORIZED_SUBSCRIBE</td>
+</tr>
+</tbody>
+</table>
+<h2 id="commands">Commands</h2>
+<h3 id="heartbeat-request">Heartbeat request</h3>
+<p><strong>Request</strong> : HEARBEAT_REQUEST.</p>
+<p><strong>Response</strong> : HEARTBEAT_RESPONSE.</p>
+<p>Heartbeat request are sent by client to check the availablity of an EventMesh Server.</p>
+<h3 id="hello-request">Hello request</h3>
+<p><strong>Request</strong> : HELLO_REQUEST.</p>
+<p><strong>Response</strong> : HELLO_RESPONSE.</p>
+<p>Client send hello request to EventMesh server to create a session.
+The following informations are passed in the request. They are used by the EventMesh server to check if the client is authorized to subscribe or publish.</p>
+<table>
+<thead>
+<tr>
+<th>Description</th>
+<th>Data Type</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ClientId</td>
+<td>string</td>
+<td>Identifier of the client</td>
+</tr>
+<tr>
+<td>Environment</td>
+<td>string</td>
+<td>Environment used by the client. Possible values can be TST,VAL or PRD</td>
+</tr>
+<tr>
+<td>Urn</td>
+<td>string</td>
+<td>URN of the EventMesh server calling an another EventMesh server.</td>
+</tr>
+<tr>
+<td>Port</td>
+<td>int32</td>
+<td>Port of the EventMesh server calling an another EventMesh server.</td>
+</tr>
+<tr>
+<td>Password</td>
+<td>string</td>
+<td>Password of the client. Used during the authentication phase.</td>
+</tr>
+<tr>
+<td>BufferCloudEvents</td>
+<td>int32</td>
+<td>Number of messages sent to the client. Used to send a batch of messages.</td>
+</tr>
+<tr>
+<td>Purpose</td>
+<td>int32</td>
+<td>Type of session. Possible values are : SUBSCRIBE = 0, PUBLISH = 1</td>
+</tr>
+<tr>
+<td>IsServer</td>
+<td>boolean</td>
+<td>Indicate if the request is coming from a client or a server.</td>
+</tr>
+<tr>
+<td>Pid</td>
+<td>int32</td>
+<td>Identifier of the process.</td>
+</tr>
+</tbody>
+</table>
+<div class="WARNING">
+<h5>Warning</h5>
+<p>When a bridge is created between two EventMesh servers. The parameters <code>Urn</code> and <code>Port</code> will be used to transmit messages from one server to the second server and to the client.</p>
+</div>
+<p>When a session is created, an hello response is sent by the EventMesh server to the client.
+It contains a unique session identifier. This value will be used by the client to perform future operations.</p>
+<table>
+<thead>
+<tr>
+<th>Description</th>
+<th>Data Type</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SessionId</td>
+<td>string</td>
+<td>Unique identifier of the session</td>
+</tr>
+</tbody>
+</table>
+<h3 id="subscribe-request">Subscribe request</h3>
+<p><strong>Request</strong> : SUBSCRIBE_REQUEST.</p>
+<p><strong>Response</strong> : SUBSCRIBE_RESPONSE.</p>
+<div class="WARNING">
+<h5>Warning</h5>
+<p>A session is required to perform a subscription.</p>
+</div>
+<p>Client send subscribe request to EventMesh sever to subscribe to one or more topics.
+The following informations are passed in the request.</p>
+<table>
+<thead>
+<tr>
+<th>Description</th>
+<th>Data Type</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ClientId</td>
+<td>string</td>
+<td>Identifier of the client.</td>
+</tr>
+<tr>
+<td>SessionId</td>
+<td>string</td>
+<td>Unique identifier of the session.</td>
+</tr>
+<tr>
+<td>Topics</td>
+<td>string[]</td>
+<td>List of topics.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="add-bridge-request">Add Bridge request</h3>
+<p><strong>Request</strong> : ADD_BRIDGE_REQUEST.</p>
+<p><strong>Response</strong> : ADD_BRIDGE_RESPONSE.</p>
+<p>Bridge request are sent to create a bridge between two EventMesh servers.
+The following informations are passed in the request :</p>
+<table>
+<thead>
+<tr>
+<th>Description</th>
+<th>Data Type</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Urn</td>
+<td>string</td>
+<td>URN of the second EventMesh server</td>
+</tr>
+<tr>
+<td>Port</td>
+<td>int32</td>
+<td>Port of the second EventMesh server</td>
+</tr>
+</tbody>
+</table>
+<h3 id="disconnect-request">Disconnect request</h3>
+<p><strong>Request</strong> : DISCONNECT_REQUEST.</p>
+<p><strong>Response</strong> : DISCONNECT_RESPONSE.</p>
+<p>Disconnect request are sent by the client to close the session. When the session is closed, client cannot perform any future operations.
+The following informations are passed in the request :</p>
+<table>
+<thead>
+<tr>
+<th>Description</th>
+<th>Data Type</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ClientId</td>
+<td>string</td>
+<td>Identifier of the client</td>
+</tr>
+<tr>
+<td>SessionId</td>
+<td>string</td>
+<td>Identifier of the session</td>
+</tr>
+</tbody>
+</table>
+<h3 id="publish-message-request">Publish Message request</h3>
+<p><strong>Request</strong> : PUBLISH_MESSAGE_REQUEST.</p>
+<p><strong>Response</strong> : PUBLISH_MESSAGE_RESPONSE.</p>
+<p>Publish message request are sent by the client to publish one message to a Topic.
+The following informations are passed in the request :</p>
+<table>
+<thead>
+<tr>
+<th>Description</th>
+<th>Data Type</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ClientId</td>
+<td>string</td>
+<td>Identifier of the client</td>
+</tr>
+<tr>
+<td>SessionId</td>
+<td>string</td>
+<td>Identifier of the session</td>
+</tr>
+<tr>
+<td>Topic</td>
+<td>string</td>
+<td>Topic filter</td>
+</tr>
+<tr>
+<td>Urn</td>
+<td>string</td>
+<td>URN of the targeted EventMesh server. When the value is specified then the message is sent to the targeted server. Otherwise the message is broadcast to all the servers.</td>
+</tr>
+<tr>
+<td>Port</td>
+<td>int32</td>
+<td>Port of the targeted EventMesh server</td>
+</tr>
+<tr>
+<td>CloudEvent</td>
+<td>object</td>
+<td>Message to send</td>
+</tr>
+</tbody>
+</table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.5/docs/documentation/eventmesh/protocol.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

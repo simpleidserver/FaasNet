@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Publish messages </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Publish messages ">
+    <meta name="generator" content="docfx 2.58.3.0">
+    
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../styles/docfx.css">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <meta property="docfx:navrel" content="../../toc.html">
+    <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="publish-messages">Publish messages</h1>
+
+<div class="NOTE">
+<h5>Note</h5>
+<p>The source code of this project can be found <a href="https://github.com/simpleidserver/FaasNet/tree/master/samples/EventMeshClientPublish">here</a>.</p>
+</div>
+<p>A client can publish messages to a topic.</p>
+<h2 id="configuration-steps">Configuration steps</h2>
+<p>First, the Nuget package <code>EventMesh.Runtime</code> must be installed.</p>
+<pre><code>dotnet add package EventMesh.Runtime`
+</code></pre>
+<p>A session must be established between the client and the server in order to publish messages.</p>
+<pre><code>private static async Task&lt;string&gt; CreateSession(RuntimeClient runtimeClient)
+{
+    var helloResponse = await runtimeClient.Hello(new UserAgent
+    {
+        ClientId = &quot;pubClientId&quot;,
+        Environment = &quot;TST&quot;,
+        Password = &quot;password&quot;,
+        Pid = 2000,
+        BufferCloudEvents = 1,
+        Version = &quot;0&quot;,
+        Purpose = UserAgentPurpose.PUB
+    });
+    return helloResponse.SessionId;
+}
+</code></pre>
+<p>Publish a message to the topic <code>Person.Created</code>.</p>
+<pre><code>private static Task&lt;Package&gt; PublishMessage(RuntimeClient runtimeClient, string sessionId)
+{
+    var cloudEvent = new CloudEvent
+    {
+        Type = &quot;com.github.pull.create&quot;,
+        Source = new Uri(&quot;https://github.com/cloudevents/spec/pull&quot;),
+        Subject = &quot;123&quot;,
+        Id = &quot;A234-1234-1234&quot;,
+        Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+        DataContentType = &quot;application/json&quot;,
+        Data = &quot;person is created&quot;,
+        [&quot;comexampleextension1&quot;] = &quot;value&quot;
+    };
+    return runtimeClient.PublishMessage(&quot;pubClientId&quot;, sessionId, &quot;Person.Created&quot;, cloudEvent);
+}
+</code></pre>
+<p>When both methods are added. The <code>RuntimeClient</code> instance can be configured to publish messages.</p>
+<pre><code>var runtimeClient = new RuntimeClient(&quot;localhost&quot;, 4000);
+var sessionId = CreateSession(runtimeClient).Result;
+PublishMessage(runtimeClient, sessionId).Wait();
+Console.WriteLine(&quot;Please press enter to quit the application ...&quot;);
+Console.ReadLine();
+runtimeClient.Disconnect(&quot;pubClientId&quot;, sessionId).Wait();
+</code></pre>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.5/docs/documentation/eventmesh/publishmessages.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>
