@@ -1,14 +1,14 @@
-﻿using FaasNet.Runtime.Factories;
+﻿using FaasNet.Function;
+using FaasNet.Function.Factories;
+using Function.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Prometheus;
 using System.IO;
-using FaasNet.Runtime;
-using FaasNet.Function.Middlewares;
 
-namespace FaasNet.Function
+namespace Function
 {
     public class Startup
     {

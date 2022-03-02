@@ -97,15 +97,22 @@ export class OperationActionFunctionRef {
   arguments: any;
 
   public getJson(): any {
-    return {
-      refName: this.refName,
-      arguments: this.arguments
+    let result : any = {
+      refName: this.refName
     };
+    if (this.arguments) {
+      result["arguments"] = this.arguments;
+    }
+
+    return result;
   }
 
   public static build(json: any) {
     var result = new OperationActionFunctionRef();
-    result.arguments = json["arguments"];
+    if (json["arguments"]) {
+      result.arguments = json["arguments"];
+    }
+
     result.refName = json["refName"];
     return result;
   }

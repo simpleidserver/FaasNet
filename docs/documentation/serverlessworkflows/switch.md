@@ -31,37 +31,37 @@ At the end, the workflow must look like this :
 YAML file :
 
 ```
-id: helloWorld
+id: 268ba6ef-4c30-4d6d-a27e-66c469815adc
 version: 2
-name: name
-description: description
+name: Switch
+description: Switch
 start:
-  stateName: ccf9ab43-2689-4a43-b621-3cf182ec09fe
+  stateName: 412ad5ea-05b7-4869-8ebb-fe2a57a11370
 states:
-  - id: 2138ce2c-ca57-45d9-9ae6-d6f70aced70d
-    name: inject
-    transition: ""
-    type: inject
-    end: true
-    data:
-      message: first
-  - id: 594e2dca-4aa0-48ce-8c87-7e9235a59ec1
+  - id: 412ad5ea-05b7-4869-8ebb-fe2a57a11370
+    name: switch
+    type: switch
+    dataConditions:
+      - name: null
+        transition: f3195bc9-ed40-4e36-bf5b-8a46ea87647d
+        condition: ${ .message == "first" }
+      - name: null
+        transition: b17eef97-0430-424c-a348-8aaee2594beb
+        condition: ${ .message == "second" }
+  - id: b17eef97-0430-424c-a348-8aaee2594beb
     name: inject
     transition: ""
     type: inject
     end: true
     data:
       message: second
-  - id: ccf9ab43-2689-4a43-b621-3cf182ec09fe
-    name: switch
-    type: switch
-    dataConditions:
-      - name: null
-        condition: .message == "first"
-        transition: 2138ce2c-ca57-45d9-9ae6-d6f70aced70d
-      - name: null
-        condition: .message == "second"
-        transition: 594e2dca-4aa0-48ce-8c87-7e9235a59ec1
+  - id: f3195bc9-ed40-4e36-bf5b-8a46ea87647d
+    name: inject
+    transition: ""
+    type: inject
+    end: true
+    data:
+      message: first
 functions: []
 ```
 

@@ -10,7 +10,7 @@
     <!-- Urn -->
     <div class="form-control">
       <div class="title">{{ 'eventmeshservers.urn' | translate }}</div>
-      <input type="text" formControlName="urn" class="full-width" [attr.disabled]="addEventMeshServerFormGroup.get('isLocalHost')?.value == true ? 'true' : null" />
+      <input type="text" formControlName="urn" class="full-width" />
     </div>
     <mat-divider></mat-divider>
     <!-- Port -->

@@ -48,14 +48,14 @@ When the workflow is executed :
 YAML file :
 
 ```
-id: d6a139d2-5fd3-45d8-842b-9c5be23b59d3
-version: 3
-name: test
-description: description
+id: 531a4b36-46f5-4406-b77a-1f9c50998668
+version: 4
+name: GetAllDogFact
+description: GetAllDogFact
 start:
-  stateName: 0605c713-546e-498b-84c7-e6c0d76145e4
+  stateName: b73b7168-d47c-4c2a-a0ce-0670e14a0aa8
 states:
-  - id: 0605c713-546e-498b-84c7-e6c0d76145e4
+  - id: b73b7168-d47c-4c2a-a0ce-0670e14a0aa8
     name: operation
     type: operation
     actionMode: sequential
@@ -63,14 +63,13 @@ states:
     actions:
       - name: GetDogFact
         functionRef:
-          refName: GetDogFacts
-          arguments: null
+          refName: GetDogFact
         actionDataFilter:
           useResults: true
-          results: .facts[0]
-          toStateData: .firstFact
+          results: ${ .facts[0] }
+          toStateData: ${ .firstFact }
 functions:
-  - name: GetDogFacts
+  - name: GetDogFact
     type: rest
     operation: http://dog-api.kinduff.com/api/facts
 ```

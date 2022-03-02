@@ -3,7 +3,7 @@
 > [!WARNING]
 > Make sure your working environment is [properly configured](/documentation/gettingstarted/index.html).
 
-The FaasNet project implements the [Serverless Workflow specification](https://github.com/serverlessworkflow/specification/blob/main/specification.md).
+FaasNet project implements the [Serverless Workflow specification](https://github.com/serverlessworkflow/specification/blob/main/specification.md).
 Thanks to the web portal, a workflow/state machine can easily be developed and published by any developers.
 
 # Create workflow

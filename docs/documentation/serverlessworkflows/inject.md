@@ -19,20 +19,20 @@ The workflow must look like this :
 YAML file :
 
 ```
-id: 62aae32a-9722-410c-a699-7f5902bab6f1
-version: 1
-name: test
-description: test
+id: e6efb889-37c1-4c43-b8ed-09a8fe04038f
+version: 2
+name: InjectState
+description: azeaze
 start:
-  stateName: 1dd909c4-a879-4f84-8b69-201f79fbf2d9
+  stateName: b2bc152c-cf0c-4854-9802-2abcedfa8ee8
 states:
-  - id: 1dd909c4-a879-4f84-8b69-201f79fbf2d9
+  - id: b2bc152c-cf0c-4854-9802-2abcedfa8ee8
     name: helloWorld
-    transition: null
+    transition: "null"
     type: inject
     end: true
     data:
-      message: Hello FaasNet
+      message: Hello FaasNet !
 functions: []
 ```
 

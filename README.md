@@ -10,27 +10,27 @@ For project documentation, please visit [docs](https://simpleidserver.github.io/
 
 | Command                     | Description                             |
 | --------------------------  | --------------------------------------- |
-| psake publishHelmAndWebsite | Publish Helm Charts and the website     |
-
-## Packages
-
-|                         			 						|      																															  																					|																																								|																																								|
-| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `FaasNet.Runtime` 			 			     			| [![MyGet (dev)](https://img.shields.io/myget/advance-ict/v/FaasNet.Runtime.svg)](https://www.myget.org/feed/advance-ict/package/nuget/FaasNet.Runtime)								              				| [![NuGet](https://img.shields.io/nuget/v/FaasNet.Runtime.svg)](https://nuget.org/packages/FaasNet.Runtime) 													| [![NuGet](https://img.shields.io/nuget/dt/FaasNet.Runtime.svg)](https://nuget.org/packages/FaasNet.Runtime) 													|
-| `FaasNet.Templates` 			 			     			| [![MyGet (dev)](https://img.shields.io/myget/advance-ict/v/FaasNet.Templates.svg)](https://www.myget.org/feed/advance-ict/package/nuget/FaasNet.Templates)								           				| [![NuGet](https://img.shields.io/nuget/v/FaasNet.Templates.svg)](https://nuget.org/packages/FaasNet.Templates)												| [![NuGet](https://img.shields.io/nuget/dt/FaasNet.Templates.svg)](https://nuget.org/packages/FaasNet.Templates) 												|
+| psake publishWebsite 		  | Publish website                         |
+| psake publishDockerCI       | Build and publish docker images         |
+| psake packTemplate          | Build template package                  |
 
 ## How to release ?
 
 1. Build the Docker images and publish them into the Hub.
 
 ```
-psake builderDockerImage
+psake publishDockerCI
 ```
 
-2. Build the website and helm package and publish them into the GITHUB page.
+2. Build and publish the website.
 
 ```
-psake publishHelmAndWebsite
+psake publishWebsite
 ```
 
 3. Create and publish the tag release.
+4. Build the template and upload the Nuget package.
+
+```
+psake packTemplate
+```

@@ -1,6 +1,6 @@
-﻿using FaasNet.Runtime.Attributes;
+﻿using FaasNet.Function.Attributes;
 
-namespace FaasNet.Function
+namespace Function
 {
     [FuncInfo("HelloWorld", "v1")]
     public class HelloWorldConfiguration

@@ -1,8 +1,8 @@
-﻿using FaasNet.Runtime.Parameters;
+﻿using FaasNet.Function.Parameters;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
-namespace FaasNet.Function
+namespace Function
 {
     public class FunctionHandler
     {

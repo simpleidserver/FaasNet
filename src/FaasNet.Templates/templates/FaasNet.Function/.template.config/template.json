@@ -13,7 +13,7 @@
     "language": "C#",
     "type": "project"
   },
-  "sourceName": "FaasNet.Function",
+  "sourceName": "Function",
   "preferNameDirectory": "true",
-  "primaryOutputs": [ { "path": "FaasNet.Function.csproj" } ]
+  "primaryOutputs": [ { "path": "Function.csproj" } ]
 }

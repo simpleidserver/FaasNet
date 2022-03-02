@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using FaasNet.Runtime;
+using FaasNet.Function;
 
-namespace FaasNet.Function.Middlewares
+namespace Function.Middlewares
 {
     public class ResponseMetricMiddleware
     {

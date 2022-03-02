@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -18,7 +19,7 @@ namespace FaasNet.CLI.Helpers
 
         public static string GetConfigurationFilePath()
         {
-            return Path.Combine(Directory.GetCurrentDirectory(), ConfigurationFileName);
+            return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ConfigurationFileName);
         }
 
         public static FaasConfiguration GetConfiguration()

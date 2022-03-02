@@ -12,17 +12,13 @@ properties {
     $versionSuffix = @{ $true = "--version-suffix=$($suffix)"; $false = ""}[$suffix -ne ""]
 }
 
-
-task default -depends local
-task local -depends compile, test
-task ci -depends clean, release, local, pack, publish
-
 # DEV tasks
 task packDev -depends clean, packNoSuffix, packTemplate
 task dockerDev -depends clean, publishDockerDev
 
 # CI tasks
 task dockerCI -depends clean, publishDockerCI
+task ci -depends clean, test, pack, publishCLI
 
 task clean {
 	rd "$source_dir\artifacts" -recurse -force  -ErrorAction SilentlyContinue | out-null
@@ -47,56 +43,6 @@ task compile -depends clean {
     exec { dotnet build .\EventMesh.sln -c $config --version-suffix=$buildSuffix }
 }
 
-task publishHelmAndWebsite {
-	exec { git checkout gh-pages }
-	exec { git rm -r . }
-	exec { git checkout HEAD -- .gitignore }
-	exec { git add . }
-	exec { git commit -m "Remove" }
-	exec { git checkout master }
-	exec { helm package ./helm -d ./docs/charts }
-	exec { Copy-item "./helm/Chart.yaml" -Destination "./docs/charts" }
-	exec { helm repo index ./docs/charts }
-	exec { Remove-Item "./docs/charts/Chart.yaml" }
-	rd "$base_dir\docs\obj" -recurse -force  -ErrorAction SilentlyContinue | out-null
-	exec { docfx ./docs/docfx.json }
-	exec { git add . }
-	exec { git commit -m "Publish helm" }
-	exec { Copy-item -Force -Recurse -Verbose "./docs/_site/*" -Destination "." }
-	exec { git checkout gh-pages --merge }
-	exec { git add . }
-	exec { git commit -m "Update Documentation" }
-	exec { git rebase -i HEAD~2 }
-	exec { git push origin gh-pages }
-	exec { git checkout master }
-}
-
-task initLocalKubernetes {
-	exec { kubectl apply -f ./kubernetes/faas-namespace.yml }
-    exec { kubectl apply -f ./kubernetes/run-mssql.yml --namespace=faas }
-    exec { kubectl apply -f ./kubernetes/mssql-internal-svc.yml --namespace=faas }
-    exec { kubectl apply -f ./kubernetes/prometheus-persistent-volume.yml --namespace=faas }
-    exec { kubectl apply -f ./kubernetes/prometheus-persistent-volume-claim.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/run-faas-kubernetes.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-kubernetes-svc.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/run-prometheus.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-prometheus-svc.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/run-faas-gateway.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-gateway-svc.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/run-website.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-website-svc.yml --namespace=faas }
-}
-
-task initDevKubernetes {
-	exec { kubectl apply -f ./kubernetes/faas-namespace.yml }
-    exec { kubectl apply -f ./kubernetes/prometheus-persistent-volume.yml --namespace=faas }
-    exec { kubectl apply -f ./kubernetes/prometheus-persistent-volume-claim.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/run-prometheus.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-prometheus-svc.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/run-faas-kubernetes.yml --namespace=faas }
-	exec { kubectl apply -f ./kubernetes/faas-kubernetes-external-svc.yml --namespace=faas }	
-}
-
 # Publish assets
 task publishCLI {
 	exec { dotnet publish $source_dir\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
@@ -112,6 +58,7 @@ task publishDocker {
 
 # Pack
 task pack -depends release, compile {
+	exec { dotnet pack $source_dir\FaasNet.Function\FaasNet.Function.csproj -c $config --no-build $versionSuffix --output $result_dir }
 	exec { dotnet pack $source_dir\FaasNet.Runtime\FaasNet.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh.Runtime\EventMesh.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh.Runtime.AMQP\EventMesh.Runtime.AMQP.csproj -c $config --no-build $versionSuffix --output $result_dir }
@@ -120,6 +67,7 @@ task pack -depends release, compile {
 }
 
 task packNoSuffix -depends release, compile {
+	exec { dotnet pack $source_dir\FaasNet.Function\FaasNet.Function.csproj -c $config --output $result_dir }
 	exec { dotnet pack $source_dir\FaasNet.Runtime\FaasNet.Runtime.csproj -c $config --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh.Runtime\EventMesh.Runtime.csproj -c $config --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh.Runtime.AMQP\EventMesh.Runtime.AMQP.csproj -c $config --output $result_dir }
@@ -185,6 +133,28 @@ task deployEventMeshServerRabbitMQ {
 
 task deployEventMeshServerKafka {
 	exec { kubectl apply -f ./kubernetes/eventmeshserver.kafka.yml --namespace=faas }	
+}
+
+task deployServerlessWorkflow {
+	exec { kubectl apply -f ./kubernetes/serverlessworkflow.yml --namespace=faas }	
+}
+
+# Publish
+task publishWebsite {
+	exec { git checkout gh-pages }
+	exec { git rm -r . }
+	exec { git checkout HEAD -- .gitignore }
+	exec { git add . }
+	exec { git commit -m "Remove" }
+	exec { git checkout master }
+	exec { docfx ./docs/docfx.json }
+	exec { Copy-item -Force -Recurse -Verbose "./docs/_site/*" -Destination "." }
+	exec { git checkout gh-pages --merge }
+	exec { git add . }
+	exec { git commit -m "Update Documentation" }
+	exec { git rebase -i HEAD~2 }
+	exec { git push origin gh-pages }
+	exec { git checkout master }
 }
 
 task test {	

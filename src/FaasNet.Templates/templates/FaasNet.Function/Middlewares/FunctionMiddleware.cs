@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Parameters;
+﻿using FaasNet.Function.Parameters;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
@@ -6,7 +6,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace FaasNet.Function.Middlewares
+namespace Function.Middlewares
 {
     public class FunctionMiddleware
     {

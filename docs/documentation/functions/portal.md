@@ -4,7 +4,7 @@
 > Make sure your working environment is [properly configured](/documentation/gettingstarted/index.html).
 
 A Web portal is available at the following [address](http://localhost:30003). It can be used by developers to manage functions.
-The following chapters describe how functions can easily be managed.
+Following chapters describe how functions can easily be managed.
 
 # Publish a function
 

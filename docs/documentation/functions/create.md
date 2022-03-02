@@ -16,7 +16,7 @@ The following files will be created :
 
 * *Startup.cs* and *Program.cs*: the application entry point.
 * *HelloWorldConfiguration.cs*: configuration properties of the function.
-* *FunctionHandler.cs*: contains the business logic. This class has one function which accepts one parameter and returns a JSON result. The input parameter has two distinct properties :
+* *FunctionHandler.cs*: contains the business logic. This class has one function with one parameter and returns a JSON result. The input parameter has two distinct properties :
 
   * Configuration: its value is coming from the gateway, it will be used to configure the behavior of the function for example : `ConnectionString` and `SQL Statement`.
   * Input: value passed by caller.

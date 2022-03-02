@@ -1,6 +1,6 @@
 # Before you start
 
-Make sure you have [Kubernetes](https://kubernetes.io/docs/tasks/tools/) and [Helm](https://helm.sh/docs/intro/install/) installed.
+Make sure you have [Kubernetes](https://kubernetes.io/docs/tasks/tools/) installed.
 
 Download and install the FaasNet CLI tool :
 
@@ -8,30 +8,27 @@ Download and install the FaasNet CLI tool :
 2. Unpack it.
 3. Add the Directory path into the PATH environment variable.
 
+This utility can be used to create and deploy serverless functions.
+
 # Start FaasNet
 
-Open a command prompt and create a `faas` namespace in kubernetes. 
+Open a command prompt and execute the following command line.
 
 ```
-kubectl create namespace faas
+kubectl apply -f https://raw.githubusercontent.com/simpleidserver/FaasNet/master/kubernetes/release/serverlessworkflow.yml --namespace=faas
 ```
 
-Install and launch the `faasnet` project.
+The project will be deployed into Kubernetes. 
 
-```
-helm repo add faasnet https://simpleidserver.github.io/FaasNet/charts/
-helm install my-faasnet faasnet/faasnet --version 0.0.4 --namespace=faas
-```
+A portal is available [here](http://localhost:30003), it can be used to perform some administrative tasks like : managing `functions` and `serverless workflows`.
 
-If the `faasnet` repository is already installed, its latest version can be downloaded by executing the following command.
 
-```
-helm repo update
-```
+# Template
 
-## Template
+A DOTNET project template can be installed. 
 
-Install FaasNet template :
+It contains a list of projects which can be used to create EventMesh servers and serverless functions.
+
 
 ```
 dotnet new --install FaasNet.Templates

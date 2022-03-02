@@ -93,14 +93,24 @@ export class EditActionDialogComponent {
           }
         }
 
-        let args: any = {};
-        var properties = JSON.parse(this.addFunctionFormGroup.get('properties')?.value);
+        let args: any = null;
+        var properties: any = {};
+        var propertiesStr = this.addFunctionFormGroup.get('properties')?.value;
+        if (propertiesStr) {
+          properties = JSON.parse(propertiesStr);
+        }
+
         switch (fn.type) {
           case OperationTypes.AsyncApi:
             args = properties;
             break;
           case OperationTypes.Rest:
-            const queries = JSON.parse(this.addFunctionFormGroup.get('queries')?.value);
+            var queries: any = {};
+            var queriesStr = this.addFunctionFormGroup.get('queries')?.value;
+            if (queriesStr) {
+              queries = JSON.parse(queriesStr);
+            }
+
             if (Object.keys(queries).length > 0) {
               args['queries'] = queries;
             }
@@ -111,7 +121,9 @@ export class EditActionDialogComponent {
             break;
         }
 
-        record.functionRef.arguments = args;
+        if (args !== null) {
+          record.functionRef.arguments = args;
+        }
         break;
     }
 

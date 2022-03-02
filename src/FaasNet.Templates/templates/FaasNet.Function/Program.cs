@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace FaasNet.Function
+namespace Function
 {
     public class Program
     {

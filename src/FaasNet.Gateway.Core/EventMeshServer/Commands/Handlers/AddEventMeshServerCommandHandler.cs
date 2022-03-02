@@ -32,7 +32,7 @@ namespace FaasNet.Gateway.Core.EventMeshServer.Commands.Handlers
 
         public async Task<EventMeshServerResult> Handle(AddEventMeshServerCommand request, CancellationToken cancellationToken)
         {
-            var urn = request.IsLocalhost ? Constants.DefaultUrl : request.Urn;
+            var urn = request.Urn;
             var port = request.Port ?? Constants.DefaultPort;
             var eventMeshServer = await _eventMeshServerRepository.Get(urn, port);
             if (eventMeshServer != null)

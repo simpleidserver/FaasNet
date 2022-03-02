@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace FaasNet.CLI.Commands
 {
@@ -77,10 +78,10 @@ namespace FaasNet.CLI.Commands
 
         protected static string GetDockerFile(string projectName)
         {
-            var dockerFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", "Dockerfile.txt");
+            var dockerFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Files", "Dockerfile.txt");
             if(!File.Exists(dockerFilePath))
             {
-                Console.WriteLine("The Dockerfile doesn't exist");
+                Console.WriteLine($"The Dockerfile '{dockerFilePath}' doesn't exist");
                 return null;
             }
 
