@@ -112,7 +112,7 @@ task publishDockerDev -depends buildDockerDev {
 	exec { docker push localhost:5000/eventmeshserver }
 }
 
-task publishDockerCI -depends publishDocker {
+task publishDockerCI -depends buildDockerCI {
 	exec { docker push simpleidserver/faasgetsql:0.0.5 }
 	exec { docker push simpleidserver/faastransform:0.0.5 }
 	exec { docker push simpleidserver/faaskubernetes:0.0.5 }
