@@ -1,0 +1,221 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: faas
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: faas-website-externalentry
+spec:
+  type: NodePort
+  selector:
+    run: faas-website
+  ports:
+  - port: 4200
+    protocol: TCP
+    targetPort: 4200
+    nodePort: 30003
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: faas-gateway-externalentry
+spec:
+  type: NodePort
+  selector:
+    run: faas-gateway
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+    nodePort: 30001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: faas-kubernetes-entry
+spec:
+  type: ClusterIP
+  selector:
+    run: faas-kubernetes
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: faas-prometheus-entry
+spec:
+  type: ClusterIP
+  selector:
+    run: faas-prometheus
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 9090
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-entry
+spec:
+  type: ClusterIP
+  selector:
+    app: mssql
+  ports:
+  - port: 1433
+    protocol: TCP
+    targetPort: 1433
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faas-gateway
+spec:
+  selector:
+    matchLabels:
+      run: faas-gateway
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: faas-gateway
+    spec:
+      volumes:
+      - name: prometheus-pv-storage
+        persistentVolumeClaim:
+          claimName: prometheus-pv-claim
+      containers:
+      - name: faas-gateway
+        image: simpleidserver/faasgateway
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: "/shared"
+          name: prometheus-pv-storage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faas-kubernetes
+spec:
+  selector:
+    matchLabels:
+      run: faas-kubernetes
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: faas-kubernetes
+    spec:
+      containers:
+      - name: faas-kubernetes
+        image: simpleidserver/faaskubernetes
+        ports:
+        - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faas-website
+spec:
+  selector:
+    matchLabels:
+      run: faas-website
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: faas-website
+    spec:
+      containers:
+      - name: faas-website
+        image: simpleidserver/faaswebsite
+        ports:
+        - containerPort: 4200
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mssql
+    spec:
+      terminationGracePeriodSeconds: 10
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: mssql
+        image: mcr.microsoft.com/mssql/server
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          value: "D54DE7hHpkG9"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faas-prometheus
+spec:
+  selector:
+    matchLabels:
+      run: faas-prometheus
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: faas-prometheus
+    spec:
+      volumes:
+      - name: prometheus-pv-storage
+        persistentVolumeClaim:
+          claimName: prometheus-pv-claim
+      containers:
+      - name: faas-website
+        image: simpleidserver/faasprometheus
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - mountPath: "/shared"
+          name: prometheus-pv-storage
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/conf"

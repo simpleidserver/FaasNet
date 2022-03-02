@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: faas
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventmeshserver-external-entry
+spec:
+  type: NodePort
+  selector:
+    run: eventmeshserver
+  ports:
+  - port: 4000
+    name: server
+    protocol: UDP
+    targetPort: 4000
+    nodePort: 30005
+  - port: 5001
+    name: website
+    protocol: TCP
+    targetPort: 5001
+    nodePort: 30004
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventmeshserver-entry
+spec:
+  type: ClusterIP
+  selector:
+    run: eventmeshserver
+  ports:
+  - port: 4000
+    protocol: UDP
+    targetPort: 4000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventmeshserver
+spec:
+  selector:
+    matchLabels:
+      run: eventmeshserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: eventmeshserver
+    spec:
+      containers:
+      - name: eventmeshserver
+        image: simpleidserver/eventmeshserver
+        ports:
+        - containerPort: 4000
+          protocol: UDP
+        - containerPort: 5001
+        env:
+        - name: InMemory.Enabled
+          value: "true"

@@ -1,0 +1,150 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: faas
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventmeshserver-external-entry
+spec:
+  type: NodePort
+  selector:
+    run: eventmeshserver
+  ports:
+  - port: 4000
+    name: server
+    protocol: UDP
+    targetPort: 4000
+    nodePort: 30005
+  - port: 5001
+    name: website
+    protocol: TCP
+    targetPort: 5001
+    nodePort: 30004
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventmeshserver-entry
+spec:
+  type: ClusterIP
+  selector:
+    run: eventmeshserver
+  ports:
+  - port: 4000
+    protocol: UDP
+    targetPort: 4000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventmeshserver
+spec:
+  selector:
+    matchLabels:
+      run: eventmeshserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: eventmeshserver
+    spec:
+      containers:
+      - name: eventmeshserver
+        image: simpleidserver/eventmeshserver
+        ports:
+        - containerPort: 4000
+          protocol: UDP
+        - containerPort: 5001
+        env:
+        - name: RabbitMQ.Enabled
+          value: "true"
+        - name: RabbitMQ.HostName
+          value: "rabbitmq-entry.faas.svc.cluster.local"
+        - name: RabbitMQ.UserName
+          value: "guest"
+        - name: RabbitMQ.Password
+          value: "guest"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-management
+  labels:
+    app: rabbitmq
+spec:
+  ports:
+  - port: 15672
+    name: http
+    nodePort: 30006
+  selector:
+    app: rabbitmq
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-entry
+spec:
+  type: ClusterIP
+  selector:
+    app: rabbitmq
+  ports:
+  - port: 5672
+    protocol: TCP
+    targetPort: 5672
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+spec:
+  serviceName: "rabbitmq"
+  selector:
+    matchLabels:
+      app: rabbitmq
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.6.6-management-alpine
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - >
+                if [ -z "$(grep rabbitmq /etc/resolv.conf)" ]; then
+                  sed "s/^search \([^ ]\+\)/search rabbitmq.\1 \1/" /etc/resolv.conf > /etc/resolv.conf.new;
+                  cat /etc/resolv.conf.new > /etc/resolv.conf;
+                  rm /etc/resolv.conf.new;
+                fi;
+                until rabbitmqctl node_health_check; do sleep 1; done;
+                if [[ "$HOSTNAME" != "rabbitmq-0" && -z "$(rabbitmqctl cluster_status | grep rabbitmq-0)" ]]; then
+                  rabbitmqctl stop_app;
+                  rabbitmqctl join_cluster rabbit@rabbitmq-0;
+                  rabbitmqctl start_app;
+                fi;
+                rabbitmqctl set_policy ha-all "." '{"ha-mode":"exactly","ha-params":3,"ha-sync-mode":"automatic"}'
+        ports:
+        - containerPort: 5672
+          name: amqp
+        volumeMounts:
+        - name: rabbitmq
+          mountPath: /var/lib/rabbitmq
+  volumeClaimTemplates:
+  - metadata:
+      name: rabbitmq
+      annotations:
+        volume.alpha.kubernetes.io/storage-class: anything
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
