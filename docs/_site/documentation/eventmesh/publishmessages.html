@@ -75,8 +75,8 @@
 </div>
 <p>A client can publish messages to a topic.</p>
 <h2 id="configuration-steps">Configuration steps</h2>
-<p>First, the Nuget package <code>EventMesh.Runtime</code> must be installed.</p>
-<pre><code>dotnet add package EventMesh.Runtime`
+<p>First, the Nuget package <code>FaasNet.EventMesh.Runtime</code> must be installed.</p>
+<pre><code>dotnet add package FaasNet.EventMesh.Runtime
 </code></pre>
 <p>A session must be established between the client and the server in order to publish messages.</p>
 <pre><code>private static async Task&lt;string&gt; CreateSession(RuntimeClient runtimeClient)
@@ -127,7 +127,7 @@ runtimeClient.Disconnect(&quot;pubClientId&quot;, sessionId).Wait();
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.5/docs/documentation/eventmesh/publishmessages.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/eventmesh/publishmessages.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

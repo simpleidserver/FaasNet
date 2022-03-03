@@ -76,8 +76,8 @@
 <p>A client can subscribe to one or more topics and receive messages from them.</p>
 <p>Topic subscription can be implemented by any types of DOTNET CORE application.</p>
 <h2 id="configuration-steps">Configuration steps</h2>
-<p>First, the Nuget package <code>EventMesh.Runtime</code> must be installed.</p>
-<pre><code>dotnet add package EventMesh.Runtime
+<p>First, the Nuget package <code>FaasNet.EventMesh.Runtime</code> must be installed.</p>
+<pre><code>dotnet add package FaasNet.EventMesh.Runtime
 </code></pre>
 <p>A session must be established between the client and the server in order to subscribe to one or more topics.</p>
 <pre><code>private static async Task&lt;string&gt; CreateSession(RuntimeClient runtimeClient)
@@ -132,7 +132,7 @@ runtimeClient.Disconnect(&quot;clientId&quot;, sessionId).Wait();
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.5/docs/documentation/eventmesh/listentopics.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/eventmesh/listentopics.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

@@ -1,52 +1,8 @@
 {
   "homepages": [],
-  "source_base_path": "c:/Projects/FaasNet/docs",
+  "source_base_path": "C:/Projects/FaasNet/docs",
   "xrefmap": "xrefmap.yml",
   "files": [
-    {
-      "type": "Resource",
-      "source_relative_path": "charts/faasnet-0.0.1.tgz",
-      "output": {
-        "resource": {
-          "relative_path": "charts/faasnet-0.0.1.tgz"
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "Resource",
-      "source_relative_path": "charts/faasnet-0.0.3.tgz",
-      "output": {
-        "resource": {
-          "relative_path": "charts/faasnet-0.0.3.tgz"
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "Resource",
-      "source_relative_path": "charts/faasnet-0.0.4.tgz",
-      "output": {
-        "resource": {
-          "relative_path": "charts/faasnet-0.0.4.tgz"
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "Resource",
-      "source_relative_path": "charts/index.yaml",
-      "output": {
-        "resource": {
-          "relative_path": "charts/index.yaml"
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
     {
       "type": "Resource",
       "source_relative_path": "documentation/bigpicture/images/bigpicture1.png",
@@ -64,10 +20,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/bigpicture/index.html",
-          "hash": "jHEpDpKh+pwG+lakHD6Od8xc3GEY4nQICFjTxKfu4iA="
+          "hash": "sx64O4SRXgDZmdcgrBcUnb8MZNiC6dydp/q2Q65+8Ew="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -79,7 +35,7 @@
           "hash": "8+EuGjA0OSd/ZbGmnsWArel3aB0AQYlhZAElGXsVO9I="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -91,7 +47,7 @@
           "hash": "jKWoovvrVFcatLeisJYrjVkdLzjjDDyimoJDhs7HtOw="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -103,7 +59,7 @@
           "hash": "CEGl8i+NdNJEhBiFY/ulMz5oovMC6C3SzCXWe5dymD4="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -112,10 +68,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/eventmesh/concepts.html",
-          "hash": "XG2A9VFzQrwXpCzq2x7TmtiWqubGdKzHNLnMY3Pn35s="
+          "hash": "JaXKcNxatcxQp9cH8EaTm5QSUW+6A4lT3Uhw8wTK+8Q="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -124,10 +80,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/eventmesh/docker.html",
-          "hash": "v6hA8ok9VaOqW9rqqpl08yca+Z4v1SSAWmY0O1Zf+zE="
+          "hash": "e/P33ZhVj4/Dqqlu0jLPIjESVRiG+1fwkpqia9mIY6w="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -180,10 +136,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/eventmesh/kafka.html",
-          "hash": "FuIcX97TLg/sf/XCYHp/C/eIg2pOGdivC15tcCKf7r4="
+          "hash": "0ah6wQ88jbUIJBssZV1ouF/CQZd5o5upvdsM30jJOZE="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -192,10 +148,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/eventmesh/listentopics.html",
-          "hash": "/mN+4emc4FmRWZhDlFdu/wS7xRUpXIYcJ5KoQmY8Hq4="
+          "hash": "57eedyUqMWyCJ/SBfMAxvB+ns/St6YjOfdjEPno8jRM="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -204,10 +160,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/eventmesh/nuget.html",
-          "hash": "QD8YXzBbsXtYf4cIws3w07S2/cSwD9NVZtkedHAvZos="
+          "hash": "C9j9aM88cZAJseu6F9N1Mo6icx/M46/cqWE/rAb706s="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -216,10 +172,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/eventmesh/portal.html",
-          "hash": "K5L6Ep+kRdQ1M9aSNTeN/Tz1eXz05Fv2hmhlqGzA30w="
+          "hash": "377RKJphhbNuwn19PCMGfu5Gei78z19IlRSE29M4iqQ="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -228,10 +184,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/eventmesh/protocol.html",
-          "hash": "R9XpETDfAi5AwWVjOmBPRAPy9imFrqNWyZApD/c53kw="
+          "hash": "L7bx2TGOzufJ9DMFSi6CX5RJF6DrC4nnrrKLXtTtBOI="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -240,10 +196,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/eventmesh/publishmessages.html",
-          "hash": "DLYxhnZj+uqWTFrhImsnqruu5YUYRz3TgsgFQ8x9DXI="
+          "hash": "u9agvG3ADIa0v/coFAwy6i7B44G8uXuMc61Pr8/KhfU="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -252,10 +208,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/eventmesh/rabbitmq.html",
-          "hash": "6fzCcLlSD5l3iusccII/2nWzsunu4oqQZVkeg5I+cdo="
+          "hash": "0Zz5nPrkDXQOs067YMN385WbYmcUpRooZ+vaC6P/3LA="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -264,10 +220,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/functions/create.html",
-          "hash": "/genwdU8LvDyFrxFoYBc5KYpOBot5WW1qL81BkuC/gk="
+          "hash": "NYzRfbvhJAAtYom5czcHKzBJUckGWKT747UqKn6bOcA="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -331,10 +287,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/functions/portal.html",
-          "hash": "47DJXnX1+P+eXr6mCFdvnHQy/SiK30PaBuH4nTpGJ30="
+          "hash": "r/ImAvxlprzA8yG3S0WZT9EXydPILT+uP26UXjrBPwA="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -343,10 +299,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/gettingstarted/index.html",
-          "hash": "/3y3jK1OXgHFhUW8VYMFK652XLd5L6K1/LvaKJ6n6ms="
+          "hash": "6US1DvwUb6AYVIRt/MuDXPCTc0EFNDOkvFh3btnZZ4g="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -413,7 +369,7 @@
           "hash": "BnB7L7tc/l0hbEZMHCtKcManagOAULpsonOcFeWZ6aM="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -422,10 +378,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/serverlessworkflows/helloworld.html",
-          "hash": "o/oqYsz9ZO3YTWSQcu9BwHaYTQVXO/H4PiLx+x11sXU="
+          "hash": "Sbl1Ry2O2eFc1BXtGkRf1b8nunOMb2tvz1sBa6qdnAI="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -632,10 +588,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/serverlessworkflows/inject.html",
-          "hash": "a/dIFhR+CjAb1AQC5p7ez5xOWS62buq/hllRLUr8dg0="
+          "hash": "HgSt8/JGJbJ9nv5dFAPDlj8hb9g/+0YhUX6zBkHkF5g="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -644,10 +600,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/serverlessworkflows/restapi.html",
-          "hash": "97ndH2XvL/dkBDIshCcry6Br5X92Tp+94DTQc9aQKLo="
+          "hash": "iFSvntFKQLNdCARNRW+zhv2404M2+6BNbyg3J9O2l+s="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -656,10 +612,10 @@
       "output": {
         ".html": {
           "relative_path": "documentation/serverlessworkflows/switch.html",
-          "hash": "8ukwdFE7SKlcoOjU57ZQll5M8IT2eAE/W5UoiSrAowE="
+          "hash": "pigqbGtxjz21JkSvE/Zcht1SPaezZzIpaEONZpmsV98="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -683,7 +639,7 @@
           "hash": "Zka/AVhlD3vpYv0NAH/YxKpeNilGuqVLUrfrnrpqCRs="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -713,17 +669,19 @@
   "incremental_info": [
     {
       "status": {
-        "can_incremental": true,
+        "can_incremental": false,
+        "details": "Cannot build incrementally because last build info is missing.",
         "incrementalPhase": "build",
         "total_file_count": 0,
-        "skipped_file_count": 0
+        "skipped_file_count": 0,
+        "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
         "ConceptualDocumentProcessor": {
-          "can_incremental": true,
+          "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 22,
-          "skipped_file_count": 22
+          "skipped_file_count": 0
         },
         "ResourceDocumentProcessor": {
           "can_incremental": false,
@@ -743,8 +701,8 @@
     },
     {
       "status": {
-        "can_incremental": true,
-        "details": "Can support incremental post processing.",
+        "can_incremental": false,
+        "details": "Cannot support incremental post processing, the reason is: last post processor info is null.",
         "incrementalPhase": "postProcessing",
         "total_file_count": 0,
         "skipped_file_count": 0
