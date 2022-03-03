@@ -158,7 +158,7 @@ task publishWebsite {
 }
 
 task test {	
-    Push-Location -Path $base_dir\tests\EvtMesh.Runtime.Tests
+    Push-Location -Path $base_dir\tests\FaasNet.EventMesh.Runtime.Tests
 
     try {
         exec { & dotnet test -c $config --no-build --no-restore }
