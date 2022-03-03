@@ -7,10 +7,10 @@ A client can publish messages to a topic.
 
 ## Configuration steps
 
-First, the Nuget package `EventMesh.Runtime` must be installed.
+First, the Nuget package `FaasNet.EventMesh.Runtime` must be installed.
 
 ```
-dotnet add package EventMesh.Runtime`
+dotnet add package FaasNet.EventMesh.Runtime
 ```
 
 A session must be established between the client and the server in order to publish messages.

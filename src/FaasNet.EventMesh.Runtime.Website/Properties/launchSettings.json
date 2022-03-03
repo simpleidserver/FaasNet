@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "FaasNet.EventMesh.Runtime.Website": {
+      "commandName": "Project",
+      "dotnetRunMessages": "true",
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:5001",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "RabbitMQ.Enabled": "true"
+      }
+    }
+  }
+}

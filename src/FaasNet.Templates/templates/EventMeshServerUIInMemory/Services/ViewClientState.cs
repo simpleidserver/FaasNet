@@ -1,4 +1,4 @@
-﻿using EventMesh.Runtime.Models;
+﻿using FaasNet.EventMesh.Runtime.Models;
 
 namespace EventMeshServer.Services
 {

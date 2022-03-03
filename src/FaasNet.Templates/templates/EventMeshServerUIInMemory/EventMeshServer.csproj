@@ -6,6 +6,6 @@
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="EventMesh.Runtime" Version="0.0.5" />
+    <PackageReference Include="FaasNet.EventMesh.Runtime" Version="0.0.5" />
   </ItemGroup>
 </Project>

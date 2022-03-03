@@ -9,10 +9,10 @@ Topic subscription can be implemented by any types of DOTNET CORE application.
 
 ## Configuration steps
 
-First, the Nuget package `EventMesh.Runtime` must be installed.
+First, the Nuget package `FaasNet.EventMesh.Runtime` must be installed.
 
 ```
-dotnet add package EventMesh.Runtime
+dotnet add package FaasNet.EventMesh.Runtime
 ```
 
 A session must be established between the client and the server in order to subscribe to one or more topics.

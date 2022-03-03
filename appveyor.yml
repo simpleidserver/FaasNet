@@ -39,7 +39,7 @@ deploy:
     appveyor_repo_tag: true
 - provider: GitHub
   auth_token:
-    secure: Wlve4drR/AcGxferjUS/2LyTTYiGAoqKxxg3C24vmIWX0r9JWDmr2npZb7YhwW0w
+    secure: KClBXPIP3znuFgDuIU57bL97c8n8/We9y26umeKHK2QQrp8S05lfxD6DzQUc1sob
   artifact: FaasNetCli
   on:
     branch: master

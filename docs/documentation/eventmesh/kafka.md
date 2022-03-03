@@ -11,10 +11,10 @@ The source code of this project can be found [here](https://github.com/simpleids
 
 ## Configure EventMesh server
 
-The Nuget package `EventMesh.Runtime.Kafka` must be installed.
+The Nuget package `FaasNet.EventMesh.Runtime.Kafka` must be installed.
 
 ```
-dotnet add package EventMesh.Runtime.Kafka
+dotnet add package FaasNet.EventMesh.Runtime.Kafka
 ```
 
 

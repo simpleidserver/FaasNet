@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventMesh.Runtime\EventMesh.Runtime.csproj" />
+    <ProjectReference Include="..\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj" />
     <ProjectReference Include="..\FaasNet.Runtime\FaasNet.Runtime.csproj" />
   </ItemGroup>
 

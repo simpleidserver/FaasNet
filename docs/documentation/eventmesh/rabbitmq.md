@@ -11,10 +11,10 @@ The source code of this project can be found [here](https://github.com/simpleids
 
 ## Configure EventMesh server
 
-The Nuget package `EventMesh.Runtime.AMQP` must be installed.
+The Nuget package `FaasNet.EventMesh.Runtime.AMQP` must be installed.
 
 ```
-dotnet add package EventMesh.Runtime.AMQP
+dotnet add package FaasNet.EventMesh.Runtime.AMQP
 ```
 
 Edit the file containing the configuration of the EventMesh server and add the line `AddAMQP()` after `RuntimeHostBuilder` or `AddRuntime`.

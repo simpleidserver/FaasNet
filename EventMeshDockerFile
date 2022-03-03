@@ -8,4 +8,4 @@ EXPOSE 4000
 
 WORKDIR /App
 
-ENTRYPOINT ["dotnet", "EventMesh.Runtime.Website.dll"]
+ENTRYPOINT ["dotnet", "FaasNet.EventMesh.Runtime.Website.dll"]

@@ -40,7 +40,7 @@ task compile -depends clean {
 	exec { msbuild -version }
 	
     exec { dotnet build .\FaasNet.sln -c $config --version-suffix=$buildSuffix }
-    exec { dotnet build .\EventMesh.sln -c $config --version-suffix=$buildSuffix }
+    exec { dotnet build .\FaasNet.EventMesh.sln -c $config --version-suffix=$buildSuffix }
 }
 
 # Publish assets
@@ -53,26 +53,26 @@ task publishDocker {
 	exec { dotnet publish $source_dir\FaasNet.Function.Transform\FaasNet.Function.Transform.csproj -c $config -o $result_dir\services\RuntimeTransform }
 	exec { dotnet publish $source_dir\FaasNet.Kubernetes\FaasNet.Kubernetes.csproj -c $config -o $result_dir\services\Kubernetes }
 	exec { dotnet publish $source_dir\FaasNet.Gateway.SqlServer.Startup\FaasNet.Gateway.SqlServer.Startup.csproj -c $config -o $result_dir\services\Gateway }
-	exec { dotnet publish $source_dir\EventMesh.Runtime.Website\EventMesh.Runtime.Website.csproj -c $config -o $result_dir\services\EventMeshServer }
+	exec { dotnet publish $source_dir\FaasNet.EventMesh.Runtime.Website\FaasNet.EventMesh.Runtime.Website.csproj -c $config -o $result_dir\services\EvtMeshServer }
 }
 
 # Pack
 task pack -depends release, compile {
 	exec { dotnet pack $source_dir\FaasNet.Function\FaasNet.Function.csproj -c $config --no-build $versionSuffix --output $result_dir }
 	exec { dotnet pack $source_dir\FaasNet.Runtime\FaasNet.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
-	exec { dotnet pack $source_dir\EventMesh.Runtime\EventMesh.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
-	exec { dotnet pack $source_dir\EventMesh.Runtime.AMQP\EventMesh.Runtime.AMQP.csproj -c $config --no-build $versionSuffix --output $result_dir }
-	exec { dotnet pack $source_dir\EventMesh.Runtime.EF\EventMesh.Runtime.EF.csproj -c $config --no-build $versionSuffix --output $result_dir }
-	exec { dotnet pack $source_dir\EventMesh.Runtime.Kafka\EventMesh.Runtime.Kafka.csproj -c $config --no-build $versionSuffix --output $result_dir }
+	exec { dotnet pack $source_dir\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
+	exec { dotnet pack $source_dir\FaasNet.EventMesh.Runtime.AMQP\FaasNet.EventMesh.Runtime.AMQP.csproj -c $config --no-build $versionSuffix --output $result_dir }
+	exec { dotnet pack $source_dir\FaasNet.EventMesh.Runtime.EF\FaasNet.EventMesh.Runtime.EF.csproj -c $config --no-build $versionSuffix --output $result_dir }
+	exec { dotnet pack $source_dir\FaasNet.EventMesh.Runtime.Kafka\FaasNet.EventMesh.Runtime.Kafka.csproj -c $config --no-build $versionSuffix --output $result_dir }
 }
 
 task packNoSuffix -depends release, compile {
 	exec { dotnet pack $source_dir\FaasNet.Function\FaasNet.Function.csproj -c $config --output $result_dir }
 	exec { dotnet pack $source_dir\FaasNet.Runtime\FaasNet.Runtime.csproj -c $config --output $result_dir }
-	exec { dotnet pack $source_dir\EventMesh.Runtime\EventMesh.Runtime.csproj -c $config --output $result_dir }
-	exec { dotnet pack $source_dir\EventMesh.Runtime.AMQP\EventMesh.Runtime.AMQP.csproj -c $config --output $result_dir }
-	exec { dotnet pack $source_dir\EventMesh.Runtime.EF\EventMesh.Runtime.EF.csproj -c $config --output $result_dir }
-	exec { dotnet pack $source_dir\EventMesh.Runtime.Kafka\EventMesh.Runtime.Kafka.csproj -c $config --output $result_dir }
+	exec { dotnet pack $source_dir\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj -c $config --output $result_dir }
+	exec { dotnet pack $source_dir\FaasNet.EventMesh.Runtime.AMQP\FaasNet.EventMesh.Runtime.AMQP.csproj -c $config --output $result_dir }
+	exec { dotnet pack $source_dir\FaasNet.EventMesh.Runtime.EF\FaasNet.EventMesh.Runtime.EF.csproj -c $config --output $result_dir }
+	exec { dotnet pack $source_dir\FaasNet.EventMesh.Runtime.Kafka\FaasNet.EventMesh.Runtime.Kafka.csproj -c $config --output $result_dir }
 }
 
 task packTemplate {
@@ -88,7 +88,7 @@ task buildDockerDev -depends publishDocker {
 	exec { docker build -f GatewayDockerfile -t localhost:5000/faasgateway . }
 	exec { docker build -f WebsiteDockerfile -t localhost:5000/faaswebsite . }
 	exec { docker build -f PrometheusDockerfile -t localhost:5000/faasprometheus . }
-	exec { docker build -f EventMeshDockerFile -t localhost:5000/eventmeshserver . }
+	exec { docker build -f EvtMeshDockerFile -t localhost:5000/EvtMeshserver . }
 }
 
 task buildDockerCI -depends publishDocker {
@@ -99,7 +99,7 @@ task buildDockerCI -depends publishDocker {
 	exec { docker build -f GatewayDockerfile -t simpleidserver/faasgateway:0.0.5 . }
 	exec { docker build -f WebsiteDockerfile -t simpleidserver/faaswebsite:0.0.5 . }
 	exec { docker build -f PrometheusDockerfile -t simpleidserver/faasprometheus:0.0.5 . }
-	exec { docker build -f EventMeshDockerFile -t simpleidserver/eventmeshserver:0.0.5 . }
+	exec { docker build -f EvtMeshDockerFile -t simpleidserver/EvtMeshserver:0.0.5 . }
 }
 
 task publishDockerDev -depends buildDockerDev {
@@ -109,7 +109,7 @@ task publishDockerDev -depends buildDockerDev {
 	exec { docker push localhost:5000/faasgateway }
 	exec { docker push localhost:5000/faaswebsite }
 	exec { docker push localhost:5000/faasprometheus }
-	exec { docker push localhost:5000/eventmeshserver }
+	exec { docker push localhost:5000/EvtMeshserver }
 }
 
 task publishDockerCI -depends buildDockerCI {
@@ -119,20 +119,20 @@ task publishDockerCI -depends buildDockerCI {
 	exec { docker push simpleidserver/faasgateway:0.0.5 }
 	exec { docker push simpleidserver/faaswebsite:0.0.5 }
 	exec { docker push simpleidserver/faasprometheus:0.0.5 }
-	exec { docker push simpleidserver/eventmeshserver:0.0.5 }
+	exec { docker push simpleidserver/EvtMeshserver:0.0.5 }
 }
 
 # Kubernetes
-task deployEventMeshServerInMemoryBroker {
-	exec { kubectl apply -f ./kubernetes/eventmeshserver.yml --namespace=faas }	
+task deployEvtMeshServerInMemoryBroker {
+	exec { kubectl apply -f ./kubernetes/EvtMeshserver.yml --namespace=faas }	
 }
 
-task deployEventMeshServerRabbitMQ {
-	exec { kubectl apply -f ./kubernetes/eventmeshserver.rabbitmq.yml --namespace=faas }	
+task deployEvtMeshServerRabbitMQ {
+	exec { kubectl apply -f ./kubernetes/EvtMeshserver.rabbitmq.yml --namespace=faas }	
 }
 
-task deployEventMeshServerKafka {
-	exec { kubectl apply -f ./kubernetes/eventmeshserver.kafka.yml --namespace=faas }	
+task deployEvtMeshServerKafka {
+	exec { kubectl apply -f ./kubernetes/EvtMeshserver.kafka.yml --namespace=faas }	
 }
 
 task deployServerlessWorkflow {
@@ -158,7 +158,7 @@ task publishWebsite {
 }
 
 task test {	
-    Push-Location -Path $base_dir\tests\EventMesh.Runtime.Tests
+    Push-Location -Path $base_dir\tests\EvtMesh.Runtime.Tests
 
     try {
         exec { & dotnet test -c $config --no-build --no-restore }

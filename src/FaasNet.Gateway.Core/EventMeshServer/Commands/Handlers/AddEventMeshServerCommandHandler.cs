@@ -1,5 +1,5 @@
-﻿using EventMesh.Runtime;
-using EventMesh.Runtime.Exceptions;
+﻿using FaasNet.EventMesh.Runtime;
+using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.Gateway.Core.Domains;
 using FaasNet.Gateway.Core.EventMeshServer.Queries.Results;
 using FaasNet.Gateway.Core.Exceptions;

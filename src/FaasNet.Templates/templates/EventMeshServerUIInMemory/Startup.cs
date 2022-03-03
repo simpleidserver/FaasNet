@@ -1,4 +1,4 @@
-using EventMesh.Runtime.MessageBroker;
+using FaasNet.EventMesh.Runtime.MessageBroker;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

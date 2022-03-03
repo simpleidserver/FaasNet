@@ -4,6 +4,6 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="EventMesh.Runtime" Version="0.0.5" />
+    <PackageReference Include="FaasNet.EventMesh.Runtime" Version="0.0.5" />
   </ItemGroup>
 </Project>

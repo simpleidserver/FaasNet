@@ -1,5 +1,5 @@
-﻿using EventMesh.Runtime;
-using EventMesh.Runtime.Exceptions;
+﻿using FaasNet.EventMesh.Runtime;
+using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.Gateway.Core.Exceptions;
 using FaasNet.Gateway.Core.Repositories;
 using FaasNet.Gateway.Core.Resources;
