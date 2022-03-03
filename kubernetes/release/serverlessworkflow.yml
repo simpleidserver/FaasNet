@@ -90,7 +90,7 @@ spec:
           claimName: prometheus-pv-claim
       containers:
       - name: faas-gateway
-        image: simpleidserver/faasgateway
+        image: simpleidserver/faasgateway:0.0.5
         ports:
         - containerPort: 8080
         volumeMounts:
@@ -113,7 +113,7 @@ spec:
     spec:
       containers:
       - name: faas-kubernetes
-        image: simpleidserver/faaskubernetes
+        image: simpleidserver/faaskubernetes:0.0.5
         ports:
         - containerPort: 8080
 ---
@@ -133,7 +133,7 @@ spec:
     spec:
       containers:
       - name: faas-website
-        image: simpleidserver/faaswebsite
+        image: simpleidserver/faaswebsite:0.0.5
         ports:
         - containerPort: 4200
 ---
@@ -185,7 +185,7 @@ spec:
           claimName: prometheus-pv-claim
       containers:
       - name: faas-website
-        image: simpleidserver/faasprometheus
+        image: simpleidserver/faasprometheus:0.0.5
         ports:
         - containerPort: 9090
         volumeMounts:

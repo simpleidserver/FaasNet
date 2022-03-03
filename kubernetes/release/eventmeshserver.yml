@@ -52,7 +52,7 @@ spec:
     spec:
       containers:
       - name: eventmeshserver
-        image: simpleidserver/eventmeshserver
+        image: simpleidserver/eventmeshserver:0.0.5
         ports:
         - containerPort: 4000
           protocol: UDP
