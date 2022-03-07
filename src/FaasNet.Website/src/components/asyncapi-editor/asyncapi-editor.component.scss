@@ -1,0 +1,184 @@
+$border-color: #d6d2d2;
+$default-color: #ECECFF;
+$red: red;
+$orange: orange;
+
+#container {
+  position: relative;
+}
+
+.asyncapieditor {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+}
+
+.asyncapieditor .editor {
+  background-image: url('../../assets/images/tile.png');
+  background-repeat: repeat;
+  background-size: 30px 30px;
+  user-select: none;
+  display: flex;
+  flex-direction: row;
+  flex: auto;
+}
+
+/* Toolbox */
+.asyncapieditor .toolbox, .asyncapieditor .elements, .asyncapieditor .properties {
+  background-color: white;
+  box-shadow: 1px 1px 3px #8fa4b1;
+  position: absolute;
+}
+
+.asyncapieditor .toolbox {
+  top: 10px;
+  left: 10px;
+  height: 40px;
+  width: 300px;
+}
+
+/* Toolbox */
+.toolbox ul {
+  padding: 0;
+  margin: 0;
+}
+
+.toolbox ul > li {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.toolbox ul > li > mat-icon {
+  padding: 10px 0px 0px 5px;
+}
+
+.asyncapieditor .toolbox > ul > li.hidden {
+  display: none;
+}
+
+.toolbox, .elements {
+  z-index: 2;
+}
+
+/* Elements */
+.asyncapieditor .elements {
+  overflow: hidden;
+  top: 60px;
+  left: 10px;
+  width: 300px;
+}
+
+.asyncapieditor .elements .element {
+  cursor: move;
+  user-select: none;
+  border: 1px solid gray;
+  border-radius: 5px;
+  margin: 10px;
+  display: flex;
+}
+
+.asyncapieditor .elements .element .selector {
+  width: 20px;
+}
+
+.asyncapieditor .elements .element .content {
+  border-left: 1px solid #d6d2d2;
+  padding: 10px 0px 10px 5px;
+  flex: auto;
+}
+
+.asyncapieditor .elements .element .title {
+  font-weight: bold;
+}
+
+/* Properties */
+.asyncapieditor .properties {
+  top: 10px;
+  right: 10px;
+  bottom: 10px;
+  width: 500px;
+  overflow: hidden;
+}
+
+/* Editor */
+.asyncapieditor .editor {
+  overflow-x: auto;
+}
+
+.asyncapieditor .editor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+.asyncapieditor .editor.zoom {
+  cursor: move;
+}
+
+.asyncapieditor .application .content {
+  border: 1px solid #9370DB;
+  border-radius: 5px;
+  background-color: #ECECFF;
+  cursor: move;
+}
+
+.asyncapieditor .application .content.selected {
+  border: 1px solid red !important;
+}
+
+.asyncapieditor .application .header {
+  border-bottom: 1px solid #9370DB;
+  text-align: center;
+}
+
+.asyncapieditor .application .header .actions {
+  position: absolute;
+  right: 0px;
+  top: 1px;
+  padding: 0;
+  margin: 0;
+  background-color: transparent !important;
+}
+
+.asyncapieditor .application .header .actions > mat-icon {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+.asyncapieditor .application .anchor {
+  display: none;
+}
+
+.asyncapieditor .application .anchor.selected {
+  display: block !important;
+}
+
+.asyncapieditor .link {
+  stroke: #333333;
+  stroke-width: 1px;
+}
+
+.asyncapieditor .link .anchor{
+  cursor: move;
+}
+
+.asyncapieditor .link .linkSelection {
+  cursor: pointer;
+}
+
+.asyncapieditor .link.not-selected .anchor, .asyncapieditor .link .anchor.disabled {
+  display: none;
+}
+
+.asyncapieditor .anchor .outer {
+  fill: red;
+}
+
+.asyncapieditor .anchor .inner {
+  fill: white;
+}

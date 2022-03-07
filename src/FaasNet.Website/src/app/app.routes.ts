@@ -19,5 +19,9 @@ export const routes: Routes = [
   {
     path: 'eventmeshservers',
     loadChildren: async () => (await import('./eventmeshservers/eventmeshservers.module')).EventMeshServersModule
+  },
+  {
+    path: 'domains',
+    loadChildren: async () => (await import('./domains/domains.module')).DomainsModule
   }
 ];

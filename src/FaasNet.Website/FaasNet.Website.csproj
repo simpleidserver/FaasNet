@@ -10,6 +10,8 @@
     <None Remove="src\app\apis\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="src\app\domains\domains.module.ts" />
+    <None Remove="src\app\domains\domains.routes.ts" />
     <None Remove="src\app\eventmeshservers\eventmeshservers.module.ts" />
     <None Remove="src\app\eventmeshservers\eventmeshservers.routes.ts" />
     <None Remove="src\app\eventmeshservers\list\addbridge.component.ts" />
@@ -23,6 +25,11 @@
     <None Remove="src\app\shared\material.module.ts" />
     <None Remove="src\app\shared\shared.module.ts" />
     <None Remove="src\app\statemachines\edit\functionseditor\editfunction-dialog.component.ts" />
+    <None Remove="src\components\asyncapi-editor\asyncapieditormodule.ts" />
+    <None Remove="src\components\asyncapi-editor\models\application.model.ts" />
+    <None Remove="src\components\asyncapi-editor\models\link.model.ts" />
+    <None Remove="src\components\asyncapi-editor\models\message.property.ts" />
+    <None Remove="src\components\asyncapi-editor\models\message.ts" />
     <None Remove="src\components\loader\loader.component.ts" />
     <None Remove="src\components\matpanel\matpanel.component.ts" />
     <None Remove="src\components\matpanel\matpanelcontent.ts" />
@@ -55,10 +62,19 @@
     <None Remove="src\stores\statemachines\models\statemachinemodel.model.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="src\app\domains\domains.module.ts" />
+    <TypeScriptCompile Include="src\app\domains\domains.routes.ts" />
     <TypeScriptCompile Include="src\app\eventmeshservers\eventmeshservers.module.ts" />
     <TypeScriptCompile Include="src\app\eventmeshservers\eventmeshservers.routes.ts" />
     <TypeScriptCompile Include="src\app\eventmeshservers\list\addbridge.component.ts" />
     <TypeScriptCompile Include="src\app\statemachines\edit\functionseditor\editfunction-dialog.component.ts" />
+    <TypeScriptCompile Include="src\components\asyncapi-editor\asyncapieditormodule.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\components\asyncapi-editor\models\application.model.ts" />
+    <TypeScriptCompile Include="src\components\asyncapi-editor\models\link.model.ts" />
+    <TypeScriptCompile Include="src\components\asyncapi-editor\models\message.property.ts" />
+    <TypeScriptCompile Include="src\components\asyncapi-editor\models\message.ts" />
     <TypeScriptCompile Include="src\components\matpanel\matpanel.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

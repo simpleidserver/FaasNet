@@ -1,0 +1,97 @@
+<div class="asyncapieditor">
+  <!-- Edition -->
+  <div class="toolbox">
+    <ul>
+      <li (click)="zoomIn()">
+        <mat-icon>zoom_in</mat-icon>
+      </li>
+      <li (click)="zoomOut()">
+        <mat-icon>zoom_out</mat-icon>
+      </li>
+      <li (click)="startMove()" [attr.class]="startMoving ? 'hidden' : ''">
+        <mat-icon>open_with</mat-icon>
+      </li>
+      <li (click)="startEdit()" [attr.class]="!startMoving ? 'hidden' : ''">
+        <mat-icon>edit</mat-icon>
+      </li>
+      <li (click)="remove()" [attr.class]="!isRemovedEnabled ? 'hidden': ''">
+        <mat-icon>delete</mat-icon>
+      </li>
+    </ul>
+  </div>
+  <!-- Drag and drop states -->
+  <div class="elements" *ngIf="editMode">
+    <!-- Application -->
+    <div class="element" draggable="true" (dragstart)="onDragStart($event, 'application')">
+      <div class="selector">
+
+      </div>
+      <div class="content">
+        <div class="title">
+          Application
+        </div>
+      </div>
+    </div>
+    <!-- Link -->
+    <div class="element" draggable="true" (dragstart)="onDragStart($event, 'link')">
+      <div class="selector">
+
+      </div>
+      <div class="content">
+        <div class="title">
+          Link
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Editor -->
+  <div [attr.class]="startMoving ? 'editor zoom pane' : 'editor pane'" #stateDiagramContainer>
+    <svg width="100%" [attr.viewBox]="viewBox" #stateDiagram (drop)="onDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
+      <defs>
+        <marker id="asyncapieditor-barbEnd" refX="19" refY="7" markerWidth="20" markerHeight="14" markerUnits="strokeWidth" orient="auto">
+          <path d="M 19,7 L9,13 L14,7 L9,1 Z"></path>
+        </marker>
+      </defs>
+      <g class="root">
+        <!-- Links -->
+        <g *ngFor="let link of links" [attr.class]="link.isSelected ? 'link': 'link not-selected'">
+          <path [attr.d]="link.path" marker-end="url(#asyncapieditor-barbEnd)"></path>
+          <foreignObject [attr.x]="link.selectionZoneX" [attr.y]="link.selectionZoneY" [attr.width]="link.selectionZoneWidth" [attr.height]="link.selectionZoneHeight" [attr.linkId]="link.id" class="linkSelection">
+
+          </foreignObject>
+          <g [attr.linkId]="link.id" [attr.class]="link.startAnchor.isEditable ? 'anchor start' : 'anchor start disabled'" [attr.transform]="link.startAnchorCoordinate">
+            <circle class="outer" r="7"></circle>
+            <circle class="inner" r="4"></circle>
+          </g>
+          <g [attr.linkId]="link.id" [attr.class]="link.endAnchor.isEditable ? 'anchor end': 'anchor end disabled'" [attr.transform]="link.endAnchorCoordinate">
+            <circle class="outer" r="7"></circle>
+            <circle class="inner" r="4"></circle>
+          </g>
+        </g>
+        <!-- Elements -->
+        <g *ngFor="let element of elements; let i = index;" class="application">
+          <foreignObject [attr.width]="element.width" [attr.height]="element.height" [attr.x]="element.application.posX" [attr.y]="element.application.posY" [attr.class]="element.isSelected ? 'content selected' : 'content'" [attr.elementId]="element.id">
+            <div class="header">
+              Application
+              <div class="actions">
+                <mat-icon (click)="removeElement(i)">delete</mat-icon>
+              </div>
+            </div>
+          </foreignObject>
+          <g class="anchors">
+            <g *ngFor="let draggableZone of element.draggableZones" [attr.transform]="draggableZone.anchor.coordinate" [attr.class]="draggableZone.anchor.isSelected ? 'anchor selected' : 'anchor'">
+              <circle class="outer" r="7"></circle>
+              <circle class="inner" r="4"></circle>
+            </g>
+          </g>
+          <foreignObject *ngFor="let draggableZone of element.draggableZones" [attr.x]="draggableZone.x" [attr.y]="draggableZone.y" [attr.width]="draggableZone.width" [attr.height]="draggableZone.height">
+
+          </foreignObject>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <!-- Properties -->
+  <div class="properties pane">
+  </div>
+</div>
