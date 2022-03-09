@@ -1,6 +1,9 @@
 import { Component, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { MatPanelService } from '../matpanel/matpanelservice';
 import { Application } from './models/application.model';
+import { ApplicationLink } from './models/link.model';
+import { ViewAsyncApiComponent, ViewAsyncApiData } from './viewasyncapicomponent';
 
 class AsyncApiEditorOptions {
   zoom: number = 20;
@@ -27,6 +30,7 @@ class Link {
   isSelected: boolean = false;
   startElement: Element | null = null;
   endElement: Element | null = null;
+  applicationLink: ApplicationLink = new ApplicationLink();
 
   constructor(public id: string, public startAnchor: Anchor, public endAnchor: Anchor) { }
 
@@ -61,6 +65,10 @@ class Link {
     result = result < 0 ? -result : result;
     return result;
   }
+
+  get isClosed() {
+    return this.startElement && this.endElement;
+  }
 }
 
 class ElementDraggableZone extends DraggableZone {
@@ -74,7 +82,7 @@ class Element {
   isSelected: boolean = false;
   dragOffset: { x: number, y: number } | null = null;
 
-  constructor(public id: string, public application: Application, public width: number, public height: number) {
+  constructor(public application: Application, public width: number, public height: number) {
     this.init();
   }
 
@@ -166,9 +174,9 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
   elements: Element[] = [];
   links: Link[] = [];
 
-  constructor() { }
+  constructor(private matPanelService: MatPanelService) { }
 
-  get isRemovedEnabled() {
+  get isSelected() {
     return this.selectedLink !== null || this.selectedElement !== null;
   }
 
@@ -203,10 +211,26 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
     evt.dataTransfer.setData('type', id);
   }
 
+  unselectElement() {
+    if (this.selectedElement) {
+      this.selectedElement.isSelected = false;
+    }
+
+    this.selectedElement = null;
+  }
+
+  unselectLink() {
+    if (this.selectedLink) {
+      this.selectedLink.isSelected = false;
+    }
+
+    this.selectedLink = null;
+  }
+
   removeElement(i: number) {
     const elt = this.elements[i];
-    this.links.filter(l => l.startElement && l.startElement.id === elt.id).forEach((e) => e.startAnchor.isEditable = true);
-    this.links.filter(l => l.endElement && l.endElement.id === elt.id).forEach((e) => e.endAnchor.isEditable = true);
+    this.links.filter(l => l.startElement && l.startElement.application.id === elt.application.id).forEach((e) => e.startAnchor.isEditable = true);
+    this.links.filter(l => l.endElement && l.endElement.application.id === elt.application.id).forEach((e) => e.endAnchor.isEditable = true);
     this.elements.splice(i, 1);
   }
 
@@ -224,15 +248,29 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
     }
   }
 
+  viewAsyncApi() {
+    if (!this.selectedElement) {
+      return;
+    }
+
+    const data = new ViewAsyncApiData();
+    const consumedLinks = this.links.filter(l => l.endElement && l.endElement.application.id === this.selectedElement?.application.id).map(l => l.applicationLink);
+    data.application = this.selectedElement.application;
+    data.consumedLinks = consumedLinks;
+    this.matPanelService.open(ViewAsyncApiComponent, data);
+  }
+
   onDrop(evt: any) {
     const point = this.getCoordinate(evt);
     const type = evt.dataTransfer.getData('type');
     switch (type) {
       case 'application':
         const application = new Application();
+        application.id = this.newGUID();
+        application.title = "app";
         application.posX = point.x;
         application.posY = point.y;
-        this.elements.push(new Element(this.newGUID(), application, this.options.applicationWidth, this.options.applicationHeight));
+        this.elements.push(new Element(application, this.options.applicationWidth, this.options.applicationHeight));
         break;
       case 'link':
         const startAnchor = new Anchor(point.x, point.y);
@@ -343,7 +381,7 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
     }
 
     const id = targetElement.getAttribute('elementId');
-    const element = this.elements.filter(e => e.id === id)[0];
+    const element = this.elements.filter(e => e.application.id === id)[0];
     this.selectedElement = element;
     this.selectedElement.dragOffset = { x: this.previousPoint.x - element.application.posX, y: this.previousPoint.y - element.application.posY };
     this.selectedElement.isSelected = true;
@@ -411,6 +449,11 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
       self.selectedAnchorLink.link.endAnchor = self.selectedAnchorElement.anchor;
       self.selectedAnchorLink.link.endAnchor.isEditable = false;
       self.selectedAnchorLink.link.endElement = self.selectedAnchorElement.element;
+      self.selectedAnchorLink.link.applicationLink.target = self.selectedAnchorElement.element.application;
+    }
+
+    if (self.selectedAnchorLink.link.isClosed) {
+      self.selectedAnchorLink.link.startElement?.application.links.push(self.selectedAnchorLink.link.applicationLink);
     }
   }
 

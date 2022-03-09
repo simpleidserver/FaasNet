@@ -1,0 +1,21 @@
+$background: whitesmoke;
+
+.property-title {
+  padding: 10px 0px 10px 5px !important;
+  margin-left: 5px;
+  margin: 0px 0px 0px 2px !important;
+  background-color: $background;
+  position: relative;
+}
+
+.property-title > span {
+  position: absolute;
+  right: 0px;
+  top: 10px;
+  cursor: pointer;
+}
+
+
+.text-center {
+    text-align: center;
+}

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="17.191927"
+   height="24.000002"
+   viewBox="0 0 17.191927 24.000002"
+   enable-background="new 0 0 1280 800"
+   xml:space="preserve"
+   sodipodi:docname="asyncapi.svg"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs941" /><sodipodi:namedview
+   id="namedview939"
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1.0"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   showgrid="false"
+   showguides="false"
+   inkscape:zoom="15.140924"
+   inkscape:cx="25.130567"
+   inkscape:cy="31.537045"
+   inkscape:window-width="2400"
+   inkscape:window-height="1261"
+   inkscape:window-x="3191"
+   inkscape:window-y="234"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="g922" />
+<g
+   id="g936"
+   transform="translate(-529.423,-53.176)">
+	
+	<g
+   id="g922"
+   transform="matrix(0.06992795,0,0,0.06992824,492.40153,49.457496)">
+		<path
+   fill="#4875b9"
+   d="m 652.347,396.385 c -67.78,0 -122.922,-41.099 -122.922,-91.615 h 24.345 c 0,37.093 44.223,67.271 98.578,67.271 54.358,0 98.581,-30.178 98.581,-67.271 h 24.346 c -0.002,50.516 -55.148,91.615 -122.928,91.615 z"
+   id="path920"
+   style="fill:#000003;fill-opacity:1" />
+	</g>
+	<g
+   id="g926"
+   transform="matrix(0.06992795,0,0,0.06992824,492.40153,49.457496)">
+		<path
+   fill="#4875b9"
+   d="m 775.273,144.793 h -24.346 c 0,-37.094 -44.223,-67.272 -98.581,-67.272 -54.354,0 -98.578,30.178 -98.578,67.272 h -24.345 c 0,-50.518 55.143,-91.617 122.922,-91.617 67.782,0 122.928,41.099 122.928,91.617 z"
+   id="path924"
+   style="fill:#000000;fill-opacity:1" />
+	</g>
+	<g
+   id="g930"
+   transform="matrix(0.06992795,0,0,0.06992824,492.40153,49.457496)">
+		
+			<rect
+   x="537.99902"
+   y="212.644"
+   transform="matrix(0.8099,0.5865,-0.5865,0.8099,248.9896,-318.681)"
+   fill="#63ba90"
+   width="156.35201"
+   height="24.343"
+   id="rect928"
+   style="fill:#000000;fill-opacity:1" />
+	</g>
+	<g
+   id="g934"
+   transform="matrix(0.06992795,0,0,0.06992824,492.40153,49.457496)">
+		
+			<rect
+   x="611.31897"
+   y="212.50301"
+   transform="matrix(0.8099,0.5865,-0.5865,0.8099,262.837,-361.7078)"
+   fill="#63ba90"
+   width="156.354"
+   height="24.346001"
+   id="rect932"
+   style="fill:#000000;fill-opacity:1" />
+	</g>
+</g>
+</svg>

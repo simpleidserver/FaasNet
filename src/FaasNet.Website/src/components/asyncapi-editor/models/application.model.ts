@@ -1,6 +1,7 @@
 import { ApplicationLink } from "./link.model";
 
 export class Application {
+  id: string = "";
   title: string = "";
   version: string = "";
   description: string = "";

@@ -1,0 +1,13 @@
+<h2 class="property-title">
+  Link
+  <span (click)="close()">
+    <mat-icon>close</mat-icon>
+  </span>
+</h2>
+<div class="form-control messages">
+  <div class="title">Messages</div>
+  <p class="description">Messages produced</p>
+  <div (click)="editMessages()">
+    <input type="text" [value]="getMessages()" class="full-width" disabled />
+  </div>
+</div>

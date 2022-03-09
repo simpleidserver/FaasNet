@@ -14,8 +14,11 @@
       <li (click)="startEdit()" [attr.class]="!startMoving ? 'hidden' : ''">
         <mat-icon>edit</mat-icon>
       </li>
-      <li (click)="remove()" [attr.class]="!isRemovedEnabled ? 'hidden': ''">
+      <li (click)="remove()" [attr.class]="!isSelected ? 'hidden': ''">
         <mat-icon>delete</mat-icon>
+      </li>
+      <li (click)="viewAsyncApi()" [attr.class]="!selectedElement ? 'hidden': ''">
+        <img src="/assets/images/asyncapi.svg" />
       </li>
     </ul>
   </div>
@@ -70,9 +73,9 @@
         </g>
         <!-- Elements -->
         <g *ngFor="let element of elements; let i = index;" class="application">
-          <foreignObject [attr.width]="element.width" [attr.height]="element.height" [attr.x]="element.application.posX" [attr.y]="element.application.posY" [attr.class]="element.isSelected ? 'content selected' : 'content'" [attr.elementId]="element.id">
+          <foreignObject [attr.width]="element.width" [attr.height]="element.height" [attr.x]="element.application.posX" [attr.y]="element.application.posY" [attr.class]="element.isSelected ? 'content selected' : 'content'" [attr.elementId]="element.application.id">
             <div class="header">
-              Application
+              {{ element.application.title }}
               <div class="actions">
                 <mat-icon (click)="removeElement(i)">delete</mat-icon>
               </div>
@@ -92,6 +95,8 @@
     </svg>
   </div>
   <!-- Properties -->
-  <div class="properties pane">
+  <div class="properties pane" *ngIf="isSelected">
+    <application-editor *ngIf="selectedElement" [element]="selectedElement?.application" (closed)="unselectElement()"></application-editor>
+    <link-editor *ngIf="selectedLink" [link]="selectedLink?.applicationLink" (closed)="unselectLink()"></link-editor>
   </div>
 </div>

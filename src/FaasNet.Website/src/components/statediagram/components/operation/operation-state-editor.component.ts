@@ -3,7 +3,6 @@ import { FormControl, FormGroup } from "@angular/forms";
 import { OperationStateMachineState } from "@stores/statemachines/models/statemachine-operation-state.model";
 import { StateMachineState } from "@stores/statemachines/models/statemachine-state.model";
 import { StateMachineModel } from "@stores/statemachines/models/statemachinemodel.model";
-import { MatPanelComponent } from "../../../matpanel/matpanel.component";
 import { MatPanelService } from "../../../matpanel/matpanelservice";
 import { ActionsEditorComponent, ActionsEditorData } from "./actionseditor.component";
 
@@ -75,14 +74,6 @@ export class OperationStateEditorComponent implements OnDestroy {
     }
 
     this.matPanelService.open(ActionsEditorComponent, data);
-    /*
-    const dialogRef = this.panel?.open(ActionsEditorComponent, data);
-    dialogRef?.onClosed.subscribe((e) => {
-      if (e && this._operationState) {
-        this._operationState.actions = e;
-      }
-    });
-    */
   }
 
   private init() {
