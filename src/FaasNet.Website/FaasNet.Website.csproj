@@ -26,7 +26,10 @@
     <None Remove="src\app\shared\shared.module.ts" />
     <None Remove="src\app\statemachines\edit\functionseditor\editfunction-dialog.component.ts" />
     <None Remove="src\components\asyncapi-editor\asyncapieditormodule.ts" />
+    <None Remove="src\components\asyncapi-editor\builders\asyncapibuilder.ts" />
     <None Remove="src\components\asyncapi-editor\components\application\application-editor.component.ts" />
+    <None Remove="src\components\asyncapi-editor\components\link\editlink-dialog.component.ts" />
+    <None Remove="src\components\asyncapi-editor\components\link\link-editor.component.ts" />
     <None Remove="src\components\asyncapi-editor\models\application.model.ts" />
     <None Remove="src\components\asyncapi-editor\models\link.model.ts" />
     <None Remove="src\components\asyncapi-editor\models\message.property.ts" />
@@ -72,7 +75,14 @@
     <TypeScriptCompile Include="src\components\asyncapi-editor\asyncapieditormodule.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="src\components\asyncapi-editor\builders\asyncapibuilder.ts" />
     <TypeScriptCompile Include="src\components\asyncapi-editor\components\application\application-editor.component.ts" />
+    <TypeScriptCompile Include="src\components\asyncapi-editor\components\link\editlink-dialog.component.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\components\asyncapi-editor\components\link\link-editor.component.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\components\asyncapi-editor\models\application.model.ts" />
     <TypeScriptCompile Include="src\components\asyncapi-editor\models\link.model.ts" />
     <TypeScriptCompile Include="src\components\asyncapi-editor\models\message.property.ts" />
@@ -90,6 +100,8 @@
     <TypeScriptCompile Include="src\stores\statemachines\models\statemachine-function.model.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="src\app\domains\edit\messages\" />
+    <Folder Include="src\app\domains\edit\editor\" />
     <Folder Include="src\app\functions\list\" />
     <Folder Include="src\stores\functions\reducers\" />
   </ItemGroup>
