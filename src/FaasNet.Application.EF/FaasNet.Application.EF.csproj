@@ -2,12 +2,10 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\FaasNet.EventStore\FaasNet.EventStore.csproj" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.12" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <ProjectReference Include="..\FaasNet.Application.Core\FaasNet.Application.Core.csproj" />
   </ItemGroup>
 </Project>

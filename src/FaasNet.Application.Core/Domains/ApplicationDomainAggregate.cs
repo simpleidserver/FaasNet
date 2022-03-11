@@ -6,6 +6,8 @@ namespace FaasNet.Application.Core.Domains
 {
     public class ApplicationDomainAggregate : AggregateRoot
     {
+        public static string TOPIC_NAME = "applications";
+
         private ApplicationDomainAggregate()
         {
 
@@ -13,20 +15,21 @@ namespace FaasNet.Application.Core.Domains
 
         public string Name { get; set; }
         public string Description { get; set; }
+        public string RootTopic { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
 
-        public static ApplicationDomainAggregate Create(string name)
+        public static ApplicationDomainAggregate Create(string name, string description, string rootTopic)
         {
             var id = Guid.NewGuid().ToString();
             var result = new ApplicationDomainAggregate();
-            var evt = new ApplicationDomainCreatedEvent(Guid.NewGuid().ToString(), id, name, DateTime.UtcNow);
+            var evt = new ApplicationDomainCreatedEvent(Guid.NewGuid().ToString(), id, name, description, rootTopic, DateTime.UtcNow);
             result.DomainEvts.Add(evt);
             result.Handle(evt);
             return result;
         }
 
-        public override string Topic => "applications"
+        public override string Topic => TOPIC_NAME;
 
         public override void Handle(dynamic evt)
         {
@@ -37,6 +40,9 @@ namespace FaasNet.Application.Core.Domains
         {
             Id = evt.AggregateId;
             Version = evt.AggregateVersion;
+            Name = evt.Name;
+            Description = evt.Description;
+            RootTopic = evt.RootTopic;
             CreateDateTime = evt.CreateDateTime;
             UpdateDateTime = evt.CreateDateTime;
         }

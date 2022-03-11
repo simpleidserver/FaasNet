@@ -1,5 +1,8 @@
+using FaasNet.Application.Core;
+using FaasNet.EventStore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Converters;
@@ -20,11 +23,21 @@ namespace FaasNet.Application.SqlServer.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
+            const string connectionString = "Data Source=DESKTOP-F641MIJ\\SQLEXPRESS;Initial Catalog=Application;Integrated Security=True";
+            const string eventStoreDbConnectionString = "esdb://127.0.0.1:2113?tls=false";
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
             services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()));
             services.AddSwaggerGen();
+            services.AddApplication(evtStoreBuilderCallback: c => c.UseEF(opt =>opt.UseSqlServer(connectionString, o => o.MigrationsAssembly(migrationsAssembly)))
+                .UseEventStoreDB(opt =>
+                {
+                    opt.ConnectionString = eventStoreDbConnectionString;
+                })
+                .UseEF(opt => opt.UseSqlServer(connectionString, o => o.MigrationsAssembly(migrationsAssembly))))
+                .UseEF(opt => opt.UseSqlServer(connectionString, o => o.MigrationsAssembly(migrationsAssembly)));
+            services.AddHostedService<ProjectionService>();
             services.AddControllers().AddNewtonsoftJson(opts =>
             {
                 opts.SerializerSettings.Converters.Add(new StringEnumConverter());

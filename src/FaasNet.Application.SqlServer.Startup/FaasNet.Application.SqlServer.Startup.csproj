@@ -9,4 +9,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.12" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FaasNet.Application.EF\FaasNet.Application.EF.csproj" />
+    <ProjectReference Include="..\FaasNet.EventStore.EF\FaasNet.EventStore.EF.csproj" />
+    <ProjectReference Include="..\FaasNet.EventStoreDB\FaasNet.EventStoreDB.csproj" />
+  </ItemGroup>
 </Project>

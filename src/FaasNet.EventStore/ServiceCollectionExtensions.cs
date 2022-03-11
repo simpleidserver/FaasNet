@@ -5,7 +5,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddEventStore(this IServiceCollection services, Action<EventStoreOptions> callback = null)
+        public static ESServerBuilder AddEventStore(this IServiceCollection services, Action<EventStoreOptions> callback = null)
         {
             if (callback == null)
             {
@@ -16,7 +16,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure(callback);
             }
 
-            return services;
+            services.AddTransient<ICommitAggregateHelper, CommitAggregateHelper>();
+            var builder = new ESServerBuilder(services);
+            return builder;
         }
     }
 }
