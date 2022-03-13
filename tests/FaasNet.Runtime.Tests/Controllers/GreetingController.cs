@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace FaasNet.Runtime.Tests.Controllers
+namespace FaasNet.StateMachine.Runtime.Tests.Controllers
 {
     [Route("greeting")]
     public class GreetingController : Controller

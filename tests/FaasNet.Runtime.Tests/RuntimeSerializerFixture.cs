@@ -1,11 +1,11 @@
-﻿using FaasNet.Runtime.Builders;
-using FaasNet.Runtime.Domains.Definitions;
-using FaasNet.Runtime.Domains.Enums;
-using FaasNet.Runtime.Serializer;
+﻿using FaasNet.StateMachine.Runtime.Builders;
+using FaasNet.StateMachine.Runtime.Domains.Definitions;
+using FaasNet.StateMachine.Runtime.Domains.Enums;
+using FaasNet.StateMachine.Runtime.Serializer;
 using System.Linq;
 using Xunit;
 
-namespace FaasNet.Runtime.Tests
+namespace FaasNet.StateMachine.Runtime.Tests
 {
     public class RuntimeSerializerFixture
     {

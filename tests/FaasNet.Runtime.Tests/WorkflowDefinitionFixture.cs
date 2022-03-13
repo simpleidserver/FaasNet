@@ -1,10 +1,10 @@
-﻿using FaasNet.Runtime.AsyncAPI.Channels.Amqp;
-using FaasNet.Runtime.Builders;
-using FaasNet.Runtime.CloudEvent.Models;
-using FaasNet.Runtime.Domains.Definitions;
-using FaasNet.Runtime.Domains.Enums;
-using FaasNet.Runtime.Domains.Instances;
-using FaasNet.Runtime.Persistence;
+﻿using FaasNet.StateMachine.Runtime.AsyncAPI.Channels.Amqp;
+using FaasNet.StateMachine.Runtime.Builders;
+using FaasNet.StateMachine.Runtime.CloudEvent.Models;
+using FaasNet.StateMachine.Runtime.Domains.Definitions;
+using FaasNet.StateMachine.Runtime.Domains.Enums;
+using FaasNet.StateMachine.Runtime.Domains.Instances;
+using FaasNet.StateMachine.Runtime.Persistence;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace FaasNet.Runtime.Tests
+namespace FaasNet.StateMachine.Runtime.Tests
 {
     public class WorkflowDefinitionFixture : IClassFixture<WebApplicationFactory<FakeStartup>>
     {

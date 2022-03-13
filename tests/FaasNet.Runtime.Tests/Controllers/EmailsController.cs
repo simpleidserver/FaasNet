@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace FaasNet.Runtime.Tests.Controllers
+namespace FaasNet.StateMachine.Runtime.Tests.Controllers
 {
     public class SendEmailPostParameter
     {

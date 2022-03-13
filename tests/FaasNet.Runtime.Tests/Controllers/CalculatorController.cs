@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
 
-namespace FaasNet.Runtime.Tests.Controllers
+namespace FaasNet.StateMachine.Runtime.Tests.Controllers
 {
     [Route("calculator")]
     public class CalculatorController : Controller

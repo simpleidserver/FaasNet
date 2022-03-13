@@ -14,6 +14,6 @@
     <PackageReference Include="Saunter" Version="0.9.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\FaasNet.Runtime\FaasNet.Runtime.csproj" />
+    <ProjectReference Include="..\..\src\FaasNet.StateMachine.Runtime\FaasNet.StateMachine.Runtime.csproj" />
   </ItemGroup>
 </Project>

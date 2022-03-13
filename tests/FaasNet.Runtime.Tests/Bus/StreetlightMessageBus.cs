@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace FaasNet.Runtime.Tests.Bus
+namespace FaasNet.StateMachine.Runtime.Tests.Bus
 {
     public class Streetlight
     {

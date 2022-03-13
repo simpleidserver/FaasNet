@@ -1,4 +1,4 @@
-﻿using FaasNet.Runtime.Tests.Bus;
+﻿using FaasNet.StateMachine.Runtime.Tests.Bus;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +8,7 @@ using Saunter.AsyncApiSchema.v2.Bindings;
 using Saunter.AsyncApiSchema.v2.Bindings.Amqp;
 using System.Collections.Generic;
 
-namespace FaasNet.Runtime.Tests
+namespace FaasNet.StateMachine.Runtime.Tests
 {
     public class FakeStartup
     {
