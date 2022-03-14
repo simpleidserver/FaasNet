@@ -2,7 +2,6 @@
 using FaasNet.StateMachine.Runtime.Domains.Instances;
 using FaasNet.StateMachine.Runtime.Extensions;
 using FaasNet.StateMachine.Runtime.Infrastructure;
-using FaasNet.StateMachine.Runtime.Persistence;
 using FaasNet.StateMachine.Runtime.Processors;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -15,42 +14,13 @@ namespace FaasNet.StateMachine.Runtime
     public class RuntimeEngine : IRuntimeEngine
     {
         private readonly IEnumerable<IStateProcessor> _stateProcessors;
-        private readonly IStateMachineInstanceRepository _workflowInstanceRepository;
-        private readonly IIntegrationEventProcessor _integrationEventProcessor;
 
-        public RuntimeEngine(IEnumerable<IStateProcessor> stateProcessors, IStateMachineInstanceRepository workflowInstanceRepository, IIntegrationEventProcessor integrationEventProcessor)
+        public RuntimeEngine(IEnumerable<IStateProcessor> stateProcessors)
         {
             _stateProcessors = stateProcessors;
-            _workflowInstanceRepository = workflowInstanceRepository;
-            _integrationEventProcessor = integrationEventProcessor;
         }
 
         #region Public Methods
-
-        public Task<StateMachineInstanceAggregate> InstanciateAndLaunch(StateMachineDefinitionAggregate workflowDefinitionAggregate, string input, CancellationToken cancellationToken)
-        {
-            return InstanciateAndLaunch(workflowDefinitionAggregate, input, new Dictionary<string, string>(), cancellationToken);
-        }
-
-        public Task<StateMachineInstanceAggregate> InstanciateAndLaunch(StateMachineDefinitionAggregate workflowDefinitionAggregate, string input, Dictionary<string, string> parameters, CancellationToken cancellationToken)
-        {
-            return InstanciateAndLaunch(workflowDefinitionAggregate, JObject.Parse(input), parameters, cancellationToken);
-        }
-
-        public Task<StateMachineInstanceAggregate> InstanciateAndLaunch(StateMachineDefinitionAggregate workflowDefinitionAggregate, JObject input, CancellationToken cancellationToken)
-        {
-            return InstanciateAndLaunch(workflowDefinitionAggregate, input, new Dictionary<string, string>(), cancellationToken);
-        }
-
-        public async Task<StateMachineInstanceAggregate> InstanciateAndLaunch(StateMachineDefinitionAggregate workflowDefinitionAggregate, JObject input, Dictionary<string, string> parameters, CancellationToken cancellationToken)
-        {
-            var workflowInstance = Instanciate(workflowDefinitionAggregate);
-            workflowInstance.Parameters = parameters;
-            await Launch(workflowDefinitionAggregate, workflowInstance, input, cancellationToken);
-            await _workflowInstanceRepository.Add(workflowInstance, cancellationToken);
-            await _workflowInstanceRepository.SaveChanges(cancellationToken);
-            return workflowInstance;
-        }
 
         public Task Launch(StateMachineDefinitionAggregate workflowDefinitionAggregate, StateMachineInstanceAggregate workflowInstance, JObject input, CancellationToken cancellationToken)
         {
@@ -62,7 +32,6 @@ namespace FaasNet.StateMachine.Runtime
         public async Task Launch(StateMachineDefinitionAggregate workflowDefinitionAggregate, StateMachineInstanceAggregate workflowInstance, JObject input, string stateInstanceId, CancellationToken cancellationToken)
         {
             await InternalLaunch(workflowDefinitionAggregate, workflowInstance, input, stateInstanceId, cancellationToken);
-            await Publish(workflowInstance, cancellationToken);
         }
 
         #endregion
@@ -120,19 +89,6 @@ namespace FaasNet.StateMachine.Runtime
             }
         }
 
-        public StateMachineInstanceAggregate Instanciate(StateMachineDefinitionAggregate workflowDefinitionAggregate)
-        {
-            var result = StateMachineInstanceAggregate.Create(workflowDefinitionAggregate.TechnicalId, workflowDefinitionAggregate.Id, workflowDefinitionAggregate.Name, workflowDefinitionAggregate.Description, workflowDefinitionAggregate.Version);
-            var dic = new Dictionary<string, string>();
-            foreach (var state in workflowDefinitionAggregate.States)
-            {
-                var stateInstance = result.AddState(state.Id);
-                dic.Add(state.Id, stateInstance.Id);
-            }
-
-            return result;
-        }
-
         private JToken Transform(JToken input, string filter)
         {
             if (string.IsNullOrWhiteSpace(filter))
@@ -141,11 +97,6 @@ namespace FaasNet.StateMachine.Runtime
             }
 
             return input.Transform(filter);
-        }
-
-        private Task Publish(StateMachineInstanceAggregate workflowInstance, CancellationToken cancellationToken)
-        {
-            return _integrationEventProcessor.Process(workflowInstance.IntegrationEvents.ToList(), cancellationToken);
         }
     }
 }

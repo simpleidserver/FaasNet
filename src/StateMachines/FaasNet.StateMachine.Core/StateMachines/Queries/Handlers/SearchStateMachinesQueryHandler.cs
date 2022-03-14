@@ -1,7 +1,7 @@
 ﻿using FaasNet.Domain;
 using FaasNet.Domain.Extensions;
+using FaasNet.StateMachine.Core.Persistence;
 using FaasNet.StateMachine.Core.StateMachines.Results;
-using FaasNet.StateMachine.Runtime.Persistence;
 using MediatR;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,16 +21,16 @@ namespace FaasNet.StateMachine.Core.StateMachines.Queries.Handlers
             { "createDateTime", "CreateDateTime" },
             { "updateDateTime", "UpdateDateTime" }
         };
-        private readonly IStateMachineDefinitionRepository _workflowDefinitionRepository;
+        private readonly IStateMachineDefinitionRepository _stateMachineDefinitionRepository;
 
-        public SearchStateMachinesQueryHandler(IStateMachineDefinitionRepository workflowDefinitionRepository)
+        public SearchStateMachinesQueryHandler(IStateMachineDefinitionRepository stateMachineDefinitionRepository)
         {
-            _workflowDefinitionRepository = workflowDefinitionRepository;
+            _stateMachineDefinitionRepository = stateMachineDefinitionRepository;
         }
 
         public Task<BaseSearchResult<StateMachineResult>> Handle(SearchStateMachinesQuery request, CancellationToken cancellationToken)
         {
-            var query = _workflowDefinitionRepository.Query();
+            var query = _stateMachineDefinitionRepository.Query();
             if (MAPPING_STATEMACHINE_TO_PROPERTYNAME.ContainsKey(request.OrderBy))
             {
                 query = query.InvokeOrderBy(MAPPING_STATEMACHINE_TO_PROPERTYNAME[request.OrderBy], request.Order);

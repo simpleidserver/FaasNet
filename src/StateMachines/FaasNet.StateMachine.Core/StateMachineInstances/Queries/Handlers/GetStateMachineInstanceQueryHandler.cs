@@ -1,7 +1,7 @@
 ﻿using FaasNet.Domain.Exceptions;
+using FaasNet.StateMachine.Core.Persistence;
 using FaasNet.StateMachine.Core.Resources;
 using FaasNet.StateMachine.Core.StateMachineInstances.Results;
-using FaasNet.StateMachine.Runtime.Persistence;
 using MediatR;
 using System.Linq;
 using System.Threading;

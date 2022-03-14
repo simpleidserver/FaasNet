@@ -1,9 +1,9 @@
 ﻿using FaasNet.Domain.Exceptions;
 using FaasNet.StateMachine.Core.Clients;
+using FaasNet.StateMachine.Core.Persistence;
 using FaasNet.StateMachine.Core.Resources;
 using FaasNet.StateMachine.Core.StateMachines.Results;
 using FaasNet.StateMachine.Runtime.Domains.Enums;
-using FaasNet.StateMachine.Runtime.Persistence;
 using MediatR;
 using System;
 using System.Linq;
@@ -15,18 +15,18 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
 {
     public class AddStateMachineCommandHandler : IRequestHandler<AddStateMachineCommand, AddStateMachineResult>
     {
-        private readonly IStateMachineDefinitionRepository _workflowDefinitionRepository;
+        private readonly IStateMachineDefinitionRepository _stateMachineDefinitionRepository;
         private readonly IFunctionService _functionService;
 
-        public AddStateMachineCommandHandler(IStateMachineDefinitionRepository workflowDefinitionRepository, IFunctionService functionService)
+        public AddStateMachineCommandHandler(IStateMachineDefinitionRepository stateMachineDefinitionRepository, IFunctionService functionService)
         {
-            _workflowDefinitionRepository = workflowDefinitionRepository;
+            _stateMachineDefinitionRepository = stateMachineDefinitionRepository;
             _functionService = functionService;
         }
 
         public async Task<AddStateMachineResult> Handle(AddStateMachineCommand request, CancellationToken cancellationToken)
         {
-            var workflowDefinition = _workflowDefinitionRepository.Query().FirstOrDefault(w=> w.Id == request.WorkflowDefinition.Id);
+            var workflowDefinition = _stateMachineDefinitionRepository.Query().FirstOrDefault(w=> w.Id == request.WorkflowDefinition.Id);
             if (workflowDefinition != null)
             {
                 throw new DomainException(ErrorCodes.STATEMACHINE_ALREADY_EXISTS, Global.StateMachineExists);
@@ -43,8 +43,8 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
                     customFunction.FunctionId = id;
                 }
 
-                await _workflowDefinitionRepository.Add(request.WorkflowDefinition, cancellationToken);
-                await _workflowDefinitionRepository.SaveChanges(cancellationToken);
+                await _stateMachineDefinitionRepository.Add(request.WorkflowDefinition, cancellationToken);
+                await _stateMachineDefinitionRepository.SaveChanges(cancellationToken);
                 scope.Complete();
             }
 

@@ -1,10 +1,9 @@
 ﻿using FaasNet.Domain.Exceptions;
 using FaasNet.StateMachine.Core.Extensions;
+using FaasNet.StateMachine.Core.Persistence;
 using FaasNet.StateMachine.Core.Resources;
 using FaasNet.StateMachine.Core.StateMachines.Results;
-using FaasNet.StateMachine.Runtime;
 using FaasNet.StateMachine.Runtime.Domains.Definitions;
-using FaasNet.StateMachine.Runtime.Persistence;
 using MediatR;
 using Newtonsoft.Json;
 using System;
@@ -17,19 +16,19 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
 {
     public class StartStateMachineCommandHandler : IRequestHandler<StartStateMachineCommand, StartStateMachineResult>
     {
-        private readonly IStateMachineDefinitionRepository _workflowDefinitionRepository;
-        private readonly IRuntimeEngine _runtimeEngine;
+        private readonly IStateMachineDefinitionRepository _stateMachineDefinitionRepository;
+        private readonly IStateMachineDefLauncher _stateMachineDefLauncher;
 
-        public StartStateMachineCommandHandler(IStateMachineDefinitionRepository workflowDefinitionRepository, IRuntimeEngine runtimeEngine)
+        public StartStateMachineCommandHandler(IStateMachineDefinitionRepository stateMachineDefinitionRepository, IStateMachineDefLauncher stateMachineDefLauncher)
         {
-            _workflowDefinitionRepository = workflowDefinitionRepository;
-            _runtimeEngine = runtimeEngine;
+            _stateMachineDefinitionRepository = stateMachineDefinitionRepository;
+            _stateMachineDefLauncher = stateMachineDefLauncher;
         }
 
         public async Task<StartStateMachineResult> Handle(StartStateMachineCommand request, CancellationToken cancellationToken)
         {
             var validationResult = Validate(request);
-            var workflowInstance = await _runtimeEngine.InstanciateAndLaunch(validationResult.WorkflowDefinition, request.Input, validationResult.Parameters, cancellationToken);
+            var workflowInstance = await _stateMachineDefLauncher.InstanciateAndLaunch(validationResult.WorkflowDefinition, request.Input, validationResult.Parameters, cancellationToken);
             return new StartStateMachineResult
             {
                 LaunchDateTime = DateTime.UtcNow,
@@ -42,7 +41,7 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
         protected virtual ValidationResult Validate(StartStateMachineCommand request)
         {
             var parameters = new Dictionary<string, string>();
-            var workflowDef = _workflowDefinitionRepository.Query().FirstOrDefault(w => w.TechnicalId == request.Id);
+            var workflowDef = _stateMachineDefinitionRepository.Query().FirstOrDefault(w => w.TechnicalId == request.Id);
             if (workflowDef == null)
             {
                 throw new NotFoundException(ErrorCodes.UNKNOWN_STATEMACHINE_DEF, string.Format(Global.UnknownStateMachineDef, request.Id));

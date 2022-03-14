@@ -61,6 +61,15 @@ namespace FaasNet.StateMachine.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to invalid asyncapi url.
+        /// </summary>
+        internal static string InvalidAsyncApiUrl {
+            get {
+                return ResourceManager.GetString("InvalidAsyncApiUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to input is invalid.
         /// </summary>
         internal static string InvalidInput {
@@ -70,11 +79,38 @@ namespace FaasNet.StateMachine.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to invalid openapi url.
+        /// </summary>
+        internal static string InvalidOpenApiUrl {
+            get {
+                return ResourceManager.GetString("InvalidOpenApiUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to statemachine already exists.
         /// </summary>
         internal static string StateMachineExists {
             get {
                 return ResourceManager.GetString("StateMachineExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to asyncapi operation &apos;{0}&apos; doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownAsyncApiOperation {
+            get {
+                return ResourceManager.GetString("UnknownAsyncApiOperation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to openapi operation &apos;{0}&apos; doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownOpenApiOperation {
+            get {
+                return ResourceManager.GetString("UnknownOpenApiOperation", resourceCulture);
             }
         }
         

@@ -10,8 +10,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\FaasNet.EventStore.EF\FaasNet.EventStore.EF.csproj" />
+    <ProjectReference Include="..\..\Common\FaasNet.EventStoreDB\FaasNet.EventStoreDB.csproj" />
     <ProjectReference Include="..\FaasNet.Application.EF\FaasNet.Application.EF.csproj" />
-    <ProjectReference Include="..\FaasNet.EventStore.EF\FaasNet.EventStore.EF.csproj" />
-    <ProjectReference Include="..\FaasNet.EventStoreDB\FaasNet.EventStoreDB.csproj" />
   </ItemGroup>
 </Project>

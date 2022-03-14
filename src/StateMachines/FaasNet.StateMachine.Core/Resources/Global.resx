@@ -117,11 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="InvalidAsyncApiUrl" xml:space="preserve">
+    <value>invalid asyncapi url</value>
+  </data>
   <data name="InvalidInput" xml:space="preserve">
     <value>input is invalid</value>
   </data>
+  <data name="InvalidOpenApiUrl" xml:space="preserve">
+    <value>invalid openapi url</value>
+  </data>
   <data name="StateMachineExists" xml:space="preserve">
     <value>statemachine already exists</value>
+  </data>
+  <data name="UnknownAsyncApiOperation" xml:space="preserve">
+    <value>asyncapi operation '{0}' doesn't exist</value>
+  </data>
+  <data name="UnknownOpenApiOperation" xml:space="preserve">
+    <value>openapi operation '{0}' doesn't exist</value>
   </data>
   <data name="UnknownStateMachineDef" xml:space="preserve">
     <value>statemachine def '{0}' doesn't exist</value>

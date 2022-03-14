@@ -1,7 +1,7 @@
 ﻿using FaasNet.Domain;
 using FaasNet.Domain.Extensions;
+using FaasNet.StateMachine.Core.Persistence;
 using FaasNet.StateMachine.Core.StateMachineInstances.Results;
-using FaasNet.StateMachine.Runtime.Persistence;
 using MediatR;
 using System.Collections.Generic;
 using System.Linq;

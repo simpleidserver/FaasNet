@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.12" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FaasNet.Function.Core\FaasNet.Function.Core.csproj" />
+  </ItemGroup>
+</Project>

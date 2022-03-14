@@ -23,6 +23,7 @@ namespace FaasNet.Application.SqlServer.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpClient();
             const string connectionString = "Data Source=DESKTOP-F641MIJ\\SQLEXPRESS;Initial Catalog=Application;Integrated Security=True";
             const string eventStoreDbConnectionString = "esdb://127.0.0.1:2113?tls=false";
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;

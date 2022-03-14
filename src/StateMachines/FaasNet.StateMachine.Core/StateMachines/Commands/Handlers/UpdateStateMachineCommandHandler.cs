@@ -1,9 +1,9 @@
 ﻿using FaasNet.Domain.Exceptions;
 using FaasNet.StateMachine.Core.Clients;
+using FaasNet.StateMachine.Core.Persistence;
 using FaasNet.StateMachine.Core.Resources;
 using FaasNet.StateMachine.Core.StateMachines.Results;
 using FaasNet.StateMachine.Runtime.Domains.Enums;
-using FaasNet.StateMachine.Runtime.Persistence;
 using MediatR;
 using System;
 using System.Linq;
@@ -15,20 +15,18 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
 {
     public class UpdateStateMachineCommandHandler : IRequestHandler<UpdateStateMachineCommand, AddStateMachineResult>
     {
-        private readonly IStateMachineDefinitionRepository _workflowDefinitionRepository;
+        private readonly IStateMachineDefinitionRepository _stateMachineDefinitionRepository;
         private readonly IFunctionService _functionService;
 
-        public UpdateStateMachineCommandHandler(
-            IStateMachineDefinitionRepository workflowDefinitionRepository,
-            IFunctionService functionService)
+        public UpdateStateMachineCommandHandler(IStateMachineDefinitionRepository stateMachineDefinitionRepository, IFunctionService functionService)
         {
-            _workflowDefinitionRepository = workflowDefinitionRepository;
+            _stateMachineDefinitionRepository = stateMachineDefinitionRepository;
             _functionService = functionService;
         }
 
         public async Task<AddStateMachineResult> Handle(UpdateStateMachineCommand request, CancellationToken cancellationToken)
         {
-            var workflowDefinition = _workflowDefinitionRepository.Query().FirstOrDefault(w=> w.TechnicalId == request.Id);
+            var workflowDefinition = _stateMachineDefinitionRepository.Query().FirstOrDefault(w=> w.TechnicalId == request.Id);
             if (workflowDefinition == null)
             {
                 throw new NotFoundException(ErrorCodes.UNKNOWN_STATEMACHINE_DEF, string.Format(Global.UnknownStateMachineDef, request.WorkflowDefinition.Id));
@@ -60,9 +58,9 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
                 request.WorkflowDefinition.UpdateDateTime = DateTime.UtcNow;
                 request.WorkflowDefinition.IsLast = true;
                 request.WorkflowDefinition.RefreshTechnicalId();
-                await _workflowDefinitionRepository.Update(workflowDefinition, cancellationToken);
-                await _workflowDefinitionRepository.Add(request.WorkflowDefinition, cancellationToken);
-                await _workflowDefinitionRepository.SaveChanges(cancellationToken);
+                await _stateMachineDefinitionRepository.Update(workflowDefinition, cancellationToken);
+                await _stateMachineDefinitionRepository.Add(request.WorkflowDefinition, cancellationToken);
+                await _stateMachineDefinitionRepository.SaveChanges(cancellationToken);
                 scope.Complete();
                 return new AddStateMachineResult { CreateDateTime = request.WorkflowDefinition.CreateDateTime, Id = request.WorkflowDefinition.TechnicalId };
             }
