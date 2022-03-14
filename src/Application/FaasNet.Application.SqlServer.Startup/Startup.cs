@@ -24,20 +24,18 @@ namespace FaasNet.Application.SqlServer.Startup
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
-            const string connectionString = "Data Source=DESKTOP-F641MIJ\\SQLEXPRESS;Initial Catalog=Application;Integrated Security=True";
-            const string eventStoreDbConnectionString = "esdb://127.0.0.1:2113?tls=false";
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
             services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()));
             services.AddSwaggerGen();
-            services.AddApplication(evtStoreBuilderCallback: c => c.UseEF(opt =>opt.UseSqlServer(connectionString, o => o.MigrationsAssembly(migrationsAssembly)))
+            services.AddApplication(evtStoreBuilderCallback: c => c.UseEF(opt =>opt.UseSqlServer(Configuration.GetConnectionString("Application"), o => o.MigrationsAssembly(migrationsAssembly)))
                 .UseEventStoreDB(opt =>
                 {
-                    opt.ConnectionString = eventStoreDbConnectionString;
+                    opt.ConnectionString = Configuration.GetConnectionString("EventStoreDB");
                 })
-                .UseEF(opt => opt.UseSqlServer(connectionString, o => o.MigrationsAssembly(migrationsAssembly))))
-                .UseEF(opt => opt.UseSqlServer(connectionString, o => o.MigrationsAssembly(migrationsAssembly)));
+                .UseEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("Application"), o => o.MigrationsAssembly(migrationsAssembly))))
+                .UseEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("Application"), o => o.MigrationsAssembly(migrationsAssembly)));
             services.AddHostedService<ProjectionService>();
             services.AddControllers().AddNewtonsoftJson(opts =>
             {

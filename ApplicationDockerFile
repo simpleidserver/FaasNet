@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
+
+COPY build/results/services/Application/ App/
+
+EXPOSE 5002
+
+WORKDIR /App
+
+ENTRYPOINT ["dotnet", "FaasNet.Application.SqlServer.Startup.dll"]

@@ -23,7 +23,6 @@ namespace FaasNet.EventMesh.SqlServer.Startup
         public void ConfigureServices(IServiceCollection services)
         {
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-            const string connectionString = "Data Source=DESKTOP-F641MIJ\\SQLEXPRESS;Initial Catalog=EventMesh;Integrated Security=True";
             services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()));
@@ -33,7 +32,7 @@ namespace FaasNet.EventMesh.SqlServer.Startup
                 opt.AccountId = 678128;
                 opt.LicenseKey = "gubXjBR4DMjsdqw3";
                 opt.Host = "geolite.info";
-            }).UseEF(opt => opt.UseSqlServer(connectionString, o => o.MigrationsAssembly(migrationsAssembly)));
+            }).UseEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), o => o.MigrationsAssembly(migrationsAssembly)));
             services.AddControllers().AddNewtonsoftJson(opts =>
             {
                 opts.SerializerSettings.Converters.Add(new StringEnumConverter());

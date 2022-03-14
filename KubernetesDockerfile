@@ -1,9 +1,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
 
 COPY build/results/services/Kubernetes/ App/
-ENV ASPNETCORE_URLS=http://*:8080
 
-EXPOSE 8080
+EXPOSE 5010
 
 WORKDIR /App
 

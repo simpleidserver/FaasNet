@@ -7,7 +7,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-    <PackageReference Include="FaasNet.Function" Version="0.0.5" />
+    <PackageReference Include="FaasNet.Function" Version="0.0.6" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.1" />
   </ItemGroup>
 </Project>

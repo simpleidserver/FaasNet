@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
+
+COPY build/results/services/StateMachineApi/ App/
+
+EXPOSE 5004
+
+WORKDIR /App
+
+ENTRYPOINT ["dotnet", "FaasNet.StateMachine.SqlServer.Startup.dll"]
