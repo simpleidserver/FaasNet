@@ -1,4 +1,5 @@
 import { createSelector } from '@ngrx/store';
+import * as fromApplications from './application/reducers';
 import * as fromEventMeshServers from './eventmeshservers/reducers';
 import * as fromFunctions from './functions/reducers';
 import * as fromStateMachineInstances from './statemachineinstances/reducers';
@@ -11,7 +12,8 @@ export interface AppState {
   stateMachine: fromStateMachines.StateMachineState,
   stateMachineInstances: fromStateMachineInstances.SearchStateMachineInstanceState,
   stateMachineInstance: fromStateMachineInstances.StateMachineInstanceState,
-  eventMeshServers: fromEventMeshServers.EventMeshServersState
+  eventMeshServers: fromEventMeshServers.EventMeshServersState,
+  applicationDomains: fromApplications.ApplicationDomainsState
 }
 
 export const selectFunctions = (state: AppState) => state.functions;
@@ -21,6 +23,7 @@ export const selectStateMachine = (state: AppState) => state.stateMachine;
 export const selectStateMachineInstances = (state: AppState) => state.stateMachineInstances;
 export const selectStateMachineInstance = (state: AppState) => state.stateMachineInstance;
 export const selectEventMeshServers = (state: AppState) => state.eventMeshServers;
+export const selectApplicationDomains = (state: AppState) => state.applicationDomains;
 
 export const selectFunctionsResult = createSelector(
   selectFunctions,
@@ -176,6 +179,17 @@ export const selectEventMeshServersResult = createSelector(
   }
 );
 
+export const selectApplicationDomainsResult = createSelector(
+  selectApplicationDomains,
+  (state: fromApplications.ApplicationDomainsState) => {
+    if (!state || !state.ApplicationDomains) {
+      return null;
+    }
+
+    return state.ApplicationDomains;
+  }
+);
+
 export const appReducer = {
   functions: fromFunctions.getSearchFunctionsReducer,
   function: fromFunctions.getFunctionReducer,
@@ -183,5 +197,6 @@ export const appReducer = {
   stateMachine: fromStateMachines.getStateMachineReducer,
   stateMachineInstances: fromStateMachineInstances.getSearchStateMachineInstancesReducer,
   stateMachineInstance: fromStateMachineInstances.getStateMachineInstanceReducer,
-  eventMeshServers: fromEventMeshServers.getSearchEventMeshServersReducer
+  eventMeshServers: fromEventMeshServers.getSearchEventMeshServersReducer,
+  applicationDomains: fromApplications.getApplicationDomainsReducer
 };

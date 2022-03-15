@@ -1,7 +1,7 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/eventmeshservers/{everything}",
+      "DownstreamPathTemplate": "/eventmesh/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -9,7 +9,7 @@
           "Port": 5001
         }
       ],
-      "UpstreamPathTemplate": "/eventmeshservers/{everything}",
+      "UpstreamPathTemplate": "/eventmesh/{everything}",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -21,7 +21,7 @@
           "Port": 5001
         }
       ],
-      "UpstreamPathTemplate": "/eventmeshservers",
+      "UpstreamPathTemplate": "/eventmesh",
       "UpstreamHttpMethod": [ "POST", "GET" ]
     },
     {

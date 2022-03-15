@@ -11,6 +11,8 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { MatPanelService } from '../components/matpanel/matpanelservice';
 import { MonacoEditorModule } from '../components/monaco-editor/editor.module';
+import { ApplicationEffects } from '../stores/application/effects/application.effects';
+import { ApplicationService } from '../stores/application/services/eventmeshserver.service';
 import { appReducer } from '../stores/appstate';
 import { AsyncApiService } from '../stores/asyncapi/services/asyncapi.service';
 import { EventMeshServerEffects } from '../stores/eventmeshservers/effects/eventmeshserver.effects';
@@ -43,7 +45,7 @@ export function createTranslateLoader(http: HttpClient) {
     BrowserModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    EffectsModule.forRoot([FunctionEffects, StateMachineEffects, StateMachineInstancesEffects, EventMeshServerEffects]),
+    EffectsModule.forRoot([FunctionEffects, StateMachineEffects, StateMachineInstancesEffects, EventMeshServerEffects, ApplicationEffects]),
     StoreModule.forRoot(appReducer),
     TranslateModule.forRoot({
       loader: {
@@ -56,7 +58,7 @@ export function createTranslateLoader(http: HttpClient) {
       maxAge: 10
     })
   ],
-  providers: [FunctionService, StateMachinesService, StateMachineInstancesService, OpenApiService, AsyncApiService, MatPanelService, EventMeshServerService],
+  providers: [FunctionService, StateMachinesService, StateMachineInstancesService, OpenApiService, AsyncApiService, MatPanelService, EventMeshServerService, ApplicationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

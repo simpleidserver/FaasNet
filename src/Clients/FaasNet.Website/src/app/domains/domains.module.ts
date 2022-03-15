@@ -5,6 +5,10 @@ import { AsyncApiEditorModule } from "../../components/asyncapi-editor/asyncapie
 import { LoaderModule } from "../../components/loader/loader.module";
 import { DomainsRoutes } from "./domains.routes";
 import { EditDomainComponent } from "./edit/edit.component";
+import { EditorDomainComponent } from "./edit/editor/editor.component";
+import { MessagesDomainComponent } from "./edit/messages/messages.component";
+import { AddApplicationDomainComponent } from "./list/add-applicationdomain.component";
+import { ListApplicationDomainComponent } from "./list/list.component";
 
 @NgModule({
   imports: [
@@ -15,9 +19,14 @@ import { EditDomainComponent } from "./edit/edit.component";
     AsyncApiEditorModule
   ],
   declarations: [
-    EditDomainComponent
+    EditDomainComponent,
+    ListApplicationDomainComponent,
+    AddApplicationDomainComponent,
+    EditorDomainComponent,
+    MessagesDomainComponent
   ],
   entryComponents: [
+    AddApplicationDomainComponent
   ]
 })
 

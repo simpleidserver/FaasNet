@@ -9,7 +9,7 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/eventmeshservers/{everything}",
+      "UpstreamPathTemplate": "/eventmesh/{everything}",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -21,7 +21,7 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/eventmeshservers",
+      "UpstreamPathTemplate": "/eventmesh",
       "UpstreamHttpMethod": [ "POST", "GET" ]
     },
     {

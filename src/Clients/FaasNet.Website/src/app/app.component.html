@@ -6,18 +6,10 @@
       </div>
       <mat-nav-list>
         <a mat-list-item [routerLink]="['/functions']" [routerLinkActive]="['is-active']">{{ 'functions.list' | translate }}</a>
-      </mat-nav-list>
-      <mat-nav-list>
         <a mat-list-item [routerLink]="['/statemachineinstances']" [routerLinkActive]="['is-active']">{{ 'stateMachineInstance.list' | translate }}</a>
-      </mat-nav-list>
-      <mat-nav-list>
         <a mat-list-item [routerLink]="['/statemachines']" [routerLinkActive]="['is-active']">{{ 'stateMachines.list' | translate }}</a>
-      </mat-nav-list>
-      <mat-nav-list>
         <a mat-list-item [routerLink]="['/eventmeshservers']" [routerLinkActive]="['is-active']">{{ 'eventmeshservers.list' | translate }}</a>
-      </mat-nav-list>
-      <mat-nav-list>
-        <a mat-list-item [routerLink]="['/domains']" [routerLinkActive]="['is-active']">{{ 'domains.list' | translate }}</a>
+        <a mat-list-item [routerLink]="['/domains']" [routerLinkActive]="['is-active']">{{ 'applicationDomains.list' | translate }}</a>
       </mat-nav-list>
     </mat-drawer>
     <router-outlet></router-outlet>

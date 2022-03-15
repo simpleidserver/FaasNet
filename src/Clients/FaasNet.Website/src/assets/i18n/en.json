@@ -156,6 +156,28 @@
       "errorGetStateMachineInstance": "An error occured while trying to get the State Machine Instance"
     }
   },
+  "applicationDomains": {
+    "list": "Application domains",
+    "add": "Add application domain",
+    "name": "Name",
+    "description": "Description",
+    "rootTopic": "Root topic",
+    "createDateTime": "Creation DateTime",
+    "updateDateTime": "Update DateTime",
+    "validations": {
+      "nameRequired": "Name is required",
+      "descriptionRequired": "Description is required",
+      "rootTopicRequired": "Root topic is required"
+    },
+    "messages": {
+      "applicationDomainAdded": "Application domain has been added",
+      "errorAddApplicationDomain": "An error occured while trying to add the application domain"
+    },
+    "tooltip": {
+      "events": "Events",
+      "editor": "Editor"
+    }
+  },
   "shared": {
     "add": "Add",
     "remove": "Remove",

@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:5.0
 
 COPY build/results/services/Gateway/ App/
 
+ENV ASPNETCORE_URLS=http://*:5006
 EXPOSE 5006
 
 WORKDIR /App

@@ -48,6 +48,7 @@ namespace FaasNet.EventStoreDB
             var settings = EventStoreClientSettings.Create(_options.ConnectionString);
             var client = new EventStoreClient(settings);
             var fromStream = offset == null ? FromStream.Start : FromStream.After(StreamPosition.FromInt64(offset.Value));
+            
             return await client.SubscribeToStreamAsync(topicName,
                 fromStream,
                 async (subscription, evt, cancellationToken) => {

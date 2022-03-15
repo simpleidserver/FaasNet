@@ -1,12 +1,17 @@
 <div class="breadcrumb">
   <ul>
-    <li>{{ "domains.list" | translate }}</li>
+    <li>{{ "applicationDomains.list" | translate }}</li>
   </ul>
 </div>
 <div class="actions">
-
+  <div class="spacer"></div>
+  <ul class="navigation">
+    <li>
+      <a [routerLink]="['/domains/' + id + '/messages']" [routerLinkActive]="['is-active']" [matTooltip]="'applicationDomains.tooltip.events' | translate"><mat-icon>message</mat-icon></a>
+    </li>
+    <li>
+      <a [routerLink]="['/domains/' + id + '/editor']" [routerLinkActive]="['is-active']" [matTooltip]="'applicationDomains.tooltip.editor' | translate"><mat-icon>account_tree</mat-icon></a>
+    </li>
+  </ul>
 </div>
-<div class="edit">
-  <asyncapi-editor></asyncapi-editor>
-</div>
-<loader *ngIf="isLoading"></loader>
+<router-outlet></router-outlet>

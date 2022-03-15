@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: faas
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: eventstore-lb
+spec:
+  type: NodePort
+  selector:
+    run: eventstore-cluster
+  ports:
+  - name: 'external-tcp'
+    protocol: TCP
+    port: 2113
+    targetPort: 2113
+    nodePort: 30062
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventstore-cluster
+spec:
+  type: ClusterIP
+  selector:
+    app: eventstore-cluster
+  ports:
+  - port: 2113
+    name: eventstore-tcp
+    targetPort: 2113
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: eventstore-cluster  
+spec:
+  selector:
+    matchLabels:
+      app: eventstore-cluster
+  replicas: 1
+  serviceName: eventstore-cluster
+  template:
+    metadata:
+      labels:
+        app: eventstore-cluster  
+    spec:     
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: log
+          emptyDir: {}  
+      containers:
+        - name: eventstore-cluster
+          image: "eventstore/eventstore:20.10.5-buster-slim"
+          ports:
+            - containerPort: 2113
+            - containerPort: 2114
+            - containerPort: 1111
+            - containerPort: 1112   
+          env: 
+            - name: EVENTSTORE_INT_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: EVENTSTORE_EXT_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: EVENTSTORE_INT_TCP_PORT
+              value: "1111"
+            - name: EVENTSTORE_EXT_TCP_PORT
+              value: "1112"
+            - name: EVENTSTORE_INT_HTTP_PORT
+              value: "2114"
+            - name: EVENTSTORE_EXT_HTTP_PORT
+              value: "2113"
+            - name: EVENTSTORE_CLUSTER_SIZE
+              value: "1"
+            - name: EVENTSTORE_INSECURE
+              value: "true"
+            - name: EVENTSTORE_CLUSTER_DNS
+              value: "eventstore-cluster.faas.svc.cluster.local"
+            - name: EVENTSTORE_CLUSTER_GOSSIP_PORT
+              value: "2114"
+            - name: EVENTSTORE_GOSSIP_ALLOWED_DIFFERENCE_MS
+              value: "600000"
+            - name: EVENTSTORE_INT_HTTP_PREFIXES
+              value: "http://*:2114/"
+            - name: EVENTSTORE_EXT_HTTP_PREFIXES
+              value: "http://*:2113/"
+          volumeMounts:
+          - mountPath: /var/lib/eventstore
+            name: data
+          - mountPath: /var/log/eventstore
+            name: log
+---

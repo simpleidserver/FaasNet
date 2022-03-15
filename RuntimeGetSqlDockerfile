@@ -1,8 +1,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
 
 COPY build/results/services/RuntimeGetSql/ App/
-ENV ASPNETCORE_URLS=http://*:8080
 
+ENV ASPNETCORE_URLS=http://*:8080
 EXPOSE 8080
 
 WORKDIR /App
