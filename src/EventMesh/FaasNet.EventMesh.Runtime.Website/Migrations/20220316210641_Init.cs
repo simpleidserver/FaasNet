@@ -8,18 +8,6 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "BridgeServers",
-                columns: table => new
-                {
-                    Urn = table.Column<string>(type: "TEXT", nullable: false),
-                    Port = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BridgeServers", x => x.Urn);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BrokerConfigurations",
                 columns: table => new
                 {
@@ -32,16 +20,17 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Clients",
+                name: "VpnLst",
                 columns: table => new
                 {
-                    ClientId = table.Column<string>(type: "TEXT", nullable: false),
-                    Urn = table.Column<string>(type: "TEXT", nullable: true),
-                    CreateDateTime = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    CreateDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdateDateTime = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Clients", x => x.ClientId);
+                    table.PrimaryKey("PK_VpnLst", x => x.Name);
                 });
 
             migrationBuilder.CreateTable(
@@ -66,10 +55,75 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ApplicationDomain",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    RootTopic = table.Column<string>(type: "TEXT", nullable: true),
+                    CreateDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdateDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    VpnName = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationDomain", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApplicationDomain_VpnLst_VpnName",
+                        column: x => x.VpnName,
+                        principalTable: "VpnLst",
+                        principalColumn: "Name",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BridgeServer",
+                columns: table => new
+                {
+                    Urn = table.Column<string>(type: "TEXT", nullable: false),
+                    Port = table.Column<int>(type: "INTEGER", nullable: false),
+                    Vpn = table.Column<string>(type: "TEXT", nullable: true),
+                    VpnName = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BridgeServer", x => x.Urn);
+                    table.ForeignKey(
+                        name: "FK_BridgeServer_VpnLst_VpnName",
+                        column: x => x.VpnName,
+                        principalTable: "VpnLst",
+                        principalColumn: "Name",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Client",
+                columns: table => new
+                {
+                    ClientId = table.Column<string>(type: "TEXT", nullable: false),
+                    Urn = table.Column<string>(type: "TEXT", nullable: true),
+                    CreateDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Purposes = table.Column<string>(type: "TEXT", nullable: true),
+                    VpnName = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Client", x => x.ClientId);
+                    table.ForeignKey(
+                        name: "FK_Client_VpnLst_VpnName",
+                        column: x => x.VpnName,
+                        principalTable: "VpnLst",
+                        principalColumn: "Name",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ClientSession",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Vpn = table.Column<string>(type: "TEXT", nullable: true),
                     IPAddressData = table.Column<byte[]>(type: "BLOB", nullable: true),
                     Port = table.Column<int>(type: "INTEGER", nullable: false),
                     Environment = table.Column<string>(type: "TEXT", nullable: true),
@@ -86,9 +140,9 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 {
                     table.PrimaryKey("PK_ClientSession", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClientSession_Clients_ClientId",
+                        name: "FK_ClientSession_Client_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "Clients",
+                        principalTable: "Client",
                         principalColumn: "ClientId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -102,6 +156,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     Urn = table.Column<string>(type: "TEXT", nullable: true),
                     Port = table.Column<int>(type: "INTEGER", nullable: false),
                     SessionId = table.Column<string>(type: "TEXT", nullable: true),
+                    Vpn = table.Column<string>(type: "TEXT", nullable: true),
                     ClientSessionId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -175,9 +230,9 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 {
                     table.PrimaryKey("PK_Topic", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Topic_Clients_ClientId",
+                        name: "FK_Topic_Client_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "Clients",
+                        principalTable: "Client",
                         principalColumn: "ClientId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -189,9 +244,24 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ApplicationDomain_VpnName",
+                table: "ApplicationDomain",
+                column: "VpnName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BridgeServer_VpnName",
+                table: "BridgeServer",
+                column: "VpnName");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BrokerConfigurationRecord_BrokerConfigurationName",
                 table: "BrokerConfigurationRecord",
                 column: "BrokerConfigurationName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Client_VpnName",
+                table: "Client",
+                column: "VpnName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientSession_ClientId",
@@ -227,7 +297,10 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BridgeServers");
+                name: "ApplicationDomain");
+
+            migrationBuilder.DropTable(
+                name: "BridgeServer");
 
             migrationBuilder.DropTable(
                 name: "BrokerConfigurationRecord");
@@ -251,7 +324,10 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 name: "ClientSession");
 
             migrationBuilder.DropTable(
-                name: "Clients");
+                name: "Client");
+
+            migrationBuilder.DropTable(
+                name: "VpnLst");
         }
     }
 }

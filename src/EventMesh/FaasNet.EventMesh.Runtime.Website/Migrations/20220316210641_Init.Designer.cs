@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.EventMesh.Runtime.Website.Migrations
 {
     [DbContext(typeof(EventMeshDBContext))]
-    [Migration("20220217154943_Init")]
+    [Migration("20220316210641_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,7 +18,37 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "5.0.13");
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.BridgeServer", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationDomain", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RootTopic")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdateDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VpnName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VpnName");
+
+                    b.ToTable("ApplicationDomain");
+                });
+
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.BridgeServer", b =>
                 {
                     b.Property<string>("Urn")
                         .HasColumnType("TEXT");
@@ -26,12 +56,20 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<int>("Port")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Vpn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VpnName")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Urn");
 
-                    b.ToTable("BridgeServers");
+                    b.HasIndex("VpnName");
+
+                    b.ToTable("BridgeServer");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.BrokerConfiguration", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.BrokerConfiguration", b =>
                 {
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
@@ -44,7 +82,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.ToTable("BrokerConfigurations");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.BrokerConfigurationRecord", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.BrokerConfigurationRecord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,7 +104,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.ToTable("BrokerConfigurationRecord");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.Client", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Client", b =>
                 {
                     b.Property<string>("ClientId")
                         .HasColumnType("TEXT");
@@ -74,15 +112,23 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<DateTime>("CreateDateTime")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Purposes")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Urn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VpnName")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ClientId");
 
-                    b.ToTable("Clients");
+                    b.HasIndex("VpnName");
+
+                    b.ToTable("Client");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.ClientSession", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientSession", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -120,6 +166,9 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Vpn")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
@@ -127,7 +176,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.ToTable("ClientSession");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.ClientSessionBridge", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientSessionBridge", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -145,6 +194,9 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<string>("Urn")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Vpn")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClientSessionId");
@@ -152,7 +204,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.ToTable("ClientSessionBridge");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.ClientSessionHistory", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientSessionHistory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -174,7 +226,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.ToTable("ClientSessionHistory");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.ClientSessionPendingCloudEvent", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientSessionPendingCloudEvent", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -199,7 +251,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.ToTable("ClientSessionPendingCloudEvent");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.Topic", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Topic", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -227,9 +279,28 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("Topic");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.ClientTopic", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Vpn", b =>
                 {
-                    b.HasBaseType("EventMesh.Runtime.Models.Topic");
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdateDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("VpnLst");
+                });
+
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientTopic", b =>
+                {
+                    b.HasBaseType("FaasNet.EventMesh.Runtime.Models.Topic");
 
                     b.Property<string>("ClientId")
                         .HasColumnType("TEXT");
@@ -242,75 +313,99 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.HasDiscriminator().HasValue("ClientTopic");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.BrokerConfigurationRecord", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationDomain", b =>
                 {
-                    b.HasOne("EventMesh.Runtime.Models.BrokerConfiguration", null)
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.Vpn", null)
+                        .WithMany("ApplicationDomains")
+                        .HasForeignKey("VpnName")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.BridgeServer", b =>
+                {
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.Vpn", null)
+                        .WithMany("BridgeServers")
+                        .HasForeignKey("VpnName")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.BrokerConfigurationRecord", b =>
+                {
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.BrokerConfiguration", null)
                         .WithMany("Records")
                         .HasForeignKey("BrokerConfigurationName")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.ClientSession", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Client", b =>
                 {
-                    b.HasOne("EventMesh.Runtime.Models.Client", null)
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.Vpn", null)
+                        .WithMany("Clients")
+                        .HasForeignKey("VpnName")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientSession", b =>
+                {
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.Client", null)
                         .WithMany("Sessions")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.ClientSessionBridge", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientSessionBridge", b =>
                 {
-                    b.HasOne("EventMesh.Runtime.Models.ClientSession", null)
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.ClientSession", null)
                         .WithMany("Bridges")
                         .HasForeignKey("ClientSessionId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.ClientSessionHistory", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientSessionHistory", b =>
                 {
-                    b.HasOne("EventMesh.Runtime.Models.ClientSession", null)
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.ClientSession", null)
                         .WithMany("Histories")
                         .HasForeignKey("ClientSessionId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.ClientSessionPendingCloudEvent", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientSessionPendingCloudEvent", b =>
                 {
-                    b.HasOne("EventMesh.Runtime.Models.ClientSession", null)
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.ClientSession", null)
                         .WithMany("PendingCloudEvents")
                         .HasForeignKey("ClientSessionId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.Topic", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Topic", b =>
                 {
-                    b.HasOne("EventMesh.Runtime.Models.ClientSession", null)
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.ClientSession", null)
                         .WithMany("Topics")
                         .HasForeignKey("ClientSessionId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.ClientTopic", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientTopic", b =>
                 {
-                    b.HasOne("EventMesh.Runtime.Models.Client", null)
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.Client", null)
                         .WithMany("Topics")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.BrokerConfiguration", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.BrokerConfiguration", b =>
                 {
                     b.Navigation("Records");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.Client", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Client", b =>
                 {
                     b.Navigation("Sessions");
 
                     b.Navigation("Topics");
                 });
 
-            modelBuilder.Entity("EventMesh.Runtime.Models.ClientSession", b =>
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientSession", b =>
                 {
                     b.Navigation("Bridges");
 
@@ -319,6 +414,15 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Navigation("PendingCloudEvents");
 
                     b.Navigation("Topics");
+                });
+
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Vpn", b =>
+                {
+                    b.Navigation("ApplicationDomains");
+
+                    b.Navigation("BridgeServers");
+
+                    b.Navigation("Clients");
                 });
 #pragma warning restore 612, 618
         }

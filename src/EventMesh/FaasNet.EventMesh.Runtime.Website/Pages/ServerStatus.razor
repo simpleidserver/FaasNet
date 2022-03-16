@@ -4,8 +4,6 @@
 @implements IDisposable
 @inject BreadcrumbState ServerState
 @inject IOptions<RuntimeOptions> Opts
-@inject IBridgeServerStore BridgeServerStore
-@inject IClientStore ClientStore
 @inject IEnumerable<IHostedService> hostedServices
 
 <div class="card">
@@ -41,18 +39,6 @@
                     <span>Last refresh time : @LastRefreshDateTime?.ToString("HH:mm:s")</span>
                 }
             </li>
-            <!-- Number of clients -->
-            <li>
-                <span>Number of clients : @NbClients</span>
-            </li>
-            <!-- Number of active sessions -->
-            <li>
-                <span>Number of active sessions : @NbActiveSessions</span>
-            </li>
-            <!-- Number of configured bridge -->
-            <li>
-                <span>Number of configured bridge : @NbConfiguredBridges</span>
-            </li>
         </ul>
     </div>
 </div>
@@ -62,9 +48,6 @@
     private static System.Timers.Timer _timer;
     public bool IsRunning { get; set; } = false;
     public DateTime? LastRefreshDateTime = null;
-    public int NbClients = 0;
-    public int NbActiveSessions = 0;
-    public int NbConfiguredBridges = 0;
     public RuntimeHostedService _runtimeHostedService;
 
     private void Restart()
@@ -102,27 +85,10 @@
 
         try
         {
-            RefreshClients();
-            RefreshActiveSessions();
             await CheckHeartbeat();
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception) { }
-    }
-
-    private void RefreshClients()
-    {
-        NbClients = ClientStore.Count();
-    }
-
-    private void RefreshActiveSessions()
-    {
-        NbActiveSessions = ClientStore.CountActiveSessions();
-    }
-
-    private void RefreshBridges()
-    {
-        NbConfiguredBridges = BridgeServerStore.GetAll().Count();
     }
 
     private async Task CheckHeartbeat()

@@ -32,7 +32,8 @@ namespace FaasNet.EventMesh.Runtime.Client
                 Pid = 2000,
                 BufferCloudEvents = 1,
                 Version = "0",
-                Purpose = UserAgentPurpose.SUB
+                Purpose = UserAgentPurpose.SUB,
+                Vpn = "default"
             });
             return helloResponse.SessionId;
         }
