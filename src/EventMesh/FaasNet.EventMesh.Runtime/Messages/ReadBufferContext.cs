@@ -25,6 +25,11 @@ namespace FaasNet.EventMesh.Runtime.Messages
 
         public string NextString()
         {
+            if (!Buffer.Any())
+            {
+                return string.Empty;
+            }
+
             var size = Buffer.First();
             var result = Buffer.GetString();
             CurrentOffset += size;

@@ -1,4 +1,5 @@
 ﻿using FaasNet.Domain.Exceptions;
+using FaasNet.EventMesh.Runtime.Messages;
 using FaasNet.EventMesh.Runtime.Resources;
 using System;
 using System.Collections.Generic;
@@ -63,7 +64,7 @@ namespace FaasNet.EventMesh.Runtime.Models
         public void AddBridge(string urn, int port, string vpn)
         {
             var bridgeServer = GetBridgeServer(urn, port, vpn);
-            if (bridgeServer == null)
+            if (bridgeServer != null)
             {
                 throw new DomainException(ErrorCodes.BRIDGE_ALREADY_EXISTS, Global.BridgeAlreadyExists);
             }
@@ -76,16 +77,25 @@ namespace FaasNet.EventMesh.Runtime.Models
             });
         }
 
-        public Client AddClient(string clientId, string urn)
+        public Client AddClient(string clientId, string urn, List<UserAgentPurpose> purposes = null)
         {
+            if (purposes == null)
+            {
+                purposes = new List<UserAgentPurpose>
+                {
+                    UserAgentPurpose.SUB
+                };
+            }
+
             var client = Client.Create(clientId, urn);
+            client.Purposes = purposes.Select(p => p.Code).ToList();
             Clients.Add(client);
             return client;
         }
 
         public Client GetClient(string clientId)
         {
-            return Clients.First(c => c.ClientId == clientId);
+            return Clients.FirstOrDefault(c => c.ClientId == clientId);
         }
 
         public Client GetByActiveSession(string clientId, string sessionId)

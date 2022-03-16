@@ -1,4 +1,6 @@
-﻿namespace FaasNet.EventMesh.Runtime.Messages
+﻿using System.Linq;
+
+namespace FaasNet.EventMesh.Runtime.Messages
 {
     public class HelloResponse : Package
     {

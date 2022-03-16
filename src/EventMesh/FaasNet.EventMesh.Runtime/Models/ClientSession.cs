@@ -33,6 +33,7 @@ namespace FaasNet.EventMesh.Runtime.Models
         }
 
         public string Id { get; set; }
+        public string Vpn { get; set; }
         public byte[] IPAddressData { get; set; }
         public int Port { get; set; }
         public string Environment { get; set; }
@@ -122,13 +123,14 @@ namespace FaasNet.EventMesh.Runtime.Models
 
         #endregion
 
-        public static ClientSession Create(IPEndPoint edp, string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, ClientSessionTypes type)
+        public static ClientSession Create(IPEndPoint edp, string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, string vpn, ClientSessionTypes type)
         {
             var result = new ClientSession
             {
                 Id = Guid.NewGuid().ToString(),
                 Endpoint = edp,
                 Environment = env,
+                Vpn = vpn,
                 Pid = pid,
                 Purpose = purpose,
                 BufferCloudEvents = bufferCloudEvents,

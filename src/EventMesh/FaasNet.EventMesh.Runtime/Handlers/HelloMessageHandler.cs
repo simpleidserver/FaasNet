@@ -44,7 +44,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 helloRequest.UserAgent.Pid,
                 helloRequest.UserAgent.Purpose,
                 helloRequest.UserAgent.BufferCloudEvents,
-                helloRequest.UserAgent.IsServer);
+                helloRequest.UserAgent.IsServer,
+                vpn.Name);
             _vpnStore.Update(vpn);
             await _vpnStore.SaveChanges(cancellationToken);
             return PackageResponseBuilder.Hello(package.Header.Seq, sessionId);

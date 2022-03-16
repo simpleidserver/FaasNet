@@ -176,7 +176,8 @@ namespace FaasNet.EventMesh.Runtime
                     bridgeServers.Add(new AsyncMessageBridgeServer
                     {
                         Port = _options.Port,
-                        Urn = _options.Urn
+                        Urn = _options.Urn,
+                        Vpn = e.ClientSession.Vpn
                     });
                     PackageResponseBuilder.AsyncMessageToServer(e.ClientId, bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Id).Serialize(writeCtx);
                     break;
