@@ -61,15 +61,6 @@ namespace FaasNet.EventMesh.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to bridge already exists.
-        /// </summary>
-        internal static string BridgeAlreadyExists {
-            get {
-                return ResourceManager.GetString("BridgeAlreadyExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to eventmesh server &apos;{0}:{1}&apos; already exists.
         /// </summary>
         internal static string EventMeshServerExists {
@@ -84,6 +75,24 @@ namespace FaasNet.EventMesh.Core.Resources {
         internal static string UnknownEventMeshServer {
             get {
                 return ResourceManager.GetString("UnknownEventMeshServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to vpn &apos;{0}&apos; doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownVpn {
+            get {
+                return ResourceManager.GetString("UnknownVpn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to VPN already exists.
+        /// </summary>
+        internal static string VpnAlreadyExists {
+            get {
+                return ResourceManager.GetString("VpnAlreadyExists", resourceCulture);
             }
         }
     }

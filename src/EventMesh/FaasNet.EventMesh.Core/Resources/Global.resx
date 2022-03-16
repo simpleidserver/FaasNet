@@ -117,13 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="BridgeAlreadyExists" xml:space="preserve">
-    <value>bridge already exists</value>
-  </data>
   <data name="EventMeshServerExists" xml:space="preserve">
     <value>eventmesh server '{0}:{1}' already exists</value>
   </data>
   <data name="UnknownEventMeshServer" xml:space="preserve">
     <value>eventmesh server '{0}:{1}' doesn't exist</value>
+  </data>
+  <data name="UnknownVpn" xml:space="preserve">
+    <value>vpn '{0}' doesn't exist</value>
+  </data>
+  <data name="VpnAlreadyExists" xml:space="preserve">
+    <value>VPN already exists</value>
   </data>
 </root>

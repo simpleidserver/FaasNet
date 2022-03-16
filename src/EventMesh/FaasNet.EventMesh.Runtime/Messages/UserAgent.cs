@@ -11,6 +11,7 @@
 
         #region Properties
 
+        public string Vpn { get; set; }
         public string ClientId { get; set; }
         public string Environment { get; set; }
         public string Urn { get; set; }
@@ -26,6 +27,7 @@
 
         public void Serialize(WriteBufferContext context)
         {
+            context.WriteString(Vpn);
             context.WriteString(ClientId);
             context.WriteString(Environment);
             context.WriteString(Urn);
@@ -42,6 +44,7 @@
         {
             var result = new UserAgent
             {
+                Vpn = context.NextString(),
                 ClientId = context.NextString(),
                 Environment = context.NextString(),
                 Urn = context.NextString(),

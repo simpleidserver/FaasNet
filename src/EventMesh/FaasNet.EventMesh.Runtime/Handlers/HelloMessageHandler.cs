@@ -1,8 +1,7 @@
-﻿using FaasNet.EventMesh.Runtime.Acl;
-using FaasNet.EventMesh.Runtime.Exceptions;
+﻿using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Messages;
-using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,15 +10,11 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 {
     public class HelloMessageHandler : IMessageHandler
     {
-        private readonly IClientStore _clientSessionStore;
-        private readonly IACLService _aclService;
+        private readonly IVpnStore _vpnStore;
 
-        public HelloMessageHandler(
-            IClientStore clientSessionStore,
-            IACLService aclService)
+        public HelloMessageHandler(IVpnStore vpnStore)
         {
-            _clientSessionStore = clientSessionStore;
-            _aclService = aclService;
+            _vpnStore = vpnStore;
         }
 
         public Commands Command => Commands.HELLO_REQUEST;
@@ -27,41 +22,32 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var helloRequest = package as HelloRequest;
-            if (!await _aclService.Check(helloRequest.UserAgent, PossibleActions.AUTHENTICATE, cancellationToken))
+            var vpn = await _vpnStore.Get(helloRequest.UserAgent.Vpn, cancellationToken);
+            if (vpn == null)
+            {
+                throw new RuntimeException(helloRequest.Header.Command, helloRequest.Header.Seq, Errors.UNKNOWN_VPN);
+            }
+
+            var client = vpn.GetClient(helloRequest.UserAgent.ClientId);
+            if (client == null)
+            {
+                throw new RuntimeException(helloRequest.Header.Command, helloRequest.Header.Seq, Errors.INVALID_CLIENT);
+            }
+
+            if (!client.Purposes.Any(p => p == helloRequest.UserAgent.Purpose.Code))
             {
                 throw new RuntimeException(helloRequest.Header.Command, helloRequest.Header.Seq, Errors.NOT_AUTHORIZED);
             }
 
-            var sessionId = TryCreateSession(helloRequest, sender);
-            return PackageResponseBuilder.Hello(package.Header.Seq, sessionId);
-        }
-
-        private string TryCreateSession(HelloRequest request, IPEndPoint sender)
-        {
-            bool isUpdated = true;
-            var client = _clientSessionStore.Get(request.UserAgent.ClientId);
-            if (client == null)
-            {
-                client = Client.Create(request.UserAgent.ClientId, request.UserAgent.Urn);
-                isUpdated = false;
-            }
-
             var sessionId = client.AddSession(sender,
-                request.UserAgent.Environment, 
-                request.UserAgent.Pid, 
-                request.UserAgent.Purpose, 
-                request.UserAgent.BufferCloudEvents, 
-                request.UserAgent.IsServer);
-            if (isUpdated)
-            {
-                _clientSessionStore.Update(client);
-            }
-            else
-            {
-                _clientSessionStore.Add(client);
-            }
-
-            return sessionId;
+                helloRequest.UserAgent.Environment,
+                helloRequest.UserAgent.Pid,
+                helloRequest.UserAgent.Purpose,
+                helloRequest.UserAgent.BufferCloudEvents,
+                helloRequest.UserAgent.IsServer);
+            _vpnStore.Update(vpn);
+            await _vpnStore.SaveChanges(cancellationToken);
+            return PackageResponseBuilder.Hello(package.Header.Seq, sessionId);
         }
     }
 }

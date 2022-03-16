@@ -4,22 +4,28 @@
     {
         #region Properties
 
-        public string Urn { get; set; }
-        public int Port { get; set; }
+        public string Vpn { get; set; }
+        public string TargetVpn { get; set; }
+        public string TargetUrn { get; set; }
+        public int TargetPort { get; set; }
 
         #endregion
 
         public override void Serialize(WriteBufferContext context)
         {
             base.Serialize(context);
-            context.WriteString(Urn);
-            context.WriteInteger(Port);
+            context.WriteString(Vpn);
+            context.WriteString(TargetVpn);
+            context.WriteString(TargetUrn);
+            context.WriteInteger(TargetPort);
         }
 
         public void Extract(ReadBufferContext context)
         {
-            Urn = context.NextString();
-            Port = context.NextInt();
+            Vpn = context.NextString();
+            TargetVpn = context.NextString();
+            TargetUrn = context.NextString();
+            TargetPort = context.NextInt();
         }
     }
 }

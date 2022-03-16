@@ -118,10 +118,10 @@ namespace FaasNet.EventMesh.Runtime
             return new SubscriptionResult(result, listener);
         }
 
-        public async Task<Package> AddBridge(string urn, int port, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<Package> AddBridge(string vpn, string urn, int port, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AddBridge(urn, port);
+            var package = PackageRequestBuilder.AddBridge(vpn, urn, port);
             package.Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);

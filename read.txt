@@ -31,3 +31,16 @@ Un VPN peut être lié à un autre VPN (VPN bridge).
 Créer un domaine
 Pour le domaine il faut ajouter une ou plusieurs applications.
 Pour le workflow il faut sélectionner le VPN, choisir le domain, choisir l'application.
+
+-------
+Nous avons un EventMeshServer
+Ce dernier peut posséder un ou plusieurs VPN
+Chaque VPN peut posséder un ou plusieurs application domains
+Chaque "application domain" peut posséder une ou plusieurs applications
+Un client peut se connecter à un VPN, il possède sa propre définition. Il peut ainsi publier un message & ce dernier va être publié vers les autres applications
+Comment lier tout cela à serverless workflow ?
+Serverless workflow n'est simplement qu'une application qui agit dans son propre application domain
+-------
+
+1. Ajouter le concept de VPN
+

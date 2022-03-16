@@ -1,5 +1,4 @@
 ﻿using CloudNative.CloudEvents;
-using CloudNative.CloudEvents.SystemTextJson;
 using FaasNet.EventMesh.Runtime.Extensions;
 
 namespace FaasNet.EventMesh.Runtime.Messages

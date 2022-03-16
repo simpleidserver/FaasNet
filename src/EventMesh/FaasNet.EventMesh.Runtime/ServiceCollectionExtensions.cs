@@ -1,10 +1,11 @@
 ﻿using FaasNet.EventMesh.Runtime;
-using FaasNet.EventMesh.Runtime.Acl;
 using FaasNet.EventMesh.Runtime.Handlers;
 using FaasNet.EventMesh.Runtime.MessageBroker;
+using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -30,11 +31,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IMessageHandler, AddBridgeMessageHandler>();
             services.AddTransient<IMessageHandler, DisconnectMessageHandler>();
             services.AddTransient<IMessageHandler, PublishMessageRequestHandler>();
-            services.AddTransient<IACLService, ACLService>();
             services.AddSingleton<IUdpClientServerFactory, UdpClientServerFactory>();
-            services.AddSingleton<IClientStore>(new ClientStore());
-            services.AddSingleton<IBridgeServerStore>(new BridgeServerStore());
             services.AddSingleton<IBrokerConfigurationStore>(new BrokerConfigurationStore());
+            services.AddSingleton<IVpnStore>(new VpnStore(new List<Vpn>()));
             return services;
         }
 

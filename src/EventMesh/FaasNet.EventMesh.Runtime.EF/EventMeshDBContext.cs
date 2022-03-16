@@ -10,8 +10,7 @@ namespace FaasNet.EventMesh.Runtime.EF
 
         public static object Lock = new object();
 
-        public virtual DbSet<Client> Clients { get; set; }
-        public virtual DbSet<BridgeServer> BridgeServers { get; set; }
+        public virtual DbSet<Vpn> VpnLst { get; set; }
         public virtual DbSet<BrokerConfiguration> BrokerConfigurations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

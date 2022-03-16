@@ -82,13 +82,14 @@ namespace FaasNet.EventMesh.Runtime.Messages
             return result;
         }
 
-        public static Package AddBridge(string urn, int port,string seq = null)
+        public static Package AddBridge(string vpn, string urn, int port,string seq = null)
         {
             var result = new AddBridgeRequest
             {
                 Header = new Header(Commands.ADD_BRIDGE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
-                Port = port,
-                Urn = urn
+                TargetPort = port,
+                TargetUrn = urn,
+                Vpn = vpn
             };
             return result;
         }

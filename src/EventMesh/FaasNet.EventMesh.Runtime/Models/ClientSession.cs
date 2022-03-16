@@ -104,9 +104,9 @@ namespace FaasNet.EventMesh.Runtime.Models
             return true;
         }
 
-        public ClientSessionBridge GetBridge(string urn)
+        public ClientSessionBridge GetBridge(string urn, int port, string vpn)
         {
-            return Bridges.FirstOrDefault(b => b.Urn == urn);
+            return Bridges.FirstOrDefault(b => b.Urn == urn && b.Port == port && b.Vpn == vpn);
         }
 
         public void AddBridge(ClientSessionBridge bridge)

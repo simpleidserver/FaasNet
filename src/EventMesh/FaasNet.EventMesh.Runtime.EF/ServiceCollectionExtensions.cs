@@ -11,17 +11,13 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddRuntimeEF(this IServiceCollection serviceCollection, Action<DbContextOptionsBuilder> options = null)
         {
-            var clientStoreType = serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IClientStore));
-            var bridgeServerStoreType = serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IBridgeServerStore));
+            var vpnStoreType = serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IVpnStore));
             var brokerConfigurationStoreType = serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IBrokerConfigurationStore));
-            if (clientStoreType != null)
-                serviceCollection.Remove(clientStoreType);
-            if (bridgeServerStoreType != null)
-                serviceCollection.Remove(bridgeServerStoreType);
+            if (vpnStoreType != null)
+                serviceCollection.Remove(vpnStoreType);
             if (brokerConfigurationStoreType != null)
                 serviceCollection.Remove(brokerConfigurationStoreType);
-            serviceCollection.AddTransient<IClientStore, EFClientStore>();
-            serviceCollection.AddTransient<IBridgeServerStore, EFBridgeServerStore>();
+            serviceCollection.AddTransient<IVpnStore, EFVpnStore>();
             serviceCollection.AddTransient<IBrokerConfigurationStore, EFBrokerConfigurationStore>();
             serviceCollection.AddDbContext<EventMeshDBContext>(options);
             return serviceCollection;

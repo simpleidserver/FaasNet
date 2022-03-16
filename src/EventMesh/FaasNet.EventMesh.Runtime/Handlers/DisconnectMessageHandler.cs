@@ -15,9 +15,9 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         private readonly IUdpClientServerFactory _udpClientFactory;
 
         public DisconnectMessageHandler(
-            IClientStore clientStore,
+            IVpnStore vpnStore,
             IEnumerable<IMessageConsumer> messageConsumers,
-            IUdpClientServerFactory udpClientServerFactory) : base(clientStore)
+            IUdpClientServerFactory udpClientServerFactory) : base(vpnStore)
         {
             _udpClientFactory = udpClientServerFactory;
             _messageConsumers = messageConsumers;
@@ -28,23 +28,10 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var disconnectRequest = package as DisconnectRequest;
-            var client = GetActiveSession(package, disconnectRequest.ClientId, disconnectRequest.SessionId);
-            await CloseRemoteSessions(client, disconnectRequest);
-            await CloseLocalSession(client, disconnectRequest.SessionId);
+            var sessionResult = await GetActiveSession(package, disconnectRequest.ClientId, disconnectRequest.SessionId, cancellationToken);
+            await CloseRemoteSessions(sessionResult.Client, disconnectRequest);
+            await CloseLocalSession(sessionResult.Client, disconnectRequest.SessionId, sessionResult.Vpn, cancellationToken);
             return PackageResponseBuilder.Disconnect(package.Header.Seq);
-        }
-
-        private async Task CloseLocalSession(Client client, string sessionId)
-        {
-            var activeSession = client.GetActiveSession(sessionId);
-            foreach (var topic in activeSession.Topics)
-            {
-                var messageConsumer = _messageConsumers.First(m => m.BrokerName == topic.BrokerName);
-                await messageConsumer.Unsubscribe(topic.Name, client, sessionId, CancellationToken.None);
-            }
-
-            client.CloseActiveSession(sessionId);
-            ClientStore.Update(client);
         }
 
         private async Task CloseRemoteSessions(Client client, DisconnectRequest disconnectRequest)
@@ -56,6 +43,20 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 var runtimeClient = new RuntimeClient(udpClient, bridgeServer.Urn, bridgeServer.Port);
                 await runtimeClient.Disconnect(disconnectRequest.ClientId, bridgeServer.SessionId, true);
             }
+        }
+
+        private async Task CloseLocalSession(Client client, string sessionId, Vpn vpn, CancellationToken cancellationToken)
+        {
+            var activeSession = client.GetActiveSession(sessionId);
+            foreach (var topic in activeSession.Topics)
+            {
+                var messageConsumer = _messageConsumers.First(m => m.BrokerName == topic.BrokerName);
+                await messageConsumer.Unsubscribe(topic.Name, client, sessionId, CancellationToken.None);
+            }
+
+            client.CloseActiveSession(sessionId);
+            VpnStore.Update(vpn);
+            await VpnStore.SaveChanges(cancellationToken);
         }
     }
 }

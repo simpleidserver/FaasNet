@@ -9,11 +9,13 @@ namespace FaasNet.EventMesh.Runtime.Messages
         public static Errors NO_BRIDGE_SERVER = new Errors("NO_BRIDGE_SERVER");
         public static Errors INVALID_URL = new Errors("INVALID_URL");
         public static Errors INVALID_CLIENT = new Errors("INVALID_CLIENT");
+        public static Errors INVALID_SESSION = new Errors("INVALID_SESSION");
         public static Errors INVALID_SEQ = new Errors("INVALID_SEQ");
         public static Errors INVALID_BRIDGE = new Errors("INVALID_BRIDGE");
         public static Errors BRIDGE_NOT_ACTIVE = new Errors("BRIDGE_NOT_ACTIVE");
         public static Errors BRIDGE_EXISTS = new Errors("BRIDGE_EXISTS");
         public static Errors UNKNOWN_BRIDGE = new Errors("UNKNOWN_BRIDGE");
+        public static Errors UNKNOWN_VPN = new Errors("UNKNOWN_VPN");
         public static Errors UNAUTHORIZED_PUBLISH = new Errors("UNAUTHORIZED_PUBLISH");
         public static Errors UNAUTHORIZED_SUBSCRIBE = new Errors("UNAUTHORIZED_SUBSCRIBE");
         private Errors(string code)

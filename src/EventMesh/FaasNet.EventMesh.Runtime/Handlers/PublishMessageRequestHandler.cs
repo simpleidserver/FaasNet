@@ -13,20 +13,15 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 {
     public class PublishMessageRequestHandler : BaseMessageHandler, IMessageHandler
     {
-        private readonly IUdpClientServerFactory _udpClientFactory;
-        private readonly IBridgeServerStore _bridgeServerStore;
         private readonly IEnumerable<IMessagePublisher> _messagePublishers;
         private readonly RuntimeOptions _runtimeOpts;
 
         public PublishMessageRequestHandler(
             IUdpClientServerFactory udpClientServerFactory,
-            IBridgeServerStore bridgeServerStore,
-            IClientStore clientStore, 
+            IVpnStore vpnStore, 
             IEnumerable<IMessagePublisher> messagePublishers,
-            IOptions<RuntimeOptions> runtimeOpts) : base(clientStore)
+            IOptions<RuntimeOptions> runtimeOpts) : base(vpnStore)
         {
-            _udpClientFactory = udpClientServerFactory;
-            _bridgeServerStore = bridgeServerStore;
             _messagePublishers = messagePublishers;
             _runtimeOpts = runtimeOpts.Value;
         }
@@ -36,8 +31,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var publishMessageRequest = package as PublishMessageRequest;
-            var client = GetActiveSession(publishMessageRequest, publishMessageRequest.ClientId, publishMessageRequest.SessionId);
-            var activeSession = client.GetActiveSession(publishMessageRequest.SessionId);
+            var sessionResult = await GetActiveSession(publishMessageRequest, publishMessageRequest.ClientId, publishMessageRequest.SessionId, cancellationToken);
+            var activeSession = sessionResult.Client.GetActiveSession(publishMessageRequest.SessionId);
             if (activeSession.Purpose != UserAgentPurpose.PUB)
             {
                 throw new RuntimeException(publishMessageRequest.Header.Command, publishMessageRequest.Header.Seq, Errors.UNAUTHORIZED_PUBLISH);
@@ -49,17 +44,17 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             {
                 foreach(var publisher in _messagePublishers)
                 {
-                    await publisher.Publish(publishMessageRequest.CloudEvent, publishMessageRequest.Topic, client);
+                    await publisher.Publish(publishMessageRequest.CloudEvent, publishMessageRequest.Topic, sessionResult.Client);
                 }
             }
 
-            await Broadcast(publishMessageRequest, client);
+            await Broadcast(publishMessageRequest, sessionResult.Client, sessionResult.Vpn.BridgeServers);
             return PackageResponseBuilder.PublishMessage(package.Header.Seq);
         }
 
-        private async Task Broadcast(PublishMessageRequest publishMessageRequest, Client client)
+        private async Task Broadcast(PublishMessageRequest publishMessageRequest, Client client, ICollection<BridgeServer> bridgeServers)
         {
-            foreach (var bridgeServer in _bridgeServerStore.GetAll())
+            foreach (var bridgeServer in bridgeServers)
             {
                 await Broadcast(publishMessageRequest, bridgeServer, client);
             }
@@ -79,7 +74,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 Urn = _runtimeOpts.Urn,
                 Port = _runtimeOpts.Port,
                 Pid = pid,
-                IsServer = true
+                IsServer = true,
+                Vpn = bridgeServer.Vpn
             });
             await runtimeClient.PublishMessage(client.ClientId, helloResponse.SessionId, publishMessageRequest.Topic, publishMessageRequest.CloudEvent, publishMessageRequest.Urn, publishMessageRequest.Port);
             await runtimeClient.Disconnect(client.ClientId, helloResponse.SessionId);

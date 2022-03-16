@@ -1,8 +1,6 @@
 ﻿using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Messages;
-using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
-using Microsoft.Extensions.Options;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,17 +10,14 @@ namespace FaasNet.EventMesh.Runtime.Handlers
     public class AddBridgeMessageHandler : IMessageHandler
     {
         private readonly IUdpClientServerFactory _udpClientFactory;
-        private readonly IBridgeServerStore _bridgeServerStore;
-        private readonly RuntimeOptions _options;
+        private readonly IVpnStore _vpnStore;
 
         public AddBridgeMessageHandler(
             IUdpClientServerFactory udpClientFactory,
-            IBridgeServerStore bridgeServerStore,
-            IOptions<RuntimeOptions> options)
+            IVpnStore vpnStore)
         {
             _udpClientFactory = udpClientFactory;
-            _bridgeServerStore = bridgeServerStore;
-            _options = options.Value;
+            _vpnStore = vpnStore;
         }
 
         public Commands Command => Commands.ADD_BRIDGE_REQUEST;
@@ -30,7 +25,13 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var addBridgeRequest = package as AddBridgeRequest;
-            var bridgeServer = _bridgeServerStore.Get(addBridgeRequest.Urn);
+            var vpn = await _vpnStore.Get(addBridgeRequest.Vpn, cancellationToken);
+            if (vpn == null)
+            {
+                throw new RuntimeException(addBridgeRequest.Header.Command, addBridgeRequest.Header.Seq, Errors.UNKNOWN_VPN);
+            }
+
+            var bridgeServer = vpn.GetBridgeServer(addBridgeRequest.TargetUrn, addBridgeRequest.TargetPort, addBridgeRequest.TargetVpn);
             if (bridgeServer != null)
             {
                 throw new RuntimeException(addBridgeRequest.Header.Command, addBridgeRequest.Header.Seq, Errors.BRIDGE_EXISTS);
@@ -39,7 +40,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             var udpClient = _udpClientFactory.Build();
             try
             {
-                var runtimeClient = new RuntimeClient(udpClient, addBridgeRequest.Urn, addBridgeRequest.Port);
+                var runtimeClient = new RuntimeClient(udpClient, addBridgeRequest.TargetUrn, addBridgeRequest.TargetPort);
                 await runtimeClient.HeartBeat();
             }
             catch(RuntimeClientException)
@@ -47,8 +48,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 throw new RuntimeException(addBridgeRequest.Header.Command, addBridgeRequest.Header.Seq, Errors.INVALID_BRIDGE);
             }
 
-            bridgeServer = BridgeServer.Create(addBridgeRequest.Urn, addBridgeRequest.Port);
-            _bridgeServerStore.Add(bridgeServer);
+            vpn.AddBridge(addBridgeRequest.TargetUrn, addBridgeRequest.TargetPort, addBridgeRequest.TargetVpn);
             return PackageResponseBuilder.AddBridge(package.Header.Seq);
         }
     }

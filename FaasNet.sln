@@ -79,6 +79,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Website", "src\Clie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.StateMachine.Core.Tests", "tests\FaasNet.StateMachine.Core.Tests\FaasNet.StateMachine.Core.Tests.csproj", "{C314AF86-ACED-445E-B88A-21B4AB66AC37}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime.EF", "src\EventMesh\FaasNet.EventMesh.Runtime.EF\FaasNet.EventMesh.Runtime.EF.csproj", "{B3CD5FDE-9027-4A73-8B3E-5C1BB12D8766}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -193,6 +195,10 @@ Global
 		{C314AF86-ACED-445E-B88A-21B4AB66AC37}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C314AF86-ACED-445E-B88A-21B4AB66AC37}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C314AF86-ACED-445E-B88A-21B4AB66AC37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3CD5FDE-9027-4A73-8B3E-5C1BB12D8766}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3CD5FDE-9027-4A73-8B3E-5C1BB12D8766}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3CD5FDE-9027-4A73-8B3E-5C1BB12D8766}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3CD5FDE-9027-4A73-8B3E-5C1BB12D8766}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -233,6 +239,7 @@ Global
 		{91CA63D2-5111-41B8-B0A6-2ADE71DDE36A} = {46365A98-AA59-4B9B-9582-21DC274C1F24}
 		{AADA4FCB-F367-478A-B8E3-D62895B73D25} = {46365A98-AA59-4B9B-9582-21DC274C1F24}
 		{C314AF86-ACED-445E-B88A-21B4AB66AC37} = {472FC125-267E-422D-AFFE-E33C5FFB3344}
+		{B3CD5FDE-9027-4A73-8B3E-5C1BB12D8766} = {95825677-4D42-420E-8126-220CDD2B4D8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46764455-0D10-4266-9C37-35D7BD67517C}

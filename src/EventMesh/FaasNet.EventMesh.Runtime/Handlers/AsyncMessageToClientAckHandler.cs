@@ -12,17 +12,14 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 {
     public class AsyncMessageToClientAckHandler : BaseMessageHandler, IMessageHandler
     {
-        private readonly IBridgeServerStore _bridgeServerStore;
         private readonly IUdpClientServerFactory _udpClientFactory;
         private readonly IEnumerable<IMessageConsumer> _messageConsumers;
 
         public AsyncMessageToClientAckHandler(
-            IClientStore clientStore,
-            IBridgeServerStore bridgeServerStore,
+            IVpnStore vpnStore,
             IUdpClientServerFactory udpClientServerFactory,
-            IEnumerable<IMessageConsumer> messageConsumers) : base(clientStore) 
+            IEnumerable<IMessageConsumer> messageConsumers) : base(vpnStore) 
         {
-            _bridgeServerStore = bridgeServerStore;
             _udpClientFactory = udpClientServerFactory;
             _messageConsumers = messageConsumers;
         }
@@ -33,20 +30,20 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         {
             Package result = null;
             var ackResponse = package as AsyncMessageAckToServer;
-            var client = GetActiveSession(ackResponse, ackResponse.ClientId, ackResponse.SessionId);
-            if (ConsumeCloudEvents(ackResponse, client))
+            var sessionResult = await GetActiveSession(ackResponse, ackResponse.ClientId, ackResponse.SessionId, cancellationToken);
+            if (await ConsumeCloudEvents(ackResponse, sessionResult.Client, sessionResult.Vpn, cancellationToken))
             {
                 result = PackageResponseBuilder.AsyncMessageToClient(package.Header.Seq);
             }
             else
             {
-                result = await TransmitCloudEvents(ackResponse, client);
+                result = await TransmitCloudEvents(ackResponse, sessionResult.Client, sessionResult.Vpn.BridgeServers);
             }
 
             return ackResponse.IsClient ? null : result;
         }
 
-        private bool ConsumeCloudEvents(AsyncMessageAckToServer ackResponse, Client client)
+        private async Task<bool> ConsumeCloudEvents(AsyncMessageAckToServer ackResponse, Client client, Vpn vpn, CancellationToken cancellationToken)
         {
             if (ackResponse.BridgeServers.Any())
             {
@@ -56,13 +53,13 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             var messageConsumer = _messageConsumers.First(m => m.BrokerName == ackResponse.BrokerName);
             messageConsumer.Commit(ackResponse.Topic, client, ackResponse.SessionId, ackResponse.NbCloudEventsConsumed);
             client.ConsumeCloudEvents(ackResponse.BrokerName, ackResponse.Topic, ackResponse.NbCloudEventsConsumed);
-            ClientStore.Update(client);
+            VpnStore.Update(vpn);
+            await VpnStore.SaveChanges(cancellationToken);
             return true;
         }
 
-        private async Task<Package> TransmitCloudEvents(AsyncMessageAckToServer ackResponse, Client client)
+        private async Task<Package> TransmitCloudEvents(AsyncMessageAckToServer ackResponse, Client client, ICollection<BridgeServer> bridgeServers)
         {
-            var bridgeServers = _bridgeServerStore.GetAll();
             var lastBridgeServer = ackResponse.BridgeServers.Last();
             if(!bridgeServers.Any(bs => bs.Port == lastBridgeServer.Port && bs.Urn == lastBridgeServer.Urn))
             {
@@ -70,7 +67,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             }
 
             var activeSession = client.GetActiveSession(ackResponse.SessionId);
-            var bridgeSessionId = activeSession.GetBridge(lastBridgeServer.Urn).SessionId;
+            var bridgeSessionId = activeSession.GetBridge(lastBridgeServer.Urn, lastBridgeServer.Port, lastBridgeServer.Vpn).SessionId;
             var udpClient = _udpClientFactory.Build();
             var runtimeClient = new RuntimeClient(udpClient, lastBridgeServer.Urn, lastBridgeServer.Port);
             ackResponse.BridgeServers.Remove(lastBridgeServer);

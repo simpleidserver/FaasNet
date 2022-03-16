@@ -12,16 +12,16 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 {
     public class AsyncMessageToServerHandler : IMessageHandler
     {
-        private readonly IClientStore _clientStore;
+        private readonly IVpnStore _vpnStore;
         private readonly IUdpClientServerFactory _udpClientFactory;
         private readonly RuntimeOptions _options;
 
         public AsyncMessageToServerHandler(
-            IClientStore clientStore,
+            IVpnStore vpnStore,
             IUdpClientServerFactory udpClientFactory,
             IOptions<RuntimeOptions> options)
         {
-            _clientStore = clientStore;
+            _vpnStore = vpnStore;
             _udpClientFactory = udpClientFactory;
             _options = options.Value;
         }
@@ -31,19 +31,15 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var pkg = package as AsyncMessageToServer;
-            var client = _clientStore.Get(pkg.ClientId);
-            if (client == null)
-            {
-                throw new RuntimeException(pkg.Header.Command, pkg.Header.Seq, Errors.INVALID_CLIENT);
-            }
-
             var lastBridge = pkg.BridgeServers.Last();
-            var activeSession = client.GetActiveSession(pkg.SessionId, lastBridge.Urn);
-            if (activeSession == null)
+            var vpn = await _vpnStore.Get(pkg.ClientId, lastBridge.Urn, pkg.SessionId, cancellationToken);
+            if (vpn == null)
             {
-                throw new RuntimeException(pkg.Header.Command, pkg.Header.Seq, Errors.NO_ACTIVE_SESSION);
+                throw new RuntimeException(package.Header.Command, package.Header.Seq, Errors.NO_ACTIVE_SESSION);
             }
 
+            var client = vpn.GetClient(pkg.ClientId);
+            var activeSession = client.GetActiveSession(pkg.SessionId, lastBridge.Urn);
             var writeCtx = new WriteBufferContext();
             var udpClient = _udpClientFactory.Build();
             switch (activeSession.Type)

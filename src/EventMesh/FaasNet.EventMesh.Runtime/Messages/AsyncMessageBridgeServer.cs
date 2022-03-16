@@ -4,6 +4,7 @@
     {
         #region Properties
 
+        public string Vpn { get; set; }
         public string Urn { get; set; }
         public int Port { get; set; }
 
@@ -11,6 +12,7 @@
 
         public void Serialize(WriteBufferContext context)
         {
+            context.WriteString(Vpn);
             context.WriteString(Urn);
             context.WriteInteger(Port);
         }
@@ -19,6 +21,7 @@
         {
             return new AsyncMessageBridgeServer
             {
+                Vpn = context.NextString(),
                 Urn = context.NextString(),
                 Port = context.NextInt()
             };

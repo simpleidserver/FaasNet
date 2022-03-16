@@ -13,19 +13,16 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 {
     public class SubscribeMessageHandler : BaseMessageHandler, IMessageHandler
     {
-        private readonly IBridgeServerStore _bridgeServerStore;
         private readonly IUdpClientServerFactory _udpClientFactory;
         private readonly IEnumerable<IMessageConsumer> _messageConsumers;
         private readonly RuntimeOptions _options;
 
         public SubscribeMessageHandler(
-            IClientStore clientStore,
-            IBridgeServerStore bridgeServerStore,
+            IVpnStore vpnStore,
             IUdpClientServerFactory udpClientFactory,
             IEnumerable<IMessageConsumer> messageConsumers,
-            IOptions<RuntimeOptions> options) : base(clientStore)
+            IOptions<RuntimeOptions> options) : base(vpnStore)
         {
-            _bridgeServerStore = bridgeServerStore;
             _udpClientFactory = udpClientFactory;
             _messageConsumers = messageConsumers;
             _options = options.Value;
@@ -36,16 +33,17 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var subscriptionRequest = package as SubscriptionRequest;
-            var client = GetActiveSession(package, subscriptionRequest.ClientId, subscriptionRequest.SessionId);
-            var activeSession = client.GetActiveSession(subscriptionRequest.SessionId);
+            var sessionResult = await GetActiveSession(package, subscriptionRequest.ClientId, subscriptionRequest.SessionId, cancellationToken);
+            var activeSession = sessionResult.Client.GetActiveSession(subscriptionRequest.SessionId);
             if (activeSession.Purpose != UserAgentPurpose.SUB)
             {
                 throw new RuntimeException(subscriptionRequest.Header.Command, subscriptionRequest.Header.Seq, Errors.UNAUTHORIZED_SUBSCRIBE);
             }
 
-            await SubscribeBridgeServerTopics(subscriptionRequest, client);
-            await Subscribe(subscriptionRequest, client);
-            ClientStore.Update(client);
+            await SubscribeBridgeServerTopics(subscriptionRequest, sessionResult.Client, sessionResult.Vpn.BridgeServers);
+            await Subscribe(subscriptionRequest, sessionResult.Client);
+            VpnStore.Update(sessionResult.Vpn);
+            await VpnStore.SaveChanges(cancellationToken);
             return PackageResponseBuilder.Subscription(package.Header.Seq);
         }
 
@@ -72,9 +70,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         #region Register Topics from BridgeServer
 
-        private async Task SubscribeBridgeServerTopics(SubscriptionRequest subscriptionRequest, Client client)
+        private async Task SubscribeBridgeServerTopics(SubscriptionRequest subscriptionRequest, Client client, ICollection<BridgeServer> bridgeServers)
         {
-            var bridgeServers = _bridgeServerStore.GetAll();
             foreach (var bridgeServer in bridgeServers)
             {
                 await SubscribeBridgeServer(client, bridgeServer, subscriptionRequest);
@@ -86,7 +83,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             var activeSession = client.GetActiveSession(subscriptionRequest.SessionId);
             var udpClient = _udpClientFactory.Build();
             var pid = Process.GetCurrentProcess().Id;
-            var bridge = activeSession.GetBridge(bridgeServer.Urn);
+            var bridge = activeSession.GetBridge(bridgeServer.Urn, bridgeServer.Port, bridgeServer.Vpn);
             var runtimeClient = new RuntimeClient(udpClient, bridgeServer.Urn, bridgeServer.Port);
             if (bridge == null)
             {
@@ -99,9 +96,10 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                     Urn = _options.Urn,
                     Port = _options.Port,
                     Pid = pid,
-                    IsServer = true
+                    IsServer = true,
+                    Vpn = bridgeServer.Vpn
                 });
-                bridge = ClientSessionBridge.Create(bridgeServer.Urn, bridgeServer.Port, helloResponse.SessionId);
+                bridge = ClientSessionBridge.Create(bridgeServer.Urn, bridgeServer.Port, helloResponse.SessionId, bridgeServer.Vpn);
                 activeSession.AddBridge(bridge);
             }
 

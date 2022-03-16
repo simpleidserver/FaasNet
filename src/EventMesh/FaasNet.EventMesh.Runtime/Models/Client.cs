@@ -14,6 +14,7 @@ namespace FaasNet.EventMesh.Runtime.Models
         {
             ClientId = clientId;
             Urn = urn;
+            Purposes = new List<int>();
             Topics = new List<ClientTopic>();
             Sessions = new List<ClientSession>();
         }
@@ -23,6 +24,7 @@ namespace FaasNet.EventMesh.Runtime.Models
         public string ClientId { get; set; }
         public string Urn { get; set; }
         public DateTime CreateDateTime { get; set; }
+        public ICollection<int> Purposes { get; set; }
         public IEnumerable<ClientSession> ActiveSessions
         {
             get

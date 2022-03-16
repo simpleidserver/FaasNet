@@ -1,4 +1,5 @@
 ﻿using FaasNet.EventMesh.Runtime.MessageBroker;
+using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -19,6 +20,12 @@ namespace FaasNet.EventMesh.Runtime
         }
 
         public IServiceCollection ServiceCollection { get; }
+
+        public RuntimeHostBuilder AddVpns(ICollection<Vpn> vpns)
+        {
+            ServiceCollection.AddSingleton<IVpnStore>(new VpnStore(vpns));
+            return this;
+        }
 
         public RuntimeHostBuilder AddInMemoryMessageBroker(ConcurrentBag<InMemoryTopic> topics)
         {

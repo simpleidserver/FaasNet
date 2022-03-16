@@ -52,6 +52,7 @@
     <None Remove="src\components\statediagram\components\operation\operation-state-editor.component.ts" />
     <None Remove="src\components\statediagram\components\switch\switch-state-editor.component.ts" />
     <None Remove="src\components\statediagram\statediagram.module.ts" />
+    <None Remove="src\stores\application\actions\application.actions.ts" />
     <None Remove="src\stores\common\prometheus-queryrange-result.model.ts" />
     <None Remove="src\stores\common\search.model.ts" />
     <None Remove="src\stores\eventmeshservers\models\eventmeshserver.model.ts" />
@@ -95,13 +96,12 @@
     <TypeScriptCompile Include="src\components\statediagram\components\operation\editaction-dialog.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="src\stores\application\actions\application.actions.ts" />
     <TypeScriptCompile Include="src\stores\eventmeshservers\models\eventmeshserver.model.ts" />
     <TypeScriptCompile Include="src\stores\statemachines\models\operation-types.model.ts" />
     <TypeScriptCompile Include="src\stores\statemachines\models\statemachine-function.model.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="src\app\domains\edit\messages\" />
-    <Folder Include="src\app\domains\edit\editor\" />
     <Folder Include="src\app\functions\list\" />
     <Folder Include="src\stores\functions\reducers\" />
   </ItemGroup>

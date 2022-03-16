@@ -17,17 +17,17 @@ namespace FaasNet.EventMesh.Runtime.Kafka
         private readonly List<KafkaSubscriptionRecord> _subscriptions = new List<KafkaSubscriptionRecord>();
         private readonly IBrokerConfigurationStore _brokerConfigurationStore;
         private readonly KafkaOptions _opts;
-        private readonly IClientStore _clientStore;
+        private readonly IVpnStore _vpnStore;
 
         public KafkaConsumer(
             IBrokerConfigurationStore brokerConfigurationStore,
             IOptions<KafkaOptions> options,
-            IClientStore clientStore,
+            IVpnStore vpnStore,
             IOptions<RuntimeOptions> runtimeOpts) : base(runtimeOpts)
         {
             _brokerConfigurationStore = brokerConfigurationStore;
             _opts = options.Value;
-            _clientStore = clientStore;
+            _vpnStore = vpnStore;
         }
 
         public override event EventHandler<CloudEventArgs> CloudEventReceived;
@@ -88,12 +88,13 @@ namespace FaasNet.EventMesh.Runtime.Kafka
         {
             var jsonEventFormatter = new JsonEventFormatter();
             var cloudEvent = message.ToCloudEvent(jsonEventFormatter, "source", topicName);
-            var client = _clientStore.GetByActiveSession(clientId, clientSessionId);
-            if (client == null)
+            var vpn = _vpnStore.Get(clientId, clientSessionId, CancellationToken.None).Result;
+            if (vpn == null)
             {
                 return;
             }
 
+            var client = vpn.GetClient(clientId);
             var brokerName = _opts.BrokerName;
             var clientSession = client.GetActiveSessionByTopic(brokerName, topicName);
             CloudEventReceived(this, new CloudEventArgs(topicName, brokerName, cloudEvent, client.ClientId, clientSession));

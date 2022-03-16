@@ -3,7 +3,6 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\FaasNet.Domain\FaasNet.Domain.csproj" />
     <ProjectReference Include="..\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj" />
   </ItemGroup>
   <ItemGroup>
