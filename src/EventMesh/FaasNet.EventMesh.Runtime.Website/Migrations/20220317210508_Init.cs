@@ -105,6 +105,8 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     Urn = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Purposes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     VpnName = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>

@@ -1,4 +1,5 @@
 import { createAction, props } from '@ngrx/store';
+import { ClientResult } from '../models/client.model';
 import { VpnResult } from '../models/vpn.model';
 
 export const startGetAllVpn = createAction('[VPN] START_GET_ALL');
@@ -13,3 +14,15 @@ export const errorDeleteVpn = createAction('[VPN] ERROR_DELETE_VPN');
 export const startGetVpn = createAction('[VPN] START_GET', props<{ name: string }>());
 export const completeGetVpn = createAction('[VPN] COMPLETE_GET', props<{ content: VpnResult }>());
 export const errorGetVpn = createAction('[VPN] ERROR_GET');
+export const startGetAllClients = createAction('[VPN] START_GET_ALL_CLIENTS', props<{ name: string }>());
+export const completeGetAllClients = createAction('[VPN] COMPLETE_GET_ALL_CLIENTS', props<{ content: ClientResult[] }>());
+export const errorGetAllClients = createAction('[VPN] ERROR_GET_ALL_CLIENTS');
+export const startGetClient = createAction('[VPN] START_GET_CLIENT', props<{ name: string, clientId: string }>());
+export const completeGetClient = createAction('[VPN] COMPLETE_GET_CLIENT', props<{ content: ClientResult }>());
+export const errorGetClient = createAction('[VPN] ERROR_GET_CLIENT');
+export const startDeleteClient = createAction('[VPN] START_DELETE_CLIENT', props<{ name: string, clientId: string }>());
+export const completeDeleteClient = createAction('[VPN] COMPLETE_DELETE_CLIENT', props<{ name: string, clientId: string }>());
+export const errorDeleteClient = createAction('[VPN] ERROR_DELETE_CLIENT');
+export const startAddClient = createAction('[VPN] START_ADD_CLIENT', props<{ name: string, clientId: string, purposes : number[] }>());
+export const completeAddClient = createAction('[VPN] COMPLETE_ADD_CLIENT', props<{ name: string, clientId: string, purposes: number[] }>());
+export const errorAddClient = createAction('[VPN] ERROR_ADD_CLIENT');

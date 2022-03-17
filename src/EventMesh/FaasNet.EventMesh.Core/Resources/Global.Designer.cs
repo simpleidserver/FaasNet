@@ -70,6 +70,15 @@ namespace FaasNet.EventMesh.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to client &apos;{0}&apos; doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownClient {
+            get {
+                return ResourceManager.GetString("UnknownClient", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to eventmesh server &apos;{0}:{1}&apos; doesn&apos;t exist.
         /// </summary>
         internal static string UnknownEventMeshServer {

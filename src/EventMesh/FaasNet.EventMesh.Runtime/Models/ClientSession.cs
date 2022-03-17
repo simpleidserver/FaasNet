@@ -60,7 +60,6 @@ namespace FaasNet.EventMesh.Runtime.Models
         public ICollection<ClientSessionPendingCloudEvent> PendingCloudEvents { get; set; }
         public ICollection<ClientSessionBridge> Bridges { get; set; }
 
-
         #endregion
 
         #region Actions

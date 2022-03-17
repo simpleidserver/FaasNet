@@ -67,6 +67,35 @@ namespace FaasNet.EventMesh.SqlServer.Startup.Controllers
             return new NoContentResult();
         }
 
+        [HttpGet("{name}/clients")]
+        public async Task<IActionResult> GetClients(string name, CancellationToken cancellationToken)
+        {
+            var clients = await _mediator.Send(new GetAllClientsQuery { Vpn = name }, cancellationToken);
+            return new OkObjectResult(clients);
+        }
+
+        [HttpPost("{name}/clients")]
+        public async Task<IActionResult> AddClient(string name, [FromBody] AddClientCommand cmd, CancellationToken cancellationToken)
+        {
+            cmd.Vpn = name;
+            await _mediator.Send(cmd, cancellationToken);
+            return new StatusCodeResult((int)HttpStatusCode.Created);
+        }
+
+        [HttpDelete("{name}/clients/{clientId}")]
+        public async Task<IActionResult> DeleteClient(string name, string clientId, CancellationToken cancellationToken)
+        {
+            await _mediator.Send(new DeleteClientCommand { Vpn = name, ClientId = clientId }, cancellationToken);
+            return new NoContentResult();
+        }
+
+        [HttpGet("{name}/clients/{clientId}")]
+        public async Task<IActionResult> GetClient(string name, string clientId, CancellationToken cancellationToken)
+        {
+            var client = await _mediator.Send(new GetClientQuery { ClientId = clientId, Vpn = name }, cancellationToken);
+            return new OkObjectResult(client);
+        }
+
         [HttpPost("{name}/bridges")]
         public async Task<IActionResult> AddBridge(string name, [FromBody] AddVpnBridgeCommand cmd, CancellationToken cancellationToken)
         {

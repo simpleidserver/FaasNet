@@ -1,9 +1,18 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import * as fromActions from '../actions/vpn.actions';
+import { ClientResult } from '../models/client.model';
 import { VpnResult } from '../models/vpn.model';
 
 export interface VpnLstState {
   VpnLst: VpnResult[];
+}
+
+export interface ClientLstState {
+  ClientLst: ClientResult[];
+}
+
+export interface ClientState {
+  Client: ClientResult | null;
 }
 
 export interface VpnState {
@@ -12,6 +21,14 @@ export interface VpnState {
 
 export const initialVpnLstState: VpnLstState = {
   VpnLst: []
+};
+
+export const initialClientLstState: ClientLstState = {
+  ClientLst : []
+};
+
+export const initialClientState: ClientState = {
+  Client : null
 };
 
 export const initialVpnState: VpnState = {
@@ -59,10 +76,44 @@ const vpnReducer = createReducer(
   })
 );
 
+const clientLstReducer = createReducer(
+  initialClientLstState,
+  on(fromActions.completeGetAllClients, (state, { content }) => {
+    return {
+      ...state,
+      ClientLst: [...content]
+    };
+  }),
+  on(fromActions.completeAddClient, (state, { name, clientId, purposes }) => {
+    const clientLst = JSON.parse(JSON.stringify(state.ClientLst)) as ClientResult[];
+    var record = new ClientResult();
+    record.clientId = clientId;
+    record.purposes = purposes;
+    record.createDateTime = new Date();
+    clientLst.push(record);
+    return {
+      ...state,
+      ClientLst: [...clientLst]
+    };
+  }),
+  on(fromActions.completeDeleteClient, (state, { name, clientId }) => {
+    let clientLst = JSON.parse(JSON.stringify(state.ClientLst)) as ClientResult[];
+    clientLst = clientLst.filter(c => c.clientId !== clientId);
+    return {
+      ...state,
+      ClientLst: [...clientLst]
+    };
+  })
+);
+
 export function getVpnLstReducer(state: VpnLstState | undefined, action: Action) {
   return vpnLstReducer(state, action);
 }
 
 export function getVpnReducer(state: VpnState | undefined, action: Action) {
   return vpnReducer(state, action);
+}
+
+export function getClientLstReducer(state: ClientLstState | undefined, action: Action) {
+  return clientLstReducer(state, action);
 }

@@ -5,6 +5,7 @@ import { AsyncApiEditorModule } from "../../components/asyncapi-editor/asyncapie
 import { LoaderModule } from "../../components/loader/loader.module";
 import { AddVpnComponent } from "./list/add-vpn.component";
 import { ListVpnComponent } from "./list/list.component";
+import { ClientsVpnComponent } from "./view/clients/clients.component";
 import { InfoVpnComponent } from "./view/info/info.component";
 import { ViewVpnComponent } from "./view/view.component";
 import { VpnsRoutes } from "./vpns.routes";
@@ -21,7 +22,8 @@ import { VpnsRoutes } from "./vpns.routes";
     ListVpnComponent,
     AddVpnComponent,
     InfoVpnComponent,
-    ViewVpnComponent
+    ViewVpnComponent,
+    ClientsVpnComponent
   ],
   entryComponents: [
     AddVpnComponent

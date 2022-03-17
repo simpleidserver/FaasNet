@@ -1,0 +1,36 @@
+<mat-table class="full-width" [dataSource]="clients">
+  <!-- Actions -->
+  <ng-container matColumnDef="actions">
+    <mat-header-cell *matHeaderCellDef></mat-header-cell>
+    <mat-cell *matCellDef="let client">
+      <button mat-icon-button (click)="removeClient(client)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-cell>
+  </ng-container>
+  <!-- Name -->
+  <ng-container matColumnDef="clientId">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.clientId" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let client">
+      <a href="#" [routerLink]="['/vpns/' + name + '/clients/' + client.clientId ]">{{ client.clientId }}</a>
+    </mat-cell>
+  </ng-container>
+  <!-- Purposes -->
+  <ng-container matColumnDef="purposes">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.clientPurposes" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let client">
+      <mat-chip-list *ngIf="client.purposes">
+        <mat-chip *ngFor="let purpose of client.purposes">{{ getPurpose(purpose) }}</mat-chip>
+      </mat-chip-list>
+    </mat-cell>
+  </ng-container>
+  <!-- Create DateTime -->
+  <ng-container matColumnDef="createDateTime">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.createDateTime" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let vpn">
+      {{ vpn.createDateTime | date:'fullDate' }}
+    </mat-cell>
+  </ng-container>
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+</mat-table>

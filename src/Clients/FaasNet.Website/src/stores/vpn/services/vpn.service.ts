@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '@envs/environment';
 import { Observable } from 'rxjs';
 import { ApplicationDomainAddedResult } from '../models/applicationdomainadded.model';
+import { ClientResult } from '../models/client.model';
 import { VpnResult } from '../models/vpn.model';
 
 @Injectable()
@@ -62,5 +63,32 @@ export class VpnService {
   getVpn(vpn: string): Observable<VpnResult> {
     let targetUrl = environment.apiUrl + "/vpns/" + vpn;
     return this.http.get<VpnResult>(targetUrl);
+  }
+
+  getAllClients(vpn : string) : Observable<ClientResult[]> {
+    let targetUrl = environment.apiUrl + "/vpns/" + vpn + "/clients";
+    return this.http.get<ClientResult[]>(targetUrl);
+  }
+
+  getClient(vpn: string, clientId: string): Observable<ClientResult> {
+    let targetUrl = environment.apiUrl + "/vpns/" + vpn + "/clients/" + clientId;
+    return this.http.get<ClientResult>(targetUrl);
+  }
+
+  deleteClient(vpn: string, clientId: string): Observable<any> {
+    let targetUrl = environment.apiUrl + "/vpns/" + vpn + "/clients/" + clientId;
+    return this.http.delete<ClientResult>(targetUrl);
+  }
+
+  addClient(vpn: string, clientId: string, purposes: number[]): Observable<any> {
+    let targetUrl = environment.apiUrl + "/vpns/" + vpn + "/clients";
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    const json = {
+      vpn: vpn,
+      clientId: clientId,
+      purposes: purposes
+    };
+    return this.http.post<any>(targetUrl, json, { headers: headers });
   }
 }

@@ -120,6 +120,9 @@
   <data name="EventMeshServerExists" xml:space="preserve">
     <value>eventmesh server '{0}:{1}' already exists</value>
   </data>
+  <data name="UnknownClient" xml:space="preserve">
+    <value>client '{0}' doesn't exist</value>
+  </data>
   <data name="UnknownEventMeshServer" xml:space="preserve">
     <value>eventmesh server '{0}:{1}' doesn't exist</value>
   </data>

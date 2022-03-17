@@ -104,6 +104,10 @@
     "createDateTime": "Creation Datetime",
     "deleteTitle": "Delete this VPN",
     "delete": "Delete",
+    "clientId": "Client identifier",
+    "clientPurposes": "Purposes",
+    "info": "Information",
+    "clients": "Clients",
     "validations": {
       "nameRequired": "Name is required",
       "descriptionRequired": "Description is required"
