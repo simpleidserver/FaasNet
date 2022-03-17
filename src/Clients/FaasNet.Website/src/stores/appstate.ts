@@ -18,6 +18,7 @@ export interface AppState {
   applicationDomains: fromApplications.ApplicationDomainsState,
   server: fromServer.ServerState,
   vpns: fromVpns.VpnLstState
+  vpn: fromVpns.VpnState
 }
 
 export const selectFunctions = (state: AppState) => state.functions;
@@ -30,6 +31,7 @@ export const selectEventMeshServers = (state: AppState) => state.eventMeshServer
 export const selectApplicationDomains = (state: AppState) => state.applicationDomains;
 export const selectServer = (state: AppState) => state.server;
 export const selectVpns = (state: AppState) => state.vpns;
+export const selectVpn = (state: AppState) => state.vpn;
 
 export const selectFunctionsResult = createSelector(
   selectFunctions,
@@ -218,6 +220,17 @@ export const selectVpnLstResult = createSelector(
   }
 );
 
+export const selectVpnResult = createSelector(
+  selectVpn,
+  (state: fromVpns.VpnState) => {
+    if (!state || !state.Vpn) {
+      return null;
+    }
+
+    return state.Vpn;
+  }
+);
+
 export const appReducer = {
   functions: fromFunctions.getSearchFunctionsReducer,
   function: fromFunctions.getFunctionReducer,
@@ -228,5 +241,6 @@ export const appReducer = {
   eventMeshServers: fromEventMeshServers.getSearchEventMeshServersReducer,
   applicationDomains: fromApplications.getApplicationDomainsReducer,
   server: fromServer.getServerReducer,
-  vpns: fromVpns.getVpnLstReducer
+  vpns: fromVpns.getVpnLstReducer,
+  vpn: fromVpns.getVpnReducer
 };

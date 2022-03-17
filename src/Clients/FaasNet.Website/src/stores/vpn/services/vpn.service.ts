@@ -58,4 +58,9 @@ export class VpnService {
     let targetUrl = environment.apiUrl + "/vpns/" + vpn;
     return this.http.delete<any>(targetUrl);
   }
+
+  getVpn(vpn: string): Observable<VpnResult> {
+    let targetUrl = environment.apiUrl + "/vpns/" + vpn;
+    return this.http.get<VpnResult>(targetUrl);
+  }
 }

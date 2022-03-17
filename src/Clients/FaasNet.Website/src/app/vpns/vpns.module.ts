@@ -5,6 +5,8 @@ import { AsyncApiEditorModule } from "../../components/asyncapi-editor/asyncapie
 import { LoaderModule } from "../../components/loader/loader.module";
 import { AddVpnComponent } from "./list/add-vpn.component";
 import { ListVpnComponent } from "./list/list.component";
+import { InfoVpnComponent } from "./view/info/info.component";
+import { ViewVpnComponent } from "./view/view.component";
 import { VpnsRoutes } from "./vpns.routes";
 
 @NgModule({
@@ -17,7 +19,9 @@ import { VpnsRoutes } from "./vpns.routes";
   ],
   declarations: [
     ListVpnComponent,
-    AddVpnComponent
+    AddVpnComponent,
+    InfoVpnComponent,
+    ViewVpnComponent
   ],
   entryComponents: [
     AddVpnComponent

@@ -6,9 +6,17 @@ export interface VpnLstState {
   VpnLst: VpnResult[];
 }
 
+export interface VpnState {
+  Vpn: VpnResult | null;
+}
+
 export const initialVpnLstState: VpnLstState = {
   VpnLst: []
 };
+
+export const initialVpnState: VpnState = {
+  Vpn: null
+}
 
 const vpnLstReducer = createReducer(
   initialVpnLstState,
@@ -41,6 +49,20 @@ const vpnLstReducer = createReducer(
   })
 );
 
+const vpnReducer = createReducer(
+  initialVpnState,
+  on(fromActions.completeGetVpn, (state, { content }) => {
+    return {
+      ...state,
+      Vpn: { ...content }
+    };
+  })
+);
+
 export function getVpnLstReducer(state: VpnLstState | undefined, action: Action) {
   return vpnLstReducer(state, action);
+}
+
+export function getVpnReducer(state: VpnState | undefined, action: Action) {
+  return vpnReducer(state, action);
 }

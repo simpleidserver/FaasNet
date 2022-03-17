@@ -33,6 +33,13 @@ namespace FaasNet.EventMesh.SqlServer.Startup.Controllers
             return new OkObjectResult(result);
         }
 
+        [HttpGet("{name}")]
+        public async Task<IActionResult> Get(string name, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new GetVpnQuery { Vpn = name }, cancellationToken);
+            return new OkObjectResult(result);
+        }
+
         [HttpDelete("{name}")]
         public async Task<IActionResult> Delete(string name, CancellationToken cancellationToken)
         {

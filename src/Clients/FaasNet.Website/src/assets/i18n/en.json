@@ -102,6 +102,8 @@
     "description": "Description",
     "updateDateTime": "Update Datetime",
     "createDateTime": "Creation Datetime",
+    "deleteTitle": "Delete this VPN",
+    "delete": "Delete",
     "validations": {
       "nameRequired": "Name is required",
       "descriptionRequired": "Description is required"
