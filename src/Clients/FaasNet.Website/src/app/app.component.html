@@ -4,12 +4,18 @@
       <div class="logo">
         <img src="/assets/images/logo.svg" />
       </div>
+      <mat-form-field appearance="outline" class="no-margin full-width" *ngIf="serverStatus.isRunning === true && vpnLstResult.length > 0">
+        <mat-label>{{ 'shared.selectVpn' | translate | translate }}</mat-label>
+        <mat-select [formControl]="vpnFormControl">
+          <mat-option *ngFor="let vpn of vpnLstResult" [value]="vpn.name">{{ vpn.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
       <mat-nav-list>
+        <a mat-list-item [routerLink]="['/status']" [routerLinkActive]="['is-active']">{{ 'server.status' | translate }}</a>
         <a mat-list-item [routerLink]="['/functions']" [routerLinkActive]="['is-active']">{{ 'functions.list' | translate }}</a>
         <a mat-list-item [routerLink]="['/statemachineinstances']" [routerLinkActive]="['is-active']">{{ 'stateMachineInstance.list' | translate }}</a>
         <a mat-list-item [routerLink]="['/statemachines']" [routerLinkActive]="['is-active']">{{ 'stateMachines.list' | translate }}</a>
-        <a mat-list-item [routerLink]="['/eventmeshservers']" [routerLinkActive]="['is-active']">{{ 'eventmeshservers.list' | translate }}</a>
-        <a mat-list-item [routerLink]="['/domains']" [routerLinkActive]="['is-active']">{{ 'applicationDomains.list' | translate }}</a>
+        <a mat-list-item [routerLink]="['/vpns']" [routerLinkActive]="['is-active']">{{ 'vpn.list' | translate }}</a>
       </mat-nav-list>
     </mat-drawer>
     <router-outlet></router-outlet>

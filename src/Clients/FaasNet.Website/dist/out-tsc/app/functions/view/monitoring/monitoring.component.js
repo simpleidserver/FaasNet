@@ -90,17 +90,11 @@ let MonitoringFunctionComponent = class MonitoringFunctionComponent {
             }
             this.totalRequests = state.data.result[0].value[1];
         });
-        this.subscription = this.activatedRoute.params.subscribe(() => {
-            this.refresh();
-        });
         this.intervalRefreshThreads = setInterval(this.refresh.bind(self), 1000);
         (_a = this.updateMonitoringStatusFormGroup.get('range')) === null || _a === void 0 ? void 0 : _a.setValue('15');
         (_b = this.updateMonitoringStatusFormGroup.get('duration')) === null || _b === void 0 ? void 0 : _b.setValue('5');
     }
     ngOnDestroy() {
-        if (this.subscription) {
-            this.subscription.unsubscribe();
-        }
         if (this.intervalRefreshThreads) {
             clearInterval(this.intervalRefreshThreads);
         }
@@ -136,7 +130,6 @@ let MonitoringFunctionComponent = class MonitoringFunctionComponent {
     refreshThreads() {
         var _a;
         const name = (_a = this.activatedRoute.parent) === null || _a === void 0 ? void 0 : _a.snapshot.params['name'];
-        this.name = name;
         let startDate = this.getStartDate();
         let endDate = this.getEndDate();
         const action = startGetThreads({ name: name, startDate: startDate, endDate: endDate });
@@ -145,7 +138,6 @@ let MonitoringFunctionComponent = class MonitoringFunctionComponent {
     refreshVirtualMemoryBytes() {
         var _a;
         const name = (_a = this.activatedRoute.parent) === null || _a === void 0 ? void 0 : _a.snapshot.params['name'];
-        this.name = name;
         let startDate = this.getStartDate();
         let endDate = this.getEndDate();
         const action = startGetVirtualMemoryBytes({ name: name, startDate: startDate, endDate: endDate });
@@ -154,7 +146,6 @@ let MonitoringFunctionComponent = class MonitoringFunctionComponent {
     refreshCpuUsage() {
         var _a;
         const name = (_a = this.activatedRoute.parent) === null || _a === void 0 ? void 0 : _a.snapshot.params['name'];
-        this.name = name;
         let startDate = this.getStartDate();
         let endDate = this.getEndDate();
         const action = startGetCpuUsage({ name: name, startDate: startDate, endDate: endDate, duration: this.getDuration() });
@@ -163,7 +154,6 @@ let MonitoringFunctionComponent = class MonitoringFunctionComponent {
     refreshRequestDuration() {
         var _a;
         const name = (_a = this.activatedRoute.parent) === null || _a === void 0 ? void 0 : _a.snapshot.params['name'];
-        this.name = name;
         let startDate = this.getStartDate();
         let endDate = this.getEndDate();
         const action = startGetRequestDuration({ name: name, startDate: startDate, endDate: endDate, duration: this.getDuration() });
@@ -203,7 +193,8 @@ let MonitoringFunctionComponent = class MonitoringFunctionComponent {
 MonitoringFunctionComponent = __decorate([
     Component({
         selector: 'monitoring-function',
-        templateUrl: './monitoring.component.html'
+        templateUrl: './monitoring.component.html',
+        styleUrls: ['./monitoring.component.scss']
     })
 ], MonitoringFunctionComponent);
 export { MonitoringFunctionComponent };

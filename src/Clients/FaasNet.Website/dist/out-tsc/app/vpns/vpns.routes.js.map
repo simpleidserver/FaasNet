@@ -1,0 +1,1 @@
+{"version":3,"file":"vpns.routes.js","sourceRoot":"","sources":["../../../../src/app/vpns/vpns.routes.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAU,MAAM,iBAAiB,CAAC;AACvD,OAAO,EAAE,gBAAgB,EAAE,MAAM,uBAAuB,CAAC;AAGzD,MAAM,MAAM,GAAW;IACrB;QACE,IAAI,EAAE,EAAE;QACR,SAAS,EAAE,gBAAgB;KAC5B;CACF,CAAC;AAEF,MAAM,CAAC,MAAM,UAAU,GAAG,YAAY,CAAC,QAAQ,CAAC,MAAM,CAAC,CAAC"}

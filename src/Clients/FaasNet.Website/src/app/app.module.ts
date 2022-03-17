@@ -20,13 +20,18 @@ import { EventMeshServerService } from '../stores/eventmeshservers/services/even
 import { FunctionEffects } from '../stores/functions/effects/function.effects';
 import { FunctionService } from '../stores/functions/services/function.service';
 import { OpenApiService } from '../stores/openapi/services/openapi.service';
+import { ServerEffects } from '../stores/server/effects/server.effects';
+import { ServerService } from '../stores/server/services/server.service';
 import { StateMachineInstancesEffects } from '../stores/statemachineinstances/effects/statemachineinstances.effects';
 import { StateMachineInstancesService } from '../stores/statemachineinstances/services/statemachineinstances.service';
 import { StateMachineEffects } from '../stores/statemachines/effects/statemachines.effects';
 import { StateMachinesService } from '../stores/statemachines/services/statemachines.service';
+import { VpnEffects } from '../stores/vpn/effects/vpn.effects';
+import { VpnService } from '../stores/vpn/services/vpn.service';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
 import { MaterialModule } from './shared/material.module';
+import { ServerStatusComponent } from './status/status.component';
 
 export function createTranslateLoader(http: HttpClient) {
   let url = environment.baseUrl + 'assets/i18n/';
@@ -36,7 +41,8 @@ export function createTranslateLoader(http: HttpClient) {
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ServerStatusComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -45,7 +51,7 @@ export function createTranslateLoader(http: HttpClient) {
     BrowserModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    EffectsModule.forRoot([FunctionEffects, StateMachineEffects, StateMachineInstancesEffects, EventMeshServerEffects, ApplicationEffects]),
+    EffectsModule.forRoot([FunctionEffects, StateMachineEffects, StateMachineInstancesEffects, EventMeshServerEffects, ApplicationEffects, ServerEffects, VpnEffects]),
     StoreModule.forRoot(appReducer),
     TranslateModule.forRoot({
       loader: {
@@ -58,7 +64,7 @@ export function createTranslateLoader(http: HttpClient) {
       maxAge: 10
     })
   ],
-  providers: [FunctionService, StateMachinesService, StateMachineInstancesService, OpenApiService, AsyncApiService, MatPanelService, EventMeshServerService, ApplicationService],
+  providers: [FunctionService, StateMachinesService, StateMachineInstancesService, OpenApiService, AsyncApiService, MatPanelService, EventMeshServerService, ApplicationService, ServerService, VpnService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

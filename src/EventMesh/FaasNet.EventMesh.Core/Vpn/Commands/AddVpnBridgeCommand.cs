@@ -7,5 +7,6 @@ namespace FaasNet.EventMesh.Core.Vpn.Commands
         public string Vpn { get; set; }
         public string Urn { get; set; }
         public int Port { get; set; }
+        public string TargetVpn { get; set; }
     }
 }

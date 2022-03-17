@@ -7,7 +7,9 @@ let AddFunctionComponent = class AddFunctionComponent {
         this.dialogRef = dialogRef;
         this.addFunctionFormGroup = new FormGroup({
             name: new FormControl('', [Validators.required]),
-            image: new FormControl('', [Validators.required])
+            description: new FormControl(''),
+            image: new FormControl('', [Validators.required]),
+            version: new FormControl('', [Validators.required])
         });
     }
     save() {

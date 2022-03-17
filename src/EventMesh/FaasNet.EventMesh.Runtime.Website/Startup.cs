@@ -6,9 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Reflection;
 
 namespace FaasNet.EventMesh.Runtime.Website
@@ -25,10 +23,9 @@ namespace FaasNet.EventMesh.Runtime.Website
         public void ConfigureServices(IServiceCollection services)
         {
             var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
-            var path = Path.Combine(Environment.CurrentDirectory, "Runtime.db");
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            RegisterEventMeshService(services).AddRuntimeEF(opt => opt.UseSqlite($"Data Source={path}", optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
+            RegisterEventMeshService(services).AddRuntimeEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
             services.AddHostedService<RuntimeHostedService>();
             services.AddSingleton(Configuration);
         }

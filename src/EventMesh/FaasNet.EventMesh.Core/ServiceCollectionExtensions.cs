@@ -1,6 +1,5 @@
 ﻿using FaasNet.EventMesh.Core;
-using FaasNet.EventMesh.Core.Repositories;
-using FaasNet.EventMesh.Core.Repositories.InMemory;
+using FaasNet.EventMesh.Runtime;
 using MaxMind.GeoIP2;
 using MediatR;
 using System;
@@ -9,7 +8,9 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static ServerBuilder AddEventMesh(this IServiceCollection services, Action<WebServiceClientOptions> callbackWebServiceOptions = null)
+        public static ServerBuilder AddEventMesh(this IServiceCollection services,
+            Action<WebServiceClientOptions> callbackWebServiceOptions = null,
+            Action<EventMeshOptions> options = null)
         {
             if (callbackWebServiceOptions == null)
             {
@@ -20,9 +21,17 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure(callbackWebServiceOptions);
             }
 
+            if (options == null)
+            {
+                services.Configure<EventMeshOptions>((o) => { });
+            }
+            else
+            {
+                services.Configure(options);
+            }
+
             var serverBuilder = new ServerBuilder(services);
-            services.AddMediatR(typeof(ErrorCodes));
-            services.AddSingleton<IEventMeshServerRepository, InMemoryEventMeshServerRepository>();
+            services.AddMediatR(typeof(EventMeshOptions));
             services.AddHttpClient<WebServiceClient>();
             return serverBuilder;
         }

@@ -1,0 +1,54 @@
+<div class="breadcrumb">
+  <ul>
+    <li>{{ "vpn.list" | translate }}</li>
+  </ul>
+</div>
+<div class="actions">
+  <button mat-raised-button color="primary" (click)="addVpn()">{{ 'vpn.add' | translate }}</button>
+</div>
+<div class="container">
+  <div class="mat-elevation-z8 overflow-hidden">
+    <mat-table class="full-width" [dataSource]="vpns">
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let vpn">
+          <button mat-icon-button (click)="removeVpn(vpn)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+      <!-- Name -->
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef>{{ "vpn.name" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let vpn">
+          <a href="#" [routerLink]="['/vpns/' + vpn.name ]">{{ vpn.name }}</a>
+        </mat-cell>
+      </ng-container>
+      <!-- Description -->
+      <ng-container matColumnDef="description">
+        <mat-header-cell *matHeaderCellDef>{{ "vpn.description" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let vpn">
+          {{ vpn.description }}
+        </mat-cell>
+      </ng-container>
+      <!-- Create DateTime -->
+      <ng-container matColumnDef="createDateTime">
+        <mat-header-cell *matHeaderCellDef>{{ "vpn.createDateTime" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let vpn">
+          {{ vpn.createDateTime | date:'fullDate' }}
+        </mat-cell>
+      </ng-container>
+      <!-- Update DateTime -->
+      <ng-container matColumnDef="updateDateTime">
+        <mat-header-cell *matHeaderCellDef>{{ "vpn.updateDateTime" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let vpn">
+          {{ vpn.updateDateTime | date:'fullDate' }}
+        </mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+  </div>
+</div>
+<loader *ngIf="isLoading"></loader>

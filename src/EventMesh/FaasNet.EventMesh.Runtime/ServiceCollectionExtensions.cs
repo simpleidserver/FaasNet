@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddRuntime(this IServiceCollection services, Action<RuntimeOptions> callback = null)
+        public static ServerBuilder AddRuntime(this IServiceCollection services, Action<RuntimeOptions> callback = null)
         {
             if (callback != null)
             {
@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IUdpClientServerFactory, UdpClientServerFactory>();
             services.AddSingleton<IBrokerConfigurationStore>(new BrokerConfigurationStore());
             services.AddSingleton<IVpnStore>(new VpnStore(new List<Vpn>()));
-            return services;
+            return new ServerBuilder(services);
         }
 
         public static IServiceCollection AddInMemoryMessageBroker(this IServiceCollection services, ConcurrentBag<InMemoryTopic> topics)

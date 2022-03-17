@@ -1,11 +1,21 @@
 import { createSelector } from '@ngrx/store';
-import * as fromApiDefs from './apis/reducers';
+import * as fromApplications from './application/reducers';
+import * as fromEventMeshServers from './eventmeshservers/reducers';
 import * as fromFunctions from './functions/reducers';
+import * as fromServer from './server/reducers';
+import * as fromStateMachineInstances from './statemachineinstances/reducers';
+import * as fromStateMachines from './statemachines/reducers';
+import * as fromVpns from './vpn/reducers';
 export const selectFunctions = (state) => state.functions;
 export const selectFunction = (state) => state.function;
-export const selectApiDefs = (state) => state.apiDefs;
-export const selectApiDef = (state) => state.apiDef;
-export const selectOperation = (state) => state.operation;
+export const selectStateMachines = (state) => state.stateMachines;
+export const selectStateMachine = (state) => state.stateMachine;
+export const selectStateMachineInstances = (state) => state.stateMachineInstances;
+export const selectStateMachineInstance = (state) => state.stateMachineInstance;
+export const selectEventMeshServers = (state) => state.eventMeshServers;
+export const selectApplicationDomains = (state) => state.applicationDomains;
+export const selectServer = (state) => state.server;
+export const selectVpns = (state) => state.vpns;
 export const selectFunctionsResult = createSelector(selectFunctions, (state) => {
     if (!state || state.Functions === null) {
         return null;
@@ -60,29 +70,64 @@ export const selectTotalRequests = createSelector(selectFunction, (state) => {
     }
     return state.TotalRequests;
 });
-export const selectApiDefResult = createSelector(selectApiDef, (state) => {
-    if (!state || state.Details === null) {
+export const selectStateMachinesResult = createSelector(selectStateMachines, (state) => {
+    if (!state || !state.StateMachines) {
         return null;
     }
-    return state.Details;
+    return state.StateMachines;
 });
-export const selectApiDefsResult = createSelector(selectApiDefs, (state) => {
-    if (!state || !state.ApiDefs) {
+export const selectStateMachineResult = createSelector(selectStateMachine, (state) => {
+    if (!state || !state.StateMachine) {
         return null;
     }
-    return state.ApiDefs;
+    return state.StateMachine;
 });
-export const selectApiOperationInvocationResult = createSelector(selectOperation, (state) => {
-    if (!state || !state.InvocationResult) {
+export const selectStateMachineInstancesResult = createSelector(selectStateMachineInstances, (state) => {
+    if (!state || !state.StateMachineInstances) {
         return null;
     }
-    return state.InvocationResult;
+    return state.StateMachineInstances;
+});
+export const selectStateMachineInstanceResult = createSelector(selectStateMachineInstance, (state) => {
+    if (!state || !state.StateMachineInstance) {
+        return null;
+    }
+    return state.StateMachineInstance;
+});
+export const selectEventMeshServersResult = createSelector(selectEventMeshServers, (state) => {
+    if (!state || !state.EventMeshServers) {
+        return null;
+    }
+    return state.EventMeshServers;
+});
+export const selectApplicationDomainsResult = createSelector(selectApplicationDomains, (state) => {
+    if (!state || !state.ApplicationDomains) {
+        return null;
+    }
+    return state.ApplicationDomains;
+});
+export const selectServerStatusResult = createSelector(selectServer, (state) => {
+    if (!state || !state.Status) {
+        return null;
+    }
+    return state.Status;
+});
+export const selectVpnLstResult = createSelector(selectVpns, (state) => {
+    if (!state || !state.VpnLst) {
+        return null;
+    }
+    return state.VpnLst;
 });
 export const appReducer = {
     functions: fromFunctions.getSearchFunctionsReducer,
     function: fromFunctions.getFunctionReducer,
-    apiDef: fromApiDefs.getApiDefReducer,
-    apiDefs: fromApiDefs.getSearchApiDefsReducer,
-    operation: fromApiDefs.getOperationReducer
+    stateMachines: fromStateMachines.getSearchStateMachinesReducer,
+    stateMachine: fromStateMachines.getStateMachineReducer,
+    stateMachineInstances: fromStateMachineInstances.getSearchStateMachineInstancesReducer,
+    stateMachineInstance: fromStateMachineInstances.getStateMachineInstanceReducer,
+    eventMeshServers: fromEventMeshServers.getSearchEventMeshServersReducer,
+    applicationDomains: fromApplications.getApplicationDomainsReducer,
+    server: fromServer.getServerReducer,
+    vpns: fromVpns.getVpnLstReducer
 };
 //# sourceMappingURL=appstate.js.map

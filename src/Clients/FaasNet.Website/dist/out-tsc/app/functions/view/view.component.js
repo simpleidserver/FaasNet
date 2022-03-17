@@ -1,5 +1,8 @@
 import { __decorate } from "tslib";
 import { Component } from '@angular/core';
+import { select } from '@ngrx/store';
+import * as fromReducers from '@stores/appstate';
+import { startGet } from '@stores/functions/actions/function.actions';
 let ViewFunctionComponent = class ViewFunctionComponent {
     constructor(store, activatedRoute, actions$, translateService, snackBar) {
         this.store = store;
@@ -9,6 +12,13 @@ let ViewFunctionComponent = class ViewFunctionComponent {
         this.snackBar = snackBar;
     }
     ngOnInit() {
+        this.store.pipe(select(fromReducers.selectFunctionResult)).subscribe((state) => {
+            if (!state) {
+                return;
+            }
+            this.name = state.name;
+            this.id = state.id;
+        });
         this.subscription = this.activatedRoute.params.subscribe(() => {
             this.refresh();
         });
@@ -20,7 +30,8 @@ let ViewFunctionComponent = class ViewFunctionComponent {
     }
     refresh() {
         const name = this.activatedRoute.snapshot.params['name'];
-        this.name = name;
+        const action = startGet({ name: name });
+        this.store.dispatch(action);
     }
 };
 ViewFunctionComponent = __decorate([

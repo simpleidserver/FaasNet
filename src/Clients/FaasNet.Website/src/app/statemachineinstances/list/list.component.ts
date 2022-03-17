@@ -7,8 +7,8 @@ import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
 import { SearchResult } from '@stores/common/search.model';
-import { StateMachineInstance } from '@stores/statemachineinstances/models/statemachineinstance.model';
 import { startSearch } from '@stores/statemachineinstances/actions/statemachineinstances.actions';
+import { StateMachineInstance } from '@stores/statemachineinstances/models/statemachineinstance.model';
 import { merge } from 'rxjs';
 
 @Component({

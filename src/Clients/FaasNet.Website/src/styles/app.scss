@@ -53,6 +53,9 @@ a.is-active {
   display: flex;
 }
 
+.no-margin .mat-form-field-wrapper {
+  padding: 0px !important;
+}
 
 /* Breadcrumb */
 .actions, .breadcrumb {

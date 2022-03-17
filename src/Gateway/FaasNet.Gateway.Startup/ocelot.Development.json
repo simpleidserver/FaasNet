@@ -1,31 +1,7 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/eventmesh/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5001
-        }
-      ],
-      "UpstreamPathTemplate": "/eventmesh/{everything}",
-      "UpstreamHttpMethod": [ "POST" ]
-    },
-    {
-      "DownstreamPathTemplate": "/eventmeshservers",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5001
-        }
-      ],
-      "UpstreamPathTemplate": "/eventmesh",
-      "UpstreamHttpMethod": [ "POST", "GET" ]
-    },
-    {
-      "DownstreamPathTemplate": "/applicationdomains/{everything}",
+      "DownstreamPathTemplate": "/server/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -33,11 +9,11 @@
           "Port": 5002
         }
       ],
-      "UpstreamPathTemplate": "/applicationdomains/{everything}",
-      "UpstreamHttpMethod": [ "DELETE" ]
+      "UpstreamPathTemplate": "/server/{everything}",
+      "UpstreamHttpMethod": [ "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/applicationdomains",
+      "DownstreamPathTemplate": "/vpns",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -45,8 +21,20 @@
           "Port": 5002
         }
       ],
-      "UpstreamPathTemplate": "/applicationdomains",
+      "UpstreamPathTemplate": "/vpns",
       "UpstreamHttpMethod": [ "POST", "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/vpns/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/vpns/{everything}",
+      "UpstreamHttpMethod": [ "POST", "DELETE" ]
     },
     {
       "DownstreamPathTemplate": "/functions/{everything}",

@@ -1,8 +1,12 @@
 import { Routes } from '@angular/router';
+import { ServerStatusComponent } from './status/status.component';
 
 export const routes: Routes = [
   {
     path: '', redirectTo: 'functions', pathMatch: 'full'
+  },
+  {
+    path: 'status', component: ServerStatusComponent
   },
   {
     path: 'functions',
@@ -17,11 +21,7 @@ export const routes: Routes = [
     loadChildren: async () => (await import('./statemachineinstances/statemachineinstances.module')).StateMachineInstancesModule
   },
   {
-    path: 'eventmeshservers',
-    loadChildren: async () => (await import('./eventmeshservers/eventmeshservers.module')).EventMeshServersModule
-  },
-  {
-    path: 'domains',
-    loadChildren: async () => (await import('./domains/domains.module')).DomainsModule
+    path: 'vpns',
+    loadChildren: async () => (await import('./vpns/vpns.module')).VpnsModule
   }
 ];

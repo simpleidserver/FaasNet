@@ -1,7 +1,4 @@
-using FaasNet.EventMesh.EF;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace FaasNet.EventMesh.SqlServer.Startup
@@ -11,15 +8,6 @@ namespace FaasNet.EventMesh.SqlServer.Startup
         public static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
-            using (var scope = host.Services.CreateScope())
-            {
-                using (var context = scope.ServiceProvider.GetService<EventMeshDBContext>())
-                {
-                    context.Database.Migrate();
-                    context.SaveChanges();
-                }
-            }
-
             host.Run();
         }
 

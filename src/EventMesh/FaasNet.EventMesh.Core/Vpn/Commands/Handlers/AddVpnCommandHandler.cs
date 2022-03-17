@@ -19,11 +19,12 @@ namespace FaasNet.EventMesh.Core.Vpn.Commands.Handlers
         public async Task<bool> Handle(AddVpnCommand request, CancellationToken cancellationToken)
         {
             var vpn = await _vpnStore.Get(request.Name, cancellationToken);
-            if (vpn == null)
+            if (vpn != null)
             {
                 throw new BusinessRuleException(ErrorCodes.VPN_ALREADY_EXISTS, Global.VpnAlreadyExists);
             }
 
+            vpn = Runtime.Models.Vpn.Create(request.Name, request.Description);
             _vpnStore.Add(vpn);
             await _vpnStore.SaveChanges(cancellationToken);
             return true;

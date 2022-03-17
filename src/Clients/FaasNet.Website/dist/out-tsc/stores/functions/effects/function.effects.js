@@ -35,8 +35,8 @@ let FunctionEffects = class FunctionEffects {
         }));
         this.addFunction$ = this.actions$
             .pipe(ofType(startAdd), mergeMap((evt) => {
-            return this.applicationService.add(evt.name, evt.image)
-                .pipe(map(content => completeAdd({ name: evt.name, image: evt.image })), catchError(() => of(errorAdd())));
+            return this.applicationService.add(evt.name, evt.description, evt.image, evt.version)
+                .pipe(map(content => completeAdd({ name: evt.name, image: evt.image, description: evt.description, version: evt.version })), catchError(() => of(errorAdd())));
         }));
         this.getThreads$ = this.actions$
             .pipe(ofType(startGetThreads), mergeMap((evt) => {

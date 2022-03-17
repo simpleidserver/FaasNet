@@ -41,11 +41,11 @@ let FunctionService = class FunctionService {
         let targetUrl = environment.apiUrl + "/functions/" + name;
         return this.http.delete(targetUrl, { headers: headers });
     }
-    add(name, image) {
+    add(name, description, image, version) {
         let headers = new HttpHeaders();
         headers = headers.set('Accept', 'application/json');
         let targetUrl = environment.apiUrl + "/functions";
-        return this.http.post(targetUrl, { name: name, image: image }, { headers: headers });
+        return this.http.post(targetUrl, { name: name, description: description, image: image, version: version }, { headers: headers });
     }
     getThreads(name, startDate, endDate) {
         let headers = new HttpHeaders();

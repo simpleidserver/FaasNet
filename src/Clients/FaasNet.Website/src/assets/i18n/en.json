@@ -1,24 +1,9 @@
 {
-  "eventmeshservers": {
-    "list": "EventMesh Servers",
-    "add": "Add eventmesh server",
-    "isLocalhost": "Is Localhost ?",
-    "addBridge": "Add bridge",
-    "edit": "Add bridge",
-    "view": "View",
-    "sourceBridge": "Source",
-    "targetBridge": "Target",
-    "urn": "Urn",
-    "port": "Port",
-    "createDateTime": "Creation Datetime",
-    "messages": {
-      "eventMeshServerAdded": "EventMesh Server has been added",
-      "errorAddEventMeshServer": "An error occured while trying to add the EventMesh Server",
-      "eventMeshBridgeAdded": "Bridge has been added",
-      "errorAddEventMeshBridge": "An error occured while trying to add the bridge",
-      "errorAddBridgeSameNode": "Bridge cannot be added to the same node",
-      "errorBridgeExists": "Bridge already exists"
-    }
+  "server": {
+    "status": "Server status",
+    "lastRefreshTime": "Date Last Refreshed : {{lastRefreshTime}}",
+    "running": "Running",
+    "stopped": "Stopped"
   },
   "functions": {
     "list": "Functions",
@@ -76,52 +61,6 @@
       "errorAddFunction": "An error occured while trying to add the function"
     }
   },
-  "apis": {
-    "list": "APIs",
-    "add": "Add API",
-    "name": "Name",
-    "path": "Path",
-    "nameRequired": "Name is required",
-    "pathRequired": "Path is required",
-    "nbOperations": "Number of operations",
-    "createDateTime": "Create Datetime",
-    "updateDateTime": "Update Datetime",
-    "info": "Information",
-    "operations": "Operations",
-    "addOperation": "Add operation",
-    "messages": {
-      "apiAdded": "API is added",
-      "errorAddApi": "An error occured while trying to add the API",
-      "apiOperationAdded": "API operation has been added",
-      "errorAddApiOperation": "An error occured while trying to add the API operation",
-      "apiOperationUpdated": "API operation has been updated",
-      "errorUpdateApiOperation": "An error occured while trying to update the API operation"
-    },
-    "edit": {
-      "properties": "Properties",
-      "addFunction": "Add function",
-      "chooseFunction": "Choose a function",
-      "launchFunction": "Launch the function",
-      "input": "Input (JSON format)",
-      "output": "Output",
-      "panels": {
-        "function": {
-          "info": "Information",
-          "selectFunction": "Select a function",
-          "name": "Name",
-          "image": "Image",
-          "createDateTime": "Create Datetime",
-          "updateDateTime": "Update Datetime",
-          "configuration": "Configuration",
-          "updateConfiguration": "Update configuration"
-        }
-      },
-      "menu": {
-        "function": "Function",
-        "functionDescription": "Kubernetes function"
-      }
-    }
-  },
   "stateMachines": {
     "list": "State Machines",
     "launch": "Launch State Machine",
@@ -156,26 +95,22 @@
       "errorGetStateMachineInstance": "An error occured while trying to get the State Machine Instance"
     }
   },
-  "applicationDomains": {
-    "list": "Application domains",
-    "add": "Add application domain",
+  "vpn": {
+    "list": "VPNs",
+    "add": "Add VPN",
     "name": "Name",
     "description": "Description",
-    "rootTopic": "Root topic",
-    "createDateTime": "Creation DateTime",
-    "updateDateTime": "Update DateTime",
+    "updateDateTime": "Update Datetime",
+    "createDateTime": "Creation Datetime",
     "validations": {
       "nameRequired": "Name is required",
-      "descriptionRequired": "Description is required",
-      "rootTopicRequired": "Root topic is required"
+      "descriptionRequired": "Description is required"
     },
     "messages": {
-      "applicationDomainAdded": "Application domain has been added",
-      "errorAddApplicationDomain": "An error occured while trying to add the application domain"
-    },
-    "tooltip": {
-      "events": "Events",
-      "editor": "Editor"
+      "vpnAdded": "VPN has been added",
+      "errorAddVpn": "An error occured while trying to add the VPN",
+      "vpnRemoved": "VPN has been removed",
+      "errorRemoveVpn": "An error occured while trying to remove the VPN"
     }
   },
   "shared": {
@@ -187,7 +122,8 @@
     "close": "Close",
     "choose": "Choose",
     "launch": "Launch",
-    "cancel":  "Cancel"
+    "cancel": "Cancel",
+    "selectVpn": "Select VPN"
   },
   "undo": "Undo"
 }

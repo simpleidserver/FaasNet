@@ -41,6 +41,11 @@ namespace FaasNet.EventMesh.Runtime.Stores
             _vpns.Add(vpn);
         }
 
+        public void Delete(Vpn vpn)
+        {
+            _vpns.Remove(_vpns.First(v => v.Name == vpn.Name));
+        }
+
         public Task<IEnumerable<Vpn>> GetAll(CancellationToken cancellationToken)
         {
             IEnumerable<Vpn> result = _vpns;

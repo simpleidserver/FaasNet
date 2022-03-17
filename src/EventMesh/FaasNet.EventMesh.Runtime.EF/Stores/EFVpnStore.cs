@@ -81,6 +81,11 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
             }
         }
 
+        public void Delete(Vpn vpn)
+        {
+            _dbContext.VpnLst.Remove(vpn);
+        }
+
         public void Update(Vpn vpn)
         {
             _dbContext.VpnLst.Update(vpn);

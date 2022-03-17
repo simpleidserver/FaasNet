@@ -12,6 +12,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Common\FaasNet.EventStore.EF\FaasNet.EventStore.EF.csproj" />
     <ProjectReference Include="..\..\Common\FaasNet.EventStoreDB\FaasNet.EventStoreDB.csproj" />
-    <ProjectReference Include="..\FaasNet.Application.EF\FaasNet.Application.EF.csproj" />
   </ItemGroup>
 </Project>

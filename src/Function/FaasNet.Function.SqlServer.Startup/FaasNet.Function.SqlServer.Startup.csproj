@@ -12,4 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FaasNet.Function.EF\FaasNet.Function.EF.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
 </Project>

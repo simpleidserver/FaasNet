@@ -24,7 +24,10 @@ namespace FaasNet.EventMesh.Core.Vpn.Commands.Handlers
                 throw new NotFoundException(ErrorCodes.UNKNOWN_VPN, string.Format(Global.UnknownVpn, request.Vpn));
             }
 
-            throw new System.NotImplementedException();
+            vpn.AddBridge(request.Urn, request.Port, request.TargetVpn);
+            _vpnStore.Update(vpn);
+            await _vpnStore.SaveChanges(cancellationToken);
+            return true;
         }
     }
 }

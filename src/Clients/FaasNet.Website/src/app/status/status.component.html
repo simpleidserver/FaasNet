@@ -1,0 +1,23 @@
+<div class="breadcrumb">
+  <ul>
+    <li>{{ "server.status" | translate }}</li>
+  </ul>
+</div>
+<div class="container">
+  <mat-card>
+    <mat-card-content>
+      <div *ngIf="lastRefreshTime">
+        <div class="information">
+          <span>{{ 'server.lastRefreshTime' | translate : { lastRefreshTime : (lastRefreshTime | date : 'medium')  } }}</span>
+        </div>
+        <mat-divider></mat-divider>
+        <div class="information">
+          <mat-chip-list>
+            <mat-chip *ngIf="serverStatus.isRunning === true" class="running">{{ 'server.running' | translate }}</mat-chip>
+            <mat-chip *ngIf="serverStatus.isRunning === false" class="stopped">{{ 'server.stopped' | translate }}</mat-chip>
+          </mat-chip-list>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

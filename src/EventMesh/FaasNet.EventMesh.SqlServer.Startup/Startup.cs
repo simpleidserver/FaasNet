@@ -1,4 +1,4 @@
-using FaasNet.EventMesh.Core;
+using FaasNet.EventMesh.Runtime;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +32,7 @@ namespace FaasNet.EventMesh.SqlServer.Startup
                 opt.AccountId = 678128;
                 opt.LicenseKey = "gubXjBR4DMjsdqw3";
                 opt.Host = "geolite.info";
-            }).UseEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), o => o.MigrationsAssembly(migrationsAssembly)));
+            }).UseEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("EventMesh")));
             services.AddControllers().AddNewtonsoftJson(opts =>
             {
                 opts.SerializerSettings.Converters.Add(new StringEnumConverter());

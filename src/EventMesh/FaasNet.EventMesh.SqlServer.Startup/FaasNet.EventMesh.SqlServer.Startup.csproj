@@ -11,6 +11,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FaasNet.EventMesh.Core\FaasNet.EventMesh.Core.csproj" />
-    <ProjectReference Include="..\FaasNet.EventMesh.EF\FaasNet.EventMesh.EF.csproj" />
+    <ProjectReference Include="..\FaasNet.EventMesh.Runtime.EF\FaasNet.EventMesh.Runtime.EF.csproj" />
   </ItemGroup>
 </Project>

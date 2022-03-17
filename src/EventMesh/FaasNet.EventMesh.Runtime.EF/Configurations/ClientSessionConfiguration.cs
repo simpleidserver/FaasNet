@@ -12,7 +12,7 @@ namespace FaasNet.EventMesh.Runtime.EF.Configurations
             builder.Ignore(cs => cs.Endpoint);
             builder.Ignore(cs => cs.Purpose);
             builder.HasMany(cs => cs.Histories).WithOne().OnDelete(DeleteBehavior.Cascade);
-            builder.HasMany(cs => cs.Topics).WithOne().OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(cs => cs.Topics).WithOne().OnDelete(DeleteBehavior.NoAction);
             builder.HasMany(cs => cs.PendingCloudEvents).WithOne().OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(cs => cs.Bridges).WithOne().OnDelete(DeleteBehavior.Cascade);
         }

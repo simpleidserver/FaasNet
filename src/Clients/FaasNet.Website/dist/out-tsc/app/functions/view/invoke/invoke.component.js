@@ -44,6 +44,12 @@ let InvokeFunctionComponent = class InvokeFunctionComponent {
             this.subscription.unsubscribe();
         }
     }
+    refresh() {
+        var _a;
+        const name = (_a = this.activatedRoute.parent) === null || _a === void 0 ? void 0 : _a.snapshot.params['name'];
+        const action = startGetConfiguration({ name: name });
+        this.store.dispatch(action);
+    }
     onSave(evt) {
         var _a;
         const name = (_a = this.activatedRoute.parent) === null || _a === void 0 ? void 0 : _a.snapshot.params['name'];
@@ -53,13 +59,6 @@ let InvokeFunctionComponent = class InvokeFunctionComponent {
         };
         const invoke = startInvoke({ name: name, request: request });
         this.store.dispatch(invoke);
-    }
-    refresh() {
-        var _a;
-        const name = (_a = this.activatedRoute.parent) === null || _a === void 0 ? void 0 : _a.snapshot.params['name'];
-        this.name = name;
-        const action = startGetConfiguration({ name: name });
-        this.store.dispatch(action);
     }
 };
 InvokeFunctionComponent = __decorate([

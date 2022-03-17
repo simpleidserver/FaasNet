@@ -15,7 +15,7 @@ let ListFunctionsComponent = class ListFunctionsComponent {
         this.actions$ = actions$;
         this.translateService = translateService;
         this.snackBar = snackBar;
-        this.displayedColumns = ['name', 'image', 'createDateTime', 'updateDateTime'];
+        this.displayedColumns = ['name', 'description', 'image', 'version', 'createDateTime', 'updateDateTime'];
         this.functions = [];
     }
     ngOnInit() {
@@ -55,7 +55,7 @@ let ListFunctionsComponent = class ListFunctionsComponent {
             if (!opt) {
                 return;
             }
-            const addFunction = startAdd({ name: opt.name, image: opt.image });
+            const addFunction = startAdd({ name: opt.name, description: opt.description, image: opt.image, version: opt.version });
             this.store.dispatch(addFunction);
         });
     }
