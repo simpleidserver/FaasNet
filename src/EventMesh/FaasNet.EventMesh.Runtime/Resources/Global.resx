@@ -120,7 +120,13 @@
   <data name="BridgeAlreadyExists" xml:space="preserve">
     <value>bridge server already exists</value>
   </data>
+  <data name="MessageDefAlreadyExists" xml:space="preserve">
+    <value>message definition already exists</value>
+  </data>
   <data name="UnknownApplicationDomain" xml:space="preserve">
     <value>application domain '{0}' doesn't exist</value>
+  </data>
+  <data name="UnknownMessageDefinition" xml:space="preserve">
+    <value>message definition '{0}' doesn't exist</value>
   </data>
 </root>

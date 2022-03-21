@@ -107,5 +107,54 @@ namespace FaasNet.EventMesh.Runtime.Models
         {
             return BridgeServers.FirstOrDefault(bs => bs.Urn == urn && bs.Port == port && bs.Vpn == vpn);
         }
+
+        public void AddMessage(string applicationDomainId, MessageDefinition def)
+        {
+            var applicationDomain = ApplicationDomains.FirstOrDefault(a => a.Id == applicationDomainId);
+            if (applicationDomain == null)
+            {
+                throw new DomainException(ErrorCodes.UNKNOWN_APPLICATION_DOMAIN, string.Format(Global.UnknownApplicationDomain, applicationDomainId));
+            }
+
+            applicationDomain.AddMessageDefinition(def);
+        }
+
+        public void UpdateMessage(string applicationDomainId, string messageId, string description, string jsonSchema)
+        {
+            var applicationDomain = ApplicationDomains.FirstOrDefault(a => a.Id == applicationDomainId);
+            if (applicationDomain == null)
+            {
+                throw new DomainException(ErrorCodes.UNKNOWN_APPLICATION_DOMAIN, string.Format(Global.UnknownApplicationDomain, applicationDomainId));
+            }
+
+            var message = applicationDomain.MessageDefinitions.FirstOrDefault(m => m.Id == messageId);
+            if (message == null)
+            {
+                throw new DomainException(ErrorCodes.UNKNOWN_MESSAGEDEF, string.Format(Global.UnknownMessageDefinition, messageId));
+            }
+
+            message.Description = description;
+            message.JsonSchema = jsonSchema;
+            message.UpdateDateTime = DateTime.UtcNow;
+        }
+
+        public string PublishMessage(string applicationDomainId, string messageName)
+        {
+            var applicationDomain = ApplicationDomains.FirstOrDefault(a => a.Id == applicationDomainId);
+            if (applicationDomain == null)
+            {
+                throw new DomainException(ErrorCodes.UNKNOWN_APPLICATION_DOMAIN, string.Format(Global.UnknownApplicationDomain, applicationDomainId));
+            }
+
+            var message = applicationDomain.MessageDefinitions.OrderByDescending(m => m.Version).FirstOrDefault(m => m.Name == messageName);
+            if (message == null)
+            {
+                throw new DomainException(ErrorCodes.UNKNOWN_MESSAGEDEF, string.Format(Global.UnknownMessageDefinition, messageName));
+            }
+
+            var newMessage = message.Publish();
+            applicationDomain.MessageDefinitions.Add(newMessage);
+            return newMessage.Id;
+        }
     }
 }

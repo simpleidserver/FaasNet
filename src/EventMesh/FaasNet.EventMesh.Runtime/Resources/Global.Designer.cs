@@ -70,11 +70,29 @@ namespace FaasNet.EventMesh.Runtime.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to message definition already exists.
+        /// </summary>
+        internal static string MessageDefAlreadyExists {
+            get {
+                return ResourceManager.GetString("MessageDefAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to application domain &apos;{0}&apos; doesn&apos;t exist.
         /// </summary>
         internal static string UnknownApplicationDomain {
             get {
                 return ResourceManager.GetString("UnknownApplicationDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to message definition &apos;{0}&apos; doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownMessageDefinition {
+            get {
+                return ResourceManager.GetString("UnknownMessageDefinition", resourceCulture);
             }
         }
     }

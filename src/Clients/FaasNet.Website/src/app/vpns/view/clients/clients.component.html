@@ -1,3 +1,6 @@
+<div class="actions">
+  <button mat-raised-button color="primary" (click)="addClient()">{{ 'vpn.addClient' | translate }}</button>
+</div>
 <mat-table class="full-width" [dataSource]="clients">
   <!-- Actions -->
   <ng-container matColumnDef="actions">

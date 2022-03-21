@@ -108,15 +108,39 @@
     "clientPurposes": "Purposes",
     "info": "Information",
     "clients": "Clients",
+    "addClient": "Add client",
+    "purposes": "Purpose",
+    "subscribe": "Subscribe",
+    "publish": "Publish",
+    "clientSessions": "Sessions",
+    "sessionPurpose": "Purpose",
+    "bufferCloudEvents": "Buffer cloud events",
+    "topics": "Topics",
+    "sessionState": "State",
+    "sessionActive": "Active",
+    "sessionFinish": "Finish",
+    "addAppDomain": "Add application domain",
+    "rootTopic": "Root topic",
+    "appDomains": "Application domains",
     "validations": {
       "nameRequired": "Name is required",
-      "descriptionRequired": "Description is required"
+      "descriptionRequired": "Description is required",
+      "purposesRequired": "At least one purpose must be selected",
+      "rootTopicRequired": "Root topic is required"
     },
     "messages": {
       "vpnAdded": "VPN has been added",
       "errorAddVpn": "An error occured while trying to add the VPN",
       "vpnRemoved": "VPN has been removed",
-      "errorRemoveVpn": "An error occured while trying to remove the VPN"
+      "errorRemoveVpn": "An error occured while trying to remove the VPN",
+      "clientAdded": "VPN client has been added",
+      "errorAddClient": "An error occured while trying to add the VPN client",
+      "clientRemoved": "VPN client has been removed",
+      "errorRemoveClient": "An error occured while trying to remove the VPN client",
+      "appDomainAdded": "Application domain has been added",
+      "errorAddAppDomain": "An error occured while trying to add the application domain",
+      "appDomainRemoved": "Application domain has been removed",
+      "errorRemoveAppDomain": "An error occured while trying to remove the application domain"
     }
   },
   "shared": {

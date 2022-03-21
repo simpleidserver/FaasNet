@@ -1,4 +1,5 @@
 import { createAction, props } from '@ngrx/store';
+import { AppDomainResult } from '../models/appdomain.model';
 import { ClientResult } from '../models/client.model';
 import { VpnResult } from '../models/vpn.model';
 
@@ -26,3 +27,12 @@ export const errorDeleteClient = createAction('[VPN] ERROR_DELETE_CLIENT');
 export const startAddClient = createAction('[VPN] START_ADD_CLIENT', props<{ name: string, clientId: string, purposes : number[] }>());
 export const completeAddClient = createAction('[VPN] COMPLETE_ADD_CLIENT', props<{ name: string, clientId: string, purposes: number[] }>());
 export const errorAddClient = createAction('[VPN] ERROR_ADD_CLIENT');
+export const startGetAppDomains = createAction('[VPN] START_GET_APPDOMAINS', props<{ name: string }>());
+export const completeGetAppDomains = createAction('[VPN] COMPLETE_GET_APPDOMAINS', props<{ content: AppDomainResult[] }>());
+export const errorGetAppDomains = createAction('[VPN] ERROR_GET_APPDOMAINS');
+export const startAddAppDomain = createAction('[VPN] START_ADD_APPDOMAIN', props<{ vpn: string, name: string, description: string, rootTopic: string }>());
+export const completeAddAppDomain = createAction('[VPN] COMPLETE_ADD_APPDOMAIN', props<{ id: string, name: string, description: string, rootTopic: string }>());
+export const errorAddAppDomain = createAction('[VPN] ERROR_ADD_APPDOMAIN');
+export const startDeleteAppDomain = createAction('[VPN] START_DELETE_APPDOMAIN', props<{ name: string, appDomainId: string }>());
+export const completeDeleteAppDomain = createAction('[VPN] COMPLETE_DELETE_APPDOMAIN', props<{ name: string, appDomainId: string }>());
+export const errorDeleteAppDomain = createAction('[VPN] ERROR_DELETE_APPDOMAIN');

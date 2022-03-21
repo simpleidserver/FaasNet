@@ -6,5 +6,6 @@ export class ClientSessionResult {
   bufferCloudEvents: number = 0;
   state: number = 0;
   type: number = 0;
+  creationDateTime: Date | undefined;
   topics: TopicResult[] = [];
 }

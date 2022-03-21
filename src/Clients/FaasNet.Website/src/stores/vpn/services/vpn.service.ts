@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@envs/environment';
 import { Observable } from 'rxjs';
+import { AppDomainResult } from '../models/appdomain.model';
 import { ApplicationDomainAddedResult } from '../models/applicationdomainadded.model';
 import { ClientResult } from '../models/client.model';
 import { VpnResult } from '../models/vpn.model';
@@ -90,5 +91,27 @@ export class VpnService {
       purposes: purposes
     };
     return this.http.post<any>(targetUrl, json, { headers: headers });
+  }
+
+  addAppDomain(vpn: string, name: string, description: string, rootTopic: string): Observable<ApplicationDomainAddedResult> {
+    let targetUrl = environment.apiUrl + "/vpns/" + vpn + "/domains";
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    const json = {
+      name: name,
+      description: description,
+      rootTopic: rootTopic
+    };
+    return this.http.post<ApplicationDomainAddedResult>(targetUrl, json, { headers: headers });
+  }
+
+  getAppDomains(vpn: string): Observable<AppDomainResult[]> {
+    let targetUrl = environment.apiUrl + "/vpns/" + vpn + "/domains";
+    return this.http.get<AppDomainResult[]>(targetUrl);
+  }
+
+  deleteAppDomain(vpn: string, appDomainId: string): Observable<any> {
+    let targetUrl = environment.apiUrl + "/vpns/" + vpn + "/domains/" + appDomainId;
+    return this.http.delete<any>(targetUrl);
   }
 }

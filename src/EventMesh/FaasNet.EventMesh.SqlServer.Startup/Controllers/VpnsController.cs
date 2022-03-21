@@ -47,6 +47,13 @@ namespace FaasNet.EventMesh.SqlServer.Startup.Controllers
             return new NoContentResult();
         }
 
+        [HttpGet("{name}/domains")]
+        public async Task<IActionResult> GetApplicationDomains(string name, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new GetAllApplicationDomainsQuery { Vpn = name }, cancellationToken);
+            return new OkObjectResult(result);
+        }
+
         [HttpPost("{name}/domains")]
         public async Task<IActionResult> AddApplicationDomain(string name, [FromBody] AddApplicationDomainCommand cmd, CancellationToken cancellationToken)
         {
@@ -65,6 +72,49 @@ namespace FaasNet.EventMesh.SqlServer.Startup.Controllers
         {
             await _mediator.Send(new RemoveApplicationDomainCommand { Vpn = name, ApplicationDomainId = id }, cancellationToken);
             return new NoContentResult();
+        }
+
+        [HttpGet("{name}/domains/{id}/messages/latest")]
+        public async Task<IActionResult> GetAllLatestMessages(string name, string id, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new GetAllLatestMessageDefQuery { ApplicationDomainId = id, Vpn = name }, cancellationToken);
+            return new OkObjectResult(result);
+        }
+
+        [HttpPost("{name}/domains/{id}/messages")]
+        public async Task<IActionResult> AddMessageDef(string name, string id, [FromBody] AddMessageVpnCommand cmd, CancellationToken cancellationToken)
+        {
+            cmd.Vpn = name;
+            cmd.ApplicationDomainId = id;
+            var result = await _mediator.Send(cmd, cancellationToken);
+            return new ContentResult
+            {
+                StatusCode = (int)HttpStatusCode.Created,
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json"
+            };
+        }
+
+        [HttpPut("{name}/domains/{id}/messages/{messageId}")]
+        public async Task<IActionResult> AddMessageDef(string name, string id, string messageId, [FromBody] UpdateMessageVpnCommand cmd, CancellationToken cancellationToken)
+        {
+            cmd.Vpn = name;
+            cmd.ApplicationDomainId = id;
+            cmd.MessageId = messageId;
+            await _mediator.Send(cmd, cancellationToken);
+            return new NoContentResult();
+        }
+
+        [HttpPut("{name}/domains/{id}/messages/{messageName}/publish")]
+        public async Task<IActionResult> PublishMessageDef(string name, string id, string messageName, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new PublishMessageVpnCommand { ApplicationDomainId = id, Vpn = name, Name = messageName }, cancellationToken);
+            return new ContentResult
+            {
+                StatusCode = (int)HttpStatusCode.Created,
+                Content = JsonSerializer.Serialize(result),
+                ContentType = "application/json"
+            };
         }
 
         [HttpGet("{name}/clients")]

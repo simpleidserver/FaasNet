@@ -152,11 +152,11 @@ a.is-active {
     font-weight: bold;
   }
 
-  textarea, input, select {
+  textarea, input, select, .mat-select {
     border: 1px solid #c1c1c1;
   }
 
-  input:not([type=checkbox]), select {
+  input:not([type=checkbox]), select, .mat-select-trigger {
     height: 30px;
   }
 

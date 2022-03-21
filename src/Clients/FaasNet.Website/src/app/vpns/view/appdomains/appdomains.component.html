@@ -1,0 +1,51 @@
+<div class="actions">
+  <button mat-raised-button color="primary" (click)="addAppDomain()">{{ 'vpn.addAppDomain' | translate }}</button>
+</div>
+<mat-table class="full-width" [dataSource]="appDomains">
+  <!-- Actions -->
+  <ng-container matColumnDef="actions">
+    <mat-header-cell *matHeaderCellDef></mat-header-cell>
+    <mat-cell *matCellDef="let appDomain">
+      <button mat-icon-button (click)="removeAppDomain(appDomain)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-cell>
+  </ng-container>
+  <!-- Name -->
+  <ng-container matColumnDef="name">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.name" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let appDomain">
+      <a href="#" [routerLink]="['/vpns/' + name + '/domains/' + appDomain.id ]">{{ appDomain.name }}</a>
+    </mat-cell>
+  </ng-container>
+  <!-- Description -->
+  <ng-container matColumnDef="description">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.description" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let appDomain">
+      {{ appDomain.description }}
+    </mat-cell>
+  </ng-container>
+  <!-- RootTopic -->
+  <ng-container matColumnDef="rootTopic">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.rootTopic" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let appDomain">
+      {{ appDomain.rootTopic}}
+    </mat-cell>
+  </ng-container>
+  <!-- Create DateTime -->
+  <ng-container matColumnDef="createDateTime">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.createDateTime" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let appDomain">
+      {{ appDomain.createDateTime | date:'fullDate' }}
+    </mat-cell>
+  </ng-container>
+  <!-- Update DateTime -->
+  <ng-container matColumnDef="updateDateTime">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.updateDateTime" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let appDomain">
+      {{ appDomain.updateDateTime | date:'fullDate' }}
+    </mat-cell>
+  </ng-container>
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+</mat-table>

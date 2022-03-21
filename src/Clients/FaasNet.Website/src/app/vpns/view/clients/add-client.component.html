@@ -1,0 +1,29 @@
+<h1 mat-dialog-title>{{ 'vpn.addClient' | translate }}</h1>
+<form [formGroup]="addClientFormGroup" (ngSubmit)="save()">
+  <div mat-dialog-content>
+    <!-- Name -->
+    <div class="form-control">
+      <div class="title">{{ 'vpn.clientId' | translate }}</div>
+      <input formControlName="clientId" class="full-width" />
+      <mat-error *ngIf="addClientFormGroup.get('clientId')?.hasError('required')">
+        {{ 'vpn.validations.nameRequired' | translate }}
+      </mat-error>
+    </div>
+    <mat-divider></mat-divider>
+    <!-- Description -->
+    <div class="form-control">
+      <div class="title">{{ 'vpn.purposes' | translate }}</div>
+      <mat-select formControlName="purposes" multiple>
+        <mat-option value="1">{{ 'vpn.subscribe' | translate }}</mat-option>
+        <mat-option value="2">{{ 'vpn.publish' | translate }}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="addClientFormGroup.get('purposes')?.hasError('required')">
+        {{ 'vpn.validations.purposesRequired' | translate }}
+      </mat-error>
+    </div>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-raised-button color="primary" [disabled]="!this.addClientFormGroup.valid">{{ 'shared.create' | translate }}</button>
+    <button mat-stroked-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
+  </div>
+</form>

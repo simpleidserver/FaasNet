@@ -23,6 +23,13 @@
            [active]="rla2.isActive">
           {{ 'vpn.clients' | translate }}
         </a>
+        <a mat-tab-link
+           [routerLink]="['/vpns/' + name + '/appdomains']"
+           routerLinkActive
+           #rla3="routerLinkActive"
+           [active]="rla3.isActive">
+          {{ 'vpn.appDomains' | translate }}
+        </a>
       </nav>
       <router-outlet></router-outlet>
     </mat-card-content>

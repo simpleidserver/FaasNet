@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Core.Vpn.Commands.Handlers
 {
-    public class DeleteClientCommandHandler : IRequestHandler<DeleteClientCommand, bool>
+    public class UpdateMessageVpnCommandHandler : IRequestHandler<UpdateMessageVpnCommand, bool>
     {
         private readonly IVpnStore _vpnStore;
 
-        public DeleteClientCommandHandler(IVpnStore vpnStore)
+        public UpdateMessageVpnCommandHandler(IVpnStore vpnStore)
         {
             _vpnStore = vpnStore;
         }
 
-        public async Task<bool> Handle(DeleteClientCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(UpdateMessageVpnCommand request, CancellationToken cancellationToken)
         {
             var vpn = await _vpnStore.Get(request.Vpn, cancellationToken);
             if (vpn == null)
@@ -24,13 +24,7 @@ namespace FaasNet.EventMesh.Core.Vpn.Commands.Handlers
                 throw new NotFoundException(ErrorCodes.UNKNOWN_VPN, string.Format(Global.UnknownVpn, request.Vpn));
             }
 
-            var client = vpn.GetClient(request.ClientId);
-            if (client == null)
-            {
-                throw new NotFoundException(ErrorCodes.UNKNOWN_CLIENT, string.Format(Global.UnknownClient, request.ClientId));
-            }
-
-            vpn.Clients.Remove(client);
+            vpn.UpdateMessage(request.ApplicationDomainId, request.MessageId, request.Description, request.JsonSchema);
             _vpnStore.Update(vpn);
             await _vpnStore.SaveChanges(cancellationToken);
             return true;

@@ -1,0 +1,49 @@
+<mat-table class="full-width" [dataSource]="sessions">
+  <!-- Purpose -->
+  <ng-container matColumnDef="purpose">
+    <mat-header-cell *matHeaderCellDef>{{ 'vpn.sessionPurpose' | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let session">
+      <mat-chip-list>
+        <mat-chip *ngIf="session.purpose === 1">{{ 'vpn.subscribe' | translate }}</mat-chip>
+        <mat-chip *ngIf="session.purpose === 2">{{ 'vpn.publish' | translate }}</mat-chip>
+      </mat-chip-list>
+    </mat-cell>
+  </ng-container>
+  <!-- BufferCloudEvents -->
+  <ng-container matColumnDef="bufferCloudEvents">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.bufferCloudEvents" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let session">
+      {{ session.bufferCloudEvents }}
+    </mat-cell>
+  </ng-container>
+  <!-- Topics -->
+  <ng-container matColumnDef="topics">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.topics" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let session">
+      <mat-chip-list>
+        <mat-chip *ngFor="let topic of session.topics">
+          {{ topic.name }} : {{ topic.brokerName }}
+        </mat-chip>
+      </mat-chip-list>
+    </mat-cell>
+  </ng-container>
+  <!-- State -->
+  <ng-container matColumnDef="state">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.sessionState" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let session">
+      <mat-chip-list>
+        <mat-chip *ngIf="session.state === 'ACTIVE'">{{ 'vpn.sessionActive' | translate }}</mat-chip>
+        <mat-chip *ngIf="session.state === 'FINISH'">{{ 'vpn.sessionFinish' | translate }}</mat-chip>
+      </mat-chip-list>
+    </mat-cell>
+  </ng-container>
+  <!-- Create DateTime -->
+  <ng-container matColumnDef="createDateTime">
+    <mat-header-cell *matHeaderCellDef>{{ "vpn.createDateTime" | translate }}</mat-header-cell>
+    <mat-cell *matCellDef="let session">
+      {{ session.creationDateTime | date:'fullDate' }}
+    </mat-cell>
+  </ng-container>
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+</mat-table>

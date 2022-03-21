@@ -1,5 +1,6 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import * as fromActions from '../actions/vpn.actions';
+import { AppDomainResult } from '../models/appdomain.model';
 import { ClientResult } from '../models/client.model';
 import { VpnResult } from '../models/vpn.model';
 
@@ -19,6 +20,14 @@ export interface VpnState {
   Vpn: VpnResult | null;
 }
 
+export interface ApplicationDomainLstState {
+  ApplicationDomainLst: AppDomainResult[];
+}
+
+export interface ApplicationDomainState {
+  ApplicationDomain: AppDomainResult | null;
+}
+
 export const initialVpnLstState: VpnLstState = {
   VpnLst: []
 };
@@ -34,6 +43,14 @@ export const initialClientState: ClientState = {
 export const initialVpnState: VpnState = {
   Vpn: null
 }
+
+export const initialApplicationDomainLstState: ApplicationDomainLstState = {
+  ApplicationDomainLst: []
+};
+
+export const initialApplicationDomainState: ApplicationDomainState = {
+  ApplicationDomain: null
+};
 
 const vpnLstReducer = createReducer(
   initialVpnLstState,
@@ -106,6 +123,49 @@ const clientLstReducer = createReducer(
   })
 );
 
+const clientReducer = createReducer(
+  initialClientState,
+  on(fromActions.completeGetClient, (state, { content }) => {
+    return {
+      ...state,
+      Client: { ...content }
+    };
+  })
+);
+
+const applicationDomainLstReducer = createReducer(
+  initialApplicationDomainLstState,
+  on(fromActions.completeGetAppDomains, (state, { content }) => {
+    return {
+      ...state,
+      ApplicationDomainLst: [...content]
+    };
+  }),
+  on(fromActions.completeAddAppDomain, (state, { id, name, description, rootTopic }) => {
+    const appDomainLst = JSON.parse(JSON.stringify(state.ApplicationDomainLst)) as AppDomainResult[];
+    var record = new AppDomainResult();
+    record.id = id;
+    record.name = name;
+    record.description = description;
+    record.rootTopic = rootTopic;
+    record.createDateTime = new Date();
+    record.updateDateTime = new Date();
+    appDomainLst.push(record);
+    return {
+      ...state,
+      ApplicationDomainLst: [...appDomainLst]
+    };
+  }),
+  on(fromActions.completeDeleteAppDomain, (state, { name, appDomainId }) => {
+    let appDomainLst = JSON.parse(JSON.stringify(state.ApplicationDomainLst)) as AppDomainResult[];
+    appDomainLst = appDomainLst.filter(c => c.id !== appDomainId);
+    return {
+      ...state,
+      ApplicationDomainLst: [...appDomainLst]
+    };
+  })
+);
+
 export function getVpnLstReducer(state: VpnLstState | undefined, action: Action) {
   return vpnLstReducer(state, action);
 }
@@ -116,4 +176,12 @@ export function getVpnReducer(state: VpnState | undefined, action: Action) {
 
 export function getClientLstReducer(state: ClientLstState | undefined, action: Action) {
   return clientLstReducer(state, action);
+}
+
+export function getClientReducer(state: ClientState | undefined, action: Action) {
+  return clientReducer(state, action);
+}
+
+export function getApplicationDomainLstReducer(state: ApplicationDomainLstState | undefined, action: Action) {
+  return applicationDomainLstReducer(state, action);
 }

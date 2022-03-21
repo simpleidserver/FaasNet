@@ -5,7 +5,12 @@ import { AsyncApiEditorModule } from "../../components/asyncapi-editor/asyncapie
 import { LoaderModule } from "../../components/loader/loader.module";
 import { AddVpnComponent } from "./list/add-vpn.component";
 import { ListVpnComponent } from "./list/list.component";
+import { AddAppDomainComponent } from "./view/appdomains/add-appdomain.component";
+import { AppDomainsVpnComponent } from "./view/appdomains/appdomains.component";
+import { AddClientComponent } from "./view/clients/add-client.component";
 import { ClientsVpnComponent } from "./view/clients/clients.component";
+import { ViewVpnClientSessionsComponent } from "./view/clients/view/sessions/sessions.component";
+import { ViewVpnClientComponent } from "./view/clients/view/view.component";
 import { InfoVpnComponent } from "./view/info/info.component";
 import { ViewVpnComponent } from "./view/view.component";
 import { VpnsRoutes } from "./vpns.routes";
@@ -23,10 +28,18 @@ import { VpnsRoutes } from "./vpns.routes";
     AddVpnComponent,
     InfoVpnComponent,
     ViewVpnComponent,
-    ClientsVpnComponent
+    ClientsVpnComponent,
+    AddClientComponent,
+    ViewVpnClientComponent,
+    ViewVpnClientSessionsComponent,
+    AppDomainsVpnComponent,
+    AddAppDomainComponent
+
   ],
   entryComponents: [
-    AddVpnComponent
+    AddVpnComponent,
+    AddClientComponent,
+    AddAppDomainComponent
   ]
 })
 

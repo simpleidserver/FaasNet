@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
-import { completeAddClient, completeAddVpn, completeDeleteClient, completeDeleteVpn, completeGetAllClients, completeGetAllVpn, completeGetClient, completeGetVpn, deleteVpn, errorAddClient, errorAddVpn, errorDeleteClient, errorGetAllClients, errorGetAllVpn, errorGetClient, errorGetVpn, startAddClient, startAddVpn, startGetAllClients, startGetAllVpn, startGetClient, startGetVpn } from '../actions/vpn.actions';
+import { completeAddAppDomain, completeAddClient, completeAddVpn, completeDeleteAppDomain, completeDeleteClient, completeDeleteVpn, completeGetAllClients, completeGetAllVpn, completeGetAppDomains, completeGetClient, completeGetVpn, deleteVpn, errorAddAppDomain, errorAddClient, errorAddVpn, errorDeleteAppDomain, errorDeleteClient, errorGetAllClients, errorGetAllVpn, errorGetAppDomains, errorGetClient, errorGetVpn, startAddAppDomain, startAddClient, startAddVpn, startDeleteAppDomain, startDeleteClient, startGetAllClients, startGetAllVpn, startGetAppDomains, startGetClient, startGetVpn } from '../actions/vpn.actions';
 import { VpnService } from '../services/vpn.service';
 
 @Injectable()
@@ -99,7 +99,7 @@ export class VpnEffects {
   @Effect()
   deleteClient = this.actions$
     .pipe(
-      ofType(startGetClient),
+      ofType(startDeleteClient),
       mergeMap((evt: { name: string, clientId: string }) => {
         return this.vpnService.deleteClient(evt.name, evt.clientId)
           .pipe(
@@ -119,6 +119,48 @@ export class VpnEffects {
           .pipe(
             map(content => completeAddClient(evt)),
             catchError(() => of(errorAddClient()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  addAppDomain = this.actions$
+    .pipe(
+      ofType(startAddAppDomain),
+      mergeMap((evt: { vpn: string, name: string, description: string, rootTopic: string }) => {
+        return this.vpnService.addAppDomain(evt.vpn, evt.name, evt.description, evt.rootTopic)
+          .pipe(
+            map(content => completeAddAppDomain({ id: content.id, name: evt.name, description: evt.description, rootTopic: evt.rootTopic })),
+            catchError(() => of(errorAddAppDomain()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  getAppDomains = this.actions$
+    .pipe(
+      ofType(startGetAppDomains),
+      mergeMap((evt: { name: string }) => {
+        return this.vpnService.getAppDomains(evt.name)
+          .pipe(
+            map(content => completeGetAppDomains({ content: content })),
+            catchError(() => of(errorGetAppDomains()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  deleteAppDomain = this.actions$
+    .pipe(
+      ofType(startDeleteAppDomain),
+      mergeMap((evt: { name: string, appDomainId: string }) => {
+        return this.vpnService.deleteAppDomain(evt.name, evt.appDomainId)
+          .pipe(
+            map(content => completeDeleteAppDomain({ name: evt.name, appDomainId: evt.appDomainId})),
+            catchError(() => of(errorDeleteAppDomain()))
           );
       }
       )

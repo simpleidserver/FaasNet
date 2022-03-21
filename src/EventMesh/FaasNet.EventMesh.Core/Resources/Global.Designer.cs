@@ -70,6 +70,15 @@ namespace FaasNet.EventMesh.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to application domain &apos;{0}&apos; doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownApplicationDomain {
+            get {
+                return ResourceManager.GetString("UnknownApplicationDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to client &apos;{0}&apos; doesn&apos;t exist.
         /// </summary>
         internal static string UnknownClient {
