@@ -2,6 +2,7 @@ import { Action, createReducer, on } from '@ngrx/store';
 import * as fromActions from '../actions/vpn.actions';
 import { AppDomainResult } from '../models/appdomain.model';
 import { ClientResult } from '../models/client.model';
+import { MessageDefinitionResult } from '../models/messagedefinition.model';
 import { VpnResult } from '../models/vpn.model';
 
 export interface VpnLstState {
@@ -28,6 +29,14 @@ export interface ApplicationDomainState {
   ApplicationDomain: AppDomainResult | null;
 }
 
+export interface MessageDefinitionLstState {
+  MessageDefinitionLst: MessageDefinitionResult[];
+}
+
+export interface MessageDefinitionState {
+  MessageDefinition: MessageDefinitionResult | null;
+}
+
 export const initialVpnLstState: VpnLstState = {
   VpnLst: []
 };
@@ -43,6 +52,14 @@ export const initialClientState: ClientState = {
 export const initialVpnState: VpnState = {
   Vpn: null
 }
+
+export const initialMessageDefinitionLstState: MessageDefinitionLstState = {
+  MessageDefinitionLst: []
+};
+
+export const initialMessageDefinitionState: MessageDefinitionState = {
+  MessageDefinition : null
+};
 
 export const initialApplicationDomainLstState: ApplicationDomainLstState = {
   ApplicationDomainLst: []
@@ -166,6 +183,69 @@ const applicationDomainLstReducer = createReducer(
   })
 );
 
+const applicationDomainReducer = createReducer(
+  initialApplicationDomainState,
+  on(fromActions.completeGetAppDomain, (state, { content }) => {
+    return {
+      ...state,
+      ApplicationDomain: { ...content }
+    };
+  })
+);
+
+const messageDefLstReducer = createReducer(
+  initialMessageDefinitionLstState,
+  on(fromActions.completeGetLatestMessages, (state, { content }) => {
+    return {
+      ...state,
+      MessageDefinitionLst: [...content]
+    };
+  }),
+  on(fromActions.completeAddMessageDefinition, (state, { vpn, messageDefId, applicationDomainId, name, description, jsonSchema }) => {
+    const messageDefLst = JSON.parse(JSON.stringify(state.MessageDefinitionLst)) as MessageDefinitionResult[];
+    var record = new MessageDefinitionResult();
+    record.id = messageDefId;
+    record.name = name;
+    record.description = description;
+    record.version = 0;
+    record.createDateTime = new Date();
+    record.updateDateTime = new Date();
+    messageDefLst.push(record);
+    return {
+      ...state,
+      MessageDefinitionLst: [...messageDefLst]
+    };
+  }),
+  on(fromActions.completeUpdateMessageDefinition, (state, { vpn, applicationDomainId, messageDefId, description, jsonSchema }) => {
+    let messageDefLst = JSON.parse(JSON.stringify(state.MessageDefinitionLst)) as MessageDefinitionResult[];
+    const messageDef = messageDefLst.filter(m => m.id !== messageDefId)[0];
+    messageDef.updateDateTime = new Date();
+    messageDef.description = description;
+    messageDef.jsonSchema = jsonSchema;
+    return {
+      ...state,
+      MessageDefinitionLst: [...messageDefLst]
+    };
+  }),
+  on(fromActions.completePublishMessageDefinition, (state, { vpn, applicationDomainId, messageName, newMessageDefId }) => {
+    let messageDefLst = JSON.parse(JSON.stringify(state.MessageDefinitionLst)) as MessageDefinitionResult[];
+    const lastMessage = messageDefLst.filter(m => m.name === messageName).sort((a, b) => b.version - a.version)[0];
+    let record = new MessageDefinitionResult();
+    record.id = newMessageDefId;
+    record.name = messageName;
+    record.description = lastMessage.description;
+    record.jsonSchema = lastMessage.jsonSchema;
+    record.version = lastMessage.version + 1;
+    record.createDateTime = new Date();
+    record.updateDateTime = new Date();
+    messageDefLst.push(record);
+    return {
+      ...state,
+      MessageDefinitionLst: [...messageDefLst]
+    };
+  })
+);
+
 export function getVpnLstReducer(state: VpnLstState | undefined, action: Action) {
   return vpnLstReducer(state, action);
 }
@@ -184,4 +264,12 @@ export function getClientReducer(state: ClientState | undefined, action: Action)
 
 export function getApplicationDomainLstReducer(state: ApplicationDomainLstState | undefined, action: Action) {
   return applicationDomainLstReducer(state, action);
+}
+
+export function getMessageDefLstReducer(state: MessageDefinitionLstState | undefined, action: Action) {
+  return messageDefLstReducer(state, action);
+}
+
+export function getApplicationDomainReducer(state: ApplicationDomainState | undefined, action: Action) {
+  return applicationDomainReducer(state, action);
 }

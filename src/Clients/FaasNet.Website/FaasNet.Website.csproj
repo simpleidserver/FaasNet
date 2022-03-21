@@ -68,9 +68,12 @@
     <None Remove="src\stores\statemachines\models\statemachineadded.model.ts" />
     <None Remove="src\stores\statemachines\models\statemachinemodel.model.ts" />
     <None Remove="src\stores\vpn\actions\vpn.actions.ts" />
+    <None Remove="src\stores\vpn\models\appdomain.model.ts" />
     <None Remove="src\stores\vpn\models\applicationdomainadded.model.ts" />
     <None Remove="src\stores\vpn\models\client.model.ts" />
     <None Remove="src\stores\vpn\models\clientsession.model.ts" />
+    <None Remove="src\stores\vpn\models\messagedefinition.model.ts" />
+    <None Remove="src\stores\vpn\models\messagedefinitionadded.model.ts" />
     <None Remove="src\stores\vpn\models\vpn.model.ts" />
   </ItemGroup>
   <ItemGroup>
@@ -110,7 +113,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\app\functions\list\" />
-    <Folder Include="src\app\vpns\view\clients\" />
     <Folder Include="src\stores\functions\reducers\" />
   </ItemGroup>
   <ItemGroup>
@@ -170,9 +172,12 @@
     <TypeScriptCompile Include="src\stores\vpn\actions\vpn.actions.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="src\stores\vpn\models\appdomain.model.ts" />
     <TypeScriptCompile Include="src\stores\vpn\models\applicationdomainadded.model.ts" />
     <TypeScriptCompile Include="src\stores\vpn\models\client.model.ts" />
     <TypeScriptCompile Include="src\stores\vpn\models\clientsession.model.ts" />
+    <TypeScriptCompile Include="src\stores\vpn\models\messagedefinition.model.ts" />
+    <TypeScriptCompile Include="src\stores\vpn\models\messagedefinitionadded.model.ts" />
     <TypeScriptCompile Include="src\stores\vpn\models\vpn.model.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

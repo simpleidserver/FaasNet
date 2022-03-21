@@ -21,7 +21,9 @@ export interface AppState {
   vpn: fromVpns.VpnState,
   clients: fromVpns.ClientLstState,
   client: fromVpns.ClientState,
-  appDomains: fromVpns.ApplicationDomainLstState
+  appDomains: fromVpns.ApplicationDomainLstState,
+  appDomain: fromVpns.ApplicationDomainState,
+  messageDefs : fromVpns.MessageDefinitionLstState
 }
 
 export const selectFunctions = (state: AppState) => state.functions;
@@ -38,6 +40,8 @@ export const selectVpn = (state: AppState) => state.vpn;
 export const selectClients = (state: AppState) => state.clients;
 export const selectClient = (state: AppState) => state.client;
 export const selectAppDomains = (state: AppState) => state.appDomains;
+export const selectAppDomain = (state: AppState) => state.appDomain;
+export const selectMessageDefs = (state: AppState) => state.messageDefs;
 
 export const selectFunctionsResult = createSelector(
   selectFunctions,
@@ -270,6 +274,28 @@ export const selectAppDomainsResult = createSelector(
   }
 );
 
+export const selectAppDomainResult = createSelector(
+  selectAppDomain,
+  (state: fromVpns.ApplicationDomainState) => {
+    if (!state || !state.ApplicationDomain) {
+      return null;
+    }
+
+    return state.ApplicationDomain;
+  }
+);
+
+export const selectMessageDefsResult = createSelector(
+  selectMessageDefs,
+  (state: fromVpns.MessageDefinitionLstState) => {
+    if (!state || !state.MessageDefinitionLst) {
+      return null;
+    }
+
+    return state.MessageDefinitionLst;
+  }
+);
+
 export const appReducer = {
   functions: fromFunctions.getSearchFunctionsReducer,
   function: fromFunctions.getFunctionReducer,
@@ -284,5 +310,7 @@ export const appReducer = {
   vpn: fromVpns.getVpnReducer,
   clients: fromVpns.getClientLstReducer,
   client: fromVpns.getClientReducer,
-  appDomains: fromVpns.getApplicationDomainLstReducer
+  appDomains: fromVpns.getApplicationDomainLstReducer,
+  appDomain: fromVpns.getApplicationDomainReducer,
+  messageDefs: fromVpns.getMessageDefLstReducer
 };

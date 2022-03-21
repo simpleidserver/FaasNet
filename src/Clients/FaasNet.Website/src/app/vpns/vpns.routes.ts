@@ -1,6 +1,8 @@
 import { RouterModule, Routes } from '@angular/router';
 import { ListVpnComponent } from './list/list.component';
 import { AppDomainsVpnComponent } from './view/appdomains/appdomains.component';
+import { MessagesVpnComponent } from './view/appdomains/view/messages/messages.component';
+import { ViewVpnAppDomainComponent } from './view/appdomains/view/view.component';
 import { ClientsVpnComponent } from './view/clients/clients.component';
 import { ViewVpnClientSessionsComponent } from './view/clients/view/sessions/sessions.component';
 import { ViewVpnClientComponent } from './view/clients/view/view.component';
@@ -23,6 +25,19 @@ const routes: Routes = [
       {
         path: 'sessions',
         component: ViewVpnClientSessionsComponent
+      }
+    ]
+  },
+  {
+    path: ':vpnName/appdomains/:appDomainId',
+    component: ViewVpnAppDomainComponent,
+    children: [
+      {
+        path: '', redirectTo: 'messages', pathMatch: 'full'
+      },
+      {
+        path: 'messages',
+        component: MessagesVpnComponent
       }
     ]
   },

@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 import { AppDomainResult } from '../models/appdomain.model';
 import { ApplicationDomainAddedResult } from '../models/applicationdomainadded.model';
 import { ClientResult } from '../models/client.model';
+import { MessageDefinitionResult } from '../models/messagedefinition.model';
+import { MessageDefinitionAddedResult } from '../models/messagedefinitionadded.model';
 import { VpnResult } from '../models/vpn.model';
 
 @Injectable()
@@ -110,8 +112,46 @@ export class VpnService {
     return this.http.get<AppDomainResult[]>(targetUrl);
   }
 
+  getAppDomain(vpn: string, appDomainId: string): Observable<AppDomainResult> {
+    let targetUrl = environment.apiUrl + "/vpns/" + vpn + "/domains/" + appDomainId;
+    return this.http.get<AppDomainResult>(targetUrl);
+  }
+
   deleteAppDomain(vpn: string, appDomainId: string): Observable<any> {
     let targetUrl = environment.apiUrl + "/vpns/" + vpn + "/domains/" + appDomainId;
     return this.http.delete<any>(targetUrl);
+  }
+
+  getLatestMessagesDef(name: string, appDomainId: string) : Observable<MessageDefinitionResult[]> {
+    let targetUrl = environment.apiUrl + "/vpns/" + name + "/domains/" + appDomainId + '/messages/latest';
+    return this.http.get<MessageDefinitionResult[]>(targetUrl);
+  }
+
+  addMessageDef(vpn: string, applicationDomainId: string, name: string, description: string, jsonSchema: string): Observable<MessageDefinitionAddedResult> {
+    let targetUrl = environment.apiUrl + "/vpns/" + vpn + "/domains/" + applicationDomainId + '/messages';
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    const json = {
+      name: name,
+      description: description,
+      jsonSchema: jsonSchema
+    };
+    return this.http.post<MessageDefinitionAddedResult>(targetUrl, json, { headers: headers });
+  }
+
+  updateMessageDef(vpn: string, applicationDomainId: string, messageId: string, description: string, jsonSchema: string) : Observable<any> {
+    let targetUrl = environment.apiUrl + "/vpns/" + vpn + "/domains/" + applicationDomainId + '/messages/' + messageId;
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    const json = {
+      description: description,
+      jsonSchema: jsonSchema
+    };
+    return this.http.put<any>(targetUrl, json, { headers: headers });
+  }
+
+  publishMessageDef(name: string, appDomainId: string, messageName: string) : Observable<MessageDefinitionAddedResult> {
+    let targetUrl = environment.apiUrl + "/vpns/" + name + "/domains/" + appDomainId + '/messages/' + messageName + '/publish';
+    return this.http.get<MessageDefinitionAddedResult>(targetUrl);
   }
 }

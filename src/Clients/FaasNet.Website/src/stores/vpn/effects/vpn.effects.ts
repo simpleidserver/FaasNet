@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
-import { completeAddAppDomain, completeAddClient, completeAddVpn, completeDeleteAppDomain, completeDeleteClient, completeDeleteVpn, completeGetAllClients, completeGetAllVpn, completeGetAppDomains, completeGetClient, completeGetVpn, deleteVpn, errorAddAppDomain, errorAddClient, errorAddVpn, errorDeleteAppDomain, errorDeleteClient, errorGetAllClients, errorGetAllVpn, errorGetAppDomains, errorGetClient, errorGetVpn, startAddAppDomain, startAddClient, startAddVpn, startDeleteAppDomain, startDeleteClient, startGetAllClients, startGetAllVpn, startGetAppDomains, startGetClient, startGetVpn } from '../actions/vpn.actions';
+import { addMessageDefinition, completeAddAppDomain, completeAddClient, completeAddMessageDefinition, completeAddVpn, completeDeleteAppDomain, completeDeleteClient, completeDeleteVpn, completeGetAllClients, completeGetAllVpn, completeGetAppDomain, completeGetAppDomains, completeGetClient, completeGetLatestMessages, completeGetVpn, completePublishMessageDefinition, completeUpdateMessageDefinition, deleteVpn, errorAddAppDomain, errorAddClient, errorAddMessageDefinition, errorAddVpn, errorDeleteAppDomain, errorDeleteClient, errorGetAllClients, errorGetAllVpn, errorGetAppDomain, errorGetAppDomains, errorGetClient, errorGetLatestMessages, errorGetVpn, errorPublishMessageDefinition, errorUpdateMessageDefinition, getLatestMessages, publishMessageDefinition, startAddAppDomain, startAddClient, startAddVpn, startDeleteAppDomain, startDeleteClient, startGetAllClients, startGetAllVpn, startGetAppDomain, startGetAppDomains, startGetClient, startGetVpn, updateMessageDefinition } from '../actions/vpn.actions';
 import { VpnService } from '../services/vpn.service';
 
 @Injectable()
@@ -153,6 +153,20 @@ export class VpnEffects {
   );
 
   @Effect()
+  getAppDomain = this.actions$
+    .pipe(
+      ofType(startGetAppDomain),
+      mergeMap((evt: { name: string, appDomainId: string }) => {
+        return this.vpnService.getAppDomain(evt.name, evt.appDomainId)
+          .pipe(
+            map(content => completeGetAppDomain({ content: content })),
+            catchError(() => of(errorGetAppDomain()))
+          );
+      }
+      )
+    );
+
+  @Effect()
   deleteAppDomain = this.actions$
     .pipe(
       ofType(startDeleteAppDomain),
@@ -161,6 +175,62 @@ export class VpnEffects {
           .pipe(
             map(content => completeDeleteAppDomain({ name: evt.name, appDomainId: evt.appDomainId})),
             catchError(() => of(errorDeleteAppDomain()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  getLatestMessages = this.actions$
+    .pipe(
+      ofType(getLatestMessages),
+      mergeMap((evt: { name: string, appDomainId: string }) => {
+        return this.vpnService.getLatestMessagesDef(evt.name, evt.appDomainId)
+          .pipe(
+            map(content => completeGetLatestMessages({ content: content })),
+            catchError(() => of(errorGetLatestMessages()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  addMsgDef = this.actions$
+    .pipe(
+      ofType(addMessageDefinition),
+      mergeMap((evt: { vpn: string, applicationDomainId: string, name: string, description: string, jsonSchema: string }) => {
+        return this.vpnService.addMessageDef(evt.vpn, evt.applicationDomainId, evt.name, evt.description, evt.jsonSchema)
+          .pipe(
+            map(content => completeAddMessageDefinition({ vpn: evt.vpn, messageDefId: content.id, applicationDomainId: evt.applicationDomainId, description: evt.description, jsonSchema: evt.jsonSchema, name: evt.name })),
+            catchError(() => of(errorAddMessageDefinition()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  updateMsgDef = this.actions$
+    .pipe(
+      ofType(updateMessageDefinition),
+      mergeMap((evt: { vpn: string, applicationDomainId: string, messageDefId: string, description: string, jsonSchema: string }) => {
+        return this.vpnService.updateMessageDef(evt.vpn, evt.applicationDomainId, evt.messageDefId, evt.description, evt.jsonSchema)
+          .pipe(
+            map(content => completeUpdateMessageDefinition({ vpn: evt.vpn, messageDefId: evt.messageDefId, applicationDomainId: evt.applicationDomainId, description: evt.description, jsonSchema: evt.jsonSchema })),
+            catchError(() => of(errorUpdateMessageDefinition()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  publishMsgDef = this.actions$
+    .pipe(
+      ofType(publishMessageDefinition),
+      mergeMap((evt: { vpn: string, applicationDomainId: string, messageName: string }) => {
+        return this.vpnService.publishMessageDef(evt.vpn, evt.applicationDomainId, evt.messageName)
+          .pipe(
+            map(content => completePublishMessageDefinition({ vpn: evt.vpn, applicationDomainId: evt.applicationDomainId, messageName: evt.messageName, newMessageDefId: content.id })),
+            catchError(() => of(errorPublishMessageDefinition()))
           );
       }
       )

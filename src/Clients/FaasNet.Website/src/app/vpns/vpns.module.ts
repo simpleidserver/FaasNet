@@ -7,6 +7,8 @@ import { AddVpnComponent } from "./list/add-vpn.component";
 import { ListVpnComponent } from "./list/list.component";
 import { AddAppDomainComponent } from "./view/appdomains/add-appdomain.component";
 import { AppDomainsVpnComponent } from "./view/appdomains/appdomains.component";
+import { MessagesVpnComponent } from "./view/appdomains/view/messages/messages.component";
+import { ViewVpnAppDomainComponent } from "./view/appdomains/view/view.component";
 import { AddClientComponent } from "./view/clients/add-client.component";
 import { ClientsVpnComponent } from "./view/clients/clients.component";
 import { ViewVpnClientSessionsComponent } from "./view/clients/view/sessions/sessions.component";
@@ -33,8 +35,9 @@ import { VpnsRoutes } from "./vpns.routes";
     ViewVpnClientComponent,
     ViewVpnClientSessionsComponent,
     AppDomainsVpnComponent,
-    AddAppDomainComponent
-
+    AddAppDomainComponent,
+    ViewVpnAppDomainComponent,
+    MessagesVpnComponent
   ],
   entryComponents: [
     AddVpnComponent,

@@ -1,0 +1,25 @@
+<div class="breadcrumb">
+  <ul>
+    <li><a [routerLink]="['/vpns']">{{ "vpn.list" | translate }}</a></li>
+    <li class="separator">\</li>
+    <li><a [routerLink]="['/vpns/' + vpnName + '/appdomains']">{{ vpnName }}</a></li>
+    <li class="separator">\</li>
+    <li>{{ appDomainName }}</li>
+  </ul>
+</div>
+<div class="container">
+  <mat-card>
+    <mat-card-content>
+      <nav mat-tab-nav-bar>
+        <a mat-tab-link
+           [routerLink]="['/vpns/' + vpnName + '/appdomains/' + appDomainId + '/messages' ]"
+           routerLinkActive
+           #rla1="routerLinkActive"
+           [active]="rla1.isActive">
+          {{ 'vpn.appDomainMessages' | translate }}
+        </a>
+      </nav>
+      <router-outlet></router-outlet>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -122,6 +122,9 @@
     "addAppDomain": "Add application domain",
     "rootTopic": "Root topic",
     "appDomains": "Application domains",
+    "addMessage": "Add message",
+    "appDomainMessages": "Messages",
+    "version": "Version",
     "validations": {
       "nameRequired": "Name is required",
       "descriptionRequired": "Description is required",
