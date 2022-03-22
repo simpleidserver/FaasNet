@@ -4,8 +4,8 @@ import { SharedModule } from "@app/shared/shared.module";
 import { MonacoEditorModule } from '../monaco-editor/editor.module';
 import { AsyncApiEditorComponent } from './asyncapi-editor.component';
 import { ApplicationEditorComponent } from './components/application/application-editor.component';
-import { EditLinkDialogComponent } from './components/link/editlink-dialog.component';
-import { LinkEventsEditorComponent } from './components/link/evtseditor.component';
+import { ChooseClientComponent } from './components/application/chooseclient.component';
+import { LinkEventsEditorComponent } from './components/link/evteditor.component';
 import { LinkEditorComponent } from './components/link/link-editor.component';
 import { ViewAsyncApiComponent } from './viewasyncapicomponent';
 
@@ -20,8 +20,8 @@ import { ViewAsyncApiComponent } from './viewasyncapicomponent';
     ApplicationEditorComponent,
     LinkEditorComponent,
     LinkEventsEditorComponent,
-    EditLinkDialogComponent,
-    ViewAsyncApiComponent
+    ViewAsyncApiComponent,
+    ChooseClientComponent
   ],
   exports: [
     AsyncApiEditorComponent

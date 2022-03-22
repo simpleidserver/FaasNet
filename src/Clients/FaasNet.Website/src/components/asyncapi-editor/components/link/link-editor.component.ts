@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { FormControl } from "@angular/forms";
 import { MatPanelService } from "../../../matpanel/matpanelservice";
 import { ApplicationLink } from "../../models/link.model";
-import { LinkEventsEditorComponent, LinkEvtsEditorData } from "./evtseditor.component";
+import { LinkEventsEditorComponent, LinkEvtsEditorData } from "./evteditor.component";
 
 @Component({
   selector: 'link-editor',
@@ -12,20 +12,33 @@ import { LinkEventsEditorComponent, LinkEvtsEditorData } from "./evtseditor.comp
     '../editor.component.scss'
   ]
 })
-export class LinkEditorComponent implements OnDestroy {
+export class LinkEditorComponent implements OnInit, OnDestroy {
   private _link: ApplicationLink | undefined = undefined;
-  updateLinkFormGroup: FormGroup = new FormGroup({
-  });
+  topicFormControl: FormControl = new FormControl();
+
+  @Input() vpnName: string = "";
+  @Input() appDomainId: string = "";
   @Input()
   get link(): ApplicationLink | undefined {
     return this._link;
   }
   set link(v: ApplicationLink | undefined) {
     this._link = v;
+    if (this._link) {
+      this.topicFormControl.setValue(this._link.topicName);
+    }
   }
   @Output() closed: EventEmitter<any> = new EventEmitter<any>();
 
-  constructor(private matPanelService : MatPanelService) { }
+  constructor(private matPanelService: MatPanelService) { }
+
+  ngOnInit() {
+    this.topicFormControl.valueChanges.subscribe((e) => {
+      if (this._link) {
+        this._link.topicName = e;
+      }
+    });
+  }
 
   ngOnDestroy() {
   }
@@ -34,16 +47,31 @@ export class LinkEditorComponent implements OnDestroy {
     this.closed.emit();
   }
 
-  getMessages() {
-    return this._link?.evts.map(l => l.name).join(',');
-  }
-
-  editMessages() {
-    const data = new LinkEvtsEditorData();
-    if (this._link) {
-      data.evts = this._link.evts;
+  getMessage() {
+    if (!this.link || !this.link.message) {
+      return '';
     }
 
-    this.matPanelService.open(LinkEventsEditorComponent, data);
+    return this._link?.message?.name;
+  }
+  editMessage() {
+    const data = new LinkEvtsEditorData();
+    if (this._link) {
+      data.appDomainId = this.appDomainId;
+      data.vpnName = this.vpnName;
+    }
+
+    const service = this.matPanelService.open(LinkEventsEditorComponent, data);
+    service.closed.subscribe((e) => {
+      if (!e || !this.link) {
+        return;
+      }
+
+      if (!e.id) {
+        this.link.message = null;
+      } else {
+        this.link.message = e;
+      }
+    });
   }
 }

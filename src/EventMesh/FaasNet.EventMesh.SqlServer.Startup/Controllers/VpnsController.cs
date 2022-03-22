@@ -112,7 +112,7 @@ namespace FaasNet.EventMesh.SqlServer.Startup.Controllers
             return new NoContentResult();
         }
 
-        [HttpPut("{name}/domains/{id}/messages/{messageName}/publish")]
+        [HttpGet("{name}/domains/{id}/messages/{messageName}/publish")]
         public async Task<IActionResult> PublishMessageDef(string name, string id, string messageName, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new PublishMessageVpnCommand { ApplicationDomainId = id, Vpn = name, Name = messageName }, cancellationToken);

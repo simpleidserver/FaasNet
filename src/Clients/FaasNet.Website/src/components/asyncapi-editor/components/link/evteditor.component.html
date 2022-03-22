@@ -1,0 +1,45 @@
+<div class="panel-content">
+  <h1>Select message definition</h1>
+  <div class="body">
+    <div class="mat-elevation-z8 overflow-hidden">
+      <mat-table class="full-width" [dataSource]="messages">
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef>
+          </mat-header-cell>
+          <mat-cell *matCellDef="let message">
+            <mat-checkbox [checked]="message.id == selectedMessageDef.id" (change)="selectEvent(message)"></mat-checkbox>
+          </mat-cell>
+        </ng-container>
+        <!-- Name -->
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+          <mat-cell *matCellDef="let message">
+            {{ message.name }}
+          </mat-cell>
+        </ng-container>
+        <!-- Description -->
+        <ng-container matColumnDef="description">
+          <mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
+          <mat-cell *matCellDef="let message">
+            {{ message.description  }}
+          </mat-cell>
+        </ng-container>
+        <!-- Description -->
+        <ng-container matColumnDef="version">
+          <mat-header-cell *matHeaderCellDef>Version</mat-header-cell>
+          <mat-cell *matCellDef="let message">
+            {{ message.version  }}
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    </div>
+  </div>
+  <div class="actions">
+    <div>
+      <button mat-raised-button color="primary" (click)="save()">Save</button>
+    </div>
+  </div>
+</div>

@@ -4,10 +4,17 @@
     <mat-icon>close</mat-icon>
   </span>
 </h2>
+<mat-divider></mat-divider>
 <div class="form-control messages">
-  <div class="title">Messages</div>
-  <p class="description">Messages produced</p>
-  <div (click)="editMessages()">
-    <input type="text" [value]="getMessages()" class="full-width" disabled />
+  <div class="title">Message</div>
+  <p class="description">Select a message</p>
+  <div (click)="editMessage()">
+    <input type="text" [value]="getMessage()" class="full-width" disabled />
   </div>
+</div>
+<mat-divider></mat-divider>
+<div class="form-control">
+  <div class="title">Topic</div>
+  <p class="description">Enter the name of the topic</p>
+  <input type="text" [formControl]="topicFormControl" class="full-width" />
 </div>

@@ -1,6 +1,7 @@
 import { RouterModule, Routes } from '@angular/router';
 import { ListVpnComponent } from './list/list.component';
 import { AppDomainsVpnComponent } from './view/appdomains/appdomains.component';
+import { EditorDomainComponent } from './view/appdomains/view/editor/editor.component';
 import { MessagesVpnComponent } from './view/appdomains/view/messages/messages.component';
 import { ViewVpnAppDomainComponent } from './view/appdomains/view/view.component';
 import { ClientsVpnComponent } from './view/clients/clients.component';
@@ -38,6 +39,10 @@ const routes: Routes = [
       {
         path: 'messages',
         component: MessagesVpnComponent
+      },
+      {
+        path: 'editor',
+        component: EditorDomainComponent
       }
     ]
   },

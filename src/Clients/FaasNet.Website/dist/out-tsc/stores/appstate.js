@@ -16,6 +16,12 @@ export const selectEventMeshServers = (state) => state.eventMeshServers;
 export const selectApplicationDomains = (state) => state.applicationDomains;
 export const selectServer = (state) => state.server;
 export const selectVpns = (state) => state.vpns;
+export const selectVpn = (state) => state.vpn;
+export const selectClients = (state) => state.clients;
+export const selectClient = (state) => state.client;
+export const selectAppDomains = (state) => state.appDomains;
+export const selectAppDomain = (state) => state.appDomain;
+export const selectMessageDefs = (state) => state.messageDefs;
 export const selectFunctionsResult = createSelector(selectFunctions, (state) => {
     if (!state || state.Functions === null) {
         return null;
@@ -118,6 +124,42 @@ export const selectVpnLstResult = createSelector(selectVpns, (state) => {
     }
     return state.VpnLst;
 });
+export const selectVpnResult = createSelector(selectVpn, (state) => {
+    if (!state || !state.Vpn) {
+        return null;
+    }
+    return state.Vpn;
+});
+export const selectClientsResult = createSelector(selectClients, (state) => {
+    if (!state || !state.ClientLst) {
+        return null;
+    }
+    return state.ClientLst;
+});
+export const selectClientResult = createSelector(selectClient, (state) => {
+    if (!state || !state.Client) {
+        return null;
+    }
+    return state.Client;
+});
+export const selectAppDomainsResult = createSelector(selectAppDomains, (state) => {
+    if (!state || !state.ApplicationDomainLst) {
+        return null;
+    }
+    return state.ApplicationDomainLst;
+});
+export const selectAppDomainResult = createSelector(selectAppDomain, (state) => {
+    if (!state || !state.ApplicationDomain) {
+        return null;
+    }
+    return state.ApplicationDomain;
+});
+export const selectMessageDefsResult = createSelector(selectMessageDefs, (state) => {
+    if (!state || !state.MessageDefinitionLst) {
+        return null;
+    }
+    return state.MessageDefinitionLst;
+});
 export const appReducer = {
     functions: fromFunctions.getSearchFunctionsReducer,
     function: fromFunctions.getFunctionReducer,
@@ -128,6 +170,12 @@ export const appReducer = {
     eventMeshServers: fromEventMeshServers.getSearchEventMeshServersReducer,
     applicationDomains: fromApplications.getApplicationDomainsReducer,
     server: fromServer.getServerReducer,
-    vpns: fromVpns.getVpnLstReducer
+    vpns: fromVpns.getVpnLstReducer,
+    vpn: fromVpns.getVpnReducer,
+    clients: fromVpns.getClientLstReducer,
+    client: fromVpns.getClientReducer,
+    appDomains: fromVpns.getApplicationDomainLstReducer,
+    appDomain: fromVpns.getApplicationDomainReducer,
+    messageDefs: fromVpns.getMessageDefLstReducer
 };
 //# sourceMappingURL=appstate.js.map

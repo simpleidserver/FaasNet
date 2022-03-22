@@ -1,0 +1,1 @@
+{"version":3,"file":"client.model.js","sourceRoot":"","sources":["../../../../../src/stores/vpn/models/client.model.ts"],"names":[],"mappings":"AAEA,MAAM,OAAO,YAAY;IAAzB;QACE,aAAQ,GAAW,EAAE,CAAC;QACtB,mBAAc,GAAgB,IAAI,CAAC;QACnC,aAAQ,GAAa,EAAE,CAAC;QACxB,aAAQ,GAA0B,EAAE,CAAC;IACvC,CAAC;CAAA"}

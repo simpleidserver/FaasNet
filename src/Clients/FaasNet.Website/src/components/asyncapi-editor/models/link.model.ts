@@ -1,7 +1,8 @@
+import { MessageDefinitionResult } from "@stores/vpn/models/messagedefinition.model";
 import { Application } from "./application.model";
-import { Message } from "./message";
 
 export class ApplicationLink {
-  evts: Message[] = [];
+  message: MessageDefinitionResult | null = null;
   target: Application = new Application();
+  topicName: string = "";
 }

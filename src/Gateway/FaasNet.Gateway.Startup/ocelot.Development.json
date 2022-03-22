@@ -34,7 +34,7 @@
         }
       ],
       "UpstreamPathTemplate": "/vpns/{everything}",
-      "UpstreamHttpMethod": [ "POST", "DELETE", "GET" ]
+      "UpstreamHttpMethod": [ "POST", "DELETE", "GET", "PUT" ]
     },
     {
       "DownstreamPathTemplate": "/functions/{everything}",

@@ -218,7 +218,7 @@ const messageDefLstReducer = createReducer(
   }),
   on(fromActions.completeUpdateMessageDefinition, (state, { vpn, applicationDomainId, messageDefId, description, jsonSchema }) => {
     let messageDefLst = JSON.parse(JSON.stringify(state.MessageDefinitionLst)) as MessageDefinitionResult[];
-    const messageDef = messageDefLst.filter(m => m.id !== messageDefId)[0];
+    const messageDef = messageDefLst.filter(m => m.id === messageDefId)[0];
     messageDef.updateDateTime = new Date();
     messageDef.description = description;
     messageDef.jsonSchema = jsonSchema;
@@ -230,15 +230,12 @@ const messageDefLstReducer = createReducer(
   on(fromActions.completePublishMessageDefinition, (state, { vpn, applicationDomainId, messageName, newMessageDefId }) => {
     let messageDefLst = JSON.parse(JSON.stringify(state.MessageDefinitionLst)) as MessageDefinitionResult[];
     const lastMessage = messageDefLst.filter(m => m.name === messageName).sort((a, b) => b.version - a.version)[0];
-    let record = new MessageDefinitionResult();
-    record.id = newMessageDefId;
-    record.name = messageName;
-    record.description = lastMessage.description;
-    record.jsonSchema = lastMessage.jsonSchema;
-    record.version = lastMessage.version + 1;
-    record.createDateTime = new Date();
-    record.updateDateTime = new Date();
-    messageDefLst.push(record);
+    lastMessage.id = newMessageDefId;
+    lastMessage.description = lastMessage.description;
+    lastMessage.jsonSchema = lastMessage.jsonSchema;
+    lastMessage.version = lastMessage.version + 1;
+    lastMessage.createDateTime = new Date();
+    lastMessage.updateDateTime = new Date();
     return {
       ...state,
       MessageDefinitionLst: [...messageDefLst]

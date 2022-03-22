@@ -165,6 +165,9 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
   selectedElement: Element | null = null;
   previousPoint: any | null = null;
   previousMousePosition: { x: number, y: number } = { x: 0, y: 0 };
+  @Input() vpnName: string = "";
+  @Input() appDomainId: string = "";
+  @Input() rootTopic: string = "";
   @Input() editMode: boolean = true;
   @Input() options: AsyncApiEditorOptions = new AsyncApiEditorOptions();
   @ViewChild("stateDiagram") stateDiagram: any;
@@ -255,6 +258,7 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
 
     const data = new ViewAsyncApiData();
     const consumedLinks = this.links.filter(l => l.endElement && l.endElement.application.id === this.selectedElement?.application.id).map(l => l.applicationLink);
+    data.rootTopic = this.rootTopic;
     data.application = this.selectedElement.application;
     data.consumedLinks = consumedLinks;
     this.matPanelService.open(ViewAsyncApiComponent, data);
@@ -267,7 +271,6 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
       case 'application':
         const application = new Application();
         application.id = this.newGUID();
-        application.title = "app";
         application.posX = point.x;
         application.posY = point.y;
         this.elements.push(new Element(application, this.options.applicationWidth, this.options.applicationHeight));

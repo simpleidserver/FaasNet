@@ -9,8 +9,10 @@
   <!-- Title -->
   <div class="form-control">
     <div class="title">Title</div>
-    <p class="description">Application title</p>
-    <input type="text" formControlName="title" class="full-width" />
+    <p class="description">Choose a client</p>
+    <div (click)="chooseClient()" class="client">
+      <input type="text" [value]="getClient()" class="full-width" disabled />
+    </div>
   </div>
   <!-- Description -->
   <div class="form-control">

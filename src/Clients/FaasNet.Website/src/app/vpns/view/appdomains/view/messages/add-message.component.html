@@ -1,0 +1,37 @@
+<h1 mat-dialog-title>{{ 'vpn.addMessage' | translate }}</h1>
+<form [formGroup]="addMessageDefFormGroup" (ngSubmit)="save()">
+  <div mat-dialog-content>
+    <!-- Name -->
+    <div class="form-control">
+      <div class="title">{{ 'vpn.name' | translate }}</div>
+      <input formControlName="name" class="full-width" [readonly]="isEditable" />
+      <mat-error *ngIf="addMessageDefFormGroup.get('name')?.hasError('required')">
+        {{ 'vpn.validations.nameRequired' | translate }}
+      </mat-error>
+    </div>
+    <mat-divider></mat-divider>
+    <!-- Description -->
+    <div class="form-control">
+      <div class="title">{{ 'vpn.description' | translate }}</div>
+      <textarea formControlName="description" class="full-width"></textarea>
+      <mat-error *ngIf="addMessageDefFormGroup.get('description')?.hasError('required')">
+        {{ 'vpn.validations.descriptionRequired' | translate }}
+      </mat-error>
+    </div>
+    <!-- JsonSchema -->
+    <div class="form-control">
+      <div class="title">{{ 'vpn.jsonSchema' | translate }}</div>
+      <ngx-monaco-editor [options]="jsonOptions" formControlName="jsonSchema"></ngx-monaco-editor>
+      <mat-error *ngIf="addMessageDefFormGroup.get('jsonSchema')?.hasError('required')">
+        {{ 'vpn.validations.jsonSchemaRequired' | translate }}
+      </mat-error>
+    </div>
+    <div class="alert alert-warning">
+      {{ 'vpn.jsonSchemaInfo' | translate }}
+    </div>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-raised-button color="primary" [disabled]="!this.addMessageDefFormGroup.valid">{{ 'shared.save' | translate }}</button>
+    <button mat-stroked-button color="warn" mat-dialog-close>{{ 'shared.close' | translate }}</button>
+  </div>
+</form>

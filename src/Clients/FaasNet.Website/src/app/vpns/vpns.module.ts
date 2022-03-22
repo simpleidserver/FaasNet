@@ -3,10 +3,13 @@ import { MaterialModule } from "@app/shared/material.module";
 import { SharedModule } from "@app/shared/shared.module";
 import { AsyncApiEditorModule } from "../../components/asyncapi-editor/asyncapieditormodule";
 import { LoaderModule } from "../../components/loader/loader.module";
+import { MonacoEditorModule } from "../../components/monaco-editor/editor.module";
 import { AddVpnComponent } from "./list/add-vpn.component";
 import { ListVpnComponent } from "./list/list.component";
 import { AddAppDomainComponent } from "./view/appdomains/add-appdomain.component";
 import { AppDomainsVpnComponent } from "./view/appdomains/appdomains.component";
+import { EditorDomainComponent } from "./view/appdomains/view/editor/editor.component";
+import { AddMessageDefComponent } from "./view/appdomains/view/messages/add-message.component";
 import { MessagesVpnComponent } from "./view/appdomains/view/messages/messages.component";
 import { ViewVpnAppDomainComponent } from "./view/appdomains/view/view.component";
 import { AddClientComponent } from "./view/clients/add-client.component";
@@ -20,6 +23,7 @@ import { VpnsRoutes } from "./vpns.routes";
 @NgModule({
   imports: [
     MaterialModule,
+    MonacoEditorModule.forRoot(),
     SharedModule,
     VpnsRoutes,
     LoaderModule,
@@ -37,12 +41,15 @@ import { VpnsRoutes } from "./vpns.routes";
     AppDomainsVpnComponent,
     AddAppDomainComponent,
     ViewVpnAppDomainComponent,
-    MessagesVpnComponent
+    MessagesVpnComponent,
+    AddMessageDefComponent,
+    EditorDomainComponent
   ],
   entryComponents: [
     AddVpnComponent,
     AddClientComponent,
-    AddAppDomainComponent
+    AddAppDomainComponent,
+    AddMessageDefComponent
   ]
 })
 

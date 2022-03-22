@@ -28,6 +28,8 @@ namespace FaasNet.EventMesh.Core.Vpn.Commands.Handlers
 
             var messageDef = MessageDefinition.Create(request.Name, request.Description, request.JsonSchema);
             vpn.AddMessage(request.ApplicationDomainId, messageDef);
+            _vpnStore.Update(vpn);
+            await _vpnStore.SaveChanges(cancellationToken);
             return new AddMessageVpnResult { Id = messageDef.Id };
         }
     }

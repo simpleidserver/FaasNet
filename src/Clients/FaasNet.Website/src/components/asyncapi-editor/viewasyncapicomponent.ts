@@ -5,6 +5,7 @@ import { Application } from "./models/application.model";
 import { ApplicationLink } from "./models/link.model";
 
 export class ViewAsyncApiData {
+  rootTopic: string = "";
   application: Application | null = null;
   consumedLinks: ApplicationLink[] = [];
 }
@@ -28,7 +29,7 @@ export class ViewAsyncApiComponent extends MatPanelContent {
       return;
     }
 
-    var json = AsyncApiBuilder.build(viewAsyncApiData.application, viewAsyncApiData.consumedLinks);
+    var json = AsyncApiBuilder.build(viewAsyncApiData.rootTopic, viewAsyncApiData.application, viewAsyncApiData.consumedLinks);
     this.json = JSON.stringify(json, null, "\t");
   }
 }

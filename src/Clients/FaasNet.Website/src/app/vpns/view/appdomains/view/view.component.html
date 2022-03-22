@@ -8,7 +8,7 @@
   </ul>
 </div>
 <div class="container">
-  <mat-card>
+  <mat-card style="position: unset !important">
     <mat-card-content>
       <nav mat-tab-nav-bar>
         <a mat-tab-link
@@ -17,6 +17,13 @@
            #rla1="routerLinkActive"
            [active]="rla1.isActive">
           {{ 'vpn.appDomainMessages' | translate }}
+        </a>
+        <a mat-tab-link
+           [routerLink]="['/vpns/' + vpnName + '/appdomains/' + appDomainId + '/editor' ]"
+           routerLinkActive
+           #rla2="routerLinkActive"
+           [active]="rla2.isActive">
+          {{ 'vpn.appDomainEditor' | translate }}
         </a>
       </nav>
       <router-outlet></router-outlet>

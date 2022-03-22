@@ -32,7 +32,7 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
                     .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Bridges)
                     .Include(c => c.Clients).ThenInclude(c => c.Topics)
                     .Include(c => c.BridgeServers)
-                    .Include(c => c.ApplicationDomains)
+                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.MessageDefinitions)
                     .FirstOrDefaultAsync(v => v.Name == name, cancellationToken);
         }
 
@@ -46,7 +46,7 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
                     .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Bridges)
                     .Include(c => c.Clients).ThenInclude(c => c.Topics)
                     .Include(c => c.BridgeServers)
-                    .Include(c => c.ApplicationDomains)
+                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.MessageDefinitions)
                     .FirstOrDefaultAsync(v => v.Clients.Any(c => c.ClientId == clientId && c.Sessions.Any(s => s.Id == sessionId)), cancellationToken);
         }
 
@@ -60,7 +60,7 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
                     .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Bridges)
                     .Include(c => c.Clients).ThenInclude(c => c.Topics)
                     .Include(c => c.BridgeServers)
-                    .Include(c => c.ApplicationDomains)
+                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.MessageDefinitions)
                     .FirstOrDefaultAsync(v => v.Clients.Any(c => c.ClientId == clientId && c.Sessions.Any(s => s.Bridges.Any(b => b.Urn == urn && b.SessionId == sessionId))), cancellationToken);
         }
 
@@ -75,7 +75,7 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
                     .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Bridges)
                     .Include(c => c.Clients).ThenInclude(c => c.Topics)
                     .Include(c => c.BridgeServers)
-                    .Include(c => c.ApplicationDomains)
+                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.MessageDefinitions)
                     .ToList();
                 return Task.FromResult(result);
             }

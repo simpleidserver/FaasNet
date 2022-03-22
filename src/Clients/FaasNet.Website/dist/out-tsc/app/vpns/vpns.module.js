@@ -6,6 +6,16 @@ import { AsyncApiEditorModule } from "../../components/asyncapi-editor/asyncapie
 import { LoaderModule } from "../../components/loader/loader.module";
 import { AddVpnComponent } from "./list/add-vpn.component";
 import { ListVpnComponent } from "./list/list.component";
+import { AddAppDomainComponent } from "./view/appdomains/add-appdomain.component";
+import { AppDomainsVpnComponent } from "./view/appdomains/appdomains.component";
+import { MessagesVpnComponent } from "./view/appdomains/view/messages/messages.component";
+import { ViewVpnAppDomainComponent } from "./view/appdomains/view/view.component";
+import { AddClientComponent } from "./view/clients/add-client.component";
+import { ClientsVpnComponent } from "./view/clients/clients.component";
+import { ViewVpnClientSessionsComponent } from "./view/clients/view/sessions/sessions.component";
+import { ViewVpnClientComponent } from "./view/clients/view/view.component";
+import { InfoVpnComponent } from "./view/info/info.component";
+import { ViewVpnComponent } from "./view/view.component";
 import { VpnsRoutes } from "./vpns.routes";
 let VpnsModule = class VpnsModule {
 };
@@ -20,10 +30,22 @@ VpnsModule = __decorate([
         ],
         declarations: [
             ListVpnComponent,
-            AddVpnComponent
+            AddVpnComponent,
+            InfoVpnComponent,
+            ViewVpnComponent,
+            ClientsVpnComponent,
+            AddClientComponent,
+            ViewVpnClientComponent,
+            ViewVpnClientSessionsComponent,
+            AppDomainsVpnComponent,
+            AddAppDomainComponent,
+            ViewVpnAppDomainComponent,
+            MessagesVpnComponent
         ],
         entryComponents: [
-            AddVpnComponent
+            AddVpnComponent,
+            AddClientComponent,
+            AddAppDomainComponent
         ]
     })
 ], VpnsModule);

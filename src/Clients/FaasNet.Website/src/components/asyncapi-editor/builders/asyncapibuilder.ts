@@ -2,22 +2,36 @@ import { Application } from "../models/application.model";
 import { ApplicationLink } from "../models/link.model";
 
 export class AsyncApiBuilder {
-  public static build(app: Application, consumedLinks: ApplicationLink[]) {
-    const messages = this.buildMessages(app, consumedLinks);
-    // const components: any = {
-    //   "messages": messages
-    // };
-    // result["components"] = components;
-
+  public static build(rootTopic: string, app: Application, consumedLinks: ApplicationLink[]) {
     var result: any = {
       "asyncapi": "2.2.0",
       "info" : this.buildInfo(app)
     };
+
+    var channels: any = {};
+    this.buildChannels(channels, rootTopic, app.links, false);
+    this.buildChannels(channels, rootTopic, consumedLinks, true);
+    let keys = Object.keys(channels);
+    if (keys.length > 0) {
+      result["channels"] = channels;
+    }
+
+    let messages: any = {};
+    this.buildMessages(messages, app.links);
+    this.buildMessages(messages, consumedLinks);
+    keys = Object.keys(messages);
+    if (keys.length > 0) {
+      result["components"] = {
+        "messages": messages
+      };
+    }
     return result;
   }
 
   private static buildInfo(app: Application) {
-    let info: any = {};
+    let info: any = {
+      "version": "1.0.0"
+    };
     if (app.title) {
       info["title"] = app.title;
     }
@@ -33,37 +47,33 @@ export class AsyncApiBuilder {
     return info;
   }
 
-  private static buildComponents(app: Application, consumedLinked: ApplicationLink[]) {
-
+  private static buildMessages(result: any, links: ApplicationLink[]) {
+    links.forEach((l) => {
+      if (l.message) {
+        var keys = Object.keys(result);
+        if (!keys.includes(l.message.name)) {
+          result[l.message.name] = {
+            payload: JSON.parse(l.message.jsonSchema)
+          }
+        }
+      }
+    });
   }
 
-  private static buildMessages(app: Application, consumedLinks: ApplicationLink[]): any {
-    var result: any = {};
-    app.links.forEach((l) => {
-      l.evts.forEach((e) => {
-        var keys = Object.keys(result);
-        if (!keys.includes(e.name)) {
-          result[e.name] = e.payload;
+  private static buildChannels(result : any, rootTopic: string, links: ApplicationLink[], isSubscribe: boolean) {
+    links.forEach((l) => {
+      if (!l.message) {
+        return;
+      }
+
+      const topic = rootTopic + "/" + l.topicName;
+      const key = isSubscribe ? "subscribe" : "publish";
+      result[topic] = {};
+      result[topic][key] = {
+        message: {
+          "$ref": "#/components/messages/" + l.message?.name
         }
-      });
+      };
     });
-
-    consumedLinks.forEach((cl) => {
-      cl.evts.forEach((e) => {
-        var keys = Object.keys(result);
-        if (!keys.includes(e.name)) {
-          result[e.name] = e.payload;
-        }
-      });
-    });
-
-    return result;
-  }
-
-  private static buildChannels(app: Application, consumedLinks: ApplicationLink[]): any {
-    var result = {
-
-    };
-    return result;
   }
 }

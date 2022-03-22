@@ -96,7 +96,7 @@
   </div>
   <!-- Properties -->
   <div class="properties pane" *ngIf="isSelected">
-    <application-editor *ngIf="selectedElement" [element]="selectedElement?.application" (closed)="unselectElement()"></application-editor>
-    <link-editor *ngIf="selectedLink" [link]="selectedLink?.applicationLink" (closed)="unselectLink()"></link-editor>
+    <application-editor *ngIf="selectedElement" [appDomainId]="appDomainId" [vpnName]="vpnName" [element]="selectedElement?.application" (closed)="unselectElement()"></application-editor>
+    <link-editor *ngIf="selectedLink" [appDomainId]="appDomainId" [vpnName]="vpnName" [link]="selectedLink?.applicationLink" (closed)="unselectLink()"></link-editor>
   </div>
 </div>

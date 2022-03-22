@@ -123,13 +123,17 @@
     "rootTopic": "Root topic",
     "appDomains": "Application domains",
     "addMessage": "Add message",
+    "jsonSchema": "JSON Schema",
+    "jsonSchemaInfo": "The tool https://www.jsonschemavalidator.net/ can be used to build the JSON schema",
     "appDomainMessages": "Messages",
+    "appDomainEditor": "Editor",
     "version": "Version",
     "validations": {
       "nameRequired": "Name is required",
       "descriptionRequired": "Description is required",
       "purposesRequired": "At least one purpose must be selected",
-      "rootTopicRequired": "Root topic is required"
+      "rootTopicRequired": "Root topic is required",
+      "jsonSchemaRequired": "JSON Schema is required"
     },
     "messages": {
       "vpnAdded": "VPN has been added",
@@ -143,7 +147,13 @@
       "appDomainAdded": "Application domain has been added",
       "errorAddAppDomain": "An error occured while trying to add the application domain",
       "appDomainRemoved": "Application domain has been removed",
-      "errorRemoveAppDomain": "An error occured while trying to remove the application domain"
+      "errorRemoveAppDomain": "An error occured while trying to remove the application domain",
+      "messagDefUpdated": "Message definition has been updated",
+      "errorUpdateMessageDef": "An error occured while trying to update the message definition",
+      "messageDefPublished": "Message definition has been published",
+      "errorPublishMessage": "An error occured while trying to publish the message definition",
+      "messageDefAdded": "Message definition has been added",
+      "errorAddMessageDef": "An error occured while trying to add the message definition"
     }
   },
   "shared": {

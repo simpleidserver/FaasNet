@@ -261,6 +261,39 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.ToTable("ClientSessionPendingCloudEvent");
                 });
 
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.MessageDefinition", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApplicationDomainId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreateDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("JsonSchema")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdateDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationDomainId");
+
+                    b.ToTable("MessageDefinition");
+                });
+
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Topic", b =>
                 {
                     b.Property<int>("Id")
@@ -388,6 +421,14 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.MessageDefinition", b =>
+                {
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.ApplicationDomain", null)
+                        .WithMany("MessageDefinitions")
+                        .HasForeignKey("ApplicationDomainId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Topic", b =>
                 {
                     b.HasOne("FaasNet.EventMesh.Runtime.Models.ClientSession", null)
@@ -402,6 +443,11 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                         .WithMany("Topics")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationDomain", b =>
+                {
+                    b.Navigation("MessageDefinitions");
                 });
 
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.BrokerConfiguration", b =>

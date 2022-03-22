@@ -201,7 +201,7 @@ export class VpnEffects {
       mergeMap((evt: { vpn: string, applicationDomainId: string, name: string, description: string, jsonSchema: string }) => {
         return this.vpnService.addMessageDef(evt.vpn, evt.applicationDomainId, evt.name, evt.description, evt.jsonSchema)
           .pipe(
-            map(content => completeAddMessageDefinition({ vpn: evt.vpn, messageDefId: content.id, applicationDomainId: evt.applicationDomainId, description: evt.description, jsonSchema: evt.jsonSchema, name: evt.name })),
+            map(content => completeAddMessageDefinition({ vpn: evt.vpn, messageDefId: content.Id, applicationDomainId: evt.applicationDomainId, description: evt.description, jsonSchema: evt.jsonSchema, name: evt.name })),
             catchError(() => of(errorAddMessageDefinition()))
           );
       }
@@ -229,7 +229,7 @@ export class VpnEffects {
       mergeMap((evt: { vpn: string, applicationDomainId: string, messageName: string }) => {
         return this.vpnService.publishMessageDef(evt.vpn, evt.applicationDomainId, evt.messageName)
           .pipe(
-            map(content => completePublishMessageDefinition({ vpn: evt.vpn, applicationDomainId: evt.applicationDomainId, messageName: evt.messageName, newMessageDefId: content.id })),
+            map(content => completePublishMessageDefinition({ vpn: evt.vpn, applicationDomainId: evt.applicationDomainId, messageName: evt.messageName, newMessageDefId: content.Id })),
             catchError(() => of(errorPublishMessageDefinition()))
           );
       }

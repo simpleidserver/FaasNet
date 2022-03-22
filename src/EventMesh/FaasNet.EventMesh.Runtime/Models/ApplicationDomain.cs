@@ -29,7 +29,6 @@ namespace FaasNet.EventMesh.Runtime.Models
                 throw new DomainException(ErrorCodes.MESSAGEDEF_ALREADY_EXISTS, Global.MessageDefAlreadyExists);
             }
 
-            def.Id = MessageDefinition.BuildId(messageDef);
             MessageDefinitions.Add(def);
         }
     }

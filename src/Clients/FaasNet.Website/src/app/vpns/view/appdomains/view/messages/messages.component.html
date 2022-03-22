@@ -6,8 +6,11 @@
   <ng-container matColumnDef="actions">
     <mat-header-cell *matHeaderCellDef></mat-header-cell>
     <mat-cell *matCellDef="let message">
-      <button mat-icon-button (click)="removeMessage(message)">
-        <mat-icon>delete</mat-icon>
+      <button mat-icon-button (click)="publishMessage(message)">
+        <mat-icon>publish</mat-icon>
+      </button>
+      <button mat-icon-button (click)="editMessage(message)">
+        <mat-icon>edit</mat-icon>
       </button>
     </mat-cell>
   </ng-container>

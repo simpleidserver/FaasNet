@@ -1,3 +1,3 @@
 export class MessageDefinitionAddedResult {
-  id: string = "";
+  Id: string = "";
 }

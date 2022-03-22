@@ -72,6 +72,7 @@ let ListVpnComponent = class ListVpnComponent {
         });
     }
     removeVpn(vpn) {
+        this.isLoading = true;
         const removeVpn = deleteVpn({ name: vpn.name });
         this.store.dispatch(removeVpn);
     }
