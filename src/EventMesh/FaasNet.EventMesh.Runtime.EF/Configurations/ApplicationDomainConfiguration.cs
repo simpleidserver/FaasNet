@@ -10,6 +10,7 @@ namespace FaasNet.EventMesh.Runtime.EF.Configurations
         {
             builder.HasKey(b => b.Id);
             builder.HasMany(v => v.MessageDefinitions).WithOne().OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(v => v.Applications).WithOne().OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

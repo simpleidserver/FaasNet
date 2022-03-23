@@ -19,6 +19,39 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 .HasAnnotation("ProductVersion", "5.0.13")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Application", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApplicationDomainId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ClientId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("PosX")
+                        .HasColumnType("real");
+
+                    b.Property<float>("PosY")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationDomainId");
+
+                    b.ToTable("Application");
+                });
+
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationDomain", b =>
                 {
                     b.Property<string>("Id")
@@ -47,6 +80,32 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.HasIndex("VpnName");
 
                     b.ToTable("ApplicationDomain");
+                });
+
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationLink", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ApplicationId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("MessageId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TargetId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TopicName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId");
+
+                    b.ToTable("ApplicationLink");
                 });
 
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.BridgeServer", b =>
@@ -357,11 +416,27 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.HasDiscriminator().HasValue("ClientTopic");
                 });
 
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Application", b =>
+                {
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.ApplicationDomain", null)
+                        .WithMany("Applications")
+                        .HasForeignKey("ApplicationDomainId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationDomain", b =>
                 {
                     b.HasOne("FaasNet.EventMesh.Runtime.Models.Vpn", null)
                         .WithMany("ApplicationDomains")
                         .HasForeignKey("VpnName")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationLink", b =>
+                {
+                    b.HasOne("FaasNet.EventMesh.Runtime.Models.Application", null)
+                        .WithMany("Links")
+                        .HasForeignKey("ApplicationId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -445,8 +520,15 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Application", b =>
+                {
+                    b.Navigation("Links");
+                });
+
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationDomain", b =>
                 {
+                    b.Navigation("Applications");
+
                     b.Navigation("MessageDefinitions");
                 });
 

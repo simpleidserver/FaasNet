@@ -11,15 +11,17 @@ namespace FaasNet.EventMesh.Runtime.Models
         public ApplicationDomain()
         {
             MessageDefinitions = new List<MessageDefinition>();
+            Applications = new List<Application>();
         }
 
-        public string Id { get; set; }  
+        public string Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string RootTopic { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
         public ICollection<MessageDefinition> MessageDefinitions { get; set; }
+        public ICollection<Application> Applications { get; set; }
 
         public void AddMessageDefinition(MessageDefinition def)
         {

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '@envs/environment';
 import { Observable } from 'rxjs';
 import { AppDomainResult } from '../models/appdomain.model';
+import { ApplicationResult } from '../models/application.model';
 import { ApplicationDomainAddedResult } from '../models/applicationdomainadded.model';
 import { ClientResult } from '../models/client.model';
 import { MessageDefinitionResult } from '../models/messagedefinition.model';
@@ -153,5 +154,15 @@ export class VpnService {
   publishMessageDef(name: string, appDomainId: string, messageName: string) : Observable<MessageDefinitionAddedResult> {
     let targetUrl = environment.apiUrl + "/vpns/" + name + "/domains/" + appDomainId + '/messages/' + messageName + '/publish';
     return this.http.get<MessageDefinitionAddedResult>(targetUrl);
+  }
+
+  updateApplicationDomain(name: string, appDomainId: string, applications: ApplicationResult[]): Observable<any> {
+    let targetUrl = environment.apiUrl + "/vpns/" + name + "/domains/" + appDomainId;
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    const json = {
+      applications: applications
+    };
+    return this.http.put<any>(targetUrl, json, { headers: headers });
   }
 }

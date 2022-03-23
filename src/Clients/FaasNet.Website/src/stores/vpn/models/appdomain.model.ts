@@ -1,3 +1,5 @@
+import { ApplicationResult } from "./application.model";
+
 export class AppDomainResult {
   id: string = "";
   name: string = "";
@@ -5,4 +7,5 @@ export class AppDomainResult {
   rootTopic: string = "";
   createDateTime: Date | null = null;
   updateDateTime: Date | null = null;
+  applications: ApplicationResult[] = [];
 }

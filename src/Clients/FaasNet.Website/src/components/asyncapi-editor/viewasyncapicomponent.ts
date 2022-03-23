@@ -1,13 +1,13 @@
 import { Component } from "@angular/core";
+import { ApplicationResult } from "@stores/vpn/models/application.model";
+import { ApplicationLinkResult } from "@stores/vpn/models/applicationlink.model";
 import { MatPanelContent } from "../matpanel/matpanelcontent";
 import { AsyncApiBuilder } from "./builders/asyncapibuilder";
-import { Application } from "./models/application.model";
-import { ApplicationLink } from "./models/link.model";
 
 export class ViewAsyncApiData {
   rootTopic: string = "";
-  application: Application | null = null;
-  consumedLinks: ApplicationLink[] = [];
+  application: ApplicationResult | null = null;
+  consumedLinks: ApplicationLinkResult[] = [];
 }
 
 @Component({

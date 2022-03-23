@@ -1,8 +1,8 @@
-import { Component, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { ApplicationResult } from '../../stores/vpn/models/application.model';
+import { ApplicationLinkResult } from '../../stores/vpn/models/applicationlink.model';
 import { MatPanelService } from '../matpanel/matpanelservice';
-import { Application } from './models/application.model';
-import { ApplicationLink } from './models/link.model';
 import { ViewAsyncApiComponent, ViewAsyncApiData } from './viewasyncapicomponent';
 
 class AsyncApiEditorOptions {
@@ -30,7 +30,7 @@ class Link {
   isSelected: boolean = false;
   startElement: Element | null = null;
   endElement: Element | null = null;
-  applicationLink: ApplicationLink = new ApplicationLink();
+  applicationLink: ApplicationLinkResult = new ApplicationLinkResult();
 
   constructor(public id: string, public startAnchor: Anchor, public endAnchor: Anchor) { }
 
@@ -82,7 +82,7 @@ class Element {
   isSelected: boolean = false;
   dragOffset: { x: number, y: number } | null = null;
 
-  constructor(public application: Application, public width: number, public height: number) {
+  constructor(public application: ApplicationResult, public width: number, public height: number) {
     this.init();
   }
 
@@ -156,7 +156,7 @@ class Element {
 export class AsyncApiEditorComponent implements OnInit, OnDestroy {
   startMoving: boolean = false;
   isMoving: boolean = false;
-  viewBox: string = "0 0 1 1";
+  _isApplications: ApplicationResult[] = [];
   selectedAnchorLink: {
     link: Link, anchor: Anchor, isStart: boolean, dragOffset: { x: number, y: number }
   } | null = null;
@@ -169,7 +169,17 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
   @Input() appDomainId: string = "";
   @Input() rootTopic: string = "";
   @Input() editMode: boolean = true;
+  @Input()
+  get applications() : ApplicationResult[] {
+    return this._isApplications;
+  }
+  set applications(v: ApplicationResult[]) {
+    this._isApplications = v;
+    this.init();
+  }
   @Input() options: AsyncApiEditorOptions = new AsyncApiEditorOptions();
+  viewBox: string = "0 0 1 1";
+  @Output() viewBoxChanged = new EventEmitter();
   @ViewChild("stateDiagram") stateDiagram: any;
   @ViewChild("gutter") gutter: any;
   @ViewChild("stateDiagramContainer") stateDiagramContainer: any;
@@ -190,7 +200,7 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.viewBox = "0 0 " + this.stateDiagramContainer.nativeElement.offsetWidth + " " + this.stateDiagramContainer.nativeElement.offsetHeight;
+    this.setViewBox("0 0 " + this.stateDiagramContainer.nativeElement.offsetWidth + " " + this.stateDiagramContainer.nativeElement.offsetHeight);
     this.initListeners();
   }
 
@@ -269,10 +279,12 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
     const type = evt.dataTransfer.getData('type');
     switch (type) {
       case 'application':
-        const application = new Application();
+        const application = new ApplicationResult();
         application.id = this.newGUID();
+        application.title = "title";
         application.posX = point.x;
         application.posY = point.y;
+        this.applications.push(application);
         this.elements.push(new Element(application, this.options.applicationWidth, this.options.applicationHeight));
         break;
       case 'link':
@@ -290,6 +302,19 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
 
   onDragLeave(evt: any) {
 
+  }
+
+  private init() {
+    if (this.applications.length === 0) {
+      return;
+    }
+
+    this.applications.forEach((a: ApplicationResult) => {
+      this.elements.push(new Element(a, this.options.applicationWidth, this.options.applicationHeight));
+      a.links.forEach((l: ApplicationLinkResult) => {
+        // const link = new Link(l., startAnchor, endAnchor);
+      });
+    });
   }
 
   private initListeners() {
@@ -324,7 +349,7 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
 
       const diffX = -(e.clientX - self.previousMousePosition.x);
       const diffY = -(e.clientY - self.previousMousePosition.y);
-      self.viewBox = diffX + " " + diffY + " " + viewBox.animVal.width + " " + viewBox.animVal.height;
+      self.setViewBox(diffX + " " + diffY + " " + viewBox.animVal.width + " " + viewBox.animVal.height);
     };
     native.onmouseup = function (e: any) {
       if (!self.isMoving) {
@@ -347,7 +372,7 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
     const viewBox = native.viewBox;
     const w = viewBox.animVal.width;
     const h = viewBox.animVal.height;
-    this.viewBox = (viewBox.animVal.x) + " " + (viewBox.animVal.y) + " " + (w + delta) + " " + (h + delta);
+    this.setViewBox((viewBox.animVal.x) + " " + (viewBox.animVal.y) + " " + (w + delta) + " " + (h + delta));
   }
 
   private selectLink(e: any) {
@@ -507,5 +532,12 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
     }
 
     return targetElement;
+  }
+
+  private setViewBox(viewBox: string) {
+    this.viewBox = viewBox;
+    if (this.viewBoxChanged) {
+      this.viewBoxChanged.emit(this.viewBox);
+    }
   }
 }

@@ -6,23 +6,32 @@
 </h2>
 
 <form [formGroup]="updateApplicationFormGroup" class="form">
-  <!-- Title -->
+  <!-- ClientId -->
   <div class="form-control">
-    <div class="title">Title</div>
+    <div class="title">Client Identifier</div>
     <p class="description">Choose a client</p>
     <div (click)="chooseClient()" class="client">
       <input type="text" [value]="getClient()" class="full-width" disabled />
     </div>
   </div>
+  <mat-divider></mat-divider>
+  <!-- Title -->
+  <div class="form-control">
+    <div class="title">Title</div>
+    <p class="description">Title</p>
+    <input type="text" formControlName="title" class="full-width" />
+  </div>
+  <mat-divider></mat-divider>
   <!-- Description -->
   <div class="form-control">
     <div class="title">Description</div>
     <p class="description">Description</p>
     <textarea class="full-width" formControlName="description"></textarea>
   </div>
+  <mat-divider></mat-divider>
   <!-- Version -->
   <div class="form-control">
-    <div class="version">Version</div>
+    <div class="title">Version</div>
     <p class="description">Latest version</p>
     <input type="text" formControlName="version" class="full-width" readonly />
   </div>

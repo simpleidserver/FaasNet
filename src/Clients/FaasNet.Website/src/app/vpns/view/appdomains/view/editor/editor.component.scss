@@ -1,5 +1,13 @@
+.actions {
+  position: absolute;
+  left: 0px;
+  top: 135px;
+  right: 0px;
+  background-color: white;
+}
+
 ::ng-deep {
   .edit .asyncapieditor {
-    top: 130px !important;
+    top: 192px !important;
   }
 }

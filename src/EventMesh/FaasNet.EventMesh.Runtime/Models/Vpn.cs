@@ -156,5 +156,16 @@ namespace FaasNet.EventMesh.Runtime.Models
             applicationDomain.MessageDefinitions.Add(newMessage);
             return newMessage.Id;
         }
+
+        public void UpdateApplicationDomain(string applicationDomainId, ICollection<Application> applications)
+        {
+            var applicationDomain = ApplicationDomains.FirstOrDefault(a => a.Id == applicationDomainId);
+            if (applicationDomain == null)
+            {
+                throw new DomainException(ErrorCodes.UNKNOWN_APPLICATION_DOMAIN, string.Format(Global.UnknownApplicationDomain, applicationDomainId));
+            }
+
+            applicationDomain.Applications = applications;
+        }
     }
 }

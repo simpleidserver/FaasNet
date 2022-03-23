@@ -3,7 +3,7 @@ using MediatR;
 
 namespace FaasNet.EventMesh.Core.Vpn.Queries
 {
-    public class GetAllApplicationDomainQuery : IRequest<ApplicationDomainResult>
+    public class GetApplicationDomainQuery : IRequest<ApplicationDomainResult>
     {
         public string Vpn { get; set; }
         public string ApplicationDomainId { get; set; }

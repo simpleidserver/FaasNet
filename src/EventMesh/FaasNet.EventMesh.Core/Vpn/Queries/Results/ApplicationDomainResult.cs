@@ -1,5 +1,7 @@
 ﻿using FaasNet.EventMesh.Runtime.Models;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FaasNet.EventMesh.Core.Vpn.Queries.Results
 {
@@ -11,6 +13,7 @@ namespace FaasNet.EventMesh.Core.Vpn.Queries.Results
         public string RootTopic { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
+        public IEnumerable<ApplicationResult> Applications { get; set; }
 
         public static ApplicationDomainResult Build(ApplicationDomain appDomain)
         {
@@ -21,7 +24,8 @@ namespace FaasNet.EventMesh.Core.Vpn.Queries.Results
                 Description = appDomain.Description,
                 Name = appDomain.Name,
                 RootTopic = appDomain.RootTopic,
-                UpdateDateTime = appDomain.UpdateDateTime
+                UpdateDateTime = appDomain.UpdateDateTime,
+                Applications = appDomain.Applications.Select(a => ApplicationResult.Build(a, appDomain)).ToList()
             };
         }
     }

@@ -121,6 +121,30 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Application",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ClientId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Version = table.Column<int>(type: "int", nullable: false),
+                    PosX = table.Column<float>(type: "real", nullable: false),
+                    PosY = table.Column<float>(type: "real", nullable: false),
+                    ApplicationDomainId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Application", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Application_ApplicationDomain_ApplicationDomainId",
+                        column: x => x.ApplicationDomainId,
+                        principalTable: "ApplicationDomain",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MessageDefinition",
                 columns: table => new
                 {
@@ -170,6 +194,28 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                         column: x => x.ClientId,
                         principalTable: "Client",
                         principalColumn: "ClientId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApplicationLink",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    MessageId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TopicName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TargetId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ApplicationId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationLink", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApplicationLink_Application_ApplicationId",
+                        column: x => x.ApplicationId,
+                        principalTable: "Application",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -269,9 +315,19 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Application_ApplicationDomainId",
+                table: "Application",
+                column: "ApplicationDomainId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ApplicationDomain_VpnName",
                 table: "ApplicationDomain",
                 column: "VpnName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationLink_ApplicationId",
+                table: "ApplicationLink",
+                column: "ApplicationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BridgeServer_VpnName",
@@ -327,6 +383,9 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ApplicationLink");
+
+            migrationBuilder.DropTable(
                 name: "BridgeServer");
 
             migrationBuilder.DropTable(
@@ -348,13 +407,16 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 name: "Topic");
 
             migrationBuilder.DropTable(
+                name: "Application");
+
+            migrationBuilder.DropTable(
                 name: "BrokerConfigurations");
 
             migrationBuilder.DropTable(
-                name: "ApplicationDomain");
+                name: "ClientSession");
 
             migrationBuilder.DropTable(
-                name: "ClientSession");
+                name: "ApplicationDomain");
 
             migrationBuilder.DropTable(
                 name: "Client");

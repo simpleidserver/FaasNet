@@ -1,8 +1,8 @@
-import { Application } from "../models/application.model";
-import { ApplicationLink } from "../models/link.model";
+import { ApplicationResult } from "@stores/vpn/models/application.model";
+import { ApplicationLinkResult } from "@stores/vpn/models/applicationlink.model";
 
 export class AsyncApiBuilder {
-  public static build(rootTopic: string, app: Application, consumedLinks: ApplicationLink[]) {
+  public static build(rootTopic: string, app: ApplicationResult, consumedLinks: ApplicationLinkResult[]) {
     var result: any = {
       "asyncapi": "2.2.0",
       "info" : this.buildInfo(app)
@@ -28,7 +28,7 @@ export class AsyncApiBuilder {
     return result;
   }
 
-  private static buildInfo(app: Application) {
+  private static buildInfo(app: ApplicationResult) {
     let info: any = {
       "version": "1.0.0"
     };
@@ -47,7 +47,7 @@ export class AsyncApiBuilder {
     return info;
   }
 
-  private static buildMessages(result: any, links: ApplicationLink[]) {
+  private static buildMessages(result: any, links: ApplicationLinkResult[]) {
     links.forEach((l) => {
       if (l.message) {
         var keys = Object.keys(result);
@@ -60,7 +60,7 @@ export class AsyncApiBuilder {
     });
   }
 
-  private static buildChannels(result : any, rootTopic: string, links: ApplicationLink[], isSubscribe: boolean) {
+  private static buildChannels(result: any, rootTopic: string, links: ApplicationLinkResult[], isSubscribe: boolean) {
     links.forEach((l) => {
       if (!l.message) {
         return;

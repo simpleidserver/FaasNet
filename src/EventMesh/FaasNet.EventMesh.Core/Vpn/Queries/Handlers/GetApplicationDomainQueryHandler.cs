@@ -9,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Core.Vpn.Queries.Handlers
 {
-    public class GetAllApplicationDomainQueryHandler : IRequestHandler<GetAllApplicationDomainQuery, ApplicationDomainResult>
+    public class GetApplicationDomainQueryHandler : IRequestHandler<GetApplicationDomainQuery, ApplicationDomainResult>
     {
         private readonly IVpnStore _vpnStore;
 
-        public GetAllApplicationDomainQueryHandler(IVpnStore vpnStore)
+        public GetApplicationDomainQueryHandler(IVpnStore vpnStore)
         {
             _vpnStore = vpnStore;
         }
 
-        public async Task<ApplicationDomainResult> Handle(GetAllApplicationDomainQuery request, CancellationToken cancellationToken)
+        public async Task<ApplicationDomainResult> Handle(GetApplicationDomainQuery request, CancellationToken cancellationToken)
         {
             var vpn = await _vpnStore.Get(request.Vpn, cancellationToken);
             if (vpn == null)

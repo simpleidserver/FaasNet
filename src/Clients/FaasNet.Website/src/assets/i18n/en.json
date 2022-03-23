@@ -153,7 +153,9 @@
       "messageDefPublished": "Message definition has been published",
       "errorPublishMessage": "An error occured while trying to publish the message definition",
       "messageDefAdded": "Message definition has been added",
-      "errorAddMessageDef": "An error occured while trying to add the message definition"
+      "errorAddMessageDef": "An error occured while trying to add the message definition",
+      "applicationDomainUpdated": "Application domain has been updated",
+      "errorUpdateApplicationDomain": "An error occured while trying to update the application domain"
     }
   },
   "shared": {

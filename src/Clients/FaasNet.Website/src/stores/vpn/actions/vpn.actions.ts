@@ -1,5 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { AppDomainResult } from '../models/appdomain.model';
+import { ApplicationResult } from '../models/application.model';
 import { ClientResult } from '../models/client.model';
 import { MessageDefinitionResult } from '../models/messagedefinition.model';
 import { VpnResult } from '../models/vpn.model';
@@ -52,3 +53,6 @@ export const errorUpdateMessageDefinition = createAction('[VPN] ERROR_UPDATE_MES
 export const publishMessageDefinition = createAction('[VPN] PUBLISH_MESSAGE_DEFINITION', props<{ vpn: string, applicationDomainId: string, messageName: string }>());
 export const completePublishMessageDefinition = createAction('[VPN] COMPLETE_PUBLISH_MESSAGE_DEFINITION', props<{ vpn: string, applicationDomainId: string, messageName: string, newMessageDefId: string }>());
 export const errorPublishMessageDefinition = createAction('[VPN] ERROR_PUBLISH_MESSAGE_DEFINITION');
+export const updateApplicationDomain = createAction('[VPN] UPDATE_APPLICATION_DOMAIN', props<{ vpn: string, applicationDomainId: string, applications: ApplicationResult[] }>());
+export const completeUpdateApplicationDomain = createAction('[VPN] COMPLETE_UPDATE_APPLICATION_DOMAIN', props<{ vpn: string, applicationDomainId: string, applications: ApplicationResult[] }>());
+export const errorUpdateApplicationDomain = createAction('[VPN] ERROR_UPDATE_APPLICATION_DOMAIN');

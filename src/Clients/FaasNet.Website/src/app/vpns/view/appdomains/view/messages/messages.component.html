@@ -1,54 +1,59 @@
-<div class="actions">
-  <button mat-raised-button color="primary" (click)="addMessage()">{{ 'vpn.addMessage' | translate }}</button>
-</div>
-<mat-table class="full-width" [dataSource]="messages">
-  <!-- Actions -->
-  <ng-container matColumnDef="actions">
-    <mat-header-cell *matHeaderCellDef></mat-header-cell>
-    <mat-cell *matCellDef="let message">
-      <button mat-icon-button (click)="publishMessage(message)">
-        <mat-icon>publish</mat-icon>
-      </button>
-      <button mat-icon-button (click)="editMessage(message)">
-        <mat-icon>edit</mat-icon>
-      </button>
-    </mat-cell>
-  </ng-container>
-  <!-- Name -->
-  <ng-container matColumnDef="name">
-    <mat-header-cell *matHeaderCellDef>{{ "vpn.name" | translate }}</mat-header-cell>
-    <mat-cell *matCellDef="let message">
-      {{ message.name }}
-    </mat-cell>
-  </ng-container>
-  <!-- Description -->
-  <ng-container matColumnDef="description">
-    <mat-header-cell *matHeaderCellDef>{{ "vpn.description" | translate }}</mat-header-cell>
-    <mat-cell *matCellDef="let message">
-      {{ message.description }}
-    </mat-cell>
-  </ng-container>
-  <!-- Version -->
-  <ng-container matColumnDef="version">
-    <mat-header-cell *matHeaderCellDef>{{ "vpn.version" | translate }}</mat-header-cell>
-    <mat-cell *matCellDef="let message">
-      {{ message.version }}
-    </mat-cell>
-  </ng-container>
-  <!-- Create DateTime -->
-  <ng-container matColumnDef="createDateTime">
-    <mat-header-cell *matHeaderCellDef>{{ "vpn.createDateTime" | translate }}</mat-header-cell>
-    <mat-cell *matCellDef="let message">
-      {{ message.createDateTime | date:'fullDate' }}
-    </mat-cell>
-  </ng-container>
-  <!-- Update DateTime -->
-  <ng-container matColumnDef="updateDateTime">
-    <mat-header-cell *matHeaderCellDef>{{ "vpn.updateDateTime" | translate }}</mat-header-cell>
-    <mat-cell *matCellDef="let message">
-      {{ message.updateDateTime | date:'fullDate' }}
-    </mat-cell>
-  </ng-container>
-  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-</mat-table>
+<mat-card class="messages">
+  <mat-card-content>
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="addMessage()">{{ 'vpn.addMessage' | translate }}</button>
+    </div>
+    <mat-table class="full-width" [dataSource]="messages">
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let message">
+          <button mat-icon-button (click)="publishMessage(message)">
+            <mat-icon>publish</mat-icon>
+          </button>
+          <button mat-icon-button (click)="editMessage(message)">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+      <!-- Name -->
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef>{{ "vpn.name" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let message">
+          {{ message.name }}
+        </mat-cell>
+      </ng-container>
+      <!-- Description -->
+      <ng-container matColumnDef="description">
+        <mat-header-cell *matHeaderCellDef>{{ "vpn.description" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let message">
+          {{ message.description }}
+        </mat-cell>
+      </ng-container>
+      <!-- Version -->
+      <ng-container matColumnDef="version">
+        <mat-header-cell *matHeaderCellDef>{{ "vpn.version" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let message">
+          {{ message.version }}
+        </mat-cell>
+      </ng-container>
+      <!-- Create DateTime -->
+      <ng-container matColumnDef="createDateTime">
+        <mat-header-cell *matHeaderCellDef>{{ "vpn.createDateTime" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let message">
+          {{ message.createDateTime | date:'fullDate' }}
+        </mat-cell>
+      </ng-container>
+      <!-- Update DateTime -->
+      <ng-container matColumnDef="updateDateTime">
+        <mat-header-cell *matHeaderCellDef>{{ "vpn.updateDateTime" | translate }}</mat-header-cell>
+        <mat-cell *matCellDef="let message">
+          {{ message.updateDateTime | date:'fullDate' }}
+        </mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+
+  </mat-card-content>
+</mat-card>

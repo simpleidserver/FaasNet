@@ -9,6 +9,7 @@ import { MatPanelContent } from '../../../matpanel/matpanelcontent';
 export class ChooseClientData {
   vpnName: string = "";
   appDomainId: string = "";
+  clientId: string | null = null;
 }
 
 @Component({
@@ -36,6 +37,9 @@ export class ChooseClientComponent extends MatPanelContent {
       }
 
       this.clients.data = state;
+      if (this.data.clientId) {
+        this.selectedClient = this.clients.data.filter((c) => c.clientId === this.data.clientId)[0];
+      }
     });
     this.refresh();
   }

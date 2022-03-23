@@ -70,8 +70,17 @@ namespace FaasNet.EventMesh.SqlServer.Startup.Controllers
         [HttpGet("{name}/domains/{id}")]
         public async Task<IActionResult> GetApplicationDomain(string name, string id, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetAllApplicationDomainQuery { Vpn = name, ApplicationDomainId = id }, cancellationToken);
+            var result = await _mediator.Send(new GetApplicationDomainQuery { Vpn = name, ApplicationDomainId = id }, cancellationToken);
             return new OkObjectResult(result);
+        }
+
+        [HttpPut("{name}/domains/{id}")]
+        public async Task<IActionResult> UpdateApplicationDomain(string name, string id, [FromBody] UpdateApplicationDomainCommand cmd, CancellationToken cancellationToken)
+        {
+            cmd.Vpn = name;
+            cmd.ApplicationDomainId = id;
+            await _mediator.Send(cmd, cancellationToken);
+            return new NoContentResult();
         }
 
         [HttpDelete("{name}/domains/{id}")]

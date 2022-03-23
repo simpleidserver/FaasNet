@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
+import { ApplicationResult } from "../../../../stores/vpn/models/application.model";
 import { MatPanelService } from "../../../matpanel/matpanelservice";
-import { Application } from "../../models/application.model";
 import { ChooseClientComponent, ChooseClientData } from "./chooseclient.component";
 
 @Component({
@@ -13,10 +13,11 @@ import { ChooseClientComponent, ChooseClientData } from "./chooseclient.componen
   ]
 })
 export class ApplicationEditorComponent implements OnDestroy {
-  private _application: Application | undefined = undefined;
+  private _application: ApplicationResult | undefined = undefined;
   private _titleSubscription: any;
   private _descriptionSubscription: any;
   updateApplicationFormGroup: FormGroup = new FormGroup({
+    title: new FormControl(),
     description: new FormControl(),
     version: new FormControl()
   });
@@ -24,10 +25,10 @@ export class ApplicationEditorComponent implements OnDestroy {
   @Input() vpnName: string = "";
   @Input() appDomainId: string = "";
   @Input()
-  get element() : Application | undefined {
+  get element() : ApplicationResult | undefined {
     return this._application;
   }
-  set element(v: Application | undefined) {
+  set element(v: ApplicationResult | undefined) {
     this._application = v;
     this.init();
   }
@@ -46,7 +47,7 @@ export class ApplicationEditorComponent implements OnDestroy {
   }
 
   getClient() {
-    return this._application?.title;
+    return this._application?.clientId;
   }
 
   chooseClient() {
@@ -54,6 +55,7 @@ export class ApplicationEditorComponent implements OnDestroy {
     if (this._application) {
       data.appDomainId = this.appDomainId;
       data.vpnName = this.vpnName;
+      data.clientId = this._application.clientId;
     }
 
     const service = this.matPanelService.open(ChooseClientComponent, data);
@@ -63,9 +65,9 @@ export class ApplicationEditorComponent implements OnDestroy {
       }
 
       if (!e.clientId) {
-        this._application.title = null;
+        this._application.clientId = null;
       } else {
-        this._application.title = e.clientId;
+        this._application.clientId = e.clientId;
       }
     });
   }
@@ -80,6 +82,11 @@ export class ApplicationEditorComponent implements OnDestroy {
       return;
     }
 
+    self._titleSubscription = this.updateApplicationFormGroup.get('title')?.valueChanges.subscribe((e: any) => {
+      if (self._application) {
+        self._application.title = e;
+      }
+    });
     self._descriptionSubscription = this.updateApplicationFormGroup.get('description')?.valueChanges.subscribe((e: any) => {
       if (self._application) {
         self._application.description = e;
