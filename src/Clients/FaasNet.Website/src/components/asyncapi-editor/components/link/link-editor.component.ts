@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { ApplicationLinkResult } from "../../../../stores/vpn/models/applicationlink.model";
+import { ApplicationLinkResult } from "@stores/vpn/models/applicationlink.model";
 import { MatPanelService } from "../../../matpanel/matpanelservice";
 import { ChooseMessageComponent, ChooseMessageData } from "./choosemessage.component";
 

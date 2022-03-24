@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { ApplicationResult } from '../../stores/vpn/models/application.model';
-import { ApplicationLinkResult } from '../../stores/vpn/models/applicationlink.model';
+import { AnchorDirections } from '@stores/vpn/models/anchordirections';
+import { ApplicationResult } from '@stores/vpn/models/application.model';
+import { ApplicationLinkResult } from '@stores/vpn/models/applicationlink.model';
 import { MatPanelService } from '../matpanel/matpanelservice';
 import { ViewAsyncApiComponent, ViewAsyncApiData } from './viewasyncapicomponent';
 
@@ -12,7 +13,7 @@ class AsyncApiEditorOptions {
 }
 
 class Anchor {
-  constructor(public x: number, public y: number) { }
+  constructor(public x: number, public y: number, public direction : number | null) { }
 
   get coordinate() {
     return `translate(${this.x},${this.y})`;
@@ -101,15 +102,28 @@ class Element {
     return selectedDraggableZone.anchor;
   }
 
+  public getAnchor(position : number) {
+    switch (position) {
+      case AnchorDirections.Left:
+        return this.draggableZones[0].anchor;
+      case AnchorDirections.Top:
+        return this.draggableZones[1].anchor;
+      case AnchorDirections.Right:
+        return this.draggableZones[2].anchor;
+      default:
+        return this.draggableZones[3].anchor;
+    }
+  }
+
   public update() {
     const draggableZoneWidth = 50;
     const draggableZoneHeight = 50;
     let draggableZoneWidthMiddle = draggableZoneWidth / 2;
     let draggableZoneHeightMiddle = draggableZoneHeight / 2;
-    const leftAnchor = new Anchor(this.application.posX, this.application.posY + (this.height / 2));
-    const topAnchor = new Anchor(this.application.posX + (this.width / 2), this.application.posY);
-    const rightAnchor = new Anchor(this.application.posX + this.width, this.application.posY + (this.height / 2));
-    const bottomAnchor = new Anchor(this.application.posX + (this.width / 2), this.application.posY + this.height);
+    const leftAnchor = new Anchor(this.application.posX, this.application.posY + (this.height / 2), AnchorDirections.Left);
+    const topAnchor = new Anchor(this.application.posX + (this.width / 2), this.application.posY, AnchorDirections.Top);
+    const rightAnchor = new Anchor(this.application.posX + this.width, this.application.posY + (this.height / 2), AnchorDirections.Right);
+    const bottomAnchor = new Anchor(this.application.posX + (this.width / 2), this.application.posY + this.height, AnchorDirections.Bottom);
     this.draggableZones[0].anchor.x = leftAnchor.x;
     this.draggableZones[0].anchor.y = leftAnchor.y;
     this.draggableZones[0].x = leftAnchor.x - draggableZoneWidthMiddle;
@@ -133,10 +147,10 @@ class Element {
     const draggableZoneHeight = 50;
     let draggableZoneWidthMiddle = draggableZoneWidth / 2;
     let draggableZoneHeightMiddle = draggableZoneHeight / 2;
-    const leftAnchor = new Anchor(this.application.posX, this.application.posY + (this.height / 2));
-    const topAnchor = new Anchor(this.application.posX + (this.width / 2), this.application.posY);
-    const rightAnchor = new Anchor(this.application.posX + this.width, this.application.posY + (this.height / 2));
-    const bottomAnchor = new Anchor(this.application.posX + (this.width / 2), this.application.posY + this.height);
+    const leftAnchor = new Anchor(this.application.posX, this.application.posY + (this.height / 2), AnchorDirections.Left);
+    const topAnchor = new Anchor(this.application.posX + (this.width / 2), this.application.posY, AnchorDirections.Top);
+    const rightAnchor = new Anchor(this.application.posX + this.width, this.application.posY + (this.height / 2), AnchorDirections.Right);
+    const bottomAnchor = new Anchor(this.application.posX + (this.width / 2), this.application.posY + this.height, AnchorDirections.Bottom);
     const leftDraggableZone = new ElementDraggableZone(leftAnchor.x - draggableZoneWidthMiddle, leftAnchor.y - draggableZoneHeightMiddle, draggableZoneWidth, draggableZoneHeight, leftAnchor);
     const topDraggableZone = new ElementDraggableZone(topAnchor.x - draggableZoneWidthMiddle, topAnchor.y - draggableZoneHeightMiddle, draggableZoneWidth, draggableZoneHeight, topAnchor);
     const rightDraggableZone = new ElementDraggableZone(rightAnchor.x - draggableZoneWidthMiddle, rightAnchor.y - draggableZoneHeightMiddle, draggableZoneWidth, draggableZoneHeight, rightAnchor);
@@ -242,6 +256,8 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
 
   removeElement(i: number) {
     const elt = this.elements[i];
+    const applicationToRemove = this.applications.indexOf(this.applications.filter(a => a.id === elt.application.id)[0]);
+    this.applications.splice(applicationToRemove, 1);
     this.links.filter(l => l.startElement && l.startElement.application.id === elt.application.id).forEach((e) => e.startAnchor.isEditable = true);
     this.links.filter(l => l.endElement && l.endElement.application.id === elt.application.id).forEach((e) => e.endAnchor.isEditable = true);
     this.elements.splice(i, 1);
@@ -250,12 +266,22 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
   remove() {
     if (this.selectedLink) {
       const linkIndex = this.links.indexOf(this.selectedLink);
+      if (this.selectedLink.startElement && this.selectedLink.applicationLink) {
+        const applicationLink = this.selectedLink.applicationLink;
+        const links = this.selectedLink.startElement.application.links;
+        const linkToRemove = links.indexOf(links.filter(l => l === applicationLink)[0]);
+        this.selectedLink.startElement.application.links.splice(linkToRemove, 1);
+      }
+
       this.links.splice(linkIndex, 1);
       return;
     }
 
     if (this.selectedElement) {
       const eltIndex = this.elements.indexOf(this.selectedElement);
+      const appId = this.selectedElement.application.id;
+      const applicationToRemove = this.applications.indexOf(this.applications.filter(a => a.id === appId)[0]);
+      this.applications.splice(applicationToRemove, 1);
       this.elements.splice(eltIndex, 1);
       return;
     }
@@ -288,8 +314,8 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
         this.elements.push(new Element(application, this.options.applicationWidth, this.options.applicationHeight));
         break;
       case 'link':
-        const startAnchor = new Anchor(point.x, point.y);
-        const endAnchor = new Anchor(point.x + 10, point.y + 100);
+        const startAnchor = new Anchor(point.x, point.y, null);
+        const endAnchor = new Anchor(point.x + 10, point.y + 100, null);
         const link = new Link(this.newGUID(), startAnchor, endAnchor);
         this.links.push(link);
         break;
@@ -311,8 +337,19 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
 
     this.applications.forEach((a: ApplicationResult) => {
       this.elements.push(new Element(a, this.options.applicationWidth, this.options.applicationHeight));
+    });
+
+    this.applications.forEach((a: ApplicationResult) => {
       a.links.forEach((l: ApplicationLinkResult) => {
-        // const link = new Link(l., startAnchor, endAnchor);
+        const fromElt = this.elements.filter((e) => e.application.id === a.id)[0];
+        if (!l.target) {
+          return;
+        }
+
+        const targetElt = this.elements.filter((e) => e.application.id === l.target?.id)[0];
+        const link = new Link(this.newGUID(), fromElt.getAnchor(l.startAnchor), targetElt.getAnchor(l.endAnchor));
+        link.applicationLink = l;
+        this.links.push(link);
       });
     });
   }
@@ -472,14 +509,23 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
     if (self.selectedAnchorLink.isStart) {
       self.selectedAnchorLink.link.startAnchor = self.selectedAnchorElement.anchor;
       self.selectedAnchorLink.link.startAnchor.isEditable = false;
+      if (self.selectedAnchorElement.anchor.direction) {
+        self.selectedAnchorLink.link.applicationLink.startAnchor = self.selectedAnchorElement.anchor.direction;
+      }
+
       self.selectedAnchorLink.link.startElement = self.selectedAnchorElement.element;
     } else {
       self.selectedAnchorLink.link.endAnchor = self.selectedAnchorElement.anchor;
       self.selectedAnchorLink.link.endAnchor.isEditable = false;
+      if (self.selectedAnchorElement.anchor.direction) {
+        self.selectedAnchorLink.link.applicationLink.endAnchor = self.selectedAnchorElement.anchor.direction;
+      }
+
       self.selectedAnchorLink.link.endElement = self.selectedAnchorElement.element;
       self.selectedAnchorLink.link.applicationLink.target = self.selectedAnchorElement.element.application;
     }
 
+    console.log(self.selectedAnchorLink.link);
     if (self.selectedAnchorLink.link.isClosed) {
       self.selectedAnchorLink.link.startElement?.application.links.push(self.selectedAnchorLink.link.applicationLink);
     }

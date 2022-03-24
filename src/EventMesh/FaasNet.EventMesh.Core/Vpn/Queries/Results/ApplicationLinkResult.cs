@@ -1,4 +1,5 @@
 ﻿using FaasNet.EventMesh.Runtime.Models;
+using System;
 using System.Linq;
 
 namespace FaasNet.EventMesh.Core.Vpn.Queries.Results
@@ -8,6 +9,8 @@ namespace FaasNet.EventMesh.Core.Vpn.Queries.Results
         public string TopicName { get; set; }
         public MessageDefinitionResult Message { get; set; }
         public ApplicationResult Target { get; set; }
+        public int StartAnchor { get; set; }
+        public int EndAnchor { get; set; }
 
         public ApplicationLink ToDomain()
         {
@@ -15,7 +18,9 @@ namespace FaasNet.EventMesh.Core.Vpn.Queries.Results
             {
                 TopicName = TopicName,
                 MessageId = Message?.Id,
-                TargetId = Target?.Id
+                TargetId = Target?.Id,
+                StartAnchor = (AnchorDirections)StartAnchor,
+                EndAnchor = (AnchorDirections)EndAnchor
             };
         }
 
@@ -23,7 +28,9 @@ namespace FaasNet.EventMesh.Core.Vpn.Queries.Results
         {
             var result = new ApplicationLinkResult
             {
-                TopicName = link.TopicName
+                TopicName = link.TopicName,
+                StartAnchor = (int)link.StartAnchor,
+                EndAnchor = (int)link.EndAnchor
             };
             if (!string.IsNullOrWhiteSpace(link.MessageId))
             {

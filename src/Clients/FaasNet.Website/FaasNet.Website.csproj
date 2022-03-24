@@ -62,6 +62,7 @@
     <None Remove="src\stores\statemachines\models\statemachineadded.model.ts" />
     <None Remove="src\stores\statemachines\models\statemachinemodel.model.ts" />
     <None Remove="src\stores\vpn\actions\vpn.actions.ts" />
+    <None Remove="src\stores\vpn\models\anchordirections.ts" />
     <None Remove="src\stores\vpn\models\appdomain.model.ts" />
     <None Remove="src\stores\vpn\models\application.model.ts" />
     <None Remove="src\stores\vpn\models\applicationdomainadded.model.ts" />
@@ -160,6 +161,7 @@
     <TypeScriptCompile Include="src\stores\vpn\actions\vpn.actions.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="src\stores\vpn\models\anchordirections.ts" />
     <TypeScriptCompile Include="src\stores\vpn\models\appdomain.model.ts" />
     <TypeScriptCompile Include="src\stores\vpn\models\application.model.ts" />
     <TypeScriptCompile Include="src\stores\vpn\models\applicationdomainadded.model.ts" />

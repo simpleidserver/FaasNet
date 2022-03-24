@@ -208,6 +208,7 @@ const messageDefLstReducer = createReducer(
     record.name = name;
     record.description = description;
     record.version = 0;
+    record.jsonSchema = jsonSchema;
     record.createDateTime = new Date();
     record.updateDateTime = new Date();
     messageDefLst.push(record);

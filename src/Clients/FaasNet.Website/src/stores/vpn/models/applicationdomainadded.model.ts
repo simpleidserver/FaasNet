@@ -1,3 +1,3 @@
 export class ApplicationDomainAddedResult {
-  id: string = "";
+  Id: string = "";
 }

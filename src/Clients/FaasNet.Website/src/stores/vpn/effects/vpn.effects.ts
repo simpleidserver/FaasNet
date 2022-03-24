@@ -132,7 +132,7 @@ export class VpnEffects {
       mergeMap((evt: { vpn: string, name: string, description: string, rootTopic: string }) => {
         return this.vpnService.addAppDomain(evt.vpn, evt.name, evt.description, evt.rootTopic)
           .pipe(
-            map(content => completeAddAppDomain({ id: content.id, name: evt.name, description: evt.description, rootTopic: evt.rootTopic })),
+            map(content => completeAddAppDomain({ id: content.Id, name: evt.name, description: evt.description, rootTopic: evt.rootTopic })),
             catchError(() => of(errorAddAppDomain()))
           );
       }

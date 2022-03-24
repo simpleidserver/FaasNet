@@ -45,6 +45,6 @@ export class MatPanelComponent implements OnInit {
   }
 
   public close() {
-    this.closed.emit({});
+    this.closed.emit(null);
   }
 }

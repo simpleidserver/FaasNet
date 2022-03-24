@@ -92,8 +92,14 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<string>("ApplicationId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("EndAnchor")
+                        .HasColumnType("int");
+
                     b.Property<string>("MessageId")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StartAnchor")
+                        .HasColumnType("int");
 
                     b.Property<string>("TargetId")
                         .HasColumnType("nvarchar(max)");

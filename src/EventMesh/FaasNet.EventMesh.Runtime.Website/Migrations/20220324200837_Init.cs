@@ -206,6 +206,8 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     MessageId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TopicName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TargetId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StartAnchor = table.Column<int>(type: "int", nullable: false),
+                    EndAnchor = table.Column<int>(type: "int", nullable: false),
                     ApplicationId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>

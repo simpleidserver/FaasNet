@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.EventMesh.Runtime.Website.Migrations
 {
     [DbContext(typeof(EventMeshDBContext))]
-    [Migration("20220323142638_Init")]
+    [Migration("20220324200837_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -94,8 +94,14 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<string>("ApplicationId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("EndAnchor")
+                        .HasColumnType("int");
+
                     b.Property<string>("MessageId")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StartAnchor")
+                        .HasColumnType("int");
 
                     b.Property<string>("TargetId")
                         .HasColumnType("nvarchar(max)");
