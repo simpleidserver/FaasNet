@@ -10,8 +10,9 @@ namespace FaasNet.EventMesh.Runtime.Models
     {
         private Client() { }
 
-        private Client(string clientId, string urn)
+        private Client(string id, string clientId, string urn)
         {
+            Id = id;
             ClientId = clientId;
             Urn = urn;
             Purposes = new List<int>();
@@ -21,8 +22,10 @@ namespace FaasNet.EventMesh.Runtime.Models
 
         #region Properties
 
+        public string Id { get; set; }
         public string ClientId { get; set; }
         public string Urn { get; set; }
+        public string Vpn { get; set; }
         public DateTime CreateDateTime { get; set; }
         public ICollection<int> Purposes { get; set; }
         public IEnumerable<ClientSession> ActiveSessions
@@ -96,11 +99,20 @@ namespace FaasNet.EventMesh.Runtime.Models
 
         #endregion
 
-        public static Client Create(string clientId, string urn)
+        public static Client Create(string vpn, string clientId, string urn, List<UserAgentPurpose> purposes = null)
         {
-            return new Client(clientId, urn)
+            if (purposes == null)
             {
-                CreateDateTime = DateTime.UtcNow
+                purposes = new List<UserAgentPurpose>
+                {
+                    UserAgentPurpose.SUB
+                };
+            }
+
+            return new Client(Guid.NewGuid().ToString(), clientId, urn)
+            {
+                CreateDateTime = DateTime.UtcNow,
+                Purposes = purposes.Select(p => p.Code).ToList()
             };
         }
     }

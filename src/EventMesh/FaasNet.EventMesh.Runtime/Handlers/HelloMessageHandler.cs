@@ -11,10 +11,13 @@ namespace FaasNet.EventMesh.Runtime.Handlers
     public class HelloMessageHandler : IMessageHandler
     {
         private readonly IVpnStore _vpnStore;
+        private readonly IClientStore _clientStore;
 
-        public HelloMessageHandler(IVpnStore vpnStore)
+        public HelloMessageHandler(IVpnStore vpnStore,
+            IClientStore clientStore)
         {
             _vpnStore = vpnStore;
+            _clientStore = clientStore;
         }
 
         public Commands Command => Commands.HELLO_REQUEST;
@@ -28,7 +31,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 throw new RuntimeException(helloRequest.Header.Command, helloRequest.Header.Seq, Errors.UNKNOWN_VPN);
             }
 
-            var client = vpn.GetClient(helloRequest.UserAgent.ClientId);
+            var client = await _clientStore.GetByClientId(vpn.Name, helloRequest.UserAgent.ClientId, cancellationToken);
             if (client == null)
             {
                 throw new RuntimeException(helloRequest.Header.Command, helloRequest.Header.Seq, Errors.INVALID_CLIENT);

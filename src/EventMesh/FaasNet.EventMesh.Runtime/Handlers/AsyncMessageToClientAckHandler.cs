@@ -16,9 +16,10 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         private readonly IEnumerable<IMessageConsumer> _messageConsumers;
 
         public AsyncMessageToClientAckHandler(
+            IClientStore clientStore,
             IVpnStore vpnStore,
             IUdpClientServerFactory udpClientServerFactory,
-            IEnumerable<IMessageConsumer> messageConsumers) : base(vpnStore) 
+            IEnumerable<IMessageConsumer> messageConsumers) : base(clientStore, vpnStore) 
         {
             _udpClientFactory = udpClientServerFactory;
             _messageConsumers = messageConsumers;

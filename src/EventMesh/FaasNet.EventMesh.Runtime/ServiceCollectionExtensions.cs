@@ -34,6 +34,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IUdpClientServerFactory, UdpClientServerFactory>();
             services.AddSingleton<IBrokerConfigurationStore>(new BrokerConfigurationStore());
             services.AddSingleton<IVpnStore>(new VpnStore(new List<Vpn>()));
+            services.AddSingleton<IClientStore>(new ClientStore(new List<Client>()));
+            services.AddSingleton<IApplicationDomainRepository>(new ApplicationDomainRepository(new List<ApplicationDomain>()));
+            services.AddSingleton<IMessageDefinitionRepository>(new MessageDefinitionRepository(new List<MessageDefinition>()));
             return new ServerBuilder(services);
         }
 

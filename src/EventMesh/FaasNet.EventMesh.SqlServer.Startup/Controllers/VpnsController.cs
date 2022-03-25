@@ -98,7 +98,7 @@ namespace FaasNet.EventMesh.SqlServer.Startup.Controllers
         }
 
         [HttpPost("{name}/domains/{id}/messages")]
-        public async Task<IActionResult> AddMessageDef(string name, string id, [FromBody] AddMessageVpnCommand cmd, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddMessageDef(string name, string id, [FromBody] AddMessageDefinitionCommand cmd, CancellationToken cancellationToken)
         {
             cmd.Vpn = name;
             cmd.ApplicationDomainId = id;
@@ -112,7 +112,7 @@ namespace FaasNet.EventMesh.SqlServer.Startup.Controllers
         }
 
         [HttpPut("{name}/domains/{id}/messages/{messageId}")]
-        public async Task<IActionResult> AddMessageDef(string name, string id, string messageId, [FromBody] UpdateMessageVpnCommand cmd, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddMessageDef(string name, string id, string messageId, [FromBody] UpdateMessageDefinitionCommand cmd, CancellationToken cancellationToken)
         {
             cmd.Vpn = name;
             cmd.ApplicationDomainId = id;
@@ -124,7 +124,7 @@ namespace FaasNet.EventMesh.SqlServer.Startup.Controllers
         [HttpGet("{name}/domains/{id}/messages/{messageName}/publish")]
         public async Task<IActionResult> PublishMessageDef(string name, string id, string messageName, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new PublishMessageVpnCommand { ApplicationDomainId = id, Vpn = name, Name = messageName }, cancellationToken);
+            var result = await _mediator.Send(new PublishMessageDefinitionCommand { ApplicationDomainId = id, Vpn = name, Name = messageName }, cancellationToken);
             return new ContentResult
             {
                 StatusCode = (int)HttpStatusCode.Created,

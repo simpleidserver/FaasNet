@@ -9,5 +9,6 @@
         public static string UNKNOWN_VPN = "UNKNOWN_VPN";
         public static string UNKNOWN_CLIENT = "UNKNOWN_CLIENT";
         public static string UNKNOWN_APPLICATIONDOMAIN = "UNKNOWN_APPLICATIONDOMAIN";
+        public static string UNKNOWN_MESSAGE_DEFINITION = "UNKNOWN_MESSAGE_DEFINITION";
     }
 }

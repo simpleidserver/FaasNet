@@ -9,22 +9,24 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 {
     public class BaseMessageHandler
     {
-        public BaseMessageHandler(IVpnStore vpnStore)
+        public BaseMessageHandler(IClientStore clientStore, IVpnStore vpnStore)
         {
+            ClientStore = clientStore;
             VpnStore = vpnStore;
         }
 
+        protected IClientStore ClientStore { get; private set; }
         protected IVpnStore VpnStore { get; private set; }
 
         protected async Task<ActiveSessionResult> GetActiveSession(Package requestPackage, string clientId, string sessionId, CancellationToken cancellationToken)
         {
-            var vpn = await VpnStore.Get(clientId, sessionId, cancellationToken);
-            if (vpn == null)
+            var client = await ClientStore.GetBySession(clientId, sessionId, cancellationToken);
+            if (client == null)
             {
                 throw new RuntimeException(requestPackage.Header.Command, requestPackage.Header.Seq, Errors.INVALID_SESSION);
             }
 
-            var client = vpn.GetClient(clientId);
+            var vpn = await VpnStore.Get(client.Vpn, cancellationToken);
             return new ActiveSessionResult(vpn, client);
         }
 

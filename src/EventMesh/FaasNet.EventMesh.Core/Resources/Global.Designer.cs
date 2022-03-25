@@ -97,6 +97,15 @@ namespace FaasNet.EventMesh.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to message definition &apos;{0}&apos; doesn&apos;t exist.
+        /// </summary>
+        internal static string UnknownMessageDefinition {
+            get {
+                return ResourceManager.GetString("UnknownMessageDefinition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to vpn &apos;{0}&apos; doesn&apos;t exist.
         /// </summary>
         internal static string UnknownVpn {

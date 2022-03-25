@@ -5,6 +5,7 @@ namespace FaasNet.EventMesh.Runtime.Models
     public class MessageDefinition
     {
         public string Id { get; set; }
+        public string ApplicationDomainId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public int Version { get; set; }
@@ -16,6 +17,7 @@ namespace FaasNet.EventMesh.Runtime.Models
         {
             var result = new MessageDefinition
             {
+                Id = Guid.NewGuid().ToString(),
                 Name = Name,
                 Description = Description,
                 Version = Version + 1,
@@ -23,14 +25,22 @@ namespace FaasNet.EventMesh.Runtime.Models
                 UpdateDateTime = DateTime.UtcNow,
                 JsonSchema = JsonSchema
             };
-            result.Id = BuildId(result);
             return result;
         }
 
-        public static MessageDefinition Create(string name, string description, string jsonSchema)
+        public void Update(string description, string jsonSchema)
+        {
+            Description = description;
+            JsonSchema = jsonSchema;
+            UpdateDateTime = DateTime.UtcNow;
+        }
+
+        public static MessageDefinition Create(string applicationDomainId, string name, string description, string jsonSchema)
         {
             var result = new MessageDefinition
             {
+                Id = Guid.NewGuid().ToString(),
+                ApplicationDomainId = applicationDomainId,
                 Name = name,
                 Description = description,
                 JsonSchema = jsonSchema,
@@ -38,13 +48,7 @@ namespace FaasNet.EventMesh.Runtime.Models
                 CreateDateTime = DateTime.UtcNow,
                 UpdateDateTime = DateTime.UtcNow
             };
-            result.Id = BuildId(result);
             return result;
-        }
-
-        public static string BuildId(MessageDefinition message)
-        {
-            return $"{message.Name}{message.Version}";
         }
     }
 }

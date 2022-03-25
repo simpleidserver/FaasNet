@@ -129,6 +129,9 @@
   <data name="UnknownEventMeshServer" xml:space="preserve">
     <value>eventmesh server '{0}:{1}' doesn't exist</value>
   </data>
+  <data name="UnknownMessageDefinition" xml:space="preserve">
+    <value>message definition '{0}' doesn't exist</value>
+  </data>
   <data name="UnknownVpn" xml:space="preserve">
     <value>vpn '{0}' doesn't exist</value>
   </data>

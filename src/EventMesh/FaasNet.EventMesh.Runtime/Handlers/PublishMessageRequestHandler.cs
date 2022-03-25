@@ -19,8 +19,9 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public PublishMessageRequestHandler(
             IUdpClientServerFactory udpClientServerFactory,
             IVpnStore vpnStore, 
+            IClientStore clientStore,
             IEnumerable<IMessagePublisher> messagePublishers,
-            IOptions<RuntimeOptions> runtimeOpts) : base(vpnStore)
+            IOptions<RuntimeOptions> runtimeOpts) : base(clientStore, vpnStore)
         {
             _messagePublishers = messagePublishers;
             _runtimeOpts = runtimeOpts.Value;

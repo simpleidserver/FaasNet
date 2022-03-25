@@ -1,5 +1,4 @@
 ﻿using FaasNet.Domain.Exceptions;
-using FaasNet.EventMesh.Runtime.Messages;
 using FaasNet.EventMesh.Runtime.Resources;
 using System;
 using System.Collections.Generic;
@@ -11,8 +10,6 @@ namespace FaasNet.EventMesh.Runtime.Models
     {
         public Vpn()
         {
-            ApplicationDomains = new List<ApplicationDomain>();
-            Clients = new List<Client>();
             BridgeServers = new List<BridgeServer>();
         }
 
@@ -20,8 +17,6 @@ namespace FaasNet.EventMesh.Runtime.Models
         public string Description { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
-        public ICollection<ApplicationDomain> ApplicationDomains { get; set; }
-        public ICollection<Client> Clients { get; set; }
         public ICollection<BridgeServer> BridgeServers { get; set; }
 
         public static Vpn Create(string name, string description)
@@ -33,32 +28,6 @@ namespace FaasNet.EventMesh.Runtime.Models
                 CreateDateTime = DateTime.UtcNow,
                 UpdateDateTime = DateTime.UtcNow
             };
-        }
-
-        public ApplicationDomain AddApplicationDomain(string name, string description, string rootTopic)
-        {
-            var record = new ApplicationDomain
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = name,
-                Description = description,
-                RootTopic = rootTopic,
-                CreateDateTime = DateTime.UtcNow,
-                UpdateDateTime = DateTime.UtcNow
-            };
-            ApplicationDomains.Add(record);
-            return record;
-        }
-
-        public void RemoveApplicationDomain(string id)
-        {
-            var applicationDomain = ApplicationDomains.FirstOrDefault(ad => ad.Id == id);
-            if (applicationDomain == null)
-            {
-                throw new DomainException(ErrorCodes.UNKNOWN_APPLICATION_DOMAIN, string.Format(Global.UnknownApplicationDomain, id));
-            }
-
-            ApplicationDomains.Remove(applicationDomain);
         }
 
         public void AddBridge(string urn, int port, string vpn)
@@ -77,95 +46,9 @@ namespace FaasNet.EventMesh.Runtime.Models
             });
         }
 
-        public Client AddClient(string clientId, string urn, List<UserAgentPurpose> purposes = null)
-        {
-            if (purposes == null)
-            {
-                purposes = new List<UserAgentPurpose>
-                {
-                    UserAgentPurpose.SUB
-                };
-            }
-
-            var client = Client.Create(clientId, urn);
-            client.Purposes = purposes.Select(p => p.Code).ToList();
-            Clients.Add(client);
-            return client;
-        }
-
-        public Client GetClient(string clientId)
-        {
-            return Clients.FirstOrDefault(c => c.ClientId == clientId);
-        }
-
-        public Client GetByActiveSession(string clientId, string sessionId)
-        {
-            return Clients.FirstOrDefault(c => c.ClientId == clientId && c.Sessions.Any(s => s.Id == sessionId));
-        }
-
         public BridgeServer GetBridgeServer(string urn, int port, string vpn)
         {
             return BridgeServers.FirstOrDefault(bs => bs.Urn == urn && bs.Port == port && bs.Vpn == vpn);
-        }
-
-        public void AddMessage(string applicationDomainId, MessageDefinition def)
-        {
-            var applicationDomain = ApplicationDomains.FirstOrDefault(a => a.Id == applicationDomainId);
-            if (applicationDomain == null)
-            {
-                throw new DomainException(ErrorCodes.UNKNOWN_APPLICATION_DOMAIN, string.Format(Global.UnknownApplicationDomain, applicationDomainId));
-            }
-
-            applicationDomain.AddMessageDefinition(def);
-        }
-
-        public void UpdateMessage(string applicationDomainId, string messageId, string description, string jsonSchema)
-        {
-            var applicationDomain = ApplicationDomains.FirstOrDefault(a => a.Id == applicationDomainId);
-            if (applicationDomain == null)
-            {
-                throw new DomainException(ErrorCodes.UNKNOWN_APPLICATION_DOMAIN, string.Format(Global.UnknownApplicationDomain, applicationDomainId));
-            }
-
-            var message = applicationDomain.MessageDefinitions.FirstOrDefault(m => m.Id == messageId);
-            if (message == null)
-            {
-                throw new DomainException(ErrorCodes.UNKNOWN_MESSAGEDEF, string.Format(Global.UnknownMessageDefinition, messageId));
-            }
-
-            message.Description = description;
-            message.JsonSchema = jsonSchema;
-            message.UpdateDateTime = DateTime.UtcNow;
-        }
-
-        public string PublishMessage(string applicationDomainId, string messageName)
-        {
-            var applicationDomain = ApplicationDomains.FirstOrDefault(a => a.Id == applicationDomainId);
-            if (applicationDomain == null)
-            {
-                throw new DomainException(ErrorCodes.UNKNOWN_APPLICATION_DOMAIN, string.Format(Global.UnknownApplicationDomain, applicationDomainId));
-            }
-
-            var message = applicationDomain.MessageDefinitions.OrderByDescending(m => m.Version).FirstOrDefault(m => m.Name == messageName);
-            if (message == null)
-            {
-                throw new DomainException(ErrorCodes.UNKNOWN_MESSAGEDEF, string.Format(Global.UnknownMessageDefinition, messageName));
-            }
-
-            var newMessage = message.Publish();
-            applicationDomain.MessageDefinitions.Add(newMessage);
-            return newMessage.Id;
-        }
-
-        public void UpdateApplicationDomain(string applicationDomainId, ICollection<Application> applications)
-        {
-            var applicationDomain = ApplicationDomains.FirstOrDefault(a => a.Id == applicationDomainId);
-            if (applicationDomain == null)
-            {
-                throw new DomainException(ErrorCodes.UNKNOWN_APPLICATION_DOMAIN, string.Format(Global.UnknownApplicationDomain, applicationDomainId));
-            }
-
-            applicationDomain.Applications = applications;
         }
     }
 }

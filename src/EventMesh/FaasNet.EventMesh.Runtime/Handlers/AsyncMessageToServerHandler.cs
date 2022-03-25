@@ -12,16 +12,16 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 {
     public class AsyncMessageToServerHandler : IMessageHandler
     {
-        private readonly IVpnStore _vpnStore;
+        private readonly IClientStore _clientStore;
         private readonly IUdpClientServerFactory _udpClientFactory;
         private readonly RuntimeOptions _options;
 
         public AsyncMessageToServerHandler(
-            IVpnStore vpnStore,
+            IClientStore clientStore,
             IUdpClientServerFactory udpClientFactory,
             IOptions<RuntimeOptions> options)
         {
-            _vpnStore = vpnStore;
+            _clientStore = clientStore;
             _udpClientFactory = udpClientFactory;
             _options = options.Value;
         }
@@ -32,13 +32,12 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         {
             var pkg = package as AsyncMessageToServer;
             var lastBridge = pkg.BridgeServers.Last();
-            var vpn = await _vpnStore.Get(pkg.ClientId, lastBridge.Urn, pkg.SessionId, cancellationToken);
-            if (vpn == null)
+            var client = await _clientStore.GetByBridgeSession(pkg.ClientId, lastBridge.Urn, pkg.SessionId, cancellationToken);
+            if (client == null)
             {
                 throw new RuntimeException(package.Header.Command, package.Header.Seq, Errors.NO_ACTIVE_SESSION);
             }
 
-            var client = vpn.GetClient(pkg.ClientId);
             var activeSession = client.GetActiveSession(pkg.SessionId, lastBridge.Urn);
             var writeCtx = new WriteBufferContext();
             var udpClient = _udpClientFactory.Build();

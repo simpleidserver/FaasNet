@@ -16,8 +16,9 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         public DisconnectMessageHandler(
             IVpnStore vpnStore,
+            IClientStore clientStore,
             IEnumerable<IMessageConsumer> messageConsumers,
-            IUdpClientServerFactory udpClientServerFactory) : base(vpnStore)
+            IUdpClientServerFactory udpClientServerFactory) : base(clientStore, vpnStore)
         {
             _udpClientFactory = udpClientServerFactory;
             _messageConsumers = messageConsumers;

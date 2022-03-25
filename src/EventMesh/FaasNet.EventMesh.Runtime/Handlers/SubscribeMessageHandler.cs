@@ -19,9 +19,10 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         public SubscribeMessageHandler(
             IVpnStore vpnStore,
+            IClientStore clientStore,
             IUdpClientServerFactory udpClientFactory,
             IEnumerable<IMessageConsumer> messageConsumers,
-            IOptions<RuntimeOptions> options) : base(vpnStore)
+            IOptions<RuntimeOptions> options) : base(clientStore, vpnStore)
         {
             _udpClientFactory = udpClientFactory;
             _messageConsumers = messageConsumers;

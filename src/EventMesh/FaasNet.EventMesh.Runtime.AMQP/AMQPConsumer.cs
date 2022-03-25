@@ -18,18 +18,18 @@ namespace FaasNet.EventMesh.Runtime.AMQP
         private readonly List<AMQPSubscriptionRecord> _subscriptions = new List<AMQPSubscriptionRecord>();
         private readonly IBrokerConfigurationStore _brokerConfigurationStore;
         private readonly AMQPOptions _opts;
-        private readonly IVpnStore _vpnStore;
+        private readonly IClientStore _clientStore;
         private IConnection _connection;
 
         public AMQPConsumer(
             IBrokerConfigurationStore brokerConfigurationStore,
-            IVpnStore vpnStore,
+            IClientStore clientStore,
             IOptions<AMQPOptions> opts,
             IOptions<RuntimeOptions> runtimeOpts) : base(runtimeOpts)
         {
             _opts = opts.Value;
             _brokerConfigurationStore = brokerConfigurationStore;
-            _vpnStore = vpnStore;
+            _clientStore = clientStore;
         }
 
         public override event EventHandler<CloudEventArgs> CloudEventReceived;
@@ -117,13 +117,12 @@ namespace FaasNet.EventMesh.Runtime.AMQP
             var jsonEventFormatter = new JsonEventFormatter();
             var model = (sender as EventingBasicConsumer).Model;
             var cloudEvent = e.ToCloudEvent(jsonEventFormatter, source, topicName);
-            var vpn = _vpnStore.Get(clientId, clientSessionId, CancellationToken.None).Result;
-            if (vpn == null)
+            var client = _clientStore.GetBySession(clientId, clientSessionId, CancellationToken.None).Result;
+            if (client == null)
             {
                 return;
             }
 
-            var client = vpn.GetClient(clientId);
             var clientSession = client.GetActiveSessionByTopic(brokerName, topicName);
             CloudEventReceived(this, new CloudEventArgs(topicName, brokerName, cloudEvent, client.ClientId, clientSession));
         }

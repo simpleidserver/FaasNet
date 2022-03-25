@@ -2,7 +2,6 @@
 using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,67 +21,22 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
             _dbContext.VpnLst.Add(vpn);
         }
 
-        public Task<Vpn> Get(string name, CancellationToken cancellationToken)
+        public async Task<Vpn> Get(string name, CancellationToken cancellationToken)
         {
-            lock (EventMeshDBContext.Lock)
-                return _dbContext.VpnLst
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Histories)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Topics)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Bridges)
-                    .Include(c => c.Clients).ThenInclude(c => c.Topics)
+            await EventMeshDBContext.SemaphoreSlim.WaitAsync(cancellationToken);
+            var result = await _dbContext.VpnLst
                     .Include(c => c.BridgeServers)
-                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.MessageDefinitions)
-                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.Applications).ThenInclude(a => a.Links)
                     .FirstOrDefaultAsync(v => v.Name == name, cancellationToken);
+            EventMeshDBContext.SemaphoreSlim.Release();
+            return result;
         }
 
-        public Task<Vpn> Get(string clientId, string sessionId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Vpn>> GetAll(CancellationToken cancellationToken)
         {
-            lock (EventMeshDBContext.Lock)
-                return _dbContext.VpnLst
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Histories)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Topics)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Bridges)
-                    .Include(c => c.Clients).ThenInclude(c => c.Topics)
-                    .Include(c => c.BridgeServers)
-                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.MessageDefinitions)
-                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.Applications).ThenInclude(a => a.Links)
-                    .FirstOrDefaultAsync(v => v.Clients.Any(c => c.ClientId == clientId && c.Sessions.Any(s => s.Id == sessionId)), cancellationToken);
-        }
-
-        public Task<Vpn> Get(string clientId, string urn, string sessionId, CancellationToken cancellationToken)
-        {
-            lock (EventMeshDBContext.Lock)
-                return _dbContext.VpnLst
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Histories)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Topics)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Bridges)
-                    .Include(c => c.Clients).ThenInclude(c => c.Topics)
-                    .Include(c => c.BridgeServers)
-                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.MessageDefinitions)
-                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.Applications).ThenInclude(a => a.Links)
-                    .FirstOrDefaultAsync(v => v.Clients.Any(c => c.ClientId == clientId && c.Sessions.Any(s => s.Bridges.Any(b => b.Urn == urn && b.SessionId == sessionId))), cancellationToken);
-        }
-
-        public Task<IEnumerable<Vpn>> GetAll(CancellationToken cancellationToken)
-        {
-            lock (EventMeshDBContext.Lock)
-            {
-                IEnumerable<Vpn> result = _dbContext.VpnLst
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Histories)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Topics)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.PendingCloudEvents)
-                    .Include(c => c.Clients).ThenInclude(c => c.Sessions).ThenInclude(c => c.Bridges)
-                    .Include(c => c.Clients).ThenInclude(c => c.Topics)
-                    .Include(c => c.BridgeServers)
-                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.MessageDefinitions)
-                    .Include(c => c.ApplicationDomains).ThenInclude(a => a.Applications).ThenInclude(a => a.Links)
-                    .ToList();
-                return Task.FromResult(result);
-            }
+            await EventMeshDBContext.SemaphoreSlim.WaitAsync(cancellationToken);
+            var result = await _dbContext.VpnLst.ToListAsync(cancellationToken);
+            EventMeshDBContext.SemaphoreSlim.Release();
+            return result;
         }
 
         public void Delete(Vpn vpn)

@@ -18,6 +18,8 @@ namespace Microsoft.Extensions.DependencyInjection
             if (brokerConfigurationStoreType != null)
                 serviceCollection.Remove(brokerConfigurationStoreType);
             serviceCollection.AddTransient<IVpnStore, EFVpnStore>();
+            serviceCollection.AddTransient<IClientStore, EFClientStore>();
+            serviceCollection.AddTransient<IMessageDefinitionRepository, EFMessageDefinitionRepository>();
             serviceCollection.AddTransient<IBrokerConfigurationStore, EFBrokerConfigurationStore>();
             serviceCollection.AddDbContext<EventMeshDBContext>(options);
             return serviceCollection;

@@ -9,8 +9,6 @@ namespace FaasNet.EventMesh.Runtime.EF.Configurations
         public void Configure(EntityTypeBuilder<Vpn> builder)
         {
             builder.HasKey(v => v.Name);
-            builder.HasMany(v => v.ApplicationDomains).WithOne().OnDelete(DeleteBehavior.Cascade);
-            builder.HasMany(v => v.Clients).WithOne().OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(v => v.BridgeServers).WithOne().OnDelete(DeleteBehavior.Cascade);
         }
     }
