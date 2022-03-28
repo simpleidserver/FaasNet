@@ -1,0 +1,36 @@
+{
+	"asyncapi": "2.2.0",
+	"info": {
+		"version": "0.0.1",
+		"title": "title"
+	},
+	"channels": {
+		"aze/users": {
+			"publish": {
+				"message": {
+					"$ref": "#/components/messages/aze"
+				}
+			}
+		}
+	},
+	"components": {
+		"messages": {
+			"aze": {
+				"payload": {
+					"type": "object",
+					"properties": {
+						"displayName": {
+							"type": "string",
+							"description": "Name of the user"
+						},
+						"email": {
+							"type": "string",
+							"format": "email",
+							"description": "Email of the user"
+						}
+					}
+				}
+			}
+		}
+	}
+}

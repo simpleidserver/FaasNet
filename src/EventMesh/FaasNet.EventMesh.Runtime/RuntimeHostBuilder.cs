@@ -28,6 +28,12 @@ namespace FaasNet.EventMesh.Runtime
             return this;
         }
 
+        public RuntimeHostBuilder AddClients(ICollection<Client> clients)
+        {
+            ServiceCollection.AddSingleton<IClientStore>(new ClientStore(clients));
+            return this;
+        }
+
         public RuntimeHostBuilder AddInMemoryMessageBroker(ConcurrentBag<InMemoryTopic> topics)
         {
             ServiceCollection.AddInMemoryMessageBroker(topics);
