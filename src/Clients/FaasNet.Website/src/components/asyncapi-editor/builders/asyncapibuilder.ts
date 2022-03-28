@@ -1,5 +1,5 @@
-import { ApplicationResult } from "@stores/vpn/models/application.model";
-import { ApplicationLinkResult } from "@stores/vpn/models/applicationlink.model";
+import { ApplicationResult } from "@stores/applicationdomains/models/application.model";
+import { ApplicationLinkResult } from "@stores/applicationdomains/models/applicationlink.model";
 
 export class AsyncApiBuilder {
   public static build(rootTopic: string, app: ApplicationResult, consumedLinks: ApplicationLinkResult[]) {
@@ -48,6 +48,7 @@ export class AsyncApiBuilder {
   }
 
   private static buildMessages(result: any, links: ApplicationLinkResult[]) {
+    /*
     links.forEach((l) => {
       if (l.message) {
         var keys = Object.keys(result);
@@ -58,9 +59,11 @@ export class AsyncApiBuilder {
         }
       }
     });
+    */
   }
 
   private static buildChannels(result: any, rootTopic: string, links: ApplicationLinkResult[], isSubscribe: boolean) {
+    /*
     links.forEach((l) => {
       if (!l.message) {
         return;
@@ -75,5 +78,6 @@ export class AsyncApiBuilder {
         }
       };
     });
+    */
   }
 }

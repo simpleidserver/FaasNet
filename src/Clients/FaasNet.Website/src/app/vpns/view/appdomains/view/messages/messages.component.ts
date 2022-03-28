@@ -5,8 +5,8 @@ import { ActivatedRoute } from '@angular/router';
 import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
-import { addMessageDefinition, getLatestMessages, publishMessageDefinition, updateMessageDefinition } from '@stores/vpn/actions/vpn.actions';
-import { MessageDefinitionResult } from '@stores/vpn/models/messagedefinition.model';
+import { addMessageDefinition, getLatestMessages, publishMessageDefinition, updateMessageDefinition } from '@stores/messagedefinitions/actions/messagedefs.actions';
+import { MessageDefinitionResult } from '@stores/messagedefinitions/models/messagedefinition.model';
 import { filter } from 'rxjs/operators';
 import { AddMessageDefComponent } from './add-message.component';
 
@@ -31,42 +31,42 @@ export class MessagesVpnComponent implements OnInit {
 
   ngOnInit(): void {
     this.actions$.pipe(
-      filter((action: any) => action.type === '[VPN] COMPLETE_ADD_MESSAGE_DEFINITION'))
+      filter((action: any) => action.type === '[MESSAGEDEFS] COMPLETE_ADD_MESSAGE_DEFINITION'))
       .subscribe((e) => {
         this.snackBar.open(this.translateService.instant('vpn.messages.messageDefAdded'), this.translateService.instant('undo'), {
           duration: 2000
         });
       });
     this.actions$.pipe(
-      filter((action: any) => action.type === '[VPN] ERROR_ADD_MESSAGE_DEFINITION'))
+      filter((action: any) => action.type === '[MESSAGEDEFS] ERROR_ADD_MESSAGE_DEFINITION'))
       .subscribe((e) => {
         this.snackBar.open(this.translateService.instant('vpn.messages.errorAddMessageDef'), this.translateService.instant('undo'), {
           duration: 2000
         });
       });
     this.actions$.pipe(
-      filter((action: any) => action.type === '[VPN] COMPLETE_UPDATE_MESSAGE_DEFINITION'))
+      filter((action: any) => action.type === '[MESSAGEDEFS] COMPLETE_UPDATE_MESSAGE_DEFINITION'))
       .subscribe((e) => {
         this.snackBar.open(this.translateService.instant('vpn.messages.messagDefUpdated'), this.translateService.instant('undo'), {
           duration: 2000
         });
       });
     this.actions$.pipe(
-      filter((action: any) => action.type === '[VPN] ERROR_UPDATE_MESSAGE_DEFINITION'))
+      filter((action: any) => action.type === '[MESSAGEDEFS] ERROR_UPDATE_MESSAGE_DEFINITION'))
       .subscribe((e) => {
         this.snackBar.open(this.translateService.instant('vpn.messages.errorUpdateMessageDef'), this.translateService.instant('undo'), {
           duration: 2000
         });
       });
     this.actions$.pipe(
-      filter((action: any) => action.type === '[VPN] COMPLETE_PUBLISH_MESSAGE_DEFINITION'))
+      filter((action: any) => action.type === '[MESSAGEDEFS] COMPLETE_PUBLISH_MESSAGE_DEFINITION'))
       .subscribe((e) => {
         this.snackBar.open(this.translateService.instant('vpn.messages.messageDefPublished'), this.translateService.instant('undo'), {
           duration: 2000
         });
       });
     this.actions$.pipe(
-      filter((action: any) => action.type === '[VPN] ERROR_PUBLISH_MESSAGE_DEFINITION'))
+      filter((action: any) => action.type === '[MESSAGEDEFS] ERROR_PUBLISH_MESSAGE_DEFINITION'))
       .subscribe((e) => {
         this.snackBar.open(this.translateService.instant('vpn.messages.errorPublishMessage'), this.translateService.instant('undo'), {
           duration: 2000
@@ -83,7 +83,7 @@ export class MessagesVpnComponent implements OnInit {
   }
 
   publishMessage(message: MessageDefinitionResult) {
-    const act = publishMessageDefinition({ vpn: this.vpnName, applicationDomainId: this.appDomainId, messageName: message.name });
+    const act = publishMessageDefinition({ id: message.id, messageName: message.name });
     this.store.dispatch(act);
   }
 
@@ -97,7 +97,7 @@ export class MessagesVpnComponent implements OnInit {
         return;
       }
 
-      const act = updateMessageDefinition({ vpn: this.vpnName, applicationDomainId: this.appDomainId, description: e.description, jsonSchema: e.jsonSchema, messageDefId: message.id });
+      const act = updateMessageDefinition({ id: message.id, description: e.description, jsonSchema: e.jsonSchema });
       this.store.dispatch(act);
     });
   }
@@ -111,7 +111,7 @@ export class MessagesVpnComponent implements OnInit {
         return;
       }
 
-      const act = addMessageDefinition({ applicationDomainId: this.appDomainId, description: e.description, name: e.name, vpn: this.vpnName, jsonSchema: e.jsonSchema });
+      const act = addMessageDefinition({ appDomainId: this.appDomainId, description: e.description, name: e.name, jsonSchema: e.jsonSchema });
       this.store.dispatch(act);
     });
   }
@@ -119,7 +119,7 @@ export class MessagesVpnComponent implements OnInit {
   private refresh() {
     this.vpnName = this.activatedRoute.parent?.snapshot.params['vpnName'];
     this.appDomainId = this.activatedRoute.parent?.snapshot.params['appDomainId'];
-    const act = getLatestMessages({ name: this.vpnName, appDomainId: this.appDomainId});
+    const act = getLatestMessages({ appDomainId: this.appDomainId});
     this.store.dispatch(act);
   }
 }

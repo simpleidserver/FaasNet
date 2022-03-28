@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.EventMesh.Runtime.Website.Migrations
 {
     [DbContext(typeof(EventMeshDBContext))]
-    [Migration("20220324200837_Init")]
+    [Migration("20220328122133_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -74,14 +74,12 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<DateTime>("UpdateDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("VpnName")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("Vpn")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("VpnName");
-
-                    b.ToTable("ApplicationDomain");
+                    b.ToTable("ApplicationDomains");
                 });
 
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationLink", b =>
@@ -181,10 +179,8 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<DateTime>("CreateDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Purposes")
                         .HasColumnType("nvarchar(max)");
@@ -192,14 +188,12 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<string>("Urn")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("VpnName")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("Vpn")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ClientId");
 
-                    b.HasIndex("VpnName");
-
-                    b.ToTable("Client");
+                    b.ToTable("ClientLst");
                 });
 
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ClientSession", b =>
@@ -334,7 +328,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ApplicationDomainId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDateTime")
                         .HasColumnType("datetime2");
@@ -356,9 +350,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationDomainId");
-
-                    b.ToTable("MessageDefinition");
+                    b.ToTable("MessageDefinitionLst");
                 });
 
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Topic", b =>
@@ -432,14 +424,6 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationDomain", b =>
-                {
-                    b.HasOne("FaasNet.EventMesh.Runtime.Models.Vpn", null)
-                        .WithMany("ApplicationDomains")
-                        .HasForeignKey("VpnName")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationLink", b =>
                 {
                     b.HasOne("FaasNet.EventMesh.Runtime.Models.Application", null)
@@ -461,14 +445,6 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.HasOne("FaasNet.EventMesh.Runtime.Models.BrokerConfiguration", null)
                         .WithMany("Records")
                         .HasForeignKey("BrokerConfigurationName")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Client", b =>
-                {
-                    b.HasOne("FaasNet.EventMesh.Runtime.Models.Vpn", null)
-                        .WithMany("Clients")
-                        .HasForeignKey("VpnName")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -504,14 +480,6 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.MessageDefinition", b =>
-                {
-                    b.HasOne("FaasNet.EventMesh.Runtime.Models.ApplicationDomain", null)
-                        .WithMany("MessageDefinitions")
-                        .HasForeignKey("ApplicationDomainId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Topic", b =>
                 {
                     b.HasOne("FaasNet.EventMesh.Runtime.Models.ClientSession", null)
@@ -536,8 +504,6 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.ApplicationDomain", b =>
                 {
                     b.Navigation("Applications");
-
-                    b.Navigation("MessageDefinitions");
                 });
 
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.BrokerConfiguration", b =>
@@ -565,11 +531,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
 
             modelBuilder.Entity("FaasNet.EventMesh.Runtime.Models.Vpn", b =>
                 {
-                    b.Navigation("ApplicationDomains");
-
                     b.Navigation("BridgeServers");
-
-                    b.Navigation("Clients");
                 });
 #pragma warning restore 612, 618
         }

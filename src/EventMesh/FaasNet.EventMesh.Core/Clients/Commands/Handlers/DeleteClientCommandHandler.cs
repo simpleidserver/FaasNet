@@ -19,10 +19,10 @@ namespace FaasNet.EventMesh.Core.Clients.Commands.Handlers
 
         public async Task<bool> Handle(DeleteClientCommand request, CancellationToken cancellationToken)
         {
-            var client = await _clientStore.GetByClientId(request.Vpn, request.ClientId, cancellationToken);
+            var client = await _clientStore.GetById(request.Id, cancellationToken);
             if (client == null)
             {
-                throw new NotFoundException(ErrorCodes.UNKNOWN_CLIENT, string.Format(Global.UnknownClient, request.ClientId));
+                throw new NotFoundException(ErrorCodes.UNKNOWN_CLIENT, string.Format(Global.UnknownClient, request.Id));
             }
 
             _clientStore.Remove(client);

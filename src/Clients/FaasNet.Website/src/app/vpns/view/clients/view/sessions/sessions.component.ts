@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import * as fromReducers from '@stores/appstate';
-import { ClientResult } from '@stores/vpn/models/client.model';
-import { ClientSessionResult } from '@stores/vpn/models/clientsession.model';
+import { ClientResult } from '@stores/clients/models/client.model';
+import { ClientSessionResult } from '@stores/clients/models/clientsession.model';
 
 @Component({
   selector: 'view-vpn-client-sessions',

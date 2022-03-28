@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { AnchorDirections } from '@stores/vpn/models/anchordirections';
-import { ApplicationResult } from '@stores/vpn/models/application.model';
-import { ApplicationLinkResult } from '@stores/vpn/models/applicationlink.model';
+import { AnchorDirections } from '@stores/applicationdomains/models/anchordirections';
+import { ApplicationResult } from '@stores/applicationdomains/models/application.model';
+import { ApplicationLinkResult } from '@stores/applicationdomains/models/applicationlink.model';
 import { MatPanelService } from '../matpanel/matpanelservice';
 import { ViewAsyncApiComponent, ViewAsyncApiData } from './viewasyncapicomponent';
 
@@ -525,7 +525,6 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
       self.selectedAnchorLink.link.applicationLink.target = self.selectedAnchorElement.element.application;
     }
 
-    console.log(self.selectedAnchorLink.link);
     if (self.selectedAnchorLink.link.isClosed) {
       self.selectedAnchorLink.link.startElement?.application.links.push(self.selectedAnchorLink.link.applicationLink);
     }

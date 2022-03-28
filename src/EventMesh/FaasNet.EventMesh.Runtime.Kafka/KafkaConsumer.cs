@@ -79,9 +79,10 @@ namespace FaasNet.EventMesh.Runtime.Kafka
         {
         }
 
-        protected override KafkaOptions GetOptions()
+        protected override async Task<KafkaOptions> GetOptions(CancellationToken cancellationToken)
         {
-            return _brokerConfigurationStore.Get(_opts.BrokerName).ToKafkaOptions();
+            var result = await _brokerConfigurationStore.Get(_opts.BrokerName, cancellationToken);
+            return result.ToKafkaOptions();
         }
 
         private void HandleMessage(string clientId, string clientSessionId, string topicName, ConsumeResult<string?, byte[]> message)

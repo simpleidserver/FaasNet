@@ -1,4 +1,5 @@
 ﻿using FaasNet.EventMesh.Core;
+using FaasNet.EventMesh.Core.ApplicationDomains;
 using FaasNet.EventMesh.Core.Vpn;
 using FaasNet.EventMesh.Runtime;
 using MaxMind.GeoIP2;
@@ -35,6 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddMediatR(typeof(EventMeshOptions));
             services.AddHttpClient<WebServiceClient>();
             services.AddTransient<IVpnService, VpnService>();
+            services.AddTransient<IApplicationDomainService, ApplicationDomainService>();
             return serverBuilder;
         }
     }

@@ -27,8 +27,7 @@ namespace FaasNet.EventMesh.Core.MessageDefinitions.Commands.Handlers
             }
 
             var newMessageDef = messageDefinition.Publish();
-            _messageDefinitionRepostory.Update(messageDefinition);
-            _messageDefinitionRepostory.Add(messageDefinition);
+            _messageDefinitionRepostory.Add(newMessageDef);
             await _messageDefinitionRepostory.SaveChanges(cancellationToken);
             return new PublishMessageDefinitionResult { Id = newMessageDef.Id };
         }

@@ -21,6 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.AddTransient<IClientStore, EFClientStore>();
             serviceCollection.AddTransient<IMessageDefinitionRepository, EFMessageDefinitionRepository>();
             serviceCollection.AddTransient<IBrokerConfigurationStore, EFBrokerConfigurationStore>();
+            serviceCollection.AddTransient<IApplicationDomainRepository, EFApplicationDomainRepository>();
             serviceCollection.AddDbContext<EventMeshDBContext>(options);
             return serviceCollection;
         }

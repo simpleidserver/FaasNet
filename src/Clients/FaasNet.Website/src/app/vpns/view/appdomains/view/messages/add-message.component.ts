@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MessageDefinitionResult } from '@stores/vpn/models/messagedefinition.model';
+import { MessageDefinitionResult } from '@stores/messagedefinitions/models/messagedefinition.model';
 
 @Component({
   selector: 'add-messagedef',

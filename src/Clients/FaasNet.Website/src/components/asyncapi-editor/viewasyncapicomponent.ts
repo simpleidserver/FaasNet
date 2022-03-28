@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
-import { ApplicationResult } from "@stores/vpn/models/application.model";
-import { ApplicationLinkResult } from "@stores/vpn/models/applicationlink.model";
+import { ApplicationResult } from "@stores/applicationdomains/models/application.model";
+import { ApplicationLinkResult } from "@stores/applicationdomains/models/applicationlink.model";
 import { MatPanelContent } from "../matpanel/matpanelcontent";
 import { AsyncApiBuilder } from "./builders/asyncapibuilder";
 

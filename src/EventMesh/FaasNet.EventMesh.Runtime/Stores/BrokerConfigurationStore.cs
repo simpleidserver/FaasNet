@@ -1,6 +1,8 @@
 ﻿using FaasNet.EventMesh.Runtime.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Runtime.Stores
 {
@@ -18,19 +20,20 @@ namespace FaasNet.EventMesh.Runtime.Stores
             _brokerConfigurations.Add(brokerConfiguration);
         }
 
-        public BrokerConfiguration Get(string name)
+        public Task<BrokerConfiguration> Get(string name, CancellationToken cancellationToken)
         {
-            return _brokerConfigurations.FirstOrDefault(s => s.Name == name);
+            return Task.FromResult(_brokerConfigurations.FirstOrDefault(s => s.Name == name));
         }
 
-        public IEnumerable<BrokerConfiguration> GetAll()
+        public Task<IEnumerable<BrokerConfiguration>> GetAll(CancellationToken cancellationToken)
         {
-            return _brokerConfigurations;
+            IEnumerable<BrokerConfiguration> result = _brokerConfigurations;
+            return Task.FromResult(result);
         }
 
-        public int SaveChanges()
+        public Task<int> SaveChanges(CancellationToken cancellationToken)
         {
-            return 1;
+            return Task.FromResult(1);
         }
     }
 }

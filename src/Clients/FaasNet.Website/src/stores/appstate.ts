@@ -1,7 +1,9 @@
 import { createSelector } from '@ngrx/store';
-import * as fromApplications from './application/reducers';
+import * as fromAppDomains from './applicationdomains/reducers';
+import * as fromClients from './clients/reducers';
 import * as fromEventMeshServers from './eventmeshservers/reducers';
 import * as fromFunctions from './functions/reducers';
+import * as fromMessageDefs from './messagedefinitions/reducers';
 import * as fromServer from './server/reducers';
 import * as fromStateMachineInstances from './statemachineinstances/reducers';
 import * as fromStateMachines from './statemachines/reducers';
@@ -15,15 +17,14 @@ export interface AppState {
   stateMachineInstances: fromStateMachineInstances.SearchStateMachineInstanceState,
   stateMachineInstance: fromStateMachineInstances.StateMachineInstanceState,
   eventMeshServers: fromEventMeshServers.EventMeshServersState,
-  applicationDomains: fromApplications.ApplicationDomainsState,
   server: fromServer.ServerState,
   vpns: fromVpns.VpnLstState
   vpn: fromVpns.VpnState,
-  clients: fromVpns.ClientLstState,
-  client: fromVpns.ClientState,
-  appDomains: fromVpns.ApplicationDomainLstState,
-  appDomain: fromVpns.ApplicationDomainState,
-  messageDefs : fromVpns.MessageDefinitionLstState
+  clients: fromClients.ClientLstState,
+  client: fromClients.ClientState,
+  appDomains: fromAppDomains.ApplicationDomainsState,
+  appDomain: fromAppDomains.ApplicationDomainState,
+  messageDefs: fromMessageDefs.MessageDefinitionLstState
 }
 
 export const selectFunctions = (state: AppState) => state.functions;
@@ -33,7 +34,6 @@ export const selectStateMachine = (state: AppState) => state.stateMachine;
 export const selectStateMachineInstances = (state: AppState) => state.stateMachineInstances;
 export const selectStateMachineInstance = (state: AppState) => state.stateMachineInstance;
 export const selectEventMeshServers = (state: AppState) => state.eventMeshServers;
-export const selectApplicationDomains = (state: AppState) => state.applicationDomains;
 export const selectServer = (state: AppState) => state.server;
 export const selectVpns = (state: AppState) => state.vpns;
 export const selectVpn = (state: AppState) => state.vpn;
@@ -197,17 +197,6 @@ export const selectEventMeshServersResult = createSelector(
   }
 );
 
-export const selectApplicationDomainsResult = createSelector(
-  selectApplicationDomains,
-  (state: fromApplications.ApplicationDomainsState) => {
-    if (!state || !state.ApplicationDomains) {
-      return null;
-    }
-
-    return state.ApplicationDomains;
-  }
-);
-
 export const selectServerStatusResult = createSelector(
   selectServer,
   (state: fromServer.ServerState) => {
@@ -243,7 +232,7 @@ export const selectVpnResult = createSelector(
 
 export const selectClientsResult = createSelector(
   selectClients,
-  (state: fromVpns.ClientLstState) => {
+  (state: fromClients.ClientLstState) => {
     if (!state || !state.ClientLst) {
       return null;
     }
@@ -254,7 +243,7 @@ export const selectClientsResult = createSelector(
 
 export const selectClientResult = createSelector(
   selectClient,
-  (state: fromVpns.ClientState) => {
+  (state: fromClients.ClientState) => {
     if (!state || !state.Client) {
       return null;
     }
@@ -265,18 +254,18 @@ export const selectClientResult = createSelector(
 
 export const selectAppDomainsResult = createSelector(
   selectAppDomains,
-  (state: fromVpns.ApplicationDomainLstState) => {
-    if (!state || !state.ApplicationDomainLst) {
+  (state: fromAppDomains.ApplicationDomainsState) => {
+    if (!state || !state.ApplicationDomains) {
       return null;
     }
 
-    return state.ApplicationDomainLst;
+    return state.ApplicationDomains;
   }
 );
 
 export const selectAppDomainResult = createSelector(
   selectAppDomain,
-  (state: fromVpns.ApplicationDomainState) => {
+  (state: fromAppDomains.ApplicationDomainState) => {
     if (!state || !state.ApplicationDomain) {
       return null;
     }
@@ -287,7 +276,7 @@ export const selectAppDomainResult = createSelector(
 
 export const selectMessageDefsResult = createSelector(
   selectMessageDefs,
-  (state: fromVpns.MessageDefinitionLstState) => {
+  (state: fromMessageDefs.MessageDefinitionLstState) => {
     if (!state || !state.MessageDefinitionLst) {
       return null;
     }
@@ -304,13 +293,12 @@ export const appReducer = {
   stateMachineInstances: fromStateMachineInstances.getSearchStateMachineInstancesReducer,
   stateMachineInstance: fromStateMachineInstances.getStateMachineInstanceReducer,
   eventMeshServers: fromEventMeshServers.getSearchEventMeshServersReducer,
-  applicationDomains: fromApplications.getApplicationDomainsReducer,
   server: fromServer.getServerReducer,
   vpns: fromVpns.getVpnLstReducer,
   vpn: fromVpns.getVpnReducer,
-  clients: fromVpns.getClientLstReducer,
-  client: fromVpns.getClientReducer,
-  appDomains: fromVpns.getApplicationDomainLstReducer,
-  appDomain: fromVpns.getApplicationDomainReducer,
-  messageDefs: fromVpns.getMessageDefLstReducer
+  clients: fromClients.getClientLstReducer,
+  client: fromClients.getClientReducer,
+  appDomains: fromAppDomains.getApplicationDomainsReducer,
+  appDomain: fromAppDomains.getApplicationDomainReducer,
+  messageDefs: fromMessageDefs.getMessageDefLstReducer
 };

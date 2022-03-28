@@ -15,7 +15,7 @@
   <ng-container matColumnDef="clientId">
     <mat-header-cell *matHeaderCellDef>{{ "vpn.clientId" | translate }}</mat-header-cell>
     <mat-cell *matCellDef="let client">
-      <a href="#" [routerLink]="['/vpns/' + name + '/clients/' + client.clientId ]">{{ client.clientId }}</a>
+      <a href="#" [routerLink]="['/vpns/' + name + '/clients/' + client.id ]">{{ client.clientId }}</a>
     </mat-cell>
   </ng-container>
   <!-- Purposes -->

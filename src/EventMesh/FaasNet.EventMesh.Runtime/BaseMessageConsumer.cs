@@ -27,13 +27,13 @@ namespace FaasNet.EventMesh.Runtime
 
         public abstract void Commit(string topicName, Client client, string sessionId, int nbEvts);
 
-        public Task Subscribe(string topicName, Client client, string sessionId, CancellationToken cancellationToken)
+        public async Task Subscribe(string topicName, Client client, string sessionId, CancellationToken cancellationToken)
         {
-            var options = GetOptions();
+            var options = await GetOptions(cancellationToken);
             var activeSession = client.GetActiveSession(sessionId);
             if (activeSession.HasTopic(topicName, options.BrokerName))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             var topic = client.GetTopic(topicName, options.BrokerName);
@@ -49,23 +49,21 @@ namespace FaasNet.EventMesh.Runtime
             });
 
             activeSession.SubscribeTopic(topicName, options.BrokerName);
-            return Task.CompletedTask;
         }
 
-        public Task Unsubscribe(string topicName, Client client, string sessionId, CancellationToken cancellationToken)
+        public async Task Unsubscribe(string topicName, Client client, string sessionId, CancellationToken cancellationToken)
         {
-            var options = GetOptions();
+            var options = await GetOptions(cancellationToken);
             var activeSession = client.GetActiveSession(sessionId);
             if (!activeSession.HasTopic(topicName, options.BrokerName))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             UnsubscribeTopic(topicName, client, sessionId);
-            return Task.CompletedTask;
         }
 
-        protected abstract TOptions GetOptions();
+        protected abstract Task<TOptions> GetOptions(CancellationToken cancellationToken);
 
         protected abstract void ListenTopic(TOptions options, string topicName, ClientTopic topic, string clientId, string clientSessionId);
 

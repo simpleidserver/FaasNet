@@ -8,6 +8,23 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "ApplicationDomains",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Vpn = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RootTopic = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationDomains", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BrokerConfigurations",
                 columns: table => new
                 {
@@ -17,6 +34,40 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BrokerConfigurations", x => x.Name);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientLst",
+                columns: table => new
+                {
+                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Urn = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Vpn = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Purposes = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientLst", x => x.ClientId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MessageDefinitionLst",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ApplicationDomainId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Version = table.Column<int>(type: "int", nullable: false),
+                    CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    JsonSchema = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MessageDefinitionLst", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -31,6 +82,30 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VpnLst", x => x.Name);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Application",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ClientId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Version = table.Column<int>(type: "int", nullable: false),
+                    PosX = table.Column<float>(type: "real", nullable: false),
+                    PosY = table.Column<float>(type: "real", nullable: false),
+                    ApplicationDomainId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Application", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Application_ApplicationDomains_ApplicationDomainId",
+                        column: x => x.ApplicationDomainId,
+                        principalTable: "ApplicationDomains",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -51,120 +126,6 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                         column: x => x.BrokerConfigurationName,
                         principalTable: "BrokerConfigurations",
                         principalColumn: "Name",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ApplicationDomain",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RootTopic = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    VpnName = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ApplicationDomain", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ApplicationDomain_VpnLst_VpnName",
-                        column: x => x.VpnName,
-                        principalTable: "VpnLst",
-                        principalColumn: "Name",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "BridgeServer",
-                columns: table => new
-                {
-                    Urn = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Port = table.Column<int>(type: "int", nullable: false),
-                    Vpn = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    VpnName = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BridgeServer", x => x.Urn);
-                    table.ForeignKey(
-                        name: "FK_BridgeServer_VpnLst_VpnName",
-                        column: x => x.VpnName,
-                        principalTable: "VpnLst",
-                        principalColumn: "Name",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Client",
-                columns: table => new
-                {
-                    ClientId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Urn = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Purposes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    VpnName = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Client", x => x.ClientId);
-                    table.ForeignKey(
-                        name: "FK_Client_VpnLst_VpnName",
-                        column: x => x.VpnName,
-                        principalTable: "VpnLst",
-                        principalColumn: "Name",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Application",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClientId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Version = table.Column<int>(type: "int", nullable: false),
-                    PosX = table.Column<float>(type: "real", nullable: false),
-                    PosY = table.Column<float>(type: "real", nullable: false),
-                    ApplicationDomainId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Application", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Application_ApplicationDomain_ApplicationDomainId",
-                        column: x => x.ApplicationDomainId,
-                        principalTable: "ApplicationDomain",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MessageDefinition",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Version = table.Column<int>(type: "int", nullable: false),
-                    CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    JsonSchema = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ApplicationDomainId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MessageDefinition", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_MessageDefinition_ApplicationDomain_ApplicationDomainId",
-                        column: x => x.ApplicationDomainId,
-                        principalTable: "ApplicationDomain",
-                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -190,10 +151,30 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 {
                     table.PrimaryKey("PK_ClientSession", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClientSession_Client_ClientId",
+                        name: "FK_ClientSession_ClientLst_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "Client",
+                        principalTable: "ClientLst",
                         principalColumn: "ClientId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BridgeServer",
+                columns: table => new
+                {
+                    Urn = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Port = table.Column<int>(type: "int", nullable: false),
+                    Vpn = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VpnName = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BridgeServer", x => x.Urn);
+                    table.ForeignKey(
+                        name: "FK_BridgeServer_VpnLst_VpnName",
+                        column: x => x.VpnName,
+                        principalTable: "VpnLst",
+                        principalColumn: "Name",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -304,9 +285,9 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 {
                     table.PrimaryKey("PK_Topic", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Topic_Client_ClientId",
+                        name: "FK_Topic_ClientLst_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "Client",
+                        principalTable: "ClientLst",
                         principalColumn: "ClientId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -322,11 +303,6 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 column: "ApplicationDomainId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ApplicationDomain_VpnName",
-                table: "ApplicationDomain",
-                column: "VpnName");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ApplicationLink_ApplicationId",
                 table: "ApplicationLink",
                 column: "ApplicationId");
@@ -340,11 +316,6 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 name: "IX_BrokerConfigurationRecord_BrokerConfigurationName",
                 table: "BrokerConfigurationRecord",
                 column: "BrokerConfigurationName");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Client_VpnName",
-                table: "Client",
-                column: "VpnName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientSession_ClientId",
@@ -365,11 +336,6 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 name: "IX_ClientSessionPendingCloudEvent_ClientSessionId",
                 table: "ClientSessionPendingCloudEvent",
                 column: "ClientSessionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MessageDefinition_ApplicationDomainId",
-                table: "MessageDefinition",
-                column: "ApplicationDomainId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Topic_ClientId",
@@ -403,7 +369,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 name: "ClientSessionPendingCloudEvent");
 
             migrationBuilder.DropTable(
-                name: "MessageDefinition");
+                name: "MessageDefinitionLst");
 
             migrationBuilder.DropTable(
                 name: "Topic");
@@ -412,19 +378,19 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 name: "Application");
 
             migrationBuilder.DropTable(
+                name: "VpnLst");
+
+            migrationBuilder.DropTable(
                 name: "BrokerConfigurations");
 
             migrationBuilder.DropTable(
                 name: "ClientSession");
 
             migrationBuilder.DropTable(
-                name: "ApplicationDomain");
+                name: "ApplicationDomains");
 
             migrationBuilder.DropTable(
-                name: "Client");
-
-            migrationBuilder.DropTable(
-                name: "VpnLst");
+                name: "ClientLst");
         }
     }
 }

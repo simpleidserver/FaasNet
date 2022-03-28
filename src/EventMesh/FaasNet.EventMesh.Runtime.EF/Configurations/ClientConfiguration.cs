@@ -10,8 +10,6 @@ namespace FaasNet.EventMesh.Runtime.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<Client> builder)
         {
-            builder.Property<int>("Id").ValueGeneratedOnAdd();
-            builder.HasKey("Id");
             builder.HasKey(c => c.ClientId);
             builder.Property(c => c.Purposes).HasConversion(
                 p => string.Join(',', p),

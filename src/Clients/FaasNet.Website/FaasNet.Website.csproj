@@ -47,11 +47,14 @@
     <None Remove="src\components\statediagram\components\operation\operation-state-editor.component.ts" />
     <None Remove="src\components\statediagram\components\switch\switch-state-editor.component.ts" />
     <None Remove="src\components\statediagram\statediagram.module.ts" />
-    <None Remove="src\stores\application\actions\application.actions.ts" />
+    <None Remove="src\stores\applicationdomains\actions\applicationdomains.actions.ts" />
+    <None Remove="src\stores\clients\actions\clients.actions.ts" />
+    <None Remove="src\stores\clients\models\clientadded.model.ts" />
     <None Remove="src\stores\common\prometheus-queryrange-result.model.ts" />
     <None Remove="src\stores\common\search.model.ts" />
     <None Remove="src\stores\eventmeshservers\models\eventmeshserver.model.ts" />
     <None Remove="src\stores\functions\models\function.model.ts" />
+    <None Remove="src\stores\messagedefinitions\actions\messagedefs.actions.ts" />
     <None Remove="src\stores\server\actions\server.actions.ts" />
     <None Remove="src\stores\statemachines\models\operation-types.model.ts" />
     <None Remove="src\stores\statemachines\models\statemachine-foreach-state.model.ts" />
@@ -92,8 +95,17 @@
     <TypeScriptCompile Include="src\components\statediagram\components\operation\editaction-dialog.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="src\stores\application\actions\application.actions.ts" />
+    <TypeScriptCompile Include="src\stores\applicationdomains\actions\applicationdomains.actions.ts" />
+    <TypeScriptCompile Include="src\stores\clients\actions\clients.actions.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\stores\clients\models\clientadded.model.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\stores\eventmeshservers\models\eventmeshserver.model.ts" />
+    <TypeScriptCompile Include="src\stores\messagedefinitions\actions\messagedefs.actions.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\stores\server\actions\server.actions.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
@@ -161,15 +173,15 @@
     <TypeScriptCompile Include="src\stores\vpn\actions\vpn.actions.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Include="src\stores\vpn\models\anchordirections.ts" />
-    <TypeScriptCompile Include="src\stores\vpn\models\appdomain.model.ts" />
-    <TypeScriptCompile Include="src\stores\vpn\models\application.model.ts" />
-    <TypeScriptCompile Include="src\stores\vpn\models\applicationdomainadded.model.ts" />
-    <TypeScriptCompile Include="src\stores\vpn\models\applicationlink.model.ts" />
-    <TypeScriptCompile Include="src\stores\vpn\models\client.model.ts" />
-    <TypeScriptCompile Include="src\stores\vpn\models\clientsession.model.ts" />
-    <TypeScriptCompile Include="src\stores\vpn\models\messagedefinition.model.ts" />
-    <TypeScriptCompile Include="src\stores\vpn\models\messagedefinitionadded.model.ts" />
+    <TypeScriptCompile Include="src\stores\applicationdomains\models\anchordirections.ts" />
+    <TypeScriptCompile Include="src\stores\applicationdomains\models\appdomain.model.ts" />
+    <TypeScriptCompile Include="src\stores\applicationdomains\models\application.model.ts" />
+    <TypeScriptCompile Include="src\stores\applicationdomains\models\applicationdomainadded.model.ts" />
+    <TypeScriptCompile Include="src\stores\applicationdomains\models\applicationlink.model.ts" />
+    <TypeScriptCompile Include="src\stores\clients\models\client.model.ts" />
+    <TypeScriptCompile Include="src\stores\clients\models\clientsession.model.ts" />
+    <TypeScriptCompile Include="src\stores\messagedefinitions\models\messagedefinition.model.ts" />
+    <TypeScriptCompile Include="src\stores\messagedefinitions\models\messagedefinitionadded.model.ts" />
     <TypeScriptCompile Include="src\stores\vpn\models\vpn.model.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

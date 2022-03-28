@@ -12,6 +12,7 @@ namespace FaasNet.EventMesh.Core.Clients.Queries.Results
             Sessions = new List<ClientSessionResult>();
         }
 
+        public string Id { get; set; }
         public string ClientId { get; set; }
         public ICollection<int> Purposes { get; set; }
         public IEnumerable<ClientSessionResult> Sessions { get; set; }
@@ -21,6 +22,7 @@ namespace FaasNet.EventMesh.Core.Clients.Queries.Results
         {
             return new ClientResult
             {
+                Id = client.Id,
                 ClientId = client.ClientId,
                 Purposes = client.Purposes,
                 Sessions = client.Sessions.Select(s => ClientSessionResult.Build(s)),

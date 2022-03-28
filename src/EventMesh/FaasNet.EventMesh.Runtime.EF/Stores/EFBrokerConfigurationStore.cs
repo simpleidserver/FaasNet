@@ -2,7 +2,8 @@
 using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Runtime.EF.Stores
 {
@@ -15,36 +16,33 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
             _dbContext = dbContext;
         }
 
-        public IEnumerable<BrokerConfiguration> GetAll()
+        public async Task<IEnumerable<BrokerConfiguration>> GetAll(CancellationToken cancellationToken)
         {
-            lock (EventMeshDBContext.Lock)
-            {
-                return _dbContext.BrokerConfigurations.Include(b => b.Records).ToList();
-            }
+            await EventMeshDBContext.SemaphoreSlim.WaitAsync(cancellationToken);
+            var result = await _dbContext.BrokerConfigurations.Include(b => b.Records).ToListAsync(cancellationToken);
+            EventMeshDBContext.SemaphoreSlim.Release();
+            return result;
         }
 
-        public BrokerConfiguration Get(string name)
+        public async Task<BrokerConfiguration> Get(string name, CancellationToken cancellationToken)
         {
-            lock (EventMeshDBContext.Lock)
-            {
-                return _dbContext.BrokerConfigurations.Include(b => b.Records).FirstOrDefault(b => b.Name == name);
-            }
+            await EventMeshDBContext.SemaphoreSlim.WaitAsync(cancellationToken);
+            var result = await _dbContext.BrokerConfigurations.Include(b => b.Records).FirstOrDefaultAsync(b => b.Name == name);
+            EventMeshDBContext.SemaphoreSlim.Release();
+            return result;
         }
 
         public void Add(BrokerConfiguration brokerConfiguration)
         {
-            lock (EventMeshDBContext.Lock)
-            {
-                _dbContext.BrokerConfigurations.Add(brokerConfiguration);
-            }
+            _dbContext.BrokerConfigurations.Add(brokerConfiguration);
         }
 
-        public int SaveChanges()
+        public async Task<int> SaveChanges(CancellationToken cancellationToken)
         {
-            lock (EventMeshDBContext.Lock)
-            {
-                return _dbContext.SaveChanges();
-            }
+            await EventMeshDBContext.SemaphoreSlim.WaitAsync(cancellationToken);
+            var result = await _dbContext.SaveChangesAsync(cancellationToken);
+            EventMeshDBContext.SemaphoreSlim.Release();
+            return result;
         }
     }
 }

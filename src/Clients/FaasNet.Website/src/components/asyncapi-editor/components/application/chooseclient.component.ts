@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { select, Store } from '@ngrx/store';
 import * as fromReducers from '@stores/appstate';
-import { startGetAllClients } from '@stores/vpn/actions/vpn.actions';
-import { ClientResult } from '@stores/vpn/models/client.model';
+import { startGetAllClients } from '@stores/clients/actions/clients.actions';
+import { ClientResult } from '@stores/clients/models/client.model';
 import { MatPanelContent } from '../../../matpanel/matpanelcontent';
 
 export class ChooseClientData {
@@ -56,7 +56,7 @@ export class ChooseClientComponent extends MatPanelContent {
   }
 
   refresh() {
-    const act = startGetAllClients({ name: this.data.vpnName });
+    const act = startGetAllClients({ vpn: this.data.vpnName });
     this.store.dispatch(act);
   }
 

@@ -2,6 +2,7 @@
 using FaasNet.EventMesh.Core.Resources;
 using FaasNet.EventMesh.Runtime.Stores;
 using MediatR;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +26,8 @@ namespace FaasNet.EventMesh.Core.ApplicationDomains.Commands.Handlers
                 throw new NotFoundException(ErrorCodes.UNKNOWN_APPLICATIONDOMAIN, string.Format(Global.UnknownApplicationDomain, request.ApplicationDomainId));
             }
 
+            applicationDomain.Applications = request.Applications.Select(a => a.ToDomain()).ToList();
+            applicationDomain.UpdateDateTime = DateTime.UtcNow;
             _applicationDomainRepository.Update(applicationDomain);
             await _applicationDomainRepository.SaveChanges(cancellationToken);
             return true;

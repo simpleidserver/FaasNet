@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { select, Store } from '@ngrx/store';
 import * as fromReducers from '@stores/appstate';
-import { getLatestMessages } from '@stores/vpn/actions/vpn.actions';
-import { MessageDefinitionResult } from '@stores/vpn/models/messagedefinition.model';
+import { MessageDefinitionResult } from '@stores/messagedefinitions/models/messagedefinition.model';
 import { MatPanelContent } from '../../../matpanel/matpanelcontent';
 
 export class ChooseMessageData {
@@ -41,12 +40,6 @@ export class ChooseMessageComponent extends MatPanelContent {
         this.selectedMessageDef = this.messages.data.filter((d) => d.id === this.data.messageId)[0];
       }
     });
-    this.refresh();
-  }
-
-  refresh() {
-    const act = getLatestMessages({ name: this.data.vpnName, appDomainId: this.data.appDomainId });
-    this.store.dispatch(act);
   }
 
   selectEvent(evt: MessageDefinitionResult) {

@@ -1,7 +1,8 @@
 ﻿using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
-using System;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,29 +10,39 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
 {
     public class EFMessageDefinitionRepository : IMessageDefinitionRepository
     {
+        private readonly EventMeshDBContext _dbContext;
+
+        public EFMessageDefinitionRepository(EventMeshDBContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         public void Add(MessageDefinition messageDefinition)
         {
-            throw new NotImplementedException();
+            _dbContext.MessageDefinitionLst.Add(messageDefinition);
         }
 
         public Task<MessageDefinition> Get(string id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return _dbContext.MessageDefinitionLst.FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
         }
 
-        public Task<IEnumerable<MessageDefinition>> GetLatestMessages(string applicationDomainId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<MessageDefinition>> GetLatestMessages(string applicationDomainId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            await EventMeshDBContext.SemaphoreSlim.WaitAsync();
+            var messages = await _dbContext.MessageDefinitionLst.OrderByDescending(m => m.Version).Where(m => m.ApplicationDomainId == applicationDomainId).ToListAsync(cancellationToken);
+            EventMeshDBContext.SemaphoreSlim.Release();
+            return messages.GroupBy(m => m.ApplicationDomainId).Select(m => m.First());
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return _dbContext.SaveChangesAsync(cancellationToken);
         }
 
         public void Update(MessageDefinition messageDefinition)
         {
-            throw new NotImplementedException();
+            _dbContext.MessageDefinitionLst.Update(messageDefinition);
         }
     }
 }

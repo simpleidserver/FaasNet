@@ -23,7 +23,8 @@ namespace FaasNet.EventMesh.Runtime.Models
                 Version = Version + 1,
                 CreateDateTime = DateTime.UtcNow,
                 UpdateDateTime = DateTime.UtcNow,
-                JsonSchema = JsonSchema
+                JsonSchema = JsonSchema,
+                ApplicationDomainId = ApplicationDomainId
             };
             return result;
         }

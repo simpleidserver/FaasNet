@@ -4,6 +4,7 @@ using Confluent.Kafka;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.Extensions.Options;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Runtime.Kafka
@@ -30,7 +31,7 @@ namespace FaasNet.EventMesh.Runtime.Kafka
 
         public async Task Publish(CloudEvent cloudEvent, string topicName, Client client)
         {
-            var options = GetOptions();
+            var options = await GetOptions(CancellationToken.None);
             var config = new ProducerConfig
             {
                 BootstrapServers = options.BootstrapServers,
@@ -43,9 +44,10 @@ namespace FaasNet.EventMesh.Runtime.Kafka
             }
         }
 
-        private KafkaOptions GetOptions()
+        private async Task<KafkaOptions> GetOptions(CancellationToken cancellationToken)
         {
-            return _brokerConfigurationStore.Get(_options.BrokerName).ToKafkaOptions();
+            var result = await _brokerConfigurationStore.Get(_options.BrokerName, cancellationToken);
+            return result.ToKafkaOptions();
         }
     }
 }

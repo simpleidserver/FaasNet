@@ -3,6 +3,7 @@ using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Runtime.AMQP
@@ -28,9 +29,9 @@ namespace FaasNet.EventMesh.Runtime.AMQP
             }
         }
 
-        public Task Publish(CloudEvent cloudEvent, string topicName, Client client)
+        public async Task Publish(CloudEvent cloudEvent, string topicName, Client client)
         {
-            var options = GetOptions();
+            var options = await GetOptions(CancellationToken.None);
             var connectionFactory = new ConnectionFactory();
             options.ConnectionFactory(connectionFactory);
             using (var connection = connectionFactory.CreateConnection())
@@ -43,13 +44,12 @@ namespace FaasNet.EventMesh.Runtime.AMQP
                     basicProperties: props,
                     body: cloudEvent.SerializeBody());
             }
-
-            return Task.CompletedTask;
         }
 
-        private AMQPOptions GetOptions()
+        private async Task<AMQPOptions> GetOptions(CancellationToken cancellationToken)
         {
-            return _brokerConfigurationStore.Get(_options.BrokerName).ToAMQPOptions();
+            var result = await _brokerConfigurationStore.Get(_options.BrokerName, cancellationToken);
+            return result.ToAMQPOptions();
         }
     }
 }

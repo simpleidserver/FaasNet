@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { select, Store } from '@ngrx/store';
+import { startGetAppDomain } from '@stores/applicationdomains/actions/applicationdomains.actions';
+import { AppDomainResult } from '@stores/applicationdomains/models/appdomain.model';
 import * as fromReducers from '@stores/appstate';
-import { startGetAppDomain } from '@stores/vpn/actions/vpn.actions';
-import { AppDomainResult } from '@stores/vpn/models/appdomain.model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -43,7 +43,7 @@ export class ViewVpnAppDomainComponent implements OnInit, OnDestroy {
     const params = this.activatedRoute.snapshot.params;
     this.vpnName = params['vpnName'];
     this.appDomainId = params['appDomainId'];
-    const act = startGetAppDomain({ name: this.vpnName, appDomainId: this.appDomainId });
+    const act = startGetAppDomain({ id: this.appDomainId });
     this.store.dispatch(act);
   }
 }

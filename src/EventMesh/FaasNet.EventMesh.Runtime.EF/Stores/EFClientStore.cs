@@ -1,6 +1,8 @@
 ﻿using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,49 +10,91 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
 {
     public class EFClientStore : IClientStore
     {
-        public EFClientStore()
-        {
+        private readonly EventMeshDBContext _dbContext;
 
+        public EFClientStore(EventMeshDBContext dbContext)
+        {
+            _dbContext = dbContext;
         }
 
         public void Add(Client client)
         {
-            throw new System.NotImplementedException();
+            _dbContext.ClientLst.Add(client);
         }
 
-        public Task<IEnumerable<Client>> GetAllByVpn(string name, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Client>> GetAllByVpn(string name, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            await EventMeshDBContext.SemaphoreSlim.WaitAsync();
+            IEnumerable<Client> result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
+                .Include(c => c.Sessions).ThenInclude(s => s.Topics)
+                .Include(c => c.Sessions).ThenInclude(s => s.PendingCloudEvents)
+                .Include(c => c.Sessions).ThenInclude(s => s.Bridges)
+                .Include(c => c.Topics)
+                .Where(c => c.Vpn == name).ToListAsync(cancellationToken);
+            EventMeshDBContext.SemaphoreSlim.Release();
+            return result;
         }
 
-        public Task<Client> GetByBridgeSession(string clientId, string bridgeUrn, string bridgeSessionId, CancellationToken cancellationToken)
+        public async Task<Client> GetByBridgeSession(string clientId, string bridgeUrn, string bridgeSessionId, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            await EventMeshDBContext.SemaphoreSlim.WaitAsync();
+            Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
+                .Include(c => c.Sessions).ThenInclude(s => s.Topics)
+                .Include(c => c.Sessions).ThenInclude(s => s.PendingCloudEvents)
+                .Include(c => c.Sessions).ThenInclude(s => s.Bridges)
+                .Include(c => c.Topics)
+                .FirstOrDefaultAsync(c => c.ClientId == clientId && c.Sessions.Any(s => s.Bridges.Any(b => b.Urn == bridgeUrn && b.SessionId == bridgeSessionId)), cancellationToken);
+            EventMeshDBContext.SemaphoreSlim.Release();
+            return result;
         }
 
-        public Task<Client> GetByClientId(string vpn, string clientId, CancellationToken cancellationToken)
+        public async Task<Client> GetByClientId(string vpn, string clientId, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            await EventMeshDBContext.SemaphoreSlim.WaitAsync();
+            Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
+                .Include(c => c.Sessions).ThenInclude(s => s.Topics)
+                .Include(c => c.Sessions).ThenInclude(s => s.PendingCloudEvents)
+                .Include(c => c.Sessions).ThenInclude(s => s.Bridges)
+                .Include(c => c.Topics)
+                .FirstOrDefaultAsync(c => c.Vpn == vpn && c.ClientId == clientId, cancellationToken);
+            EventMeshDBContext.SemaphoreSlim.Release();
+            return result;
         }
 
-        public Task<Client> GetById(string id, CancellationToken cancellationToken)
+        public async Task<Client> GetById(string id, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            await EventMeshDBContext.SemaphoreSlim.WaitAsync();
+            Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
+                .Include(c => c.Sessions).ThenInclude(s => s.Topics)
+                .Include(c => c.Sessions).ThenInclude(s => s.PendingCloudEvents)
+                .Include(c => c.Sessions).ThenInclude(s => s.Bridges)
+                .Include(c => c.Topics)
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+            EventMeshDBContext.SemaphoreSlim.Release();
+            return result;
         }
 
-        public Task<Client> GetBySession(string clientId, string clientSessionId, CancellationToken cancellationToken)
+        public async Task<Client> GetBySession(string clientId, string clientSessionId, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            await EventMeshDBContext.SemaphoreSlim.WaitAsync();
+            Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
+                .Include(c => c.Sessions).ThenInclude(s => s.Topics)
+                .Include(c => c.Sessions).ThenInclude(s => s.PendingCloudEvents)
+                .Include(c => c.Sessions).ThenInclude(s => s.Bridges)
+                .Include(c => c.Topics)
+                .FirstOrDefaultAsync(c => c.ClientId == clientId && c.Sessions.Any(s => s.Id == clientSessionId), cancellationToken);
+            EventMeshDBContext.SemaphoreSlim.Release();
+            return result;
         }
 
         public void Remove(Client client)
         {
-            throw new System.NotImplementedException();
+            _dbContext.ClientLst.Remove(client);
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            return _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

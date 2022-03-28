@@ -3,6 +3,8 @@ using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Runtime
 {
@@ -11,23 +13,23 @@ namespace FaasNet.EventMesh.Runtime
         public static RuntimeHostBuilder AddKafka(this RuntimeHostBuilder eventMeshRuntime, Action<KafkaOptions> callback = null)
         {
             eventMeshRuntime.ServiceCollection.AddKafka(callback);
-            eventMeshRuntime.AddInitScript((s) =>
+            eventMeshRuntime.AddInitScript(async (s) =>
             {
-                s.SeedKafkaOptions();
+                await s.SeedKafkaOptions();
             });
             return eventMeshRuntime;
         }
 
-        public static void SeedKafkaOptions(this IServiceProvider serviceProvider)
+        public static async Task SeedKafkaOptions(this IServiceProvider serviceProvider)
         {
             var amqpOptions = serviceProvider.GetRequiredService<IOptions<KafkaOptions>>().Value;
             var brokerConfigurationStore = serviceProvider.GetRequiredService<IBrokerConfigurationStore>();
-            var brokerConfiguration = brokerConfigurationStore.Get(amqpOptions.BrokerName);
+            var brokerConfiguration = await brokerConfigurationStore .Get(amqpOptions.BrokerName, CancellationToken.None);
             if (brokerConfiguration == null)
             {
                 brokerConfiguration = amqpOptions.ToConfiguration();
                 brokerConfigurationStore.Add(brokerConfiguration);
-                brokerConfigurationStore.SaveChanges();
+                await brokerConfigurationStore.SaveChanges(CancellationToken.None);
             }
         }
     }

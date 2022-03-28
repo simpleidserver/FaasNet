@@ -14,8 +14,8 @@ namespace FaasNet.EventMesh.Runtime.EF
         public virtual DbSet<Vpn> VpnLst { get; set; }
         public virtual DbSet<MessageDefinition> MessageDefinitionLst { get; set; }
         public virtual DbSet<Client> ClientLst { get; set; }
-        public virtual DbSet<ApplicationDomain> ApplicationDomainLst { get; set; }
         public virtual DbSet<BrokerConfiguration> BrokerConfigurations { get; set; }
+        public virtual DbSet<ApplicationDomain> ApplicationDomains { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

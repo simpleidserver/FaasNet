@@ -44,13 +44,12 @@ namespace FaasNet.EventMesh.Runtime.AMQP
             }
         }
 
-        public override Task Start(CancellationToken cancellationToken)
+        public override async Task Start(CancellationToken cancellationToken)
         {
-            var options = GetOptions();
+            var options = await GetOptions(cancellationToken);
             var connectionFactory = new ConnectionFactory();
             options.ConnectionFactory(connectionFactory);
             _connection = connectionFactory.CreateConnection();
-            return Task.CompletedTask;
         }
 
         public override Task Stop(CancellationToken cancellationToken)
@@ -105,9 +104,10 @@ namespace FaasNet.EventMesh.Runtime.AMQP
             _subscriptions.Remove(subscription);
         }
 
-        protected override AMQPOptions GetOptions()
+        protected override async Task<AMQPOptions> GetOptions(CancellationToken cancellationToken)
         {
-            return _brokerConfigurationStore.Get(_opts.BrokerName).ToAMQPOptions();
+            var result = await _brokerConfigurationStore.Get(_opts.BrokerName, cancellationToken);
+            return result.ToAMQPOptions();
         }
 
         #endregion

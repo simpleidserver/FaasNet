@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace FaasNet.EventMesh.Runtime
 {
@@ -30,18 +31,18 @@ namespace FaasNet.EventMesh.Runtime
         public RuntimeHostBuilder AddInMemoryMessageBroker(ConcurrentBag<InMemoryTopic> topics)
         {
             ServiceCollection.AddInMemoryMessageBroker(topics);
-            AddInitScript((s) =>
+            AddInitScript(async (s) =>
             {
                 var brokerConfigurationStore = s.GetRequiredService<IBrokerConfigurationStore>();
-                var conf = brokerConfigurationStore.Get("inmemory");
+                var conf = await brokerConfigurationStore.Get("inmemory", CancellationToken.None);
                 if (conf == null)
                 {
-                    brokerConfigurationStore.Add(new Models.BrokerConfiguration
+                    brokerConfigurationStore.Add(new BrokerConfiguration
                     {
                         Name = "inmemory",
                         Protocol = "inmemory"
                     });
-                    brokerConfigurationStore.SaveChanges();
+                    await brokerConfigurationStore.SaveChanges(CancellationToken.None);
                 }
             });
             return this;
