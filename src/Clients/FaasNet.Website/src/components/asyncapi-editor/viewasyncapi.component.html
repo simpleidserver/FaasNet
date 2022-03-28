@@ -1,6 +1,9 @@
 <div class="panel-content">
   <h1>ASYNCAPI</h1>
   <div class="body">
-    <ngx-monaco-editor class="asyncapi-editor" [options]="jsonOptions" [(ngModel)]="json"></ngx-monaco-editor>
+    <mat-tab-group>
+      <mat-tab label="YAML"><ngx-monaco-editor class="asyncapi-editor" [options]="yamlOptions" [(ngModel)]="yaml"></ngx-monaco-editor></mat-tab>
+      <mat-tab label="JSON"><ngx-monaco-editor class="asyncapi-editor" [options]="jsonOptions" [(ngModel)]="json"></ngx-monaco-editor></mat-tab>
+    </mat-tab-group>
   </div>
 </div>

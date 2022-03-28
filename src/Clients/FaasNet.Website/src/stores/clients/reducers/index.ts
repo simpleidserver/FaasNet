@@ -42,7 +42,7 @@ const clientLstReducer = createReducer(
   }),
   on(fromActions.completeDeleteClient, (state, { id }) => {
     let clientLst = JSON.parse(JSON.stringify(state.ClientLst)) as ClientResult[];
-    clientLst = clientLst.filter(c => c.clientId !== id);
+    clientLst = clientLst.filter(c => c.id !== id);
     return {
       ...state,
       ClientLst: [...clientLst]

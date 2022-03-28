@@ -3,6 +3,7 @@ import { MatMenuTrigger } from '@angular/material/menu';
 import { AnchorDirections } from '@stores/applicationdomains/models/anchordirections';
 import { ApplicationResult } from '@stores/applicationdomains/models/application.model';
 import { ApplicationLinkResult } from '@stores/applicationdomains/models/applicationlink.model';
+import { MessageDefinitionResult } from '../../stores/messagedefinitions/models/messagedefinition.model';
 import { MatPanelService } from '../matpanel/matpanelservice';
 import { ViewAsyncApiComponent, ViewAsyncApiData } from './viewasyncapicomponent';
 
@@ -183,6 +184,7 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
   @Input() appDomainId: string = "";
   @Input() rootTopic: string = "";
   @Input() editMode: boolean = true;
+  @Input() messages: MessageDefinitionResult[] = [];
   @Input()
   get applications() : ApplicationResult[] {
     return this._isApplications;
@@ -297,6 +299,7 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
     data.rootTopic = this.rootTopic;
     data.application = this.selectedElement.application;
     data.consumedLinks = consumedLinks;
+    data.messages = this.messages;
     this.matPanelService.open(ViewAsyncApiComponent, data);
   }
 

@@ -8,6 +8,8 @@ import { AppDomainResult } from '@stores/applicationdomains/models/appdomain.mod
 import { ApplicationResult } from '@stores/applicationdomains/models/application.model';
 import * as fromReducers from '@stores/appstate';
 import { filter } from 'rxjs/operators';
+import { MessageDefinitionResult } from '@stores/messagedefinitions/models/messagedefinition.model';
+import { getLatestMessages } from '@stores/messagedefinitions/actions/messagedefs.actions';
 
 @Component({
   selector: 'editor-domain',
@@ -19,6 +21,7 @@ export class EditorDomainComponent implements OnInit {
   appDomainId: string = "";
   rootTopic: string = "";
   applications: ApplicationResult[] = [];
+  messages: MessageDefinitionResult[] = [];
 
   constructor(
     private store: Store<fromReducers.AppState>,
@@ -50,8 +53,17 @@ export class EditorDomainComponent implements OnInit {
       this.rootTopic = state.rootTopic;
       this.applications = JSON.parse(JSON.stringify(state.applications)) as ApplicationResult[];
     });
+    this.store.pipe(select(fromReducers.selectMessageDefsResult)).subscribe((state: MessageDefinitionResult[] | null) => {
+      if (!state) {
+        return;
+      }
+
+      this.messages = state;
+    });
     this.vpnName = this.activatedRoute.parent?.snapshot.params['vpnName'];
     this.appDomainId = this.activatedRoute.parent?.snapshot.params['appDomainId'];
+    const getMessages = getLatestMessages({ appDomainId: this.appDomainId });
+    this.store.dispatch(getMessages);
   }
 
   save() {
