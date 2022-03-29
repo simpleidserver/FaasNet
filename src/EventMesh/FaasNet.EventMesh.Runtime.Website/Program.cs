@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Linq;
 
 namespace FaasNet.EventMesh.Runtime.Website
 {
@@ -26,6 +27,25 @@ namespace FaasNet.EventMesh.Runtime.Website
                 {
                     scope.ServiceProvider.SeedKafkaOptions();
                 }
+
+                if (!dbContext.VpnLst.Any())
+                {
+                    dbContext.VpnLst.Add(Models.Vpn.Create("default", "default"));
+                }
+
+                if (!dbContext.ClientLst.Any())
+                {
+                    dbContext.ClientLst.Add(Models.Client.Create("default", "pubClientId", null, new System.Collections.Generic.List<Client.Messages.UserAgentPurpose>
+                    {
+                        Client.Messages.UserAgentPurpose.PUB
+                    }));
+                    dbContext.ClientLst.Add(Models.Client.Create("default", "subClientId", null, new System.Collections.Generic.List<Client.Messages.UserAgentPurpose>
+                    {
+                        Client.Messages.UserAgentPurpose.SUB
+                    }));
+                }
+
+                dbContext.SaveChanges();
             }
             
             host.Run();

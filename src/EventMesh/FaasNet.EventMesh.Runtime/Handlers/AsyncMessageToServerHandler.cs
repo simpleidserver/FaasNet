@@ -1,6 +1,6 @@
-﻿using FaasNet.EventMesh.Runtime.Exceptions;
-using FaasNet.EventMesh.Runtime.Extensions;
-using FaasNet.EventMesh.Runtime.Messages;
+﻿using FaasNet.EventMesh.Client.Extensions;
+using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.Extensions.Options;
 using System.Linq;

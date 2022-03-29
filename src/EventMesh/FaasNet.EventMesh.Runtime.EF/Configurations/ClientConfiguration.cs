@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace FaasNet.EventMesh.Runtime.EF.Configurations
 {
-    public class ClientConfiguration : IEntityTypeConfiguration<Client>
+    public class ClientConfiguration : IEntityTypeConfiguration<Models.Client>
     {
-        public void Configure(EntityTypeBuilder<Client> builder)
+        public void Configure(EntityTypeBuilder<Models.Client> builder)
         {
             builder.HasKey(c => c.ClientId);
             builder.Property(c => c.Purposes).HasConversion(

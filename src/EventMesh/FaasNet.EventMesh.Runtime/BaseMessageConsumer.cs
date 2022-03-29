@@ -25,9 +25,9 @@ namespace FaasNet.EventMesh.Runtime
 
         public abstract Task Stop(CancellationToken cancellationToken);
 
-        public abstract void Commit(string topicName, Client client, string sessionId, int nbEvts);
+        public abstract void Commit(string topicName, Models.Client client, string sessionId, int nbEvts);
 
-        public async Task Subscribe(string topicName, Client client, string sessionId, CancellationToken cancellationToken)
+        public async Task Subscribe(string topicName, Models.Client client, string sessionId, CancellationToken cancellationToken)
         {
             var options = await GetOptions(cancellationToken);
             var activeSession = client.GetActiveSession(sessionId);
@@ -51,7 +51,7 @@ namespace FaasNet.EventMesh.Runtime
             activeSession.SubscribeTopic(topicName, options.BrokerName);
         }
 
-        public async Task Unsubscribe(string topicName, Client client, string sessionId, CancellationToken cancellationToken)
+        public async Task Unsubscribe(string topicName, Models.Client client, string sessionId, CancellationToken cancellationToken)
         {
             var options = await GetOptions(cancellationToken);
             var activeSession = client.GetActiveSession(sessionId);
@@ -67,7 +67,7 @@ namespace FaasNet.EventMesh.Runtime
 
         protected abstract void ListenTopic(TOptions options, string topicName, ClientTopic topic, string clientId, string clientSessionId);
 
-        protected abstract void UnsubscribeTopic(string topicName, Client client, string sessionId);
+        protected abstract void UnsubscribeTopic(string topicName, Models.Client client, string sessionId);
 
         public abstract void Dispose();
     }

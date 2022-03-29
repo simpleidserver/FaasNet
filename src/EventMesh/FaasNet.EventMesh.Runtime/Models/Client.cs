@@ -1,4 +1,4 @@
-﻿using FaasNet.EventMesh.Runtime.Messages;
+﻿using FaasNet.EventMesh.Client.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -111,6 +111,7 @@ namespace FaasNet.EventMesh.Runtime.Models
 
             return new Client(Guid.NewGuid().ToString(), clientId, urn)
             {
+                Vpn = vpn,
                 CreateDateTime = DateTime.UtcNow,
                 Purposes = purposes.Select(p => p.Code).ToList()
             };

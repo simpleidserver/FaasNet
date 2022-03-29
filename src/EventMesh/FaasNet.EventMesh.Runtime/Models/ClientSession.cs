@@ -1,5 +1,5 @@
 ﻿using CloudNative.CloudEvents;
-using FaasNet.EventMesh.Runtime.Messages;
+using FaasNet.EventMesh.Client.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;

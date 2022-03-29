@@ -17,13 +17,12 @@ export default function asyncapiEventMeshClient({ params }) {
   return <File name={'AsyncapiEventMeshClient.csproj'}>
     {`
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>AsyncapiEventMeshClient</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FaasNet.EventMesh.Runtime" Version="0.0.6" />
+    <PackageReference Include="FaasNet.EventMesh.Client" Version="0.0.6" />
   </ItemGroup>
 </Project>`
     }

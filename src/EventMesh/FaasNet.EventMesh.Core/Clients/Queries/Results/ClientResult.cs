@@ -18,7 +18,7 @@ namespace FaasNet.EventMesh.Core.Clients.Queries.Results
         public IEnumerable<ClientSessionResult> Sessions { get; set; }
         public DateTime CreateDateTime { get; set; }
 
-        public static ClientResult Build(Client client)
+        public static ClientResult Build(Runtime.Models.Client client)
         {
             return new ClientResult
             {

@@ -1,5 +1,4 @@
 ﻿using CloudNative.CloudEvents;
-using FaasNet.EventMesh.Runtime.Models;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
 
         public string BrokerName => Constants.InMemoryBrokername;
 
-        public Task Publish(CloudEvent cloudEvent, string topicName, Client client)
+        public Task Publish(CloudEvent cloudEvent, string topicName, Models.Client client)
         {
             var topic = _topics.FirstOrDefault(t => t.TopicName == topicName);
             if (topic == null)

@@ -1,5 +1,6 @@
-﻿using FaasNet.EventMesh.Runtime.Exceptions;
-using FaasNet.EventMesh.Runtime.Messages;
+﻿using FaasNet.EventMesh.Client;
+using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using System.Collections.Generic;
@@ -44,7 +45,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             return ackResponse.IsClient ? null : result;
         }
 
-        private async Task<bool> ConsumeCloudEvents(AsyncMessageAckToServer ackResponse, Client client, Vpn vpn, CancellationToken cancellationToken)
+        private async Task<bool> ConsumeCloudEvents(AsyncMessageAckToServer ackResponse, Models.Client client, Vpn vpn, CancellationToken cancellationToken)
         {
             if (ackResponse.BridgeServers.Any())
             {
@@ -59,7 +60,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             return true;
         }
 
-        private async Task<Package> TransmitCloudEvents(AsyncMessageAckToServer ackResponse, Client client, ICollection<BridgeServer> bridgeServers)
+        private async Task<Package> TransmitCloudEvents(AsyncMessageAckToServer ackResponse, Models.Client client, ICollection<BridgeServer> bridgeServers)
         {
             var lastBridgeServer = ackResponse.BridgeServers.Last();
             if(!bridgeServers.Any(bs => bs.Port == lastBridgeServer.Port && bs.Urn == lastBridgeServer.Urn))

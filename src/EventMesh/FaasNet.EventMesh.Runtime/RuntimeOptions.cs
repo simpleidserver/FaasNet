@@ -5,8 +5,8 @@
         public RuntimeOptions()
         {
             Urn = "first.eventmesh.io";
-            IPAddress = Constants.DefaultIPAddress;
-            Port = Constants.DefaultPort;
+            IPAddress = Client.Constants.DefaultIPAddress;
+            Port = Client.Constants.DefaultPort;
             WaitLocalSubscriptionIntervalMS = 300;
         }
 

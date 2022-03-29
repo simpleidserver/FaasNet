@@ -1,9 +1,8 @@
 ﻿using FaasNet.Domain.Exceptions;
+using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Core.Clients.Commands.Results;
 using FaasNet.EventMesh.Core.Resources;
 using FaasNet.EventMesh.Core.Vpn;
-using FaasNet.EventMesh.Runtime.Messages;
-using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using MediatR;
 using System.Collections.Generic;
@@ -38,7 +37,7 @@ namespace FaasNet.EventMesh.Core.Clients.Commands.Handlers
                 purposes = request.Purposes.Select(p => new UserAgentPurpose(p)).ToList();
             }
 
-            var client = Client.Create(request.Vpn, request.ClientId, string.Empty, purposes);
+            var client = Runtime.Models.Client.Create(request.Vpn, request.ClientId, string.Empty, purposes);
             _clientStore.Add(client);
             await _clientStore.SaveChanges(cancellationToken);
             return new AddClientResult { Id = client.Id };

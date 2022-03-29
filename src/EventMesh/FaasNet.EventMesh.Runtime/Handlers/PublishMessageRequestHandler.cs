@@ -1,5 +1,6 @@
-﻿using FaasNet.EventMesh.Runtime.Exceptions;
-using FaasNet.EventMesh.Runtime.Messages;
+﻿using FaasNet.EventMesh.Client;
+using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.Extensions.Options;
@@ -53,7 +54,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             return PackageResponseBuilder.PublishMessage(package.Header.Seq);
         }
 
-        private async Task Broadcast(PublishMessageRequest publishMessageRequest, Client client, ICollection<BridgeServer> bridgeServers)
+        private async Task Broadcast(PublishMessageRequest publishMessageRequest, Models.Client client, ICollection<BridgeServer> bridgeServers)
         {
             foreach (var bridgeServer in bridgeServers)
             {
@@ -61,7 +62,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             }
         }
 
-        private async Task Broadcast(PublishMessageRequest publishMessageRequest, BridgeServer bridgeServer, Client client)
+        private async Task Broadcast(PublishMessageRequest publishMessageRequest, BridgeServer bridgeServer, Models.Client client)
         {
             var activeSession = client.GetActiveSession(publishMessageRequest.SessionId);
             var pid = Process.GetCurrentProcess().Id;

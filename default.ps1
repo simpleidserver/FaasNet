@@ -63,6 +63,7 @@ task publishDocker {
 # Pack
 task pack -depends release, compile {
 	exec { dotnet pack $source_dir\Function\FaasNet.Function\FaasNet.Function.csproj -c $config --no-build $versionSuffix --output $result_dir }
+	exec { dotnet pack $source_dir\EventMesh\FaasNet.EventMesh.Client\FaasNet.EventMesh.Client.csproj -c $config -no-build $versionSuffix --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj -c $config --no-build $versionSuffix --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh\FaasNet.EventMesh.Runtime.AMQP\FaasNet.EventMesh.Runtime.AMQP.csproj -c $config --no-build $versionSuffix --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh\FaasNet.EventMesh.Runtime.EF\FaasNet.EventMesh.Runtime.EF.csproj -c $config --no-build $versionSuffix --output $result_dir }
@@ -71,6 +72,7 @@ task pack -depends release, compile {
 
 task packNoSuffix -depends release, compile {
 	exec { dotnet pack $source_dir\Function\FaasNet.Function\FaasNet.Function.csproj -c $config --output $result_dir }
+	exec { dotnet pack $source_dir\EventMesh\FaasNet.EventMesh.Client\FaasNet.EventMesh.Client.csproj -c $config --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj -c $config --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh\FaasNet.EventMesh.Runtime.AMQP\FaasNet.EventMesh.Runtime.AMQP.csproj -c $config --output $result_dir }
 	exec { dotnet pack $source_dir\EventMesh\FaasNet.EventMesh.Runtime.EF\FaasNet.EventMesh.Runtime.EF.csproj -c $config --output $result_dir }

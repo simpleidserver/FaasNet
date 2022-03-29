@@ -1,5 +1,4 @@
 ﻿using FaasNet.EventMesh.Runtime.Events;
-using FaasNet.EventMesh.Runtime.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -36,26 +35,29 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
             return Task.CompletedTask;
         }
 
-        public Task Subscribe(string topicName, Client client, string sessionId, CancellationToken cancellationToken)
+        public Task Subscribe(string topicName, Models.Client client, string sessionId, CancellationToken cancellationToken)
         {
             var topic = _topics.FirstOrDefault(t => t.TopicName == topicName);
             if (topic == null)
             {
                 topic = new InMemoryTopic { TopicName = topicName };
+                topic.CloudEventReceived += (e, o) =>
+                {
+                    CloudEventReceived(e, o);
+                };
                 _topics.Add(topic);
             }
 
-            var t = client.GetTopic(topicName, Constants.InMemoryBrokername);
-            if(t == null)
+            var clientTopic = client.GetTopic(topicName, Constants.InMemoryBrokername);
+            if(clientTopic == null)
             {
-                t = client.AddTopic(topicName, Constants.InMemoryBrokername);
+                clientTopic = client.AddTopic(topicName, Constants.InMemoryBrokername);
             }
 
             var activeSession = client.GetActiveSession(sessionId);
-            var subscription = new InMemoryTopicSubscription { Session = activeSession, Offset = t.Offset, ClientId = client.ClientId };
+            var subscription = new InMemoryTopicSubscription { Session = activeSession, Offset = clientTopic.Offset, ClientId = client.ClientId };
             topic.Subscriptions.Add(subscription);
-            topic.CloudEventReceived += (e, o) => CloudEventReceived(e, o);
-            foreach(var evt in topic.CloudEvts)
+            foreach(var evt in topic.CloudEvts.Skip(clientTopic.Offset))
             {
                 CloudEventReceived(this, new CloudEventArgs(topic.TopicName, Constants.InMemoryBrokername, evt, client.ClientId, activeSession));
             }
@@ -63,7 +65,7 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
             return Task.CompletedTask;
         }
 
-        public void Commit(string topicName, Client client, string sessionId, int nbEvts)
+        public void Commit(string topicName, Models.Client client, string sessionId, int nbEvts)
         {
             var topic = _topics.FirstOrDefault(t => t.TopicName == topicName);
             if (topic == null)
@@ -80,7 +82,7 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
             subscription.Offset += nbEvts;
         }
 
-        public Task Unsubscribe(string topic, Client client, string sessionId, CancellationToken cancellationToken)
+        public Task Unsubscribe(string topic, Models.Client client, string sessionId, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

@@ -1,9 +1,9 @@
 ﻿using CloudNative.CloudEvents;
+using FaasNet.EventMesh.Client.Extensions;
+using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Events;
 using FaasNet.EventMesh.Runtime.Exceptions;
-using FaasNet.EventMesh.Runtime.Extensions;
 using FaasNet.EventMesh.Runtime.Handlers;
-using FaasNet.EventMesh.Runtime.Messages;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;

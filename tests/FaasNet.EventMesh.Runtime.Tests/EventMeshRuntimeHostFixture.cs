@@ -1,7 +1,8 @@
 ﻿using CloudNative.CloudEvents;
-using FaasNet.EventMesh.Runtime.Exceptions;
+using FaasNet.EventMesh.Client;
+using FaasNet.EventMesh.Client.Exceptions;
+using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.MessageBroker;
-using FaasNet.EventMesh.Runtime.Messages;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,12 +44,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
         {
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 5010;
             });
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -77,12 +78,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
         {
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 5011;
             });
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -110,12 +111,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
         {
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 5012;
             });
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -143,12 +144,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
         {
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 4990;
             });
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -180,12 +181,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
         {
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn");
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 4990;
             });
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -204,12 +205,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
         {
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn");
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 4995;
             });
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -241,12 +242,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
         {
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn");
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 4996;
             });
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -266,8 +267,8 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var firstVpn = Vpn.Create("default", "default");
             var secondVpn = Vpn.Create("default", "default");
-            var firstVpnClient = Client.Create(firstVpn.Name, "clientId", "urn");
-            var secondVpnClient = Client.Create(secondVpn.Name, "clientId", "urn");
+            var firstVpnClient = Models.Client.Create(firstVpn.Name, "clientId", "urn");
+            var secondVpnClient = Models.Client.Create(secondVpn.Name, "clientId", "urn");
             var firstBuilder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 4997;
@@ -278,9 +279,9 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 opt.Port = 4998;
                 opt.Urn = "localhost";
             });
-            var firstHost = firstBuilder.AddVpns(new List<Vpn> { firstVpn }).AddClients(new List<Client> { firstVpnClient }).Build();
+            var firstHost = firstBuilder.AddVpns(new List<Vpn> { firstVpn }).AddClients(new List<Models.Client> { firstVpnClient }).Build();
             firstHost.Run();
-            var secondHost = secondBuilder.AddVpns(new List<Vpn> { secondVpn }).AddClients(new List<Client> { secondVpnClient }).Build();
+            var secondHost = secondBuilder.AddVpns(new List<Vpn> { secondVpn }).AddClients(new List<Models.Client> { secondVpnClient }).Build();
             secondHost.Run();
 
             // ACT
@@ -305,13 +306,13 @@ namespace FaasNet.EventMesh.Runtime.Tests
         {
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn");
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 4991;
             });
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -349,12 +350,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
         {
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn");
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 4992;
             });
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -380,7 +381,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             const string topicName = "Test.COUCOU";
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
             AsyncMessageToClient msg = null;
             var cloudEvent = new CloudEvent
             {
@@ -407,7 +408,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             builder.AddInMemoryMessageBroker(topics);
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -444,7 +445,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             const string topicName = "Test.COUCOU";
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
             AsyncMessageToClient msg = null;
             var cloudEvent = new CloudEvent
             {
@@ -472,7 +473,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
             var vpnStore = serviceProvider.GetRequiredService<IVpnStore>();
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -519,8 +520,8 @@ namespace FaasNet.EventMesh.Runtime.Tests
             const string topicName = "Test.COUCOU";
             var firstVpn = Vpn.Create("default", "default");
             var secondVpn = Vpn.Create("default", "default");
-            var firstVpnClient = Client.Create(firstVpn.Name, "clientId", "urn");
-            var secondVpnClient = Client.Create(secondVpn.Name, "clientId", "urn");
+            var firstVpnClient = Models.Client.Create(firstVpn.Name, "clientId", "urn");
+            var secondVpnClient = Models.Client.Create(secondVpn.Name, "clientId", "urn");
             AsyncMessageToClient msg = null;
             var cloudEvent = new CloudEvent
             {
@@ -553,9 +554,9 @@ namespace FaasNet.EventMesh.Runtime.Tests
             var firstServiceProvider = firstBuilder.ServiceCollection.BuildServiceProvider();
             var secondServiceProvider = secondBuilder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = secondServiceProvider.GetRequiredService<IMessagePublisher>();
-            var firstHost = firstBuilder.AddVpns(new List<Vpn> { firstVpn }).AddClients(new List<Client> { firstVpnClient }).Build();
+            var firstHost = firstBuilder.AddVpns(new List<Vpn> { firstVpn }).AddClients(new List<Models.Client> { firstVpnClient }).Build();
             firstHost.Run();
-            var secondHost = secondBuilder.AddVpns(new List<Vpn> { secondVpn }).AddClients(new List<Client> { secondVpnClient }).Build();
+            var secondHost = secondBuilder.AddVpns(new List<Vpn> { secondVpn }).AddClients(new List<Models.Client> { secondVpnClient }).Build();
             secondHost.Run();
 
             // ACT
@@ -615,7 +616,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
         {
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn");
             var cloudEvent = new CloudEvent
             {
                 Type = "com.github.pull.create",
@@ -631,7 +632,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             {
                 opt.Port = 5004;
             });
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -650,7 +651,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
         {
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
-            var newClient = Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
             const string topicName = "Test.COUCOU";
             var cloudEvent = new CloudEvent
             {
@@ -677,7 +678,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             builder.AddInMemoryMessageBroker(topics);
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
             host.Run();
 
             // ACT
@@ -708,8 +709,8 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             const string topicName = "Test.COUCOU";
             var vpn = Vpn.Create("default", "default");
-            var firstSubClient = Client.Create(vpn.Name, "subClientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
-            var firstPubClient = Client.Create(vpn.Name, "pubClientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
+            var firstSubClient = Models.Client.Create(vpn.Name, "subClientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
+            var firstPubClient = Models.Client.Create(vpn.Name, "pubClientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
             AsyncMessageToClient msg = null;
             var cloudEvent = new CloudEvent
             {
@@ -735,7 +736,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             });
             builder.AddInMemoryMessageBroker(topics);
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { firstSubClient, firstPubClient }).Build();
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { firstSubClient, firstPubClient }).Build();
             host.Run();
 
             // ACT

@@ -1,5 +1,6 @@
-﻿using FaasNet.EventMesh.Runtime.Exceptions;
-using FaasNet.EventMesh.Runtime.Messages;
+﻿using FaasNet.EventMesh.Client;
+using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.Extensions.Options;
@@ -48,7 +49,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             return PackageResponseBuilder.Subscription(package.Header.Seq);
         }
 
-        private async Task Subscribe(SubscriptionRequest subscriptionRequest, Client client)
+        private async Task Subscribe(SubscriptionRequest subscriptionRequest, Models.Client client)
         {
             Thread.Sleep(_options.WaitLocalSubscriptionIntervalMS);
             await SubscribeLocalTopics(subscriptionRequest, client, CancellationToken.None);
@@ -56,7 +57,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         #region Register Local Topics
 
-        private async Task SubscribeLocalTopics(SubscriptionRequest subscriptionRequest, Client client, CancellationToken cancellationToken)
+        private async Task SubscribeLocalTopics(SubscriptionRequest subscriptionRequest, Models.Client client, CancellationToken cancellationToken)
         {
             foreach (var item in subscriptionRequest.Topics)
             {
@@ -71,7 +72,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         #region Register Topics from BridgeServer
 
-        private async Task SubscribeBridgeServerTopics(SubscriptionRequest subscriptionRequest, Client client, ICollection<BridgeServer> bridgeServers)
+        private async Task SubscribeBridgeServerTopics(SubscriptionRequest subscriptionRequest, Models.Client client, ICollection<BridgeServer> bridgeServers)
         {
             foreach (var bridgeServer in bridgeServers)
             {
@@ -79,7 +80,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             }
         }
 
-        private async Task SubscribeBridgeServer(Client client, BridgeServer bridgeServer, SubscriptionRequest subscriptionRequest)
+        private async Task SubscribeBridgeServer(Models.Client client, BridgeServer bridgeServer, SubscriptionRequest subscriptionRequest)
         {
             var activeSession = client.GetActiveSession(subscriptionRequest.SessionId);
             var udpClient = _udpClientFactory.Build();

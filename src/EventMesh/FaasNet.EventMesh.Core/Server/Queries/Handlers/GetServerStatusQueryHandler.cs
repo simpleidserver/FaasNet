@@ -1,5 +1,5 @@
-﻿using FaasNet.EventMesh.Core.Server.Queries.Results;
-using FaasNet.EventMesh.Runtime;
+﻿using FaasNet.EventMesh.Client;
+using FaasNet.EventMesh.Core.Server.Queries.Results;
 using MediatR;
 using Microsoft.Extensions.Options;
 using System.Threading;

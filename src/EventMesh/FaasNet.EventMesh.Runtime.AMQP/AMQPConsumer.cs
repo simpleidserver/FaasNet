@@ -67,7 +67,7 @@ namespace FaasNet.EventMesh.Runtime.AMQP
             Stop(CancellationToken.None).Wait();
         }
 
-        public override void Commit(string topicName, Client client, string sessionId, int nbEvts)
+        public override void Commit(string topicName, Models.Client client, string sessionId, int nbEvts)
         {
         }
 
@@ -97,7 +97,7 @@ namespace FaasNet.EventMesh.Runtime.AMQP
             _subscriptions.Add(new AMQPSubscriptionRecord(topicName, options.BrokerName, clientId, clientSessionId, channel, tag));
         }
 
-        protected override void UnsubscribeTopic(string topicName, Client client, string sessionId)
+        protected override void UnsubscribeTopic(string topicName, Models.Client client, string sessionId)
         {
             var subscription = _subscriptions.First(s => s.ClientSessionId == sessionId && s.ClientId == client.ClientId && s.TopicName == topicName);
             subscription.Channel.BasicCancel(subscription.ConsumerTag);

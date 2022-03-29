@@ -22,7 +22,7 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
         public void PublishMessage(CloudEvent cloudEvt)
         {
             CloudEvts.Add(cloudEvt);
-            foreach(var subscription in Subscriptions)
+            foreach(var subscription in Subscriptions.Where(s => s.Session.State == Models.ClientSessionState.ACTIVE))
             {
                 var pendingCloudEvents = CloudEvts.Skip(subscription.Offset);
                 foreach(var pendingCloudEvt in pendingCloudEvents)

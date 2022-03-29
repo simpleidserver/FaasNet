@@ -1,9 +1,7 @@
-﻿using FaasNet.EventMesh.Runtime.Models;
-
-namespace FaasNet.EventMesh.Runtime.Website.Services
+﻿namespace FaasNet.EventMesh.Runtime.Website.Services
 {
     public class ViewClientState
     {
-        public Client Client { get; set; }
+        public Models.Client Client { get; set; }
     }
 }

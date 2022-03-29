@@ -1,4 +1,4 @@
-﻿using FaasNet.EventMesh.Runtime.Messages;
+﻿using FaasNet.EventMesh.Client.Messages;
 using Xunit;
 
 namespace FaasNet.EventMesh.Runtime.Tests

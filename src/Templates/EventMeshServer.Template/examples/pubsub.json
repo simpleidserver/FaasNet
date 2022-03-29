@@ -11,6 +11,13 @@
 					"$ref": "#/components/messages/aze"
 				}
 			}
+		},
+		"aze2/users": {
+			"subscribe": {
+				"message": {
+					"$ref": "#/components/messages/aze"
+				}
+			}
 		}
 	},
 	"components": {

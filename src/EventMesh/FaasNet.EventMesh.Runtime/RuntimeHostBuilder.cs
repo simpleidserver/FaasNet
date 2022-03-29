@@ -28,7 +28,7 @@ namespace FaasNet.EventMesh.Runtime
             return this;
         }
 
-        public RuntimeHostBuilder AddClients(ICollection<Client> clients)
+        public RuntimeHostBuilder AddClients(ICollection<Models.Client> clients)
         {
             ServiceCollection.AddSingleton<IClientStore>(new ClientStore(clients));
             return this;

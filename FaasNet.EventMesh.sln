@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime.Website", "src\EventMesh\FaasNet.EventMesh.Runtime.Website\FaasNet.EventMesh.Runtime.Website.csproj", "{0E50F0C2-5E8B-4F4F-90B5-CC9EE62805B1}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Client", "src\EventMesh\FaasNet.EventMesh.Client\FaasNet.EventMesh.Client.csproj", "{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{0E50F0C2-5E8B-4F4F-90B5-CC9EE62805B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E50F0C2-5E8B-4F4F-90B5-CC9EE62805B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E50F0C2-5E8B-4F4F-90B5-CC9EE62805B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +75,7 @@ Global
 		{E03361DA-DFB2-4DC0-A6D6-0F3306891EB4} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
 		{F23B85E6-41DD-4B8A-982D-5ECD27878CD1} = {20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}
 		{0E50F0C2-5E8B-4F4F-90B5-CC9EE62805B1} = {20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}
+		{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9BD3B8C-B2C9-468F-BF54-66BFE9B565EC}

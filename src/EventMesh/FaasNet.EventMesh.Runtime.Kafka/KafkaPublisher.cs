@@ -29,7 +29,7 @@ namespace FaasNet.EventMesh.Runtime.Kafka
             }
         }
 
-        public async Task Publish(CloudEvent cloudEvent, string topicName, Client client)
+        public async Task Publish(CloudEvent cloudEvent, string topicName, Models.Client client)
         {
             var options = await GetOptions(CancellationToken.None);
             var config = new ProducerConfig

@@ -1,4 +1,4 @@
-﻿using FaasNet.EventMesh.Runtime.Messages;
+﻿using FaasNet.EventMesh.Client.Messages;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;

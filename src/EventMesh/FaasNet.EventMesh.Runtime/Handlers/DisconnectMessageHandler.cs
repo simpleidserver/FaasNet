@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Runtime.Messages;
+﻿using FaasNet.EventMesh.Client;
+using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using System.Collections.Generic;
@@ -35,7 +36,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             return PackageResponseBuilder.Disconnect(package.Header.Seq);
         }
 
-        private async Task CloseRemoteSessions(Client client, DisconnectRequest disconnectRequest)
+        private async Task CloseRemoteSessions(Models.Client client, DisconnectRequest disconnectRequest)
         {
             var udpClient = _udpClientFactory.Build();
             var activeSession = client.GetActiveSession(disconnectRequest.SessionId);
@@ -46,7 +47,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             }
         }
 
-        private async Task CloseLocalSession(Client client, string sessionId, Vpn vpn, CancellationToken cancellationToken)
+        private async Task CloseLocalSession(Models.Client client, string sessionId, Vpn vpn, CancellationToken cancellationToken)
         {
             var activeSession = client.GetActiveSession(sessionId);
             foreach (var topic in activeSession.Topics)

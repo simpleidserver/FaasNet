@@ -17,15 +17,15 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
             _dbContext = dbContext;
         }
 
-        public void Add(Client client)
+        public void Add(Models.Client client)
         {
             _dbContext.ClientLst.Add(client);
         }
 
-        public async Task<IEnumerable<Client>> GetAllByVpn(string name, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Models.Client>> GetAllByVpn(string name, CancellationToken cancellationToken)
         {
             await EventMeshDBContext.SemaphoreSlim.WaitAsync();
-            IEnumerable<Client> result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
+            IEnumerable<Models.Client> result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
                 .Include(c => c.Sessions).ThenInclude(s => s.Topics)
                 .Include(c => c.Sessions).ThenInclude(s => s.PendingCloudEvents)
                 .Include(c => c.Sessions).ThenInclude(s => s.Bridges)
@@ -35,10 +35,10 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
             return result;
         }
 
-        public async Task<Client> GetByBridgeSession(string clientId, string bridgeUrn, string bridgeSessionId, CancellationToken cancellationToken)
+        public async Task<Models.Client> GetByBridgeSession(string clientId, string bridgeUrn, string bridgeSessionId, CancellationToken cancellationToken)
         {
             await EventMeshDBContext.SemaphoreSlim.WaitAsync();
-            Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
+            Models.Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
                 .Include(c => c.Sessions).ThenInclude(s => s.Topics)
                 .Include(c => c.Sessions).ThenInclude(s => s.PendingCloudEvents)
                 .Include(c => c.Sessions).ThenInclude(s => s.Bridges)
@@ -48,10 +48,10 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
             return result;
         }
 
-        public async Task<Client> GetByClientId(string vpn, string clientId, CancellationToken cancellationToken)
+        public async Task<Models.Client> GetByClientId(string vpn, string clientId, CancellationToken cancellationToken)
         {
             await EventMeshDBContext.SemaphoreSlim.WaitAsync();
-            Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
+            Models.Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
                 .Include(c => c.Sessions).ThenInclude(s => s.Topics)
                 .Include(c => c.Sessions).ThenInclude(s => s.PendingCloudEvents)
                 .Include(c => c.Sessions).ThenInclude(s => s.Bridges)
@@ -61,10 +61,10 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
             return result;
         }
 
-        public async Task<Client> GetById(string id, CancellationToken cancellationToken)
+        public async Task<Models.Client> GetById(string id, CancellationToken cancellationToken)
         {
             await EventMeshDBContext.SemaphoreSlim.WaitAsync();
-            Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
+            Models.Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
                 .Include(c => c.Sessions).ThenInclude(s => s.Topics)
                 .Include(c => c.Sessions).ThenInclude(s => s.PendingCloudEvents)
                 .Include(c => c.Sessions).ThenInclude(s => s.Bridges)
@@ -74,10 +74,10 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
             return result;
         }
 
-        public async Task<Client> GetBySession(string clientId, string clientSessionId, CancellationToken cancellationToken)
+        public async Task<Models.Client> GetBySession(string clientId, string clientSessionId, CancellationToken cancellationToken)
         {
             await EventMeshDBContext.SemaphoreSlim.WaitAsync();
-            Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
+            Models.Client result = await _dbContext.ClientLst.Include(c => c.Sessions).ThenInclude(s => s.Histories)
                 .Include(c => c.Sessions).ThenInclude(s => s.Topics)
                 .Include(c => c.Sessions).ThenInclude(s => s.PendingCloudEvents)
                 .Include(c => c.Sessions).ThenInclude(s => s.Bridges)
@@ -87,7 +87,7 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
             return result;
         }
 
-        public void Remove(Client client)
+        public void Remove(Models.Client client)
         {
             _dbContext.ClientLst.Remove(client);
         }

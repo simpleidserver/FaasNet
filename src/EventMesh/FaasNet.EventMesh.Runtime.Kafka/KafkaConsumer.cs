@@ -50,7 +50,7 @@ namespace FaasNet.EventMesh.Runtime.Kafka
             throw new NotImplementedException();
         }
 
-        public override void Commit(string topicName, Client client, string sessionId, int nbEvts)
+        public override void Commit(string topicName, Models.Client client, string sessionId, int nbEvts)
         {
             var subscription = _subscriptions.First(s => s.TopicName == topicName && s.ClientSessionId == sessionId && s.ClientId == client.ClientId);
             subscription.Listener.Consume(nbEvts);
@@ -68,7 +68,7 @@ namespace FaasNet.EventMesh.Runtime.Kafka
             _subscriptions.Add(new KafkaSubscriptionRecord(topicName, options.BrokerName, clientId, clientSessionId, listener));
         }
 
-        protected override void UnsubscribeTopic(string topicName, Client client, string sessionId)
+        protected override void UnsubscribeTopic(string topicName, Models.Client client, string sessionId)
         {
             var subscription = _subscriptions.First(s => s.ClientSessionId == sessionId && s.ClientId == client.ClientId && s.TopicName == topicName);
             subscription.Listener.Stop();

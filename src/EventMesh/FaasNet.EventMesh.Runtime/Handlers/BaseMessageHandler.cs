@@ -1,5 +1,5 @@
-﻿using FaasNet.EventMesh.Runtime.Exceptions;
-using FaasNet.EventMesh.Runtime.Messages;
+﻿using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using System.Threading;
@@ -32,14 +32,14 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         protected class ActiveSessionResult
         {
-            public ActiveSessionResult(Vpn vpn, Client client)
+            public ActiveSessionResult(Vpn vpn, Models.Client client)
             {
                 Vpn = vpn;
                 Client = client;
             }
 
             public Vpn Vpn { get; private set; }
-            public Client Client { get; private set; }
+            public Models.Client Client { get; private set; }
         }
     }
 }
