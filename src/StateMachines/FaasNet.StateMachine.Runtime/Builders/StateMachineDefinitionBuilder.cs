@@ -8,9 +8,9 @@ namespace FaasNet.StateMachine.Runtime.Builders
     {
         private StateMachineDefinitionAggregate _instance;
 
-        private StateMachineDefinitionBuilder(string id, int version, string name, string description)
+        private StateMachineDefinitionBuilder(string id, int version, string name, string description, string vpn)
         {
-            _instance = StateMachineDefinitionAggregate.Create(id, version, name, description);
+            _instance = StateMachineDefinitionAggregate.Create(id, version, name, description, vpn);
         }
 
         public StateMachineDefinitionBuilder AddFunction(Func<FunctionDefinitionBuilder, IFunctionBuilder> callback)
@@ -69,9 +69,9 @@ namespace FaasNet.StateMachine.Runtime.Builders
             return _instance;
         }
 
-        public static StateMachineDefinitionBuilder New(string id, int version, string name, string description)
+        public static StateMachineDefinitionBuilder New(string id, int version, string name, string description, string vpn)
         {
-            return new StateMachineDefinitionBuilder(id, version, name, description);
+            return new StateMachineDefinitionBuilder(id, version, name, description, vpn);
         }
     }
 }

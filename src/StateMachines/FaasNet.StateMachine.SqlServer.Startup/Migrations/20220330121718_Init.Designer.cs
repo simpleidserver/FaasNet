@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
 {
     [DbContext(typeof(RuntimeDBContext))]
-    [Migration("20220314153453_Init")]
+    [Migration("20220330121718_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -125,6 +125,9 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                     b.Property<string>("TechnicalId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ApplicationDomainId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreateDateTime")
                         .HasColumnType("datetime2");
 
@@ -137,17 +140,26 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                     b.Property<bool>("IsLast")
                         .HasColumnType("bit");
 
+                    b.Property<int>("LastEvtOffset")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Start")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("UpdateDateTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Version")
                         .HasColumnType("int");
+
+                    b.Property<string>("Vpn")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("TechnicalId");
 

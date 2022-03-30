@@ -1,16 +1,20 @@
-﻿using System;
+﻿using FaasNet.Domain;
+using FaasNet.EventMesh.IntegrationEvents;
+using System;
 using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Runtime.Models
 {
-    public class ApplicationDomain
+    public class ApplicationDomain : AggregateRoot
     {
         public ApplicationDomain()
         {
             Applications = new List<Application>();
+            IntegrationEvents = new List<IntegrationEvent>();
         }
 
-        public string Id { get; set; }
+        #region Properties
+
         public string Vpn { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -18,8 +22,11 @@ namespace FaasNet.EventMesh.Runtime.Models
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
         public ICollection<Application> Applications { get; set; }
+        public override string Topic => "";
 
-        public static ApplicationDomain Create(string vpn, string name, string description, string rootTopic)
+        #endregion
+
+        public static ApplicationDomain Create(string vpn, string name, string description, string rootTopic, string correlationId)
         {
             var result = new ApplicationDomain
             {
@@ -29,7 +36,15 @@ namespace FaasNet.EventMesh.Runtime.Models
                 Description = description,
                 RootTopic = rootTopic
             };
+            result.IntegrationEvents.Add(new ApplicationDomainAddedEvent(result.Id)
+            {
+                CorrelationId = correlationId
+            });
             return result;
+        }
+
+        public override void Handle(dynamic evt)
+        {
         }
     }
 }

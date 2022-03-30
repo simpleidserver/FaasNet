@@ -46,9 +46,9 @@ namespace FaasNet.EventMesh.SqlServer.Startup.Controllers
         }
 
         [HttpGet(".search/{vpn}")]
-        public async Task<IActionResult> GetClients(string name, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetClients(string vpn, CancellationToken cancellationToken)
         {
-            var clients = await _mediator.Send(new GetAllClientsQuery { Vpn = name }, cancellationToken);
+            var clients = await _mediator.Send(new GetAllClientsQuery { Vpn = vpn }, cancellationToken);
             return new OkObjectResult(clients);
         }
     }

@@ -3,6 +3,7 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\StateMachines\FaasNet.StateMachine.IntegrationEvents\FaasNet.StateMachine.IntegrationEvents.csproj" />
     <ProjectReference Include="..\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -24,5 +25,6 @@
     <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="NJsonSchema" Version="10.6.10" />
+    <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.2.4" />
   </ItemGroup>
 </Project>

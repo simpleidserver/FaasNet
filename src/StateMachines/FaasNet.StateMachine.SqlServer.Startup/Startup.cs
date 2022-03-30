@@ -1,5 +1,8 @@
+using FaasNet.StateMachine.Core.Consumers;
+using FaasNet.StateMachine.Core.StateMachines;
 using FaasNet.StateMachine.SqlServer.Startup.Infrastructure;
 using FaasNet.StateMachine.SqlServer.Startup.Infrastructure.Filters;
+using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +31,17 @@ namespace FaasNet.StateMachine.SqlServer.Startup
                 .AllowAnyMethod()
                 .AllowAnyHeader()));
             services.AddSwaggerGen();
-            services.AddStateMachine().UseEF(opt =>
+            services.AddStateMachine(configureMassTransit: x =>
+            {
+                x.AddConsumer<CloudEventConsumer>();
+                x.AddConsumer<StateMachineConsumer>();
+                x.UsingRabbitMq((c, t) =>
+                {
+                    const string connectionString = "amqp://guest:guest@127.0.0.1:5672/";
+                    t.Host(connectionString);
+                    t.ConfigureEndpoints(c);
+                });
+            }).UseEF(opt =>
             {
                 opt.UseLazyLoadingProxies();
                 opt.UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));
@@ -47,6 +60,8 @@ namespace FaasNet.StateMachine.SqlServer.Startup
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var busControl = app.ApplicationServices.GetService<IBusControl>();
+            busControl.Start();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

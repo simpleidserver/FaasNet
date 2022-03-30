@@ -5,11 +5,13 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="MassTransit" Version="7.2.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Common\FaasNet.Domain\FaasNet.Domain.csproj" />
     <ProjectReference Include="..\..\Common\FaasNet.EventStore\FaasNet.EventStore.csproj" />
+    <ProjectReference Include="..\..\EventMesh\FaasNet.EventMesh.IntegrationEvents\FaasNet.EventMesh.IntegrationEvents.csproj" />
     <ProjectReference Include="..\FaasNet.StateMachine.Runtime\FaasNet.StateMachine.Runtime.csproj" />
   </ItemGroup>
 

@@ -17,7 +17,9 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RootTopic = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false),
+                    LastEvtOffset = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

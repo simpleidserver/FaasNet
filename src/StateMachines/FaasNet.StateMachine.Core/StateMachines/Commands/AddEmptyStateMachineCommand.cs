@@ -6,5 +6,6 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands
     {
         public string Name { get; set; }
         public string Description { get; set; }
+        public string Vpn { get; set; }
     }
 }

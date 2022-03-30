@@ -15,6 +15,8 @@ namespace FaasNet.StateMachine.EF.Configurations
             builder.HasMany(_ => _.States).WithOne().OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(_ => _.Functions).WithOne().OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(_ => _.Events).WithOne().OnDelete(DeleteBehavior.Cascade);
+            builder.Ignore(_ => _.DomainEvts);
+            builder.Ignore(_ => _.IntegrationEvents);
         }
     }
 }

@@ -8,6 +8,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.12" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="7.2.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FaasNet.EventMesh.Core\FaasNet.EventMesh.Core.csproj" />

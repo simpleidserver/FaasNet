@@ -79,6 +79,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime.K
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime.Website", "src\EventMesh\FaasNet.EventMesh.Runtime.Website\FaasNet.EventMesh.Runtime.Website.csproj", "{F49F7056-366D-42A7-ABEE-2545401AB964}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.StateMachine.IntegrationEvents", "src\StateMachines\FaasNet.StateMachine.IntegrationEvents\FaasNet.StateMachine.IntegrationEvents.csproj", "{B70A493E-F91F-42E4-B96C-0349A183AC59}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.IntegrationEvents", "src\EventMesh\FaasNet.EventMesh.IntegrationEvents\FaasNet.EventMesh.IntegrationEvents.csproj", "{07B22FB3-1497-4854-8915-2F5B16D5C45D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -193,6 +197,14 @@ Global
 		{F49F7056-366D-42A7-ABEE-2545401AB964}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F49F7056-366D-42A7-ABEE-2545401AB964}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F49F7056-366D-42A7-ABEE-2545401AB964}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B70A493E-F91F-42E4-B96C-0349A183AC59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B70A493E-F91F-42E4-B96C-0349A183AC59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B70A493E-F91F-42E4-B96C-0349A183AC59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B70A493E-F91F-42E4-B96C-0349A183AC59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07B22FB3-1497-4854-8915-2F5B16D5C45D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07B22FB3-1497-4854-8915-2F5B16D5C45D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07B22FB3-1497-4854-8915-2F5B16D5C45D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07B22FB3-1497-4854-8915-2F5B16D5C45D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -233,6 +245,8 @@ Global
 		{13BD5EB7-4334-4932-A225-8B74E32220C6} = {95825677-4D42-420E-8126-220CDD2B4D8C}
 		{ED8C5022-0562-4833-AB21-A036A69395E0} = {95825677-4D42-420E-8126-220CDD2B4D8C}
 		{F49F7056-366D-42A7-ABEE-2545401AB964} = {EBEB8CA2-EDF7-44D7-8496-306404ED828D}
+		{B70A493E-F91F-42E4-B96C-0349A183AC59} = {17B5795D-03E0-4B3C-9FD8-39E91383E271}
+		{07B22FB3-1497-4854-8915-2F5B16D5C45D} = {95825677-4D42-420E-8126-220CDD2B4D8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {46764455-0D10-4266-9C37-35D7BD67517C}

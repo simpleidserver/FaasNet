@@ -38,7 +38,8 @@ export class StateMachinesService {
     let targetUrl = environment.apiUrl + "/statemachines/empty";
     return this.http.post<{ id: string }>(targetUrl, {
       name: name,
-      description: description
+      description: description,
+      vpn: "default"
     }, { headers: headers });
   }
 

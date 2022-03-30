@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using FaasNet.Domain;
+using FaasNet.StateMachine.IntegrationEvents;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +8,7 @@ using YamlDotNet.Serialization;
 
 namespace FaasNet.StateMachine.Runtime.Domains.Definitions
 {
-    public class StateMachineDefinitionAggregate
+    public class StateMachineDefinitionAggregate : AggregateRoot
     {
         public StateMachineDefinitionAggregate()
         {
@@ -27,14 +29,6 @@ namespace FaasNet.StateMachine.Runtime.Domains.Definitions
         /// Is Last.
         /// </summary>
         public bool IsLast { get; set; }
-        /// <summary>
-        /// Workflow unique identifier.
-        /// </summary>
-        public string Id { get; set; }
-        /// <summary>
-        /// Workflow version.
-        /// </summary>
-        public int Version { get; set; }
         /// <summary>
         /// Worfklow name.
         /// </summary>
@@ -65,12 +59,18 @@ namespace FaasNet.StateMachine.Runtime.Domains.Definitions
         /// Workflow event definitions.
         /// </summary>
         public virtual ICollection<StateMachineDefinitionEvent> Events { get; set; }
+        public string Vpn { get; set; }
+        public string ApplicationDomainId { get; set; }
+        public StateMachineDefinitionStatus Status { get; set; }
+        public override string Topic => "";
 
         #endregion
 
-        public static StateMachineDefinitionAggregate CreateEmpty(string id, string name, string description)
+        #region Create
+
+        public static StateMachineDefinitionAggregate CreateEmpty(string id, string name, string description, string vpn)
         {
-            var result = Create(id, 1, name, description);
+            var result = Create(id, 1, name, description, vpn);
             var stateId = Guid.NewGuid().ToString();
             result.States.Add(new StateMachineDefinitionInjectState
             {
@@ -87,7 +87,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Definitions
             return result;
         }
 
-        public static StateMachineDefinitionAggregate Create(string id, int version, string name, string description)
+        public static StateMachineDefinitionAggregate Create(string id, int version, string name, string description, string vpn)
         {
             var result = new StateMachineDefinitionAggregate
             {
@@ -97,11 +97,40 @@ namespace FaasNet.StateMachine.Runtime.Domains.Definitions
                 Description = description,
                 IsLast = true,
                 UpdateDateTime = DateTime.UtcNow,
-                CreateDateTime = DateTime.UtcNow
+                CreateDateTime = DateTime.UtcNow,
+                Vpn = vpn,
+                Status = StateMachineDefinitionStatus.CREATE
             };
             result.RefreshTechnicalId();
+            result.IntegrationEvents.Add(new StateMachineDefinitionAddedEvent(result.Id, result.Vpn)
+            {
+                CorrelationId = result.Id
+            });
             return result;
         }
+
+        #endregion
+
+        #region Actions
+
+        public void RefreshTechnicalId()
+        {
+            TechnicalId = Guid.NewGuid().ToString();
+            foreach (var state in States)
+            {
+                state.TechnicalId = Guid.NewGuid().ToString();
+            }
+        }
+
+
+        #endregion
+
+        public override void Handle(dynamic evt)
+        {
+
+        }
+
+        #region Get
 
         public StateMachineDefinitionFunction GetFunction(string name)
         {
@@ -123,13 +152,6 @@ namespace FaasNet.StateMachine.Runtime.Domains.Definitions
             return States.First(s => s.Id == Start.StateName);
         }
 
-        public void RefreshTechnicalId()
-        {
-            TechnicalId = Guid.NewGuid().ToString();
-            foreach(var state in States)
-            {
-                state.TechnicalId = Guid.NewGuid().ToString();
-            }
-        }
+        #endregion
     }
 }

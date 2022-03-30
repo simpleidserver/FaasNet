@@ -1,4 +1,7 @@
+using FaasNet.EventMesh.Core.ApplicationDomains;
+using FaasNet.EventMesh.Core.Consumers;
 using FaasNet.EventMesh.Runtime;
+using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +35,14 @@ namespace FaasNet.EventMesh.SqlServer.Startup
                 opt.AccountId = 678128;
                 opt.LicenseKey = "gubXjBR4DMjsdqw3";
                 opt.Host = "geolite.info";
+            }, configureMassTransit: x => {
+                x.AddConsumer<ApplicationDomainConsumer>();
+                x.UsingRabbitMq((c, t) =>
+                {
+                    var connectionString = "amqp://guest:guest@127.0.0.1:5672/";
+                    t.Host(connectionString);
+                    t.ConfigureEndpoints(c);
+                });
             }).UseEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("EventMesh")));
             services.AddControllers().AddNewtonsoftJson(opts =>
             {
@@ -41,6 +52,8 @@ namespace FaasNet.EventMesh.SqlServer.Startup
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var busControl = app.ApplicationServices.GetService<IBusControl>();
+            busControl.Start();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

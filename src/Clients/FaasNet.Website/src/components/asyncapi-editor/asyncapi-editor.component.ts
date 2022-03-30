@@ -295,7 +295,7 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
     }
 
     const data = new ViewAsyncApiData();
-    const consumedLinks = this.links.filter(l => l.endElement && l.endElement.application.id === this.selectedElement?.application.id).map(l => l.applicationLink);
+    const consumedLinks = this.links.filter(l => l.applicationLink && l.applicationLink.target && l.applicationLink.target.id === this.selectedElement?.application.id).map(l => l.applicationLink);
     data.rootTopic = this.rootTopic;
     data.application = this.selectedElement.application;
     data.consumedLinks = consumedLinks;

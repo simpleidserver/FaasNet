@@ -8,6 +8,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.12" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="7.2.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FaasNet.StateMachine.EF\FaasNet.StateMachine.EF.csproj" />
@@ -16,5 +17,8 @@
     <None Update="ServerlessWorkflows\HelloWorld.yml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 </Project>

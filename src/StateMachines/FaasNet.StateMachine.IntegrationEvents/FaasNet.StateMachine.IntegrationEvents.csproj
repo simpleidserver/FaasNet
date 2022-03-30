@@ -3,6 +3,6 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="MassTransit" Version="7.2.4" />
+    <ProjectReference Include="..\..\Common\FaasNet.Domain\FaasNet.Domain.csproj" />
   </ItemGroup>
 </Project>

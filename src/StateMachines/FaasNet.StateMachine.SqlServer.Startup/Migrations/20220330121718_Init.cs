@@ -30,13 +30,17 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                 {
                     TechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     IsLast = table.Column<bool>(type: "bit", nullable: false),
-                    Id = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Version = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Start = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Start = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Vpn = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ApplicationDomainId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Version = table.Column<int>(type: "int", nullable: false),
+                    LastEvtOffset = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

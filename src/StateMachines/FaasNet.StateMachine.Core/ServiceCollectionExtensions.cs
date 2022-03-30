@@ -5,6 +5,7 @@ using FaasNet.StateMachine.Core.Infrastructure;
 using FaasNet.StateMachine.Core.Infrastructure.Handlers;
 using FaasNet.StateMachine.Core.Persistence;
 using FaasNet.StateMachine.Core.Persistence.InMemory;
+using FaasNet.StateMachine.Core.StateMachines;
 using FaasNet.StateMachine.Runtime;
 using FaasNet.StateMachine.Runtime.Domains.Definitions;
 using FaasNet.StateMachine.Runtime.Domains.Instances;
@@ -35,10 +36,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (configureMassTransit == null)
             {
-                var schedulerEdp = new Uri("queue:scheduler");
                 services.AddMassTransit(x =>
                 {
                     x.AddConsumer<CloudEventConsumer>();
+                    x.AddConsumer<StateMachineConsumer>();
                     x.UsingInMemory((context, cfg) =>
                     {
                         cfg.ConfigureEndpoints(context);

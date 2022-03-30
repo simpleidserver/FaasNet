@@ -8,12 +8,18 @@ namespace FaasNet.Domain
         public AggregateRoot()
         {
             DomainEvts = new List<DomainEvent>();
+            IntegrationEvents = new List<IntegrationEvent>();
         }
+
+        #region Properties
 
         public string Id { get; set; }
         public int Version { get; set; }
         public int LastEvtOffset { get; set; }
         public ICollection<DomainEvent> DomainEvts { get; set; }
+        public ICollection<IntegrationEvent> IntegrationEvents { get; set; }
+
+        #endregion
 
         public abstract string Topic { get; }
 

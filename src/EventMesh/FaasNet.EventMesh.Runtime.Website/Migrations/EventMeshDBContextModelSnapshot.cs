@@ -63,6 +63,9 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("LastEvtOffset")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -71,6 +74,9 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
 
                     b.Property<DateTime>("UpdateDateTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
 
                     b.Property<string>("Vpn")
                         .HasColumnType("nvarchar(max)");
