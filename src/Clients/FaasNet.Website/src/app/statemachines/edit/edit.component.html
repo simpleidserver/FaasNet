@@ -16,7 +16,7 @@
   </ul>
   <div class="spacer"></div>
   <ul class="navigation">
-    <li [class.active]="action == 'asyncapi'"><a [routerLink]="['/statemachines/' + id + '/asyncapi']" matTooltip="Edit ASYNCAPI"><img src="/assets/images/asyncapi.svg" /></a></li>
+    <li [class.active]="action == 'asyncapi'" *ngIf="stateMachineDef.applicationDomainId"><a [routerLink]="['/statemachines/' + id + '/asyncapi']" matTooltip="Edit ASYNCAPI"><img src="/assets/images/asyncapi.svg" /></a></li>
     <li [class.active]="action == 'functions'"><a [routerLink]="['/statemachines/' + id + '/functions']" matTooltip="Edit the functions"><mat-icon>functions</mat-icon></a></li>
     <li [class.active]="action == 'yaml'"><a [routerLink]="['/statemachines/' + id + '/yaml']" matTooltip="Display YAML"><mat-icon>insert_drive_file</mat-icon></a></li>
     <li [class.active]="action == 'json'"><a [routerLink]="['/statemachines/' + id + '/json']" matTooltip="Display JSON"><img src="/assets/images/json.png" /></a></li>

@@ -47,7 +47,7 @@ export class StateMachineModel {
   description: string | undefined;
   version: string | undefined;
   specVersion: string | undefined;
-  applicationDomainId: string = "";
+  applicationDomainId: string | undefined;
   vpn: string = "";
   start: StartStateMachineModel | undefined;
   states: StateMachineState[];
@@ -114,6 +114,8 @@ export class StateMachineModel {
   public static build(json: any) : StateMachineModel {
     var result = new StateMachineModel();
     result.id = json["id"];
+    result.applicationDomainId = json["applicationDomainId"];
+    result.vpn = json["vpn"];
     result.name = json["name"];
     result.description = json["description"];
     result.version = json["version"];

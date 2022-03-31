@@ -1,16 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { startGetAppDomain } from '@stores/applicationdomains/actions/applicationdomains.actions';
-import * as fromReducers from '@stores/appstate';
-import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
-import { filter } from 'rxjs/operators';
 import { AppDomainResult } from '@stores/applicationdomains/models/appdomain.model';
 import { ApplicationResult } from '@stores/applicationdomains/models/application.model';
-import { MessageDefinitionResult } from '@stores/messagedefinitions/models/messagedefinition.model';
+import * as fromReducers from '@stores/appstate';
 import { getLatestMessages } from '@stores/messagedefinitions/actions/messagedefs.actions';
+import { MessageDefinitionResult } from '@stores/messagedefinitions/models/messagedefinition.model';
+import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'asyncapieditor-statemachine',
@@ -30,7 +29,7 @@ export class AsyncApiEditorComponent implements OnInit {
   }
   set stateMachine(value: StateMachineModel) {
     this._stateMachineModel = value;
-    if (value) {
+    if (value && value.id && value.applicationDomainId) {
       this.appDomainId = value.applicationDomainId;
       this.vpnName = value.vpn;
       this.refresh();
@@ -39,7 +38,6 @@ export class AsyncApiEditorComponent implements OnInit {
 
   constructor(
     private store: Store<fromReducers.AppState>,
-    private dialog: MatDialog,
     private actions$: ScannedActionsSubject,
     private snackBar: MatSnackBar,
     private translateService: TranslateService) {
@@ -78,6 +76,10 @@ export class AsyncApiEditorComponent implements OnInit {
   }
 
   private refresh() {
+    if (!this._stateMachineModel.applicationDomainId) {
+      return;
+    }
+
     const getMessages = getLatestMessages({ appDomainId: this._stateMachineModel.applicationDomainId });
     const act = startGetAppDomain({ id: this._stateMachineModel.applicationDomainId });
     this.store.dispatch(act);
