@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
@@ -27,7 +27,7 @@ export class ViewStateMachineInstanceComponent implements OnInit, OnDestroy {
     private actions$: ScannedActionsSubject,
     private translateService: TranslateService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog) {
+    private router: Router) {
   }
 
   ngOnInit() {

@@ -1,5 +1,4 @@
 ﻿using FaasNet.Domain;
-using FaasNet.EventMesh.IntegrationEvents;
 using System;
 using System.Collections.Generic;
 
@@ -26,7 +25,7 @@ namespace FaasNet.EventMesh.Runtime.Models
 
         #endregion
 
-        public static ApplicationDomain Create(string vpn, string name, string description, string rootTopic, string correlationId)
+        public static ApplicationDomain Create(string vpn, string name, string description, string rootTopic)
         {
             var result = new ApplicationDomain
             {
@@ -34,12 +33,10 @@ namespace FaasNet.EventMesh.Runtime.Models
                 Vpn = vpn,
                 Name = name,
                 Description = description,
-                RootTopic = rootTopic
+                RootTopic = rootTopic,
+                CreateDateTime = DateTime.UtcNow,
+                UpdateDateTime = DateTime.UtcNow
             };
-            result.IntegrationEvents.Add(new ApplicationDomainAddedEvent(result.Id)
-            {
-                CorrelationId = correlationId
-            });
             return result;
         }
 

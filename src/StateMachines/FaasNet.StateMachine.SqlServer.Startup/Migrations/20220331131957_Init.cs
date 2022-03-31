@@ -52,6 +52,7 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Vpn = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     WorkflowDefTechnicalId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     WorkflowDefId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     WorkflowDefName = table.Column<string>(type: "nvarchar(max)", nullable: true),

@@ -2,10 +2,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@envs/environment';
 import { Observable } from 'rxjs';
+import { Document } from 'yaml';
 import { SearchResult } from '../../common/search.model';
 import { StateMachine } from '../models/statemachine.model';
-import { StateMachineModel } from '../models/statemachinemodel.model';
-import { Document } from 'yaml';
 import { StateMachineAdded } from '../models/statemachineadded.model';
 
 @Injectable()
@@ -13,7 +12,7 @@ export class StateMachinesService {
   constructor(
     private http: HttpClient) { }
 
-  search(startIndex: number, count: number, order: string, direction: string): Observable<SearchResult<StateMachine>> {
+  search(startIndex: number, count: number, order: string, direction: string, vpn: string): Observable<SearchResult<StateMachine>> {
     let headers = new HttpHeaders();
     headers = headers.set('Accept', 'application/json');
     let targetUrl = environment.apiUrl + "/statemachines/.search";
@@ -21,7 +20,8 @@ export class StateMachinesService {
       startIndex: startIndex,
       count: count,
       orderBy: order,
-      order: direction
+      order: direction,
+      vpn: vpn
     }, { headers: headers });
   }
 
@@ -32,14 +32,14 @@ export class StateMachinesService {
     return this.http.get<any>(targetUrl);
   }
 
-  addEmpty(name: string, description: string): Observable<{ id: string }> {
+  addEmpty(name: string, description: string, vpn: string): Observable<{ id: string }> {
     let headers = new HttpHeaders();
     headers = headers.set('Accept', 'application/json');
     let targetUrl = environment.apiUrl + "/statemachines/empty";
     return this.http.post<{ id: string }>(targetUrl, {
       name: name,
       description: description,
-      vpn: "default"
+      vpn: vpn
     }, { headers: headers });
   }
 

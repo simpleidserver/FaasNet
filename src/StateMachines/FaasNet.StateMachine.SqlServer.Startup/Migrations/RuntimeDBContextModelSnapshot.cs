@@ -268,6 +268,9 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<string>("Vpn")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("WorkflowDefDescription")
                         .HasColumnType("nvarchar(max)");
 

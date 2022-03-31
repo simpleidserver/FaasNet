@@ -52,7 +52,7 @@ namespace FaasNet.StateMachine.Core
 
         public StateMachineInstanceAggregate Instanciate(StateMachineDefinitionAggregate workflowDefinitionAggregate)
         {
-            var result = StateMachineInstanceAggregate.Create(workflowDefinitionAggregate.TechnicalId, workflowDefinitionAggregate.Id, workflowDefinitionAggregate.Name, workflowDefinitionAggregate.Description, workflowDefinitionAggregate.Version);
+            var result = StateMachineInstanceAggregate.Create(workflowDefinitionAggregate.TechnicalId, workflowDefinitionAggregate.Id, workflowDefinitionAggregate.Name, workflowDefinitionAggregate.Description, workflowDefinitionAggregate.Version, workflowDefinitionAggregate.Vpn);
             var dic = new Dictionary<string, string>();
             foreach (var state in workflowDefinitionAggregate.States)
             {

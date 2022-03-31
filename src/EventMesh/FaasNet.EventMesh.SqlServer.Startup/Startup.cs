@@ -36,7 +36,7 @@ namespace FaasNet.EventMesh.SqlServer.Startup
                 opt.LicenseKey = "gubXjBR4DMjsdqw3";
                 opt.Host = "geolite.info";
             }, configureMassTransit: x => {
-                x.AddConsumer<ApplicationDomainConsumer>();
+                x.AddConsumer<StateMachineDefinitionConsumer>();
                 x.UsingRabbitMq((c, t) =>
                 {
                     var connectionString = "amqp://guest:guest@127.0.0.1:5672/";

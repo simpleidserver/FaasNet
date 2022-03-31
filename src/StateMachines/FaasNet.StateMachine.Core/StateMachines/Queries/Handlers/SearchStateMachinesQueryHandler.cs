@@ -30,7 +30,7 @@ namespace FaasNet.StateMachine.Core.StateMachines.Queries.Handlers
 
         public Task<BaseSearchResult<StateMachineResult>> Handle(SearchStateMachinesQuery request, CancellationToken cancellationToken)
         {
-            var query = _stateMachineDefinitionRepository.Query();
+            var query = _stateMachineDefinitionRepository.Query().Where(d => d.Vpn == request.Vpn);
             if (MAPPING_STATEMACHINE_TO_PROPERTYNAME.ContainsKey(request.OrderBy))
             {
                 query = query.InvokeOrderBy(MAPPING_STATEMACHINE_TO_PROPERTYNAME[request.OrderBy], request.Order);

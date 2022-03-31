@@ -40,6 +40,7 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
             var result = await _dbContext.ApplicationDomains
                 .Include(a => a.Applications).ThenInclude(a => a.Links)
                 .Where(a => a.Vpn == vpn)
+                .OrderByDescending(a => a.UpdateDateTime)
                 .ToListAsync(cancellationToken);
             EventMeshDBContext.SemaphoreSlim.Release();
             return result;

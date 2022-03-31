@@ -16,8 +16,8 @@ export class StateMachineInstancesEffects {
   searchStateMachineInstances$ = this.actions$
     .pipe(
       ofType(startSearch),
-      mergeMap((evt: { order: string, direction: string, count: number, startIndex: number }) => {
-        return this.stateMachineInstancesService.search(evt.startIndex, evt.count, evt.order, evt.direction)
+      mergeMap((evt: { order: string, direction: string, count: number, startIndex: number, vpn: string }) => {
+        return this.stateMachineInstancesService.search(evt.startIndex, evt.count, evt.order, evt.direction, evt.vpn)
           .pipe(
             map(content => completeSearch({ content: content })),
             catchError(() => of(errorSearch()))

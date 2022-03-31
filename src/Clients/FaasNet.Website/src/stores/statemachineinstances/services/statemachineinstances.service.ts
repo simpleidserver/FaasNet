@@ -11,7 +11,7 @@ export class StateMachineInstancesService {
   constructor(
     private http: HttpClient) { }
 
-  search(startIndex: number, count: number, order: string, direction: string): Observable<SearchResult<StateMachineInstance>> {
+  search(startIndex: number, count: number, order: string, direction: string, vpn: string): Observable<SearchResult<StateMachineInstance>> {
     let headers = new HttpHeaders();
     headers = headers.set('Accept', 'application/json');
     let targetUrl = environment.apiUrl + "/statemachineinstances/.search";
@@ -19,7 +19,8 @@ export class StateMachineInstancesService {
       startIndex: startIndex,
       count: count,
       orderBy: order,
-      order: direction
+      order: direction,
+      vpn: vpn
     }, { headers: headers });
   }
 

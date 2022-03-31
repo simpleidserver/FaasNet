@@ -17,8 +17,8 @@ export class StateMachineEffects {
   searchStateMachines = this.actions$
     .pipe(
       ofType(startSearch),
-      mergeMap((evt: { order: string, direction: string, count: number, startIndex: number }) => {
-        return this.stateMachinesService.search(evt.startIndex, evt.count, evt.order, evt.direction)
+      mergeMap((evt: { order: string, direction: string, count: number, startIndex: number, vpn: string }) => {
+        return this.stateMachinesService.search(evt.startIndex, evt.count, evt.order, evt.direction, evt.vpn)
           .pipe(
             map(content => completeSearch({ content: content })),
             catchError(() => of(errorSearch()))
@@ -45,8 +45,8 @@ export class StateMachineEffects {
   addEmptyStateMachine = this.actions$
     .pipe(
       ofType(startAddEmpty),
-      mergeMap((evt: { name: string, description: string }) => {
-        return this.stateMachinesService.addEmpty(evt.name, evt.description)
+      mergeMap((evt: { name: string, description: string, vpn: string }) => {
+        return this.stateMachinesService.addEmpty(evt.name, evt.description, evt.vpn)
           .pipe(
             map(content => completeAddEmpty({ id: content.id })),
             catchError(() => of(errorAddEmpty()))

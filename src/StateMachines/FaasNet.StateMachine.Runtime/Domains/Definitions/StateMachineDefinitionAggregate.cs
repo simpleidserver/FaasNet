@@ -102,7 +102,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Definitions
                 Status = StateMachineDefinitionStatus.CREATE
             };
             result.RefreshTechnicalId();
-            result.IntegrationEvents.Add(new StateMachineDefinitionAddedEvent(result.Id, result.Vpn)
+            result.IntegrationEvents.Add(new StateMachineDefinitionAddedEvent(result.Id, result.Name, result.Description, result.Vpn)
             {
                 CorrelationId = result.Id
             });

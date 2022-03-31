@@ -16,6 +16,7 @@ import { merge } from 'rxjs';
   templateUrl: './list.component.html'
 })
 export class ListStateMachineInstanceComponent implements OnInit {
+  activeVpn: string = "";
   displayedColumns: string[] = ['workflowDefName', 'workflowDefDescription', 'workflowDefVersion', 'status', 'createDateTime'];
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
   @ViewChild(MatSort) sort: MatSort | undefined;
@@ -37,6 +38,14 @@ export class ListStateMachineInstanceComponent implements OnInit {
 
       this.stateMachineInstances = state.content;
       this.length = state.totalLength;
+    });
+    this.store.pipe(select(fromReducers.selectActiveVpnResult)).subscribe((vpn: string | null) => {
+      if (!vpn) {
+        return;
+      }
+
+      this.activeVpn = vpn;
+      this.refresh();
     });
   }
 
@@ -74,7 +83,7 @@ export class ListStateMachineInstanceComponent implements OnInit {
       direction = this.sort.direction;
     }
 
-    let request = startSearch({ order: active, direction, count, startIndex });
+    let request = startSearch({ order: active, direction, count, startIndex, vpn: this.activeVpn });
     this.store.dispatch(request);
   }
 }

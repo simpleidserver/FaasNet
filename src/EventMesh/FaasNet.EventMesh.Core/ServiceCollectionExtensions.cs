@@ -31,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.AddMassTransit(x =>
                 {
-                    x.AddConsumer<ApplicationDomainConsumer>();
+                    x.AddConsumer<StateMachineDefinitionConsumer>();
                     x.UsingInMemory((context, cfg) =>
                     {
                         cfg.ConfigureEndpoints(context);

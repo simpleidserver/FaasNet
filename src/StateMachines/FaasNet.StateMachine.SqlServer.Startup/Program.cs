@@ -30,6 +30,7 @@ namespace FaasNet.StateMachine.SqlServer.Startup
                             workflowDef.RefreshTechnicalId();
                             workflowDef.CreateDateTime = DateTime.UtcNow;
                             workflowDef.UpdateDateTime = DateTime.UtcNow;
+                            workflowDef.Vpn = "default";
                             workflowDef.IsLast = true;
                             context.WorkflowDefinitions.Add(workflowDef);
                         }

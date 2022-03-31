@@ -2,12 +2,16 @@ import { Action, createReducer, on } from '@ngrx/store';
 import * as fromActions from '../actions/vpn.actions';
 import { VpnResult } from '../models/vpn.model';
 
+const selectedVpnName : string = "selectedVpn";
+const selectedVpn = sessionStorage.getItem(selectedVpnName);
+
 export interface VpnLstState {
   VpnLst: VpnResult[];
 }
 
 export interface VpnState {
   Vpn: VpnResult | null;
+  selectedVpn: string | null;
 }
 
 export const initialVpnLstState: VpnLstState = {
@@ -15,7 +19,8 @@ export const initialVpnLstState: VpnLstState = {
 };
 
 export const initialVpnState: VpnState = {
-  Vpn: null
+  Vpn: null,
+  selectedVpn: selectedVpn
 }
 
 const vpnLstReducer = createReducer(
@@ -56,7 +61,14 @@ const vpnReducer = createReducer(
       ...state,
       Vpn: { ...content }
     };
-  })
+  }),
+  on(fromActions.selectVpn, (state, { name }) => {
+    sessionStorage.setItem(selectedVpnName, name);
+    return {
+      ...state,
+      selectedVpn: name
+    };
+  }),
 );
 
 export function getVpnLstReducer(state: VpnLstState | undefined, action: Action) {

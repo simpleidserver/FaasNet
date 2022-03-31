@@ -18,6 +18,7 @@ import { AddStateMachineComponent } from './add-statemachine.component';
   templateUrl: './list.component.html'
 })
 export class ListStateMachinesComponent implements OnInit {
+  activeVpn: string = "";
   displayedColumns: string[] = ['name', 'description', 'version', 'createDateTime', 'updateDateTime'];
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
   @ViewChild(MatSort) sort: MatSort | undefined;
@@ -55,6 +56,14 @@ export class ListStateMachinesComponent implements OnInit {
       this.stateMachines = state.content;
       this.length = state.totalLength;
     });
+    this.store.pipe(select(fromReducers.selectActiveVpnResult)).subscribe((vpn: string | null) => {
+      if (!vpn) {
+        return;
+      }
+
+      this.activeVpn = vpn;
+      this.refresh();
+    });
   }
 
   ngAfterViewInit() {
@@ -76,7 +85,7 @@ export class ListStateMachinesComponent implements OnInit {
         return;
       }
 
-      const addStateMachine = startAddEmpty({ name: opt.name, description: opt.description });
+      const addStateMachine = startAddEmpty({ name: opt.name, description: opt.description, vpn: this.activeVpn });
       this.store.dispatch(addStateMachine);
     });
   }
@@ -106,7 +115,7 @@ export class ListStateMachinesComponent implements OnInit {
       direction = this.sort.direction;
     }
 
-    let request = startSearch({ order: active, direction, count, startIndex });
+    let request = startSearch({ order: active, direction, count, startIndex, vpn: this.activeVpn });
     this.store.dispatch(request);
   }
 }

@@ -13,3 +13,4 @@ export const errorDeleteVpn = createAction('[VPN] ERROR_DELETE_VPN');
 export const startGetVpn = createAction('[VPN] START_GET', props<{ name: string }>());
 export const completeGetVpn = createAction('[VPN] COMPLETE_GET', props<{ content: VpnResult }>());
 export const errorGetVpn = createAction('[VPN] ERROR_GET');
+export const selectVpn = createAction('[VPN] SELECT_VPN', props<{ name: string }>());

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
 {
     [DbContext(typeof(RuntimeDBContext))]
-    [Migration("20220330121718_Init")]
+    [Migration("20220331131957_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -269,6 +269,9 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<string>("Vpn")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("WorkflowDefDescription")
                         .HasColumnType("nvarchar(max)");

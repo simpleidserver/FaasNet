@@ -13,5 +13,7 @@ namespace FaasNet.StateMachine.Core.StateMachines.Queries
             StartIndex = 0;
             Count = 100;
         }
+
+        public string Vpn { get; set; }
     }
 }

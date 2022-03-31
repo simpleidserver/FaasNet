@@ -230,6 +230,17 @@ export const selectVpnResult = createSelector(
   }
 );
 
+export const selectActiveVpnResult = createSelector(
+  selectVpn,
+  (state: fromVpns.VpnState) => {
+    if (!state || !state.selectedVpn) {
+      return null;
+    }
+
+    return state.selectedVpn;
+  }
+);
+
 export const selectClientsResult = createSelector(
   selectClients,
   (state: fromClients.ClientLstState) => {

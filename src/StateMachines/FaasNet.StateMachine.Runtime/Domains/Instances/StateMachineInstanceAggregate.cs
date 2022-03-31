@@ -20,6 +20,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         #region Properties
 
         public string Id { get; set; }
+        public string Vpn { get; set; }
         public string WorkflowDefTechnicalId { get; set; }
         public string WorkflowDefId { get; set; }
         public string WorkflowDefName { get; set; }
@@ -194,7 +195,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         #endregion
 
-        public static StateMachineInstanceAggregate Create(string workflowDefTechnicalId, string workflowDefId, string workflowDefName, string workflowDefDescription, int workflowDefVersion)
+        public static StateMachineInstanceAggregate Create(string workflowDefTechnicalId, string workflowDefId, string workflowDefName, string workflowDefDescription, int workflowDefVersion, string vpn)
         {
             return new StateMachineInstanceAggregate
             {
@@ -205,7 +206,8 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
                 WorkflowDefDescription = workflowDefDescription,
                 WorkflowDefId = workflowDefId,
                 WorkflowDefVersion = workflowDefVersion,
-                Status = StateMachineInstanceStatus.ACTIVE
+                Status = StateMachineInstanceStatus.ACTIVE,
+                Vpn = vpn
             };
         }
 
@@ -222,6 +224,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
                 WorkflowDefId = WorkflowDefId,
                 WorkflowDefName = WorkflowDefName,
                 WorkflowDefDescription = WorkflowDefDescription,
+                Vpn = Vpn,
                 States = States.Select(s => (StateMachineInstanceState)s.Clone()).ToList()
             };
         }
