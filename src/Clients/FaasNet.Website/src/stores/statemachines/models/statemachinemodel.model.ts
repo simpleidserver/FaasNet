@@ -47,6 +47,8 @@ export class StateMachineModel {
   description: string | undefined;
   version: string | undefined;
   specVersion: string | undefined;
+  applicationDomainId: string = "";
+  vpn: string = "";
   start: StartStateMachineModel | undefined;
   states: StateMachineState[];
   functions: StateMachineFunction[];

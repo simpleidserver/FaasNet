@@ -10,6 +10,8 @@ namespace FaasNet.StateMachine.Core.StateMachines.Results
         public int Version { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string Vpn { get; set; }
+        public string ApplicationDomainId { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
 
@@ -24,7 +26,9 @@ namespace FaasNet.StateMachine.Core.StateMachines.Results
                 Description = workflowDefinition.Description,
                 Name = workflowDefinition.Name,
                 UpdateDateTime = workflowDefinition.UpdateDateTime,
-                Version = workflowDefinition.Version
+                Version = workflowDefinition.Version,
+                ApplicationDomainId = workflowDefinition.ApplicationDomainId,
+                Vpn = workflowDefinition.Vpn
             };
         }
     }
