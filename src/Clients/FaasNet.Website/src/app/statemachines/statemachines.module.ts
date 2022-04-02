@@ -11,6 +11,7 @@ import { EditFunctionDialogComponent } from "./edit/functionseditor/editfunction
 import { FunctionsEditorComponent } from "./edit/functionseditor/functionseditor.component";
 import { JsonComponent } from "./edit/json/json.component";
 import { LaunchStateMachineComponent } from "./edit/launch/launch-statemachine.component";
+import { MessagesEditorComponent } from "./edit/messages/messageseditor.component";
 import { YamlComponent } from "./edit/yaml/yaml.component";
 import { AddStateMachineComponent } from "./list/add-statemachine.component";
 import { ListStateMachinesComponent } from "./list/list.component";
@@ -35,7 +36,8 @@ import { StateMachinesRoutes } from "./statemachines.routes";
     YamlComponent,
     FunctionsEditorComponent,
     EditFunctionDialogComponent,
-    AsyncApiEditorComponent
+    AsyncApiEditorComponent,
+    MessagesEditorComponent
   ],
   entryComponents: [
     AddStateMachineComponent,

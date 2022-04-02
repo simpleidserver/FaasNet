@@ -29,5 +29,6 @@
   <display-state-machine-json [stateMachine]="stateMachineDef" *ngIf="action === 'json'"></display-state-machine-json>
   <display-state-machine-yaml [stateMachine]="stateMachineDef" *ngIf="action === 'yaml'"></display-state-machine-yaml>
   <edit-functions-statemachine [stateMachine]="stateMachineDef" *ngIf="action === 'functions'"></edit-functions-statemachine>
-  <asyncapieditor-statemachine [stateMachine]="stateMachineDef" [style.visibility]="action == 'asyncapi' ? 'visible': 'hidden'"></asyncapieditor-statemachine>
+  <messageseditor-statemachine *ngIf="action === ''"></messageseditor-statemachine>
+  <asyncapieditor-statemachine #asyncApiEditor [stateMachine]="stateMachineDef" [style.visibility]="action == 'asyncapi' ? 'visible': 'hidden'"></asyncapieditor-statemachine>
 </div>

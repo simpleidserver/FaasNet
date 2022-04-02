@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
-import { startGetAppDomain } from '@stores/applicationdomains/actions/applicationdomains.actions';
+import { startGetAppDomain, updateApplicationDomain } from '@stores/applicationdomains/actions/applicationdomains.actions';
 import { AppDomainResult } from '@stores/applicationdomains/models/appdomain.model';
 import { ApplicationResult } from '@stores/applicationdomains/models/application.model';
 import * as fromReducers from '@stores/appstate';
@@ -73,6 +73,11 @@ export class AsyncApiEditorComponent implements OnInit {
 
       this.messages = state;
     });
+  }
+
+  public update() : void {
+    const act = updateApplicationDomain({ id: this.appDomainId, applications: this.applications });
+    this.store.dispatch(act);
   }
 
   private refresh() {

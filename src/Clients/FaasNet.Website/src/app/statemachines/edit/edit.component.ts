@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,6 +8,7 @@ import * as fromReducers from '@stores/appstate';
 import { startGetJson, startLaunch, startUpdate } from '@stores/statemachines/actions/statemachines.actions';
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { filter } from 'rxjs/operators';
+import { AsyncApiEditorComponent } from './asyncapi/asyncapieditor.component';
 import { LaunchStateMachineComponent } from './launch/launch-statemachine.component';
 
 @Component({
@@ -21,6 +22,7 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
   id: string = "";
   action: string = "";
   routeSubscription: any;
+  @ViewChild("asyncApiEditor") asyncApiEditor: AsyncApiEditorComponent | null = null;
 
   constructor(
     private store: Store<fromReducers.AppState>,
@@ -99,6 +101,11 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
   }
 
   update() {
+    if (this.action === "asyncapi" && this.asyncApiEditor) {
+      this.asyncApiEditor.update();
+      return;
+    }
+
     this.isLoading = true;
     const command = startUpdate({ id : this.id, stateMachine: this.stateMachineDef.getJson() });
     this.store.dispatch(command);
