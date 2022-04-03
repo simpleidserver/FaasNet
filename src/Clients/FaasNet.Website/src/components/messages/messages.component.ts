@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute } from '@angular/router';
 import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
@@ -16,14 +15,26 @@ import { AddMessageDefComponent } from './add-message.component';
   styleUrls: ['./messages.component.scss']
 })
 export class MessagesVpnComponent implements OnInit {
+  private _vpnName: string = "";
+  private _appDomainId: string = "";
   messages: MessageDefinitionResult[] = [];
-  vpnName: string = "";
-  appDomainId: string = "";
   displayedColumns: string[] = ['actions', 'name', 'description', 'version', 'createDateTime', 'updateDateTime'];
+
+  @Input()
+  get appDomainId() {
+    return this._appDomainId;
+  }
+  set appDomainId(value: string | undefined) {
+    if (!value) {
+      return;
+    }
+
+    this._appDomainId = value;
+    this.refresh();
+  }
 
   constructor(
     private store: Store<fromReducers.AppState>,
-    private activatedRoute: ActivatedRoute,
     private dialog: MatDialog,
     private actions$: ScannedActionsSubject,
     private snackBar: MatSnackBar,
@@ -79,7 +90,6 @@ export class MessagesVpnComponent implements OnInit {
 
       this.messages = state;
     });
-    this.refresh();
   }
 
   publishMessage(message: MessageDefinitionResult) {
@@ -107,7 +117,7 @@ export class MessagesVpnComponent implements OnInit {
       width: '800px'
     });
     dialogRef.afterClosed().subscribe((e) => {
-      if (!e) {
+      if (!e || !this.appDomainId) {
         return;
       }
 
@@ -117,9 +127,11 @@ export class MessagesVpnComponent implements OnInit {
   }
 
   private refresh() {
-    this.vpnName = this.activatedRoute.parent?.snapshot.params['vpnName'];
-    this.appDomainId = this.activatedRoute.parent?.snapshot.params['appDomainId'];
-    const act = getLatestMessages({ appDomainId: this.appDomainId});
+    if (!this.appDomainId) {
+      return;
+    }
+
+    const act = getLatestMessages({ appDomainId: this.appDomainId });
     this.store.dispatch(act);
   }
 }

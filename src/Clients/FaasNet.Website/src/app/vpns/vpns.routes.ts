@@ -2,7 +2,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ListVpnComponent } from './list/list.component';
 import { AppDomainsVpnComponent } from './view/appdomains/appdomains.component';
 import { EditorDomainComponent } from './view/appdomains/view/editor/editor.component';
-import { MessagesVpnComponent } from './view/appdomains/view/messages/messages.component';
+import { AppDomainMessagesEditorComponent } from './view/appdomains/view/messages/messageseditor.component';
 import { ViewVpnAppDomainComponent } from './view/appdomains/view/view.component';
 import { ClientsVpnComponent } from './view/clients/clients.component';
 import { ViewVpnClientSessionsComponent } from './view/clients/view/sessions/sessions.component';
@@ -38,7 +38,7 @@ const routes: Routes = [
       },
       {
         path: 'messages',
-        component: MessagesVpnComponent
+        component: AppDomainMessagesEditorComponent
       },
       {
         path: 'editor',

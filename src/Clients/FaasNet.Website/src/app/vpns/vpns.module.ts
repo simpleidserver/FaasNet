@@ -3,14 +3,14 @@ import { MaterialModule } from "@app/shared/material.module";
 import { SharedModule } from "@app/shared/shared.module";
 import { AsyncApiEditorModule } from "../../components/asyncapi-editor/asyncapieditormodule";
 import { LoaderModule } from "../../components/loader/loader.module";
+import { MessagesModule } from "../../components/messages/messagesmodule";
 import { MonacoEditorModule } from "../../components/monaco-editor/editor.module";
 import { AddVpnComponent } from "./list/add-vpn.component";
 import { ListVpnComponent } from "./list/list.component";
 import { AddAppDomainComponent } from "./view/appdomains/add-appdomain.component";
 import { AppDomainsVpnComponent } from "./view/appdomains/appdomains.component";
 import { EditorDomainComponent } from "./view/appdomains/view/editor/editor.component";
-import { AddMessageDefComponent } from "./view/appdomains/view/messages/add-message.component";
-import { MessagesVpnComponent } from "./view/appdomains/view/messages/messages.component";
+import { AppDomainMessagesEditorComponent } from "./view/appdomains/view/messages/messageseditor.component";
 import { ViewVpnAppDomainComponent } from "./view/appdomains/view/view.component";
 import { AddClientComponent } from "./view/clients/add-client.component";
 import { ClientsVpnComponent } from "./view/clients/clients.component";
@@ -27,7 +27,8 @@ import { VpnsRoutes } from "./vpns.routes";
     SharedModule,
     VpnsRoutes,
     LoaderModule,
-    AsyncApiEditorModule
+    AsyncApiEditorModule,
+    MessagesModule
   ],
   declarations: [
     ListVpnComponent,
@@ -41,15 +42,13 @@ import { VpnsRoutes } from "./vpns.routes";
     AppDomainsVpnComponent,
     AddAppDomainComponent,
     ViewVpnAppDomainComponent,
-    MessagesVpnComponent,
-    AddMessageDefComponent,
-    EditorDomainComponent
+    EditorDomainComponent,
+    AppDomainMessagesEditorComponent
   ],
   entryComponents: [
     AddVpnComponent,
     AddClientComponent,
-    AddAppDomainComponent,
-    AddMessageDefComponent
+    AddAppDomainComponent
   ]
 })
 

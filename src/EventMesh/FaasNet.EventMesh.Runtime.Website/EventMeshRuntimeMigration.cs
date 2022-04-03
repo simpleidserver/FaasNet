@@ -11,7 +11,7 @@ namespace FaasNet.EventMesh.Runtime.Website
         {
             var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
             var builder = new DbContextOptionsBuilder<EventMeshDBContext>();
-            builder.UseSqlServer("Data Source=DESKTOP-F641MIJ\\SQLEXPRESS;Initial Catalog=EventMesh;Integrated Security=True", optionsBuilder => optionsBuilder.MigrationsAssembly(migrationsAssembly));
+            builder.UseSqlServer("Data Source=THABART;Initial Catalog=EventMesh;Integrated Security=True", optionsBuilder => optionsBuilder.MigrationsAssembly(migrationsAssembly));
             return new EventMeshDBContext(builder.Options);
         }
     }

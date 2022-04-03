@@ -11,7 +11,7 @@ namespace FaasNet.StateMachine.SqlServer.Startup
         {
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
             var builder = new DbContextOptionsBuilder<RuntimeDBContext>();
-            builder.UseSqlServer("Data Source=DESKTOP-F641MIJ\\SQLEXPRESS;Initial Catalog=Runtime;Integrated Security=True",
+            builder.UseSqlServer("Data Source=THABART;Initial Catalog=Runtime;Integrated Security=True",
                 optionsBuilder => optionsBuilder.MigrationsAssembly(migrationsAssembly));
             return new RuntimeDBContext(builder.Options);
         }
