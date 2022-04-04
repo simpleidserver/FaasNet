@@ -27,7 +27,7 @@ namespace FaasNet.EventMesh.Runtime.Stores
 
         public Task<IEnumerable<MessageDefinition>> GetLatestMessages(string applicationDomainId, CancellationToken cancellationToken)
         {
-            var result = _messageDefinitions.OrderByDescending(m => m.Version).GroupBy(m => m.Name).Select(m => m.First());
+            var result = _messageDefinitions.Where(m => m.ApplicationDomainId == applicationDomainId).OrderByDescending(m => m.Version).GroupBy(m => m.Name).Select(m => m.First());
             return Task.FromResult(result);
         }
 

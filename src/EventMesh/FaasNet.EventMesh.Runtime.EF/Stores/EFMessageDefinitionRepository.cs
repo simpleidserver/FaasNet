@@ -32,7 +32,7 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
             await EventMeshDBContext.SemaphoreSlim.WaitAsync();
             var messages = await _dbContext.MessageDefinitionLst.OrderByDescending(m => m.Version).Where(m => m.ApplicationDomainId == applicationDomainId).ToListAsync(cancellationToken);
             EventMeshDBContext.SemaphoreSlim.Release();
-            return messages.GroupBy(m => m.ApplicationDomainId).Select(m => m.First());
+            return messages.GroupBy(m => m.Name).Select(m => m.First()).OrderByDescending(m => m.UpdateDateTime);
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)

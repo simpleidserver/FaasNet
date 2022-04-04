@@ -99,7 +99,7 @@ export class MessagesVpnComponent implements OnInit {
 
   editMessage(message: MessageDefinitionResult) {
     const dialogRef = this.dialog.open(AddMessageDefComponent, {
-      width: '800px',
+      width: '1200px',
       data: message
     });
     dialogRef.afterClosed().subscribe((e) => {
@@ -114,7 +114,7 @@ export class MessagesVpnComponent implements OnInit {
 
   addMessage() {
     const dialogRef = this.dialog.open(AddMessageDefComponent, {
-      width: '800px'
+      width: '1200px'
     });
     dialogRef.afterClosed().subscribe((e) => {
       if (!e || !this.appDomainId) {

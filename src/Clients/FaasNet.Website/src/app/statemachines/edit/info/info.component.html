@@ -1,22 +1,45 @@
 <div class="container">
   <mat-card>
-    <mat-card-content>
-      <div class="">
+    <mat-card-content [formGroup]="stateMachineFormGroup">
+      <div>
+        <div *ngIf="applicationDomainId" class="form-control">
+          State machine is linked to this <a [routerLink]="['/vpns/' + vpn + '/appdomains/' + applicationDomainId ]">application domain</a>
+        </div>
+        <mat-divider></mat-divider>
+        <div *ngIf="vpn" class="form-control">
+          State machine is linked to this <a [routerLink]="['/vpns/' + vpn]">VPN</a>
+        </div>
+        <mat-divider></mat-divider>
+        <!-- Identifier -->
+        <div class="form-control">
+          <div class="title">Identifier</div>
+          <input type="text" formControlName="id" class="full-width" />
+        </div>
+        <!-- Version -->
+        <div class="form-control">
+          <div class="title">Version</div>
+          <input type="text" formControlName="version" class="full-width" />
+        </div>
+        <mat-divider></mat-divider>
         <!-- Name -->
         <div class="form-control">
           <div class="title">Name</div>
-          <div class="description">Name</div>
           <input type="text" formControlName="name" class="full-width" />
+          <mat-error *ngIf="stateMachineFormGroup.get('name')?.hasError('required')">
+            {{ 'stateMachines.validations.nameRequired' | translate }}
+          </mat-error>
         </div>
         <mat-divider></mat-divider>
         <!-- Description -->
         <div class="form-control">
           <div class="title">Description</div>
-          <div class="description">Description</div>
           <textarea class="full-width" formControlName="description"></textarea>
+          <mat-error *ngIf="stateMachineFormGroup.get('description')?.hasError('required')">
+            {{ 'stateMachines.validations.descriptionRequired' | translate }}
+          </mat-error>
         </div>
       </div>
     </mat-card-content>
   </mat-card>
-
 </div>
+<loader *ngIf="isLoading"></loader>

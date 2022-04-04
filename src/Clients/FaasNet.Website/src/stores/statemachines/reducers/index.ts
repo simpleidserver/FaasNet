@@ -2,7 +2,6 @@ import { Action, createReducer, on } from '@ngrx/store';
 import { SearchResult } from '../../common/search.model';
 import * as fromActions from '../actions/statemachines.actions';
 import { StateMachine } from '../models/statemachine.model';
-import { StateMachineModel } from '../models/statemachinemodel.model';
 
 export interface SearchStateMachineState {
   StateMachines: SearchResult<StateMachine>;
@@ -36,6 +35,15 @@ const stateMachineReducer = createReducer(
     return {
       ...state,
       StateMachine: { ...content }
+    };
+  }),
+  on(fromActions.completeUpdateInfo, (state, { id, name, description }) => {
+    const record = { ...state.StateMachine };
+    record.name = name;
+    record.description = description;
+    return {
+      ...state,
+      StateMachine: { ...record }
     };
   })
 );

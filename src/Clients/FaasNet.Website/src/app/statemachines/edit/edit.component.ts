@@ -9,6 +9,7 @@ import { startGetJson, startLaunch, startUpdate } from '@stores/statemachines/ac
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { filter } from 'rxjs/operators';
 import { AsyncApiEditorComponent } from './asyncapi/asyncapieditor.component';
+import { StateMachineInfoComponent } from './info/info.component';
 import { LaunchStateMachineComponent } from './launch/launch-statemachine.component';
 
 @Component({
@@ -23,6 +24,7 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
   action: string = "";
   routeSubscription: any;
   @ViewChild("asyncApiEditor") asyncApiEditor: AsyncApiEditorComponent | null = null;
+  @ViewChild("stateMachineInfo") stateMachineInfo: StateMachineInfoComponent | null = null;
 
   constructor(
     private store: Store<fromReducers.AppState>,
@@ -106,6 +108,8 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
         return 'Update Serverless workflow';
       case 'asyncapi':
         return 'Update AsyncApi';
+      case 'info':
+        return 'Information';
     }
 
     return '';
@@ -114,6 +118,11 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
   update() {
     if (this.action === "asyncapi" && this.asyncApiEditor) {
       this.asyncApiEditor.update();
+      return;
+    }
+
+    if (this.action === 'info' && this.stateMachineInfo) {
+      this.stateMachineInfo.update();
       return;
     }
 

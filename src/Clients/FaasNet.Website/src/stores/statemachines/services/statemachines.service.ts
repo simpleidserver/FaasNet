@@ -56,6 +56,17 @@ export class StateMachinesService {
     return this.http.put<StateMachineAdded>(targetUrl, yaml, { headers: headers });
   }
 
+  updateInfo(id: string, name: string, description: string): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = environment.apiUrl + "/statemachines/" + id + "/info";
+    const json = {
+      name: name,
+      description: description
+    };
+    return this.http.put<any>(targetUrl, json, { headers: headers });
+  }
+
   launch(id: string, input: any, parameters: any): Observable<{ id: string, launchDateTime: Date }> {
     let headers = new HttpHeaders();
     headers = headers.set('Accept', 'application/json');

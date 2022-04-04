@@ -50,6 +50,14 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Controllers
             return StatusCode((int)HttpStatusCode.Created, result);
         }
 
+        [HttpPut("{id}/info")]
+        public async Task<IActionResult> UpdateInfo(string id, [FromBody] UpdateStateMachineInfoCommand cmd, CancellationToken cancellationToken)
+        {
+            cmd.Id = id;
+            await _mediator.Send(cmd, cancellationToken);
+            return new NoContentResult();
+        }
+
         [HttpPost("empty")]
         public async Task<IActionResult> AddEmpty([FromBody] AddEmptyStateMachineCommand cmd, CancellationToken cancellationToken)
         {

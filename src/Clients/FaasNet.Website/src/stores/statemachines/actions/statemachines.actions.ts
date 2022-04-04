@@ -17,5 +17,8 @@ export const errorUpdate = createAction('[StateMachines] ERROR_UPDATE_STATE_MACH
 export const startLaunch = createAction('[StateMachines] START_LAUNCH_STATE_MACHINE', props<{ id: string, input: any, parameters: any }>());
 export const completeLaunch = createAction('[StateMachines] COMPLETE_LAUNCH_STATE_MACHINE', props<{ id: string, launchDateTime: Date }>());
 export const errorLaunch = createAction('[StateMachines] ERROR_LAUNCH_STATE_MACHINE');
+export const startUpdateInfo = createAction('[StateMachines] START_UPDATE_STATEMACHINE_INFO', props<{ id: string, name: string, description: string }>());
+export const completeUpdateInfo = createAction('[StateMachines] COMPLETE_UPDATE_STATEMACHINE_INFO', props<{ id: string, name: string, description: string }>());
+export const errorUpdateInfo = createAction('[StateMachines] ERROR_UPDATE_STATEMACHINE_INFO');
 
 

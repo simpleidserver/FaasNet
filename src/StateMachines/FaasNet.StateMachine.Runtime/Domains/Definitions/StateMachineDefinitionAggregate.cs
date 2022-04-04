@@ -122,6 +122,13 @@ namespace FaasNet.StateMachine.Runtime.Domains.Definitions
             }
         }
 
+        public void UpdateInfo(string name, string description)
+        {
+            Name = name;
+            Description = description;
+            UpdateDateTime = DateTime.UtcNow;
+        }
+
 
         #endregion
 

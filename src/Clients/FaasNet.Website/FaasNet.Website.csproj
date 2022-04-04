@@ -33,6 +33,7 @@
     <None Remove="src\components\matpanel\matpanel.component.ts" />
     <None Remove="src\components\matpanel\matpanelcontent.ts" />
     <None Remove="src\components\matpanel\matpanelservice.ts" />
+    <None Remove="src\components\messages\messagesmodule.ts" />
     <None Remove="src\components\monaco-editor\base-editor.ts" />
     <None Remove="src\components\monaco-editor\config.ts" />
     <None Remove="src\components\monaco-editor\editor.module.ts" />
@@ -92,6 +93,9 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="src\components\matpanel\matpanelcontent.ts" />
     <TypeScriptCompile Include="src\components\matpanel\matpanelservice.ts" />
+    <TypeScriptCompile Include="src\components\messages\messagesmodule.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\components\statediagram\components\operation\editaction-dialog.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

@@ -77,7 +77,9 @@
       "stateMachineUpdated": "State machine has been updated",
       "errorUpdateStateMachine": "An error occured while trying to update the State Machine",
       "stateMachineLaunched": "State machine has been launched",
-      "errorLaunchStateMachine": "An error occured while trying to launch the State Machine"
+      "errorLaunchStateMachine": "An error occured while trying to launch the State Machine",
+      "updateStateMachineInfo": "State machine has been updated",
+      "errorUpdateStateMachineInfo": "An error occured while trying to update the State Machine"
     },
     "validations": {
       "nameRequired": "Name is required",
@@ -124,6 +126,7 @@
     "appDomains": "Application domains",
     "addMessage": "Add message",
     "jsonSchema": "JSON Schema",
+    "messageJsonSchema": "JSON schema of the message",
     "jsonSchemaInfo": "The tool https://www.jsonschemavalidator.net/ can be used to build the JSON schema",
     "appDomainMessages": "Messages",
     "appDomainEditor": "Editor",

@@ -27,7 +27,7 @@
 </div>
 <loader *ngIf="isLoading"></loader>
 <div class="edit">
-  <display-state-machine-info [stateMachine]="stateMachineDef" *ngIf="action == 'info'"></display-state-machine-info>
+  <display-state-machine-info #stateMachineInfo [stateMachine]="stateMachineDef" *ngIf="action == 'info'"></display-state-machine-info>
   <state-diagram [stateMachine]="stateMachineDef" [style.visibility]="action == 'workflow' ? 'visible': 'hidden'"></state-diagram>
   <display-state-machine-json [stateMachine]="stateMachineDef" *ngIf="action === 'json'"></display-state-machine-json>
   <display-state-machine-yaml [stateMachine]="stateMachineDef" *ngIf="action === 'yaml'"></display-state-machine-yaml>
