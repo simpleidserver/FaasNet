@@ -6,6 +6,7 @@ export class ApplicationResult {
   title: string = "";
   description: string = "";
   version: number = 0;
+  isRoot: boolean = false;
   posX: number = 0;
   posY: number = 0;
   links: ApplicationLinkResult[] = [];

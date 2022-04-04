@@ -1,3 +1,4 @@
+import { StateMachineEvent } from "./statemachine-event.model";
 import { ForeachStateMachineState } from "./statemachine-foreach-state.model";
 import { StateMachineFunction } from "./statemachine-function.model";
 import { InjectStateMachineState } from "./statemachine-inject-state.model";
@@ -52,6 +53,7 @@ export class StateMachineModel {
   start: StartStateMachineModel | undefined;
   states: StateMachineState[];
   functions: StateMachineFunction[];
+  events: StateMachineEvent[] = [];
 
   get isEmpty() {
     return this.states.length === 0;
@@ -95,7 +97,7 @@ export class StateMachineModel {
   }
 
   public getJson(): any {
-    return {
+    const result  : any = {
       id: this.id,
       version: this.version,
       name: this.name,
@@ -104,11 +106,24 @@ export class StateMachineModel {
       start: this.start,
       states: this.states.map((s: StateMachineState) => {
         return s.getJson();
-      }),
-      functions: this.functions.map((s: StateMachineFunction) => {
-        return s.getJson();
       })
     };
+    if (this.events) {
+      const filteredEvts = this.events.filter(e => e.name && e.source && e.type);
+      if (filteredEvts.length > 0) {
+        result.events = filteredEvts.map((e: StateMachineEvent) => {
+          return e.getJson();
+        });
+      }
+    }
+
+    if (this.functions && this.functions.length > 0) {
+      result.functions = this.functions.map((s: StateMachineFunction) => {
+        return s.getJson();
+      });
+    }
+
+    return result;
   }
 
   public static build(json: any) : StateMachineModel {
@@ -198,6 +213,10 @@ export class StateMachineModel {
 
     if (json["functions"]) {
       result.functions = json["functions"].map((f: any) => StateMachineFunction.build(f));
+    }
+
+    if (json["events"]) {
+      result.events = json["events"].map((e: any) => StateMachineEvent.build(e));
     }
 
     return result;

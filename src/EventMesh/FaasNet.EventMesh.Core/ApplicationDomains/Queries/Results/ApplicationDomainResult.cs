@@ -11,6 +11,7 @@ namespace FaasNet.EventMesh.Core.ApplicationDomains.Queries.Results
         public string Name { get; set; }
         public string Description { get; set; }
         public string RootTopic { get; set; }
+        public string StateMachineId { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
         public IEnumerable<ApplicationResult> Applications { get; set; }
@@ -23,6 +24,7 @@ namespace FaasNet.EventMesh.Core.ApplicationDomains.Queries.Results
                 CreateDateTime = appDomain.CreateDateTime,
                 Description = appDomain.Description,
                 Name = appDomain.Name,
+                StateMachineId = appDomain.StateMachineId,
                 RootTopic = appDomain.RootTopic,
                 UpdateDateTime = appDomain.UpdateDateTime,
                 Applications = appDomain.Applications.Select(a => ApplicationResult.Build(a, appDomain)).ToList()

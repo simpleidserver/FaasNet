@@ -6,6 +6,7 @@ namespace FaasNet.EventMesh.Runtime.Models
     {
         public string Id { get; set; }
         public string ClientId { get; set; }
+        public bool IsRoot { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public int Version { get; set; }

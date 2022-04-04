@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
 {
     [DbContext(typeof(RuntimeDBContext))]
-    [Migration("20220331131957_Init")]
+    [Migration("20220404184250_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.EventMesh.Runtime.Website.Migrations
 {
     [DbContext(typeof(EventMeshDBContext))]
-    [Migration("20220330121547_Init")]
+    [Migration("20220404184317_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,9 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsRoot")
+                        .HasColumnType("bit");
 
                     b.Property<float>("PosX")
                         .HasColumnType("real");
@@ -72,6 +75,9 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RootTopic")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StateMachineId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdateDateTime")

@@ -12,10 +12,13 @@ export class InjectStateMachineState extends FlowableStateMachineState {
     let result : any = {
       id: this.id,
       name: this.name,
-      transition: this.transition,
       type: InjectStateMachineState.TYPE,
       end: this.end
     };
+    if (this.transition) {
+      result.transition = this.transition;
+    }
+
     if (this.stateDataFilter) {
       result['stateDataFilter'] = this.stateDataFilter.getJson();
     }

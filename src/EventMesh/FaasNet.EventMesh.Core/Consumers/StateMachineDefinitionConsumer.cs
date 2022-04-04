@@ -48,6 +48,7 @@ namespace FaasNet.EventMesh.Core.Consumers
                         Name = name,
                         Description = context.Message.Description,
                         RootTopic = Guid.NewGuid().ToString(),
+                        StateMachineId = context.Message.Id,
                         Vpn = context.Message.Vpn
                     });
                     await _mediator.Send(new UpdateApplicationDomainCommand
@@ -61,6 +62,7 @@ namespace FaasNet.EventMesh.Core.Consumers
                                 ClientId = clientId,
                                 Title = "StateMachineClient",
                                 Description = "StateMachine",
+                                IsRoot = true,
                                 PosX = 500,
                                 PosY = 100
                             }

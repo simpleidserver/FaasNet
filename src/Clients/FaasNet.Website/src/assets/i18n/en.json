@@ -70,6 +70,10 @@
     "version": "Version",
     "createDateTime": "Creation DateTime",
     "updateDateTime": "Update DateTime",
+    "evtName": "Name",
+    "evtType": "Type",
+    "evtSource": "Source",
+    "evtKind": "Kind",
     "messages": {
       "errorGetStateMachine": "An error occured while trying to get the State Machine",
       "stateMachineAdded": "State machine has been added",

@@ -58,6 +58,7 @@
     <None Remove="src\stores\messagedefinitions\actions\messagedefs.actions.ts" />
     <None Remove="src\stores\server\actions\server.actions.ts" />
     <None Remove="src\stores\statemachines\models\operation-types.model.ts" />
+    <None Remove="src\stores\statemachines\models\statemachine-event.model.ts" />
     <None Remove="src\stores\statemachines\models\statemachine-foreach-state.model.ts" />
     <None Remove="src\stores\statemachines\models\statemachine-function.model.ts" />
     <None Remove="src\stores\statemachines\models\statemachine-operation-state.model.ts" />
@@ -114,6 +115,7 @@
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="src\stores\statemachines\models\operation-types.model.ts" />
+    <TypeScriptCompile Include="src\stores\statemachines\models\statemachine-event.model.ts" />
     <TypeScriptCompile Include="src\stores\statemachines\models\statemachine-function.model.ts" />
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,23 @@
+<h1 mat-dialog-title>Edit event</h1>
+<form [formGroup]="editEventFormGroup" class="form" (ngSubmit)="save()">
+  <div mat-dialog-content>
+    <!-- Name -->
+    <div class="form-control">
+      <div class="title">Name</div>
+      <p class="description">Name of the event</p>
+      <input type="text" formControlName="name" class="full-width" />
+      <mat-error *ngIf="editEventFormGroup.get('name')?.errors?.required">Name is required</mat-error>
+    </div>
+    <mat-divider></mat-divider>
+    <!-- Type -->
+    <div class="form-control">
+      <div class="title">Type</div>
+      <p class="description">Type of the event</p>
+      <input type="text" formControlName="type" class="full-width" />
+      <mat-error *ngIf="editEventFormGroup.get('type')?.errors?.required">Type is required</mat-error>
+    </div>
+  </div>
+  <div mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" [disabled]="isDisabled()">Save</button>
+  </div>
+</form>

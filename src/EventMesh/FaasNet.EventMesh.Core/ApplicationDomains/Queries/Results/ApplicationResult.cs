@@ -10,6 +10,7 @@ namespace FaasNet.EventMesh.Core.ApplicationDomains.Queries.Results
         public string ClientId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public bool IsRoot { get; set; }
         public int Version { get; set; }
         public float PosX { get; set; }
         public float PosY { get; set; }
@@ -26,6 +27,7 @@ namespace FaasNet.EventMesh.Core.ApplicationDomains.Queries.Results
                 PosX = PosX,
                 PosY = PosY,
                 Title = Title,
+                IsRoot = IsRoot,
                 Links = Links?.Select(l => l.ToDomain()).ToList()
             };
         }
@@ -41,6 +43,7 @@ namespace FaasNet.EventMesh.Core.ApplicationDomains.Queries.Results
                 PosX = application.PosX,
                 PosY = application.PosY,
                 Title = application.Title,
+                IsRoot = application.IsRoot,
                 Links = application.Links?.Select(l => ApplicationLinkResult.Build(l, applicationDomain)).ToList()
             };
 

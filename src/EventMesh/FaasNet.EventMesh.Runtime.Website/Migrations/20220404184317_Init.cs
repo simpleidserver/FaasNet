@@ -14,6 +14,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Vpn = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StateMachineId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RootTopic = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -92,6 +93,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ClientId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsRoot = table.Column<bool>(type: "bit", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Version = table.Column<int>(type: "int", nullable: false),

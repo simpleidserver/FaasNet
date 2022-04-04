@@ -8,6 +8,8 @@ import { MonacoEditorModule } from "../../components/monaco-editor/editor.module
 import { StateDiagramModule } from "../../components/statediagram/statediagram.module";
 import { AsyncApiEditorComponent } from "./edit/asyncapi/asyncapieditor.component";
 import { EditStateMachineComponent } from "./edit/edit.component";
+import { EditEventDialogComponent } from "./edit/events/editevent-dialog.component";
+import { StateMachineEventsEditorComponent } from "./edit/events/eventseditor.component";
 import { EditFunctionDialogComponent } from "./edit/functionseditor/editfunction-dialog.component";
 import { FunctionsEditorComponent } from "./edit/functionseditor/functionseditor.component";
 import { StateMachineInfoComponent } from "./edit/info/info.component";
@@ -41,12 +43,15 @@ import { StateMachinesRoutes } from "./statemachines.routes";
     EditFunctionDialogComponent,
     AsyncApiEditorComponent,
     StateMachineMessagesEditorComponent,
-    StateMachineInfoComponent
+    StateMachineInfoComponent,
+    StateMachineEventsEditorComponent,
+    EditEventDialogComponent
   ],
   entryComponents: [
     AddStateMachineComponent,
     LaunchStateMachineComponent,
-    EditFunctionDialogComponent
+    EditFunctionDialogComponent,
+    EditEventDialogComponent
   ]
 })
 

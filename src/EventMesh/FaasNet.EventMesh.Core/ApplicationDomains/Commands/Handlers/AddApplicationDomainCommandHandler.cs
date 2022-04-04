@@ -32,7 +32,7 @@ namespace FaasNet.EventMesh.Core.ApplicationDomains.Commands.Handlers
                 throw new NotFoundException(ErrorCodes.UNKNOWN_VPN, string.Format(Global.UnknownVpn, request.Vpn));
             }
 
-            var applicationDomain = ApplicationDomain.Create(request.Vpn, request.Name, request.Description, request.RootTopic);
+            var applicationDomain = ApplicationDomain.Create(request.Vpn, request.Name, request.Description, request.RootTopic, request.StateMachineId);
             _applicationDomainRepository.Add(applicationDomain);
             await _applicationDomainRepository.SaveChanges(cancellationToken);
             return new AddApplicationDomainResult

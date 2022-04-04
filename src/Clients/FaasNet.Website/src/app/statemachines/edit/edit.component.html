@@ -19,6 +19,7 @@
     <li [class.active]="action == 'info'"><a [routerLink]="['/statemachines/' + id + '/info']" matTooltip="View information"><mat-icon>info</mat-icon></a></li>
     <li [class.active]="action == 'messages'" *ngIf="stateMachineDef.applicationDomainId"><a [routerLink]="['/statemachines/' + id + '/messages']" matTooltip="Edit Messages"><mat-icon>message</mat-icon></a></li>
     <li [class.active]="action == 'asyncapi'" *ngIf="stateMachineDef.applicationDomainId"><a [routerLink]="['/statemachines/' + id + '/asyncapi']" matTooltip="Edit ASYNCAPI"><img src="/assets/images/asyncapi.svg" /></a></li>
+    <li [class.active]="action == 'events'"><a [routerLink]="['/statemachines/' + id + '/events']" matTooltip="Events"><mat-icon>event</mat-icon></a></li>
     <li [class.active]="action == 'functions'"><a [routerLink]="['/statemachines/' + id + '/functions']" matTooltip="Edit the functions"><mat-icon>functions</mat-icon></a></li>
     <li [class.active]="action == 'yaml'"><a [routerLink]="['/statemachines/' + id + '/yaml']" matTooltip="Display YAML"><mat-icon>insert_drive_file</mat-icon></a></li>
     <li [class.active]="action == 'json'"><a [routerLink]="['/statemachines/' + id + '/json']" matTooltip="Display JSON"><img src="/assets/images/json.png" /></a></li>
@@ -27,6 +28,7 @@
 </div>
 <loader *ngIf="isLoading"></loader>
 <div class="edit">
+  <eventseditor-statemachine [stateMachine]="stateMachineDef" *ngIf="action === 'events'"></eventseditor-statemachine>
   <display-state-machine-info #stateMachineInfo [stateMachine]="stateMachineDef" *ngIf="action == 'info'"></display-state-machine-info>
   <state-diagram [stateMachine]="stateMachineDef" [style.visibility]="action == 'workflow' ? 'visible': 'hidden'"></state-diagram>
   <display-state-machine-json [stateMachine]="stateMachineDef" *ngIf="action === 'json'"></display-state-machine-json>

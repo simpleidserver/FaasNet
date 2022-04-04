@@ -105,6 +105,7 @@ export class EditStateMachineComponent implements OnInit, OnDestroy {
   getTooltip() {
     switch (this.action) {
       case 'workflow':
+      case 'events':
         return 'Update Serverless workflow';
       case 'asyncapi':
         return 'Update AsyncApi';
