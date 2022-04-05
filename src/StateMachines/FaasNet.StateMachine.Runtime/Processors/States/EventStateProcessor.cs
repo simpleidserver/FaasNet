@@ -45,7 +45,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
                     .Where(e => e.Kind == StateMachineDefinitionEventKinds.Consumed);
                 foreach (var consumedEvt in consumedEvts)
                 {
-                    executionContext.Instance.TryListenEvent(executionContext.StateInstance.Id, consumedEvt.Name, consumedEvt.Source, consumedEvt.Type);
+                    executionContext.Instance.ListenEvt(executionContext.StateInstance.Id, consumedEvt.Name, consumedEvt.Source, consumedEvt.Type);
                 }
 
                 List<OnEventResult> evtResultLst = null;
@@ -62,7 +62,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
                 {
                     foreach(var evtResult in evtResultLst)
                     {
-                        executionContext.Instance.AddProcessEvent(
+                        executionContext.Instance.ConsumeEvt(
                             executionContext.StateInstance.Id, 
                             evtResult.Source, 
                             evtResult.Type,

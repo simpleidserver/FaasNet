@@ -1,11 +1,12 @@
-﻿using FaasNet.EventStore;
+﻿using FaasNet.Common;
+using FaasNet.EventStore;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static ESServerBuilder AddEventStore(this IServiceCollection services, Action<EventStoreOptions> callback = null)
+        public static ServerBuilder AddEventStore(this IServiceCollection services, Action<EventStoreOptions> callback = null)
         {
             if (callback == null)
             {
@@ -17,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.AddTransient<ICommitAggregateHelper, CommitAggregateHelper>();
-            var builder = new ESServerBuilder(services);
+            var builder = new ServerBuilder(services);
             return builder;
         }
     }

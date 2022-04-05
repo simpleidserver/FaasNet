@@ -13,7 +13,7 @@ namespace FaasNet.StateMachine.Core.Tests
         public void When_Serialize_And_Deserialize_WorkflowDefinition()
         {
             // ARRANGE
-            var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description")
+            var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
                 // .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
                 .StartsWith(o => o.Operation().SetActionMode(StateMachineDefinitionActionModes.Parallel).AddAction("Greet",
                 (act) => {

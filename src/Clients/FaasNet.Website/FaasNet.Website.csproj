@@ -23,6 +23,7 @@
     <None Remove="src\app\functions\function-rendering\function-rendering.component.ts" />
     <None Remove="src\app\shared\material.module.ts" />
     <None Remove="src\app\shared\shared.module.ts" />
+    <None Remove="src\app\statemachines\edit\events\editevent-dialog.component.ts" />
     <None Remove="src\app\statemachines\edit\functionseditor\editfunction-dialog.component.ts" />
     <None Remove="src\components\asyncapi-editor\asyncapieditormodule.ts" />
     <None Remove="src\components\asyncapi-editor\builders\asyncapibuilder.ts" />
@@ -79,6 +80,7 @@
     <None Remove="src\stores\vpn\models\vpn.model.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="src\app\statemachines\edit\events\editevent-dialog.component.ts" />
     <TypeScriptCompile Include="src\app\statemachines\edit\functionseditor\editfunction-dialog.component.ts" />
     <TypeScriptCompile Include="src\components\asyncapi-editor\asyncapieditormodule.ts">
       <SubType>Code</SubType>

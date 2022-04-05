@@ -63,6 +63,7 @@ export class FunctionsEditorComponent {
       }
 
       this.functions.data.splice(index, 1);
+      this.functions.data.push(d);
       this.functions.data = this.functions.data;
     });
   }

@@ -40,7 +40,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
         {
             var evtRef = callbackState.EventRef;
             var evtDef = executionContext.WorkflowDef.GetEvent(evtRef);
-            executionContext.Instance.TryListenEvent(executionContext.StateInstance.Id, evtDef.Name, evtDef.Source, evtDef.Type);
+            executionContext.Instance.ListenEvt(executionContext.StateInstance.Id, evtDef.Name, evtDef.Source, evtDef.Type);
             var consumedEvts = executionContext.StateInstance.GetConsumedEvts(new string[] { evtRef });
             if (consumedEvts.Any())
             {

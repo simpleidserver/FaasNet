@@ -1,5 +1,5 @@
-﻿using FaasNet.StateMachine.Runtime.Domains.Definitions;
-using FaasNet.StateMachine.Runtime.Extensions;
+﻿using FaasNet.Common.Extensions;
+using FaasNet.StateMachine.Runtime.Domains.Definitions;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
@@ -28,7 +28,6 @@ namespace FaasNet.StateMachine.Core.Persistence.InMemory
             _defs.Add(workflowDef);
             return Task.CompletedTask;
         }
-
 
         public IQueryable<StateMachineDefinitionAggregate> Query()
         {

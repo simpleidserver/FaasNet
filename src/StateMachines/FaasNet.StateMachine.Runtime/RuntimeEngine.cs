@@ -1,7 +1,6 @@
 ﻿using FaasNet.StateMachine.Runtime.Domains.Definitions;
 using FaasNet.StateMachine.Runtime.Domains.Instances;
 using FaasNet.StateMachine.Runtime.Extensions;
-using FaasNet.StateMachine.Runtime.Infrastructure;
 using FaasNet.StateMachine.Runtime.Processors;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;

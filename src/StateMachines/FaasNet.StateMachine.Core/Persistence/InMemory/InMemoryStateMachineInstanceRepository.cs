@@ -1,4 +1,5 @@
-﻿using FaasNet.StateMachine.Runtime.Domains.Instances;
+﻿using FaasNet.Common.Extensions;
+using FaasNet.StateMachine.Runtime.Domains.Instances;
 using FaasNet.StateMachine.Runtime.Extensions;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

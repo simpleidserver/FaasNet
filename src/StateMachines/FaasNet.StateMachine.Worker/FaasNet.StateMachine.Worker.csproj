@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\FaasNet.EventStore\FaasNet.EventStore.csproj" />
+    <ProjectReference Include="..\..\Common\FaasNet.Lock\FaasNet.Lock.csproj" />
+    <ProjectReference Include="..\FaasNet.StateMachine.Runtime\FaasNet.StateMachine.Runtime.csproj" />
+  </ItemGroup>
+</Project>

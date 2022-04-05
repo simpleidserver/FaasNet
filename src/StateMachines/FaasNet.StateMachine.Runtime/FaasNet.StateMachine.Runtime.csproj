@@ -3,6 +3,11 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Consumers\**" />
+    <EmbeddedResource Remove="Consumers\**" />
+    <None Remove="Consumers\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NJsonSchema" Version="10.4.6" />
     <PackageReference Include="prometheus-net" Version="5.0.1" />
@@ -14,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\lib\Coeus\src\Coeus.Core.csproj" />
+    <ProjectReference Include="..\..\Common\FaasNet.Domain\FaasNet.Domain.csproj" />
     <ProjectReference Include="..\FaasNet.StateMachine.IntegrationEvents\FaasNet.StateMachine.IntegrationEvents.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +36,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Consumers\" />
+    <Folder Include="Infrastructure\" />
   </ItemGroup>
 </Project>

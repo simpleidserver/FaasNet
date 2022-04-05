@@ -3,7 +3,6 @@ using FaasNet.StateMachine.Runtime.AsyncAPI;
 using FaasNet.StateMachine.Runtime.AsyncAPI.Channels;
 using FaasNet.StateMachine.Runtime.AsyncAPI.Channels.Amqp;
 using FaasNet.StateMachine.Runtime.Factories;
-using FaasNet.StateMachine.Runtime.Infrastructure;
 using FaasNet.StateMachine.Runtime.OpenAPI;
 using FaasNet.StateMachine.Runtime.OpenAPI.Builders;
 using FaasNet.StateMachine.Runtime.Processors;
@@ -15,15 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static ServerBuilder AddRuntime(this IServiceCollection services)
-        {
-            var serverBuilder = new ServerBuilder(services);
-            services.RegisterCore()
-                .AddLogging();
-            return serverBuilder;
-        }
-
-        private static IServiceCollection RegisterCore(this IServiceCollection services)
+        public static IServiceCollection AddStateMachineRuntimeCore(this IServiceCollection services)
         {
             services.AddTransient<IRuntimeEngine, RuntimeEngine>();
             services.AddTransient<IActionExecutor, ActionExecutor>();
@@ -42,7 +33,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IOpenAPIConfigurationParser, v3.OpenAPIConfigurationParser>();
             services.AddTransient<IRequestBodyBuilder, JsonRequestBodyBuilder>();
             services.AddTransient<IAsyncAPIParser, AsyncAPIParser>();
-            services.AddSingleton<IDistributedLock, InMemoryDistributedLock>();
             return services;
         }
     }

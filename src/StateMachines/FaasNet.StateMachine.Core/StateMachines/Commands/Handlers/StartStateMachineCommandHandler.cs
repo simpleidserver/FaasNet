@@ -17,23 +17,27 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
     public class StartStateMachineCommandHandler : IRequestHandler<StartStateMachineCommand, StartStateMachineResult>
     {
         private readonly IStateMachineDefinitionRepository _stateMachineDefinitionRepository;
-        private readonly IStateMachineDefLauncher _stateMachineDefLauncher;
+        // private readonly IStateMachineDefLauncher _stateMachineDefLauncher;
 
-        public StartStateMachineCommandHandler(IStateMachineDefinitionRepository stateMachineDefinitionRepository, IStateMachineDefLauncher stateMachineDefLauncher)
+        public StartStateMachineCommandHandler(IStateMachineDefinitionRepository stateMachineDefinitionRepository /*, IStateMachineDefLauncher stateMachineDefLauncher*/)
         {
             _stateMachineDefinitionRepository = stateMachineDefinitionRepository;
-            _stateMachineDefLauncher = stateMachineDefLauncher;
+            // _stateMachineDefLauncher = stateMachineDefLauncher;
         }
 
         public async Task<StartStateMachineResult> Handle(StartStateMachineCommand request, CancellationToken cancellationToken)
         {
             var validationResult = Validate(request);
-            var workflowInstance = await _stateMachineDefLauncher.InstanciateAndLaunch(validationResult.WorkflowDefinition, request.Input, validationResult.Parameters, cancellationToken);
+            // Quand un workflow instance est lancé alors il faut souscrire aux différents événements.
+            // var workflowInstance = await _stateMachineDefLauncher.InstanciateAndLaunch(validationResult.WorkflowDefinition, request.Input, validationResult.Parameters, cancellationToken);
+            /*
             return new StartStateMachineResult
             {
                 LaunchDateTime = DateTime.UtcNow,
                 Id = workflowInstance.Id  
             };
+            */
+            return null;
         }
 
         #region Validation
