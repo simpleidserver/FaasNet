@@ -9,5 +9,6 @@ namespace FaasNet.StateMachine.Worker
         Task Init(CancellationToken cancellationToken);
         bool IsListeningVpn(string vpn);
         Task ListenVpn(string vpn, CancellationToken cancellationToken);
+        void Stop();
     }
 }

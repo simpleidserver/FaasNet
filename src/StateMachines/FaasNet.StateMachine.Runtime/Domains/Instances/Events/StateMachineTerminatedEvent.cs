@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
 {
-    [DebuggerDisplay("StateMachine '{AggregateId}', Status = Terminated")]
+    [DebuggerDisplay("StateMachine {AggregateId}, Status = Terminated")]
     public class StateMachineTerminatedEvent : DomainEvent
     {
         public StateMachineTerminatedEvent(string id, string aggregateId, JToken output, DateTime terminateDateTime) : base(id, aggregateId)

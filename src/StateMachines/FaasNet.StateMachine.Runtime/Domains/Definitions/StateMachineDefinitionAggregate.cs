@@ -1,5 +1,4 @@
 ﻿using FaasNet.Domain;
-using FaasNet.StateMachine.IntegrationEvents;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -102,10 +101,6 @@ namespace FaasNet.StateMachine.Runtime.Domains.Definitions
                 Status = StateMachineDefinitionStatus.CREATE
             };
             result.RefreshTechnicalId();
-            result.IntegrationEvents.Add(new StateMachineDefinitionAddedEvent(result.Id, result.Name, result.Description, result.Vpn)
-            {
-                CorrelationId = result.Id
-            });
             return result;
         }
 

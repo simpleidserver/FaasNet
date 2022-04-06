@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
 {
-    [DebuggerDisplay("State '{stateId}', Status = Failed")]
+    [DebuggerDisplay("State {StateId}, Status = Failed")]
     public class StateFailedEvent : DomainEvent
     {
         public StateFailedEvent(string id, string aggregateId, string stateId, string exception, DateTime failedDateTime) : base(id, aggregateId)

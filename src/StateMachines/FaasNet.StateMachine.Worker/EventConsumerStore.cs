@@ -29,10 +29,11 @@ namespace FaasNet.StateMachine.Worker
         private CancellationTokenSource _cancellationTokenSource;
         private bool _isInitialized = false;
 
-        public EventConsumerStore(IVpnSubscriptionRepository vpnSubscriptionRepository, ICloudEventSubscriptionRepository cloudEventSubscriptionRepository, IDistributedLock distributedLock, IRuntimeEngine runtimeEngine, IEnumerable<IMessageListener> messageListeners)
+        public EventConsumerStore(IVpnSubscriptionRepository vpnSubscriptionRepository, ICloudEventSubscriptionRepository cloudEventSubscriptionRepository, ICommitAggregateHelper commitAggregateHelper, IDistributedLock distributedLock, IRuntimeEngine runtimeEngine, IEnumerable<IMessageListener> messageListeners)
         {
             _vpnSubscriptionRepository = vpnSubscriptionRepository;
             _cloudEventSubscriptionRepository = cloudEventSubscriptionRepository;
+            _commitAggregateHelper = commitAggregateHelper;
             _distributedLock = distributedLock;
             _messageListeners = messageListeners;
             _runtimeEngine = runtimeEngine;

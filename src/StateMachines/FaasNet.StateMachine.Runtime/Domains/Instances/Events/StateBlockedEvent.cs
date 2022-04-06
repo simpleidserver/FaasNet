@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
 {
-    [DebuggerDisplay("State '{stateId}', Status = Blocked")]
+    [DebuggerDisplay("State {StateId}, Status = Blocked")]
     public class StateBlockedEvent : DomainEvent
     {
         public StateBlockedEvent(string id, string aggregateId, string stateId, DateTime blockedDateTime) : base(id, aggregateId)

@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
 {
-    [DebuggerDisplay("State '{stateId}' listen Event '{evtName}'")]
+    [DebuggerDisplay("State {StateId} listen Event {EvtName}")]
     public class StateEvtListenedEvent : DomainEvent
     {
         public StateEvtListenedEvent(string id, string aggregateId, string stateId, string evtName, string evtSource, string evtType) : base(id, aggregateId)

@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
 {
-    [DebuggerDisplay("State '{stateId}', Status = Completed")]
+    [DebuggerDisplay("State {StateId}, Status = Completed")]
     public class StateCompletedEvent : DomainEvent
     {
         public StateCompletedEvent(string id, string aggregateId, string stateId, JToken output, DateTime completedDateTime) : base(id, aggregateId)

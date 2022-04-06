@@ -20,7 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\lib\Coeus\src\Coeus.Core.csproj" />
     <ProjectReference Include="..\..\Common\FaasNet.Domain\FaasNet.Domain.csproj" />
-    <ProjectReference Include="..\FaasNet.StateMachine.IntegrationEvents\FaasNet.StateMachine.IntegrationEvents.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\Global.Designer.cs">

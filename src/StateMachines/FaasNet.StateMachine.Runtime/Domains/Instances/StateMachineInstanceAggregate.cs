@@ -13,6 +13,8 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 {
     public class StateMachineInstanceAggregate : AggregateRoot, ICloneable
     {
+        public static string TOPIC_NAME = "StateMachineInstance";
+
         public StateMachineInstanceAggregate()
         {
             States = new List<StateMachineInstanceState>();
@@ -52,7 +54,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         }
         public string SerializedDefinition { get; set; }
 
-        public override string Topic => "";
+        public override string Topic => TOPIC_NAME;
 
         #endregion
 

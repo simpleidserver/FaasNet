@@ -27,7 +27,7 @@ namespace FaasNet.EventStore.EF
                 Version = domain.Version,
                 SerializedContent = JsonSerializer.Serialize(domain)
             };
-            _dbContext.Add(snapshot);
+            _dbContext.Snapshots.Add(snapshot);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 

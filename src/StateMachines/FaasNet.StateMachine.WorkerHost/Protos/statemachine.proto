@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "FaasNet.StateMachine.WorkerHost";
+import "google/protobuf/timestamp.proto";
+
+service StateMachine {
+	rpc Launch (StateMachineDef) returns (LaunchStateMachineDefResult);
+}
+
+message StateMachineDef {
+	string yaml = 1;
+	string input = 2;
+}
+
+message LaunchStateMachineDefResult {
+	string id = 1;
+	google.protobuf.Timestamp launchDateTime = 2;
+}

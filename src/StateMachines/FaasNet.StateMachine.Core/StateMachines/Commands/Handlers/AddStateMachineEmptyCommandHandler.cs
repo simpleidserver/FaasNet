@@ -1,5 +1,5 @@
 ﻿using FaasNet.StateMachine.Core.Persistence;
-using FaasNet.StateMachine.Domain.Extensions;
+using FaasNet.StateMachine.IntegrationEvents;
 using FaasNet.StateMachine.Runtime.Domains.Definitions;
 using MassTransit;
 using MediatR;
@@ -13,11 +13,9 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
     {
         private readonly IStateMachineDefinitionRepository _stateMachineDefinitionRepository;
         private readonly IBusControl _busControl;
-        private readonly IPublishEndpoint _publishEdp;
 
-        public AddStateMachineEmptyCommandHandler(IPublishEndpoint publishEvt, IStateMachineDefinitionRepository workflowDefinitionRepository, IBusControl busControl)
+        public AddStateMachineEmptyCommandHandler(IStateMachineDefinitionRepository workflowDefinitionRepository, IBusControl busControl)
         {
-            _publishEdp = publishEvt;
             _stateMachineDefinitionRepository = workflowDefinitionRepository;
             _busControl = busControl;
         }
@@ -28,7 +26,10 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
             var record = StateMachineDefinitionAggregate.CreateEmpty(id, request.Name, request.Description, request.Vpn);
             await _stateMachineDefinitionRepository.Add(record, cancellationToken);
             await _stateMachineDefinitionRepository.SaveChanges(cancellationToken);
-            await _busControl.PublishAll(record.IntegrationEvents, cancellationToken);
+            await _busControl.Publish(new StateMachineDefinitionAddedEvent(record.Id, record.Name, record.Description, record.Vpn)
+            {
+                CorrelationId = record.Id
+            }, cancellationToken);
             return id;
         }
     }
