@@ -2,12 +2,10 @@
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.Exceptions;
 using FaasNet.EventMesh.Client.Messages;
-using FaasNet.EventMesh.Runtime.MessageBroker;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -36,6 +34,31 @@ namespace FaasNet.EventMesh.Runtime.Tests
             Assert.Equal(HeaderStatus.SUCCESS.Code, response.Header.Status.Code);
             Assert.Equal(HeaderStatus.SUCCESS.Desc, response.Header.Status.Desc);
         }
+
+        #region Ge all VPNS
+
+        [Fact]
+        public async Task When_GetAllVpns_Then_VpnsAreReturned()
+        {
+            // ARRANGE
+            var builder = new RuntimeHostBuilder().AddVpns(new List<Vpn>
+            {
+                Vpn.Create("default", "default")
+            });
+            var host = builder.Build();
+            host.Run();
+
+            // ACT
+            var client = new RuntimeClient();
+            var response = await client.GetAllVpns();
+            host.Stop();
+
+            // ASSERT
+            Assert.Equal(Commands.GET_ALL_VPNS_RESPONSE, response.Header.Command);
+            Assert.Equal("default", response.Vpns.ElementAt(0));
+        }
+
+        #endregion
 
         #region Hello Request
 
@@ -394,18 +417,11 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Data = "testttt",
                 ["comexampleextension1"] = "value"
             };
-            var topics = new ConcurrentBag<InMemoryTopic>
-            {
-                new InMemoryTopic
-                {
-                    TopicName = topicName
-                }
-            };
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 5003;
             });
-            builder.AddInMemoryMessageBroker(topics);
+            builder.AddInMemoryMessageBroker();
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
@@ -458,18 +474,11 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Data = "testttt",
                 ["comexampleextension1"] = "value"
             };
-            var topics = new ConcurrentBag<InMemoryTopic>
-            {
-                new InMemoryTopic
-                {
-                    TopicName = topicName
-                }
-            };
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 4993;
             });
-            builder.AddInMemoryMessageBroker(topics);
+            builder.AddInMemoryMessageBroker();
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
             var vpnStore = serviceProvider.GetRequiredService<IVpnStore>();
@@ -534,13 +543,6 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Data = "testttt",
                 ["comexampleextension1"] = "value"
             };
-            var topics = new ConcurrentBag<InMemoryTopic>
-            {
-                new InMemoryTopic
-                {
-                    TopicName = topicName
-                }
-            };
             var firstBuilder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 5001;
@@ -550,7 +552,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             {
                 opt.Port = 5002;
                 opt.Urn = "localhost";
-            }).AddInMemoryMessageBroker(topics);
+            }).AddInMemoryMessageBroker();
             var firstServiceProvider = firstBuilder.ServiceCollection.BuildServiceProvider();
             var secondServiceProvider = secondBuilder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = secondServiceProvider.GetRequiredService<IMessagePublisher>();
@@ -664,18 +666,11 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Data = "testttt",
                 ["comexampleextension1"] = "value"
             };
-            var topics = new ConcurrentBag<InMemoryTopic>
-            {
-                new InMemoryTopic
-                {
-                    TopicName = topicName
-                }
-            };
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 5005;
             });
-            builder.AddInMemoryMessageBroker(topics);
+            builder.AddInMemoryMessageBroker();
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
@@ -723,18 +718,11 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Data = "testttt",
                 ["comexampleextension1"] = "value"
             };
-            var topics = new ConcurrentBag<InMemoryTopic>
-            {
-                new InMemoryTopic
-                {
-                    TopicName = topicName
-                }
-            };
             var builder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 5006;
             });
-            builder.AddInMemoryMessageBroker(topics);
+            builder.AddInMemoryMessageBroker();
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { firstSubClient, firstPubClient }).Build();
             host.Run();

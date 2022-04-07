@@ -31,5 +31,14 @@ namespace FaasNet.EventMesh.Client.Messages
             result.AddRange(b);
             Buffer.AddRange(result);
         }
+
+        public void WriteStringArray(IEnumerable<string> lst)
+        {
+            WriteInteger(lst.Count());
+            foreach(var str in lst)
+            {
+                WriteString(str);
+            }
+        }
     }
 }

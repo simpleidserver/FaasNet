@@ -24,6 +24,16 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
+        public static Package GetAllVpns(string seq, IEnumerable<string> vpns)
+        {
+            var result = new GetAllVpnResponse
+            {
+                Header = new Header(Commands.GET_ALL_VPNS_RESPONSE, HeaderStatus.SUCCESS, seq),
+                Vpns = vpns
+            };
+            return result;
+        }
+
         public static Package Subscription(string seq)
         {
             var result = new Package

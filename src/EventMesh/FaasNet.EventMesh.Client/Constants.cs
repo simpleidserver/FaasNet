@@ -16,7 +16,8 @@ namespace FaasNet.EventMesh.Client
             { Commands.HEARTBEAT_REQUEST, Commands.HEARTBEAT_RESPONSE },
             { Commands.HELLO_REQUEST, Commands.HELLO_RESPONSE },
             { Commands.SUBSCRIBE_REQUEST, Commands.SUBSCRIBE_RESPONSE },
-            { Commands.PUBLISH_MESSAGE_REQUEST, Commands.PUBLISH_MESSAGE_RESONSE }
+            { Commands.PUBLISH_MESSAGE_REQUEST, Commands.PUBLISH_MESSAGE_RESONSE },
+            { Commands.GET_ALL_VPNS_REQUEST, Commands.GET_ALL_VPNS_RESPONSE }
         };
     }
 }

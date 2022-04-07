@@ -19,7 +19,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IIntegrationEventHandler<EventListenedEvent>, EventListenedEventHandler>();
             services.AddTransient<IIntegrationEventHandler<EventUnlistenedEvent>, EventUnlistenedEventHandler>();
             services.AddSingleton<ICloudEventSubscriptionRepository, InMemoryCloudEventSubscriptionRepository>();
-            services.AddSingleton<IVpnSubscriptionRepository, InMemoryVpnSubscriptionRepository>();
             return new ServerBuilder(services);
         }
     }

@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace FaasNet.StateMachine.Worker
 {
-    public interface IMessageListener
+    public interface IMessageListener : IDisposable
     {
         string Name { get; }
-        bool SupportVpn { get; }
-        Task<IMessageListenerResult> Listen(string vpn, Action<MessageResult> callback, CancellationToken cancellationToken);
+        Task<IMessageListenerResult> Listen(Action<MessageResult> callback, CancellationToken cancellationToken);
     }
 
     public interface IMessageListenerResult

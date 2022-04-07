@@ -28,6 +28,15 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
+        public static GetAllVpnRequest GetAllVpns()
+        {
+            var result = new GetAllVpnRequest
+            {
+                Header = new Header(Commands.GET_ALL_VPNS_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq())
+            };
+            return result;
+        }
+
         public static DisconnectRequest Disconnect(string clientId, string sessionId)
         {
             var result = new DisconnectRequest

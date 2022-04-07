@@ -34,9 +34,9 @@ namespace FaasNet.EventMesh.Runtime
             return this;
         }
 
-        public RuntimeHostBuilder AddInMemoryMessageBroker(ConcurrentBag<InMemoryTopic> topics)
+        public RuntimeHostBuilder AddInMemoryMessageBroker()
         {
-            ServiceCollection.AddInMemoryMessageBroker(topics);
+            ServiceCollection.AddInMemoryMessageBroker();
             AddInitScript(async (s) =>
             {
                 var brokerConfigurationStore = s.GetRequiredService<IBrokerConfigurationStore>();

@@ -73,6 +73,20 @@ namespace FaasNet.EventMesh.Client
             return packageResult;
         }
 
+        public async Task<GetAllVpnResponse> GetAllVpns(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.GetAllVpns();
+            package.Serialize(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            var packageResult = Package.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as GetAllVpnResponse;
+        }
+
         public Task<HelloResponse> Hello(UserAgent userAgent, CancellationToken cancellationToken = default(CancellationToken))
         {
             return HandleException(userAgent.ClientId, string.Empty, async () =>
@@ -116,6 +130,14 @@ namespace FaasNet.EventMesh.Client
             }
 
             return new SubscriptionResult(result, listener);
+        }
+
+        public void Close()
+        {
+            if (_udpClient != null)
+            {
+                _udpClient.Close();
+            }
         }
 
         public async Task<Package> AddBridge(string vpn, string urn, int port, string targetVpn, CancellationToken cancellationToken = default(CancellationToken))

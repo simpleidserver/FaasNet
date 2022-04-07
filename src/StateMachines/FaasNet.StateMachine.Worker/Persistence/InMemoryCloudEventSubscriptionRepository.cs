@@ -12,9 +12,9 @@ namespace FaasNet.StateMachine.Worker.Persistence
     {
         private readonly ConcurrentBag<CloudEventSubscriptionAggregate> _cloudEvents;
 
-        public InMemoryCloudEventSubscriptionRepository(ConcurrentBag<CloudEventSubscriptionAggregate> cloudEvents)
+        public InMemoryCloudEventSubscriptionRepository()
         {
-            _cloudEvents = cloudEvents;
+            _cloudEvents = new ConcurrentBag<CloudEventSubscriptionAggregate>();
         }
 
         public Task Add(CloudEventSubscriptionAggregate evt, CancellationToken cancellationToken)

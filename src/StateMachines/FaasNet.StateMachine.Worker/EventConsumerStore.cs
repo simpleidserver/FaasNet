@@ -19,7 +19,6 @@ namespace FaasNet.StateMachine.Worker
 {
     public class EventConsumerStore : IEventConsumerStore
     {
-        private readonly IVpnSubscriptionRepository _vpnSubscriptionRepository;
         private readonly ICloudEventSubscriptionRepository _cloudEventSubscriptionRepository;
         private readonly ICommitAggregateHelper _commitAggregateHelper;
         private readonly IEnumerable<IMessageListener> _messageListeners;
@@ -29,9 +28,8 @@ namespace FaasNet.StateMachine.Worker
         private CancellationTokenSource _cancellationTokenSource;
         private bool _isInitialized = false;
 
-        public EventConsumerStore(IVpnSubscriptionRepository vpnSubscriptionRepository, ICloudEventSubscriptionRepository cloudEventSubscriptionRepository, ICommitAggregateHelper commitAggregateHelper, IDistributedLock distributedLock, IRuntimeEngine runtimeEngine, IEnumerable<IMessageListener> messageListeners)
+        public EventConsumerStore(ICloudEventSubscriptionRepository cloudEventSubscriptionRepository, ICommitAggregateHelper commitAggregateHelper, IDistributedLock distributedLock, IRuntimeEngine runtimeEngine, IEnumerable<IMessageListener> messageListeners)
         {
-            _vpnSubscriptionRepository = vpnSubscriptionRepository;
             _cloudEventSubscriptionRepository = cloudEventSubscriptionRepository;
             _commitAggregateHelper = commitAggregateHelper;
             _distributedLock = distributedLock;
@@ -50,37 +48,13 @@ namespace FaasNet.StateMachine.Worker
             }
 
             _cancellationTokenSource = new CancellationTokenSource();
-            var vpns = await _vpnSubscriptionRepository.GetAll(cancellationToken);
-            foreach (var vpn in vpns)
+            foreach (var messageListener in _messageListeners)
             {
-                await ListenVpn(vpn.Vpn, cancellationToken);
+                var result = await messageListener.Listen(HandleMessage, cancellationToken);
+                _listeners.Add(new MessageListenerRecord(result, messageListener.Name));
             }
 
             _isInitialized = true;
-        }
-
-        public bool IsListeningVpn(string vpn)
-        {
-            return _listeners.Any(l => l.Vpn == vpn);
-        }
-
-        public async Task ListenVpn(string vpn, CancellationToken cancellationToken)
-        {
-            if (!_isInitialized)
-            {
-                throw new InvalidOperationException("EventConsumer is not initialized");
-            }
-
-            foreach (var messageListener in _messageListeners)
-            {
-                if (_listeners.Any(l => l.Name == messageListener.Name && !l.SupportVpn))
-                {
-                    continue;
-                }
-
-                var r = await messageListener.Listen(vpn, HandleMessage, cancellationToken);
-                _listeners.Add(new MessageListenerRecord(vpn, r, messageListener.SupportVpn, messageListener.Name));
-            }
         }
 
         public void Stop()
@@ -90,14 +64,14 @@ namespace FaasNet.StateMachine.Worker
                 throw new InvalidOperationException("EventConsumer is not initialized");
             }
 
-            _isInitialized = false;
-            _cancellationTokenSource.Cancel();
             foreach (var l in _listeners)
             {
                 l.Listener.Stop();
             }
 
             _listeners.Clear();
+            _cancellationTokenSource.Cancel();
+            _isInitialized = false;
         }
 
         public void Dispose()
@@ -114,7 +88,7 @@ namespace FaasNet.StateMachine.Worker
         {
             var serializer = new RuntimeSerializer();
             var jsonEventFormatter = new JsonEventFormatter();
-            if (await _distributedLock.TryAcquireLock($"externalevts-{obj.Vpn}", _cancellationTokenSource.Token))
+            if (await _distributedLock.TryAcquireLock("externalevts", _cancellationTokenSource.Token))
             {
                 var cloudEvtMessage = obj.Content.First();
                 var vpnSubscriptions = _cloudEventSubscriptionRepository.Query().Where(e => e.Vpn == obj.Vpn && !e.IsConsumed).ToList();
@@ -150,17 +124,13 @@ namespace FaasNet.StateMachine.Worker
 
         private class MessageListenerRecord
         {
-            public MessageListenerRecord(string vpn, IMessageListenerResult listener, bool supportVpn, string name)
+            public MessageListenerRecord(IMessageListenerResult listener,  string name)
             {
-                Vpn = vpn;
                 Listener = listener;
-                SupportVpn = supportVpn;
                 Name = name;
             }
 
-            public string Vpn { get; set; }
             public IMessageListenerResult Listener { get; set; }
-            public bool SupportVpn { get; set; }
             public string Name { get; set; }
         }
     }

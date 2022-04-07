@@ -50,5 +50,17 @@ namespace FaasNet.EventMesh.Client.Messages
             CurrentOffset += 1;
             return result;
         }
+
+        public IEnumerable<string> NextStringArray()
+        {
+            var result = new List<string>();
+            var size = NextInt();
+            for(int i = 0; i < size; i++)
+            {
+                result.Add(NextString());
+            }
+
+            return result;
+        }
     }
 }

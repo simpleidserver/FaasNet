@@ -28,9 +28,15 @@ namespace FaasNet.EventMesh.Client
             _runtimeClient = new RuntimeClient(url, port);
         }
 
-        public async Task Connect( CancellationToken cancellationToken = default(CancellationToken))
+        public async Task Connect(CancellationToken cancellationToken = default(CancellationToken))
         {
             await _runtimeClient.HeartBeat(cancellationToken);
+        }
+
+        public async Task<IEnumerable<string>> GetAllVpns(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var vpnResponse = await _runtimeClient.GetAllVpns(cancellationToken);
+            return vpnResponse.Vpns;
         }
 
         public Task Publish(string topicName, object obj, CancellationToken cancellationToken = default(CancellationToken))
@@ -99,9 +105,15 @@ namespace FaasNet.EventMesh.Client
             }
         }
 
+        public void Close()
+        {
+            _runtimeClient.Close();
+        }
+
         public void Dispose()
         {
             Disconnect().Wait();
+            _runtimeClient.Close();
         }
 
         private Task<HelloResponse> CreateSession(string clientId, string password, UserAgentPurpose purpose, CancellationToken cancellationToken)

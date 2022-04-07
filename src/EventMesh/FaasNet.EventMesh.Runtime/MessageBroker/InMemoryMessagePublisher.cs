@@ -1,31 +1,23 @@
 ﻿using CloudNative.CloudEvents;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Runtime.MessageBroker
 {
     public class InMemoryMessagePublisher : IMessagePublisher
     {
-        private readonly ConcurrentBag<InMemoryTopic> _topics;
+        private readonly ConcurrentBag<EventMeshCloudEvent> _events;
 
-        public InMemoryMessagePublisher(ConcurrentBag<InMemoryTopic> topics)
+        public InMemoryMessagePublisher(ConcurrentBag<EventMeshCloudEvent> events)
         {
-            _topics = topics;
+            _events = events;
         }
 
         public string BrokerName => Constants.InMemoryBrokername;
 
         public Task Publish(CloudEvent cloudEvent, string topicName, Models.Client client)
         {
-            var topic = _topics.FirstOrDefault(t => t.TopicName == topicName);
-            if (topic == null)
-            {
-                topic = new InMemoryTopic { TopicName = topicName };
-                _topics.Add(topic);
-            }
-
-            topic.PublishMessage(cloudEvent);
+            _events.Add(new EventMeshCloudEvent { CloudEvt = cloudEvent, Topic = topicName });
             return Task.CompletedTask;
         }
     }

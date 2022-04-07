@@ -110,6 +110,16 @@ namespace FaasNet.EventMesh.Client.Messages
                 return result;
             }
 
+            if(Commands.GET_ALL_VPNS_RESPONSE == header.Command)
+            {
+                var result = new GetAllVpnResponse
+                {
+                    Header = header
+                };
+                result.Extract(context);
+                return result;
+            }
+
             return new Package
             {
                 Header = header

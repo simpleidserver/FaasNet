@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BadAnyCharacterUsage" xml:space="preserve">
+    <value>bad any character usage</value>
+  </data>
+  <data name="BadTopicFilterExpr" xml:space="preserve">
+    <value>topic filter '{0}' is not correct</value>
+  </data>
   <data name="BridgeAlreadyExists" xml:space="preserve">
     <value>bridge server already exists</value>
   </data>

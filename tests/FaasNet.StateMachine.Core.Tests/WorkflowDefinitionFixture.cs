@@ -6,9 +6,9 @@ using FaasNet.StateMachine.Runtime.Domains.Enums;
 using FaasNet.StateMachine.Runtime.Domains.Instances;
 using FaasNet.StateMachine.Runtime.Factories;
 using FaasNet.StateMachine.Worker;
-using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Moq;
 using Newtonsoft.Json.Linq;
 using RabbitMQ.Client;
@@ -477,6 +477,7 @@ namespace FaasNet.StateMachine.Core.Tests
         {
             private readonly IServiceProvider _serviceProvider;
             private readonly Mock<IAmqpChannelClientFactory> _ampqChannelClientFactory;
+            private readonly EventConsumerHostedService _eventConsumerHostedService;
 
             public RuntimeJob()
             {
@@ -490,6 +491,7 @@ namespace FaasNet.StateMachine.Core.Tests
                 _ampqChannelClientFactory = new Mock<IAmqpChannelClientFactory>();
                 serviceCollection.AddSingleton(_ampqChannelClientFactory.Object);
                 _serviceProvider = serviceCollection.BuildServiceProvider();
+                _eventConsumerHostedService = new EventConsumerHostedService(_serviceProvider);
             }
 
             public Mock<IAmqpChannelClientFactory> AmpqChannelClientFactory
@@ -521,10 +523,12 @@ namespace FaasNet.StateMachine.Core.Tests
 
             public void Start()
             {
+                _eventConsumerHostedService.StartAsync(CancellationToken.None).Wait();
             }
 
             public void Stop()
             {
+                _eventConsumerHostedService.StopAsync(CancellationToken.None).Wait();
             }
 
             public StateMachineInstanceAggregate GetWorkflowInstance(string id)
@@ -568,6 +572,28 @@ namespace FaasNet.StateMachine.Core.Tests
             public Task Publish(CloudEventMessage msg)
             {
                 // return _busControl.Publish(msg, CancellationToken.None);
+                return Task.CompletedTask;
+            }
+        }
+
+        public class EventConsumerHostedService : IHostedService
+        {
+            private readonly IEventConsumerStore _eventConsumerStore;
+
+            public EventConsumerHostedService(IServiceProvider serviceProvider)
+            {
+                var scope = serviceProvider.CreateScope();
+                _eventConsumerStore = scope.ServiceProvider.GetRequiredService<IEventConsumerStore>();
+            }
+
+            public async Task StartAsync(CancellationToken cancellationToken)
+            {
+                await _eventConsumerStore.Init(cancellationToken);
+            }
+
+            public Task StopAsync(CancellationToken cancellationToken)
+            {
+                _eventConsumerStore.Stop();
                 return Task.CompletedTask;
             }
         }

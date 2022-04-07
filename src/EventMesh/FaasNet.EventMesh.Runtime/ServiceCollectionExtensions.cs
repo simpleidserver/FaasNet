@@ -31,6 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IMessageHandler, AddBridgeMessageHandler>();
             services.AddTransient<IMessageHandler, DisconnectMessageHandler>();
             services.AddTransient<IMessageHandler, PublishMessageRequestHandler>();
+            services.AddTransient<IMessageHandler, GetAllVpnsMessageHandler>();
             services.AddSingleton<IUdpClientServerFactory, UdpClientServerFactory>();
             services.AddSingleton<IBrokerConfigurationStore>(new BrokerConfigurationStore());
             services.AddSingleton<IVpnStore>(new VpnStore(new List<Vpn>()));
@@ -40,10 +41,11 @@ namespace Microsoft.Extensions.DependencyInjection
             return new ServerBuilder(services);
         }
 
-        public static IServiceCollection AddInMemoryMessageBroker(this IServiceCollection services, ConcurrentBag<InMemoryTopic> topics)
+        public static IServiceCollection AddInMemoryMessageBroker(this IServiceCollection services)
         {
-            services.AddSingleton<IMessageConsumer>(new InMemoryMessageConsumer(topics));
-            services.AddSingleton<IMessagePublisher>(new InMemoryMessagePublisher(topics));
+            var evts = new ConcurrentBag<EventMeshCloudEvent>();
+            services.AddSingleton<IMessageConsumer>(new InMemoryMessageConsumer(evts));
+            services.AddSingleton<IMessagePublisher>(new InMemoryMessagePublisher(evts));
             return services;
         }
     }

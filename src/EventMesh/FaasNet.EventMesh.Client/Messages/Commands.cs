@@ -65,6 +65,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Server reply message response to the client.
         /// </summary>
         public static Commands PUBLISH_MESSAGE_RESONSE = new Commands(15);
+        /// <summary>
+        /// Get all VPN request.
+        /// </summary>
+        public static Commands GET_ALL_VPNS_REQUEST = new Commands(16);
+        /// <summary>
+        /// Get all VPN response.
+        /// </summary>
+        public static Commands GET_ALL_VPNS_RESPONSE = new Commands(17);
 
         private Commands(int code)
         {

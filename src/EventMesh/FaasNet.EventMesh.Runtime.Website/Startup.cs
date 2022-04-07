@@ -61,7 +61,7 @@ namespace FaasNet.EventMesh.Runtime.Website
             });
             if (GetBoolean(Configuration, "InMemory.Enabled"))
             {
-                broker.AddInMemoryMessageBroker(new ConcurrentBag<InMemoryTopic>());
+                broker.AddInMemoryMessageBroker(new ConcurrentBag<EventMeshSubscription>());
             }
 
             if (GetBoolean(Configuration, $"{rabbitmq}.Enabled"))
