@@ -1,5 +1,4 @@
-﻿using FaasNet.StateMachine.Runtime.Extensions;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using YamlDotNet.Core;
@@ -24,10 +23,10 @@ namespace FaasNet.StateMachine.Runtime.Serializer
         public void WriteYaml(IEmitter emitter, object value, Type type)
         {
             var jObj = value as JObject;
-            emitter.Emit(new MappingStart(null, null, true, MappingStyle.Block));
+            emitter.Emit(new MappingStart(default, default, false, MappingStyle.Block));
             foreach(var record in jObj)
             {
-                emitter.Emit(new Scalar(record.Key));
+                emitter.Emit(new Scalar(null, record.Key));
                 switch(record.Value.Type)
                 {
                     case JTokenType.Object:
@@ -38,7 +37,24 @@ namespace FaasNet.StateMachine.Runtime.Serializer
                         break;
                     case JTokenType.String:
                         {
-                            emitter.Emit(new Scalar(record.Value.ToString()));
+                            emitter.Emit(new Scalar(null, record.Value.ToString()));
+                        }
+                        break;
+                    case JTokenType.Integer:
+                        {
+                            emitter.Emit(new Scalar(null, record.Value.ToString()));
+                        }
+                        break;
+                    case JTokenType.Array:
+                        {
+                            var jArr = record.Value as JArray;
+                            emitter.Emit(new SequenceStart(null, null, false, SequenceStyle.Block));
+                            foreach(var r in jArr)
+                            {
+                                WriteYaml(emitter, r, type);
+                            }
+
+                            emitter.Emit(new SequenceEnd());
                         }
                         break;
                 }

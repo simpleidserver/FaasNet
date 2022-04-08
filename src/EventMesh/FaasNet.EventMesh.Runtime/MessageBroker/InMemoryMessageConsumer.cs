@@ -62,8 +62,8 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
 
         public void Commit(string topicFilter, Models.Client client, string sessionId, int nbEvts)
         {
-            var subscription = _subscriptions.First(s => s.TopicFilter == topicFilter && s.ClientSessionId == sessionId && s.ClientId == client.ClientId);
-            subscription.Offset += nbEvts;
+            // var subscription = _subscriptions.First(s => s.TopicFilter == topicFilter && s.ClientSessionId == sessionId && s.ClientId == client.ClientId);
+            // subscription.Offset += nbEvts;
         }
 
         public Task Unsubscribe(string topicFilter, Models.Client client, string sessionId, CancellationToken cancellationToken)
@@ -89,8 +89,9 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
                 foreach(var subscription in _subscriptions)
                 {
                     var filters = TopicFilterParser.Parse(subscription.TopicFilter).ToList();
-                    var filteredCloudEvts = _cloudEvts.AsQueryable().Query(filters);
-                    foreach(var cloudEvt in filteredCloudEvts)
+                    var filteredCloudEvts = _cloudEvts.AsQueryable().OrderBy(c => c.CreateDateTime).Query(filters).Skip(subscription.Offset);
+                    subscription.Offset += filteredCloudEvts.Count();
+                    foreach (var cloudEvt in filteredCloudEvts)
                     {
                         CloudEventReceived(this, new CloudEventArgs(cloudEvt.Topic, subscription.TopicFilter, Constants.InMemoryBrokername, cloudEvt.CloudEvt, subscription.ClientId, subscription.ActiveClientSession));
                     }

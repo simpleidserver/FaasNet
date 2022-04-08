@@ -21,13 +21,13 @@ namespace FaasNet.StateMachine.Worker.EventMesh
             _listeners = new List<MessageBrokerListener>();
         }
 
-        public async Task<IMessageListenerResult> Listen(Action<MessageResult> callback, CancellationToken cancellationToken)
+        public async Task<IMessageListenerResult> Listen(Func<MessageResult, Task> callback, CancellationToken cancellationToken)
         {
             var vpns = await GetAllVpns(cancellationToken);
             foreach(var vpn in vpns)
             {
                 var evtMeshClient = new EventMeshClient(_options.ClientId, _options.Password, vpn, _options.Url, _options.Port);
-                var subscriptionResult = await evtMeshClient.Subscribe("*", (msg) =>
+                var subscriptionResult = await evtMeshClient.Subscribe("*", async (msg) =>
                 {
                     var msgResult = new MessageResult
                     {
@@ -35,7 +35,7 @@ namespace FaasNet.StateMachine.Worker.EventMesh
                         Content = msg.CloudEvents,
                         TopicMessage = msg.TopicMessage
                     };
-                    callback(msgResult);
+                    await callback(msgResult);
                 }, cancellationToken);
                 _listeners.Add(new MessageBrokerListener { EvtMeshClient = evtMeshClient, SubscriptionResult = subscriptionResult });
             }
@@ -48,7 +48,6 @@ namespace FaasNet.StateMachine.Worker.EventMesh
             foreach(var listener in _listeners)
             {
                 listener.SubscriptionResult.Stop();
-                listener.EvtMeshClient.Dispose();
             }
         }
 

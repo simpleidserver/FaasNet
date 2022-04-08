@@ -1,4 +1,5 @@
 ﻿using CloudNative.CloudEvents;
+using System;
 
 namespace FaasNet.EventMesh.Runtime.MessageBroker
 {
@@ -6,5 +7,6 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
     {
         public CloudEvent CloudEvt { get; set; }
         public string Topic { get; set; }
+        public DateTime CreateDateTime { get; set; }
     }
 }

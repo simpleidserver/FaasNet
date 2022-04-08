@@ -92,8 +92,8 @@ namespace FaasNet.StateMachine.Core.Tests
         {
             var stateMachineJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
-                .AddConsumedEvent("FirstEvent", "firstEventSource", "firstEventType")
-                .AddConsumedEvent("SecondEvent", "secondEventSource", "secondEventType")
+                .AddConsumedEvent("FirstEvent", "https://github.com/cloudevents/spec/pull", "firstEventType", "firstCloudEvt")
+                .AddConsumedEvent("SecondEvent", "https://github.com/cloudevents/spec/pull", "secondEventType", "secondCloudEvt")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
                 .StartsWith(o => o.Event()
                     .SetExclusive(false)
@@ -110,15 +110,15 @@ namespace FaasNet.StateMachine.Core.Tests
             await stateMachineJob.RegisterWorkflowDefinition(workflowDefinition);
             var instance = await stateMachineJob.InstanciateAndLaunch(workflowDefinition, "{}");
             stateMachineJob.Start();
-            var firstEventData = JObject.Parse("{'name': 'firstEvent'}");
-            var secondEventData = JObject.Parse("{'name': 'secondEvent'}");
-            await stateMachineJob.Publish(new CloudEventMessage
+            await stateMachineJob.Publish("firstCloudEvt", new CloudEvent
             {
-                Id = "id1",
-                Source = "firstEventSource",
                 Type = "firstEventType",
-                SpecVersion = "1.0",
-                Data = firstEventData
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "{'name': 'firstEvent'}"
             });
             stateMachineJob.Wait(instance.Id, i =>
             {
@@ -128,7 +128,7 @@ namespace FaasNet.StateMachine.Core.Tests
                     return false;
                 }
 
-                var evt = firstState.Events.FirstOrDefault(e => e.Source == "firstEventSource");
+                var evt = firstState.Events.FirstOrDefault(e => e.Type == "firstEventType");
                 if (evt == null)
                 {
                     return false;
@@ -136,15 +136,18 @@ namespace FaasNet.StateMachine.Core.Tests
 
                 return evt.State == StateMachineInstanceStateEventStates.CONSUMED;
             });
-            await stateMachineJob.Publish(new CloudEventMessage
+            await stateMachineJob.Publish("secondCloudEvt", new CloudEvent
             {
-                Id = "id2",
-                Source = "secondEventSource",
                 Type = "secondEventType",
-                SpecVersion = "1.0",
-                Data = secondEventData
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "{'name': 'secondEvent'}"
             });
             instance = stateMachineJob.WaitTerminate(instance.Id);
+            stateMachineJob.Stop();
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
             Assert.Equal("{\r\n  \"name\": \"secondEvent\",\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\",\r\n  \"secondEvent\": \"Welcome to Serverless Workflow, secondEvent!\"\r\n}", instance.OutputStr);
         }
@@ -229,8 +232,6 @@ namespace FaasNet.StateMachine.Core.Tests
                     ).End()
                 )
                 .Build();
-            var yml = serializer.SerializeYaml(workflowDefinition);
-            var tt = serializer.DeserializeYaml(yml);
             await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             runtimeJob.Start();
@@ -246,6 +247,7 @@ namespace FaasNet.StateMachine.Core.Tests
             };
             await runtimeJob.Publish("greetingTopic", cloudEvent);
             instance = runtimeJob.WaitTerminate(instance.Id);
+            runtimeJob.Stop();
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
             Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
         }
@@ -552,8 +554,12 @@ namespace FaasNet.StateMachine.Core.Tests
 
             public void Stop()
             {
-                _runtimeHost.Stop();
-                _eventConsumerHostedService.StopAsync(CancellationToken.None).Wait();
+                try
+                {
+                    _runtimeHost.Stop();
+                    _eventConsumerHostedService.StopAsync(CancellationToken.None);
+                }
+                catch { }
             }
 
             public StateMachineInstanceAggregate GetWorkflowInstance(string id)
@@ -566,14 +572,12 @@ namespace FaasNet.StateMachine.Core.Tests
 
             public StateMachineInstanceAggregate Wait(string id, Func<StateMachineInstanceAggregate, bool> callback)
             {
-                /*
-                var workflowInstanceRepository = _serviceProvider.GetService<IStateMachineInstanceRepository>();
-                var workflowInstance = workflowInstanceRepository.Query().First(w => w.Id == id);
-                if (callback(workflowInstance))
+                var commitAggregateHelper = _serviceProvider.GetService<ICommitAggregateHelper>();
+                var stateMachineInstance = commitAggregateHelper.Get<StateMachineInstanceAggregate>(id, CancellationToken.None).Result;
+                if (callback(stateMachineInstance))
                 {
-                    return workflowInstance;
+                    return stateMachineInstance;
                 }
-                */
 
                 Thread.Sleep(20);
                 return Wait(id, callback);

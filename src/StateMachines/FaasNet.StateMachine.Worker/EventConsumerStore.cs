@@ -87,38 +87,45 @@ namespace FaasNet.StateMachine.Worker
 
         #endregion
 
-        private async void HandleMessage(MessageResult obj)
+        private async Task HandleMessage(MessageResult obj)
         {
             var serializer = new RuntimeSerializer();
             if (await _distributedLock.TryAcquireLock("externalevts", _cancellationTokenSource.Token))
             {
-                var cloudEvtMessage = obj.Content.First();
-                var vpnSubscriptions = _cloudEventSubscriptionRepository.Query().Where(e => e.Vpn == obj.Vpn && e.Topic == obj.TopicMessage && !e.IsConsumed).ToList();
-                var lst = vpnSubscriptions.Where(vs => obj.Content.Any(ce => ce.Type == vs.Type && ce.Source.ToString() == vs.Source)).GroupBy(k => k.WorkflowInstanceId);
-                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                try
                 {
-                    foreach (var kvp in lst)
+                    var cloudEvtMessage = obj.Content.First();
+                    var vpnSubscriptions = _cloudEventSubscriptionRepository.Query().Where(e => e.Vpn == obj.Vpn && e.Topic == obj.TopicMessage && !e.IsConsumed).ToList();
+                    var lst = vpnSubscriptions.Where(vs => obj.Content.Any(ce => ce.Type == vs.Type && ce.Source.ToString() == vs.Source)).GroupBy(k => k.WorkflowInstanceId);
+                    using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        var stateMachineInstanceId = kvp.Key;
-                        var stateMachineInstance = await _commitAggregateHelper.Get<StateMachineInstanceAggregate>(stateMachineInstanceId, _cancellationTokenSource.Token);
-                        var stateMachineDef = serializer.DeserializeYaml(stateMachineInstance.SerializedDefinition);
-                        foreach (var subscription in kvp)
+                        foreach (var kvp in lst)
                         {
-                            var firstMsg = obj.Content.First(ce => ce.Type == subscription.Type && ce.Source.ToString() == subscription.Source);
-                            if (stateMachineInstance.TryConsumeEvt(subscription.StateInstanceId, subscription.Source, subscription.Type, firstMsg.Data.ToString()))
+                            var stateMachineInstanceId = kvp.Key;
+                            var stateMachineInstance = await _commitAggregateHelper.Get<StateMachineInstanceAggregate>(stateMachineInstanceId, _cancellationTokenSource.Token);
+                            var stateMachineDef = serializer.DeserializeYaml(stateMachineInstance.SerializedDefinition);
+                            foreach (var subscription in kvp)
                             {
-                                var jObj = JObject.Parse(firstMsg.Data.ToString());
-                                await _runtimeEngine.Launch(stateMachineDef, stateMachineInstance, jObj, subscription.StateInstanceId, CancellationToken.None);
-                                await _commitAggregateHelper.Commit(stateMachineInstance, _cancellationTokenSource.Token);
+                                var firstMsg = obj.Content.First(ce => ce.Type == subscription.Type && ce.Source.ToString() == subscription.Source);
+                                if (stateMachineInstance.TryConsumeEvt(subscription.StateInstanceId, subscription.Source, subscription.Type, firstMsg.Data.ToString()))
+                                {
+                                    var jObj = JObject.Parse(firstMsg.Data.ToString());
+                                    await _runtimeEngine.Launch(stateMachineDef, stateMachineInstance, jObj, subscription.StateInstanceId, CancellationToken.None);
+                                    await _commitAggregateHelper.Commit(stateMachineInstance, _cancellationTokenSource.Token);
+                                }
+
+                                subscription.IsConsumed = true;
                             }
-
-                            subscription.IsConsumed = true;
                         }
-                    }
 
-                    await _cloudEventSubscriptionRepository.Update(lst.SelectMany(_ => _), _cancellationTokenSource.Token);
-                    await _cloudEventSubscriptionRepository.SaveChanges(_cancellationTokenSource.Token);
-                    scope.Complete();
+                        await _cloudEventSubscriptionRepository.Update(lst.SelectMany(_ => _), _cancellationTokenSource.Token);
+                        await _cloudEventSubscriptionRepository.SaveChanges(_cancellationTokenSource.Token);
+                        scope.Complete();
+                    }
+                }
+                finally
+                {
+                    await _distributedLock.ReleaseLock("externalevts", _cancellationTokenSource.Token);
                 }
             }
         }

@@ -1,10 +1,9 @@
-﻿using FaasNet.StateMachine.Runtime.Serializer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 
-namespace FaasNet.StateMachine.Runtime.Extensions
+namespace FaasNet.StateMachine.Runtime.Serializer
 {
     public static class ParserExtensions
     {

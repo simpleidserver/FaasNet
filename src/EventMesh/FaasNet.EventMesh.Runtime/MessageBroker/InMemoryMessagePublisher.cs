@@ -1,4 +1,5 @@
 ﻿using CloudNative.CloudEvents;
+using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
 
         public Task Publish(CloudEvent cloudEvent, string topicName, Models.Client client)
         {
-            _events.Add(new EventMeshCloudEvent { CloudEvt = cloudEvent, Topic = topicName });
+            _events.Add(new EventMeshCloudEvent { CloudEvt = cloudEvent, Topic = topicName, CreateDateTime = DateTime.UtcNow });
             return Task.CompletedTask;
         }
     }

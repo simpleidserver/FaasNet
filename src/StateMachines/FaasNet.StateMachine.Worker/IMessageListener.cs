@@ -9,7 +9,7 @@ namespace FaasNet.StateMachine.Worker
     public interface IMessageListener : IDisposable
     {
         string Name { get; }
-        Task<IMessageListenerResult> Listen(Action<MessageResult> callback, CancellationToken cancellationToken);
+        Task<IMessageListenerResult> Listen(Func<MessageResult, Task> callback, CancellationToken cancellationToken);
     }
 
     public interface IMessageListenerResult

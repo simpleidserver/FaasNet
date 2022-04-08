@@ -1,6 +1,5 @@
 ﻿using FaasNet.StateMachine.Runtime.Domains.Definitions;
 using FaasNet.StateMachine.Runtime.Domains.Enums;
-using FaasNet.StateMachine.Runtime.Extensions;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
