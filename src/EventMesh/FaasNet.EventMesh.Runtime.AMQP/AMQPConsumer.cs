@@ -71,16 +71,16 @@ namespace FaasNet.EventMesh.Runtime.AMQP
         {
         }
 
-        protected override void ListenTopic(AMQPOptions options, string topicName, ClientTopic topic, string clientId, string clientSessionId)
+        protected override void ListenTopic(AMQPOptions options, string topicFilter, ClientTopic topic, string clientId, string clientSessionId)
         {
-            if (_subscriptions.Any(s => s.BrokerName == options.BrokerName && s.TopicName == topicName && s.ClientSessionId == clientSessionId && s.ClientId == clientId))
+            if (_subscriptions.Any(s => s.BrokerName == options.BrokerName && s.TopicName == topicFilter && s.ClientSessionId == clientSessionId && s.ClientId == clientId))
             {
                 return;
             }
 
             var channel = _connection.CreateModel();
             var queue = channel.QueueDeclare(
-                $"{options.QueueName}-{topicName}",
+                $"{options.QueueName}-{topicFilter}",
                 true,
                 false,
                 false,
@@ -88,13 +88,13 @@ namespace FaasNet.EventMesh.Runtime.AMQP
                 {
                     { "x-queue-type", "stream" }
                 });
-            channel.QueueBind(queue, options.TopicName, topicName);
+            channel.QueueBind(queue, options.TopicName, topicFilter);
             var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (sender, e) => ReceiveMessage(sender, clientId, clientSessionId, topicName, options.Source, options.BrokerName, e);
+            consumer.Received += (sender, e) => ReceiveMessage(sender, clientId, clientSessionId, topicFilter, options.Source, options.BrokerName, e);
             // TODO : Update BasicQos.
             channel.BasicQos(0, 100, false);
             var tag = channel.BasicConsume(queue, false, string.Empty, new Dictionary<string, object> { { "x-stream-offset", topic.Offset } }, consumer);
-            _subscriptions.Add(new AMQPSubscriptionRecord(topicName, options.BrokerName, clientId, clientSessionId, channel, tag));
+            _subscriptions.Add(new AMQPSubscriptionRecord(topicFilter, options.BrokerName, clientId, clientSessionId, channel, tag));
         }
 
         protected override void UnsubscribeTopic(string topicName, Models.Client client, string sessionId)
@@ -112,19 +112,19 @@ namespace FaasNet.EventMesh.Runtime.AMQP
 
         #endregion
 
-        private void ReceiveMessage(object sender, string clientId, string clientSessionId, string topicName, string source, string brokerName, BasicDeliverEventArgs e)
+        private void ReceiveMessage(object sender, string clientId, string clientSessionId, string topicFilter, string source, string brokerName, BasicDeliverEventArgs e)
         {
             var jsonEventFormatter = new JsonEventFormatter();
             var model = (sender as EventingBasicConsumer).Model;
-            var cloudEvent = e.ToCloudEvent(jsonEventFormatter, source, topicName);
+            var cloudEvent = e.ToCloudEvent(jsonEventFormatter, source, topicFilter);
             var client = _clientStore.GetBySession(clientId, clientSessionId, CancellationToken.None).Result;
             if (client == null)
             {
                 return;
             }
 
-            var clientSession = client.GetActiveSessionByTopic(brokerName, topicName);
-            CloudEventReceived(this, new CloudEventArgs(topicName, brokerName, cloudEvent, client.ClientId, clientSession));
+            var clientSession = client.GetActiveSessionByTopic(brokerName, topicFilter);
+            CloudEventReceived(this, new CloudEventArgs(e.RoutingKey, topicFilter, brokerName, cloudEvent, client.ClientId, clientSession));
         }
     }
 }

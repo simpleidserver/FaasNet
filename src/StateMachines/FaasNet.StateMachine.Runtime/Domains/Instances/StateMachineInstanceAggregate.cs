@@ -76,6 +76,14 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         #region Manage State
 
+        public StateMachineInstanceState AddState(string defId)
+        {
+            var evt = new StateInstanceCreatedEvent(Guid.NewGuid().ToString(), Id, Guid.NewGuid().ToString(), defId);
+            Handle(evt);
+            DomainEvts.Add(evt);
+            return States.Last();
+        }
+
         public void StartState(string stateId, JToken input)
         {
             var evt = new StateStartedEvent(Guid.NewGuid().ToString(), Id, stateId, input, DateTime.UtcNow);
@@ -108,7 +116,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         #region Manage Events
 
-        public void ListenEvt(string stateInstanceId, string name, string source, string type)
+        public void ListenEvt(string stateInstanceId, string name, string source, string type, string topic)
         {
             var state = GetState(stateInstanceId);
             if (state == null)
@@ -123,23 +131,12 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
             if (!state.TryGetEvent(name, out StateMachineInstanceStateEvent evtState))
             {
-                var evt = new StateEvtListenedEvent(Guid.NewGuid().ToString(), Id, stateInstanceId, name, source, type);
-                var integrationEvt = new EventListenedEvent(Guid.NewGuid().ToString(), Id, evt.StateId, Vpn, evt.EvtSource, evt.EvtType);
+                var evt = new StateEvtListenedEvent(Guid.NewGuid().ToString(), Id, stateInstanceId, name, source, type, topic);
+                var integrationEvt = new EventListenedEvent(Guid.NewGuid().ToString(), Id, evt.StateId, Vpn, evt.EvtSource, evt.EvtType, evt.Topic);
                 Handle(evt);
                 DomainEvts.Add(evt);
                 IntegrationEvents.Add(integrationEvt);
             }
-        }
-
-        public void ConsumeEvt(string stateId, string source, string type, int index, JToken output)
-        {
-            var state = States.First(s => s.Id == stateId);
-            var evt = state.GetEvent(source, type);
-            evt.OutputLst.Add(new StateMachineInstanceStateEventOutput
-            {
-                Data = output.ToString(),
-                Index = index
-            });
         }
 
         public bool TryConsumeEvt(string stateInstanceId, string source, string type, string data)
@@ -169,11 +166,11 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
             return false;
         }
 
-        public void ProcessEvent(string stateId, string source, string type)
+        public void ProcessEvent(string stateId, string evtName, string output)
         {
-            var state = States.First(s => s.Id == stateId);
-            var evt = state.GetEvent(source, type);
-            evt.State = StateMachineInstanceStateEventStates.PROCESSED;
+            var evt = new StateProcessedEvent(Guid.NewGuid().ToString(), Id, stateId, evtName, output);
+            Handle(evt);
+            DomainEvts.Add(evt);
         }
 
         #endregion
@@ -192,6 +189,25 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public override void Handle(dynamic evt)
         {
             Handle(evt);
+        }
+
+        public void Handle(StateMachineInstanceCreatedEvent evt)
+        {
+            Id = evt.AggregateId;
+            WorkflowDefTechnicalId = evt.WorkflowDefTechnicalId;
+            WorkflowDefName = evt.WorkflowDefName;
+            WorkflowDefDescription = evt.WorkflowDefDescription;
+            WorkflowDefId = evt.WorkflowDefId;
+            WorkflowDefVersion = evt.WorkflowDefVersion;
+            Status = StateMachineInstanceStatus.ACTIVE;
+            Vpn = evt.Vpn;
+            SerializedDefinition = evt.SerializedDefinition;
+            CreateDateTime = evt.CreateDateTime;
+        }
+
+        public void Handle(StateInstanceCreatedEvent evt)
+        {
+            States.Add(StateMachineInstanceState.Create(evt.StateInstanceId, evt.DefId));
         }
 
         public void Handle(StateStartedEvent evt)
@@ -238,7 +254,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public void Handle(StateEvtListenedEvent evt)
         {
             var state = GetState(evt.StateId);
-            state.AddEvent(evt.EvtName, evt.EvtSource, evt.EvtType);
+            state.AddEvent(evt.EvtName, evt.EvtSource, evt.EvtType, evt.Topic);
         }
 
         public void Handle(StateEvtConsumedEvent evt)
@@ -249,34 +265,23 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
             stateEvt.InputData = evt.Input;
         }
 
-        #endregion
-
-        #region Helpers
-
-        public StateMachineInstanceState AddState(string defId)
+        public void Handle(StateProcessedEvent evt)
         {
-            var result = StateMachineInstanceState.Create(defId);
-            States.Add(result);
-            return result;
+            var state = States.First(s => s.Id == evt.StateId);
+            var evtState = state.Events.First(e => e.Name == evt.EvtName);
+            evtState.State = StateMachineInstanceStateEventStates.PROCESSED;
+            evtState.OutputData = evt.Output;
         }
 
         #endregion
 
         public static StateMachineInstanceAggregate Create(string workflowDefTechnicalId, string workflowDefId, string workflowDefName, string workflowDefDescription, int workflowDefVersion, string vpn, string serializedDefinition)
         {
-            return new StateMachineInstanceAggregate
-            {
-                CreateDateTime = DateTime.UtcNow,
-                WorkflowDefTechnicalId = workflowDefTechnicalId,
-                Id = Guid.NewGuid().ToString(),
-                WorkflowDefName = workflowDefName,
-                WorkflowDefDescription = workflowDefDescription,
-                WorkflowDefId = workflowDefId,
-                WorkflowDefVersion = workflowDefVersion,
-                Status = StateMachineInstanceStatus.ACTIVE,
-                Vpn = vpn,
-                SerializedDefinition = serializedDefinition
-            };
+            var evt = new StateMachineInstanceCreatedEvent(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), workflowDefTechnicalId, workflowDefId, workflowDefName, workflowDefDescription, workflowDefVersion, vpn, serializedDefinition, DateTime.UtcNow);
+            var result = new StateMachineInstanceAggregate();
+            result.Handle(evt);
+            result.DomainEvts.Add(evt);
+            return result;
         }
 
         public object Clone()

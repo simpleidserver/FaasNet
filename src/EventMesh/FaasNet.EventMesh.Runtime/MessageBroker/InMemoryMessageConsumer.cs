@@ -47,28 +47,28 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
             return Task.CompletedTask;
         }
 
-        public Task Subscribe(string topicName, Models.Client client, string sessionId, CancellationToken cancellationToken)
+        public Task Subscribe(string topicFilter, Models.Client client, string sessionId, CancellationToken cancellationToken)
         {
-            var clientTopic = client.GetTopic(topicName, Constants.InMemoryBrokername);
+            var clientTopic = client.GetTopic(topicFilter, Constants.InMemoryBrokername);
             if (clientTopic == null)
             {
-                clientTopic = client.AddTopic(topicName, Constants.InMemoryBrokername);
+                clientTopic = client.AddTopic(topicFilter, Constants.InMemoryBrokername);
             }
 
             var activeClientSession = client.GetActiveSession(sessionId);
-            _subscriptions.Add(new EventMeshSubscription { ClientId = client.ClientId, TopicName = topicName, ClientSessionId = sessionId, Offset = clientTopic.Offset, ActiveClientSession = activeClientSession });
+            _subscriptions.Add(new EventMeshSubscription { ClientId = client.ClientId, TopicFilter = topicFilter, ClientSessionId = sessionId, Offset = clientTopic.Offset, ActiveClientSession = activeClientSession });
             return Task.CompletedTask;
         }
 
-        public void Commit(string topicName, Models.Client client, string sessionId, int nbEvts)
+        public void Commit(string topicFilter, Models.Client client, string sessionId, int nbEvts)
         {
-            var subscription = _subscriptions.First(s => s.TopicName == topicName && s.ClientSessionId == sessionId && s.ClientId == client.ClientId);
+            var subscription = _subscriptions.First(s => s.TopicFilter == topicFilter && s.ClientSessionId == sessionId && s.ClientId == client.ClientId);
             subscription.Offset += nbEvts;
         }
 
-        public Task Unsubscribe(string topic, Models.Client client, string sessionId, CancellationToken cancellationToken)
+        public Task Unsubscribe(string topicFilter, Models.Client client, string sessionId, CancellationToken cancellationToken)
         {
-            var subscription = _subscriptions.First(s => s.TopicName == topic && s.ClientSessionId == sessionId && s.ClientId == client.ClientId);
+            var subscription = _subscriptions.FirstOrDefault(s => s.TopicFilter == topicFilter && s.ClientSessionId == sessionId && s.ClientId == client.ClientId);
             _subscriptions.Remove(subscription);
             return Task.CompletedTask;
         }
@@ -88,11 +88,11 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
                 Thread.Sleep(DEFAULT_TIMER_MS);
                 foreach(var subscription in _subscriptions)
                 {
-                    var filters = TopicFilterParser.Parse(subscription.TopicName).ToList();
+                    var filters = TopicFilterParser.Parse(subscription.TopicFilter).ToList();
                     var filteredCloudEvts = _cloudEvts.AsQueryable().Query(filters);
                     foreach(var cloudEvt in filteredCloudEvts)
                     {
-                        CloudEventReceived(this, new CloudEventArgs(cloudEvt.Topic, Constants.InMemoryBrokername, cloudEvt.CloudEvt, subscription.ClientId, subscription.ActiveClientSession));
+                        CloudEventReceived(this, new CloudEventArgs(cloudEvt.Topic, subscription.TopicFilter, Constants.InMemoryBrokername, cloudEvt.CloudEvt, subscription.ClientId, subscription.ActiveClientSession));
                     }
                 }
             }
@@ -100,7 +100,7 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
 
         public class EventMeshSubscription
         {
-            public string TopicName { get; set; }
+            public string TopicFilter { get; set; }
             public string ClientId { get; set; }
             public string ClientSessionId { get; set; }
             public int Offset { get; set; }

@@ -12,6 +12,7 @@
     <ProjectReference Include="..\..\Common\FaasNet.Domain\FaasNet.Domain.csproj" />
     <ProjectReference Include="..\..\Common\FaasNet.EventStore\FaasNet.EventStore.csproj" />
     <ProjectReference Include="..\..\EventMesh\FaasNet.EventMesh.IntegrationEvents\FaasNet.EventMesh.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\FaasNet.StateMachine.IntegrationEvents\FaasNet.StateMachine.IntegrationEvents.csproj" />
     <ProjectReference Include="..\FaasNet.StateMachine.Runtime\FaasNet.StateMachine.Runtime.csproj" />
   </ItemGroup>
 

@@ -27,7 +27,7 @@ namespace FaasNet.EventStore.InMemory
 
         public Task<List<DomainEvent>> Search(string topicName, long? offset, CancellationToken cancellationToken)
         {
-            var filteredEvts = _evts.Where(e => e.Topic == topicName);
+            var filteredEvts = _evts.OrderBy(e => e.CreationDateTime).Where(e => e.Topic == topicName);
             if (offset != null)
             {
                 filteredEvts = filteredEvts.Skip((int)offset.Value);
@@ -36,7 +36,8 @@ namespace FaasNet.EventStore.InMemory
             var result = filteredEvts.Select(e =>
             {
                 var type = Type.GetType(e.Type);
-                return JsonSerializer.Deserialize(Encoding.UTF8.GetString(e.Payload), type) as DomainEvent;
+                var json = Encoding.UTF8.GetString(e.Payload);
+                return JsonSerializer.Deserialize(json, type) as DomainEvent;
             }).ToList();
             return Task.FromResult(result);
         }

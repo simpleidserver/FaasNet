@@ -17,7 +17,8 @@ namespace FaasNet.EventMesh.Client.Messages
 
         public string ClientId { get; set; }
         public ICollection<AsyncMessageBridgeServer> BridgeServers { get; set; }
-        public string Topic { get; set; }
+        public string TopicMessage { get; set; }
+        public string TopicFilter { get; set; }
         public string BrokerName { get; set; }
         public string SessionId { get; set; }
         public ICollection<CloudEvent> CloudEvents { get; set; }
@@ -34,7 +35,8 @@ namespace FaasNet.EventMesh.Client.Messages
                 bridgeServer.Serialize(context);
             }
 
-            context.WriteString(Topic);
+            context.WriteString(TopicMessage);
+            context.WriteString(TopicFilter);
             context.WriteString(BrokerName);
             context.WriteString(SessionId);
             context.WriteInteger(CloudEvents.Count());
@@ -53,7 +55,8 @@ namespace FaasNet.EventMesh.Client.Messages
                 BridgeServers.Add(AsyncMessageBridgeServer.Deserialize(context));
             }
 
-            Topic = context.NextString();
+            TopicMessage = context.NextString();
+            TopicFilter = context.NextString();
             BrokerName = context.NextString();
             SessionId = context.NextString();
             int nbCloudEvents = context.NextInt();

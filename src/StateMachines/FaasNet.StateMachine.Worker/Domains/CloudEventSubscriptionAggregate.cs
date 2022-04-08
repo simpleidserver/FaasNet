@@ -12,9 +12,10 @@
         public string Source { get; set; }
         public string Type { get; set; }
         public string Vpn { get; set; }
+        public string Topic { get; set; }
         public bool IsConsumed { get; set; }
 
-        public static CloudEventSubscriptionAggregate Create(string workflowInstanceId, string stateInstanceId, string source, string type, string vpn)
+        public static CloudEventSubscriptionAggregate Create(string workflowInstanceId, string stateInstanceId, string source, string type, string vpn, string topic)
         {
             return new CloudEventSubscriptionAggregate
             {
@@ -22,7 +23,8 @@
                 StateInstanceId = stateInstanceId,
                 Type = type,
                 WorkflowInstanceId = workflowInstanceId,
-                Vpn = vpn
+                Vpn = vpn,
+                Topic = topic
             };
         }
 
@@ -35,7 +37,8 @@
                 Source = Source,
                 StateInstanceId = StateInstanceId,
                 Type = Type,
-                Vpn = Vpn
+                Vpn = Vpn,
+                Topic = Topic
             };
         }
     }

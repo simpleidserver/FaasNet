@@ -53,20 +53,21 @@ namespace FaasNet.EventMesh.Client.Messages
             var result = new SubscriptionRequest
             {
                 Header = new Header(Commands.SUBSCRIBE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
-                Topics = subscriptionItems,
+                TopicFilters = subscriptionItems,
                 ClientId = clientId,
                 SessionId = sessionId
             };
             return result;
         }
 
-        public static Package AsyncMessageAckToServer(string clientId, string brokerName, string topic, int nbCloudEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null, bool isClient = false)
+        public static Package AsyncMessageAckToServer(string clientId, string brokerName, string topicMessage, string topicFilter, int nbCloudEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null, bool isClient = false)
         {
             var result = new AsyncMessageAckToServer
             {
                 Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT_ACK, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
                 BrokerName = brokerName,
-                Topic = topic,
+                TopicMessage = topicMessage,
+                TopicFilter = topicFilter,
                 NbCloudEventsConsumed = nbCloudEventsConsumed,
                 BridgeServers = bridgeServers,
                 ClientId = clientId,

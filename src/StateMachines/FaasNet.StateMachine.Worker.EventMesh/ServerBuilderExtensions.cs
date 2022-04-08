@@ -8,7 +8,7 @@ namespace FaasNet.StateMachine.Worker.EventMesh
     {
         public static ServerBuilder UseEventMesh(this ServerBuilder serverBuilder, Action<EventMeshOptions> callbackOptions = null)
         {
-            if(callbackOptions != null)
+            if(callbackOptions == null)
             {
                 serverBuilder.Services.Configure<EventMeshOptions>((o) => { });
             }

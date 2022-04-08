@@ -28,7 +28,8 @@ namespace FaasNet.EventStore.InMemory
             {
                 Payload = payload,
                 Topic = topicName,
-                Type = domainEvt.GetType().FullName
+                Type = domainEvt.GetType().AssemblyQualifiedName,
+                CreationDateTime = DateTime.UtcNow
             });
             var filtredSubscriptions = _subscriptions.Where(s => s.TopicName == topicName);
             foreach(var filteredSubscription in filtredSubscriptions)

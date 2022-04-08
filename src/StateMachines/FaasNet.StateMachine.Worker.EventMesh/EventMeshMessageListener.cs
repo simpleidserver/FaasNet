@@ -32,7 +32,8 @@ namespace FaasNet.StateMachine.Worker.EventMesh
                     var msgResult = new MessageResult
                     {
                         Vpn = vpn,
-                        Content = msg.CloudEvents
+                        Content = msg.CloudEvents,
+                        TopicMessage = msg.TopicMessage
                     };
                     callback(msgResult);
                 }, cancellationToken);

@@ -1,4 +1,5 @@
-﻿using CloudNative.CloudEvents.Core;
+﻿using CloudNative.CloudEvents;
+using CloudNative.CloudEvents.Core;
 using CloudNative.CloudEvents.NewtonsoftJson;
 using FaasNet.EventStore;
 using FaasNet.Lock;
@@ -6,9 +7,11 @@ using FaasNet.StateMachine.Runtime;
 using FaasNet.StateMachine.Runtime.Domains.Instances;
 using FaasNet.StateMachine.Runtime.Serializer;
 using FaasNet.StateMachine.Worker.Persistence;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -87,11 +90,10 @@ namespace FaasNet.StateMachine.Worker
         private async void HandleMessage(MessageResult obj)
         {
             var serializer = new RuntimeSerializer();
-            var jsonEventFormatter = new JsonEventFormatter();
             if (await _distributedLock.TryAcquireLock("externalevts", _cancellationTokenSource.Token))
             {
                 var cloudEvtMessage = obj.Content.First();
-                var vpnSubscriptions = _cloudEventSubscriptionRepository.Query().Where(e => e.Vpn == obj.Vpn && !e.IsConsumed).ToList();
+                var vpnSubscriptions = _cloudEventSubscriptionRepository.Query().Where(e => e.Vpn == obj.Vpn && e.Topic == obj.TopicMessage && !e.IsConsumed).ToList();
                 var lst = vpnSubscriptions.Where(vs => obj.Content.Any(ce => ce.Type == vs.Type && ce.Source.ToString() == vs.Source)).GroupBy(k => k.WorkflowInstanceId);
                 using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
@@ -105,9 +107,8 @@ namespace FaasNet.StateMachine.Worker
                             var firstMsg = obj.Content.First(ce => ce.Type == subscription.Type && ce.Source.ToString() == subscription.Source);
                             if (stateMachineInstance.TryConsumeEvt(subscription.StateInstanceId, subscription.Source, subscription.Type, firstMsg.Data.ToString()))
                             {
-                                byte[] payload = BinaryDataUtilities.AsArray(jsonEventFormatter.EncodeBinaryModeEventData(firstMsg));
-                                var json = Encoding.UTF8.GetString(payload);
-                                await _runtimeEngine.Launch(stateMachineDef, stateMachineInstance, JObject.Parse(json), subscription.StateInstanceId, CancellationToken.None);
+                                var jObj = JObject.Parse(firstMsg.Data.ToString());
+                                await _runtimeEngine.Launch(stateMachineDef, stateMachineInstance, jObj, subscription.StateInstanceId, CancellationToken.None);
                                 await _commitAggregateHelper.Commit(stateMachineInstance, _cancellationTokenSource.Token);
                             }
 

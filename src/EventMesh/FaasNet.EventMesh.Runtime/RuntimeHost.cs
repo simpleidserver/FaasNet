@@ -163,7 +163,7 @@ namespace FaasNet.EventMesh.Runtime
         private async Task HandleCloudEventReceived(object sender, CloudEventArgs e)
         {
             ICollection<CloudEvent> pendingCloudEvts;
-            if (e.ClientSession.TryAddPendingCloudEvent(e.BrokerName, e.Topic, e.Evt, out pendingCloudEvts))
+            if (e.ClientSession.TryAddPendingCloudEvent(e.BrokerName, e.TopicMessage, e.Evt, out pendingCloudEvts))
             {
                 return;
             }
@@ -179,10 +179,10 @@ namespace FaasNet.EventMesh.Runtime
                         Urn = _options.Urn,
                         Vpn = e.ClientSession.Vpn
                     });
-                    PackageResponseBuilder.AsyncMessageToServer(e.ClientId, bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts, e.ClientSession.Id).Serialize(writeCtx);
+                    PackageResponseBuilder.AsyncMessageToServer(e.ClientId, bridgeServers, e.BrokerName, e.TopicMessage, e.TopicFilter, pendingCloudEvts, e.ClientSession.Id).Serialize(writeCtx);
                     break;
                 case Models.ClientSessionTypes.CLIENT:
-                    PackageResponseBuilder.AsyncMessageToClient(bridgeServers, e.BrokerName, e.Topic, pendingCloudEvts).Serialize(writeCtx);
+                    PackageResponseBuilder.AsyncMessageToClient(bridgeServers, e.BrokerName, e.TopicMessage, e.TopicFilter, pendingCloudEvts).Serialize(writeCtx);
                     break;
             }
 

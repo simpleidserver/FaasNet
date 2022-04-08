@@ -172,10 +172,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult;
         }
 
-        public async Task<Package> TransferMessageToServerFromServer(string clientId, string brokerName, string topic, int nbEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null)
+        public async Task<Package> TransferMessageToServerFromServer(string clientId, string brokerName, string topicMessage,string topicFilter, int nbEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null)
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AsyncMessageAckToServer(clientId, brokerName, topic, nbEventsConsumed, bridgeServers, sessionId, seq);
+            var package = PackageRequestBuilder.AsyncMessageAckToServer(clientId, brokerName, topicMessage, topicFilter, nbEventsConsumed, bridgeServers, sessionId, seq);
             package.Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
@@ -186,10 +186,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult;
         }
 
-        public async Task TransferMessageToServerFromClient(string clientId, string brokerName, string topic, int nbEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null)
+        public async Task TransferMessageToServerFromClient(string clientId, string brokerName, string topicMessageName, string topicFilter, int nbEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null)
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AsyncMessageAckToServer(clientId, brokerName, topic, nbEventsConsumed, bridgeServers, sessionId, seq, true);
+            var package = PackageRequestBuilder.AsyncMessageAckToServer(clientId, brokerName, topicMessageName, topicFilter, nbEventsConsumed, bridgeServers, sessionId, seq, true);
             package.Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
@@ -329,7 +329,7 @@ namespace FaasNet.EventMesh.Client
                 {
                     var asyncMessage = package as AsyncMessageToClient;
                     var runtimeClient = new RuntimeClient(_udpClient, _ipAddr, _port);
-                    await runtimeClient.TransferMessageToServerFromClient(_clientId, asyncMessage.BrokerName, asyncMessage.Topic, asyncMessage.CloudEvents.Count(), asyncMessage.BridgeServers, _sessionId);
+                    await runtimeClient.TransferMessageToServerFromClient(_clientId, asyncMessage.BrokerName, asyncMessage.TopicMessage, asyncMessage.TopicFilter, asyncMessage.CloudEvents.Count(), asyncMessage.BridgeServers, _sessionId);
                     _callback(asyncMessage);
                 }
             }

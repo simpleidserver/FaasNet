@@ -14,7 +14,8 @@ namespace FaasNet.EventMesh.Client.Messages
 
         public string ClientId { get; set; }
         public int NbCloudEventsConsumed { get; set; }
-        public string Topic { get; set; }
+        public string TopicMessage { get; set; }
+        public string TopicFilter { get; set; }
         public string BrokerName { get; set; }
         public string SessionId { get; set; }
         public bool IsClient { get; set; }
@@ -27,7 +28,8 @@ namespace FaasNet.EventMesh.Client.Messages
             base.Serialize(context);
             context.WriteString(ClientId);
             context.WriteInteger(NbCloudEventsConsumed);
-            context.WriteString(Topic);
+            context.WriteString(TopicMessage);
+            context.WriteString(TopicFilter);
             context.WriteString(BrokerName);
             context.WriteString(SessionId);
             context.WriteBoolean(IsClient);
@@ -42,7 +44,8 @@ namespace FaasNet.EventMesh.Client.Messages
         {
             ClientId = context.NextString();
             NbCloudEventsConsumed = context.NextInt();
-            Topic = context.NextString();
+            TopicMessage = context.NextString();
+            TopicFilter = context.NextString();
             BrokerName = context.NextString();
             SessionId = context.NextString();
             IsClient = context.NextBoolean();

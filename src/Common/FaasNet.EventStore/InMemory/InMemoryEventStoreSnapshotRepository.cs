@@ -32,7 +32,7 @@ namespace FaasNet.EventStore.InMemory
 
         public Task<T> GetLatest<T>(string id, CancellationToken cancellationToken) where T : AggregateRoot
         {
-            var result = _snapshots.OrderByDescending(s => s.Version).First(s => s.AggregateId == id);
+            var result = _snapshots.OrderByDescending(s => s.Version).FirstOrDefault(s => s.AggregateId == id);
             if (result == null)
             {
                 return Task.FromResult((T)null);

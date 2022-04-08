@@ -7,14 +7,14 @@ namespace FaasNet.EventMesh.Client.Messages
     {
         public SubscriptionRequest()
         {
-            Topics = new List<SubscriptionItem>();
+            TopicFilters = new List<SubscriptionItem>();
         }
 
         #region Properties
 
         public string ClientId { get; set; }
         public string SessionId { get; set; }
-        public ICollection<SubscriptionItem> Topics { get; set; }
+        public ICollection<SubscriptionItem> TopicFilters { get; set; }
 
         #endregion
 
@@ -23,8 +23,8 @@ namespace FaasNet.EventMesh.Client.Messages
             base.Serialize(context);
             context.WriteString(ClientId);
             context.WriteString(SessionId);
-            context.WriteInteger(Topics.Count());
-            foreach(var topic in Topics)
+            context.WriteInteger(TopicFilters.Count());
+            foreach(var topic in TopicFilters)
             {
                 topic.Serialize(context);
             }
@@ -37,7 +37,7 @@ namespace FaasNet.EventMesh.Client.Messages
             int nbTopics = context.NextInt();
             for(int i = 0; i < nbTopics; i++)
             {
-                Topics.Add(SubscriptionItem.Deserialize(context));
+                TopicFilters.Add(SubscriptionItem.Deserialize(context));
             }
         }
     }

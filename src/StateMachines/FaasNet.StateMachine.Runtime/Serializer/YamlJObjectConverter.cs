@@ -28,7 +28,20 @@ namespace FaasNet.StateMachine.Runtime.Serializer
             foreach(var record in jObj)
             {
                 emitter.Emit(new Scalar(record.Key));
-                emitter.Emit(new Scalar(record.Value.ToString()));
+                switch(record.Value.Type)
+                {
+                    case JTokenType.Object:
+                        {
+                            var val = record.Value as JObject;
+                            WriteYaml(emitter, val, type);
+                        }
+                        break;
+                    case JTokenType.String:
+                        {
+                            emitter.Emit(new Scalar(record.Value.ToString()));
+                        }
+                        break;
+                }
             }
 
             emitter.Emit(new MappingEnd());

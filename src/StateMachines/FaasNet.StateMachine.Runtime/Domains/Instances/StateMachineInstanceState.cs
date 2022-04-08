@@ -80,9 +80,9 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
             Histories.Add(StateMachineInstanceStateHistory.Create(Status, DateTime.UtcNow, exception));
         }
 
-        public void AddEvent(string name, string source, string type)
+        public void AddEvent(string name, string source, string type, string topic)
         {
-            Events.Add(StateMachineInstanceStateEvent.Create(name, source, type));
+            Events.Add(StateMachineInstanceStateEvent.Create(name, source, type, topic));
         }
 
         #endregion
@@ -145,11 +145,11 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         #endregion
 
-        public static StateMachineInstanceState Create(string defId)
+        public static StateMachineInstanceState Create(string id, string defId)
         {
             return new StateMachineInstanceState
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = id,
                 DefId = defId,
                 Status = StateMachineInstanceStateStatus.CREATE
             };

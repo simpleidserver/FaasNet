@@ -21,14 +21,15 @@ namespace FaasNet.StateMachine.Runtime.Builders
             return this;
         }
 
-        public StateMachineDefinitionBuilder AddConsumedEvent(string name, string source, string type)
+        public StateMachineDefinitionBuilder AddConsumedEvent(string name, string source, string type, string topic = null)
         {
             _instance.Events.Add(new StateMachineDefinitionEvent
             {
                 Kind = Domains.Enums.StateMachineDefinitionEventKinds.Consumed,
                 Name = name,
                 Source = source,
-                Type = type
+                Type = type,
+                Topic = topic
             });
             return this;
         }

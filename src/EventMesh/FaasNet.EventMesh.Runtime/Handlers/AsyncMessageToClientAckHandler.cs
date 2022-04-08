@@ -53,8 +53,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             }
 
             var messageConsumer = _messageConsumers.First(m => m.BrokerName == ackResponse.BrokerName);
-            messageConsumer.Commit(ackResponse.Topic, client, ackResponse.SessionId, ackResponse.NbCloudEventsConsumed);
-            client.ConsumeCloudEvents(ackResponse.BrokerName, ackResponse.Topic, ackResponse.NbCloudEventsConsumed);
+            messageConsumer.Commit(ackResponse.TopicFilter, client, ackResponse.SessionId, ackResponse.NbCloudEventsConsumed);
+            client.ConsumeCloudEvents(ackResponse.BrokerName, ackResponse.TopicFilter, ackResponse.NbCloudEventsConsumed);
             VpnStore.Update(vpn);
             await VpnStore.SaveChanges(cancellationToken);
             return true;
@@ -73,7 +73,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             var udpClient = _udpClientFactory.Build();
             var runtimeClient = new RuntimeClient(udpClient, lastBridgeServer.Urn, lastBridgeServer.Port);
             ackResponse.BridgeServers.Remove(lastBridgeServer);
-            return await runtimeClient.TransferMessageToServerFromServer(ackResponse.ClientId, ackResponse.BrokerName, ackResponse.Topic, ackResponse.NbCloudEventsConsumed, ackResponse.BridgeServers, bridgeSessionId);
+            return await runtimeClient.TransferMessageToServerFromServer(ackResponse.ClientId, ackResponse.BrokerName, ackResponse.TopicMessage, ackResponse.TopicFilter, ackResponse.NbCloudEventsConsumed, ackResponse.BridgeServers, bridgeSessionId);
         }
     }
 }

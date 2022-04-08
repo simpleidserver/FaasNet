@@ -20,7 +20,6 @@ namespace FaasNet.StateMachine.Runtime.Extensions
             do
             {
                 var propertyName = parser.Current as Scalar;
-                var t = parser.Current.GetType();
                 parser.MoveNext();
                 var scalarPropertyValue = parser.Current as Scalar;
                 var sequencePropertyValue = parser.Current as SequenceStart;
@@ -41,11 +40,26 @@ namespace FaasNet.StateMachine.Runtime.Extensions
                     var children = new List<TreeNode>();
                     do
                     {
-                        var obj = new TreeNode
+                        TreeNode obj;
+                        if(parser.Current.GetType()  == typeof(MappingStart))
                         {
-                            Type = TreeNodeTypes.OBJECT
-                        };
-                        obj.Children = Extract(parser, typeof(MappingEnd));
+                            obj = new TreeNode
+                            {
+                                Type = TreeNodeTypes.OBJECT
+                            };
+                            obj.Children = Extract(parser, typeof(MappingEnd));
+                        }
+                        else
+                        {
+                            var scalar = parser.Current as Scalar;
+                            obj = new TreeNode
+                            {
+                                Type = TreeNodeTypes.PROPERTY,
+                                Value = scalar.Value
+                            };
+                            parser.MoveNext();
+                        }
+
                         children.Add(obj);
                     }
                     while (parser.Current.GetType() != typeof(SequenceEnd));

@@ -1,23 +1,17 @@
 ﻿using FaasNet.StateMachine.Runtime.Domains.Enums;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace FaasNet.StateMachine.Runtime.Domains.Instances
 {
     public class StateMachineInstanceStateEvent : ICloneable
     {
-        public StateMachineInstanceStateEvent()
-        {
-            OutputLst = new List<StateMachineInstanceStateEventOutput>();
-        }
-
         #region Properties
 
         public string Name { get; set; }
         public string Source { get; set; }
         public string Type { get; set; }
+        public string Topic { get; set; }
         public StateMachineInstanceStateEventStates State { get; set; }
         public string InputData { get; set; }
         public JToken InputDataObj
@@ -27,17 +21,25 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
                 return JToken.Parse(InputData);
             }
         }
-        public virtual ICollection<StateMachineInstanceStateEventOutput> OutputLst { get; set; }
+        public string OutputData { get; set; }
+        public JToken OutputDataObj
+        {
+            get
+            {
+                return string.IsNullOrWhiteSpace(OutputData) ? null : JToken.Parse(OutputData);
+            }
+        }
 
         #endregion
 
-        public static StateMachineInstanceStateEvent Create(string name, string source, string type)
+        public static StateMachineInstanceStateEvent Create(string name, string source, string type, string topic)
         {
             return new StateMachineInstanceStateEvent
             {
                 Name = name,
                 Source = source,
                 Type = type,
+                Topic = topic,
                 State = StateMachineInstanceStateEventStates.CREATED
             };
         }
@@ -51,7 +53,8 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
                 Source = Source,
                 State = State,
                 Type = Type,
-                OutputLst = OutputLst.Select(o => (StateMachineInstanceStateEventOutput)o.Clone()).ToList()
+                Topic = Topic,
+                OutputData = OutputData
             };
         }
     }

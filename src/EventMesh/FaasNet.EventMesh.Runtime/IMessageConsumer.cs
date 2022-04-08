@@ -10,8 +10,8 @@ namespace FaasNet.EventMesh.Runtime
         string BrokerName { get; }
         Task Start(CancellationToken cancellationToken);
         Task Stop(CancellationToken cancellationToken);
-        Task Subscribe(string topic, Models.Client client, string sessionId, CancellationToken cancellationToken);
-        Task Unsubscribe(string topic, Models.Client client, string sessionId, CancellationToken cancellationToken);
+        Task Subscribe(string topicFilter, Models.Client client, string sessionId, CancellationToken cancellationToken);
+        Task Unsubscribe(string topicFilter, Models.Client client, string sessionId, CancellationToken cancellationToken);
         void Commit(string topicName, Models.Client client, string sessionId, int nbEvts);
         event EventHandler<CloudEventArgs> CloudEventReceived;
     }

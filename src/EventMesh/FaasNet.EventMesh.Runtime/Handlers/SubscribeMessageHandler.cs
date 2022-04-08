@@ -59,7 +59,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         private async Task SubscribeLocalTopics(SubscriptionRequest subscriptionRequest, Models.Client client, CancellationToken cancellationToken)
         {
-            foreach (var item in subscriptionRequest.Topics)
+            foreach (var item in subscriptionRequest.TopicFilters)
             {
                 foreach (var messageConsumer in _messageConsumers)
                 {
@@ -105,7 +105,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 activeSession.AddBridge(bridge);
             }
 
-            await runtimeClient.Subscribe(client.ClientId, bridge.SessionId, subscriptionRequest.Topics);
+            await runtimeClient.Subscribe(client.ClientId, bridge.SessionId, subscriptionRequest.TopicFilters);
         }
 
         #endregion

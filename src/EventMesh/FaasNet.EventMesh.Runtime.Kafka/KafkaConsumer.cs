@@ -85,10 +85,10 @@ namespace FaasNet.EventMesh.Runtime.Kafka
             return result.ToKafkaOptions();
         }
 
-        private void HandleMessage(string clientId, string clientSessionId, string topicName, ConsumeResult<string?, byte[]> message)
+        private void HandleMessage(string clientId, string clientSessionId, string topicFilter, ConsumeResult<string?, byte[]> message)
         {
             var jsonEventFormatter = new JsonEventFormatter();
-            var cloudEvent = message.ToCloudEvent(jsonEventFormatter, "source", topicName);
+            var cloudEvent = message.ToCloudEvent(jsonEventFormatter, "source", topicFilter);
             var client = _clientStore.GetBySession(clientId, clientSessionId, CancellationToken.None).Result;
             if (client == null)
             {
@@ -96,8 +96,8 @@ namespace FaasNet.EventMesh.Runtime.Kafka
             }
 
             var brokerName = _opts.BrokerName;
-            var clientSession = client.GetActiveSessionByTopic(brokerName, topicName);
-            CloudEventReceived(this, new CloudEventArgs(topicName, brokerName, cloudEvent, client.ClientId, clientSession));
+            var clientSession = client.GetActiveSessionByTopic(brokerName, topicFilter);
+            CloudEventReceived(this, new CloudEventArgs(message.Topic, topicFilter, brokerName, cloudEvent, client.ClientId, clientSession));
         }
     }
 }

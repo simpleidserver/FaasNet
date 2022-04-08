@@ -43,20 +43,21 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package AsyncMessageToClient(ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicName, ICollection<CloudEvent> cloudEvts)
+        public static Package AsyncMessageToClient(ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicName, string topicFilter, ICollection<CloudEvent> cloudEvts)
         {
             var result = new AsyncMessageToClient
             {
                 Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT, HeaderStatus.SUCCESS, null),
                 BridgeServers = bridgeServers,
                 BrokerName = brokerName,
-                Topic = topicName,
-                CloudEvents = cloudEvts
+                TopicMessage = topicName,
+                CloudEvents = cloudEvts,
+                TopicFilter = topicFilter
             };
             return result;
         }
 
-        public static Package AsyncMessageToServer(string clientId, ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicName, ICollection<CloudEvent> cloudEvts, string sessionId)
+        public static Package AsyncMessageToServer(string clientId, ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicMessage, string topicFilter, ICollection<CloudEvent> cloudEvts, string sessionId)
         {
             var result = new AsyncMessageToServer
             {
@@ -64,9 +65,10 @@ namespace FaasNet.EventMesh.Client.Messages
                 ClientId = clientId,
                 BridgeServers = bridgeServers,
                 BrokerName = brokerName,
-                Topic = topicName,
+                TopicMessage = topicMessage,
                 CloudEvents = cloudEvts,
-                SessionId = sessionId
+                SessionId = sessionId,
+                TopicFilter = topicFilter
             };
             return result;
         }

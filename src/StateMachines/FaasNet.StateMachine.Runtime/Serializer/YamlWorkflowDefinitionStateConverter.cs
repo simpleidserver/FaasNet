@@ -88,10 +88,17 @@ namespace FaasNet.StateMachine.Runtime.Serializer
                         var addMethod = lstType.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance);
                         foreach (var child in node.Children)
                         {
-                            var v = Build(child.Children, genericType);
-                            if (v != null)
+                            if(child.Type == TreeNodeTypes.PROPERTY)
                             {
-                                addMethod.Invoke(lst, new object[] { v });
+                                addMethod.Invoke(lst, new object[] { child.Value });
+                            }
+                            else
+                            {
+                                var v = Build(child.Children, genericType);
+                                if (v != null)
+                                {
+                                    addMethod.Invoke(lst, new object[] { v });
+                                }
                             }
                         }
 

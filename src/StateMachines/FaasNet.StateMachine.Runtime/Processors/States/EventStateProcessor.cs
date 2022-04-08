@@ -36,8 +36,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
         protected async Task ConsumeEvents(StateMachineInstanceExecutionContext executionContext, StateMachineDefinitionEventState eventState, CancellationToken cancellationToken)
         {
             JObject result = new JObject();
-            var consumedEvtLst = new List<string>();
-            int i = 0;
+            var consumedResult = new List<ProcessEventResult>();
             foreach (var onEvent in eventState.OnEvents)
             {
                 var consumedEvts = onEvent.EventRefs
@@ -45,45 +44,31 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
                     .Where(e => e.Kind == StateMachineDefinitionEventKinds.Consumed);
                 foreach (var consumedEvt in consumedEvts)
                 {
-                    executionContext.Instance.ListenEvt(executionContext.StateInstance.Id, consumedEvt.Name, consumedEvt.Source, consumedEvt.Type);
+                    executionContext.Instance.ListenEvt(executionContext.StateInstance.Id, consumedEvt.Name, consumedEvt.Source, consumedEvt.Type, consumedEvt.Topic);
                 }
 
-                List<OnEventResult> evtResultLst = null;
+                List<ProcessEventResult> evtResultLst = new List<ProcessEventResult>();
                 if (!eventState.Exclusive && executionContext.StateInstance.IsAllEvtsConsumed(onEvent.EventRefs))
                 {
-                    evtResultLst = await ProcessOnEvent(executionContext, onEvent, consumedEvtLst, cancellationToken);
+                    evtResultLst = await ProcessOnEvent(executionContext, onEvent, cancellationToken);
                 }
                 else if (eventState.Exclusive)
                 {
-                    evtResultLst = await ProcessOnEvent(executionContext, onEvent, consumedEvtLst, cancellationToken);
+                    evtResultLst = await ProcessOnEvent(executionContext, onEvent, cancellationToken);
                 }
 
-                if(evtResultLst != null && evtResultLst.Any())
-                {
-                    foreach(var evtResult in evtResultLst)
-                    {
-                        executionContext.Instance.ConsumeEvt(
-                            executionContext.StateInstance.Id, 
-                            evtResult.Source, 
-                            evtResult.Type,
-                            i, 
-                            evtResult.Result.ToString());
-                    }
-                }
-
-                i++;
+                consumedResult.AddRange(evtResultLst);
             }
 
-            foreach(var consumedEvt in consumedEvtLst)
+            foreach(var consumedEvt in consumedResult)
             {
-                var evt = executionContext.WorkflowDef.GetEvent(consumedEvt);
-                executionContext.Instance.ProcessEvent(executionContext.StateInstance.Id, evt.Source, evt.Type);
+                executionContext.Instance.ProcessEvent(executionContext.StateInstance.Id, consumedEvt.EvtName, consumedEvt.Result.ToString());
             }
         }
 
-        protected async Task<List<OnEventResult>> ProcessOnEvent(StateMachineInstanceExecutionContext executionContext, StateMachineDefinitionOnEvent onEvent, List<string> consumedEvts, CancellationToken cancellationToken)
+        protected async Task<List<ProcessEventResult>> ProcessOnEvent(StateMachineInstanceExecutionContext executionContext, StateMachineDefinitionOnEvent onEvent, CancellationToken cancellationToken)
         {
-            var result = new List<OnEventResult>();
+            var result = new List<ProcessEventResult>();
             foreach (var evt in executionContext.StateInstance.GetConsumedEvts(onEvent.EventRefs))
             {
                 int index = Array.FindIndex(onEvent.EventRefs.ToArray(), r => r == evt.Name);
@@ -92,12 +77,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
                     onEvent.Actions.ElementAt(index)
                 };
                 var content = await _actionExecutor.ExecuteAndMerge(evt.InputDataObj, onEvent.ActionMode, actions, executionContext, cancellationToken);
-                if (!consumedEvts.Contains(evt.Name))
-                {
-                    consumedEvts.Add(evt.Name);
-                }
-
-                result.Add(new OnEventResult(evt.Source, evt.Type, content));
+                result.Add(new ProcessEventResult(evt.Name, content));
             }
 
             return result;
@@ -120,7 +100,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
 
                     foreach (var processedEvt in executionContext.StateInstance.GetProcessedEvts(onEvent.EventRefs))
                     {
-                        var data = processedEvt.OutputLst.ElementAt(i).DataObj;
+                        var data = processedEvt.OutputDataObj;
                         output.Merge(data, onEvent.EventDataFilter?.Data, onEvent.EventDataFilter?.ToStateData);
                     }
                 }
@@ -129,17 +109,15 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
             return result;
         }
 
-        protected class OnEventResult
+        protected class ProcessEventResult
         {
-            public OnEventResult(string source, string type, JToken result)
+            public ProcessEventResult(string evtName, JToken result)
             {
-                Source = source;
-                Type = type;
+                EvtName = evtName;
                 Result = result;
             }
 
-            public string Source { get; private set; }
-            public string Type { get; private set; }
+            public string EvtName { get; private set; }
             public JToken Result { get; private set; }
         }
     }

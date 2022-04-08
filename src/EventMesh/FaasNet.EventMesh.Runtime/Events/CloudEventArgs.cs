@@ -6,16 +6,18 @@ namespace FaasNet.EventMesh.Runtime.Events
 {
     public class CloudEventArgs : EventArgs
     {
-        public CloudEventArgs(string topic, string brokerName, CloudEvent evt, string clientId, ClientSession clientSession)
+        public CloudEventArgs(string topicMessage, string topicFilter, string brokerName, CloudEvent evt, string clientId, ClientSession clientSession)
         {
-            Topic = topic;
+            TopicMessage = topicMessage;
+            TopicFilter = topicFilter;
             BrokerName = brokerName;
             Evt = evt;
             ClientId = clientId;
             ClientSession = clientSession;
         }
 
-        public string Topic { get; set; }
+        public string TopicMessage { get; set; }
+        public string TopicFilter { get; set; }
         public string BrokerName { get; set; }
         public CloudEvent Evt { get; set; }
         public string ClientId { get; set; }

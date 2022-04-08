@@ -21,5 +21,6 @@ namespace FaasNet.StateMachine.Worker
     {
         public string Vpn { get; set; }
         public ICollection<CloudEvent> Content { get; set; }
+        public string TopicMessage { get; set; }
     }
 }

@@ -14,7 +14,8 @@ namespace FaasNet.StateMachine.Core.Tests
         {
             // ARRANGE
             var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
-                // .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
+                .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
+                .AddConsumedEvent("GreetingEvent", "https://github.com/cloudevents/spec/pull", "com.github.pull.create", "greetingTopic")
                 .StartsWith(o => o.Operation().SetActionMode(StateMachineDefinitionActionModes.Parallel).AddAction("Greet",
                 (act) => {
                     act.SetFunctionRef("greetingFunction", "{ 'name' : '$.person.name' }").SetActionDataFilter(string.Empty, "$.person.message", "$.result");

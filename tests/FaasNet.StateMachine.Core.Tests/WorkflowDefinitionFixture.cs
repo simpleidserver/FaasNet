@@ -1,11 +1,18 @@
-﻿using FaasNet.StateMachine.Runtime.AsyncAPI.Channels.Amqp;
+﻿using CloudNative.CloudEvents;
+using FaasNet.EventMesh.Client;
+using FaasNet.EventMesh.Runtime;
+using FaasNet.EventMesh.Runtime.Models;
+using FaasNet.EventStore;
+using FaasNet.StateMachine.Runtime.AsyncAPI.Channels.Amqp;
 using FaasNet.StateMachine.Runtime.Builders;
 using FaasNet.StateMachine.Runtime.CloudEvent.Models;
 using FaasNet.StateMachine.Runtime.Domains.Definitions;
 using FaasNet.StateMachine.Runtime.Domains.Enums;
 using FaasNet.StateMachine.Runtime.Domains.Instances;
 using FaasNet.StateMachine.Runtime.Factories;
+using FaasNet.StateMachine.Runtime.Serializer;
 using FaasNet.StateMachine.Worker;
+using FaasNet.StateMachine.Worker.EventMesh;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,7 +36,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Run_HelloWorld()
         {
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("helloWorld", 1, "name", "description", "default")
                 .StartsWith(o => o.Inject().Data(new { result = "Hello World!" }).End())
                 .Build();
@@ -41,7 +48,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Inject_Persons_And_Filter()
         {
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("injectAndFilterPersons", 1, "name", "description", "default")
                 .StartsWith(o => o.Inject().Data(new
                 {
@@ -83,7 +90,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Send_Two_Events_And_Set_Exlusive_To_False()
         {
-            var runtimeJob = new RuntimeJob();
+            var stateMachineJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
                 .AddConsumedEvent("FirstEvent", "firstEventSource", "firstEventType")
                 .AddConsumedEvent("SecondEvent", "secondEventSource", "secondEventType")
@@ -100,12 +107,12 @@ namespace FaasNet.StateMachine.Core.Tests
                     .End()
                 )
                 .Build();
-            await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
-            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
-            runtimeJob.Start();
+            await stateMachineJob.RegisterWorkflowDefinition(workflowDefinition);
+            var instance = await stateMachineJob.InstanciateAndLaunch(workflowDefinition, "{}");
+            stateMachineJob.Start();
             var firstEventData = JObject.Parse("{'name': 'firstEvent'}");
             var secondEventData = JObject.Parse("{'name': 'secondEvent'}");
-            await runtimeJob.Publish(new CloudEventMessage
+            await stateMachineJob.Publish(new CloudEventMessage
             {
                 Id = "id1",
                 Source = "firstEventSource",
@@ -113,7 +120,7 @@ namespace FaasNet.StateMachine.Core.Tests
                 SpecVersion = "1.0",
                 Data = firstEventData
             });
-            runtimeJob.Wait(instance.Id, i =>
+            stateMachineJob.Wait(instance.Id, i =>
             {
                 var firstState = i.States.FirstOrDefault();
                 if (firstState == null || !firstState.Events.Any())
@@ -129,7 +136,7 @@ namespace FaasNet.StateMachine.Core.Tests
 
                 return evt.State == StateMachineInstanceStateEventStates.CONSUMED;
             });
-            await runtimeJob.Publish(new CloudEventMessage
+            await stateMachineJob.Publish(new CloudEventMessage
             {
                 Id = "id2",
                 Source = "secondEventSource",
@@ -137,7 +144,7 @@ namespace FaasNet.StateMachine.Core.Tests
                 SpecVersion = "1.0",
                 Data = secondEventData
             });
-            instance = runtimeJob.WaitTerminate(instance.Id);
+            instance = stateMachineJob.WaitTerminate(instance.Id);
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
             Assert.Equal("{\r\n  \"name\": \"secondEvent\",\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\",\r\n  \"secondEvent\": \"Welcome to Serverless Workflow, secondEvent!\"\r\n}", instance.OutputStr);
         }
@@ -145,7 +152,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Send_Two_Events_With_Same_Id()
         {
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
                 .AddConsumedEvent("FirstEvent", "firstEventSource", "firstEventType")
                 .AddConsumedEvent("SecondEvent", "secondEventSource", "secondEventType")
@@ -162,7 +169,6 @@ namespace FaasNet.StateMachine.Core.Tests
                     .End()
                 )
                 .Build();
-            await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             runtimeJob.Start();
             var firstEventData = JObject.Parse("{'name': 'firstEvent'}");
@@ -202,36 +208,43 @@ namespace FaasNet.StateMachine.Core.Tests
             Thread.Sleep(1000);
             var workflowInstance = runtimeJob.GetWorkflowInstance(instance.Id);
             Assert.Equal(1, workflowInstance.States.Count);
-            Assert.Equal("{\r\n  \"name\": \"firstEvent\",\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\"\r\n}", workflowInstance.States.First().Events.First().OutputLst.First().Data);
+            Assert.Equal("{\r\n  \"name\": \"firstEvent\",\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\"\r\n}", workflowInstance.States.First().Events.First().OutputData);
             Assert.Equal(StateMachineInstanceStateEventStates.PROCESSED, workflowInstance.States.First().Events.First().State);
         }
 
         [Fact]
         public async Task When_Call_GreetingFunction_With_Event()
         {
-            var runtimeJob = new RuntimeJob();
+            var serializer = new RuntimeSerializer();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
-                .AddConsumedEvent("GreetingEvent", "greetingEventSource", "greetingEventType")
+                .AddConsumedEvent("greetingEvt", "https://github.com/cloudevents/spec/pull", "com.github.pull.create", "greetingTopic")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
                 .StartsWith(o => o.Event()
                     .SetExclusive(false)
                     .AddOnEvent(
-                        onevt => onevt.AddEventRef("GreetingEvent").AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : \"${ .person.message }\" } }").SetActionDataFilter(string.Empty, "${ .person.message }", "${ .result }")).Build()
+                        onevt => onevt.AddEventRef("greetingEvt")
+                            .AddAction("Greet", act => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : \"${ .person.message }\" } }")
+                            .SetActionDataFilter(string.Empty, "${ .person.message }", "${ .result }")).Build()
                     ).End()
                 )
                 .Build();
+            var yml = serializer.SerializeYaml(workflowDefinition);
+            var tt = serializer.DeserializeYaml(yml);
             await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             runtimeJob.Start();
-            var jObj = JObject.Parse("{'person': {'message': 'simpleidserver'}}");
-            await runtimeJob.Publish(new CloudEventMessage
+            var cloudEvent = new CloudEvent
             {
-                Id = "id",
-                Source = "greetingEventSource",
-                Type = "greetingEventType",
-                SpecVersion = "1.0",
-                Data = jObj
-            });
+                Type = "com.github.pull.create",
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "{'person': {'message': 'simpleidserver'}}"
+            };
+            await runtimeJob.Publish("greetingTopic", cloudEvent);
             instance = runtimeJob.WaitTerminate(instance.Id);
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
             Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
@@ -244,7 +257,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Run_Switch_Data_Condition()
         {
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
                 .StartsWith(o => o.Switch()
                     .AddDataCondition("MoreThan18", "StartApplication", "${ .applicant.age >= 18 }")
@@ -265,7 +278,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Run_Switch_Event_Condition()
         {
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
                 .AddConsumedEvent("visaApprovedEvt", "visaCheckSource", "VisaApproved")
                 .AddConsumedEvent("visaRejectedEvt", "visaCheckSource", "VisaRejected")
@@ -313,7 +326,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Run_ForeachState()
         {
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("solvemathproblems", 1, "name", "description", "default")
                 .AddFunction(o => o.RestAPI("solveMathExpressionFunction", "http://localhost/swagger/v1/swagger.json#calculator"))
                 .StartsWith(o => o.Foreach()
@@ -340,7 +353,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Run_CallbackState()
         {
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("creditCheckCompleteType", 1, "name", "description", "default")
                 .AddFunction(o => o.RestAPI("creditCheckFunction", "http://localhost/swagger/v1/swagger.json#creditCheck"))
                 .AddConsumedEvent("CreditCheckCompletedEvent", "creditCheckSource", "creditCheckCompleteType")
@@ -376,7 +389,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Run_GreetingFunction()
         {
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
                 .StartsWith(o => o.Operation().SetActionMode(StateMachineDefinitionActionModes.Sequential).AddAction("Greet",
@@ -392,7 +405,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Run_SendEmailWithHttpPost()
         {
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("sendcustomemail", 1, "name", "description", "default")
                 .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmailPost"))
                 .StartsWith(o => o.Operation().SetActionMode(StateMachineDefinitionActionModes.Sequential).AddAction("SendEmail",
@@ -407,7 +420,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Run_SendEmailWithHttpPostAndParameterIsMissing()
         {
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("sendcustomemail", 1, "name", "description", "default")
                 .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmailPost"))
                 .StartsWith(o => o.Operation().SetActionMode(StateMachineDefinitionActionModes.Sequential).AddAction("SendEmail",
@@ -425,7 +438,7 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Run_SendEmailWithHttpGet()
         {
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("sendEmailGet", 1, "name", "description", "default")
                 .AddFunction(o => o.RestAPI("sendEmailFunction", "http://localhost/swagger/v1/swagger.json#sendEmailGet"))
                 .StartsWith(o => o.Operation().SetActionMode(StateMachineDefinitionActionModes.Sequential).AddAction("SendEmail",
@@ -446,7 +459,7 @@ namespace FaasNet.StateMachine.Core.Tests
         {
             const string json = "{ \"id\" : 1, \"lumens\" : 3 }";
             var payload = Encoding.UTF8.GetBytes(JToken.Parse(json).ToString());
-            var runtimeJob = new RuntimeJob();
+            var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("publishEvent", 1, "name", "description", "default")
                 .AddFunction(o => o.AsyncAPI("publishEvent", "http://localhost/asyncapi/asyncapi.json#PublishLightMeasuredEvent"))
                 .StartsWith(o => o.Operation().SetActionMode(StateMachineDefinitionActionModes.Sequential).AddAction("publishEvent",
@@ -473,22 +486,24 @@ namespace FaasNet.StateMachine.Core.Tests
 
         #endregion
 
-        public class RuntimeJob
+        public class StateMachineJob
         {
             private readonly IServiceProvider _serviceProvider;
             private readonly Mock<IAmqpChannelClientFactory> _ampqChannelClientFactory;
             private readonly EventConsumerHostedService _eventConsumerHostedService;
+            private IRuntimeHost _runtimeHost;
 
-            public RuntimeJob()
+            public StateMachineJob()
             {
                 var factory = new CustomWebApplicationFactory<FakeStartup>();
                 var serviceCollection = new ServiceCollection();
-                serviceCollection.AddStateMachineWorker();
-                serviceCollection.Remove(serviceCollection.First(s => s.ServiceType == typeof(IAmqpChannelClientFactory)));
+                serviceCollection.AddStateMachineWorker()
+                    .UseEventMesh();
                 var mcq = new Mock<IHttpClientFactory>();
                 mcq.Setup(c => c.Build()).Returns(factory.CreateClient());
-                serviceCollection.AddSingleton(mcq.Object);
                 _ampqChannelClientFactory = new Mock<IAmqpChannelClientFactory>();
+                serviceCollection.Remove(serviceCollection.First(s => s.ServiceType == typeof(IAmqpChannelClientFactory)));
+                serviceCollection.AddSingleton(mcq.Object);
                 serviceCollection.AddSingleton(_ampqChannelClientFactory.Object);
                 _serviceProvider = serviceCollection.BuildServiceProvider();
                 _eventConsumerHostedService = new EventConsumerHostedService(_serviceProvider);
@@ -523,11 +538,21 @@ namespace FaasNet.StateMachine.Core.Tests
 
             public void Start()
             {
+                var builder = new RuntimeHostBuilder(opt =>
+                {
+                    opt.Port = 4889;
+                });
+                var vpn = Vpn.Create("default", "default");
+                var newClient = Client.Create(vpn.Name, "stateMachineClientId", "urn", new List<EventMesh.Client.Messages.UserAgentPurpose> { EventMesh.Client.Messages.UserAgentPurpose.SUB, EventMesh.Client.Messages.UserAgentPurpose.PUB });
+                var externalClient = Client.Create(vpn.Name, "externalClient", "urn", new List<EventMesh.Client.Messages.UserAgentPurpose> { EventMesh.Client.Messages.UserAgentPurpose.PUB });
+                _runtimeHost = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient, externalClient }).AddInMemoryMessageBroker().Build();
+                _runtimeHost.Run();
                 _eventConsumerHostedService.StartAsync(CancellationToken.None).Wait();
             }
 
             public void Stop()
             {
+                _runtimeHost.Stop();
                 _eventConsumerHostedService.StopAsync(CancellationToken.None).Wait();
             }
 
@@ -556,23 +581,31 @@ namespace FaasNet.StateMachine.Core.Tests
 
             public StateMachineInstanceAggregate WaitTerminate(string id)
             {
-                /*
-                var workflowInstanceRepository = _serviceProvider.GetService<IStateMachineInstanceRepository>();
-                var workflowInstance = workflowInstanceRepository.Query().First(w => w.Id == id);
-                if (workflowInstance.Status == StateMachineInstanceStatus.TERMINATE)
+                var commitAggregateHelper = _serviceProvider.GetService<ICommitAggregateHelper>();
+                var stateMachineInstance = commitAggregateHelper.Get<StateMachineInstanceAggregate>(id, CancellationToken.None).Result;
+                if (stateMachineInstance.Status == StateMachineInstanceStatus.TERMINATE)
                 {
-                    return workflowInstance;
+                    return stateMachineInstance;
                 }
-                */
 
                 Thread.Sleep(20);
                 return WaitTerminate(id);
             }
 
-            public Task Publish(CloudEventMessage msg)
+            public async Task Publish(string topic, CloudEvent msg)
             {
-                // return _busControl.Publish(msg, CancellationToken.None);
-                return Task.CompletedTask;
+                using (var evtMeshClient = new EventMeshClient("externalClient", "password", "default", "localhost", 4889, 1))
+                {
+                    await evtMeshClient.Publish(topic, msg);
+                }
+            }
+
+            public async Task Publish(CloudEventMessage msg)
+            {
+                using (var evtMeshClient = new EventMeshClient("externalClient", "password", "default", "localhost", 4889, 1))
+                {
+                    await evtMeshClient.Publish("topic", msg);
+                }
             }
         }
 

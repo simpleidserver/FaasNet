@@ -46,10 +46,10 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 case Models.ClientSessionTypes.SERVER:
                     var bridgeServers = pkg.BridgeServers;
                     bridgeServers.Add(new AsyncMessageBridgeServer { Port = _options.Port, Urn = _options.Urn });
-                    PackageResponseBuilder.AsyncMessageToServer(pkg.ClientId, bridgeServers, pkg.BrokerName, pkg.Topic, pkg.CloudEvents, pkg.SessionId).Serialize(writeCtx);
+                    PackageResponseBuilder.AsyncMessageToServer(pkg.ClientId, bridgeServers, pkg.BrokerName, pkg.TopicMessage, pkg.TopicFilter, pkg.CloudEvents, pkg.SessionId).Serialize(writeCtx);
                     break;
                 case Models.ClientSessionTypes.CLIENT:
-                    PackageResponseBuilder.AsyncMessageToClient(pkg.BridgeServers, pkg.BrokerName, pkg.Topic, pkg.CloudEvents).Serialize(writeCtx);
+                    PackageResponseBuilder.AsyncMessageToClient(pkg.BridgeServers, pkg.BrokerName, pkg.TopicMessage, pkg.TopicFilter, pkg.CloudEvents).Serialize(writeCtx);
                     break;
             }
 
