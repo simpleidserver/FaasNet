@@ -1,17 +1,17 @@
-﻿using FaasNet.StateMachine.Core.Persistence;
-using FaasNet.StateMachine.Runtime.Domains.Subscriptions;
+﻿using FaasNet.StateMachine.Worker.Domains;
+using FaasNet.StateMachine.Worker.Persistence;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FaasNet.StateMachine.EF.Persistence
+namespace FaasNet.StateMachine.Worker.EF.Persistence
 {
-    public class CloudEventSubscriptionRepository : ICloudEventSubscriptionRepository
+    public class EFCloudEventSubscriptionRepository : ICloudEventSubscriptionRepository
     {
-        private readonly RuntimeDBContext _dbContext;
+        private readonly WorkerDBContext _dbContext;
 
-        public CloudEventSubscriptionRepository(RuntimeDBContext dbContext)
+        public EFCloudEventSubscriptionRepository(WorkerDBContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -32,13 +32,9 @@ namespace FaasNet.StateMachine.EF.Persistence
             return _dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public Task Update(IEnumerable<CloudEventSubscriptionAggregate> evts, CancellationToken cancellationToken)
+        public Task Update(IEnumerable<CloudEventSubscriptionAggregate> evt, CancellationToken cancellationToken)
         {
-            foreach (var evt in evts)
-            {
-                _dbContext.Subscriptions.Update(evt);
-            }
-
+            _dbContext.Subscriptions.UpdateRange(evt);
             return Task.CompletedTask;
         }
     }

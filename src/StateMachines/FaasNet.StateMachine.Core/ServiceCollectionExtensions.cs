@@ -62,7 +62,6 @@ namespace Microsoft.Extensions.DependencyInjection
             var defs = new ConcurrentBag<StateMachineDefinitionAggregate>();
             var instances = new ConcurrentBag<StateMachineInstanceAggregate>();
             services.AddSingleton<IStateMachineDefinitionRepository>(new InMemoryStateMachineDefinitionRepository(defs));
-            services.AddSingleton<IStateMachineInstanceRepository>(new InMemoryStateMachineInstanceRepository(instances));
             return services;
         }
     }

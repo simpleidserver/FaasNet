@@ -1,4 +1,4 @@
-using FaasNet.StateMachine.Core.Consumers;
+using FaasNet.Common;
 using FaasNet.StateMachine.Core.StateMachines;
 using FaasNet.StateMachine.SqlServer.Startup.Infrastructure;
 using FaasNet.StateMachine.SqlServer.Startup.Infrastructure.Filters;
@@ -33,7 +33,6 @@ namespace FaasNet.StateMachine.SqlServer.Startup
             services.AddSwaggerGen();
             services.AddStateMachine(configureMassTransit: x =>
             {
-                x.AddConsumer<CloudEventConsumer>();
                 x.AddConsumer<StateMachineConsumer>();
                 x.UsingRabbitMq((c, t) =>
                 {
@@ -41,7 +40,7 @@ namespace FaasNet.StateMachine.SqlServer.Startup
                     t.Host(connectionString);
                     t.ConfigureEndpoints(c);
                 });
-            }).UseEF(opt =>
+            }).UseStateMachineDefEF(opt =>
             {
                 opt.UseLazyLoadingProxies();
                 opt.UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));

@@ -1,8 +1,8 @@
-﻿using FaasNet.StateMachine.Runtime.Domains.Subscriptions;
+﻿using FaasNet.StateMachine.Worker.Domains;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FaasNet.StateMachine.EF.Configurations
+namespace FaasNet.StateMachine.Worker.EF.Configurations
 {
     public class CloudEventSubscriptionAggregateConfiguration : IEntityTypeConfiguration<CloudEventSubscriptionAggregate>
     {

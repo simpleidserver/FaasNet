@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\FaasNet.Common\FaasNet.Common.csproj" />
+    <ProjectReference Include="..\FaasNet.StateMachine.Runtime\FaasNet.StateMachine.Runtime.csproj" />
+  </ItemGroup>
+</Project>

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FaasNet.StateMachine.Core.Persistence
+namespace FaasNet.StateMachineInstance.Persistence
 {
     public interface IStateMachineInstanceRepository
     {

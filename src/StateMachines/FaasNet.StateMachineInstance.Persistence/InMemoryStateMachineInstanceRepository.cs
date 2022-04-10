@@ -1,13 +1,12 @@
-﻿using FaasNet.Common.Extensions;
-using FaasNet.StateMachine.Runtime.Domains.Instances;
-using FaasNet.StateMachine.Runtime.Extensions;
+﻿using FaasNet.StateMachine.Runtime.Domains.Instances;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using FaasNet.Common.Extensions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FaasNet.StateMachine.Core.Persistence.InMemory
+namespace FaasNet.StateMachineInstance.Persistence
 {
     public class InMemoryStateMachineInstanceRepository : IStateMachineInstanceRepository
     {
