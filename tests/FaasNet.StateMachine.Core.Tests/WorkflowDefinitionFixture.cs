@@ -153,12 +153,12 @@ namespace FaasNet.StateMachine.Core.Tests
         }
 
         [Fact]
-        public async Task When_Send_Two_Events_With_Same_Id()
+        public async Task When_SameEvent_Is_Sent_Twice_Then_OnlyFirstEventIsConsumed()
         {
             var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
-                .AddConsumedEvent("FirstEvent", "firstEventSource", "firstEventType")
-                .AddConsumedEvent("SecondEvent", "secondEventSource", "secondEventType")
+                .AddConsumedEvent("FirstEvent", "https://github.com/cloudevents/spec/pull", "firstevent", "firstevent")
+                .AddConsumedEvent("SecondEvent", "https://github.com/cloudevents/spec/pull", "secondevent", "secondevent")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
                 .StartsWith(o => o.Event()
                     .SetExclusive(true)
@@ -174,15 +174,15 @@ namespace FaasNet.StateMachine.Core.Tests
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             runtimeJob.Start();
-            var firstEventData = JObject.Parse("{'name': 'firstEvent'}");
-            var secondEventData = JObject.Parse("{'name': 'secondEvent'}");
-            await runtimeJob.Publish(new CloudEventMessage
+            await runtimeJob.Publish("firstevent", new CloudEvent
             {
-                Id = "id1",
-                Source = "firstEventSource",
-                Type = "firstEventType",
-                SpecVersion = "1.0",
-                Data = firstEventData
+                Type = "firstevent",
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "{'name': 'firstEvent'}"
             });
             runtimeJob.Wait(instance.Id, i =>
             {
@@ -192,7 +192,7 @@ namespace FaasNet.StateMachine.Core.Tests
                     return false;
                 }
 
-                var evt = firstState.Events.FirstOrDefault(e => e.Source == "firstEventSource");
+                var evt = firstState.Events.FirstOrDefault(e => e.Type == "firstevent");
                 if (evt == null)
                 {
                     return false;
@@ -200,15 +200,18 @@ namespace FaasNet.StateMachine.Core.Tests
 
                 return evt.State == StateMachineInstanceStateEventStates.PROCESSED;
             });
-            await runtimeJob.Publish(new CloudEventMessage
+            await runtimeJob.Publish("firstevent", new CloudEvent
             {
-                Id = "id1",
-                Source = "firstEventSource",
-                Type = "firstEventType",
-                SpecVersion = "1.0",
-                Data = secondEventData
+                Type = "firstevent",
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "{'name': 'secondEvent'}"
             });
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
+            runtimeJob.Stop();
             var workflowInstance = runtimeJob.GetWorkflowInstance(instance.Id);
             Assert.Equal(1, workflowInstance.States.Count);
             Assert.Equal("{\r\n  \"name\": \"firstEvent\",\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\"\r\n}", workflowInstance.States.First().Events.First().OutputData);
@@ -282,8 +285,8 @@ namespace FaasNet.StateMachine.Core.Tests
         {
             var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
-                .AddConsumedEvent("visaApprovedEvt", "visaCheckSource", "VisaApproved")
-                .AddConsumedEvent("visaRejectedEvt", "visaCheckSource", "VisaRejected")
+                .AddConsumedEvent("visaApprovedEvt", "https://github.com/cloudevents/spec/pull", "VisaApproved", "visa")
+                .AddConsumedEvent("visaRejectedEvt", "https://github.com/cloudevents/spec/pull", "VisaRejected", "visa")
                 .StartsWith(o => o.Switch()
                     .AddEventCondition("visaApproved", "visaApprovedEvt", "HandleApprovedVisa")
                     .AddEventCondition("visaRejected", "visaRejectedEvt", "HandleRejectedVisa")
@@ -294,27 +297,31 @@ namespace FaasNet.StateMachine.Core.Tests
             await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
             runtimeJob.Start();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
-            var firstEventData = JObject.Parse("{'name': 'firstEvent'}");
-            await runtimeJob.Publish(new CloudEventMessage
+            await runtimeJob.Publish("visa", new CloudEvent
             {
-                Id = "id1",
-                Source = "visaCheckSource",
                 Type = "VisaApproved",
-                SpecVersion = "1.0",
-                Data = firstEventData
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "{'name': 'firstEvent'}"
             });
             instance = runtimeJob.WaitTerminate(instance.Id);
             var secondInstance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             var secondEventData = JObject.Parse("{'name': 'secondEvent'}");
-            await runtimeJob.Publish(new CloudEventMessage
+            await runtimeJob.Publish("visa", new CloudEvent
             {
-                Id = "id2",
-                Source = "visaCheckSource",
                 Type = "VisaRejected",
-                SpecVersion = "1.0",
-                Data = firstEventData
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "{'name': 'firstEvent'}"
             });
             secondInstance = runtimeJob.WaitTerminate(secondInstance.Id);
+            runtimeJob.Stop();
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, secondInstance.Status);
             Assert.Equal("{\r\n  \"reason\": \"accepted\"\r\n}", instance.OutputStr);
@@ -358,7 +365,7 @@ namespace FaasNet.StateMachine.Core.Tests
             var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("creditCheckCompleteType", 1, "name", "description", "default")
                 .AddFunction(o => o.RestAPI("creditCheckFunction", "http://localhost/swagger/v1/swagger.json#creditCheck"))
-                .AddConsumedEvent("CreditCheckCompletedEvent", "creditCheckSource", "creditCheckCompleteType")
+                .AddConsumedEvent("CreditCheckCompletedEvent", "https://github.com/cloudevents/spec/pull", "creditCheckCompleteType", "credit")
                 .StartsWith(o => o.Callback()
                     .SetAction("callCreditCheckMicroservice", act => act.SetFunctionRef("creditCheckFunction", string.Empty))
                     .SetEventRef("CreditCheckCompletedEvent")
@@ -368,16 +375,18 @@ namespace FaasNet.StateMachine.Core.Tests
             await runtimeJob.RegisterWorkflowDefinition(workflowDefinition);
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             runtimeJob.Start();
-            var evtData = JObject.Parse("{'name': 'firstEvent'}");
-            await runtimeJob.Publish(new CloudEventMessage
+            await runtimeJob.Publish("credit", new CloudEvent
             {
-                Id = "id1",
-                Source = "creditCheckSource",
                 Type = "creditCheckCompleteType",
-                SpecVersion = "1.0",
-                Data = evtData
+                Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                Subject = "123",
+                Id = "A234-1234-1234",
+                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                DataContentType = "application/json",
+                Data = "{'name': 'firstEvent'}"
             });
             instance = runtimeJob.WaitTerminate(instance.Id);
+            runtimeJob.Stop();
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
             Assert.Equal("{\r\n  \"name\": \"firstEvent\"\r\n}", instance.OutputStr);
         }
@@ -564,10 +573,8 @@ namespace FaasNet.StateMachine.Core.Tests
 
             public StateMachineInstanceAggregate GetWorkflowInstance(string id)
             {
-                // var workflowInstanceRepository = _serviceProvider.GetService<IStateMachineInstanceRepository>();
-                // var workflowInstance = workflowInstanceRepository.Query().First(w => w.Id == id);
-                // return workflowInstance;
-                return null;
+                var commitAggregateHelper = _serviceProvider.GetService<ICommitAggregateHelper>();
+                return commitAggregateHelper.Get<StateMachineInstanceAggregate>(id, CancellationToken.None).Result;
             }
 
             public StateMachineInstanceAggregate Wait(string id, Func<StateMachineInstanceAggregate, bool> callback)

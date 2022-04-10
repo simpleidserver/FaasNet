@@ -35,12 +35,8 @@ namespace FaasNet.StateMachine.Runtime.Serializer
                             WriteYaml(emitter, val, type);
                         }
                         break;
-                    case JTokenType.String:
-                        {
-                            emitter.Emit(new Scalar(null, record.Value.ToString()));
-                        }
-                        break;
                     case JTokenType.Integer:
+                    case JTokenType.String:
                         {
                             emitter.Emit(new Scalar(null, record.Value.ToString()));
                         }
@@ -51,7 +47,16 @@ namespace FaasNet.StateMachine.Runtime.Serializer
                             emitter.Emit(new SequenceStart(null, null, false, SequenceStyle.Block));
                             foreach(var r in jArr)
                             {
-                                WriteYaml(emitter, r, type);
+                                switch(r.Type)
+                                {
+                                    case JTokenType.String:
+                                    case JTokenType.Integer:
+                                        emitter.Emit(new Scalar(null, r.ToString()));
+                                        break;
+                                    default:
+                                        WriteYaml(emitter, r, type);
+                                        break;
+                                }
                             }
 
                             emitter.Emit(new SequenceEnd());

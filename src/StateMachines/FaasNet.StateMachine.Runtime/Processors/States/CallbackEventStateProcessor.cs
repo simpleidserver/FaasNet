@@ -21,23 +21,6 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
         protected async override Task<StateProcessorResult> Handle(StateMachineInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
             var callbackState = executionContext.StateDef as StateMachineDefinitionCallbackState;
-            await ExecuteOperation(executionContext, callbackState, cancellationToken);
-            return ConsumeEvent(executionContext, callbackState, cancellationToken);
-        }
-
-        protected async Task ExecuteOperation(StateMachineInstanceExecutionContext executionContext, StateMachineDefinitionCallbackState callbackState, CancellationToken cancellationToken)
-        {
-            var stateInstance = executionContext.StateInstance;
-            if (stateInstance.Status == StateMachineInstanceStateStatus.PENDING)
-            {
-                return;
-            }
-
-            await _actionExecutor.ExecuteAndMerge(stateInstance.Input, StateMachineDefinitionActionModes.Sequential, new List<StateMachineDefinitionAction> { callbackState.Action }, executionContext, cancellationToken);
-        }
-
-        protected StateProcessorResult ConsumeEvent(StateMachineInstanceExecutionContext executionContext, StateMachineDefinitionCallbackState callbackState, CancellationToken cancellationToken)
-        {
             var evtRef = callbackState.EventRef;
             var evtDef = executionContext.WorkflowDef.GetEvent(evtRef);
             executionContext.Instance.ListenEvt(executionContext.StateInstance.Id, evtDef.Name, evtDef.Source, evtDef.Type, evtDef.Topic);
@@ -45,7 +28,9 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
             if (consumedEvts.Any())
             {
                 var consumedEvt = consumedEvts.First();
-                return Ok(consumedEvt.InputDataObj, callbackState);
+                var output = ApplyEventDataFilter(executionContext.StateInstance.Input, callbackState.EventDataFilter, consumedEvt);
+                var result = await _actionExecutor.ExecuteAndMerge(output, StateMachineDefinitionActionModes.Sequential, new List<StateMachineDefinitionAction> { callbackState.Action }, executionContext, cancellationToken);
+                return Ok(result, callbackState);
             }
 
             return StateProcessorResult.Block();

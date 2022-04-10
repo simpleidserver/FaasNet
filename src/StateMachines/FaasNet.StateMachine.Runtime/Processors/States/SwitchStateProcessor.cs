@@ -1,7 +1,6 @@
 ﻿using FaasNet.StateMachine.Runtime.Domains.Definitions;
 using FaasNet.StateMachine.Runtime.Domains.Enums;
 using FaasNet.StateMachine.Runtime.Domains.Instances;
-using FaasNet.StateMachine.Runtime.Extensions;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,13 +32,8 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
             {
                 if (TryCheck(executionContext, swichState.Conditions.Cast<StateMachineDefinitionSwitchEventCondition>().ToList(), out StateMachineDefinitionSwitchEventCondition result, out StateMachineInstanceStateEvent stateEvt))
                 {
-                    executionContext.Instance.ProcessEvent(executionContext.StateInstance.Id, stateEvt.Source, stateEvt.Type);
-                    var output = executionContext.StateInstance.Input;
-                    if (result.EventDataFilter != null && result.EventDataFilter.UseData)
-                    {
-                        output.Merge(stateEvt.InputDataObj, result.EventDataFilter.Data, result.EventDataFilter.ToStateData);
-                    }
-
+                    var output = ApplyEventDataFilter(executionContext.StateInstance.Input, result.EventDataFilter, stateEvt);
+                    executionContext.Instance.ProcessEvent(executionContext.StateInstance.Id, stateEvt.Name, output.ToString());
                     return Task.FromResult(Ok(result, output));
                 }
             }

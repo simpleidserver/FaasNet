@@ -1,4 +1,8 @@
-﻿using FaasNet.StateMachine.Runtime.Domains.Enums;
+﻿using FaasNet.StateMachine.Runtime.Domains.Definitions;
+using FaasNet.StateMachine.Runtime.Domains.Enums;
+using FaasNet.StateMachine.Runtime.Domains.Instances;
+using FaasNet.StateMachine.Runtime.Extensions;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,5 +26,16 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
         }
 
         protected abstract Task<StateProcessorResult> Handle(StateMachineInstanceExecutionContext executionContext, CancellationToken cancellationToken);
+
+        protected JToken ApplyEventDataFilter(JToken inputStateInstance, StateMachineDefinitionEventDataFilter eventDataFilter, StateMachineInstanceStateEvent stateEvtInstance)
+        {
+            var output = inputStateInstance;
+            if (eventDataFilter != null && eventDataFilter.UseData)
+            {
+                output.Merge(stateEvtInstance.InputDataObj, eventDataFilter.Data, eventDataFilter.ToStateData);
+            }
+
+            return output;
+        }
     }
 }
