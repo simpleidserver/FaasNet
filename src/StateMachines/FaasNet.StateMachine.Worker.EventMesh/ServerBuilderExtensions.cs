@@ -1,8 +1,9 @@
-﻿using FaasNet.Common;
+﻿using FaasNet.StateMachine.Worker;
+using FaasNet.StateMachine.Worker.EventMesh;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace FaasNet.StateMachine.Worker.EventMesh
+namespace FaasNet.Common
 {
     public static class ServerBuilderExtensions
     {

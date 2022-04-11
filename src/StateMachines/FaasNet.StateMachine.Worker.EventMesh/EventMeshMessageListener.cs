@@ -53,7 +53,7 @@ namespace FaasNet.StateMachine.Worker.EventMesh
 
         private async Task<IEnumerable<string>> GetAllVpns(CancellationToken cancellationToken)
         {
-            using (var evtMeshClient = new EventMeshClient(_options.ClientId, _options.Password))
+            using (var evtMeshClient = new EventMeshClient(_options.ClientId, _options.Password, url: _options.Url, port: _options.Port))
             {
                 return await evtMeshClient.GetAllVpns(cancellationToken);
             }

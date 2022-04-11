@@ -1,12 +1,10 @@
 using FaasNet.EventMesh.Runtime;
-using FaasNet.EventMesh.Runtime.MessageBroker;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace FaasNet.EventMesh.Runtime.Website
@@ -61,7 +59,7 @@ namespace FaasNet.EventMesh.Runtime.Website
             });
             if (GetBoolean(Configuration, "InMemory.Enabled"))
             {
-                broker.AddInMemoryMessageBroker(new ConcurrentBag<EventMeshSubscription>());
+                broker.AddInMemoryMessageBroker();
             }
 
             if (GetBoolean(Configuration, $"{rabbitmq}.Enabled"))

@@ -8,7 +8,7 @@ namespace FaasNet.StateMachineInstance.Persistence.ES
         public StateMachineInstancePersistenceESOptions()
         {
             Settings = new ConnectionSettings(new Uri("http://localhost:9200"));
-            IndexName = "StateMachineInstance";
+            IndexName = "statemachineinstance";
         }
 
         public ConnectionSettings Settings { get; set; }

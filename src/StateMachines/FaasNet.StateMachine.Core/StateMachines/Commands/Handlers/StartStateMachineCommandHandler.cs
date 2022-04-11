@@ -4,40 +4,48 @@ using FaasNet.StateMachine.Core.Persistence;
 using FaasNet.StateMachine.Core.Resources;
 using FaasNet.StateMachine.Core.StateMachines.Results;
 using FaasNet.StateMachine.Runtime.Domains.Definitions;
+using FaasNet.StateMachine.Runtime.Serializer;
+using Grpc.Net.Client;
 using MediatR;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static FaasNet.StateMachine.WorkerHost.StateMachine;
 
 namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
 {
     public class StartStateMachineCommandHandler : IRequestHandler<StartStateMachineCommand, StartStateMachineResult>
     {
         private readonly IStateMachineDefinitionRepository _stateMachineDefinitionRepository;
-        // private readonly IStateMachineDefLauncher _stateMachineDefLauncher;
+        private readonly StateMachineOptions _options;
 
-        public StartStateMachineCommandHandler(IStateMachineDefinitionRepository stateMachineDefinitionRepository /*, IStateMachineDefLauncher stateMachineDefLauncher*/)
+        public StartStateMachineCommandHandler(IStateMachineDefinitionRepository stateMachineDefinitionRepository, IOptions<StateMachineOptions> options)
         {
             _stateMachineDefinitionRepository = stateMachineDefinitionRepository;
-            // _stateMachineDefLauncher = stateMachineDefLauncher;
+            _options = options.Value;
         }
 
         public async Task<StartStateMachineResult> Handle(StartStateMachineCommand request, CancellationToken cancellationToken)
         {
+            var serializer = new RuntimeSerializer();
             var validationResult = Validate(request);
-            // Quand un workflow instance est lancé alors il faut souscrire aux différents événements.
-            // var workflowInstance = await _stateMachineDefLauncher.InstanciateAndLaunch(validationResult.WorkflowDefinition, request.Input, validationResult.Parameters, cancellationToken);
-            /*
+            var channel = GrpcChannel.ForAddress(_options.StateMachineWorkerUrl);
+            var client = new StateMachineClient(channel);
+            var yaml = serializer.SerializeYaml(validationResult.WorkflowDefinition);
+            var result = await client.LaunchAsync(new WorkerHost.StateMachineDef
+            {
+                Input = request.Input,
+                Yaml = yaml
+            });
             return new StartStateMachineResult
             {
-                LaunchDateTime = DateTime.UtcNow,
-                Id = workflowInstance.Id  
+                Id = result.Id,
+                LaunchDateTime = result.LaunchDateTime.ToDateTime()
             };
-            */
-            return null;
         }
 
         #region Validation

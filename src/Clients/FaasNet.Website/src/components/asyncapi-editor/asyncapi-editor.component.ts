@@ -338,6 +338,8 @@ export class AsyncApiEditorComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.elements = [];
+    this.links = [];
     this.applications.forEach((a: ApplicationResult) => {
       this.elements.push(new Element(a, this.options.applicationWidth, this.options.applicationHeight));
     });

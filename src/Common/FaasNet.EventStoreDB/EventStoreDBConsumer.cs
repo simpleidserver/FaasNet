@@ -53,7 +53,8 @@ namespace FaasNet.EventStoreDB
                 fromStream,
                 async (subscription, evt, cancellationToken) => {
                     var type = Type.GetType(evt.OriginalEvent.EventType);
-                    var domainEvt = JsonSerializer.Deserialize(Encoding.UTF8.GetString(evt.OriginalEvent.Data.ToArray()), type) as DomainEvent;
+                    var json = Encoding.UTF8.GetString(evt.OriginalEvent.Data.ToArray());
+                    var domainEvt = JsonSerializer.Deserialize(json, type) as DomainEvent;
                     await callback(domainEvt);
                 });
 

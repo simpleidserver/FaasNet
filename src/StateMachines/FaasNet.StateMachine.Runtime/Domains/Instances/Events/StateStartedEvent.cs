@@ -18,6 +18,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
 
         public string StateId { get; set; }
         [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public JToken Input
         {
             get

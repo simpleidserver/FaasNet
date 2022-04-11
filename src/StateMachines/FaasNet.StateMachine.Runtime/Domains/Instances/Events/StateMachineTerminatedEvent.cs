@@ -16,6 +16,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
         }
 
         [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public JToken Output
         {
             get

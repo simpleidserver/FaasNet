@@ -47,7 +47,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddMediatR(typeof(ErrorCodes))
                 .RegisterCore()
-                .RegisterInMemory();
+                .RegisterInMemory()
+                .AddStateMachineRuntimeCore();
             return new ServerBuilder(services);
         }
 
@@ -60,7 +61,6 @@ namespace Microsoft.Extensions.DependencyInjection
         private static IServiceCollection RegisterInMemory(this IServiceCollection services)
         {
             var defs = new ConcurrentBag<StateMachineDefinitionAggregate>();
-            var instances = new ConcurrentBag<StateMachineInstanceAggregate>();
             services.AddSingleton<IStateMachineDefinitionRepository>(new InMemoryStateMachineDefinitionRepository(defs));
             return services;
         }

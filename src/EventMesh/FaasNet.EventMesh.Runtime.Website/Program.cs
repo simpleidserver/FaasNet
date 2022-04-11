@@ -35,12 +35,9 @@ namespace FaasNet.EventMesh.Runtime.Website
 
                 if (!dbContext.ClientLst.Any())
                 {
-                    dbContext.ClientLst.Add(Models.Client.Create("default", "pubClientId", null, new System.Collections.Generic.List<Client.Messages.UserAgentPurpose>
+                    dbContext.ClientLst.Add(Models.Client.Create("default", "stateMachineClientId", null, new System.Collections.Generic.List<Client.Messages.UserAgentPurpose>
                     {
-                        Client.Messages.UserAgentPurpose.PUB
-                    }));
-                    dbContext.ClientLst.Add(Models.Client.Create("default", "subClientId", null, new System.Collections.Generic.List<Client.Messages.UserAgentPurpose>
-                    {
+                        Client.Messages.UserAgentPurpose.PUB,
                         Client.Messages.UserAgentPurpose.SUB
                     }));
                 }

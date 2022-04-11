@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FaasNet.StateMachine.EF\FaasNet.StateMachine.EF.csproj" />
+    <ProjectReference Include="..\FaasNet.StateMachineInstance.Persistence.ES\FaasNet.StateMachineInstance.Persistence.ES.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="ServerlessWorkflows\HelloWorld.yml">

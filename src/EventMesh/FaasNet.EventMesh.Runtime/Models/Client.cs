@@ -26,7 +26,6 @@ namespace FaasNet.EventMesh.Runtime.Models
         public string ClientId { get; set; }
         public string Urn { get; set; }
         public string Vpn { get; set; }
-        public bool BroadCastAllVpn { get; set; }
         public DateTime CreateDateTime { get; set; }
         public ICollection<int> Purposes { get; set; }
         public IEnumerable<ClientSession> ActiveSessions
@@ -100,7 +99,7 @@ namespace FaasNet.EventMesh.Runtime.Models
 
         #endregion
 
-        public static Client Create(string vpn, string clientId, string urn, List<UserAgentPurpose> purposes = null, bool broadCastAllVpn = false)
+        public static Client Create(string vpn, string clientId, string urn, List<UserAgentPurpose> purposes = null)
         {
             if (purposes == null)
             {
@@ -114,8 +113,7 @@ namespace FaasNet.EventMesh.Runtime.Models
             {
                 Vpn = vpn,
                 CreateDateTime = DateTime.UtcNow,
-                Purposes = purposes.Select(p => p.Code).ToList(),
-                BroadCastAllVpn = broadCastAllVpn
+                Purposes = purposes.Select(p => p.Code).ToList()
             };
         }
     }

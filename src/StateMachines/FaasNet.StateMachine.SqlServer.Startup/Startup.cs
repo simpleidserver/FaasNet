@@ -27,12 +27,16 @@ namespace FaasNet.StateMachine.SqlServer.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
             services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader()));
             services.AddSwaggerGen();
-            services.AddStateMachine(configureMassTransit: x =>
+            services.AddStateMachine(opt =>
+            {
+                opt.StateMachineWorkerUrl = Configuration["StateMachineWorkerUrl"];
+            }, configureMassTransit: x =>
             {
                 x.AddConsumer<StateMachineConsumer>();
                 x.UsingRabbitMq((c, t) =>

@@ -1,34 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="MassTransit" Version="7.2.4" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Google.Protobuf" Version="3.18.0" />
+		<PackageReference Include="Grpc.Net.ClientFactory" Version="2.44.0" />
+		<PackageReference Include="Grpc.Tools" Version="2.44.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+		<PackageReference Include="MassTransit" Version="7.2.4" />
+		<PackageReference Include="Grpc.Net.Client" Version="2.44.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Common\FaasNet.Domain\FaasNet.Domain.csproj" />
-    <ProjectReference Include="..\..\Common\FaasNet.EventStore\FaasNet.EventStore.csproj" />
-    <ProjectReference Include="..\..\EventMesh\FaasNet.EventMesh.IntegrationEvents\FaasNet.EventMesh.IntegrationEvents.csproj" />
-    <ProjectReference Include="..\FaasNet.StateMachine.IntegrationEvents\FaasNet.StateMachine.IntegrationEvents.csproj" />
-    <ProjectReference Include="..\FaasNet.StateMachine.Runtime\FaasNet.StateMachine.Runtime.csproj" />
-    <ProjectReference Include="..\FaasNet.StateMachineInstance.Persistence\FaasNet.StateMachineInstance.Persistence.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Common\FaasNet.Domain\FaasNet.Domain.csproj" />
+		<ProjectReference Include="..\..\Common\FaasNet.EventStore\FaasNet.EventStore.csproj" />
+		<ProjectReference Include="..\..\EventMesh\FaasNet.EventMesh.IntegrationEvents\FaasNet.EventMesh.IntegrationEvents.csproj" />
+		<ProjectReference Include="..\FaasNet.StateMachine.IntegrationEvents\FaasNet.StateMachine.IntegrationEvents.csproj" />
+		<ProjectReference Include="..\FaasNet.StateMachine.Runtime\FaasNet.StateMachine.Runtime.csproj" />
+		<ProjectReference Include="..\FaasNet.StateMachineInstance.Persistence\FaasNet.StateMachineInstance.Persistence.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Resources\Global.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Global.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="Resources\Global.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Global.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\Global.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Global.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="Resources\Global.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Global.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Protos\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Protobuf Include="..\FaasNet.StateMachine.WorkerHost\Protos\statemachine.proto" GrpcServices="Client">
+	    <Link>Protos\statemachine.proto</Link>
+	  </Protobuf>
+	</ItemGroup>
 </Project>

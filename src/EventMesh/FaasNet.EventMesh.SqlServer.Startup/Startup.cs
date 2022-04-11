@@ -1,4 +1,3 @@
-using FaasNet.EventMesh.Core.ApplicationDomains;
 using FaasNet.EventMesh.Core.Consumers;
 using FaasNet.EventMesh.Runtime;
 using MassTransit;
@@ -39,7 +38,7 @@ namespace FaasNet.EventMesh.SqlServer.Startup
                 x.AddConsumer<StateMachineDefinitionConsumer>();
                 x.UsingRabbitMq((c, t) =>
                 {
-                    var connectionString = "amqp://guest:guest@127.0.0.1:5672/";
+                    var connectionString = Configuration["RabbitMQConnectionString"];
                     t.Host(connectionString);
                     t.ConfigureEndpoints(c);
                 });

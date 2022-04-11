@@ -32,6 +32,13 @@ namespace FaasNet.StateMachine.WorkerHost
                 .UseEF(opt =>
                 {
                     opt.UseSqlite($"Data Source={dbPath}", s => s.MigrationsAssembly(typeof(Startup).Assembly.GetName().Name));
+                })
+                .UseEventMesh(opt =>
+                {
+                    opt.Url = Configuration["EventMesh:Url"];
+                    opt.ClientId = Configuration["EventMesh:ClientId"];
+                    opt.Password = Configuration["EventMesh:Password"];
+                    opt.Port = int.Parse(Configuration["EventMesh:Port"]);
                 });
             services.AddHostedService<EventConsumerHostedService>();
         }

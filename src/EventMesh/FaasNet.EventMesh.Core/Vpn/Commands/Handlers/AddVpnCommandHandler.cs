@@ -25,6 +25,7 @@ namespace FaasNet.EventMesh.Core.Vpn.Commands.Handlers
             }
 
             vpn = Runtime.Models.Vpn.Create(request.Name, request.Description);
+            // TODO : Raise integration event & add a new client.
             _vpnStore.Add(vpn);
             await _vpnStore.SaveChanges(cancellationToken);
             return true;

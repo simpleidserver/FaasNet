@@ -1,11 +1,10 @@
-﻿using FaasNet.EventMesh.Client.Messages;
-using FaasNet.EventMesh.Core.ApplicationDomains.Commands;
+﻿using FaasNet.EventMesh.Core.ApplicationDomains.Commands;
 using FaasNet.EventMesh.Core.ApplicationDomains.Queries.Results;
-using FaasNet.EventMesh.Core.Clients.Commands;
 using FaasNet.EventMesh.IntegrationEvents;
 using FaasNet.StateMachine.IntegrationEvents;
 using MassTransit;
 using MediatR;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,11 +16,13 @@ namespace FaasNet.EventMesh.Core.Consumers
     {
         private readonly IMediator _mediator;
         private readonly IBusControl _busControl;
+        private readonly EventMeshOptions _options;
 
-        public StateMachineDefinitionConsumer(IMediator mediator, IBusControl busControl)
+        public StateMachineDefinitionConsumer(IMediator mediator, IBusControl busControl, IOptions<EventMeshOptions> options)
         {
             _mediator = mediator;
             _busControl = busControl;
+            _options = options.Value;
         }
 
         public async Task Consume(ConsumeContext<StateMachineDefinitionAddedEvent> context)
@@ -32,17 +33,6 @@ namespace FaasNet.EventMesh.Core.Consumers
                 using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
                     var name = context.Message.Name.Replace(" ", string.Empty);
-                    var clientId = Guid.NewGuid().ToString();
-                    await _mediator.Send(new AddClientCommand
-                    {
-                        ClientId = clientId,
-                        Purposes = new List<int>
-                        {
-                            UserAgentPurpose.PUB.Code,
-                            UserAgentPurpose.SUB.Code
-                        },
-                        Vpn = context.Message.Vpn
-                    });
                     var applicationDomain = await _mediator.Send(new AddApplicationDomainCommand
                     {
                         Name = name,
@@ -59,7 +49,7 @@ namespace FaasNet.EventMesh.Core.Consumers
                             new ApplicationResult
                             {
                                 Id = Guid.NewGuid().ToString(),
-                                ClientId = clientId,
+                                ClientId = _options.StateMachineClientId,
                                 Title = "StateMachineClient",
                                 Description = "StateMachine",
                                 IsRoot = true,
