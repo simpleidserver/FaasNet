@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace FaasNet.Domain
 {
@@ -11,7 +12,7 @@ namespace FaasNet.Domain
 
         public int StartIndex { get; set; }
         public int Count { get; set; }
-        public int TotalLength { get; set; }
+        public long TotalLength { get; set; }
         public ICollection<T> Content { get; set; }
     }
 }

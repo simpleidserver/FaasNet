@@ -3,4 +3,17 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\FaasNet.EventStoreDB\FaasNet.EventStoreDB.csproj" />
+    <ProjectReference Include="..\FaasNet.StateMachine.Exporter\FaasNet.StateMachine.Exporter.csproj" />
+    <ProjectReference Include="..\FaasNet.StateMachineInstance.Persistence.ES\FaasNet.StateMachineInstance.Persistence.ES.csproj" />
+  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="appsettings.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 </Project>

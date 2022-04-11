@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
 {
     [DbContext(typeof(RuntimeDBContext))]
-    [Migration("20220404184250_Init")]
+    [Migration("20220411131913_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -176,6 +176,9 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                     b.Property<int>("Kind")
                         .HasColumnType("int");
 
+                    b.Property<string>("MetadataStr")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -253,181 +256,6 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                     b.ToTable("StateMachineDefinitionOnEvent");
                 });
 
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceAggregate", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("OutputStr")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Parameters")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Vpn")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WorkflowDefDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WorkflowDefId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WorkflowDefName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WorkflowDefTechnicalId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("WorkflowDefVersion")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("WorkflowInstances");
-                });
-
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceState", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("DefId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InputStr")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OutputStr")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StateMachineInstanceAggregateId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StateMachineInstanceAggregateId");
-
-                    b.ToTable("StateMachineInstanceState");
-                });
-
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceStateEvent", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("InputData")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Source")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("State")
-                        .HasColumnType("int");
-
-                    b.Property<string>("StateMachineInstanceStateId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StateMachineInstanceStateId");
-
-                    b.ToTable("StateMachineInstanceStateEvent");
-                });
-
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceStateEventOutput", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Data")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Index")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("StateMachineInstanceStateEventId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StateMachineInstanceStateEventId");
-
-                    b.ToTable("StateMachineInstanceStateEventOutput");
-                });
-
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceStateHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Data")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StateMachineInstanceStateId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StateMachineInstanceStateId");
-
-                    b.ToTable("StateMachineInstanceStateHistory");
-                });
-
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Subscriptions.CloudEventSubscriptionAggregate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool>("IsConsumed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Source")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StateInstanceId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WorkflowInstanceId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Subscriptions");
-                });
-
             modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Definitions.StateMachineDefinitionSwitchDataCondition", b =>
                 {
                     b.HasBaseType("FaasNet.StateMachine.Runtime.Domains.Definitions.BaseEventCondition");
@@ -461,6 +289,9 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                     b.Property<bool>("End")
                         .ValueGeneratedOnUpdateSometimes()
                         .HasColumnType("bit");
+
+                    b.Property<string>("EventDataFilter")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EventRef")
                         .HasColumnType("nvarchar(max)");
@@ -622,37 +453,6 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceState", b =>
-                {
-                    b.HasOne("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceAggregate", null)
-                        .WithMany("States")
-                        .HasForeignKey("StateMachineInstanceAggregateId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceStateEvent", b =>
-                {
-                    b.HasOne("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceState", null)
-                        .WithMany("Events")
-                        .HasForeignKey("StateMachineInstanceStateId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceStateEventOutput", b =>
-                {
-                    b.HasOne("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceStateEvent", null)
-                        .WithMany("OutputLst")
-                        .HasForeignKey("StateMachineInstanceStateEventId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceStateHistory", b =>
-                {
-                    b.HasOne("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceState", null)
-                        .WithMany("Histories")
-                        .HasForeignKey("StateMachineInstanceStateId");
-                });
-
             modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Definitions.StateMachineDefinitionCallbackState", b =>
                 {
                     b.HasOne("FaasNet.StateMachine.Runtime.Domains.Definitions.StateMachineDefinitionAction", "Action")
@@ -680,23 +480,6 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
             modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Definitions.StateMachineDefinitionOnEvent", b =>
                 {
                     b.Navigation("Actions");
-                });
-
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceAggregate", b =>
-                {
-                    b.Navigation("States");
-                });
-
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceState", b =>
-                {
-                    b.Navigation("Events");
-
-                    b.Navigation("Histories");
-                });
-
-            modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Instances.StateMachineInstanceStateEvent", b =>
-                {
-                    b.Navigation("OutputLst");
                 });
 
             modelBuilder.Entity("FaasNet.StateMachine.Runtime.Domains.Definitions.StateMachineDefinitionEventState", b =>

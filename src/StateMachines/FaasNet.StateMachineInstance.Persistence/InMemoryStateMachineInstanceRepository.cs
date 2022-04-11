@@ -1,8 +1,10 @@
-﻿using FaasNet.StateMachine.Runtime.Domains.Instances;
+﻿using FaasNet.Common.Extensions;
+using FaasNet.Domain;
+using FaasNet.Domain.Extensions;
+using FaasNet.StateMachine.Runtime.Domains.Instances;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using FaasNet.Common.Extensions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,6 +12,14 @@ namespace FaasNet.StateMachineInstance.Persistence
 {
     public class InMemoryStateMachineInstanceRepository : IStateMachineInstanceRepository
     {
+        private static Dictionary<string, string> MAPPING_STATEMACHINEINSTANCE_TO_PROPERTYNAME = new Dictionary<string, string>
+        {
+            { "id", "Id" },
+            { "workflowDefId", "WorkflowDefId" },
+            { "workflowDefName", "WorkflowDefName" },
+            { "workflowDefDescription", "WorkflowDefDescription" },
+            { "createDateTime", "CreateDateTime" }
+        };
         private readonly ConcurrentBag<StateMachineInstanceAggregate> _instances;
 
         public InMemoryStateMachineInstanceRepository(ConcurrentBag<StateMachineInstanceAggregate> instances)
@@ -23,14 +33,34 @@ namespace FaasNet.StateMachineInstance.Persistence
             return Task.CompletedTask;
         }
 
-        public IQueryable<StateMachineInstanceAggregate> Query()
+        public Task<StateMachineInstanceAggregate> Get(string id, CancellationToken cancellationToken)
         {
-            return _instances.Select(i => (StateMachineInstanceAggregate)i.Clone()).AsQueryable();
+            var record = _instances.FirstOrDefault(i => i.Id == id);
+            if (record != null)
+            {
+                record = (StateMachineInstanceAggregate)record.Clone();
+            }
+
+            return Task.FromResult(record);
         }
 
-        public Task<int> SaveChanges(CancellationToken cancellationToken)
+        public Task<BaseSearchResult<StateMachineInstanceAggregate>> Search(SearchWorkflowInstanceParameter parameter, CancellationToken cancellationToken)
         {
-            return Task.FromResult(1);
+            var query = _instances.Where(i => i.Vpn == parameter.Vpn).AsQueryable();
+            if (MAPPING_STATEMACHINEINSTANCE_TO_PROPERTYNAME.ContainsKey(parameter.OrderBy))
+            {
+                query = query.InvokeOrderBy(MAPPING_STATEMACHINEINSTANCE_TO_PROPERTYNAME[parameter.OrderBy], parameter.Order);
+            }
+
+            int totalLength = query.Count();
+            query = query.Skip(parameter.StartIndex).Take(parameter.Count);
+            return Task.FromResult(new BaseSearchResult<StateMachineInstanceAggregate>
+            {
+                StartIndex = parameter.StartIndex,
+                Count = parameter.Count,
+                TotalLength = totalLength,
+                Content = query.ToList()
+            });
         }
 
         public Task Update(StateMachineInstanceAggregate workflowInstance, CancellationToken cancellationToken)
@@ -40,6 +70,11 @@ namespace FaasNet.StateMachineInstance.Persistence
             var newRecord = (StateMachineInstanceAggregate)workflowInstance.Clone();
             _instances.Add(newRecord);
             return Task.CompletedTask;
+        }
+
+        public Task<int> SaveChanges(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(1);
         }
     }
 }

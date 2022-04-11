@@ -10,7 +10,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    run: eventstore-cluster
+    app: eventstore-cluster
   ports:
   - name: 'external-tcp'
     protocol: TCP

@@ -14,6 +14,7 @@
     <ProjectReference Include="..\..\EventMesh\FaasNet.EventMesh.IntegrationEvents\FaasNet.EventMesh.IntegrationEvents.csproj" />
     <ProjectReference Include="..\FaasNet.StateMachine.IntegrationEvents\FaasNet.StateMachine.IntegrationEvents.csproj" />
     <ProjectReference Include="..\FaasNet.StateMachine.Runtime\FaasNet.StateMachine.Runtime.csproj" />
+    <ProjectReference Include="..\FaasNet.StateMachineInstance.Persistence\FaasNet.StateMachineInstance.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Converters;
+using System;
 using System.Reflection;
 
 namespace FaasNet.StateMachine.SqlServer.Startup
@@ -36,7 +37,7 @@ namespace FaasNet.StateMachine.SqlServer.Startup
                 x.AddConsumer<StateMachineConsumer>();
                 x.UsingRabbitMq((c, t) =>
                 {
-                    const string connectionString = "amqp://guest:guest@127.0.0.1:5672/";
+                    var connectionString = Configuration["RabbitMQConnectionString"];
                     t.Host(connectionString);
                     t.ConfigureEndpoints(c);
                 });
@@ -44,6 +45,9 @@ namespace FaasNet.StateMachine.SqlServer.Startup
             {
                 opt.UseLazyLoadingProxies();
                 opt.UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));
+            }).UseStateMachineInstanceElasticSearchStore(opt =>
+            {
+                opt.Settings = new Nest.ConnectionSettings(new Uri(Configuration["ElasticSearchUrl"]));
             });
             services.AddControllers(opts =>
             {

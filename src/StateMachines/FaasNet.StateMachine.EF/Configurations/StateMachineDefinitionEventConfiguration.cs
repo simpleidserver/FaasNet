@@ -10,6 +10,8 @@ namespace FaasNet.StateMachine.EF.Configurations
         {
             builder.Property<int>("Id").ValueGeneratedOnAdd();
             builder.HasKey("Id");
+            builder.Ignore(_ => _.Metadata);
+            builder.Ignore(_ => _.Topic);
         }
     }
 }

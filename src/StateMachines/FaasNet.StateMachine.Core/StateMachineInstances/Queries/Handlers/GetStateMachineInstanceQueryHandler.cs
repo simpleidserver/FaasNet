@@ -3,7 +3,6 @@ using FaasNet.StateMachine.Core.Resources;
 using FaasNet.StateMachine.Core.StateMachineInstances.Results;
 using FaasNet.StateMachineInstance.Persistence;
 using MediatR;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,15 +17,15 @@ namespace FaasNet.StateMachine.Core.StateMachineInstances.Queries.Handlers
             _workflowInstanceRepository = workflowInstanceRepository;
         }
 
-        public Task<StateMachineInstanceDetailsResult> Handle(GetStateMachineInstanceQuery request, CancellationToken cancellationToken)
+        public async Task<StateMachineInstanceDetailsResult> Handle(GetStateMachineInstanceQuery request, CancellationToken cancellationToken)
         {
-            var instance = _workflowInstanceRepository.Query().FirstOrDefault(w => w.Id == request.Id);
+            var instance = await _workflowInstanceRepository.Get(request.Id, cancellationToken);
             if (instance == null)
             {
                 throw new NotFoundException(ErrorCodes.UNKNOWN_STATEMACHINE_INSTANCE, string.Format(Global.UnknownStateMachineInstance, request.Id));
             }
 
-            return Task.FromResult(StateMachineInstanceDetailsResult.ToDto(instance));
+            return StateMachineInstanceDetailsResult.ToDto(instance);
         }
     }
 }

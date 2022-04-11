@@ -4,10 +4,22 @@
 		<TargetFramework>net5.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Content Remove="appsettings.json" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include="appsettings.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Common\FaasNet.EventStoreDB\FaasNet.EventStoreDB.csproj" />
+		<ProjectReference Include="..\FaasNet.StateMachine.Worker.EF\FaasNet.StateMachine.Worker.EF.csproj" />
 		<ProjectReference Include="..\FaasNet.StateMachine.Worker.EventMesh\FaasNet.StateMachine.Worker.EventMesh.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Grpc.AspNetCore" Version="2.44.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.12" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.12" />
 		<Protobuf Include="Protos\statemachine.proto" GrpcServices="Server,Client" />
 	</ItemGroup>
 </Project>

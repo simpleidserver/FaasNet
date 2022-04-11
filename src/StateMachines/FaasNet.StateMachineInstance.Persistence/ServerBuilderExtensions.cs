@@ -5,7 +5,7 @@ namespace FaasNet.Common
 {
     public static class ServerBuilderExtensions
     {
-        public static ServerBuilder UseStateMachineInstanceInMemory(this ServerBuilder serverBuilder)
+        public static ServerBuilder UseStateMachineInstanceInMemoryStore(this ServerBuilder serverBuilder)
         {
             serverBuilder.Services.AddSingleton<IStateMachineInstanceRepository, InMemoryStateMachineInstanceRepository>();
             return serverBuilder;

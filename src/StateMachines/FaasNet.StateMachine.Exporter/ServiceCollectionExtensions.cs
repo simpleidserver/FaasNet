@@ -20,6 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddEventStore();
             services.AddTransient<IQueryProjection, StateMachineInstanceQueryProjection>();
+            services.AddTransient<IProjectionHostedJob, ProjectionHostedJob>();
             return new ServerBuilder(services);
         }
     }

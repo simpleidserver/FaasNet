@@ -8,23 +8,6 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Subscriptions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    WorkflowInstanceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StateInstanceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Source = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsConsumed = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Subscriptions", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "WorkflowDefinitions",
                 columns: table => new
                 {
@@ -48,27 +31,6 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "WorkflowInstances",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Vpn = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorkflowDefTechnicalId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorkflowDefId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorkflowDefName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorkflowDefDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorkflowDefVersion = table.Column<int>(type: "int", nullable: false),
-                    CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Parameters = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    OutputStr = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_WorkflowInstances", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "StateMachineDefinitionEvent",
                 columns: table => new
                 {
@@ -78,6 +40,7 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                     Source = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Kind = table.Column<int>(type: "int", nullable: false),
+                    MetadataStr = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StateMachineDefinitionAggregateTechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -112,95 +75,6 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                         column: x => x.StateMachineDefinitionAggregateTechnicalId,
                         principalTable: "WorkflowDefinitions",
                         principalColumn: "TechnicalId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StateMachineInstanceState",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    DefId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    InputStr = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OutputStr = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StateMachineInstanceAggregateId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StateMachineInstanceState", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StateMachineInstanceState_WorkflowInstances_StateMachineInstanceAggregateId",
-                        column: x => x.StateMachineInstanceAggregateId,
-                        principalTable: "WorkflowInstances",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StateMachineInstanceStateEvent",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Source = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    State = table.Column<int>(type: "int", nullable: false),
-                    InputData = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StateMachineInstanceStateId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StateMachineInstanceStateEvent", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StateMachineInstanceStateEvent_StateMachineInstanceState_StateMachineInstanceStateId",
-                        column: x => x.StateMachineInstanceStateId,
-                        principalTable: "StateMachineInstanceState",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StateMachineInstanceStateHistory",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StateMachineInstanceStateId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StateMachineInstanceStateHistory", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StateMachineInstanceStateHistory_StateMachineInstanceState_StateMachineInstanceStateId",
-                        column: x => x.StateMachineInstanceStateId,
-                        principalTable: "StateMachineInstanceState",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StateMachineInstanceStateEventOutput",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Index = table.Column<int>(type: "int", nullable: false),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StateMachineInstanceStateEventId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StateMachineInstanceStateEventOutput", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StateMachineInstanceStateEventOutput_StateMachineInstanceStateEvent_StateMachineInstanceStateEventId",
-                        column: x => x.StateMachineInstanceStateEventId,
-                        principalTable: "StateMachineInstanceStateEvent",
-                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -255,6 +129,7 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                     StateMachineDefinitionAggregateTechnicalId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     EventRef = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ActionId = table.Column<int>(type: "int", nullable: true),
+                    EventDataFilter = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     End = table.Column<bool>(type: "bit", nullable: true),
                     Transition = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Exclusive = table.Column<bool>(type: "bit", nullable: true),
@@ -353,26 +228,6 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                 table: "StateMachineDefinitionOnEvent",
                 column: "StateMachineDefinitionEventStateTechnicalId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_StateMachineInstanceState_StateMachineInstanceAggregateId",
-                table: "StateMachineInstanceState",
-                column: "StateMachineInstanceAggregateId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StateMachineInstanceStateEvent_StateMachineInstanceStateId",
-                table: "StateMachineInstanceStateEvent",
-                column: "StateMachineInstanceStateId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StateMachineInstanceStateEventOutput_StateMachineInstanceStateEventId",
-                table: "StateMachineInstanceStateEventOutput",
-                column: "StateMachineInstanceStateEventId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StateMachineInstanceStateHistory_StateMachineInstanceStateId",
-                table: "StateMachineInstanceStateHistory",
-                column: "StateMachineInstanceStateId");
-
             migrationBuilder.AddForeignKey(
                 name: "FK_BaseEventCondition_BaseStateMachineDefinitionState_StateMachineDefinitionSwitchStateTechnicalId",
                 table: "BaseEventCondition",
@@ -425,24 +280,6 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
 
             migrationBuilder.DropTable(
                 name: "StateMachineDefinitionFunction");
-
-            migrationBuilder.DropTable(
-                name: "StateMachineInstanceStateEventOutput");
-
-            migrationBuilder.DropTable(
-                name: "StateMachineInstanceStateHistory");
-
-            migrationBuilder.DropTable(
-                name: "Subscriptions");
-
-            migrationBuilder.DropTable(
-                name: "StateMachineInstanceStateEvent");
-
-            migrationBuilder.DropTable(
-                name: "StateMachineInstanceState");
-
-            migrationBuilder.DropTable(
-                name: "WorkflowInstances");
 
             migrationBuilder.DropTable(
                 name: "BaseStateMachineDefinitionState");

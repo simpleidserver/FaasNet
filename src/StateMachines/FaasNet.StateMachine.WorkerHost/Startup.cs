@@ -1,8 +1,11 @@
+using FaasNet.Common;
 using FaasNet.StateMachine.WorkerHost.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.IO;
 
 namespace FaasNet.StateMachine.WorkerHost
 {
@@ -19,8 +22,17 @@ namespace FaasNet.StateMachine.WorkerHost
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var dbPath = Path.Combine(WebHostEnvironment.ContentRootPath, "StateMachineWorker.db");
             services.AddGrpc();
-            services.AddStateMachineWorker();
+            services.AddStateMachineWorker()
+                .UseEventStoreDB(opt =>
+                {
+                    opt.ConnectionString = Configuration["EventStoreDBConnectionString"];
+                })
+                .UseEF(opt =>
+                {
+                    opt.UseSqlite($"Data Source={dbPath}", s => s.MigrationsAssembly(typeof(Startup).Assembly.GetName().Name));
+                });
             services.AddHostedService<EventConsumerHostedService>();
         }
 

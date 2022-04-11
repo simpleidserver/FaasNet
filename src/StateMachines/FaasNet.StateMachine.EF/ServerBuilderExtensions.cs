@@ -15,7 +15,6 @@ namespace FaasNet.Common
             var services = builder.Services;
             services.AddDbContext<RuntimeDBContext>(optionsBuilder);
             services.AddTransient<IStateMachineDefinitionRepository, StateMachineDefinitionRepository>();
-            services.AddTransient<IStateMachineInstanceRepository, StateMachineInstanceRepository>();
             return builder;
         }
     }
