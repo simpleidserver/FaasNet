@@ -1,18 +1,17 @@
 ﻿using CloudNative.CloudEvents;
+using FaasNet.Common;
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Runtime;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventStore;
 using FaasNet.StateMachine.Runtime.AsyncAPI.Channels.Amqp;
 using FaasNet.StateMachine.Runtime.Builders;
-using FaasNet.StateMachine.Runtime.CloudEvent.Models;
 using FaasNet.StateMachine.Runtime.Domains.Definitions;
 using FaasNet.StateMachine.Runtime.Domains.Enums;
 using FaasNet.StateMachine.Runtime.Domains.Instances;
 using FaasNet.StateMachine.Runtime.Factories;
 using FaasNet.StateMachine.Runtime.Serializer;
 using FaasNet.StateMachine.Worker;
-using FaasNet.StateMachine.Worker.EventMesh;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -42,7 +41,7 @@ namespace FaasNet.StateMachine.Core.Tests
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("Hello World!", instance.Output["result"].ToString());
+            Assert.Equal("Hello World!", instance.GetOutput()["result"].ToString());
         }
 
         [Fact]
@@ -608,14 +607,6 @@ namespace FaasNet.StateMachine.Core.Tests
                 using (var evtMeshClient = new EventMeshClient("externalClient", "password", "default", "localhost", 4889, 1))
                 {
                     await evtMeshClient.Publish(topic, msg);
-                }
-            }
-
-            public async Task Publish(CloudEventMessage msg)
-            {
-                using (var evtMeshClient = new EventMeshClient("externalClient", "password", "default", "localhost", 4889, 1))
-                {
-                    await evtMeshClient.Publish("topic", msg);
                 }
             }
         }

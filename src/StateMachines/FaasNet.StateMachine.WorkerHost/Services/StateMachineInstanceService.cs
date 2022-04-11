@@ -20,6 +20,7 @@ namespace FaasNet.StateMachine.WorkerHost.Services
         {
             var runtimeSerializer = new RuntimeSerializer();
             var stateMachineDefinition = runtimeSerializer.DeserializeYaml(request.Yaml);
+            stateMachineDefinition.TechnicalId = request.WorkflowDefTechnicalId;
             var instance = await _stateMachineLauncher.InstanciateAndLaunch(stateMachineDefinition, request.Input, CancellationToken.None);
             return new LaunchStateMachineDefResult
             {

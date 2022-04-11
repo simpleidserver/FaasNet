@@ -76,7 +76,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
                 {
                     onEvent.Actions.ElementAt(index)
                 };
-                var content = await _actionExecutor.ExecuteAndMerge(evt.InputDataObj, onEvent.ActionMode, actions, executionContext, cancellationToken);
+                var content = await _actionExecutor.ExecuteAndMerge(evt.GetInputDataObj(), onEvent.ActionMode, actions, executionContext, cancellationToken);
                 result.Add(new ProcessEventResult(evt.Name, content));
             }
 
@@ -86,7 +86,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
         protected bool TryGetOutput(StateMachineDefinitionEventState state, StateMachineInstanceExecutionContext executionContext, out JToken output)
         {
             var result = false;
-            output = executionContext.StateInstance.Input;
+            output = executionContext.StateInstance.GetInput();
             for(int i = 0; i < state.OnEvents.Count; i++)
             {
                 var onEvent = state.OnEvents.ElementAt(i);
@@ -100,7 +100,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
 
                     foreach (var processedEvt in executionContext.StateInstance.GetProcessedEvts(onEvent.EventRefs))
                     {
-                        var data = processedEvt.OutputDataObj;
+                        var data = processedEvt.GetOutputDataObj();
                         output.Merge(data, onEvent.EventDataFilter?.Data, onEvent.EventDataFilter?.ToStateData);
                     }
                 }

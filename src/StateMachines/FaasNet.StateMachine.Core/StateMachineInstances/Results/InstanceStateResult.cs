@@ -27,8 +27,8 @@ namespace FaasNet.StateMachine.Core.StateMachineInstances.Results
                 DefId = state.DefId,
                 Events = state.Events.Select(e => InstanceStateEventResult.ToDto(e)).ToList(),
                 Id = state.Id,
-                Input = state.Input,
-                Output = state.Output,
+                Input = state.GetInput(),
+                Output = state.GetOutput(),
                 Status = state.Status
             };
         }

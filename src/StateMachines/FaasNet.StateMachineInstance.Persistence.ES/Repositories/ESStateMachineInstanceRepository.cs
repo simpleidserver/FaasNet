@@ -43,6 +43,7 @@ namespace FaasNet.StateMachineInstance.Persistence.ES.Repositories
                 s.From(parameter.StartIndex)
                 .Size(parameter.Count)
                 .Query(q => q.Match(i => i.Field(f => f.Vpn).Query(parameter.Vpn)))
+                .Sort(q => q.Descending(f => f.CreateDateTime))
                 .Index(_options.IndexName));
             return new BaseSearchResult<StateMachineInstanceAggregate>
             {

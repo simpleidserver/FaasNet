@@ -26,7 +26,14 @@ namespace FaasNet.EventStore
                 var fn = builder.Get(domainEvt.GetType());
                 if (fn != null)
                 {
-                    await fn(domainEvt);
+                    try
+                    {
+                        await fn(domainEvt);
+                    }
+                    catch
+                    {
+
+                    }
                 }
 
                 if (offset == null)

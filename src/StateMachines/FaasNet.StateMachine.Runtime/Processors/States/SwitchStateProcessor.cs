@@ -25,14 +25,14 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
             {
                 if (TryCheck(executionContext, swichState.Conditions.Cast<StateMachineDefinitionSwitchDataCondition>().ToList(), out StateMachineDefinitionSwitchDataCondition result))
                 {
-                    return Task.FromResult(Ok(result, executionContext.StateInstance.Input));
+                    return Task.FromResult(Ok(result, executionContext.StateInstance.GetInput()));
                 }
             }
             else
             {
                 if (TryCheck(executionContext, swichState.Conditions.Cast<StateMachineDefinitionSwitchEventCondition>().ToList(), out StateMachineDefinitionSwitchEventCondition result, out StateMachineInstanceStateEvent stateEvt))
                 {
-                    var output = ApplyEventDataFilter(executionContext.StateInstance.Input, result.EventDataFilter, stateEvt);
+                    var output = ApplyEventDataFilter(executionContext.StateInstance.GetInput(), result.EventDataFilter, stateEvt);
                     executionContext.Instance.ProcessEvent(executionContext.StateInstance.Id, stateEvt.Name, output.ToString());
                     return Task.FromResult(Ok(result, output));
                 }

@@ -1,4 +1,5 @@
-﻿using FaasNet.Common;
+﻿using Elasticsearch.Net;
+using FaasNet.Common;
 using FaasNet.EventStore.EF;
 using FaasNet.StateMachine.Exporter;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nest;
 using System;
 using System.IO;
+using System.Net;
 
 namespace FaasNet.StateMachine.ExporterHost
 {
@@ -27,6 +29,8 @@ namespace FaasNet.StateMachine.ExporterHost
                 .UseStateMachineInstanceElasticSearchStore(opt =>
                 {
                     var connectionSettings = new ConnectionSettings(new Uri(config["ElasticSearchUrl"]));
+                    connectionSettings.ServerCertificateValidationCallback((o, certificate, chain, errors) => true);
+                    connectionSettings.ServerCertificateValidationCallback(CertificateValidations.AllowAll);
                     opt.Settings = connectionSettings;
                 })
                 .UseEF(opt =>

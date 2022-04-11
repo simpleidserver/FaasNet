@@ -19,7 +19,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
         protected override async Task<StateProcessorResult> Handle(StateMachineInstanceExecutionContext executionContext, CancellationToken cancellationToken)
         {
             var operationState = executionContext.StateDef as StateMachineDefinitionOperationState;
-            var result = await _actionExecutor.ExecuteAndMerge(executionContext.StateInstance.Input, operationState.ActionMode, operationState.Actions, executionContext, cancellationToken);
+            var result = await _actionExecutor.ExecuteAndMerge(executionContext.StateInstance.GetInput(), operationState.ActionMode, operationState.Actions, executionContext, cancellationToken);
             return Ok(result, operationState);
         }
     }

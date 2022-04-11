@@ -32,7 +32,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
             var output = inputStateInstance;
             if (eventDataFilter != null && eventDataFilter.UseData)
             {
-                output.Merge(stateEvtInstance.InputDataObj, eventDataFilter.Data, eventDataFilter.ToStateData);
+                output.Merge(stateEvtInstance.GetInputDataObj(), eventDataFilter.Data, eventDataFilter.ToStateData);
             }
 
             return output;

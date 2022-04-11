@@ -39,7 +39,8 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
             var result = await client.LaunchAsync(new WorkerHost.StateMachineDef
             {
                 Input = request.Input,
-                Yaml = yaml
+                Yaml = yaml,
+                WorkflowDefTechnicalId = validationResult.WorkflowDefinition.TechnicalId
             });
             return new StartStateMachineResult
             {

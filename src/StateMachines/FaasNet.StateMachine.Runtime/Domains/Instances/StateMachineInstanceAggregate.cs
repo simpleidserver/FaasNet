@@ -40,17 +40,14 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
             }
         }
         public string OutputStr { get; set; }
-        public JObject Output
+        public JObject GetOutput()
         {
-            get
+            if (string.IsNullOrWhiteSpace(OutputStr))
             {
-                if (string.IsNullOrWhiteSpace(OutputStr))
-                {
-                    return null;
-                }
-
-                return JObject.Parse(OutputStr);
+                return null;
             }
+
+            return JObject.Parse(OutputStr);
         }
         public string SerializedDefinition { get; set; }
 

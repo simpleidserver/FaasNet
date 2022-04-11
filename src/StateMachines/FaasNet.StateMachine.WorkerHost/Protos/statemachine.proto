@@ -10,6 +10,7 @@ service StateMachine {
 message StateMachineDef {
 	string yaml = 1;
 	string input = 2;
+	string workflowDefTechnicalId = 3;
 }
 
 message LaunchStateMachineDefResult {

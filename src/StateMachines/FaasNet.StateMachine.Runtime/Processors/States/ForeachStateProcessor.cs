@@ -25,11 +25,11 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
             var foreachState = executionContext.StateDef as StateMachineDefinitionForeachState;
             if(string.IsNullOrWhiteSpace(foreachState.InputCollection))
             {
-                return Ok(executionContext.StateInstance.Input, foreachState);
+                return Ok(executionContext.StateInstance.GetInput(), foreachState);
             }
 
             var inputCollection = JTokenExtensions.CleanExpression(foreachState.InputCollection);
-            var tokens = JQ.EvalToToken(inputCollection, executionContext.StateInstance.Input) as JArray;
+            var tokens = JQ.EvalToToken(inputCollection, executionContext.StateInstance.GetInput()) as JArray;
             var result = new JArray();
             Func<JToken, Task> callback = async (token) =>
             {

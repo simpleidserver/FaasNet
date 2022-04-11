@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace FaasNet.StateMachine.Runtime.Domains.Instances
 {
@@ -22,30 +23,24 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public string DefId { get; set; }
         public StateMachineInstanceStateStatus Status { get; set; }
         public string InputStr { get; set; }
-        public JToken Input
+        public JToken GetInput()
         {
-            get
+            if (string.IsNullOrWhiteSpace(InputStr))
             {
-                if (string.IsNullOrWhiteSpace(InputStr))
-                {
-                    return null;
-                }
-
-                return JObject.Parse(InputStr);
+                return null;
             }
+
+            return JObject.Parse(InputStr);
         }
         public string OutputStr { get; set; }
-        public JToken Output
+        public JToken GetOutput()
         {
-            get
+            if (string.IsNullOrWhiteSpace(OutputStr))
             {
-                if (string.IsNullOrWhiteSpace(OutputStr))
-                {
-                    return null;
-                }
-
-                return JObject.Parse(OutputStr);
+                return null;
             }
+
+            return JObject.Parse(OutputStr);
         }
         public virtual ICollection<StateMachineInstanceStateHistory> Histories { get; set; }
         public virtual ICollection<StateMachineInstanceStateEvent> Events { get; set; }
@@ -139,7 +134,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public bool EvaluateCondition(string expression)
         {
             expression = JTokenExtensions.CleanExpression(expression);
-            var token = JQ.EvalToToken(expression, Input);
+            var token = JQ.EvalToToken(expression, GetInput());
             return bool.Parse(token.ToString());
         }
 
@@ -185,7 +180,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
             public int? GetIntFromState(string jsonExpression)
             {
-                var token = _state.Input.SelectToken(jsonExpression);
+                var token = _state.GetInput().SelectToken(jsonExpression);
                 if (token == null)
                 {
                     return null;

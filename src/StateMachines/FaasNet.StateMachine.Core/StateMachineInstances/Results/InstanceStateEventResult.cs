@@ -14,7 +14,7 @@ namespace FaasNet.StateMachine.Core.StateMachineInstances.Results
         {
             return new InstanceStateEventResult
             {
-                Input = evt.InputDataObj,
+                Input = evt.GetInputDataObj(),
                 Name = evt.Name,
                 Source = evt.Source,
                 Type = evt.Type

@@ -32,7 +32,7 @@ namespace FaasNet.StateMachine.Core.StateMachineInstances.Results
                 Id = instance.Id,
                 WorkflowDefTechnicalId = instance.WorkflowDefTechnicalId,
                 CreateDateTime = instance.CreateDateTime,
-                Output = instance.Output,
+                Output = instance.GetOutput(),
                 WorkflowDefDescription = instance.WorkflowDefDescription,
                 WorkflowDefName = instance.WorkflowDefName,
                 Status = instance.Status,

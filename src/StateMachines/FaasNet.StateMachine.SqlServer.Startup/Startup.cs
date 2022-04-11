@@ -1,3 +1,4 @@
+using Elasticsearch.Net;
 using FaasNet.Common;
 using FaasNet.StateMachine.Core.StateMachines;
 using FaasNet.StateMachine.SqlServer.Startup.Infrastructure;
@@ -51,7 +52,10 @@ namespace FaasNet.StateMachine.SqlServer.Startup
                 opt.UseSqlServer(Configuration.GetConnectionString("Runtime"), o => o.MigrationsAssembly(migrationsAssembly));
             }).UseStateMachineInstanceElasticSearchStore(opt =>
             {
-                opt.Settings = new Nest.ConnectionSettings(new Uri(Configuration["ElasticSearchUrl"]));
+                var connectionStrings = new Nest.ConnectionSettings(new Uri(Configuration["ElasticSearchUrl"]));
+                connectionStrings.ServerCertificateValidationCallback((o, certificate, chain, errors) => true);
+                connectionStrings.ServerCertificateValidationCallback(CertificateValidations.AllowAll);
+                opt.Settings = connectionStrings;
             });
             services.AddControllers(opts =>
             {

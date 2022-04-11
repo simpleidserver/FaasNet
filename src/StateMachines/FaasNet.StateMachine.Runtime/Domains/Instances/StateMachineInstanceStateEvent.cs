@@ -1,6 +1,7 @@
 ﻿using FaasNet.StateMachine.Runtime.Domains.Enums;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Text.Json.Serialization;
 
 namespace FaasNet.StateMachine.Runtime.Domains.Instances
 {
@@ -14,20 +15,14 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public string Topic { get; set; }
         public StateMachineInstanceStateEventStates State { get; set; }
         public string InputData { get; set; }
-        public JToken InputDataObj
+        public JToken GetInputDataObj()
         {
-            get
-            {
-                return JToken.Parse(InputData);
-            }
+            return JToken.Parse(InputData);
         }
         public string OutputData { get; set; }
-        public JToken OutputDataObj
+        public JToken GetOutputDataObj()
         {
-            get
-            {
-                return string.IsNullOrWhiteSpace(OutputData) ? null : JToken.Parse(OutputData);
-            }
+            return string.IsNullOrWhiteSpace(OutputData) ? null : JToken.Parse(OutputData);
         }
 
         #endregion

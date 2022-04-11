@@ -28,7 +28,7 @@ namespace FaasNet.StateMachine.Runtime.Processors.States
             if (consumedEvts.Any())
             {
                 var consumedEvt = consumedEvts.First();
-                var output = ApplyEventDataFilter(executionContext.StateInstance.Input, callbackState.EventDataFilter, consumedEvt);
+                var output = ApplyEventDataFilter(executionContext.StateInstance.GetInput(), callbackState.EventDataFilter, consumedEvt);
                 var result = await _actionExecutor.ExecuteAndMerge(output, StateMachineDefinitionActionModes.Sequential, new List<StateMachineDefinitionAction> { callbackState.Action }, executionContext, cancellationToken);
                 return Ok(result, callbackState);
             }
