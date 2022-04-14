@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.StateMachine.ExporterHost.Migrations
 {
     [DbContext(typeof(EventStoreDBContext))]
-    [Migration("20220411151900_Init")]
+    [Migration("20220414121110_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

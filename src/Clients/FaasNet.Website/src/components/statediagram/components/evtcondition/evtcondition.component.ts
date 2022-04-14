@@ -1,17 +1,24 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
+import { StateMachineEvent } from "@stores/statemachines/models/statemachine-event.model";
 import { BaseTransition } from "@stores/statemachines/models/statemachine-state.model";
 import { EventCondition } from "@stores/statemachines/models/statemachine-switch-state.model";
+import { MatPanelService } from "../../../matpanel/matpanelservice";
+import { ChooseEvtComponent, ChooseEvtData } from "./chooseevt.component";
 
 @Component({
   selector: 'evtcondition-editor',
   templateUrl: './evtcondition.component.html',
-  styleUrls: ['../state-editor.component.scss']
+  styleUrls: [
+    './evtcondition.component.scss',
+    '../state-editor.component.scss'
+  ]
 })
 export class EvtConditionComponent {
   private eventRefSubscription: any | null = null;
   private _evtCondition: EventCondition | null = null;
   private _transition: BaseTransition | null = null;
+  private _events: StateMachineEvent[] = [];
   @Output() closed: EventEmitter<any> = new EventEmitter<any>();
   @Input()
   get transition(): BaseTransition | null {
@@ -23,15 +30,22 @@ export class EvtConditionComponent {
     this.init();
   }
 
+  @Input()
+  get events(): StateMachineEvent[] {
+    return this._events;
+  }
+  set events(v: StateMachineEvent[]) {
+    this._events = v;
+  }
+
   updateEvtConditionFormGroup: FormGroup = new FormGroup({
     eventRef: new FormControl()
   });
 
-  constructor() {
+  constructor(private matPanelService: MatPanelService) {
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() { }
 
   ngOnDestroy() {
     if (this.eventRefSubscription) {
@@ -41,6 +55,20 @@ export class EvtConditionComponent {
 
   close() {
     this.closed.emit();
+  }
+
+  editEvtRef() {
+    const data = new ChooseEvtData();
+    data.events = this._events;
+    if (this._evtCondition) {
+      data.evtCondition = this._evtCondition;
+    }
+
+    this.matPanelService.open(ChooseEvtComponent, data);
+  }
+
+  getEvtRef() {
+    return this._evtCondition?.eventRef;
   }
 
   private init() {

@@ -3,6 +3,7 @@ using FaasNet.StateMachine.WorkerHost.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
@@ -32,6 +33,7 @@ namespace FaasNet.StateMachine.WorkerHost
                 .UseEF(opt =>
                 {
                     opt.UseSqlite($"Data Source={dbPath}", s => s.MigrationsAssembly(typeof(Startup).Assembly.GetName().Name));
+                    opt.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
                 })
                 .UseEventMesh(opt =>
                 {

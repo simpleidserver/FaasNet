@@ -17,7 +17,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public string InputData { get; set; }
         public JToken GetInputDataObj()
         {
-            return JToken.Parse(InputData);
+            return string.IsNullOrEmpty(InputData) ? null : JToken.FromObject(InputData);
         }
         public string OutputData { get; set; }
         public JToken GetOutputDataObj()

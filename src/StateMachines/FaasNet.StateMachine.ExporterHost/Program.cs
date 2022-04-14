@@ -1,4 +1,5 @@
 ﻿using Elasticsearch.Net;
+using EventStore.Client;
 using FaasNet.Common;
 using FaasNet.EventStore.EF;
 using FaasNet.StateMachine.Exporter;
@@ -8,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Nest;
 using System;
 using System.IO;
-using System.Net;
 
 namespace FaasNet.StateMachine.ExporterHost
 {
@@ -20,6 +20,7 @@ namespace FaasNet.StateMachine.ExporterHost
             var builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json");
             var config = builder.Build();
+            // RemoveAllIndexes(config);
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddStateMachineExporter()
                 .UseEventStoreDB(opt =>
@@ -52,6 +53,21 @@ namespace FaasNet.StateMachine.ExporterHost
             Console.WriteLine("Please press enter to quit the application...");
             Console.ReadLine();
             hostedJob.Stop();
+        }
+
+        private static void RemoveAllIndexes(IConfigurationRoot config)
+        {
+            var connectionSettings = new ConnectionSettings(new Uri(config["ElasticSearchUrl"]));
+            connectionSettings.ServerCertificateValidationCallback((o, certificate, chain, errors) => true);
+            connectionSettings.ServerCertificateValidationCallback(CertificateValidations.AllowAll);
+            var esClient = new ElasticClient(connectionSettings);
+            esClient.Indices.Delete("statemachineinstance");
+        }
+
+        private static void RemoveAllDomainEvents(IConfigurationRoot config)
+        {
+            var settings = EventStoreClientSettings.Create(config["EventStoreDBConnectionString"]);
+            var client = new EventStoreClient(settings);
         }
     }
 }

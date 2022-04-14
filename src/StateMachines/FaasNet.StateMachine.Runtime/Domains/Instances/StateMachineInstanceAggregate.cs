@@ -24,6 +24,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         public string Vpn { get; set; }
         public string WorkflowDefTechnicalId { get; set; }
+        public string RootTopic { get; set; }
         public string WorkflowDefId { get; set; }
         public string WorkflowDefName { get; set; }
         public string WorkflowDefDescription { get; set; }
@@ -129,7 +130,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
             if (!state.TryGetEvent(name, out StateMachineInstanceStateEvent evtState))
             {
                 var evt = new StateEvtListenedEvent(Guid.NewGuid().ToString(), Id, stateInstanceId, name, source, type, topic);
-                var integrationEvt = new EventListenedEvent(Guid.NewGuid().ToString(), Id, evt.StateId, Vpn, evt.EvtSource, evt.EvtType, evt.Topic);
+                var integrationEvt = new EventListenedEvent(Guid.NewGuid().ToString(), Id, evt.StateId, Vpn, RootTopic, evt.EvtSource, evt.EvtType, evt.Topic);
                 Handle(evt);
                 DomainEvts.Add(evt);
                 IntegrationEvents.Add(integrationEvt);
@@ -198,6 +199,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
             WorkflowDefVersion = evt.WorkflowDefVersion;
             Status = StateMachineInstanceStatus.ACTIVE;
             Vpn = evt.Vpn;
+            RootTopic = evt.RootTopic;
             SerializedDefinition = evt.SerializedDefinition;
             CreateDateTime = evt.CreateDateTime;
         }
@@ -244,7 +246,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         public void Handle(StateMachineTerminatedEvent evt)
         {
-            OutputStr = evt.Output.ToString();
+            OutputStr = evt.Output == null ? null : evt.Output.ToString();
             Status = StateMachineInstanceStatus.TERMINATE;
         }
 
@@ -272,9 +274,9 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         #endregion
 
-        public static StateMachineInstanceAggregate Create(string workflowDefTechnicalId, string workflowDefId, string workflowDefName, string workflowDefDescription, int workflowDefVersion, string vpn, string serializedDefinition)
+        public static StateMachineInstanceAggregate Create(string workflowDefTechnicalId, string workflowDefId, string workflowDefName, string workflowDefDescription, int workflowDefVersion, string vpn, string rootTopic, string serializedDefinition)
         {
-            var evt = new StateMachineInstanceCreatedEvent(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), workflowDefTechnicalId, workflowDefId, workflowDefName, workflowDefDescription, workflowDefVersion, vpn, serializedDefinition, DateTime.UtcNow);
+            var evt = new StateMachineInstanceCreatedEvent(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), workflowDefTechnicalId, workflowDefId, workflowDefName, workflowDefDescription, workflowDefVersion, vpn, rootTopic, serializedDefinition, DateTime.UtcNow);
             var result = new StateMachineInstanceAggregate();
             result.Handle(evt);
             result.DomainEvts.Add(evt);

@@ -1,0 +1,44 @@
+{
+	"asyncapi": "2.2.0",
+	"info": {
+		"version": "0.0.1",
+		"title": "Application",
+		"description": "Application"
+	},
+	"channels": {
+		"877309ea-d00d-4f47-9df2-db6a41a632ee/user": {
+			"publish": {
+				"message": {
+					"$ref": "#/components/messages/User"
+				}
+			}
+		}
+	},
+	"components": {
+		"messages": {
+			"User": {
+				"payload": {
+					"$schema": "http://json-schema.org/schema",
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "string",
+							"example": "A234-1234-1234"
+						},
+						"source": {
+							"type": "string",
+							"example": "urn:com.asyncapi.examples.user"
+						},
+						"type": {
+							"type": "string",
+							"example": "com.github.pull.create"
+						},
+						"name": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		}
+	}
+}

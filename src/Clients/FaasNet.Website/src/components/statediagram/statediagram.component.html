@@ -167,7 +167,7 @@
         <operation-state-editor *ngSwitchCase="'operation'" [state]="selectedState" [stateMachine]="stateMachine" (closed)="closePanel()"></operation-state-editor>
       </div>
       <div [ngSwitch]="selectedTransition?.getType()">
-        <evtcondition-editor *ngSwitchCase="'event'" [transition]="selectedTransition" (closed)="closePanel()"></evtcondition-editor>
+        <evtcondition-editor *ngSwitchCase="'event'" [transition]="selectedTransition" [events]="stateMachine.events" (closed)="closePanel()"></evtcondition-editor>
         <datacondition-editor *ngSwitchCase="'data'" [transition]="selectedTransition" (closed)="closePanel()"></datacondition-editor>
         <defaultcondition-editor *ngSwitchCase="'empty'" (closed)="closePanel()"></defaultcondition-editor>
       </div>

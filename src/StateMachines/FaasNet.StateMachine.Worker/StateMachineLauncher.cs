@@ -59,6 +59,7 @@ namespace FaasNet.StateMachine.Worker
                 workflowDefinitionAggregate.Description,
                 workflowDefinitionAggregate.Version,
                 workflowDefinitionAggregate.Vpn,
+                workflowDefinitionAggregate.RootTopic,
                 runtimeSerializer.SerializeYaml(workflowDefinitionAggregate));
             var dic = new Dictionary<string, string>();
             foreach (var state in workflowDefinitionAggregate.States)

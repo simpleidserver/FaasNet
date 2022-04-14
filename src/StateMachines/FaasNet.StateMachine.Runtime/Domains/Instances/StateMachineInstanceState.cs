@@ -5,7 +5,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 
 namespace FaasNet.StateMachine.Runtime.Domains.Instances
 {
@@ -58,7 +57,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         public void Complete(JToken output)
         {
-            OutputStr = output.ToString();
+            OutputStr = output == null ? string.Empty : output.ToString();
             Status = StateMachineInstanceStateStatus.COMPLETE;
             Histories.Add(StateMachineInstanceStateHistory.Create(Status, DateTime.UtcNow));
         }

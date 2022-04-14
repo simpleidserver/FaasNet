@@ -17,7 +17,7 @@ namespace FaasNet.StateMachine.Worker.Handlers
 
         public async Task Process(EventListenedEvent evt, CancellationToken cancellationToken)
         {
-            await _cloudEventSubscriptionRepository.Add(CloudEventSubscriptionAggregate.Create(evt.AggregateId, evt.StateInstanceId, evt.Source, evt.Type, evt.Vpn, evt.Topic), CancellationToken.None);
+            await _cloudEventSubscriptionRepository.Add(CloudEventSubscriptionAggregate.Create(evt.AggregateId, evt.StateInstanceId, evt.RootTopic, evt.Source, evt.Type, evt.Vpn, evt.Topic), CancellationToken.None);
             await _cloudEventSubscriptionRepository.SaveChanges(cancellationToken);
         }
     }

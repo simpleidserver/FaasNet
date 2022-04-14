@@ -20,6 +20,7 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                     Start = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Vpn = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ApplicationDomainId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RootTopic = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Id = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Version = table.Column<int>(type: "int", nullable: false),

@@ -57,6 +57,7 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
                 request.WorkflowDefinition.Vpn = workflowDefinition.Vpn;
                 request.WorkflowDefinition.ApplicationDomainId = workflowDefinition.ApplicationDomainId;
                 request.WorkflowDefinition.Status = workflowDefinition.Status;
+                request.WorkflowDefinition.RootTopic = workflowDefinition.RootTopic;
                 request.WorkflowDefinition.CreateDateTime = DateTime.UtcNow;
                 request.WorkflowDefinition.UpdateDateTime = DateTime.UtcNow;
                 request.WorkflowDefinition.IsLast = true;

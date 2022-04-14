@@ -24,6 +24,9 @@ namespace FaasNet.StateMachine.WorkerHost.Migrations
                     b.Property<bool>("IsConsumed")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("RootTopic")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Source")
                         .HasColumnType("TEXT");
 

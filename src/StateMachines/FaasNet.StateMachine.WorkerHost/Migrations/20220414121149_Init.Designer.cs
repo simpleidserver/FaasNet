@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.StateMachine.WorkerHost.Migrations
 {
     [DbContext(typeof(WorkerDBContext))]
-    [Migration("20220411130529_Init")]
+    [Migration("20220414121149_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,9 @@ namespace FaasNet.StateMachine.WorkerHost.Migrations
 
                     b.Property<bool>("IsConsumed")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("RootTopic")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Source")
                         .HasColumnType("TEXT");

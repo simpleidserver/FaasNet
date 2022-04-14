@@ -7,7 +7,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
     [DebuggerDisplay("State machine instance is created")]
     public class StateMachineInstanceCreatedEvent : DomainEvent
     {
-        public StateMachineInstanceCreatedEvent(string id, string aggregateId, string workflowDefTechnicalId, string workflowDefId, string workflowDefName, string workflowDefDescription, int workflowDefVersion, string vpn, string serializedDefinition, DateTime createDateTime) : base(id, aggregateId)
+        public StateMachineInstanceCreatedEvent(string id, string aggregateId, string workflowDefTechnicalId, string workflowDefId, string workflowDefName, string workflowDefDescription, int workflowDefVersion, string vpn, string rootTopic, string serializedDefinition, DateTime createDateTime) : base(id, aggregateId)
         {
             WorkflowDefTechnicalId = workflowDefTechnicalId;
             WorkflowDefId = workflowDefId;
@@ -15,6 +15,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
             WorkflowDefDescription = workflowDefDescription;
             WorkflowDefVersion = workflowDefVersion;
             Vpn = vpn;
+            RootTopic = rootTopic;
             SerializedDefinition = serializedDefinition;
             CreateDateTime = createDateTime;
         }
@@ -25,6 +26,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
         public string WorkflowDefDescription { get; set; }
         public int WorkflowDefVersion { get; set; }
         public string Vpn { get; set; }
+        public string RootTopic { get; set; }
         public string SerializedDefinition { get; set; }
         public DateTime CreateDateTime { get; set; }
     }

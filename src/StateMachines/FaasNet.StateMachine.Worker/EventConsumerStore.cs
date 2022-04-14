@@ -95,7 +95,10 @@ namespace FaasNet.StateMachine.Worker
                 try
                 {
                     var cloudEvtMessage = obj.Content.First();
-                    var vpnSubscriptions = _cloudEventSubscriptionRepository.Query().Where(e => e.Vpn == obj.Vpn && e.Topic == obj.TopicMessage && !e.IsConsumed).ToList();
+                    var splittedTopic = obj.TopicMessage.Split('/');
+                    var expectedRootTopic = splittedTopic.First();
+                    var expectedMessageTopic = splittedTopic.Last();
+                    var vpnSubscriptions = _cloudEventSubscriptionRepository.Query().Where(e => e.Vpn == obj.Vpn && e.Topic == expectedMessageTopic && e.RootTopic == expectedRootTopic && !e.IsConsumed).ToList();
                     var lst = vpnSubscriptions.Where(vs => obj.Content.Any(ce => ce.Type == vs.Type && ce.Source.ToString() == vs.Source)).GroupBy(k => k.WorkflowInstanceId);
                     using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
@@ -103,6 +106,11 @@ namespace FaasNet.StateMachine.Worker
                         {
                             var stateMachineInstanceId = kvp.Key;
                             var stateMachineInstance = await _commitAggregateHelper.Get<StateMachineInstanceAggregate>(stateMachineInstanceId, _cancellationTokenSource.Token);
+                            if (string.IsNullOrWhiteSpace(stateMachineInstance.Id))
+                            {
+                                continue;
+                            }
+
                             var stateMachineDef = serializer.DeserializeYaml(stateMachineInstance.SerializedDefinition);
                             foreach (var subscription in kvp)
                             {

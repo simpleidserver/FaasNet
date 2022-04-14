@@ -10,12 +10,12 @@ export class EventCondition extends BaseTransition {
   }
   set eventRef(str: string) {
     this._eventRef = str;
-    this.label?.next(this._eventRef);
+    this.label?.next(str);
   }
 
   constructor() {
     super();
-    this.label = new BehaviorSubject<string>("");
+    this.label = new BehaviorSubject<string>("event");
   }
 
   public override getType(): string {
@@ -139,7 +139,6 @@ export class SwitchStateMachineState extends StateMachineState {
     switch (this.switchType) {
       case SwitchStateMachineState.EVENT_TYPE:
         const newEvtTransition = new EventCondition();
-        newEvtTransition.eventRef = "event";
         newEvtTransition.transition = transitionName;
         this.eventConditions.push(newEvtTransition);
         break;
@@ -212,10 +211,7 @@ export class SwitchStateMachineState extends StateMachineState {
       id: this.id,
       name: this.name,
       type: SwitchStateMachineState.TYPE,
-      end: this.end,
-      dataConditions: this.dataConditions.map((d: DataCondition) => {
-        return d.getJson()
-      })
+      end: this.end
     };
 
     if (this.defaultCondition && this.defaultCondition.transition) {

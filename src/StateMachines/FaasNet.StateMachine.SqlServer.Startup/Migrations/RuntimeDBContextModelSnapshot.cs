@@ -144,6 +144,9 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("RootTopic")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Start")
                         .HasColumnType("nvarchar(max)");
 

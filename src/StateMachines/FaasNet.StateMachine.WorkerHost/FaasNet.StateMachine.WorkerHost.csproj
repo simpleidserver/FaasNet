@@ -7,6 +7,9 @@
 	  <Content Remove="appsettings.json" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Remove="StateMachineWorker.db-wal" />
+	</ItemGroup>
+	<ItemGroup>
 	  <None Include="appsettings.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
@@ -21,5 +24,8 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.12" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.12" />
 		<Protobuf Include="Protos\statemachine.proto" GrpcServices="Server,Client" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Migrations\" />
 	</ItemGroup>
 </Project>

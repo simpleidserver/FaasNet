@@ -10,6 +10,11 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
         public static IQueryable<EventMeshCloudEvent> Query(this IQueryable<EventMeshCloudEvent> queries, List<TopicExpression> topics)
         {
             const string topicName = "Topic";
+            if (topics == null || !topics.Any())
+            {
+                return queries;
+            }
+
             var parameter = Expression.Parameter(typeof(EventMeshCloudEvent), "t");
             var property = Expression.Property(parameter, topicName);
             Expression parent = null;

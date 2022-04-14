@@ -28,8 +28,10 @@ namespace FaasNet.EventStore
         public async Task Commit<T>(T domain, CancellationToken cancellationToken) where T : AggregateRoot
         {
             domain.Commit();
+            var topic = $"{domain.Topic}-{domain.Id}";
             foreach(var evt in domain.DomainEvts)
             {
+                await _eventStoreProducer.Append(topic, evt, cancellationToken);
                 await _eventStoreProducer.Append(domain.Topic, evt, cancellationToken);
             }
 
@@ -52,7 +54,8 @@ namespace FaasNet.EventStore
                 offset = result.LastEvtOffset;
             }
 
-            var evts = await _eventStoreConsumer.Search(result.Topic, offset, cancellationToken);
+            var topicName = $"{result.Topic}-{aggregateId}";
+            var evts = await _eventStoreConsumer.Search(topicName, offset, cancellationToken);
             foreach(var evt in evts)
             {
                 result.Handle(evt);

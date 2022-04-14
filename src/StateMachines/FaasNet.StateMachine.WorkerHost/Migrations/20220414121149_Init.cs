@@ -14,6 +14,7 @@ namespace FaasNet.StateMachine.WorkerHost.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     WorkflowInstanceId = table.Column<string>(type: "TEXT", nullable: true),
                     StateInstanceId = table.Column<string>(type: "TEXT", nullable: true),
+                    RootTopic = table.Column<string>(type: "TEXT", nullable: true),
                     Source = table.Column<string>(type: "TEXT", nullable: true),
                     Type = table.Column<string>(type: "TEXT", nullable: true),
                     Vpn = table.Column<string>(type: "TEXT", nullable: true),

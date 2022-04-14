@@ -9,7 +9,6 @@ using Grpc.Net.Client;
 using MediatR;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -40,6 +39,7 @@ namespace FaasNet.StateMachine.Core.StateMachines.Commands.Handlers
             {
                 Input = request.Input,
                 Yaml = yaml,
+                RootTopic = validationResult.WorkflowDefinition.RootTopic,
                 WorkflowDefTechnicalId = validationResult.WorkflowDefinition.TechnicalId
             });
             return new StartStateMachineResult

@@ -6,6 +6,7 @@ import { MonacoEditorModule } from '../monaco-editor/editor.module';
 import { DataConditionComponent } from './components/datacondition/datacondition.component';
 import { DefaultConditionComponent } from './components/defaultcondition/defaultcondition.component';
 import { EvtConditionComponent } from './components/evtcondition/evtcondition.component';
+import { ChooseEvtComponent } from './components/evtcondition/chooseevt.component';
 import { ExpressionEditorComponent } from './components/expressioneditor/expressioneditor.component';
 import { InjectStateEditorComponent } from './components/inject/inject-state-editor.component';
 import { ActionsEditorComponent } from './components/operation/actionseditor.component';
@@ -33,7 +34,8 @@ import { StateDiagramComponent } from './statediagram.component';
     ActionsEditorComponent,
     MatPanelComponent,
     EditActionDialogComponent,
-    TokenComponent
+    TokenComponent,
+    ChooseEvtComponent
   ],
   exports: [
     StateDiagramComponent,

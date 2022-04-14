@@ -38,6 +38,7 @@ export class EditEventDialogComponent {
     record.type = this.editEventFormGroup.get('type')?.value;
     record.kind = this.data.kind;
     record.source = this.data.source;
+    record.metadata = this.data.metadata;
     this.dialogRef.close(record);
   }
 

@@ -26,6 +26,7 @@ namespace FaasNet.StateMachine.Core.StateMachines
         {
             var stateMachine = _stateMachineDefinitionRepository.Query().FirstOrDefault(s => s.Id == context.Message.CorrelationId);
             stateMachine.ApplicationDomainId = context.Message.AggregateId;
+            stateMachine.RootTopic = context.Message.RootTopic;
             stateMachine.Status = StateMachineDefinitionStatus.ACTIVE;
             await _stateMachineDefinitionRepository.Update(stateMachine, CancellationToken.None);
             await _stateMachineDefinitionRepository.SaveChanges(CancellationToken.None);
@@ -41,7 +42,7 @@ namespace FaasNet.StateMachine.Core.StateMachines
 
         public async Task Consume(ConsumeContext<ApplicationDomainStateMachineEvtUpdatedEvent> context)
         {
-            var stateMachine = _stateMachineDefinitionRepository.Query().FirstOrDefault(s => s.ApplicationDomainId == context.Message.AggregateId);
+            var stateMachine = _stateMachineDefinitionRepository.Query().OrderByDescending(s => s.Version).FirstOrDefault(s => s.ApplicationDomainId == context.Message.AggregateId);
             if (stateMachine == null)
             {
                 return;
@@ -50,7 +51,11 @@ namespace FaasNet.StateMachine.Core.StateMachines
             stateMachine.Events = context.Message.Evts.Select(evt => new StateMachineDefinitionEvent
             {
                 Kind = evt.IsConsumed ? StateMachineDefinitionEventKinds.Consumed : StateMachineDefinitionEventKinds.Produced,
-                Source = evt.MessageId
+                Source = $"urn:{evt.MessageId}",
+                Metadata = new Newtonsoft.Json.Linq.JObject
+                {
+                    { "topic", evt.TopicName }
+                }
             }).ToList();
             stateMachine.UpdateDateTime = DateTime.UtcNow;
             await _stateMachineDefinitionRepository.Update(stateMachine, CancellationToken.None);

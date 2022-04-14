@@ -25,20 +25,24 @@ namespace FaasNet.EventStoreDB
 
         public async Task<List<DomainEvent>> Search(string topicName, long? offset, CancellationToken cancellationToken)
         {
-            var settings = EventStoreClientSettings.Create(_options.ConnectionString);
-            var client = new EventStoreClient(settings);
-            var position = offset == null ? StreamPosition.Start : StreamPosition.FromInt64(offset.Value);
-            var result = client.ReadStreamAsync(Direction.Forwards,
-                topicName,
-                position,
-                cancellationToken: cancellationToken);
-            var evts = await result.ToListAsync(cancellationToken);
             var domainEvts = new List<DomainEvent>();
-            foreach (var evt in evts)
+            try
             {
-                var type = Type.GetType(evt.OriginalEvent.EventType); 
-                domainEvts.Add(JsonSerializer.Deserialize(evt.OriginalEvent.Data.ToArray(), type) as DomainEvent);
+                var settings = EventStoreClientSettings.Create(_options.ConnectionString);
+                var client = new EventStoreClient(settings);
+                var position = offset == null ? StreamPosition.Start : StreamPosition.FromInt64(offset.Value);
+                var result = client.ReadStreamAsync(Direction.Forwards,
+                    topicName,
+                    position,
+                    cancellationToken: cancellationToken);
+                var evts = await result.ToListAsync(cancellationToken);
+                foreach (var evt in evts)
+                {
+                    var type = Type.GetType(evt.OriginalEvent.EventType);
+                    domainEvts.Add(JsonSerializer.Deserialize(evt.OriginalEvent.Data.ToArray(), type) as DomainEvent);
+                }
             }
+            catch { }
 
             return domainEvts;
         }
@@ -48,7 +52,6 @@ namespace FaasNet.EventStoreDB
             var settings = EventStoreClientSettings.Create(_options.ConnectionString);
             var client = new EventStoreClient(settings);
             var fromStream = offset == null ? FromStream.Start : FromStream.After(StreamPosition.FromInt64(offset.Value));
-            
             return await client.SubscribeToStreamAsync(topicName,
                 fromStream,
                 async (subscription, evt, cancellationToken) => {

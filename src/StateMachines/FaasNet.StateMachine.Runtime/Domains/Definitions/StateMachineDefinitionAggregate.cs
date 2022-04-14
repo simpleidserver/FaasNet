@@ -60,6 +60,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Definitions
         public virtual ICollection<StateMachineDefinitionEvent> Events { get; set; }
         public string Vpn { get; set; }
         public string ApplicationDomainId { get; set; }
+        public string RootTopic { get; set; }
         public StateMachineDefinitionStatus Status { get; set; }
         public override string Topic => "";
 

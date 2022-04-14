@@ -1,0 +1,39 @@
+<div class="panel-content">
+  <h1>Choose event to consume</h1>
+  <div class="body">
+    <div class="mat-elevation-z8 overflow-hidden">
+      <mat-table class="full-width" [dataSource]="events">
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef></mat-header-cell>
+          <mat-cell *matCellDef="let evt; let i = index;">
+            <mat-checkbox [checked]="evt.name == evtCondition.eventRef" (change)="selectEvent(evt)"></mat-checkbox>
+          </mat-cell>
+        </ng-container>
+        <!-- Name -->
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+          <mat-cell *matCellDef="let evt">
+            {{ evt.name }}
+          </mat-cell>
+        </ng-container>
+        <!-- Type -->
+        <ng-container matColumnDef="type">
+          <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+          <mat-cell *matCellDef="let evt">
+            {{ evt.type }}
+          </mat-cell>
+        </ng-container>
+        <!-- Source -->
+        <ng-container matColumnDef="source">
+          <mat-header-cell *matHeaderCellDef>Source</mat-header-cell>
+          <mat-cell *matCellDef="let evt">
+            {{ evt.source }}
+          </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    </div>
+  </div>
+</div>

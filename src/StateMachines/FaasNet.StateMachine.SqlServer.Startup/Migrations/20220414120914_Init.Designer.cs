@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
 {
     [DbContext(typeof(RuntimeDBContext))]
-    [Migration("20220411131913_Init")]
+    [Migration("20220414120914_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -144,6 +144,9 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RootTopic")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Start")

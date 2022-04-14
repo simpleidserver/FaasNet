@@ -30,6 +30,7 @@ namespace FaasNet.EventMesh.Core.Consumers
             try
             {
                 string applicationDomainId = null;
+                var rootTopic = Guid.NewGuid().ToString();
                 using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
                     var name = context.Message.Name.Replace(" ", string.Empty);
@@ -37,7 +38,7 @@ namespace FaasNet.EventMesh.Core.Consumers
                     {
                         Name = name,
                         Description = context.Message.Description,
-                        RootTopic = Guid.NewGuid().ToString(),
+                        RootTopic = rootTopic,
                         StateMachineId = context.Message.Id,
                         Vpn = context.Message.Vpn
                     });
@@ -62,7 +63,7 @@ namespace FaasNet.EventMesh.Core.Consumers
                     transactionScope.Complete();
                 }
 
-                await _busControl.Publish(new ApplicationDomainAddedEvent(applicationDomainId)
+                await _busControl.Publish(new ApplicationDomainAddedEvent(applicationDomainId, rootTopic)
                 {
                     CorrelationId = context.Message.CorrelationId
                 });

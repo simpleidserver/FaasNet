@@ -13,6 +13,11 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
         {
             const string any = "*";
             var result = new List<TopicExpression>();
+            if (topicFilter == any)
+            {
+                return result;
+            }
+
             var regex = new Regex(REGEX_PATTERN);
             if (!regex.IsMatch(topicFilter))
             {
