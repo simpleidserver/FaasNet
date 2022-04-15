@@ -11,5 +11,11 @@ namespace FaasNet.EventMesh.Runtime
             serverBuilder.Services.AddRuntimeEF(options);
             return serverBuilder;
         }
+
+        public static ServerBuilder UseEFMessageBroker(this ServerBuilder serverBuilder, Action<DbContextOptionsBuilder> options = null)
+        {
+            serverBuilder.Services.AddMessageBrokerEF(options);
+            return serverBuilder;
+        }
     }
 }

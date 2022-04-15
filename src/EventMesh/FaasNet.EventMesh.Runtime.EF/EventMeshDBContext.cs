@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Runtime.Models;
+﻿using FaasNet.EventMesh.Runtime.EF.Configurations;
+using FaasNet.EventMesh.Runtime.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 
@@ -20,7 +21,21 @@ namespace FaasNet.EventMesh.Runtime.EF
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+            modelBuilder.ApplyConfiguration(new ApplicationConfiguration());
+            modelBuilder.ApplyConfiguration(new ApplicationDomainConfiguration());
+            modelBuilder.ApplyConfiguration(new ApplicationLinkConfiguration());
+            modelBuilder.ApplyConfiguration(new BridgeServerConfiguration());
+            modelBuilder.ApplyConfiguration(new BrokerConfConfiguration());
+            modelBuilder.ApplyConfiguration(new BrokerConfigurationRecordConfiguration());
+            modelBuilder.ApplyConfiguration(new ClientConfiguration());
+            modelBuilder.ApplyConfiguration(new ClientSessionBridgeConfiguration());
+            modelBuilder.ApplyConfiguration(new ClientSessionConfiguration());
+            modelBuilder.ApplyConfiguration(new ClientSessionHistoryConfiguration());
+            modelBuilder.ApplyConfiguration(new ClientSessionPendingCloudEventConfiguration());
+            modelBuilder.ApplyConfiguration(new ClientTopicConfiguration());
+            modelBuilder.ApplyConfiguration(new MessageDefinitionsConfiguration());
+            modelBuilder.ApplyConfiguration(new TopicConfiguration());
+            modelBuilder.ApplyConfiguration(new VpnConfiguration());
         }
     }
 }

@@ -1,39 +1,74 @@
 <div class="panel-content">
-  <h1>Choose event to consume</h1>
-  <div class="body">
-    <div class="mat-elevation-z8 overflow-hidden">
-      <mat-table class="full-width" [dataSource]="events">
-        <!-- Actions -->
-        <ng-container matColumnDef="actions">
-          <mat-header-cell *matHeaderCellDef></mat-header-cell>
-          <mat-cell *matCellDef="let evt; let i = index;">
-            <mat-checkbox [checked]="evt.name == evtCondition.eventRef" (change)="selectEvent(evt)"></mat-checkbox>
-          </mat-cell>
-        </ng-container>
-        <!-- Name -->
-        <ng-container matColumnDef="name">
-          <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
-          <mat-cell *matCellDef="let evt">
-            {{ evt.name }}
-          </mat-cell>
-        </ng-container>
-        <!-- Type -->
-        <ng-container matColumnDef="type">
-          <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
-          <mat-cell *matCellDef="let evt">
-            {{ evt.type }}
-          </mat-cell>
-        </ng-container>
-        <!-- Source -->
-        <ng-container matColumnDef="source">
-          <mat-header-cell *matHeaderCellDef>Source</mat-header-cell>
-          <mat-cell *matCellDef="let evt">
-            {{ evt.source }}
-          </mat-cell>
-        </ng-container>
-        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-      </mat-table>
+  <h1>Edit event</h1>
+  <div id="choose-evt" class="body" [formGroup]="editEventFormGroup">
+    <div fxLayout="row">
+      <div fxFlex="50%" class="firstColumn">
+        <!-- Use data -->
+        <div class="form-control">
+          <div class="title">Use data</div>
+          <p class="description">If set to false, event payload is not added/merged to state data.</p>
+          <select formControlName="useData" class="full-width">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+        <mat-divider></mat-divider>
+        <div *ngIf="editEventFormGroup.get('useData')?.value == 'true'">
+          <!-- Data -->
+          <div class="form-control">
+            <div class="title">Data</div>
+            <p class="description">Workflow expression that filters the event data (payload)</p>
+            <input (click)="editResults()" formControlName="data" type="text" class="condition full-width" readonly />
+          </div>
+          <mat-divider></mat-divider>
+          <!-- ToStateData -->
+          <div class="form-control">
+            <div class="title">Select state data element</div>
+            <p class="description">Workflow expression that selects a state data element to which the action results should be added/merged into.</p>
+            <input (click)="editToStateData()" formControlName="toStateData" type="text" class="condition full-width" readonly />
+          </div>
+          <mat-divider></mat-divider>
+        </div>
+      </div>
+      <div fxFlex="50%" class="secondColumn">
+        <div class="mat-elevation-z8 overflow-hidden">
+          <mat-table class="full-width" [dataSource]="events">
+            <!-- Actions -->
+            <ng-container matColumnDef="actions">
+              <mat-header-cell *matHeaderCellDef></mat-header-cell>
+              <mat-cell *matCellDef="let evt; let i = index;">
+                <mat-checkbox [checked]="evt.name == selectedEvtRef" (change)="selectEvent(evt)"></mat-checkbox>
+              </mat-cell>
+            </ng-container>
+            <!-- Name -->
+            <ng-container matColumnDef="name">
+              <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+              <mat-cell *matCellDef="let evt">
+                {{ evt.name }}
+              </mat-cell>
+            </ng-container>
+            <!-- Type -->
+            <ng-container matColumnDef="type">
+              <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+              <mat-cell *matCellDef="let evt">
+                {{ evt.type }}
+              </mat-cell>
+            </ng-container>
+            <!-- Source -->
+            <ng-container matColumnDef="source">
+              <mat-header-cell *matHeaderCellDef>Source</mat-header-cell>
+              <mat-cell *matCellDef="let evt">
+                {{ evt.source }}
+              </mat-cell>
+            </ng-container>
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+          </mat-table>
+        </div>
+      </div>
     </div>
+  </div>
+  <div class="actions">
+    <button mat-raised-button color="primary" (click)="save()">Save</button>
   </div>
 </div>

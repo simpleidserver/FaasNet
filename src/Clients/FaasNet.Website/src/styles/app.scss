@@ -124,13 +124,13 @@ a.is-active {
   flex: auto;
 }
 
-.panel-content > .actions {
+.panel-content .actions {
   border-top: 1px solid #d6d2d2;
-  height: 60px;
+  height: 40px;
   padding-top: 5px;
 }
 
-.panel-content > .actions button {
+.panel-content .actions button {
   float: right;
 }
 

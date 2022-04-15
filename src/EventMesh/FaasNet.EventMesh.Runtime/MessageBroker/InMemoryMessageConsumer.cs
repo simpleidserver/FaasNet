@@ -1,6 +1,7 @@
 ﻿using FaasNet.EventMesh.Runtime.Events;
 using FaasNet.EventMesh.Runtime.Extensions;
 using FaasNet.EventMesh.Runtime.Models;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -13,13 +14,14 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
     {
         private const int DEFAULT_TIMER_MS = 500;
         private bool _isRunning = false;
-        private readonly ConcurrentBag<EventMeshCloudEvent> _cloudEvts;
         private ConcurrentBag<EventMeshSubscription> _subscriptions;
+        private readonly IEventMeshCloudEventRepository _eventMeshCloudEventRepository;
         private CancellationTokenSource _tokenSource;
 
-        public InMemoryMessageConsumer(ConcurrentBag<EventMeshCloudEvent> cloudEvts)
+        public InMemoryMessageConsumer(IServiceProvider serviceProvider)
         {
-            _cloudEvts = cloudEvts;
+            var scope = serviceProvider.CreateScope();
+            _eventMeshCloudEventRepository = scope.ServiceProvider.GetRequiredService<IEventMeshCloudEventRepository>();
         }
 
         public event EventHandler<CloudEventArgs> CloudEventReceived;
@@ -62,8 +64,7 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
 
         public void Commit(string topicFilter, Models.Client client, string sessionId, int nbEvts)
         {
-            // var subscription = _subscriptions.First(s => s.TopicFilter == topicFilter && s.ClientSessionId == sessionId && s.ClientId == client.ClientId);
-            // subscription.Offset += nbEvts;
+
         }
 
         public Task Unsubscribe(string topicFilter, Models.Client client, string sessionId, CancellationToken cancellationToken)
@@ -89,7 +90,7 @@ namespace FaasNet.EventMesh.Runtime.MessageBroker
                 foreach(var subscription in _subscriptions)
                 {
                     var filters = TopicFilterParser.Parse(subscription.TopicFilter).ToList();
-                    var filteredCloudEvts = _cloudEvts.AsQueryable().OrderBy(c => c.CreateDateTime).Query(filters).Skip(subscription.Offset);
+                    var filteredCloudEvts = await _eventMeshCloudEventRepository.GetLatest(filters, subscription.Offset);
                     subscription.Offset += filteredCloudEvts.Count();
                     foreach (var cloudEvt in filteredCloudEvts)
                     {

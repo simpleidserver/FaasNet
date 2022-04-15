@@ -1,19 +1,13 @@
-﻿using CloudNative.CloudEvents;
-using CloudNative.CloudEvents.Core;
-using CloudNative.CloudEvents.NewtonsoftJson;
-using FaasNet.EventStore;
+﻿using FaasNet.EventStore;
 using FaasNet.Lock;
 using FaasNet.StateMachine.Runtime;
 using FaasNet.StateMachine.Runtime.Domains.Instances;
 using FaasNet.StateMachine.Runtime.Serializer;
 using FaasNet.StateMachine.Worker.Persistence;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -115,9 +109,9 @@ namespace FaasNet.StateMachine.Worker
                             foreach (var subscription in kvp)
                             {
                                 var firstMsg = obj.Content.First(ce => ce.Type == subscription.Type && ce.Source.ToString() == subscription.Source);
-                                if (stateMachineInstance.TryConsumeEvt(subscription.StateInstanceId, subscription.Source, subscription.Type, firstMsg.Data.ToString()))
+                                var jObj = JObject.Parse(firstMsg.Data.ToString());
+                                if (stateMachineInstance.TryConsumeEvt(subscription.StateInstanceId, subscription.Source, subscription.Type, jObj.ToString()))
                                 {
-                                    var jObj = JObject.Parse(firstMsg.Data.ToString());
                                     await _runtimeEngine.Launch(stateMachineDef, stateMachineInstance, jObj, subscription.StateInstanceId, CancellationToken.None);
                                     await _commitAggregateHelper.Commit(stateMachineInstance, _cancellationTokenSource.Token);
                                 }

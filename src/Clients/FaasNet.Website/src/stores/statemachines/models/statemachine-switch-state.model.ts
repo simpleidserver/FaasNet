@@ -1,4 +1,5 @@
 import { BehaviorSubject } from "rxjs";
+import { EventDataFilter } from "./eventdatafilter.model";
 import { BaseTransition, EmptyTransition, StateMachineState } from "./statemachine-state.model";
 
 export class EventCondition extends BaseTransition {
@@ -12,6 +13,8 @@ export class EventCondition extends BaseTransition {
     this._eventRef = str;
     this.label?.next(str);
   }
+
+  eventDataFilter: EventDataFilter | null = null;
 
   constructor() {
     super();
@@ -27,10 +30,15 @@ export class EventCondition extends BaseTransition {
   }
 
   public getJson(): any {
-    return {
+    let result : any = {
       eventRef: this.eventRef,
       transition: this.transition
     };
+    if (this.eventDataFilter) {
+      result.eventDataFilter = this.eventDataFilter.getJson();
+    }
+
+    return result;
   }
 
   public static build(json: any) {
@@ -38,6 +46,10 @@ export class EventCondition extends BaseTransition {
     result.eventRef = json["eventRef"];
     result.label = json["label"];
     result.transition = json["transition"];
+    if (json["eventDataFilter"]) {
+      result.eventDataFilter = EventDataFilter.build(json["eventDataFilter"]);
+    }
+
     return result;
   }
 }

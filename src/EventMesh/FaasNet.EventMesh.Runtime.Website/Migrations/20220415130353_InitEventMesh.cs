@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FaasNet.EventMesh.Runtime.Website.Migrations
 {
-    public partial class Init : Migration
+    public partial class InitEventMesh : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

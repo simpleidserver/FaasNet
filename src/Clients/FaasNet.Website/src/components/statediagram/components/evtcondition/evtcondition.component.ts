@@ -64,7 +64,15 @@ export class EvtConditionComponent {
       data.evtCondition = this._evtCondition;
     }
 
-    this.matPanelService.open(ChooseEvtComponent, data);
+    const service = this.matPanelService.open(ChooseEvtComponent, data);
+    service.closed.subscribe((e) => {
+      if (!e || !this._evtCondition) {
+        return;
+      }
+
+      this._evtCondition.eventRef = e.eventRef;
+      this._evtCondition.eventDataFilter = e.eventDataFilter;
+    });
   }
 
   getEvtRef() {

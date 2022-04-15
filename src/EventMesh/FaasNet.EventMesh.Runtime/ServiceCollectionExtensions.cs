@@ -4,7 +4,6 @@ using FaasNet.EventMesh.Runtime.MessageBroker;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -43,9 +42,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddInMemoryMessageBroker(this IServiceCollection services)
         {
-            var evts = new ConcurrentBag<EventMeshCloudEvent>();
-            services.AddSingleton<IMessageConsumer>(new InMemoryMessageConsumer(evts));
-            services.AddSingleton<IMessagePublisher>(new InMemoryMessagePublisher(evts));
+            services.AddSingleton<IMessageConsumer, InMemoryMessageConsumer>();
+            services.AddSingleton<IMessagePublisher, InMemoryMessagePublisher>();
+            services.AddSingleton<IEventMeshCloudEventRepository, InMemoryEventMeshCloudEventRepository>();
             return services;
         }
     }

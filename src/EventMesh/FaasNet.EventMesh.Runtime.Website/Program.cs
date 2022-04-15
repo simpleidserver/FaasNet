@@ -15,8 +15,10 @@ namespace FaasNet.EventMesh.Runtime.Website
             var host = CreateHostBuilder(args).Build();
             using (var scope = host.Services.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<EventMeshDBContext>();
-                dbContext.Database.Migrate();
+                var eventMeshDbContext = scope.ServiceProvider.GetRequiredService<EventMeshDBContext>();
+                var messageBrokerDbContext = scope.ServiceProvider.GetRequiredService<MessageBrokerDBContext>();
+                eventMeshDbContext.Database.Migrate();
+                messageBrokerDbContext.Database.Migrate();
                 var configuration = host.Services.GetRequiredService<IConfiguration>();
                 if (Startup.GetBoolean(configuration, "RabbitMQ.Enabled"))
                 {
@@ -28,21 +30,22 @@ namespace FaasNet.EventMesh.Runtime.Website
                     scope.ServiceProvider.SeedKafkaOptions();
                 }
 
-                if (!dbContext.VpnLst.Any())
+                if (!eventMeshDbContext.VpnLst.Any())
                 {
-                    dbContext.VpnLst.Add(Models.Vpn.Create("default", "default"));
+                    eventMeshDbContext.VpnLst.Add(Models.Vpn.Create("default", "default"));
                 }
 
-                if (!dbContext.ClientLst.Any())
+                if (!eventMeshDbContext.ClientLst.Any())
                 {
-                    dbContext.ClientLst.Add(Models.Client.Create("default", "stateMachineClientId", null, new System.Collections.Generic.List<Client.Messages.UserAgentPurpose>
+                    eventMeshDbContext.ClientLst.Add(Models.Client.Create("default", "stateMachineClientId", null, new System.Collections.Generic.List<Client.Messages.UserAgentPurpose>
                     {
                         Client.Messages.UserAgentPurpose.PUB,
                         Client.Messages.UserAgentPurpose.SUB
                     }));
                 }
 
-                dbContext.SaveChanges();
+                eventMeshDbContext.SaveChanges();
+                messageBrokerDbContext.SaveChanges();
             }
             
             host.Run();

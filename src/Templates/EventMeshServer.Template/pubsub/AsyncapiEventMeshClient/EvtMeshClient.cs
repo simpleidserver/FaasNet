@@ -5,6 +5,7 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+
 namespace AsyncapiEventMeshClient
 {
     public class EvtMeshClient : EventMeshClient
@@ -14,7 +15,7 @@ namespace AsyncapiEventMeshClient
 		
 			public Task Publish(AnonymousSchema_1 parameter, CancellationToken cancellationToken = default(CancellationToken))
 			{
-				const string topicName = "e59f4ca1-73a3-4c93-b54a-9c04778bea72/User";
+				const string topicName = "71a3a547-23cb-44ee-b5f5-3996248cfcb6/User";
 				var cloudEvt = new CloudEvent
 				{
 					Id = Guid.NewGuid().ToString(),

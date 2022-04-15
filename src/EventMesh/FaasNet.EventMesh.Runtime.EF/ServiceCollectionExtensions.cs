@@ -1,5 +1,6 @@
 ﻿using FaasNet.EventMesh.Runtime.EF;
 using FaasNet.EventMesh.Runtime.EF.Stores;
+using FaasNet.EventMesh.Runtime.MessageBroker;
 using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -23,6 +24,13 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.AddTransient<IBrokerConfigurationStore, EFBrokerConfigurationStore>();
             serviceCollection.AddTransient<IApplicationDomainRepository, EFApplicationDomainRepository>();
             serviceCollection.AddDbContext<EventMeshDBContext>(options);
+            return serviceCollection;
+        }
+
+        public static IServiceCollection AddMessageBrokerEF(this IServiceCollection serviceCollection, Action<DbContextOptionsBuilder> options = null)
+        {
+            serviceCollection.AddTransient<IEventMeshCloudEventRepository, EFEventMeshCloudEventRepository>();
+            serviceCollection.AddDbContext<MessageBrokerDBContext>(options);
             return serviceCollection;
         }
     }

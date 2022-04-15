@@ -1,25 +1,26 @@
 ﻿using CloudNative.CloudEvents;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Runtime.MessageBroker
 {
     public class InMemoryMessagePublisher : IMessagePublisher
     {
-        private readonly ConcurrentBag<EventMeshCloudEvent> _events;
+        private readonly IEventMeshCloudEventRepository _eventMeshCloudEventRepository;
 
-        public InMemoryMessagePublisher(ConcurrentBag<EventMeshCloudEvent> events)
+        public InMemoryMessagePublisher(IServiceProvider serviceProvider)
         {
-            _events = events;
+            var scope = serviceProvider.CreateScope();
+            _eventMeshCloudEventRepository = scope.ServiceProvider.GetRequiredService<IEventMeshCloudEventRepository>();
         }
 
         public string BrokerName => Constants.InMemoryBrokername;
 
-        public Task Publish(CloudEvent cloudEvent, string topicName, Models.Client client)
+        public async Task Publish(CloudEvent cloudEvent, string topicName, Models.Client client)
         {
-            _events.Add(new EventMeshCloudEvent { CloudEvt = cloudEvent, Topic = topicName, CreateDateTime = DateTime.UtcNow });
-            return Task.CompletedTask;
+            _eventMeshCloudEventRepository.Add(new EventMeshCloudEvent { CloudEvt = cloudEvent, Topic = topicName, CreateDateTime = DateTime.UtcNow });
+            await _eventMeshCloudEventRepository.SaveChanges();
         }
     }
 }

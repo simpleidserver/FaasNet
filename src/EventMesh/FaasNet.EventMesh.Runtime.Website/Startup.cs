@@ -23,7 +23,9 @@ namespace FaasNet.EventMesh.Runtime.Website
             var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            RegisterEventMeshService(services).AddRuntimeEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
+            RegisterEventMeshService(services)
+                .AddRuntimeEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)))
+                .AddMessageBrokerEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
             services.AddHostedService<RuntimeHostedService>();
             services.AddSingleton(Configuration);
         }
