@@ -18,12 +18,9 @@ export class OpenApiService {
     }, { headers: headers });
   }
 
-  getOperation(endpoint: string, operationId: string): Observable<any> {
+  getOpenApi(endpoint: string): Observable<any> {
     let headers = new HttpHeaders();
     headers = headers.set('Accept', 'application/json');
-    let targetUrl = environment.apiUrl + '/openapi/operations/' + operationId;
-    return this.http.post<any>(targetUrl, {
-      endpoint: endpoint
-    }, { headers: headers });
+    return this.http.get<any>(endpoint, { headers: headers });
   }
 }

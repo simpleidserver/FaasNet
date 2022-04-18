@@ -1,14 +1,13 @@
 ﻿using FaasNet.Domain.Exceptions;
 using FaasNet.StateMachine.Core.Resources;
 using FaasNet.StateMachine.Runtime.OpenAPI;
-using FaasNet.StateMachine.Runtime.OpenAPI.v3.Models;
 using MediatR;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FaasNet.StateMachine.Core.OpenApi.Queries.Handlers
+namespace FaasNet.StateMachine.Core.OpenApi.Queries
 {
     public class GetOpenApiOperationsQueryHandler : IRequestHandler<GetOpenApiOperationsQuery, IEnumerable<OpenApiOperationResult>>
     {
@@ -28,7 +27,22 @@ namespace FaasNet.StateMachine.Core.OpenApi.Queries.Handlers
 
             var configuration = await _openAPIParser.GetConfiguration(request.Endpoint, cancellationToken);
             var operations = configuration.Paths.SelectMany(p => p.Value.Select(kvp => kvp.Value));
-            return operations;
+            return operations.Select(o => new OpenApiOperationResult
+            {
+                OperationId = o.OperationId,
+                Summary = o.Summary
+            });
         }
+    }
+
+    public class GetOpenApiOperationsQuery : IRequest<IEnumerable<OpenApiOperationResult>>
+    {
+        public string Endpoint { get; set; }
+    }
+
+    public class OpenApiOperationResult
+    {
+        public string OperationId { get; set; }
+        public string Summary { get; set; }
     }
 }

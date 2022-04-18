@@ -33,9 +33,7 @@ namespace FaasNet.StateMachine.Runtime.JSchemas
             return parseJson.Obj;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-        }
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) { }
 
         protected static string FormatPath(string path)
         {

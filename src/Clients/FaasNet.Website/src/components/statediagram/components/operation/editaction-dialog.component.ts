@@ -112,10 +112,12 @@ export class EditActionDialogComponent {
             }
 
             if (Object.keys(queries).length > 0) {
+              if (!args) args = {};
               args['queries'] = queries;
             }
 
             if (Object.keys(properties).length > 0) {
+              if (!args) args = {};
               args['properties'] = properties;
             }
             break;
@@ -276,13 +278,14 @@ export class EditActionDialogComponent {
     const applicationJson = "application/json";
     const splitted = fn.operation?.split('#');
     if (splitted) {
-      this.openApiService.getOperation(splitted[0], splitted[1]).subscribe((e) => {
+      this.openApiService.getOpenApi(splitted[0]).subscribe((e) => {
         var queryParameters: any = {};
         var bodyParameters: any = {};
-        const openApiOperation = e.openApiOperation;
+        const openApiOperation = this._getOpenApiOperation(e, splitted[1]);
         const components = e.components;
         if (openApiOperation.parameters) {
           openApiOperation.parameters.forEach((p: any) => {
+            console.log(p);
             queryParameters = this._extractPathParameter(p, components);
           });
         }
@@ -421,5 +424,17 @@ export class EditActionDialogComponent {
     const splittedRef = ref.split('/');
     const name = splittedRef[splittedRef.length - 1];
     return components.schemas[name];
+  }
+
+  private _getOpenApiOperation(openapiDoc: any, operationId: string) {
+    for (var path in openapiDoc.paths) {
+      for (var httpMethod in openapiDoc.paths[path]) {
+        if (openapiDoc.paths[path][httpMethod].operationId === operationId) {
+          return openapiDoc.paths[path][httpMethod];
+        }
+      }
+    }
+
+    return undefined;
   }
 }

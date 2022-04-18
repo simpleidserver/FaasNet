@@ -4,11 +4,9 @@ using FaasNet.StateMachine.Runtime.AsyncAPI.Channels;
 using FaasNet.StateMachine.Runtime.AsyncAPI.Channels.Amqp;
 using FaasNet.StateMachine.Runtime.Factories;
 using FaasNet.StateMachine.Runtime.OpenAPI;
-using FaasNet.StateMachine.Runtime.OpenAPI.Builders;
 using FaasNet.StateMachine.Runtime.Processors;
 using FaasNet.StateMachine.Runtime.Processors.Functions;
 using FaasNet.StateMachine.Runtime.Processors.States;
-using v3 = FaasNet.StateMachine.Runtime.OpenAPI.v3;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -30,7 +28,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IHttpClientFactory, HttpClientFactory>();
             services.AddTransient<IChannel, AmqpChannel>();
             services.AddTransient<IAmqpChannelClientFactory, AmqpChannelUserPasswordClientFactory>();
-            services.AddTransient<IOpenAPIConfigurationParser, v3.OpenAPIConfigurationParser>();
             services.AddTransient<IRequestBodyBuilder, JsonRequestBodyBuilder>();
             services.AddTransient<IAsyncAPIParser, AsyncAPIParser>();
             return services;

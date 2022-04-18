@@ -22,13 +22,5 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Controllers
             var result = await _mediator.Send(query, cancellationToken);
             return new OkObjectResult(result);
         }
-
-        [HttpPost("operations/{id}")]
-        public async Task<IActionResult> GetOperation(string id, [FromBody] GetOpenApiOperationQuery query, CancellationToken cancellationToken)
-        {
-            query.OperationId = id;
-            var result = await _mediator.Send(query, cancellationToken);
-            return new OkObjectResult(result);
-        }
     }
 }

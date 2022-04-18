@@ -283,7 +283,7 @@ namespace FaasNet.StateMachine.Core.Tests
         public async Task When_Run_Switch_Event_Condition()
         {
             var runtimeJob = new StateMachineJob();
-            var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
+            var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default", "visa")
                 .AddConsumedEvent("visaApprovedEvt", "https://github.com/cloudevents/spec/pull", "VisaApproved", "visa")
                 .AddConsumedEvent("visaRejectedEvt", "https://github.com/cloudevents/spec/pull", "VisaRejected", "visa")
                 .StartsWith(o => o.Switch()
@@ -362,7 +362,7 @@ namespace FaasNet.StateMachine.Core.Tests
         public async Task When_Run_CallbackState()
         {
             var runtimeJob = new StateMachineJob();
-            var workflowDefinition = StateMachineDefinitionBuilder.New("creditCheckCompleteType", 1, "name", "description", "default")
+            var workflowDefinition = StateMachineDefinitionBuilder.New("creditCheckCompleteType", 1, "name", "description", "default", "credit")
                 .AddFunction(o => o.RestAPI("creditCheckFunction", "http://localhost/swagger/v1/swagger.json#creditCheck"))
                 .AddConsumedEvent("CreditCheckCompletedEvent", "https://github.com/cloudevents/spec/pull", "creditCheckCompleteType", "credit")
                 .StartsWith(o => o.Callback()

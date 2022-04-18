@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Text;
 
-namespace FaasNet.StateMachine.Runtime.OpenAPI.Builders
+namespace FaasNet.StateMachine.Runtime.OpenAPI
 {
     public class JsonRequestBodyBuilder : IRequestBodyBuilder
     {

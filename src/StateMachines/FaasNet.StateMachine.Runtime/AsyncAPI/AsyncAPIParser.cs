@@ -55,8 +55,7 @@ namespace FaasNet.StateMachine.Runtime.AsyncAPI
         public async Task<AsyncApiDocument> GetConfiguration(string url, CancellationToken cancellationToken)
         {
             var httpClient = _httpClientFactory.Build();
-            var httpResult = await httpClient.GetAsync(url, cancellationToken);
-            var json = await httpResult.Content.ReadAsStringAsync(cancellationToken);
+            var json = await httpClient.GetStringAsync(url, cancellationToken);
             var settings = new JsonSerializerSettings
             {
                 ReferenceResolverProvider = () => new FaasNetReferenceResolver()

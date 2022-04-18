@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Net.Http;
 
-namespace FaasNet.StateMachine.Runtime.OpenAPI.Builders
+namespace FaasNet.StateMachine.Runtime.OpenAPI
 {
     public interface IRequestBodyBuilder
     {

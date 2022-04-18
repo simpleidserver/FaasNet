@@ -87,7 +87,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Definitions
             return result;
         }
 
-        public static StateMachineDefinitionAggregate Create(string id, int version, string name, string description, string vpn)
+        public static StateMachineDefinitionAggregate Create(string id, int version, string name, string description, string vpn, string rootTopic = null)
         {
             var result = new StateMachineDefinitionAggregate
             {
@@ -96,6 +96,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Definitions
                 Name = name,
                 Description = description,
                 IsLast = true,
+                RootTopic = rootTopic,
                 UpdateDateTime = DateTime.UtcNow,
                 CreateDateTime = DateTime.UtcNow,
                 Vpn = vpn,
