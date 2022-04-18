@@ -39,7 +39,18 @@ function getChannelWrappers(channels) {
       const record = `
 			public Task Publish(${messageType} parameter, CancellationToken cancellationToken = default(CancellationToken))
 			{
-				return Publish("${channelName}", parameter, cancellationToken);
+				const string topicName = "${channelName}";				
+				var cloudEvt = new CloudEvent
+				{
+					Id = Guid.NewGuid().ToString(),
+					Subject = topicName,
+					Source = new Uri(parameter.Source),
+					Type = parameter.Type,
+					DataContentType = "application/json",
+					Data = JsonSerializer.Serialize(parameter),
+					Time = DateTimeOffset.UtcNow
+				};
+				return Publish(topicName, cloudEvt, cancellationToken);
 			}
 			`;
       channelWrappers.push(record);
@@ -56,11 +67,14 @@ function evtMeshClient({
   const channels = getChannelWrappers(channelIterator);
   return /*#__PURE__*/jsxRuntime.jsx(generatorReactSdk.File, {
     name: 'EvtMeshClient.cs',
-    children: `using FaasNet.EventMesh.Client;
-using AsyncapiEventMeshClient.Models;
+    children: `using AsyncapiEventMeshClient.Models;
+using CloudNative.CloudEvents;
+using FaasNet.EventMesh.Client;
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+
 namespace AsyncapiEventMeshClient
 {
 	public class EvtMeshClient : EventMeshClient

@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace AsyncapiEventMeshClient
 {
-    public class EvtMeshClient : EventMeshClient
+	public class EvtMeshClient : EventMeshClient
 	{
 		public EvtMeshClient(string clientId, string password, string vpn = Constants.DefaultVpn, string url = Constants.DefaultUrl, int port = Constants.DefaultPort, int bufferCloudEvents = 1) : base(clientId, password, vpn, url, port, bufferCloudEvents) { }
 	
 		
 			public Task Publish(AnonymousSchema_1 parameter, CancellationToken cancellationToken = default(CancellationToken))
 			{
-				const string topicName = "71a3a547-23cb-44ee-b5f5-3996248cfcb6/User";
+				const string topicName = "877309ea-d00d-4f47-9df2-db6a41a632ee/user";				
 				var cloudEvt = new CloudEvent
 				{
 					Id = Guid.NewGuid().ToString(),
