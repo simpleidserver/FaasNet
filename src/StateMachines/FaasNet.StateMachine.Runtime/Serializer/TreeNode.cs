@@ -27,7 +27,9 @@ namespace FaasNet.StateMachine.Runtime.Serializer
             switch (Type)
             {
                 case TreeNodeTypes.PROPERTY:
-                    jObj.Add(Key, Value);
+                    if (int.TryParse(Value, out int n)) jObj.Add(Key, n);
+                    else if (bool.TryParse(Value, out bool b)) jObj.Add(Key, b);
+                    else jObj.Add(Key, Value);
                     break;
                 case TreeNodeTypes.OBJECT:
                     var childJObj = new JObject();

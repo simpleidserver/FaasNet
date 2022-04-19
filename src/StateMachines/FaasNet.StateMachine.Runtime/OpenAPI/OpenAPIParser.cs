@@ -141,29 +141,15 @@ namespace FaasNet.StateMachine.Runtime.OpenAPI
                     continue;
                 }
 
-                switch (parameter.Kind)
+                switch (input.Type)
                 {
-                    case OpenApiParameterKind.Path:
-                        switch (input.Type)
-                        {
-                            case JTokenType.String:
-                                result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(input.ToString()));
-                                break;
-                            case JTokenType.Object:
-                                result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(input.ToString()));
-                                break;
-                        }
+                    case JTokenType.String:
+                        if (parameter.Kind == OpenApiParameterKind.Path) result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(input.ToString()));
+                        if (parameter.Kind == OpenApiParameterKind.Query) queryParameters.Add(parameter.Name, input.ToString());
                         break;
-                    case OpenApiParameterKind.Query:
-                        switch (input.Type)
-                        {
-                            case JTokenType.String:
-                                queryParameters.Add(parameter.Name, val.ToString());
-                                break;
-                            case JTokenType.Object:
-                                queryParameters.Add(parameter.Name, input.ToString());
-                                break;
-                        }
+                    case JTokenType.Object:
+                        if(parameter.Kind == OpenApiParameterKind.Path) result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(val.ToString()));
+                        if(parameter.Kind == OpenApiParameterKind.Query) queryParameters.Add(parameter.Name, val.ToString());
                         break;
                 }
             }

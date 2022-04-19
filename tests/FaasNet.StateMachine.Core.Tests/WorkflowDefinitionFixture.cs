@@ -148,7 +148,7 @@ namespace FaasNet.StateMachine.Core.Tests
             instance = stateMachineJob.WaitTerminate(instance.Id);
             stateMachineJob.Stop();
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("{\r\n  \"name\": \"secondEvent\",\r\n  \"firstEvent\": \"\\\"Welcome to Serverless Workflow, {\\r\\n++\\\"name\\\":+\\\"firstEvent\\\"\\r\\n}!\\\"\",\r\n  \"secondEvent\": \"\\\"Welcome to Serverless Workflow, {\\r\\n++\\\"name\\\":+\\\"secondEvent\\\"\\r\\n}!\\\"\"\r\n}", instance.OutputStr);
+            Assert.Equal("{\r\n  \"name\": \"secondEvent\",\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\",\r\n  \"secondEvent\": \"Welcome to Serverless Workflow, secondEvent!\"\r\n}", instance.OutputStr);
         }
 
         [Fact]
@@ -213,7 +213,7 @@ namespace FaasNet.StateMachine.Core.Tests
             runtimeJob.Stop();
             var workflowInstance = runtimeJob.GetWorkflowInstance(instance.Id);
             Assert.Equal(1, workflowInstance.States.Count);
-            Assert.Equal("{\r\n  \"name\": \"firstEvent\",\r\n  \"firstEvent\": \"\\\"Welcome to Serverless Workflow, {\\r\\n++\\\"name\\\":+\\\"firstEvent\\\"\\r\\n}!\\\"\"\r\n}", workflowInstance.States.First().Events.First().OutputData);
+            Assert.Equal("{\r\n  \"name\": \"firstEvent\",\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\"\r\n}", workflowInstance.States.First().Events.First().OutputData);
             Assert.Equal(StateMachineInstanceStateEventStates.PROCESSED, workflowInstance.States.First().Events.First().State);
         }
 
@@ -251,7 +251,7 @@ namespace FaasNet.StateMachine.Core.Tests
             instance = runtimeJob.WaitTerminate(instance.Id);
             runtimeJob.Stop();
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"\\\"Welcome to Serverless Workflow, {\\r\\n++\\\"name\\\":+\\\"simpleidserver\\\"\\r\\n}!\\\"\"\r\n  }\r\n}", instance.OutputStr);
+            Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
         }
 
         #endregion
@@ -409,7 +409,7 @@ namespace FaasNet.StateMachine.Core.Tests
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'name': 'simpleidserver', 'message': 'message' }}");
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("{\r\n  \"person\": {\r\n    \"name\": \"simpleidserver\",\r\n    \"message\": \"\\\"Welcome to Serverless Workflow, {\\r\\n++\\\"name\\\":+\\\"simpleidserver\\\"\\r\\n}!\\\"\"\r\n  }\r\n}", instance.OutputStr);
+            Assert.Equal("{\r\n  \"person\": {\r\n    \"name\": \"simpleidserver\",\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
         }
 
         [Fact]

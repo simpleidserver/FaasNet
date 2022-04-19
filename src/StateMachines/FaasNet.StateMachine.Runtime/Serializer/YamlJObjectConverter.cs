@@ -36,6 +36,10 @@ namespace FaasNet.StateMachine.Runtime.Serializer
                         }
                         break;
                     case JTokenType.Integer:
+                        {
+                            emitter.Emit(new Scalar(null, null, record.Value.ToString(), ScalarStyle.Plain, true, false));
+                        }
+                        break;
                     case JTokenType.String:
                         {
                             emitter.Emit(new Scalar(null, record.Value.ToString()));
@@ -49,8 +53,10 @@ namespace FaasNet.StateMachine.Runtime.Serializer
                             {
                                 switch(r.Type)
                                 {
-                                    case JTokenType.String:
                                     case JTokenType.Integer:
+                                        emitter.Emit(new Scalar(null, null, record.Value.ToString(), ScalarStyle.Plain, true, false));
+                                        break;
+                                    case JTokenType.String:
                                         emitter.Emit(new Scalar(null, r.ToString()));
                                         break;
                                     default:

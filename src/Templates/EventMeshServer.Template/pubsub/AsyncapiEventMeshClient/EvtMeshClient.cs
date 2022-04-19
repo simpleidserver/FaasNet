@@ -15,7 +15,7 @@ namespace AsyncapiEventMeshClient
 		
 			public Task Publish(AnonymousSchema_1 parameter, CancellationToken cancellationToken = default(CancellationToken))
 			{
-				const string topicName = "877309ea-d00d-4f47-9df2-db6a41a632ee/user";				
+				const string topicName = "71a3a547-23cb-44ee-b5f5-3996248cfcb6/User";				
 				var cloudEvt = new CloudEvent
 				{
 					Id = Guid.NewGuid().ToString(),
