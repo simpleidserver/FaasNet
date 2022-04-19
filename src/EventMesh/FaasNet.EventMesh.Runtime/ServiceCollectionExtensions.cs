@@ -44,7 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddSingleton<IMessageConsumer, InMemoryMessageConsumer>();
             services.AddSingleton<IMessagePublisher, InMemoryMessagePublisher>();
-            services.AddSingleton<IEventMeshCloudEventRepository, InMemoryEventMeshCloudEventRepository>();
+            services.AddSingleton<IEventMeshCloudEventRepository>(new InMemoryEventMeshCloudEventRepository());
             return services;
         }
     }

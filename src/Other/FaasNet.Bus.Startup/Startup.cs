@@ -36,6 +36,7 @@ namespace FaasNet.Bus.Startup
                 .AllowAnyHeader()));
             services.AddMassTransit(o =>
             {
+                /*
                 o.AddConsumer<ClientConsumer>();
                 o.UsingRabbitMq((context, cfg) =>
                 {
@@ -51,6 +52,7 @@ namespace FaasNet.Bus.Startup
                         x.UseCloudEvents();
                     });
                 });
+                */
             });
             services.AddMassTransitHostedService(true);
             var security = new List<Dictionary<string, List<string>>>();

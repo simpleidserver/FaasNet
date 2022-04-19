@@ -547,13 +547,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
             {
                 opt.Port = 5001;
                 opt.Urn = "localhost";
-            });
+            }).AddInMemoryMessageBroker();
             var secondBuilder = new RuntimeHostBuilder(opt =>
             {
                 opt.Port = 5002;
                 opt.Urn = "localhost";
             }).AddInMemoryMessageBroker();
-            var firstServiceProvider = firstBuilder.ServiceCollection.BuildServiceProvider();
             var secondServiceProvider = secondBuilder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = secondServiceProvider.GetRequiredService<IMessagePublisher>();
             var firstHost = firstBuilder.AddVpns(new List<Vpn> { firstVpn }).AddClients(new List<Models.Client> { firstVpnClient }).Build();

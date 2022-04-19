@@ -90,7 +90,7 @@ namespace FaasNet.StateMachine.Core.Tests
         public async Task When_Send_Two_Events_And_Set_Exlusive_To_False()
         {
             var stateMachineJob = new StateMachineJob();
-            var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
+            var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default", "rootTopic")
                 .AddConsumedEvent("FirstEvent", "https://github.com/cloudevents/spec/pull", "firstEventType", "firstCloudEvt")
                 .AddConsumedEvent("SecondEvent", "https://github.com/cloudevents/spec/pull", "secondEventType", "secondCloudEvt")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
@@ -109,7 +109,7 @@ namespace FaasNet.StateMachine.Core.Tests
             await stateMachineJob.RegisterWorkflowDefinition(workflowDefinition);
             var instance = await stateMachineJob.InstanciateAndLaunch(workflowDefinition, "{}");
             stateMachineJob.Start();
-            await stateMachineJob.Publish("firstCloudEvt", new CloudEvent
+            await stateMachineJob.Publish("rootTopic/firstCloudEvt", new CloudEvent
             {
                 Type = "firstEventType",
                 Source = new Uri("https://github.com/cloudevents/spec/pull"),
@@ -135,7 +135,7 @@ namespace FaasNet.StateMachine.Core.Tests
 
                 return evt.State == StateMachineInstanceStateEventStates.CONSUMED;
             });
-            await stateMachineJob.Publish("secondCloudEvt", new CloudEvent
+            await stateMachineJob.Publish("rootTopic/secondCloudEvt", new CloudEvent
             {
                 Type = "secondEventType",
                 Source = new Uri("https://github.com/cloudevents/spec/pull"),
@@ -148,14 +148,14 @@ namespace FaasNet.StateMachine.Core.Tests
             instance = stateMachineJob.WaitTerminate(instance.Id);
             stateMachineJob.Stop();
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("{\r\n  \"name\": \"secondEvent\",\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\",\r\n  \"secondEvent\": \"Welcome to Serverless Workflow, secondEvent!\"\r\n}", instance.OutputStr);
+            Assert.Equal("{\r\n  \"name\": \"secondEvent\",\r\n  \"firstEvent\": \"\\\"Welcome to Serverless Workflow, {\\r\\n++\\\"name\\\":+\\\"firstEvent\\\"\\r\\n}!\\\"\",\r\n  \"secondEvent\": \"\\\"Welcome to Serverless Workflow, {\\r\\n++\\\"name\\\":+\\\"secondEvent\\\"\\r\\n}!\\\"\"\r\n}", instance.OutputStr);
         }
 
         [Fact]
         public async Task When_SameEvent_Is_Sent_Twice_Then_OnlyFirstEventIsConsumed()
         {
             var runtimeJob = new StateMachineJob();
-            var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
+            var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default", "rootTopic")
                 .AddConsumedEvent("FirstEvent", "https://github.com/cloudevents/spec/pull", "firstevent", "firstevent")
                 .AddConsumedEvent("SecondEvent", "https://github.com/cloudevents/spec/pull", "secondevent", "secondevent")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
@@ -173,7 +173,7 @@ namespace FaasNet.StateMachine.Core.Tests
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{}");
             runtimeJob.Start();
-            await runtimeJob.Publish("firstevent", new CloudEvent
+            await runtimeJob.Publish("rootTopic/firstevent", new CloudEvent
             {
                 Type = "firstevent",
                 Source = new Uri("https://github.com/cloudevents/spec/pull"),
@@ -199,7 +199,7 @@ namespace FaasNet.StateMachine.Core.Tests
 
                 return evt.State == StateMachineInstanceStateEventStates.PROCESSED;
             });
-            await runtimeJob.Publish("firstevent", new CloudEvent
+            await runtimeJob.Publish("rootTopic/firstevent", new CloudEvent
             {
                 Type = "firstevent",
                 Source = new Uri("https://github.com/cloudevents/spec/pull"),
@@ -213,7 +213,7 @@ namespace FaasNet.StateMachine.Core.Tests
             runtimeJob.Stop();
             var workflowInstance = runtimeJob.GetWorkflowInstance(instance.Id);
             Assert.Equal(1, workflowInstance.States.Count);
-            Assert.Equal("{\r\n  \"name\": \"firstEvent\",\r\n  \"firstEvent\": \"Welcome to Serverless Workflow, firstEvent!\"\r\n}", workflowInstance.States.First().Events.First().OutputData);
+            Assert.Equal("{\r\n  \"name\": \"firstEvent\",\r\n  \"firstEvent\": \"\\\"Welcome to Serverless Workflow, {\\r\\n++\\\"name\\\":+\\\"firstEvent\\\"\\r\\n}!\\\"\"\r\n}", workflowInstance.States.First().Events.First().OutputData);
             Assert.Equal(StateMachineInstanceStateEventStates.PROCESSED, workflowInstance.States.First().Events.First().State);
         }
 
@@ -222,7 +222,7 @@ namespace FaasNet.StateMachine.Core.Tests
         {
             var serializer = new RuntimeSerializer();
             var runtimeJob = new StateMachineJob();
-            var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
+            var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default", "greetingTopic")
                 .AddConsumedEvent("greetingEvt", "https://github.com/cloudevents/spec/pull", "com.github.pull.create", "greetingTopic")
                 .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/swagger/v1/swagger.json#greeting"))
                 .StartsWith(o => o.Event()
@@ -251,7 +251,7 @@ namespace FaasNet.StateMachine.Core.Tests
             instance = runtimeJob.WaitTerminate(instance.Id);
             runtimeJob.Stop();
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
+            Assert.Equal("{\r\n  \"person\": {\r\n    \"message\": \"\\\"Welcome to Serverless Workflow, {\\r\\n++\\\"name\\\":+\\\"simpleidserver\\\"\\r\\n}!\\\"\"\r\n  }\r\n}", instance.OutputStr);
         }
 
         #endregion
@@ -409,7 +409,7 @@ namespace FaasNet.StateMachine.Core.Tests
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'name': 'simpleidserver', 'message': 'message' }}");
             Assert.Equal(StateMachineInstanceStatus.TERMINATE, instance.Status);
-            Assert.Equal("{\r\n  \"person\": {\r\n    \"name\": \"simpleidserver\",\r\n    \"message\": \"Welcome to Serverless Workflow, simpleidserver!\"\r\n  }\r\n}", instance.OutputStr);
+            Assert.Equal("{\r\n  \"person\": {\r\n    \"name\": \"simpleidserver\",\r\n    \"message\": \"\\\"Welcome to Serverless Workflow, {\\r\\n++\\\"name\\\":+\\\"simpleidserver\\\"\\r\\n}!\\\"\"\r\n  }\r\n}", instance.OutputStr);
         }
 
         [Fact]
@@ -467,11 +467,11 @@ namespace FaasNet.StateMachine.Core.Tests
         [Fact]
         public async Task When_Publish_Event()
         {
-            const string json = "{ \"id\" : 1, \"lumens\" : 3 }";
+            const string json = "{ \"Id\" : 1, \"Lumens\" : 3 }";
             var payload = Encoding.UTF8.GetBytes(JToken.Parse(json).ToString());
             var runtimeJob = new StateMachineJob();
             var workflowDefinition = StateMachineDefinitionBuilder.New("publishEvent", 1, "name", "description", "default")
-                .AddFunction(o => o.AsyncAPI("publishEvent", "http://localhost/asyncapi/asyncapi.json#PublishLightMeasuredEvent"))
+                .AddFunction(o => o.AsyncAPI("publishEvent", "http://localhost/asyncapi#PublishLightMeasuredEvent"))
                 .StartsWith(o => o.Operation().SetActionMode(StateMachineDefinitionActionModes.Sequential).AddAction("publishEvent",
                 (act) => act.SetFunctionRef("publishEvent", json)
                 .SetActionDataFilter(string.Empty, string.Empty, string.Empty))

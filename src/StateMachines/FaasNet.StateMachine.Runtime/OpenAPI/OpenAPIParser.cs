@@ -133,7 +133,7 @@ namespace FaasNet.StateMachine.Runtime.OpenAPI
 
             foreach (var parameter in openApiOperationResult.Parameters.Where(p => p.Kind == OpenApiParameterKind.Path || p.Kind == OpenApiParameterKind.Query))
             {
-                var val = input.SelectToken(parameter.Name);
+                var val = input.SelectToken(parameter.Name) ?? string.Empty;
                 var errors = parameter.Schema.Validate(val);
                 if (errors.Any())
                 {
@@ -144,10 +144,26 @@ namespace FaasNet.StateMachine.Runtime.OpenAPI
                 switch (parameter.Kind)
                 {
                     case OpenApiParameterKind.Path:
-                        result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(val.ToString()));
+                        switch (input.Type)
+                        {
+                            case JTokenType.String:
+                                result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(input.ToString()));
+                                break;
+                            case JTokenType.Object:
+                                result = result.Replace("{" + parameter.Name + "}", HttpUtility.UrlEncode(input.ToString()));
+                                break;
+                        }
                         break;
                     case OpenApiParameterKind.Query:
-                        queryParameters.Add(parameter.Name, val.ToString());
+                        switch (input.Type)
+                        {
+                            case JTokenType.String:
+                                queryParameters.Add(parameter.Name, val.ToString());
+                                break;
+                            case JTokenType.Object:
+                                queryParameters.Add(parameter.Name, input.ToString());
+                                break;
+                        }
                         break;
                 }
             }
