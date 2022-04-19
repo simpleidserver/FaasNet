@@ -153,6 +153,16 @@ $orange: orange;
   stroke: green;
 }
 
+.statediagram .editor .state.ERROR > rect {
+  stroke: red;
+  fill: #eb5b5b !important;
+  stroke-width: 1px;
+}
+
+.statediagram .editor .state.ERROR .separator {
+  stroke: red;
+}
+
 .statediagram .editor .state > rect {
   stroke: #9370DB;
   stroke-width: 1px;

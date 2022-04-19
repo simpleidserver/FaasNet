@@ -1,5 +1,4 @@
 ﻿using Elasticsearch.Net;
-using EventStore.Client;
 using FaasNet.Common;
 using FaasNet.EventStore.EF;
 using FaasNet.StateMachine.Exporter;
@@ -62,12 +61,6 @@ namespace FaasNet.StateMachine.ExporterHost
             connectionSettings.ServerCertificateValidationCallback(CertificateValidations.AllowAll);
             var esClient = new ElasticClient(connectionSettings);
             esClient.Indices.Delete("statemachineinstance");
-        }
-
-        private static void RemoveAllDomainEvents(IConfigurationRoot config)
-        {
-            var settings = EventStoreClientSettings.Create(config["EventStoreDBConnectionString"]);
-            var client = new EventStoreClient(settings);
         }
     }
 }

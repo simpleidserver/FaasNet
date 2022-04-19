@@ -112,7 +112,7 @@
             <g *ngFor="let token of tokens" class="token">
               <foreignObject [attr.width]="options.tokenWidth" [attr.height]="options.tokenHeight" [attr.x]="token.posX" [attr.y]="token.posY">
                 <div [attr.style]="'line-height:' + options.tokenHeight + 'px'" (click)="displayToken(token)">
-                  {{ token.isInput ? 'Input' : 'Output' }}
+                  {{ token.getDisplayName() }}
                 </div>
               </foreignObject>
             </g>

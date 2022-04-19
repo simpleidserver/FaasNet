@@ -58,6 +58,7 @@
     <None Remove="src\stores\functions\models\function.model.ts" />
     <None Remove="src\stores\messagedefinitions\actions\messagedefs.actions.ts" />
     <None Remove="src\stores\server\actions\server.actions.ts" />
+    <None Remove="src\stores\statemachineinstances\models\instancestatehistory.model.ts" />
     <None Remove="src\stores\statemachines\models\eventdatafilter.model.ts" />
     <None Remove="src\stores\statemachines\models\operation-types.model.ts" />
     <None Remove="src\stores\statemachines\models\statemachine-event.model.ts" />
@@ -81,6 +82,7 @@
     <None Remove="src\stores\vpn\models\vpn.model.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="src\stores\statemachineinstances\models\instancestatehistory.model.ts" />
     <TypeScriptCompile Include="src\stores\statemachines\models\eventdatafilter.model.ts" />
   </ItemGroup>
   <ItemGroup>

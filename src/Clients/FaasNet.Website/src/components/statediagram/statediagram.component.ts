@@ -1,6 +1,7 @@
 import { Component, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { InstanceStateStatus } from '@stores/statemachineinstances/models/instancestate.model';
 import { StateMachineInstanceDetails } from '@stores/statemachineinstances/models/statemachineinstance-details.model';
 import { ForeachStateMachineState } from '@stores/statemachines/models/statemachine-foreach-state.model';
 import { InjectStateMachineState } from '@stores/statemachines/models/statemachine-inject-state.model';
@@ -9,6 +10,7 @@ import { BaseTransition, EmptyTransition, StateMachineState } from '@stores/stat
 import { SwitchStateMachineState } from '@stores/statemachines/models/statemachine-switch-state.model';
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
 import { BehaviorSubject } from 'rxjs';
+import { InstanceStateHistory } from '../../stores/statemachineinstances/models/instancestatehistory.model';
 import { TokenComponent } from './components/token/token.component';
 
 class DiagramNode {
@@ -38,15 +40,41 @@ class DiagramNode {
   }
 }
 
+class DiagramNodeTokenTypes {
+  static INPUT: string = "INPUT";
+  static OUTPUT: string = "OUTPUT";
+  static ERROR: string = "ERROR";
+}
+
 class DiagramNodeToken {
-  constructor(public data: any, public isInput: boolean, public node: DiagramNode) { }
+  constructor(public data: any, public type: string, public node: DiagramNode) { }
 
   posX: number = 0;
   posY: number = 0;
 
+  public getDisplayName() : string | null {
+    switch (this.type) {
+      case DiagramNodeTokenTypes.INPUT:
+        return "Input";
+      case DiagramNodeTokenTypes.OUTPUT:
+        return "Output";
+      case DiagramNodeTokenTypes.ERROR:
+        return "Error";
+    }
+
+    return null;
+  }
+
   public computePosition(tokenWidth: number, tokenHeight: number, nodeHeight: number) {
-    this.posX = this.node.x - (tokenWidth / 2);
-    this.posY = this.node.y + (this.isInput ? 0 : (nodeHeight - tokenHeight / 2));
+    if (this.type == DiagramNodeTokenTypes.INPUT || this.type == DiagramNodeTokenTypes.OUTPUT) {
+      this.posX = this.node.x - (tokenWidth / 2);
+    }
+
+    if (this.type == DiagramNodeTokenTypes.ERROR) {
+      this.posX = this.node.x + (tokenWidth);
+    }
+
+    this.posY = this.node.y + (this.type == DiagramNodeTokenTypes.INPUT ? 0 : (nodeHeight - tokenHeight / 2));
   }
 }
 
@@ -553,11 +581,17 @@ export class StateDiagramComponent implements OnInit, OnDestroy {
         const instance = filteredStateInstances[0];
         newNode.status = instance.status;
         if (instance.input) {
-          this.tokens.push(new DiagramNodeToken(instance.input, true, newNode));
+          this.tokens.push(new DiagramNodeToken(instance.input, DiagramNodeTokenTypes.INPUT, newNode));
         }
 
         if (instance.output) {
-          this.tokens.push(new DiagramNodeToken(instance.output, false, newNode));
+          this.tokens.push(new DiagramNodeToken(instance.output, DiagramNodeTokenTypes.OUTPUT, newNode));
+        }
+
+        if (instance.status == InstanceStateStatus.ERROR) {
+          let histories = JSON.parse(JSON.stringify(instance.histories)) as InstanceStateHistory[];
+          const history = histories.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).filter(a => a.status == InstanceStateStatus.ERROR)[0];
+          this.tokens.push(new DiagramNodeToken(history.data, DiagramNodeTokenTypes.ERROR, newNode));
         }
       }
     }

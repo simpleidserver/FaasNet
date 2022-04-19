@@ -11,6 +11,7 @@ namespace FaasNet.StateMachine.Core.StateMachineInstances.Results
         public InstanceStateResult()
         {
             Events = new List<InstanceStateEventResult>();
+            Histories = new List<InstanceStateHistoryResult>();
         }
 
         public string Id { get; set; }
@@ -19,6 +20,7 @@ namespace FaasNet.StateMachine.Core.StateMachineInstances.Results
         public JToken Input { get; set; }
         public JToken Output { get; set; }
         public ICollection<InstanceStateEventResult> Events { get; set; }
+        public ICollection<InstanceStateHistoryResult> Histories { get; set; }
 
         public static InstanceStateResult ToDto(StateMachineInstanceState state)
         {
@@ -29,7 +31,8 @@ namespace FaasNet.StateMachine.Core.StateMachineInstances.Results
                 Id = state.Id,
                 Input = state.GetInput(),
                 Output = state.GetOutput(),
-                Status = state.Status
+                Status = state.Status,
+                Histories = state.Histories.Select(h => InstanceStateHistoryResult.ToDto(h)).ToList()
             };
         }
     }
