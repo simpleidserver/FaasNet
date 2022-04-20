@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace FaasNet.EventMesh.Client.Messages
 {
     public class HelloRequest : Package

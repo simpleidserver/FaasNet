@@ -31,6 +31,22 @@ namespace FaasNet.EventMesh.Client.Extensions
             return result;
         }
 
+        public static ICollection<byte> ToBytes(this long l)
+        {
+            var result = new List<byte>
+            {
+               (byte) l,
+               (byte) (l >> 8),
+               (byte) (l >> 16),
+               (byte) (l >> 24),
+               (byte) (l >> 32),
+               (byte) (l >> 40),
+               (byte) (l >> 48),
+               (byte) (l >> 56)
+            };
+            return result;
+        }
+
         #endregion
 
         #region Deserialize
@@ -39,6 +55,20 @@ namespace FaasNet.EventMesh.Client.Extensions
         {
             var payload = queue.Dequeue(4);
             var result = ((payload.ElementAt(0) & 0xFF) << 24) | ((payload.ElementAt(1) & 0xFF) << 16) | ((payload.ElementAt(2) & 0xFF) << 8) | (0xFF & payload.ElementAt(3));
+            return result;
+        }
+
+        public static long GetLong(this Queue<byte> queue)
+        {
+            var payload = queue.Dequeue(8);
+            var result = ((long)payload.ElementAt(7) << 56)
+                   | ((long)payload.ElementAt(6) & 0xff) << 48
+                   | ((long)payload.ElementAt(5) & 0xff) << 40
+                   | ((long)payload.ElementAt(4) & 0xff) << 32
+                   | ((long)payload.ElementAt(3) & 0xff) << 24
+                   | ((long)payload.ElementAt(2) & 0xff) << 16
+                   | ((long)payload.ElementAt(1) & 0xff) << 8
+                   | ((long)payload.ElementAt(0) & 0xff);
             return result;
         }
 

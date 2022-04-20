@@ -32,7 +32,7 @@ namespace FaasNet.EventMesh.Runtime.Models
         {
             get
             {
-                return Sessions.Where(s => s.State == ClientSessionState.ACTIVE);
+                return Sessions.Where(s => s.IsActive);
             }
         }
         public ICollection<ClientTopic> Topics { get; set; }
@@ -84,9 +84,9 @@ namespace FaasNet.EventMesh.Runtime.Models
             topic.Offset += nbEventsConsumed;
         }
 
-        public string AddSession(IPEndPoint endpoint, string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, bool isServer, string vpn)
+        public string AddSession(IPEndPoint endpoint, string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, bool isServer, string vpn, TimeSpan expirationTimeSpan, bool isSessionInfinite)
         {
-            var session = ClientSession.Create(endpoint, env, pid, purpose, bufferCloudEvents, vpn, isServer ? ClientSessionTypes.SERVER : ClientSessionTypes.CLIENT);
+            var session = ClientSession.Create(endpoint, env, pid, purpose, bufferCloudEvents, vpn, isServer ? ClientSessionTypes.SERVER : ClientSessionTypes.CLIENT, expirationTimeSpan, isSessionInfinite);
             session.Activate();
             Sessions.Add(session);
             return session.Id;
@@ -95,6 +95,14 @@ namespace FaasNet.EventMesh.Runtime.Models
         public void CloseActiveSession(string sessionId)
         {
             GetActiveSession(sessionId).Close();
+        }
+
+        public void CloseActiveSession()
+        {
+            foreach(var activeSession in ActiveSessions.ToList())
+            {
+                activeSession.Close();
+            }
         }
 
         #endregion

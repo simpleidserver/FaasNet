@@ -14,7 +14,7 @@ namespace FaasNet.StateMachine.Worker
 
     public interface IMessageListenerResult
     {
-        void Stop();
+        Task Stop(CancellationToken cancellationToken);
     }
 
     public class MessageResult

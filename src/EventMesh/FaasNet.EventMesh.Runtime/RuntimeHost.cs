@@ -4,6 +4,7 @@ using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Events;
 using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Handlers;
+using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace FaasNet.EventMesh.Runtime
     {
         private readonly IEnumerable<IMessageHandler> _messageHandlers;
         private readonly IEnumerable<IMessageConsumer> _messageConsumers;
+        private readonly IClientStore _clientStore;
         private readonly IUdpClientServerFactory _udpClientFactory;
         private readonly RuntimeOptions _options;
         private CancellationTokenSource _tokenSource;
@@ -28,11 +30,13 @@ namespace FaasNet.EventMesh.Runtime
             IEnumerable<IMessageHandler> messageHandlers,
             IEnumerable<IMessageConsumer> messageConsumers,
             IUdpClientServerFactory udpClientFactory,
+            IClientStore clientStore,
             IOptions<RuntimeOptions> options)
         {
             _messageHandlers = messageHandlers;
             _messageConsumers = messageConsumers;
             _udpClientFactory = udpClientFactory;
+            _clientStore = clientStore;
             _options = options.Value;
             IsRunning = true;
         }
@@ -43,17 +47,23 @@ namespace FaasNet.EventMesh.Runtime
         public event EventHandler<PackageEventArgs> EventMeshPackageSent;
         public event EventHandler<EventArgs> EventMeshRuntimeStopped;
 
-        public void Run()
+        public async Task Run(CancellationToken cancellationToken)
         {
             _tokenSource = new CancellationTokenSource();
             _cancellationToken = _tokenSource.Token;
             _udpClient = _udpClientFactory.Build();
             IsRunning = true;
-            Task.Run(async () => await InternalRun());
+            await _clientStore.CloseAllActiveSessions(cancellationToken);
+            await _clientStore.SaveChanges(cancellationToken);
+#pragma warning disable 4014
+            Task.Run(async () => await InternalRun(), CancellationToken.None);
+#pragma warning restore 4014
         }
 
-        public void Stop()
+        public async Task Stop(CancellationToken cancellationToken)
         {
+            await _clientStore.CloseAllActiveSessions(cancellationToken);
+            await _clientStore.SaveChanges(cancellationToken);
             IsRunning = false;
             _tokenSource.Cancel();
         }
@@ -130,6 +140,10 @@ namespace FaasNet.EventMesh.Runtime
             catch(RuntimeException ex)
             {
                 result = PackageResponseBuilder.Error(ex.SourceCommand, ex.SourceSeq, ex.Error);
+            }
+            catch(Exception)
+            {
+                result = PackageResponseBuilder.Error(package.Header.Command, package.Header.Seq, Errors.INTERNAL_ERROR);
             }
 
             if (result == null)

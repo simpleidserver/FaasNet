@@ -15,6 +15,7 @@ namespace FaasNet.EventMesh.Runtime.EF.Configurations
             builder.HasMany(cs => cs.Topics).WithOne().OnDelete(DeleteBehavior.NoAction);
             builder.HasMany(cs => cs.PendingCloudEvents).WithOne().OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(cs => cs.Bridges).WithOne().OnDelete(DeleteBehavior.Cascade);
+            builder.Ignore(cs => cs.IsActive);
         }
     }
 }

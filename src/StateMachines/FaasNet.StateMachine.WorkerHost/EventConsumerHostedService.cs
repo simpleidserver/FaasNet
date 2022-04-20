@@ -22,10 +22,9 @@ namespace FaasNet.StateMachine.WorkerHost
             await _eventConsumerStore.Init(cancellationToken);
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _eventConsumerStore.Stop();
-            return Task.CompletedTask;
+            await _eventConsumerStore.Stop(cancellationToken);
         }
     }
 }

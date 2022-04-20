@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace FaasNet.EventMesh.Client.Messages
 {
     public class UserAgent
@@ -23,6 +25,8 @@ namespace FaasNet.EventMesh.Client.Messages
         public UserAgentPurpose Purpose { get; set; }
         public bool IsServer { get; set; }
         public int Pid { get; set; }
+        public bool IsSessionInfinite { get; set; }
+        public TimeSpan? Expiration { get; set; }
 
         #endregion
 
@@ -39,6 +43,8 @@ namespace FaasNet.EventMesh.Client.Messages
             Purpose.Serialize(context);
             context.WriteBoolean(IsServer);
             context.WriteInteger(Pid);
+            context.WriteBoolean(IsSessionInfinite);
+            context.WriteTimeSpan(Expiration);
         }
 
         public static UserAgent Deserialize(ReadBufferContext context)
@@ -55,7 +61,9 @@ namespace FaasNet.EventMesh.Client.Messages
                 BufferCloudEvents = context.NextInt(),
                 Purpose = UserAgentPurpose.Deserialize(context),
                 IsServer = context.NextBoolean(),
-                Pid = context.NextInt()
+                Pid = context.NextInt(),
+                IsSessionInfinite = context.NextBoolean(),
+                Expiration = context.NextTimeSpan()
             };
             return result;
         }

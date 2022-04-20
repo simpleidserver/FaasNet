@@ -223,7 +223,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<string>("Environment")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("ExpirationDateTime")
+                    b.Property<DateTime?>("ExpirationDateTime")
                         .HasColumnType("datetime2");
 
                     b.Property<byte[]>("IPAddressData")

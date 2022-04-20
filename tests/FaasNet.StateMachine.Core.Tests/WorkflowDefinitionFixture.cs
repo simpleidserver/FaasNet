@@ -556,16 +556,16 @@ namespace FaasNet.StateMachine.Core.Tests
                 var newClient = Client.Create(vpn.Name, "stateMachineClientId", "urn", new List<EventMesh.Client.Messages.UserAgentPurpose> { EventMesh.Client.Messages.UserAgentPurpose.SUB, EventMesh.Client.Messages.UserAgentPurpose.PUB });
                 var externalClient = Client.Create(vpn.Name, "externalClient", "urn", new List<EventMesh.Client.Messages.UserAgentPurpose> { EventMesh.Client.Messages.UserAgentPurpose.PUB });
                 _runtimeHost = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Client> { newClient, externalClient }).AddInMemoryMessageBroker().Build();
-                _runtimeHost.Run();
+                _runtimeHost.Run(CancellationToken.None).Wait();
                 _eventConsumerHostedService.StartAsync(CancellationToken.None).Wait();
             }
 
-            public void Stop()
+            public async void Stop()
             {
                 try
                 {
-                    _runtimeHost.Stop();
-                    _eventConsumerHostedService.StopAsync(CancellationToken.None);
+                    _runtimeHost.Stop(CancellationToken.None).Wait();
+                    await _eventConsumerHostedService.StopAsync(CancellationToken.None);
                 }
                 catch { }
             }
@@ -626,10 +626,9 @@ namespace FaasNet.StateMachine.Core.Tests
                 await _eventConsumerStore.Init(cancellationToken);
             }
 
-            public Task StopAsync(CancellationToken cancellationToken)
+            public async Task StopAsync(CancellationToken cancellationToken)
             {
-                _eventConsumerStore.Stop();
-                return Task.CompletedTask;
+                await _eventConsumerStore.Stop(cancellationToken);
             }
         }
     }

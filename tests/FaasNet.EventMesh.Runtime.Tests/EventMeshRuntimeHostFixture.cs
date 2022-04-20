@@ -22,12 +22,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var builder = new RuntimeHostBuilder();
             var host = builder.Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient();
             var response = await client.HeartBeat();
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.Equal(Commands.HEARTBEAT_RESPONSE, response.Header.Command);
@@ -46,12 +46,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Vpn.Create("default", "default")
             });
             var host = builder.Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient();
             var response = await client.GetAllVpns();
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.Equal(Commands.GET_ALL_VPNS_RESPONSE, response.Header.Command);
@@ -73,7 +73,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 opt.Port = 5010;
             });
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 5010);
@@ -87,7 +87,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Version = "0",
                 Vpn = "wrongVpn"
             }));
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.NotNull(exception);
@@ -107,7 +107,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 opt.Port = 5011;
             });
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 5011);
@@ -121,7 +121,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Version = "0",
                 Vpn = vpn.Name
             }));
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.NotNull(exception);
@@ -140,7 +140,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 opt.Port = 5012;
             });
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 5012);
@@ -154,12 +154,115 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Version = "0",
                 Vpn = vpn.Name
             }));
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.NotNull(exception);
             Assert.Equal(HeaderStatus.FAIL, exception.Status);
             Assert.Equal(Errors.NOT_AUTHORIZED, exception.Error);
+        }
+
+        [Fact]
+        public async Task When_SendHello_And_PubSessionLifeTimeIsTooLong_Then_Error_Is_Returned()
+        {
+            // ARRANGE
+            var vpn = Vpn.Create("default", "default");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 6000;
+            });
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
+            await host.Run(CancellationToken.None);
+
+            // ACT
+            var client = new RuntimeClient(port: 6000);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Hello(new UserAgent
+            {
+                ClientId = newClient.ClientId,
+                Environment = "TST",
+                Password = "password",
+                Pid = 2000,
+                Purpose = UserAgentPurpose.PUB,
+                Version = "0",
+                Vpn = vpn.Name,
+                Expiration = TimeSpan.FromHours(5)
+            }));
+            await host.Stop(CancellationToken.None);
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.SESSION_LIFETIME_TOOLONG, exception.Error);
+        }
+
+        [Fact]
+        public async Task When_SendHello_And_PubSessionIsInfinite_Then_Error_Is_Returned()
+        {
+            // ARRANGE
+            var vpn = Vpn.Create("default", "default");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 6002;
+            });
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
+            await host.Run(CancellationToken.None);
+
+            // ACT
+            var client = new RuntimeClient(port: 6002);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Hello(new UserAgent
+            {
+                ClientId = newClient.ClientId,
+                Environment = "TST",
+                Password = "password",
+                Pid = 2000,
+                Purpose = UserAgentPurpose.PUB,
+                Version = "0",
+                Vpn = vpn.Name,
+                IsSessionInfinite = true,
+                Expiration = TimeSpan.FromHours(5)
+            }));
+            await host.Stop(CancellationToken.None);
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.SESSION_LIFETIME_CANNOT_BE_INFINITE, exception.Error);
+        }
+
+        [Fact]
+        public async Task When_SendHello_And_SubSessionLifeTimeIsTooShort_Then_Error_Is_Returned()
+        {
+            // ARRANGE
+            var vpn = Vpn.Create("default", "default");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
+            var builder = new RuntimeHostBuilder(opt =>
+            {
+                opt.Port = 6001;
+            });
+            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
+            await host.Run(CancellationToken.None);
+
+            // ACT
+            var client = new RuntimeClient(port: 6001);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Hello(new UserAgent
+            {
+                ClientId = newClient.ClientId,
+                Environment = "TST",
+                Password = "password",
+                Pid = 2000,
+                Purpose = UserAgentPurpose.SUB,
+                Version = "0",
+                Vpn = vpn.Name,
+                Expiration = TimeSpan.FromSeconds(10)
+            }));
+            await host.Stop(CancellationToken.None);
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.SESSION_LIFETIME_TOOSHORT, exception.Error);
         }
 
         [Fact]
@@ -173,7 +276,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 opt.Port = 4990;
             });
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 4990);
@@ -187,7 +290,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Version = "0",
                 Vpn = vpn.Name
             });
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.Equal(Commands.HELLO_RESPONSE, response.Header.Command);
@@ -210,12 +313,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 opt.Port = 4990;
             });
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 4990);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Disconnect(newClient.ClientId, "sessionid"));
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.NotNull(exception);
@@ -234,7 +337,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 opt.Port = 4995;
             });
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 4995);
@@ -249,7 +352,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Vpn = vpn.Name
             });
             var disconnectResponse = await client.Disconnect(newClient.ClientId, helloResponse.SessionId);
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.Equal(Commands.DISCONNECT_RESPONSE, disconnectResponse.Header.Command);
@@ -271,12 +374,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 opt.Port = 4996;
             });
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 4996);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge(vpn.Name, "urn", 4997, vpn.Name, CancellationToken.None));
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.NotNull(exception);
@@ -303,16 +406,16 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 opt.Urn = "localhost";
             });
             var firstHost = firstBuilder.AddVpns(new List<Vpn> { firstVpn }).AddClients(new List<Models.Client> { firstVpnClient }).Build();
-            firstHost.Run();
+            await firstHost.Run(CancellationToken.None);
             var secondHost = secondBuilder.AddVpns(new List<Vpn> { secondVpn }).AddClients(new List<Models.Client> { secondVpnClient }).Build();
-            secondHost.Run();
+            await secondHost.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 4997);
             await client.AddBridge(firstVpn.Name, "localhost", 4998, secondVpn.Name, CancellationToken.None);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge(firstVpn.Name, "localhost", 4998, secondVpn.Name, CancellationToken.None));
-            firstHost.Stop();
-            secondHost.Stop();
+            await firstHost.Stop(CancellationToken.None);
+            await secondHost.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.NotNull(exception);
@@ -336,7 +439,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             });
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 4991);
@@ -358,7 +461,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                     Topic = "topic"
                 }
             }));
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             var lastSession = newClient.Sessions.First();
@@ -379,7 +482,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 opt.Port = 4992;
             });
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 4992);
@@ -390,7 +493,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                     Topic = "topic"
                 }
             }));
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.NotNull(exception);
@@ -425,7 +528,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 5003);
@@ -447,7 +550,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                     Topic = topicName
                 }
             }));
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.NotNull(exception);
@@ -483,7 +586,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
             var vpnStore = serviceProvider.GetRequiredService<IVpnStore>();
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 4993);
@@ -556,9 +659,9 @@ namespace FaasNet.EventMesh.Runtime.Tests
             var secondServiceProvider = secondBuilder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = secondServiceProvider.GetRequiredService<IMessagePublisher>();
             var firstHost = firstBuilder.AddVpns(new List<Vpn> { firstVpn }).AddClients(new List<Models.Client> { firstVpnClient }).Build();
-            firstHost.Run();
+            await firstHost.Run(CancellationToken.None);
             var secondHost = secondBuilder.AddVpns(new List<Vpn> { secondVpn }).AddClients(new List<Models.Client> { secondVpnClient }).Build();
-            secondHost.Run();
+            await secondHost.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 5001);
@@ -589,18 +692,21 @@ namespace FaasNet.EventMesh.Runtime.Tests
             {
                 Thread.Sleep(100);
             }
-            subscriptionResult.Stop();
-
-            await client.Disconnect(firstVpnClient.ClientId, helloResponse.SessionId);
-            firstHost.Stop();
-            secondHost.Stop();
-
-            // ASSERT
+            await subscriptionResult.Stop(CancellationToken.None);
             var firstServerClient = firstVpnClient;
             var secondServerClient = secondVpnClient;
             var secondTopic = secondServerClient.Topics.First();
             var firstSession = firstServerClient.Sessions.First();
             var secondSession = secondServerClient.Sessions.First();
+            while (firstSession.State != ClientSessionState.FINISH)
+            {
+                Thread.Sleep(100);
+            }
+
+            await firstHost.Stop(CancellationToken.None);
+            await secondHost.Stop(CancellationToken.None);
+
+            // ASSERT
             Assert.Equal(ClientSessionState.FINISH, firstSession.State);
             Assert.Equal(ClientSessionState.FINISH, secondSession.State);
             Assert.Equal(1, secondTopic.Offset);
@@ -634,12 +740,12 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 opt.Port = 5004;
             });
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 5004);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.PublishMessage(newClient.ClientId, "sessionId", "topic", cloudEvent));
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.NotNull(exception);
@@ -673,7 +779,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
             var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var client = new RuntimeClient(port: 5005);
@@ -689,7 +795,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Vpn = vpn.Name
             });
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.PublishMessage(newClient.ClientId, helloResponse.SessionId, "topic", cloudEvent));
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             Assert.NotNull(exception);
@@ -724,7 +830,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             builder.AddInMemoryMessageBroker();
             var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
             var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { firstSubClient, firstPubClient }).Build();
-            host.Run();
+            await host.Run(CancellationToken.None);
 
             // ACT
             var subClient = new RuntimeClient(port: 5006);
@@ -767,7 +873,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Thread.Sleep(100);
             }
 
-            host.Stop();
+            await host.Stop(CancellationToken.None);
 
             // ASSERT
             var topic = firstSubClient.Topics.First();

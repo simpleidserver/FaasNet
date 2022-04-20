@@ -10,6 +10,7 @@ namespace FaasNet.EventMesh.Client.Messages
         public static Errors INVALID_URL = new Errors("INVALID_URL");
         public static Errors INVALID_CLIENT = new Errors("INVALID_CLIENT");
         public static Errors INVALID_SESSION = new Errors("INVALID_SESSION");
+        public static Errors INTERNAL_ERROR = new Errors("INTERNAL_ERROR");
         public static Errors INVALID_SEQ = new Errors("INVALID_SEQ");
         public static Errors INVALID_BRIDGE = new Errors("INVALID_BRIDGE");
         public static Errors BRIDGE_NOT_ACTIVE = new Errors("BRIDGE_NOT_ACTIVE");
@@ -18,6 +19,9 @@ namespace FaasNet.EventMesh.Client.Messages
         public static Errors UNKNOWN_VPN = new Errors("UNKNOWN_VPN");
         public static Errors UNAUTHORIZED_PUBLISH = new Errors("UNAUTHORIZED_PUBLISH");
         public static Errors UNAUTHORIZED_SUBSCRIBE = new Errors("UNAUTHORIZED_SUBSCRIBE");
+        public static Errors SESSION_LIFETIME_TOOLONG = new Errors("SESSION_LIFETIME_TOOLONG");
+        public static Errors SESSION_LIFETIME_CANNOT_BE_INFINITE = new Errors("SESSION_LIFETIME_CANNOT_BE_INFINITE");
+        public static Errors SESSION_LIFETIME_TOOSHORT = new Errors("SESSION_LIFETIME_TOOSHORT");
         private Errors(string code)
         {
             Code = code;

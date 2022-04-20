@@ -1,5 +1,4 @@
-﻿using FaasNet.EventMesh.Runtime.Models;
-using FaasNet.EventMesh.Runtime.Stores;
+﻿using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,6 +84,15 @@ namespace FaasNet.EventMesh.Runtime.EF.Stores
                 .FirstOrDefaultAsync(c => c.ClientId == clientId && c.Sessions.Any(s => s.Id == clientSessionId), cancellationToken);
             EventMeshDBContext.SemaphoreSlim.Release();
             return result;
+        }
+
+        public async Task CloseAllActiveSessions(CancellationToken cancellationToken)
+        {
+            var clients = await _dbContext.ClientLst.Include(c => c.Sessions).ToListAsync(cancellationToken);
+            foreach(var client in clients)
+            {
+                client.CloseActiveSession();
+            }
         }
 
         public void Remove(Models.Client client)

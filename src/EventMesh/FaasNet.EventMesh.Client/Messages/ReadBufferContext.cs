@@ -23,6 +23,13 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
+        public long NextLong()
+        {
+            var result = Buffer.GetLong();
+            CurrentOffset += 8;
+            return result;
+        }
+
         public string NextString()
         {
             if (!Buffer.Any())
@@ -61,6 +68,17 @@ namespace FaasNet.EventMesh.Client.Messages
             }
 
             return result;
+        }
+
+        public TimeSpan? NextTimeSpan()
+        {
+            var tick = NextLong();
+            if (tick == 0)
+            {
+                return null;
+            }
+
+            return new TimeSpan(tick);
         }
     }
 }

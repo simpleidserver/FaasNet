@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FaasNet.EventMesh.Runtime.Website.Migrations
 {
     [DbContext(typeof(EventMeshDBContext))]
-    [Migration("20220415130353_InitEventMesh")]
+    [Migration("20220420142148_InitEventMesh")]
     partial class InitEventMesh
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -225,7 +225,7 @@ namespace FaasNet.EventMesh.Runtime.Website.Migrations
                     b.Property<string>("Environment")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("ExpirationDateTime")
+                    b.Property<DateTime?>("ExpirationDateTime")
                         .HasColumnType("datetime2");
 
                     b.Property<byte[]>("IPAddressData")

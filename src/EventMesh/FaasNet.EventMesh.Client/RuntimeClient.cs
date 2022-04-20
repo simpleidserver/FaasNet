@@ -122,10 +122,7 @@ namespace FaasNet.EventMesh.Client
             MessageCallbackListener listener = null;
             if (callback != null)
             {
-                listener = new MessageCallbackListener(clientId, _udpClient, callback, _ipAddr, _port, sessionId, () =>
-                {
-                    _udpClient = BuildNewUdpClient();
-                });
+                listener = new MessageCallbackListener(clientId, _udpClient, callback, _ipAddr, _port, sessionId);
                 listener.Listen();
             }
 
@@ -152,6 +149,15 @@ namespace FaasNet.EventMesh.Client
             var packageResult = Package.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
             return packageResult;
+        }
+
+        public async Task ForceDisconnect(string clientId, string sessionId)
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.Disconnect(clientId, sessionId);
+            package.Serialize(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
         }
 
         public async Task<Package> Disconnect(string clientId, string sessionId, bool ignoreException = false)
@@ -275,7 +281,6 @@ namespace FaasNet.EventMesh.Client
         private readonly int _port;
         private readonly string _sessionId;
         private readonly CancellationTokenSource _cancellationTokenSource;
-        private readonly Action _resetConnection;
 
         public MessageCallbackListener(
             string clientId,
@@ -283,8 +288,7 @@ namespace FaasNet.EventMesh.Client
             Action<AsyncMessageToClient> callback,
             IPAddress ipAddr,
             int port,
-            string sessionId,
-            Action resetConnection)
+            string sessionId)
         {
             _clientId = clientId;
             _udpClient = udpClient;
@@ -292,7 +296,6 @@ namespace FaasNet.EventMesh.Client
             _ipAddr = ipAddr;
             _port = port;
             _sessionId = sessionId;
-            _resetConnection = resetConnection;
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
@@ -301,11 +304,12 @@ namespace FaasNet.EventMesh.Client
             Task.Run(async () => await Run(_cancellationTokenSource.Token));
         }
 
-        public void Close()
+        public async Task Close(CancellationToken cancellationToken)
         {
+            var runtimeClient = new RuntimeClient(_udpClient, _ipAddr, _port);
+            await runtimeClient.ForceDisconnect(_clientId, _sessionId);
             _cancellationTokenSource.Cancel();
             _udpClient.Close();
-            _resetConnection();
         }
 
         private async Task Run(CancellationToken cancellationToken)
@@ -347,9 +351,9 @@ namespace FaasNet.EventMesh.Client
         public Package Package { get; set; }
         public MessageCallbackListener Listener { get; set; }
 
-        public void Stop()
+        public async Task Stop(CancellationToken cancellationToken)
         {
-            Listener.Close();
+            await Listener.Close(cancellationToken);
         }
     }
 }

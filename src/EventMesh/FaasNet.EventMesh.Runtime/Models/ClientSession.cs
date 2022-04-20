@@ -50,8 +50,8 @@ namespace FaasNet.EventMesh.Runtime.Models
             }
         }
         public int PurposeCode { get; set; }
-        public DateTime ExpirationDateTime { get; set; }
         public DateTime CreateDateTime { get; set; }
+        public DateTime? ExpirationDateTime { get; set; }
         public int BufferCloudEvents { get; set; }
         public ClientSessionTypes Type { get; set; }
         public ClientSessionState State { get; set; }
@@ -59,6 +59,13 @@ namespace FaasNet.EventMesh.Runtime.Models
         public ICollection<Topic> Topics { get; set; }
         public ICollection<ClientSessionPendingCloudEvent> PendingCloudEvents { get; set; }
         public ICollection<ClientSessionBridge> Bridges { get; set; }
+        public bool IsActive
+        {
+            get
+            {
+                return State == ClientSessionState.ACTIVE && ((ExpirationDateTime == null) || (ExpirationDateTime != null && ExpirationDateTime > DateTime.UtcNow));
+            }
+        }
 
         #endregion
 
@@ -122,8 +129,10 @@ namespace FaasNet.EventMesh.Runtime.Models
 
         #endregion
 
-        public static ClientSession Create(IPEndPoint edp, string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, string vpn, ClientSessionTypes type)
+        public static ClientSession Create(IPEndPoint edp, string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, string vpn, ClientSessionTypes type, TimeSpan expirationTimeSpan, bool isSessionInfinite)
         {
+            var createDateTime = DateTime.UtcNow;
+            var expirationDateTime = createDateTime.Add(expirationTimeSpan);
             var result = new ClientSession
             {
                 Id = Guid.NewGuid().ToString(),
@@ -134,7 +143,8 @@ namespace FaasNet.EventMesh.Runtime.Models
                 Purpose = purpose,
                 BufferCloudEvents = bufferCloudEvents,
                 Type = type,
-                CreateDateTime = DateTime.UtcNow
+                CreateDateTime = DateTime.UtcNow,
+                ExpirationDateTime = isSessionInfinite ? null : expirationDateTime
             };
             return result;
         }

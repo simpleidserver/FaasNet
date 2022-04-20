@@ -7,6 +7,6 @@ namespace FaasNet.StateMachine.Worker
     public interface IEventConsumerStore: IDisposable
     {
         Task Init(CancellationToken cancellationToken);
-        void Stop();
+        Task Stop(CancellationToken cancellationToken);
     }
 }

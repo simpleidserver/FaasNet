@@ -54,7 +54,7 @@ namespace FaasNet.StateMachine.Worker
             _isInitialized = true;
         }
 
-        public void Stop()
+        public async Task Stop(CancellationToken cancellationToken)
         {
             if (!_isInitialized)
             {
@@ -63,7 +63,7 @@ namespace FaasNet.StateMachine.Worker
 
             foreach (var l in _listeners)
             {
-                l.Listener.Stop();
+                await l.Listener.Stop(cancellationToken);
             }
 
             _listeners.Clear();
@@ -73,9 +73,14 @@ namespace FaasNet.StateMachine.Worker
 
         public void Dispose()
         {
+            Dispose(CancellationToken.None);
+        }
+
+        public async void Dispose(CancellationToken cancellationToken)
+        {
             if (!_isInitialized)
             {
-                Stop();
+                await Stop(cancellationToken);
             }
         }
 

@@ -36,18 +36,23 @@ namespace FaasNet.StateMachine.Worker.EventMesh
                         TopicMessage = msg.TopicMessage
                     };
                     await callback(msgResult);
-                }, cancellationToken);
+                }, isSessionInfinite: true, cancellationToken: cancellationToken);
                 _listeners.Add(new MessageBrokerListener { EvtMeshClient = evtMeshClient, SubscriptionResult = subscriptionResult });
             }
 
-            return new EventMeshMessageListenerResult(Dispose);
+            return new EventMeshMessageListenerResult(Stop);
         }
 
         public void Dispose()
         {
-            foreach(var listener in _listeners)
+            Stop(CancellationToken.None).Wait();
+        }
+
+        public async Task Stop(CancellationToken cancellationToken)
+        {
+            foreach (var listener in _listeners)
             {
-                listener.SubscriptionResult.Stop();
+                await listener.SubscriptionResult.Stop(cancellationToken);
             }
         }
 
@@ -61,16 +66,16 @@ namespace FaasNet.StateMachine.Worker.EventMesh
 
         public class EventMeshMessageListenerResult : IMessageListenerResult
         {
-            private readonly Action _callback;
+            private readonly Func<CancellationToken, Task> _callback;
 
-            public EventMeshMessageListenerResult(Action callback)
+            public EventMeshMessageListenerResult(Func<CancellationToken, Task> callback)
             {
                 _callback = callback;
             }
 
-            public void Stop()
+            public Task Stop(CancellationToken cancellationToken)
             {
-                _callback();
+                return _callback(cancellationToken);
             }
         }
 

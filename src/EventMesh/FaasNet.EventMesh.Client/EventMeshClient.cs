@@ -54,17 +54,17 @@ namespace FaasNet.EventMesh.Client
             return Publish(topicName, cloudEvt, cancellationToken);
         }
 
-        public async Task Publish(string topicName, CloudEvent cloudEvent, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task Publish(string topicName, CloudEvent cloudEvent, TimeSpan? expirationTimeSpan = null, bool isSessionInfinite = false, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_publishSession == null)
             {
-                _publishSession = await CreateSession(_clientId, _password, UserAgentPurpose.PUB, cancellationToken);
+                _publishSession = await CreateSession(_clientId, _password, UserAgentPurpose.PUB, expirationTimeSpan, isSessionInfinite, cancellationToken);
             }
 
             await _runtimeClient.PublishMessage(_clientId, _publishSession.SessionId, topicName, cloudEvent);
         }
 
-        public async Task<SubscriptionResult> SubscribeMessages<TMessage>(string topicName, Action<TMessage> callback, CancellationToken cancellationToken = default(CancellationToken)) where TMessage : class
+        public async Task<SubscriptionResult> SubscribeMessages<TMessage>(string topicName, Action<TMessage> callback, TimeSpan? expirationTimeSpan = null, bool isSessionInfinite = false, CancellationToken cancellationToken = default(CancellationToken)) where TMessage : class
         {
             return await Subscribe(topicName, (msg) =>
             {
@@ -73,14 +73,14 @@ namespace FaasNet.EventMesh.Client
                     var deserialize = JsonSerializer.Deserialize(cloudEvt.Data.ToString(), typeof(TMessage)) as TMessage;
                     callback(deserialize);
                 }
-            }, cancellationToken);
+            }, expirationTimeSpan, isSessionInfinite, cancellationToken);
         }
 
-        public async Task<SubscriptionResult> Subscribe(string topicName, Action<AsyncMessageToClient> callback, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<SubscriptionResult> Subscribe(string topicName, Action<AsyncMessageToClient> callback, TimeSpan? expirationTimeSpan = null, bool isSessionInfinite = false, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_subscribeSession == null)
             {
-                _subscribeSession = await CreateSession(_clientId, _password, UserAgentPurpose.SUB, cancellationToken);
+                _subscribeSession = await CreateSession(_clientId, _password, UserAgentPurpose.SUB, expirationTimeSpan, isSessionInfinite, cancellationToken);
             }
 
             return await _runtimeClient.Subscribe(_clientId, _subscribeSession.SessionId, new List<SubscriptionItem>
@@ -116,7 +116,7 @@ namespace FaasNet.EventMesh.Client
             _runtimeClient.Close();
         }
 
-        private Task<HelloResponse> CreateSession(string clientId, string password, UserAgentPurpose purpose, CancellationToken cancellationToken)
+        private Task<HelloResponse> CreateSession(string clientId, string password, UserAgentPurpose purpose, TimeSpan? expirationTimeSpan = null, bool isSessionInfinite = false, CancellationToken cancellationToken = default(CancellationToken))
         {
             var processId = Process.GetCurrentProcess().Id;
             return _runtimeClient.Hello(new UserAgent
@@ -128,6 +128,8 @@ namespace FaasNet.EventMesh.Client
                 Purpose = purpose,
                 Version = "0",
                 BufferCloudEvents = _bufferCloudEvents,
+                Expiration = expirationTimeSpan,
+                IsSessionInfinite = isSessionInfinite,
                 Vpn = _vpn
             }, cancellationToken);
         }

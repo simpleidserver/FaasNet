@@ -1,6 +1,7 @@
 ﻿@page "/"
 @page "/status"
 @using Microsoft.Extensions.Hosting 
+@using System.Threading
 @implements IDisposable
 @inject BreadcrumbState ServerState
 @inject IOptions<RuntimeOptions> Opts
@@ -50,9 +51,9 @@
     public DateTime? LastRefreshDateTime = null;
     public RuntimeHostedService _runtimeHostedService;
 
-    private void Restart()
+    private async void Restart()
     {
-        _runtimeHostedService.Restart();
+        _runtimeHostedService.Restart(CancellationToken.None);
         Refresh(null, null);
     }
 

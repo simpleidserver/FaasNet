@@ -16,21 +16,19 @@ namespace FaasNet.EventMesh.Runtime.Website
             _runtimeHost = scope.ServiceProvider.GetRequiredService<IRuntimeHost>();
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _runtimeHost.Run();
-            return Task.CompletedTask;
+            await _runtimeHost.Run(cancellationToken);
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _runtimeHost.Stop();
-            return Task.CompletedTask;
+            await _runtimeHost.Stop(cancellationToken);
         }
 
-        public void Restart()
+        public async void Restart(CancellationToken cancellationToken)
         {
-            _runtimeHost.Run();
+            await _runtimeHost.Run(cancellationToken);
         }
     }
 }

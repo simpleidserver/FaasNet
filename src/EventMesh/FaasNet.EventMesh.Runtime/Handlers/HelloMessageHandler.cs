@@ -1,6 +1,8 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Stores;
+using Microsoft.Extensions.Options;
+using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -12,12 +14,13 @@ namespace FaasNet.EventMesh.Runtime.Handlers
     {
         private readonly IVpnStore _vpnStore;
         private readonly IClientStore _clientStore;
+        private readonly RuntimeOptions _options;
 
-        public HelloMessageHandler(IVpnStore vpnStore,
-            IClientStore clientStore)
+        public HelloMessageHandler(IVpnStore vpnStore, IClientStore clientStore, IOptions<RuntimeOptions> options)
         {
             _vpnStore = vpnStore;
             _clientStore = clientStore;
+            _options = options.Value;
         }
 
         public Commands Command => Commands.HELLO_REQUEST;
@@ -48,10 +51,37 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 helloRequest.UserAgent.Purpose,
                 helloRequest.UserAgent.BufferCloudEvents,
                 helloRequest.UserAgent.IsServer,
-                vpn.Name);
+                vpn.Name,
+                ComputeExpiration(helloRequest),
+                helloRequest.UserAgent.IsSessionInfinite);
             _vpnStore.Update(vpn);
             await _vpnStore.SaveChanges(cancellationToken);
             return PackageResponseBuilder.Hello(package.Header.Seq, sessionId);
+        }
+
+        private TimeSpan ComputeExpiration(HelloRequest request)
+        {
+            if (request.UserAgent.Purpose == UserAgentPurpose.PUB)
+            {
+                if (request.UserAgent.IsSessionInfinite)
+                {
+                    throw new RuntimeException(request.Header.Command, request.Header.Seq, Errors.SESSION_LIFETIME_CANNOT_BE_INFINITE);
+                }
+
+                if (request.UserAgent.Expiration != null && request.UserAgent.Expiration.Value > _options.MaxPubSessionExpirationTimeSpan)
+                {
+                    throw new RuntimeException(request.Header.Command, request.Header.Seq, Errors.SESSION_LIFETIME_TOOLONG);
+                }
+
+                return request.UserAgent.Expiration ?? _options.DefaultPubSessionExpirationTimeSpan;
+            }
+
+            if (request.UserAgent.Expiration != null && request.UserAgent.Expiration.Value < _options.MinSubSessionExpirationTimeSpan)
+            {
+                throw new RuntimeException(request.Header.Command, request.Header.Seq, Errors.SESSION_LIFETIME_TOOSHORT);
+            }
+
+            return request.UserAgent.Expiration ?? _options.DefaultSubSessionExpirationTimeSpan;
         }
     }
 }

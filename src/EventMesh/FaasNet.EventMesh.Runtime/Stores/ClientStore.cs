@@ -44,6 +44,16 @@ namespace FaasNet.EventMesh.Runtime.Stores
             return Task.FromResult(_clients.FirstOrDefault(c => c.ClientId == clientId && c.Sessions.Any(s => s.Id == clientSessionId)));
         }
 
+        public Task CloseAllActiveSessions(CancellationToken cancellationToken)
+        {
+            foreach(var client in _clients)
+            {
+                client.CloseActiveSession();
+            }
+
+            return Task.CompletedTask;
+        }
+
         public void Remove(Models.Client client)
         {
             _clients.Remove(client);

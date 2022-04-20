@@ -19,6 +19,11 @@ namespace FaasNet.EventMesh.Client.Messages
             Buffer.AddRange(it.ToBytes());
         }
 
+        public void WriteLong(long it)
+        {
+            Buffer.AddRange(it.ToBytes());
+        }
+
         public void WriteBoolean(bool i)
         {
             Buffer.Add(Convert.ToByte(i));
@@ -39,6 +44,17 @@ namespace FaasNet.EventMesh.Client.Messages
             {
                 WriteString(str);
             }
+        }
+
+        public void WriteTimeSpan(TimeSpan? sp)
+        {
+            if (sp == null)
+            {
+                WriteLong(0);
+                return;
+            }
+
+            WriteLong(sp.Value.Ticks);
         }
     }
 }
