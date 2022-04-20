@@ -67,5 +67,10 @@ namespace FaasNet.EventMesh.Client.Messages
             };
             return result;
         }
+
+        public override string ToString()
+        {
+            return $"ClientId = {ClientId}, PID = {Pid}, Purpose = {Purpose}";
+        }
     }
 }

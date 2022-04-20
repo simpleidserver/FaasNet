@@ -55,5 +55,10 @@ namespace FaasNet.EventMesh.Client.Messages
                 BridgeServers.Add(AsyncMessageBridgeServer.Deserialize(context));
             }
         }
+
+        public override string ToString()
+        {
+            return $"Command = {Header.Command}, ClientId = {ClientId}, TopicMessage = {TopicMessage}, TopicFilter = {TopicFilter}, NbCloudEventsConsumed = {NbCloudEventsConsumed}, SessionId = {SessionId}";
+        }
     }
 }

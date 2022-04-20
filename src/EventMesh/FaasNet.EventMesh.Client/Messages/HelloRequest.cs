@@ -1,7 +1,4 @@
-﻿
-using System;
-
-namespace FaasNet.EventMesh.Client.Messages
+﻿namespace FaasNet.EventMesh.Client.Messages
 {
     public class HelloRequest : Package
     {
@@ -16,6 +13,11 @@ namespace FaasNet.EventMesh.Client.Messages
         public void Extract(ReadBufferContext context)
         {
             UserAgent = UserAgent.Deserialize(context);
+        }
+
+        public override string ToString()
+        {
+            return $"Command = {Header.Command}, UserAgent = {UserAgent}";
         }
     }
 }

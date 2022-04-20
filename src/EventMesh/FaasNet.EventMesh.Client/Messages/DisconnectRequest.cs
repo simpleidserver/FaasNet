@@ -22,5 +22,10 @@ namespace FaasNet.EventMesh.Client.Messages
             ClientId = context.NextString();
             SessionId = context.NextString();
         }
+
+        public override string ToString()
+        {
+            return $"Command = {Header.Command}, ClientId = {ClientId}, SessionId = {SessionId}";
+        }
     }
 }

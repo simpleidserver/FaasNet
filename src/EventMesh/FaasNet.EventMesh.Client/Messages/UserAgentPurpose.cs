@@ -1,18 +1,31 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 
 namespace FaasNet.EventMesh.Client.Messages
 {
     public class UserAgentPurpose : IEquatable<UserAgentPurpose>
     {
-        public static UserAgentPurpose SUB = new UserAgentPurpose(1);
-        public static UserAgentPurpose PUB = new UserAgentPurpose(2);
+        public static UserAgentPurpose SUB = new UserAgentPurpose(1, "SUB");
+        public static UserAgentPurpose PUB = new UserAgentPurpose(2, "PUB");
 
         public UserAgentPurpose(int code)
         {
+            var cmdType = typeof(UserAgentPurpose).GetFields(BindingFlags.Public | BindingFlags.Static)
+                .Single(f => f.FieldType == typeof(UserAgentPurpose) && ((UserAgentPurpose)f.GetValue(null)).Code == code);
+            var name = ((UserAgentPurpose)cmdType.GetValue(null)).Name;
             Code = code;
+            Name = name;
+        }
+
+        public UserAgentPurpose(int code, string name)
+        {
+            Code = code;
+            Name = name;
         }
 
         public int Code { get; private set; }
+        public string Name { get; private set; }
 
         public void Serialize(WriteBufferContext context)
         {
@@ -68,6 +81,11 @@ namespace FaasNet.EventMesh.Client.Messages
         public override int GetHashCode()
         {
             return Code;
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 
 namespace FaasNet.EventMesh.Client.Messages
 {
@@ -7,79 +9,90 @@ namespace FaasNet.EventMesh.Client.Messages
         /// <summary>
         /// Client send heartbeat request to server.
         /// </summary>
-        public static Commands HEARTBEAT_REQUEST = new Commands(0);
+        public static Commands HEARTBEAT_REQUEST = new Commands(0, "HEARTBEAT_REQUEST");
         /// <summary>
         /// Server reply heartbeat response to client.
         /// </summary>
-        public static Commands HEARTBEAT_RESPONSE = new Commands(1);
+        public static Commands HEARTBEAT_RESPONSE = new Commands(1, "HEARTBEAT_RESPONSE");
         /// <summary>
         /// Client send connect request to server.
         /// </summary>
-        public static Commands HELLO_REQUEST = new Commands(2);
+        public static Commands HELLO_REQUEST = new Commands(2, "HELLO_REQUEST");
         /// <summary>
         /// Server reply connect response to client.
         /// </summary>
-        public static Commands HELLO_RESPONSE = new Commands(3);
+        public static Commands HELLO_RESPONSE = new Commands(3, "HELLO_RESPONSE");
         /// <summary>
         /// Client send subscribe request to server.
         /// </summary>
-        public static Commands SUBSCRIBE_REQUEST = new Commands(4);
+        public static Commands SUBSCRIBE_REQUEST = new Commands(4, "SUBSCRIBE_REQUEST");
         /// <summary>
         /// Server reply subscribe response to client.
         /// </summary>
-        public static Commands SUBSCRIBE_RESPONSE = new Commands(5);
+        public static Commands SUBSCRIBE_RESPONSE = new Commands(5, "SUBSCRIBE_RESPONSE");
         /// <summary>
         /// Server push async message to client.
         /// </summary>
-        public static Commands ASYNC_MESSAGE_TO_CLIENT = new Commands(6);
+        public static Commands ASYNC_MESSAGE_TO_CLIENT = new Commands(6, "ASYNC_MESSAGE_TO_CLIENT");
         /// <summary>
         /// Client reply ack of async msg to server.
         /// </summary>
-        public static Commands ASYNC_MESSAGE_TO_CLIENT_ACK = new Commands(7);
+        public static Commands ASYNC_MESSAGE_TO_CLIENT_ACK = new Commands(7, "ASYNC_MESSAGE_TO_CLIENT_ACK");
         /// <summary>
         /// Add a bridge.
         /// </summary>
-        public static Commands ADD_BRIDGE_REQUEST = new Commands(8);
+        public static Commands ADD_BRIDGE_REQUEST = new Commands(8, "ADD_BRIDGE_REQUEST");
         /// <summary>
         /// Server reply add bridge response.
         /// </summary>
-        public static Commands ADD_BRIDGE_RESPONSE = new Commands(9);
+        public static Commands ADD_BRIDGE_RESPONSE = new Commands(9, "ADD_BRIDGE_RESPONSE");
         /// <summary>
         /// Server sends async message to a server.
         /// </summary>
-        public static Commands ASYNC_MESSAGE_TO_SERVER = new Commands(10);
+        public static Commands ASYNC_MESSAGE_TO_SERVER = new Commands(10, "ASYNC_MESSAGE_TO_SERVER");
         /// <summary>
         /// Send disconnect request to close the session.
         /// </summary>
-        public static Commands DISCONNECT_REQUEST = new Commands(11);
+        public static Commands DISCONNECT_REQUEST = new Commands(11, "DISCONNECT_REQUEST");
         /// <summary>
         /// Reply disconnect response.
         /// </summary>
-        public static Commands DISCONNECT_RESPONSE = new Commands(12);
-        public static Commands ASYNC_MESSAGE_TO_CLIENT_ACK_RESPONSE = new Commands(13);
+        public static Commands DISCONNECT_RESPONSE = new Commands(12, "DISCONNECT_RESPONSE");
+        public static Commands ASYNC_MESSAGE_TO_CLIENT_ACK_RESPONSE = new Commands(13, "ASYNC_MESSAGE_TO_CLIENT_ACK_RESPONSE");
         /// <summary>
         /// Client send message request to the server.
         /// </summary>
-        public static Commands PUBLISH_MESSAGE_REQUEST = new Commands(14);
+        public static Commands PUBLISH_MESSAGE_REQUEST = new Commands(14, "PUBLISH_MESSAGE_REQUEST");
         /// <summary>
         /// Server reply message response to the client.
         /// </summary>
-        public static Commands PUBLISH_MESSAGE_RESONSE = new Commands(15);
+        public static Commands PUBLISH_MESSAGE_RESONSE = new Commands(15, "PUBLISH_MESSAGE_RESONSE");
         /// <summary>
         /// Get all VPN request.
         /// </summary>
-        public static Commands GET_ALL_VPNS_REQUEST = new Commands(16);
+        public static Commands GET_ALL_VPNS_REQUEST = new Commands(16, "GET_ALL_VPNS_REQUEST");
         /// <summary>
         /// Get all VPN response.
         /// </summary>
-        public static Commands GET_ALL_VPNS_RESPONSE = new Commands(17);
+        public static Commands GET_ALL_VPNS_RESPONSE = new Commands(17, "GET_ALL_VPNS_RESPONSE");
 
         private Commands(int code)
         {
+            var cmdType = typeof(Commands).GetFields(BindingFlags.Public | BindingFlags.Static)
+                .Single(f => f.FieldType == typeof(Commands) && ((Commands)f.GetValue(null)).Code == code);
+            var name = ((Commands)cmdType.GetValue(null)).Name;
             Code = code;
+            Name = name;
+        }
+
+        private Commands(int code, string name)
+        {
+            Code = code;
+            Name = name;
         }
 
         public int Code { get; private set; }
+        public string Name { get; private set; }
 
         public void Serialize(WriteBufferContext context)
         {
@@ -135,6 +148,11 @@ namespace FaasNet.EventMesh.Client.Messages
         public override int GetHashCode()
         {
             return Code;
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

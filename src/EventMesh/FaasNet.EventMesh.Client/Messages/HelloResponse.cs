@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace FaasNet.EventMesh.Client.Messages
+﻿namespace FaasNet.EventMesh.Client.Messages
 {
     public class HelloResponse : Package
     {
@@ -19,6 +17,11 @@ namespace FaasNet.EventMesh.Client.Messages
         public void Extract(ReadBufferContext context)
         {
             SessionId = context.NextString();
+        }
+
+        public override string ToString()
+        {
+            return $"Command = {Header.Command}, SessionId = {SessionId}";
         }
     }
 }

@@ -5,6 +5,7 @@ using FaasNet.EventMesh.Runtime.Events;
 using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Handlers;
 using FaasNet.EventMesh.Runtime.Stores;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ namespace FaasNet.EventMesh.Runtime
         private readonly IEnumerable<IMessageConsumer> _messageConsumers;
         private readonly IClientStore _clientStore;
         private readonly IUdpClientServerFactory _udpClientFactory;
+        private readonly ILogger<RuntimeHost> _logger;
         private readonly RuntimeOptions _options;
         private CancellationTokenSource _tokenSource;
         private CancellationToken _cancellationToken;
@@ -30,6 +32,7 @@ namespace FaasNet.EventMesh.Runtime
             IEnumerable<IMessageHandler> messageHandlers,
             IEnumerable<IMessageConsumer> messageConsumers,
             IUdpClientServerFactory udpClientFactory,
+            ILogger<RuntimeHost> logger,
             IClientStore clientStore,
             IOptions<RuntimeOptions> options)
         {
@@ -37,6 +40,7 @@ namespace FaasNet.EventMesh.Runtime
             _messageConsumers = messageConsumers;
             _udpClientFactory = udpClientFactory;
             _clientStore = clientStore;
+            _logger = logger;
             _options = options.Value;
             IsRunning = true;
         }
@@ -49,6 +53,7 @@ namespace FaasNet.EventMesh.Runtime
 
         public async Task Run(CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Start Event mesh server");
             _tokenSource = new CancellationTokenSource();
             _cancellationToken = _tokenSource.Token;
             _udpClient = _udpClientFactory.Build();
@@ -62,6 +67,7 @@ namespace FaasNet.EventMesh.Runtime
 
         public async Task Stop(CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Stop Event mesh server");
             await _clientStore.CloseAllActiveSessions(cancellationToken);
             await _clientStore.SaveChanges(cancellationToken);
             IsRunning = false;
@@ -79,8 +85,9 @@ namespace FaasNet.EventMesh.Runtime
             {
                 await InitMessageConsumers();
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                _logger.LogError(ex.ToString());
                 IsRunning = false;
                 throw;
             }
@@ -95,6 +102,7 @@ namespace FaasNet.EventMesh.Runtime
             }
             catch (OperationCanceledException)
             {
+                _logger.LogInformation("Event mesh server is stopped");
                 if (EventMeshRuntimeStopped != null)
                 {
                     EventMeshRuntimeStopped(this, new EventArgs());
@@ -104,7 +112,7 @@ namespace FaasNet.EventMesh.Runtime
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                _logger.LogError(ex.ToString());
             }
         }
 
@@ -130,6 +138,7 @@ namespace FaasNet.EventMesh.Runtime
                 EventMeshPackageReceived(this, new PackageEventArgs(package));
             }
 
+            _logger.LogInformation($"Package: '{package}' is received");
             var cmd = package.Header.Command;
             var messageHandler = _messageHandlers.First(m => m.Command == package.Header.Command);
             Package result = null;
@@ -139,10 +148,12 @@ namespace FaasNet.EventMesh.Runtime
             }
             catch(RuntimeException ex)
             {
+                _logger.LogError(ex.ToString());
                 result = PackageResponseBuilder.Error(ex.SourceCommand, ex.SourceSeq, ex.Error);
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                _logger.LogError(ex.ToString());
                 result = PackageResponseBuilder.Error(package.Header.Command, package.Header.Seq, Errors.INTERNAL_ERROR);
             }
 
@@ -151,6 +162,7 @@ namespace FaasNet.EventMesh.Runtime
                 return;
             }
 
+            _logger.LogInformation($"Package: '{result}' is going to be sent");
             var writeCtx = new WriteBufferContext();
             result.Serialize(writeCtx);
             var resultPayload = writeCtx.Buffer.ToArray();
@@ -167,6 +179,7 @@ namespace FaasNet.EventMesh.Runtime
 
         private async Task InitMessageConsumers()
         {
+            _logger.LogInformation("Initialize message consumers");
             foreach (var messageConsumer in _messageConsumers)
             {
                 await messageConsumer.Start(_cancellationToken);
@@ -176,6 +189,7 @@ namespace FaasNet.EventMesh.Runtime
 
         private async Task HandleCloudEventReceived(object sender, CloudEventArgs e)
         {
+            _logger.LogInformation($"Event with attributes : id={e.Evt.Id}, subject={e.Evt.Subject}, source={e.Evt.Source}, type={e.Evt.Type} is received from {e.BrokerName}");
             ICollection<CloudEvent> pendingCloudEvts;
             if (e.ClientSession.TryAddPendingCloudEvent(e.BrokerName, e.TopicMessage, e.Evt, out pendingCloudEvts))
             {
@@ -201,6 +215,7 @@ namespace FaasNet.EventMesh.Runtime
             }
 
             var payload = writeCtx.Buffer.ToArray();
+            _logger.LogInformation($"Event id={e.Evt.Id} is going to be sent to the client {e.ClientId}");
             await _udpClient.SendAsync(payload, payload.Count(), e.ClientSession.Endpoint).WithCancellation(_cancellationToken);
         }
 

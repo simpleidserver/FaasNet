@@ -28,5 +28,10 @@ namespace FaasNet.EventMesh.Client.Messages
             TargetUrn = context.NextString();
             TargetPort = context.NextInt();
         }
+
+        public override string ToString()
+        {
+            return $"Command = {Header.Command}, Vpn = {Vpn}, TargetVpn = {TargetVpn}, TargetUrn = {TargetUrn}, TargetPort = {TargetPort}";
+        }
     }
 }

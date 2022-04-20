@@ -40,5 +40,10 @@ namespace FaasNet.EventMesh.Client.Messages
                 TopicFilters.Add(SubscriptionItem.Deserialize(context));
             }
         }
+
+        public override string ToString()
+        {
+            return $"Command = {Header.Command}, ClientId = {ClientId}, SessionId = {SessionId}, Topics = {string.Join(",", TopicFilters?.Select(t => t.Topic))}";
+        }
     }
 }

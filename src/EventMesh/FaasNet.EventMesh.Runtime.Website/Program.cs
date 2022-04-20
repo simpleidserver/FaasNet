@@ -22,12 +22,16 @@ namespace FaasNet.EventMesh.Runtime.Website
                 var configuration = host.Services.GetRequiredService<IConfiguration>();
                 if (Startup.GetBoolean(configuration, "RabbitMQ.Enabled"))
                 {
+#pragma warning disable 4014
                     scope.ServiceProvider.SeedAMQPOptions();
+#pragma warning restore 4014
                 }
 
                 if (Startup.GetBoolean(configuration, "Kafka.Enabled"))
                 {
+#pragma warning disable 4014
                     scope.ServiceProvider.SeedKafkaOptions();
+#pragma warning restore 4014
                 }
 
                 if (!eventMeshDbContext.VpnLst.Any())
