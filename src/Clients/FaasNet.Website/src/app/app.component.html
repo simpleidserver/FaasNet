@@ -16,6 +16,13 @@
         <a mat-list-item [routerLink]="['/statemachineinstances']" [routerLinkActive]="['is-active']">{{ 'stateMachineInstance.list' | translate }}</a>
         <a mat-list-item [routerLink]="['/statemachines']" [routerLinkActive]="['is-active']">{{ 'stateMachines.list' | translate }}</a>
         <a mat-list-item [routerLink]="['/vpns']" [routerLinkActive]="['is-active']">{{ 'vpn.list' | translate }}</a>
+        <mat-list-item (click)="showLogging = !showLogging">
+          <span>{{ 'logging.title' | translate }}</span>
+          <mat-icon class="menu-button" [ngClass]="{'rotated' : showLogging}">expand_more</mat-icon>
+        </mat-list-item>
+        <div class="submenu" [class.expanded]="showLogging">
+          <a mat-list-item class="submenuItem" [routerLink]="['/logging/eventmesh']" [routerLinkActive]="['is-active']"><div style="margin-left: 20px">{{ 'logging.eventmesh' | translate }}</div></a>
+        </div>
       </mat-nav-list>
     </mat-drawer>
     <router-outlet></router-outlet>

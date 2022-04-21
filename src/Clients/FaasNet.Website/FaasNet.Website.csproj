@@ -21,6 +21,7 @@
     <None Remove="src\app\functions\function-rendering\base-rendering.component.ts" />
     <None Remove="src\app\functions\function-rendering\array\array-rendering.component.ts" />
     <None Remove="src\app\functions\function-rendering\function-rendering.component.ts" />
+    <None Remove="src\app\pipes\safe.pipe.ts" />
     <None Remove="src\app\shared\material.module.ts" />
     <None Remove="src\app\shared\shared.module.ts" />
     <None Remove="src\app\statemachines\edit\events\editevent-dialog.component.ts" />
@@ -82,6 +83,7 @@
     <None Remove="src\stores\vpn\models\vpn.model.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="src\app\pipes\safe.pipe.ts" />
     <TypeScriptCompile Include="src\stores\statemachineinstances\models\instancestatehistory.model.ts" />
     <TypeScriptCompile Include="src\stores\statemachines\models\eventdatafilter.model.ts" />
   </ItemGroup>

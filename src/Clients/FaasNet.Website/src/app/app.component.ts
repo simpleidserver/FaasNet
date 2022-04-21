@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { NavigationEnd, Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
@@ -18,10 +19,12 @@ export class AppComponent {
   vpnLstResult: VpnResult[] = [];
   serverStatus: ServerStatusResult = new ServerStatusResult();
   vpnFormControl: FormControl = new FormControl();
+  showLogging: boolean = false;
 
   constructor(
     private translate: TranslateService,
-    private store: Store<fromReducers.AppState> ) {
+    private store: Store<fromReducers.AppState>,
+    private router: Router) {
     this.translate.setDefaultLang('en');
     this.translate.use('en');
   }
@@ -50,12 +53,18 @@ export class AppComponent {
 
       this.vpnFormControl.setValue(activeVpn);
     });
-
     this.vpnFormControl.valueChanges.subscribe(() => {
       const act = selectVpn({ name: this.vpnFormControl.value });
       this.store.dispatch(act);
     });
     const getServerStatus = startGetServerStatus();
+    this.router.events.subscribe((e) => {
+      if (e instanceof NavigationEnd) {
+        if (this.router.routerState.snapshot.url.startsWith('/logging')) {
+          this.showLogging = true;
+        }
+      }
+    });
     this.store.dispatch(getServerStatus);
   }
 

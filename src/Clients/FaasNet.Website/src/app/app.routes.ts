@@ -23,5 +23,9 @@ export const routes: Routes = [
   {
     path: 'vpns',
     loadChildren: async () => (await import('./vpns/vpns.module')).VpnsModule
+  },
+  {
+    path: 'logging/eventmesh',
+    loadChildren: async () => (await import('./eventmeshlogs/eventmeshlogging.module')).EventMeshLoggingModule
   }
 ];

@@ -8,9 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Formatting.Json;
 using Serilog.Sinks.Elasticsearch;
-using Serilog.Sinks.File;
 using System;
 using System.Reflection;
 
@@ -38,41 +36,39 @@ namespace FaasNet.EventMesh.Runtime.Website
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();
-                // elastic:Qksz8DFN7G4Cv6sqsT761478@
                 var settings = new ConnectionConfiguration();
-                var loggerConfig = new LoggerConfiguration()
-                    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("https://localhost:30070"))
+                var autoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7;
+                var batchAction = ElasticOpType.Create;
+                if (TryGetEnum(Configuration, "Serilog:autoRegisterTemplateVersion", out AutoRegisterTemplateVersion? r))
+                {
+                    autoRegisterTemplateVersion = r.Value;
+                }
+
+                if (TryGetEnum(Configuration, "Serilog:batchAction", out ElasticOpType? op))
+                {
+                    batchAction = op.Value;
+                }
+
+                var logger = new LoggerConfiguration()
+                    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(Configuration["Serilog:nodeUris"]))
                     {
                         ModifyConnectionSettings = x =>
                         {
-                            x.BasicAuthentication("elastic", "Qksz8DFN7G4Cv6sqsT761478");
-                            x.ServerCertificateValidationCallback((o, certificate, chain, errors) => true);
-                            x.ServerCertificateValidationCallback(CertificateValidations.AllowAll);
+                            x.BasicAuthentication(Configuration["Serilog:user"], Configuration["Serilog:password"]);
+                            if (GetBoolean(Configuration, "Serilog:ignoreHttps"))
+                            {
+                                x.ServerCertificateValidationCallback((o, certificate, chain, errors) => true);
+                                x.ServerCertificateValidationCallback(CertificateValidations.AllowAll);
+                            }
                             return x;
                         },
-                        IndexFormat = "eventmesh",
-                        AutoRegisterTemplate = true,
-                        OverwriteTemplate = true,
-                        DetectElasticsearchVersion = true,
-                        AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7,
-                        NumberOfReplicas = 1,
-                        NumberOfShards = 2,
-                        Period = TimeSpan.FromSeconds(1),
-                        BatchPostingLimit = 1,
-                        QueueSizeLimit = 1,
-                        FailureCallback = e => Console.WriteLine("Unable to submit event " + e.MessageTemplate),
-                        EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog |
-                                       EmitEventFailureHandling.WriteToFailureSink |
-                                       EmitEventFailureHandling.RaiseCallback,
-                        FailureSink = new FileSink("./fail-{Date}.txt", new JsonFormatter(), null, null)
-                    }).CreateLogger();
-                loggerConfig.Information("TEST");
-                /*
-                var logger = new LoggerConfiguration()
-                    .ReadFrom.Configuration(Configuration)
-                    .CreateLogger();
-                */
-                loggingBuilder.AddSerilog(loggerConfig);
+                        IndexFormat = Configuration["Serilog:indexFormat"],
+                        AutoRegisterTemplateVersion = autoRegisterTemplateVersion,
+                        TypeName = null,
+                        BatchAction = batchAction,
+                    })
+                    .WriteTo.Console().CreateLogger();
+                loggingBuilder.AddSerilog(logger);
             });
         }
 
@@ -180,6 +176,24 @@ namespace FaasNet.EventMesh.Runtime.Website
             if (!string.IsNullOrWhiteSpace(str))
             {
                 result = str;
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool TryGetEnum<T>(IConfiguration configuration, string name, out T? result) where T : struct
+        {
+            result = null;
+            var str = string.Empty;
+            if (!TryGetStr(configuration, name, out str))
+            {
+                return false;
+            }
+
+            if(Enum.TryParse(str, true, out T r))
+            {
+                result = r;
                 return true;
             }
 

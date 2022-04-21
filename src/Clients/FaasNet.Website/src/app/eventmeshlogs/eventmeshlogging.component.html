@@ -1,0 +1,24 @@
+<div class="breadcrumb">
+  <ul>
+    <li>{{ "logging.title" | translate }}</li>
+    <li class="separator">\</li>
+    <li>{{ "logging.eventmesh" | translate }}</li>
+  </ul>
+</div>
+<div class="container">
+  <mat-card>
+    <mat-card-content>
+      <!-- Dashboard -->
+      <div class="form-control">
+        <div class="title">{{ 'logging.dashboardUrl' | translate }}</div>
+        <a [href]="eventMeshDashboardUrl | safe" target="_blank">{{ eventMeshDashboardUrl }}</a>
+      </div>
+      <mat-divider></mat-divider>
+      <!-- Dashboard -->
+      <div class="form-control">
+        <div class="title">{{ 'logging.logsUrl' | translate }}</div>
+        <a [href]="eventMeshLogsUrl | safe" target="_blank">{{ eventMeshLogsUrl }}</a>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

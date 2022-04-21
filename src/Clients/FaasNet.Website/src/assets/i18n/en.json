@@ -177,5 +177,13 @@
     "cancel": "Cancel",
     "selectVpn": "Select VPN"
   },
-  "undo": "Undo"
+  "undo": "Undo",
+  "logging": {
+    "title": "Logging",
+    "eventmesh": "Event mesh",
+    "dashboard": "Dashboard",
+    "logs": "Logs",
+    "dashboardUrl": "Dashboard URL",
+    "logsUrl": "Logs URL"
+  }
 }
