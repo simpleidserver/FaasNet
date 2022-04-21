@@ -9,10 +9,11 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
     [DebuggerDisplay("State {StateId}, Status = Completed")]
     public class StateCompletedEvent : DomainEvent
     {
-        public StateCompletedEvent(string id, string aggregateId, string stateId, JToken output, DateTime completedDateTime) : base(id, aggregateId)
+        public StateCompletedEvent(string id, string aggregateId, string stateId, JToken output, string nextTransition, DateTime completedDateTime) : base(id, aggregateId)
         {
             StateId = stateId;
             Output = output;
+            NextTransition = nextTransition;
             CompletedDateTime = completedDateTime;
         }
 
@@ -38,5 +39,6 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances.Events
         }
         public DateTime CompletedDateTime { get; set; }
         public string OutputStr { get; set; }
+        public string NextTransition { get; set; }
     }
 }

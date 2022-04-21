@@ -49,6 +49,18 @@ namespace FaasNet.StateMachine.Worker
             return workflowInstance;
         }
 
+        public async Task<StateMachineInstanceAggregate> Reactivate(string id, CancellationToken cancellationToken)
+        {
+            var runtimeSerializer = new RuntimeSerializer();
+            var stateMachineInstance = await _commitAggregateHelper.Get<StateMachineInstanceAggregate>(id, cancellationToken);
+            stateMachineInstance.Reactivate();
+            var stateMachineDef = runtimeSerializer.DeserializeYaml(stateMachineInstance.SerializedDefinition);
+            await _runtimeEngine.Launch(stateMachineDef, stateMachineInstance, new JObject(), cancellationToken);
+            await _integrationEventProcessor.Process(stateMachineInstance.IntegrationEvents.ToList(), cancellationToken);
+            await _commitAggregateHelper.Commit(stateMachineInstance, cancellationToken);
+            return stateMachineInstance;
+        }
+
         public StateMachineInstanceAggregate Instanciate(StateMachineDefinitionAggregate workflowDefinitionAggregate)
         {
             var runtimeSerializer = new RuntimeSerializer();

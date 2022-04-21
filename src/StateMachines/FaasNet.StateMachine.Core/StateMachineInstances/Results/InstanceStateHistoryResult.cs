@@ -16,7 +16,7 @@ namespace FaasNet.StateMachine.Core.StateMachineInstances.Results
             {
                 Status = history.Status,
                 Data = history.Data,
-                Timestamp = history.Timestamp
+                Timestamp = history.StartDateTime
             };
         }
     }

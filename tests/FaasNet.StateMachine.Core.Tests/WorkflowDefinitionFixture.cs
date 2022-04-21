@@ -30,6 +30,31 @@ namespace FaasNet.StateMachine.Core.Tests
 {
     public class WorkflowDefinitionFixture : IClassFixture<WebApplicationFactory<FakeStartup>>
     {
+        #region Reactivate
+
+        [Fact]
+        public async Task When_Reactivate_StateMachineInstance()
+        {
+            var runtimeJob = new StateMachineJob();
+            var workflowDefinition = StateMachineDefinitionBuilder.New("greeting", 1, "name", "description", "default")
+                .AddFunction(o => o.RestAPI("greetingFunction", "http://localhost/wrongswagger"))
+                .StartsWith(o => o.Inject().Data(new { result = "Hello World!" }))
+                .Then(o => o.Operation()
+                        .SetActionMode(StateMachineDefinitionActionModes.Sequential)
+                        .AddAction("Greet", (act) => act.SetFunctionRef("greetingFunction", "{ \"queries\" : { \"name\" : \"${ .person.name }\" } }").SetActionDataFilter(string.Empty, "${ .person.message }", "${ .result }")).End())
+                .Build();
+            var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'name': 'simpleidserver', 'message': 'message' }}");
+            instance = await runtimeJob.Reactivate(instance.Id);
+            var orderedHistories = instance.Histories.OrderBy(h => h.StartDateTime);
+            Assert.Equal(4, orderedHistories.Count());
+            Assert.Equal(StateMachineInstanceStatus.ACTIVE, orderedHistories.ElementAt(0).Status);
+            Assert.Equal(StateMachineInstanceStatus.FAILED, orderedHistories.ElementAt(1).Status);
+            Assert.Equal(StateMachineInstanceStatus.ACTIVE, orderedHistories.ElementAt(2).Status);
+            Assert.Equal(StateMachineInstanceStatus.FAILED, orderedHistories.ElementAt(3).Status);
+        }
+
+        #endregion
+
         #region Inject
 
         [Fact]
@@ -538,6 +563,12 @@ namespace FaasNet.StateMachine.Core.Tests
             {
                 var runtimeEngine = _serviceProvider.GetRequiredService<IStateMachineLauncher>();
                 return runtimeEngine.InstanciateAndLaunch(workflowDef, input, CancellationToken.None);
+            }
+
+            public Task<StateMachineInstanceAggregate> Reactivate(string id)
+            {
+                var runtimeEngine = _serviceProvider.GetRequiredService<IStateMachineLauncher>();
+                return runtimeEngine.Reactivate(id, CancellationToken.None);
             }
 
             public Task<StateMachineInstanceAggregate> InstanciateAndLaunch(StateMachineDefinitionAggregate workflowDef, string input, Dictionary<string, string> parameters)

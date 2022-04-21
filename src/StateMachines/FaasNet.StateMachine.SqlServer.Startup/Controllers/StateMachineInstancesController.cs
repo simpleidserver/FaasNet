@@ -1,4 +1,5 @@
-﻿using FaasNet.StateMachine.Core.StateMachineInstances.Queries;
+﻿using FaasNet.StateMachine.Core.StateMachineInstances.Commands;
+using FaasNet.StateMachine.Core.StateMachineInstances.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
@@ -23,6 +24,13 @@ namespace FaasNet.StateMachine.SqlServer.Startup.Controllers
         {
             var result = await _mediator.Send(new GetStateMachineInstanceQuery { Id = id }, cancellationToken);
             return new OkObjectResult(result);
+        }
+
+        [HttpGet("{id}/reactivate")]
+        public async Task<IActionResult> Reactivate(string id, CancellationToken cancellationToken)
+        {
+            await _mediator.Send(new ReactivateStateMachineInstanceCommand { Id = id }, cancellationToken);
+            return new NoContentResult();
         }
 
 

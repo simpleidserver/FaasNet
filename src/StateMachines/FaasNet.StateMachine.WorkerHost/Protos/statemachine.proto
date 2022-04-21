@@ -5,6 +5,7 @@ import "google/protobuf/timestamp.proto";
 
 service StateMachine {
 	rpc Launch (StateMachineDef) returns (LaunchStateMachineDefResult);
+	rpc Reactivate(ReactivateRequest) returns (ReactivateResult);
 }
 
 message StateMachineDef {
@@ -14,7 +15,15 @@ message StateMachineDef {
 	string rootTopic = 4;
 }
 
+message ReactivateRequest {
+	string id = 1;
+}
+
 message LaunchStateMachineDefResult {
 	string id = 1;
 	google.protobuf.Timestamp launchDateTime = 2;
+}
+
+message ReactivateResult{
+	bool isSuccess = 1;
 }

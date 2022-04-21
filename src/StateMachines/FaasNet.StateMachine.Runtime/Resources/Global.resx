@@ -123,6 +123,9 @@
   <data name="BadRESTApiUrl" xml:space="preserve">
     <value>the RestApi URL {0} doesn't match the format : url#operationid</value>
   </data>
+  <data name="CannotReactivateStateMachineInstance" xml:space="preserve">
+    <value>state machine instance with status '{0}' cannot be reactivated</value>
+  </data>
   <data name="InvalidArrayInput" xml:space="preserve">
     <value>the input {0} is not a valid array</value>
   </data>

@@ -3,6 +3,7 @@
     public enum StateMachineInstanceStatus
     {
         ACTIVE = 1,
-        TERMINATE = 2
+        TERMINATE = 2,
+        FAILED = 3
     }
 }

@@ -29,5 +29,14 @@ namespace FaasNet.StateMachine.WorkerHost.Services
                 LaunchDateTime = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow)
             };
         }
+
+        public override async Task<ReactivateResult> Reactivate(ReactivateRequest request, ServerCallContext context)
+        {
+            await _stateMachineLauncher.Reactivate(request.Id, CancellationToken.None);
+            return new ReactivateResult
+            {
+                IsSuccess = true
+            };
+        }
     }
 }

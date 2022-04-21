@@ -8,18 +8,19 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         #region Properties
 
         public StateMachineInstanceStateStatus Status { get; set; }
-        public DateTime Timestamp { get; set; }
+        public DateTime StartDateTime { get; set; }
+        public DateTime? EndDateTime { get; set; }
         public string Data { get; set; }
 
         #endregion
 
-        public static StateMachineInstanceStateHistory Create(StateMachineInstanceStateStatus status, DateTime timestamp, string data = null) 
+        public static StateMachineInstanceStateHistory Create(StateMachineInstanceStateStatus status, DateTime startDateTime, string data = null) 
         {
             return new StateMachineInstanceStateHistory
             {
                 Data = data,
                 Status = status,
-                Timestamp = timestamp
+                StartDateTime = startDateTime
             };
         }
 
@@ -29,7 +30,8 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
             {
                 Data = Data,
                 Status = Status,
-                Timestamp = Timestamp
+                StartDateTime = StartDateTime,
+                EndDateTime = EndDateTime
             };
         }
     }

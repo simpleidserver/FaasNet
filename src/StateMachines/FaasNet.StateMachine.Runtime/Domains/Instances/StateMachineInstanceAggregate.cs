@@ -18,6 +18,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public StateMachineInstanceAggregate()
         {
             States = new List<StateMachineInstanceState>();
+            Histories = new List<StateMachineInstanceHistory>();
         }
 
         #region Properties
@@ -33,6 +34,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public Dictionary<string, string> Parameters { get; set; }
         public StateMachineInstanceStatus Status { get; set; }
         public virtual ICollection<StateMachineInstanceState> States { get; set; }
+        public virtual ICollection<StateMachineInstanceHistory> Histories { get; set; }
         public IEnumerable<EventUnlistenedEvent> EventRemovedEvts
         {
             get
@@ -89,9 +91,9 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
             DomainEvts.Add(evt);
         }
 
-        public void CompleteState(string stateId, JToken output)
+        public void CompleteState(string stateId, JToken output, string nextTransition)
         {
-            var evt = new StateCompletedEvent(Guid.NewGuid().ToString(), Id, stateId, output, DateTime.UtcNow);
+            var evt = new StateCompletedEvent(Guid.NewGuid().ToString(), Id, stateId, output, nextTransition, DateTime.UtcNow);
             Handle(evt);
             DomainEvts.Add(evt);
         }
@@ -173,6 +175,13 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         #endregion
 
+        public void Reactivate()
+        {
+            var evt = new StateMachineInstanceReactivatedEvent(Guid.NewGuid().ToString(), Id, DateTime.UtcNow);
+            Handle(evt);
+            DomainEvts.Add(evt);
+        }
+
         public void Terminate(JToken output)
         {
             var evt = new StateMachineTerminatedEvent(Guid.NewGuid().ToString(), Id, output, DateTime.UtcNow);
@@ -191,13 +200,13 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         public void Handle(StateMachineInstanceCreatedEvent evt)
         {
+            UpdateState(evt.CreateDateTime, StateMachineInstanceStatus.ACTIVE);
             Id = evt.AggregateId;
             WorkflowDefTechnicalId = evt.WorkflowDefTechnicalId;
             WorkflowDefName = evt.WorkflowDefName;
             WorkflowDefDescription = evt.WorkflowDefDescription;
             WorkflowDefId = evt.WorkflowDefId;
             WorkflowDefVersion = evt.WorkflowDefVersion;
-            Status = StateMachineInstanceStatus.ACTIVE;
             Vpn = evt.Vpn;
             RootTopic = evt.RootTopic;
             SerializedDefinition = evt.SerializedDefinition;
@@ -212,7 +221,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public void Handle(StateStartedEvent evt)
         {
             var state = GetState(evt.StateId);
-            state.Start(evt.Input);
+            state.Start(evt.Input, evt.StartDateTime);
         }
 
         public void Handle(StateBlockedEvent evt)
@@ -223,31 +232,26 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
                 return;
             }
 
-            state.Block();
+            state.Block(evt.BlockedDateTime);
         }
 
         public void Handle(StateFailedEvent evt)
         {
+            UpdateState(evt.FailedDateTime, StateMachineInstanceStatus.FAILED);
             var state = GetState(evt.StateId);
-            state.Error(evt.Exception);
+            state.Error(evt.Exception, evt.FailedDateTime);
         }
 
         public void Handle(StateCompletedEvent evt)
         {
             var state = GetState(evt.StateId);
-            state.Complete(evt.Output);
-            /*
-            foreach (var evt in state.Events.Select(e => new EventUnlistenedEvent(Guid.NewGuid().ToString(), Id, stateId, e.Source, e.Type)))
-            {
-                // IntegrationEvents.Add(evt);
-            }
-            */
+            state.Complete(evt.Output, evt.NextTransition, evt.CompletedDateTime);
         }
 
         public void Handle(StateMachineTerminatedEvent evt)
         {
+            UpdateState(evt.TerminateDateTime, StateMachineInstanceStatus.TERMINATE);
             OutputStr = evt.Output == null ? null : evt.Output.ToString();
-            Status = StateMachineInstanceStatus.TERMINATE;
         }
 
         public void Handle(StateEvtListenedEvent evt)
@@ -270,6 +274,24 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
             var evtState = state.Events.First(e => e.Name == evt.EvtName);
             evtState.State = StateMachineInstanceStateEventStates.PROCESSED;
             evtState.OutputData = evt.Output;
+        }
+
+        public void Handle(StateMachineInstanceReactivatedEvent evt)
+        {
+            if(Status != StateMachineInstanceStatus.FAILED)
+            {
+                throw new BusinessException(string.Format(Global.CannotReactivateStateMachineInstance, Enum.GetName(typeof(StateMachineInstanceStatus), Status)));
+            }
+
+            UpdateState(evt.ReactivationDateTime, StateMachineInstanceStatus.ACTIVE);
+        }
+
+        private void UpdateState(DateTime startDateTime, StateMachineInstanceStatus status)
+        {
+            var lastHistory = Histories.OrderBy(h => h.StartDateTime).LastOrDefault();
+            if (lastHistory != null) lastHistory.EndDateTime = startDateTime;
+            Histories.Add(StateMachineInstanceHistory.Create(status, startDateTime));
+            Status = status;
         }
 
         #endregion
@@ -298,7 +320,11 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
                 WorkflowDefDescription = WorkflowDefDescription,
                 Vpn = Vpn,
                 SerializedDefinition = SerializedDefinition,
-                States = States.Select(s => (StateMachineInstanceState)s.Clone()).ToList()
+                States = States.Select(s => (StateMachineInstanceState)s.Clone()).ToList(),
+                LastEvtOffset = LastEvtOffset,
+                RootTopic = RootTopic,
+                Version = Version,
+                Histories = Histories.Select(h => (StateMachineInstanceHistory)h.Clone()).ToList()
             };
         }
     }

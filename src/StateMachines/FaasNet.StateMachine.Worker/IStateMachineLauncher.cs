@@ -8,6 +8,7 @@ namespace FaasNet.StateMachine.Worker
 {
     public interface IStateMachineLauncher
     {
+        Task<StateMachineInstanceAggregate> Reactivate(string id, CancellationToken cancellationToken);
         Task<StateMachineInstanceAggregate> InstanciateAndLaunch(StateMachineDefinitionAggregate workflowDefinitionAggregate, string input, CancellationToken cancellationToken);
         Task<StateMachineInstanceAggregate> InstanciateAndLaunch(StateMachineDefinitionAggregate workflowDefinitionAggregate, string input, Dictionary<string, string> parameters, CancellationToken cancellationToken);
     }

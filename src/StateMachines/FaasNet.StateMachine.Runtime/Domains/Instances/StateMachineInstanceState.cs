@@ -22,6 +22,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public string DefId { get; set; }
         public StateMachineInstanceStateStatus Status { get; set; }
         public string InputStr { get; set; }
+        public string NextTransition { get; set; }
         public JToken GetInput()
         {
             if (string.IsNullOrWhiteSpace(InputStr))
@@ -48,35 +49,40 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         #region Commands
 
-        public void Start(JToken input)
+        public void Start(JToken input, DateTime startDateTime)
         {
             InputStr = input.ToString();
-            Status = StateMachineInstanceStateStatus.ACTIVE;
-            Histories.Add(StateMachineInstanceStateHistory.Create(Status, DateTime.UtcNow));
+            ApplyStatus(StateMachineInstanceStateStatus.ACTIVE, startDateTime);
         }
 
-        public void Complete(JToken output)
+        public void Complete(JToken output, string nextTransition, DateTime startDateTime)
         {
             OutputStr = output == null ? string.Empty : output.ToString();
-            Status = StateMachineInstanceStateStatus.COMPLETE;
-            Histories.Add(StateMachineInstanceStateHistory.Create(Status, DateTime.UtcNow));
+            NextTransition = nextTransition;
+            ApplyStatus(StateMachineInstanceStateStatus.COMPLETE, startDateTime);
         }
 
-        public void Block()
+        public void Block(DateTime startDateTime)
         {
-            Status = StateMachineInstanceStateStatus.PENDING;
-            Histories.Add(StateMachineInstanceStateHistory.Create(Status, DateTime.UtcNow));
+            ApplyStatus(StateMachineInstanceStateStatus.PENDING, startDateTime);
         }
 
-        public void Error(string exception)
+        public void Error(string exception, DateTime startDateTime)
         {
-            Status = StateMachineInstanceStateStatus.ERROR;
-            Histories.Add(StateMachineInstanceStateHistory.Create(Status, DateTime.UtcNow, exception));
+            ApplyStatus(StateMachineInstanceStateStatus.ERROR, startDateTime);
         }
 
         public void AddEvent(string name, string source, string type, string topic)
         {
             Events.Add(StateMachineInstanceStateEvent.Create(name, source, type, topic));
+        }
+
+        private void ApplyStatus(StateMachineInstanceStateStatus status, DateTime startDateTime, string value = null)
+        {
+            var lastHistory = Histories.OrderByDescending(h => h.StartDateTime).FirstOrDefault();
+            if (lastHistory != null) lastHistory.EndDateTime = startDateTime;
+            Histories.Add(StateMachineInstanceStateHistory.Create(Status, startDateTime, value));
+            Status = status;
         }
 
         #endregion
@@ -164,7 +170,8 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
                 Status = Status,
                 InputStr = InputStr,
                 Events = Events.Select(e => (StateMachineInstanceStateEvent)e.Clone()).ToList(),
-                Histories = Histories.Select(h => (StateMachineInstanceStateHistory)h.Clone()).ToList()
+                Histories = Histories.Select(h => (StateMachineInstanceStateHistory)h.Clone()).ToList(),
+                NextTransition = NextTransition
             };
         }
 
