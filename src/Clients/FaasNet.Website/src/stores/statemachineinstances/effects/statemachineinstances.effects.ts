@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
-import { completeGet, completeSearch, errorGet, errorSearch, startGet, startSearch } from '../actions/statemachineinstances.actions';
+import { completeGet, completeReactivate, completeSearch, errorGet, errorReactivate, errorSearch, startGet, startReactivate, startSearch } from '../actions/statemachineinstances.actions';
 import { StateMachineInstancesService } from '../services/statemachineinstances.service';
 
 @Injectable()
@@ -35,6 +35,20 @@ export class StateMachineInstancesEffects {
           .pipe(
             map(content => completeGet({ content: content })),
             catchError(() => of(errorGet()))
+          );
+      }
+      )
+  );
+
+  @Effect()
+  reactivateMachineInstance = this.actions$
+    .pipe(
+      ofType(startReactivate),
+      mergeMap((evt: { id: string }) => {
+        return this.stateMachineInstancesService.reactivate(evt.id)
+          .pipe(
+            map(content => completeReactivate()),
+            catchError(() => of(errorReactivate()))
           );
       }
       )

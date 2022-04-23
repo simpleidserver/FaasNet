@@ -59,6 +59,11 @@ namespace FaasNet.StateMachine.Runtime
             string transition = null;
             if (stateInstance.Status != Domains.Enums.StateMachineInstanceStateStatus.COMPLETE)
             {
+                if(stateInstance.Status == Domains.Enums.StateMachineInstanceStateStatus.ERROR)
+                {
+                    workflowInstance.ReactivateState(stateInstance.Id);
+                }
+
                 var executionStateResult = await ExecuteState(stateDefinition, stateInstance, workflowInstance, workflowDefinitionAggregate, stateProcessor, cancellationToken);
                 if (!executionStateResult.ContinueExecution)
                 {

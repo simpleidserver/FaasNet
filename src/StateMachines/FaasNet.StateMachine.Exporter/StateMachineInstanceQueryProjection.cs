@@ -83,6 +83,18 @@ namespace FaasNet.StateMachine.Exporter
                 stateMachineInstance.Handle(evt);
                 await _stateMachineInstanceRepository.Update(stateMachineInstance, CancellationToken.None);
                 await _stateMachineInstanceRepository.SaveChanges(CancellationToken.None);
+            }).On<StateMachineInstanceReactivatedEvent>(async (evt) =>
+            {
+                var stateMachineInstance = await _stateMachineInstanceRepository.Get(evt.AggregateId, CancellationToken.None);
+                stateMachineInstance.Handle(evt);
+                await _stateMachineInstanceRepository.Update(stateMachineInstance, CancellationToken.None);
+                await _stateMachineInstanceRepository.SaveChanges(CancellationToken.None);
+            }).On<StateReactivatedEvent>(async(evt) =>
+            {
+                var stateMachineInstance = await _stateMachineInstanceRepository.Get(evt.AggregateId, CancellationToken.None);
+                stateMachineInstance.Handle(evt);
+                await _stateMachineInstanceRepository.Update(stateMachineInstance, CancellationToken.None);
+                await _stateMachineInstanceRepository.SaveChanges(CancellationToken.None);
             });
         }
     }

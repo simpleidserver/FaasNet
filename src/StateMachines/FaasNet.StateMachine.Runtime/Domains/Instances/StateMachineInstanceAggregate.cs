@@ -78,7 +78,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         public StateMachineInstanceState AddState(string defId)
         {
-            var evt = new StateInstanceCreatedEvent(Guid.NewGuid().ToString(), Id, Guid.NewGuid().ToString(), defId);
+            var evt = new StateInstanceCreatedEvent(Guid.NewGuid().ToString(), Id, Guid.NewGuid().ToString(), defId, DateTime.UtcNow);
             Handle(evt);
             DomainEvts.Add(evt);
             return States.Last();
@@ -108,6 +108,13 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public void ErrorState(string stateId, string exception)
         {
             var evt = new StateFailedEvent(Guid.NewGuid().ToString(), Id, stateId, exception, DateTime.UtcNow);
+            Handle(evt);
+            DomainEvts.Add(evt);
+        }
+
+        public void ReactivateState(string stateId)
+        {
+            var evt = new StateReactivatedEvent(Guid.NewGuid().ToString(), Id, stateId, DateTime.UtcNow);
             Handle(evt);
             DomainEvts.Add(evt);
         }
@@ -215,13 +222,19 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         public void Handle(StateInstanceCreatedEvent evt)
         {
-            States.Add(StateMachineInstanceState.Create(evt.StateInstanceId, evt.DefId));
+            States.Add(StateMachineInstanceState.Create(evt.StateInstanceId, evt.DefId, evt.StartDateTime));
         }
 
         public void Handle(StateStartedEvent evt)
         {
             var state = GetState(evt.StateId);
             state.Start(evt.Input, evt.StartDateTime);
+        }
+
+        public void Handle(StateReactivatedEvent evt)
+        {
+            var state = GetState(evt.StateId);
+            state.Activate(evt.StartDateTime);
         }
 
         public void Handle(StateBlockedEvent evt)

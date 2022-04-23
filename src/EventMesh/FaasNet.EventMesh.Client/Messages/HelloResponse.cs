@@ -18,10 +18,5 @@
         {
             SessionId = context.NextString();
         }
-
-        public override string ToString()
-        {
-            return $"Command = {Header.Command}, SessionId = {SessionId}";
-        }
     }
 }

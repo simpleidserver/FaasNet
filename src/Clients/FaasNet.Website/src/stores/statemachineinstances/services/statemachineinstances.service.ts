@@ -30,4 +30,11 @@ export class StateMachineInstancesService {
     let targetUrl = environment.apiUrl + "/statemachineinstances/" + id;
     return this.http.get<StateMachineInstanceDetails>(targetUrl, { headers: headers });
   }
+
+  reactivate(id: string): Observable<any> {
+    let headers = new HttpHeaders();
+    headers = headers.set('Accept', 'application/json');
+    let targetUrl = environment.apiUrl + "/statemachineinstances/" + id + "/reactivate";
+    return this.http.get<any>(targetUrl, { headers: headers });
+  }
 }

@@ -9,5 +9,6 @@ export const errorSearch = createAction('[StateMachineInstances] ERROR_SEARCH_ST
 export const startGet = createAction('[StateMachineInstances] START_GET_STATEMACHINE_INSTANCE', props<{ id: string  }>());
 export const completeGet = createAction('[StateMachineInstances] COMPLETE_GET_STATEMACHINE_INSTANCE', props<{ content: StateMachineInstanceDetails }>());
 export const errorGet = createAction('[StateMachineInstances] ERROR_GET_STATEMACHINE_INSTANCE');
-
-
+export const startReactivate = createAction('[StateMachineInstances] START_REACTIVATE_INSTANCE', props<{ id: string }>());
+export const completeReactivate = createAction('[StateMachineInstances] COMPLETE_REACTIVATE_INSTANCE');
+export const errorReactivate = createAction('[StateMachineInstances] ERROR_REACTIVATE_INSTANCE');

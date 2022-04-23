@@ -50,6 +50,7 @@ namespace FaasNet.EventMesh.Runtime.Website
                 }
 
                 var logger = new LoggerConfiguration()
+                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Error)
                     .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(Configuration["Serilog:nodeUris"]))
                     {
                         ModifyConnectionSettings = x =>

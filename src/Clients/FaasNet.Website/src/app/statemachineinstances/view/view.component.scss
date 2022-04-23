@@ -1,5 +1,18 @@
 ::ng-deep {
   .view .statediagram {
-    top: 40px !important;
+    top: 110px !important;
   }
+}
+
+ul.stateMachineActions {
+  margin: 0;
+  padding: 0;
+}
+
+ul.stateMachineActions > li {
+  display: inline-block;
+}
+
+ul.stateMachineActions > li {
+  margin-right: 5px;
 }

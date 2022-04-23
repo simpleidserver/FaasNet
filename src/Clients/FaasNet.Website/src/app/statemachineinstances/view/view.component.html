@@ -5,6 +5,13 @@
     <li>{{ stateMachineDef.name }}</li>
   </ul>
 </div>
+<div class="actions">
+  <ul class="stateMachineActions">
+    <li>
+      <button *ngIf="stateMachineInstance.status === 'FAILED'" mat-raised-button (click)="reactivate()"><mat-icon>replay</mat-icon>{{ 'stateMachineInstance.reactivate' | translate }}</button>
+    </li>
+  </ul>
+</div>
 <loader *ngIf="isLoading"></loader>
 <div class="view">
   <state-diagram [stateMachine]="stateMachineDef" [stateMachineInstance]="stateMachineInstance" [editMode]="false"></state-diagram>

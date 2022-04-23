@@ -16,10 +16,5 @@ namespace FaasNet.EventMesh.Client.Messages
         {
             Vpns = context.NextStringArray();
         }
-
-        public override string ToString()
-        {
-            return $"Command = {Header.Command}, Vpns = {string.Join(",", Vpns)}";
-        }
     }
 }

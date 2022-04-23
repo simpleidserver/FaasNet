@@ -97,8 +97,11 @@
     "status": "Status",
     "version": "Version",
     "createDateTime": "Creation DateTime",
+    "reactivate": "Reactivate",
     "messages": {
-      "errorGetStateMachineInstance": "An error occured while trying to get the State Machine Instance"
+      "errorGetStateMachineInstance": "An error occured while trying to get the State Machine Instance",
+      "stateMachineInstanceReactivated": "State machine instance has been reactivated",
+      "errorReactivateStateMachineInstance": "An error occured while trying to reactivate the state machine instance"
     }
   },
   "vpn": {

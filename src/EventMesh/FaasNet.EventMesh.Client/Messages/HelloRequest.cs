@@ -14,10 +14,5 @@
         {
             UserAgent = UserAgent.Deserialize(context);
         }
-
-        public override string ToString()
-        {
-            return $"Command = {Header.Command}, UserAgent = {UserAgent}";
-        }
     }
 }

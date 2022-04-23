@@ -6,10 +6,5 @@
         {
             base.Serialize(context);
         }
-
-        public override string ToString()
-        {
-            return $"Command = {Header.Command}";
-        }
     }
 }

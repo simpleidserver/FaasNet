@@ -138,7 +138,7 @@ namespace FaasNet.EventMesh.Runtime
                 EventMeshPackageReceived(this, new PackageEventArgs(package));
             }
 
-            _logger.LogInformation($"Package: '{package}' is received");
+            _logger.LogInformation("Command {command} is received with sequence {sequence}", package.Header.Command.Name, package.Header.Seq);
             var cmd = package.Header.Command;
             var messageHandler = _messageHandlers.First(m => m.Command == package.Header.Command);
             Package result = null;
@@ -148,12 +148,12 @@ namespace FaasNet.EventMesh.Runtime
             }
             catch(RuntimeException ex)
             {
-                _logger.LogError(ex.ToString());
+                _logger.LogError("Command {command}, sequence {sequence}, exception {exception}", package.Header.Command.Name, package.Header.Seq, ex.ToString());
                 result = PackageResponseBuilder.Error(ex.SourceCommand, ex.SourceSeq, ex.Error);
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex.ToString());
+                _logger.LogError("Command {command}, sequence {sequence}, exception {exception}", package.Header.Command.Name, package.Header.Seq, ex.ToString());
                 result = PackageResponseBuilder.Error(package.Header.Command, package.Header.Seq, Errors.INTERNAL_ERROR);
             }
 
@@ -162,7 +162,7 @@ namespace FaasNet.EventMesh.Runtime
                 return;
             }
 
-            _logger.LogInformation($"Package: '{result}' is going to be sent");
+            _logger.LogInformation("Command {command} with sequence {sequence} is going to be sent", result.Header.Command.Name, result.Header.Seq);
             var writeCtx = new WriteBufferContext();
             result.Serialize(writeCtx);
             var resultPayload = writeCtx.Buffer.ToArray();
@@ -189,7 +189,7 @@ namespace FaasNet.EventMesh.Runtime
 
         private async Task HandleCloudEventReceived(object sender, CloudEventArgs e)
         {
-            _logger.LogInformation($"Event with attributes : id={e.Evt.Id}, subject={e.Evt.Subject}, source={e.Evt.Source}, type={e.Evt.Type} is received from {e.BrokerName}");
+            _logger.LogInformation("Event with attributes : id={evtId}, subject={evtSubject}, source={evtSource}, type={evtType} is received from {evtBrokerName}", e.Evt.Id, e.Evt.Subject, e.Evt.Source, e.Evt.Type, e.BrokerName);
             ICollection<CloudEvent> pendingCloudEvts;
             if (e.ClientSession.TryAddPendingCloudEvent(e.BrokerName, e.TopicMessage, e.Evt, out pendingCloudEvts))
             {
@@ -215,7 +215,7 @@ namespace FaasNet.EventMesh.Runtime
             }
 
             var payload = writeCtx.Buffer.ToArray();
-            _logger.LogInformation($"Event id={e.Evt.Id} is going to be sent to the client {e.ClientId}");
+            _logger.LogInformation("Event id={evtId} is going to be sent to the client {clientId}", e.Evt.Id, e.ClientId);
             await _udpClient.SendAsync(payload, payload.Count(), e.ClientSession.Endpoint).WithCancellation(_cancellationToken);
         }
 

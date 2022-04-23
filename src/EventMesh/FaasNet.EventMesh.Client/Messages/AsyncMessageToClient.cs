@@ -59,10 +59,5 @@ namespace FaasNet.EventMesh.Client.Messages
                 CloudEvents.Add(context.DeserializeCloudEvent());
             }
         }
-
-        public override string ToString()
-        {
-            return $"Command = {Header.Command}, TopicMessage = {TopicMessage}, TopicFilter = {TopicFilter}, NbCloudEvts = {CloudEvents.Count()}";
-        }
     }
 }

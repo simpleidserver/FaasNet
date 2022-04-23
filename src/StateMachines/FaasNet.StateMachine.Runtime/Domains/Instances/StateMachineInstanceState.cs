@@ -55,6 +55,11 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
             ApplyStatus(StateMachineInstanceStateStatus.ACTIVE, startDateTime);
         }
 
+        public void Activate(DateTime startDateTime)
+        {
+            ApplyStatus(StateMachineInstanceStateStatus.ACTIVE, startDateTime);
+        }
+
         public void Complete(JToken output, string nextTransition, DateTime startDateTime)
         {
             OutputStr = output == null ? string.Empty : output.ToString();
@@ -69,7 +74,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         public void Error(string exception, DateTime startDateTime)
         {
-            ApplyStatus(StateMachineInstanceStateStatus.ERROR, startDateTime);
+            ApplyStatus(StateMachineInstanceStateStatus.ERROR, startDateTime, exception);
         }
 
         public void AddEvent(string name, string source, string type, string topic)
@@ -81,7 +86,7 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         {
             var lastHistory = Histories.OrderByDescending(h => h.StartDateTime).FirstOrDefault();
             if (lastHistory != null) lastHistory.EndDateTime = startDateTime;
-            Histories.Add(StateMachineInstanceStateHistory.Create(Status, startDateTime, value));
+            Histories.Add(StateMachineInstanceStateHistory.Create(status, startDateTime, value));
             Status = status;
         }
 
@@ -145,14 +150,15 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
 
         #endregion
 
-        public static StateMachineInstanceState Create(string id, string defId)
+        public static StateMachineInstanceState Create(string id, string defId, DateTime startDateTime)
         {
-            return new StateMachineInstanceState
+            var result = new StateMachineInstanceState
             {
                 Id = id,
-                DefId = defId,
-                Status = StateMachineInstanceStateStatus.CREATE
+                DefId = defId
             };
+            result.ApplyStatus(StateMachineInstanceStateStatus.CREATE, startDateTime);
+            return result;
         }
 
         private bool IsAllEvts(IEnumerable<string> names, StateMachineInstanceStateEventStates state)

@@ -36,10 +36,5 @@ namespace FaasNet.EventMesh.Client.Messages
             Port = context.NextInt();
             CloudEvent = context.DeserializeCloudEvent();
         }
-
-        public override string ToString()
-        {
-            return $"Command = {Header.Command}, ClientId = {ClientId}, SessionId = {SessionId}, Topic = {Topic}";
-        }
     }
 }

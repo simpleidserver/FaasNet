@@ -3,9 +3,17 @@
     <li>{{ "stateMachineInstance.list" | translate }}</li>
   </ul>
 </div>
+<loader *ngIf="isLoading"></loader>
 <div class="container">
   <div class="mat-elevation-z8 overflow-hidden">
     <mat-table class="full-width" [dataSource]="stateMachineInstances" matSortActive="createDateTime" matSortDirection="desc" matSort>
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let stateMachineInstance">
+          <button *ngIf="stateMachineInstance.status === 'FAILED'" [matTooltip]="'stateMachineInstance.reactivate' | translate" mat-icon-button (click)="reactivate(stateMachineInstance.id)"><mat-icon>replay</mat-icon></button>
+        </mat-cell>
+      </ng-container>
       <!-- workflowDefName -->
       <ng-container matColumnDef="workflowDefName">
         <mat-header-cell *matHeaderCellDef>{{ "stateMachineInstance.name" | translate }}</mat-header-cell>

@@ -1,11 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScannedActionsSubject, select, Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromReducers from '@stores/appstate';
-import { startGet } from '@stores/statemachineinstances/actions/statemachineinstances.actions';
+import { startGet, startReactivate } from '@stores/statemachineinstances/actions/statemachineinstances.actions';
 import { StateMachineInstanceDetails } from '@stores/statemachineinstances/models/statemachineinstance-details.model';
 import { startGetJson } from '@stores/statemachines/actions/statemachines.actions';
 import { StateMachineModel } from '@stores/statemachines/models/statemachinemodel.model';
@@ -48,6 +47,22 @@ export class ViewStateMachineInstanceComponent implements OnInit, OnDestroy {
           duration: 2000
         });
       });
+    self.actions$.pipe(
+      filter((action: any) => action.type === '[StateMachineInstances] COMPLETE_REACTIVATE_INSTANCE'))
+      .subscribe(() => {
+        this.isLoading = false;
+        self.snackBar.open(this.translateService.instant('stateMachineInstance.messages.stateMachineInstanceReactivated'), this.translateService.instant('undo'), {
+          duration: 2000
+        });
+      });
+    self.actions$.pipe(
+      filter((action: any) => action.type === '[StateMachineInstances] ERROR_REACTIVATE_INSTANCE'))
+      .subscribe(() => {
+        this.isLoading = false;
+        self.snackBar.open(this.translateService.instant('stateMachineInstance.messages.errorReactivateStateMachineInstance'), this.translateService.instant('undo'), {
+          duration: 2000
+        });
+      });
     this.store.pipe(select(fromReducers.selectStateMachineInstanceResult)).subscribe((stateMachineInstance: any) => {
       if (!stateMachineInstance) {
         return;
@@ -68,6 +83,12 @@ export class ViewStateMachineInstanceComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+  }
+
+  reactivate() {
+    this.isLoading = true;
+    const act = startReactivate({ id: this.stateMachineInstance.id });
+    this.store.dispatch(act);
   }
 
   private refreshLoading() {
