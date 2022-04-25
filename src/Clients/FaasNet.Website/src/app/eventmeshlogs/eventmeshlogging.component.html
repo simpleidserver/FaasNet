@@ -8,17 +8,22 @@
 <div class="container">
   <mat-card>
     <mat-card-content>
-      <!-- Dashboard -->
-      <div class="form-control">
-        <div class="title">{{ 'logging.dashboardUrl' | translate }}</div>
-        <a [href]="eventMeshDashboardUrl | safe" target="_blank">{{ eventMeshDashboardUrl }}</a>
-      </div>
-      <mat-divider></mat-divider>
-      <!-- Dashboard -->
-      <div class="form-control">
-        <div class="title">{{ 'logging.logsUrl' | translate }}</div>
-        <a [href]="eventMeshLogsUrl | safe" target="_blank">{{ eventMeshLogsUrl }}</a>
-      </div>
+      <mat-tab-group animationDuration="0ms">
+        <!-- Dashboard -->
+        <mat-tab [label]="'logging.dashboard' | translate">
+          <div>
+            <b>URL</b> : <a [href]="eventMeshDashboardUrl | safe" target="_blank">{{ eventMeshDashboardUrl }}</a>
+          </div>
+          <iframe [src]="eventMeshDashboardUrl | safe" class="kibana-frame"></iframe>
+        </mat-tab>
+        <!-- Logs -->
+        <mat-tab [label]="'logging.logs' | translate">
+          <div>
+            <b>URL</b> : <a [href]="eventMeshLogsUrl | safe" target="_blank">{{ eventMeshLogsUrl }}</a>
+          </div>
+          <iframe [src]="eventMeshLogsUrl | safe" class="kibana-frame"></iframe>
+        </mat-tab>
+      </mat-tab-group>
     </mat-card-content>
   </mat-card>
 </div>

@@ -2,14 +2,8 @@
 # Install kibana : https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-deploy-kibana.html
 # apply configuration file on namespace=faas
 # Get secret by executing : kubectl describe secret quickstart-es-elastic-user --namespace=faas
-# User : elastic, password : GLJEj7ueWeDs6S76G7839t67
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: faas
----
 kind: Service
-apiVersion: v1
 metadata:
   name: quickstart-es-external
   labels:
@@ -74,28 +68,5 @@ spec:
   count: 1
   elasticsearchRef:
     name: quickstart
----
-apiVersion: apm.k8s.elastic.co/v1
-kind: ApmServer
-metadata:
-  name: apm-server-staging
-spec:
-  version: 8.1.3
-  count: 1
-  http:   
-    tls:
-      selfSignedCertificate:
-        disabled: true
   config:
-    apm-server:
-      capture_personal_data: true
-    instrumentation:
-      enabled: true
-    output:
-      elasticsearch:
-        hosts: ["quickstart-es-http.faas.svc.cluster.local:9200"]
-        username: elastic
-        password: GLJEj7ueWeDs6S76G7839t67
-    logging.level: info
-    logging.to_stderr: true
-    logging.metrics.enabled: true
+    xpack.security.sameSiteCookies: None

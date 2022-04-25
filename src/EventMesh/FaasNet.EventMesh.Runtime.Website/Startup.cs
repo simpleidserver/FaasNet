@@ -13,7 +13,6 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 namespace FaasNet.EventMesh.Runtime.Website
@@ -32,16 +31,17 @@ namespace FaasNet.EventMesh.Runtime.Website
             var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            var loggerFactory = new LoggerFactory();
             RegisterEventMeshService(services)
                 .AddRuntimeEF(opt =>
                 {
+                    opt.UseLoggerFactory(loggerFactory);
                     opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly));
-                    opt.LogTo(msg => Debug.WriteLine((msg)));
                 })
                 .AddMessageBrokerEF(opt =>
                 {
+                    opt.UseLoggerFactory(loggerFactory);
                     opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly));
-                    opt.LogTo(msg => Debug.WriteLine((msg)));
                 });
             services.AddHostedService<RuntimeHostedService>();
             services.AddSingleton(Configuration);
@@ -51,12 +51,11 @@ namespace FaasNet.EventMesh.Runtime.Website
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();
-                loggingBuilder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
-                loggingBuilder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Information);
                 loggingBuilder.AddOpenTelemetry((opt) =>
                 {
                     opt.SetResourceBuilder(resourceBuilder);
                     opt.IncludeFormattedMessage = true;
+                    // opt.AddConsoleExporter();
                     opt.AddOtlpExporter(o =>
                     {
                         o.Endpoint = new Uri("http://localhost:30073/v1/logs");
@@ -129,6 +128,7 @@ namespace FaasNet.EventMesh.Runtime.Website
             var providerBuilder = Sdk.CreateMeterProviderBuilder()
                 .SetResourceBuilder(resourceBuilder)
                 .AddMeter(EventMeshMeter.Name)
+                // .AddConsoleExporter()
                 .AddOtlpExporter(o =>
                 {
                     o.Endpoint = new Uri("http://localhost:30073/v1/metrics");

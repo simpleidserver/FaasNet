@@ -3,7 +3,8 @@ import { environment } from '@envs/environment';
 
 @Component({
   selector: 'eventmeshlogging',
-  templateUrl: './eventmeshlogging.component.html'
+  templateUrl: './eventmeshlogging.component.html',
+  styleUrls: ['./eventmeshlogging.component.scss']
 })
 export class EventMeshLoggingComponent {
   eventMeshLogsUrl: string = environment.eventMeshLogsUrl;

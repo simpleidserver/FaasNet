@@ -1,10 +1,9 @@
 # install local opentelemetry collection : https://faun.pub/elastic-apm-and-opentelemetry-integration-49abaaccdad9
+# Elasticsearch password must be updated
 # ApiKey must be updated.
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: faas
----
+# Apply the kubernetes file
+# Use APM : apm-server-staging-apm-http.faas.svc.cluster.local:8200
+# Import the Kibana file
 apiVersion: v1
 kind: Service
 metadata:
@@ -15,7 +14,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - name: grpc # Default endpoint for OpenTelemetry receiver.
+  - name: grpc
     port: 4318
     protocol: TCP
     targetPort: 4318
@@ -39,7 +38,7 @@ data:
       otlp/elastic:
         endpoint: 'apm-server-staging-apm-http.faas.svc.cluster.local:8200'
         headers:
-          Authorization: "ApiKey V3dpMllJQUJoTzBxY0t5blRFWU06ZnQ1bGlLT3dUZVdPMF9RM0tidEJKdw=="  
+          Authorization: "ApiKey enNwTllvQUJfZjlUcWkyT0hrdXU6ZGhqN3JQZWxTZ3V3SUJ5M1BQVHNFZw=="  
         tls:
           insecure: true
       logging:
@@ -110,3 +109,29 @@ spec:
       - name: data
         configMap:
           name: otel-collector-config
+
+---
+apiVersion: apm.k8s.elastic.co/v1
+kind: ApmServer
+metadata:
+  name: apm-server-staging
+spec:
+  version: 8.1.3
+  count: 1
+  http:   
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  config:
+    apm-server:
+      capture_personal_data: true
+    instrumentation:
+      enabled: true
+    output:
+      elasticsearch:
+        hosts: ["quickstart-es-http.faas.svc.cluster.local:9200"]
+        username: elastic
+        password: 7o0V9amx965nfwsXD7G2s72L
+    logging.level: info
+    logging.to_stderr: true
+    logging.metrics.enabled: true

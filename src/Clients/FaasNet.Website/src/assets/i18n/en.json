@@ -185,8 +185,6 @@
     "title": "Logging",
     "eventmesh": "Event mesh",
     "dashboard": "Dashboard",
-    "logs": "Logs",
-    "dashboardUrl": "Dashboard URL",
-    "logsUrl": "Logs URL"
+    "logs": "Logs"
   }
 }
