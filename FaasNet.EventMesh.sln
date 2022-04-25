@@ -25,6 +25,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime.W
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Client", "src\EventMesh\FaasNet.EventMesh.Client\FaasNet.EventMesh.Client.csproj", "{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTelemetry.Exporter.OpenTelemetryProtocol", "src\EventMesh\OpenTelemetry.Exporter.OpenTelemetryProtocol\OpenTelemetry.Exporter.OpenTelemetryProtocol.csproj", "{33040232-E628-448D-B85F-BC68D757D24B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTelemetry.Exporter.OpenTelemetryProtocol.Logs", "src\EventMesh\OpenTelemetry.Exporter.OpenTelemetryProtocol.Logs\OpenTelemetry.Exporter.OpenTelemetryProtocol.Logs.csproj", "{1186F448-3722-443F-A0C8-A0D4216D23D9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00. OpenTelemetry", "00. OpenTelemetry", "{3A7C8C56-A93C-4722-9397-EF82EB5E4655}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +69,14 @@ Global
 		{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33040232-E628-448D-B85F-BC68D757D24B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33040232-E628-448D-B85F-BC68D757D24B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33040232-E628-448D-B85F-BC68D757D24B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33040232-E628-448D-B85F-BC68D757D24B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1186F448-3722-443F-A0C8-A0D4216D23D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1186F448-3722-443F-A0C8-A0D4216D23D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1186F448-3722-443F-A0C8-A0D4216D23D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1186F448-3722-443F-A0C8-A0D4216D23D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,6 +90,8 @@ Global
 		{F23B85E6-41DD-4B8A-982D-5ECD27878CD1} = {20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}
 		{0E50F0C2-5E8B-4F4F-90B5-CC9EE62805B1} = {20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}
 		{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
+		{33040232-E628-448D-B85F-BC68D757D24B} = {3A7C8C56-A93C-4722-9397-EF82EB5E4655}
+		{1186F448-3722-443F-A0C8-A0D4216D23D9} = {3A7C8C56-A93C-4722-9397-EF82EB5E4655}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9BD3B8C-B2C9-468F-BF54-66BFE9B565EC}

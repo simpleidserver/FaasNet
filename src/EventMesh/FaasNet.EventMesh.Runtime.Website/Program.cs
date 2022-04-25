@@ -4,9 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using OpenTelemetry.Logs;
-using System;
 using System.Linq;
 
 namespace FaasNet.EventMesh.Runtime.Website
@@ -15,8 +12,6 @@ namespace FaasNet.EventMesh.Runtime.Website
     {
         public static void Main(string[] args)
         {
-            // CheckOpenTelemetry();
-            // return;
             var host = CreateHostBuilder(args).Build();
             using (var scope = host.Services.CreateScope())
             {
@@ -66,22 +61,5 @@ namespace FaasNet.EventMesh.Runtime.Website
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-
-        private static void CheckOpenTelemetry()
-        {
-            using var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.AddOpenTelemetry((opt) =>
-                {
-                    opt.IncludeFormattedMessage = true;
-                    opt.IncludeScopes = true;
-                    opt.AddConsoleExporter();
-                });
-            });
-
-            var logger = loggerFactory.CreateLogger<Program>();
-            logger.LogInformation("Hello from {name} {price}.", "tomato", 2.99);
-            Console.ReadLine();
-        }
     }
 }

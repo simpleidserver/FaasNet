@@ -1,0 +1,54 @@
+﻿using System.Diagnostics.Metrics;
+
+namespace FaasNet.EventMesh.Runtime
+{
+    public static class EventMeshMeter
+    {
+        private static Meter _eventMeshMeter = new (Name, Version);
+        private static object _nbIncomingRequestLock = new object();
+        private static object _nbOutgoingRequestLock = new object();
+        private static int _nbIncomingRequest = 0;
+        private static int _nbOutgoingRequest = 0;
+
+        public static string Name => "EventMesh";
+        public static string Version => "1.0";
+
+        public static void IncrementNbIncomingRequest()
+        {
+            lock(_nbIncomingRequestLock)
+            {
+                _nbIncomingRequest++;
+            }
+        }
+
+        public static void IncrementNbOutgoingRequest()
+        {
+            lock(_nbOutgoingRequestLock)
+            {
+                _nbOutgoingRequest++;
+            }
+        }
+
+        public static void Init()
+        {
+            _eventMeshMeter.CreateObservableCounter<int>("incomingRequest", () =>
+            {
+                lock(_nbIncomingRequestLock)
+                {
+                    var result = _nbIncomingRequest;
+                    _nbIncomingRequest = 0;
+                    return result;
+                }
+            }, "nb", "Number of incoming requests");
+            _eventMeshMeter.CreateObservableCounter<int>("outgoingRequest", () =>
+            {
+                lock(_nbOutgoingRequestLock)
+                {
+                    var result = _nbOutgoingRequest;
+                    _nbOutgoingRequest = 0;
+                    return result;
+                }
+            }, "nb", "Number of outgoing requests");
+        }
+    }
+}

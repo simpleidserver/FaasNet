@@ -1,4 +1,8 @@
-# Install https://www.elastic.co/fr/downloads/elastic-cloud-kubernetes
+# Install elastic search : https://www.elastic.co/fr/downloads/elastic-cloud-kubernetes
+# Install kibana : https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-deploy-kibana.html
+# apply configuration file on namespace=faas
+# Get secret by executing : kubectl describe secret quickstart-es-elastic-user --namespace=faas
+# User : elastic, password : GLJEj7ueWeDs6S76G7839t67
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -16,7 +20,7 @@ spec:
     common.k8s.elastic.co/type: elasticsearch
     elasticsearch.k8s.elastic.co/cluster-name: quickstart
   ports:
-  - name: 'https'
+  - name: 'http'
     protocol: TCP
     port: 9200
     targetPort: 9200
@@ -26,6 +30,24 @@ spec:
     port: 9300
     targetPort: 9300
     nodePort: 30071
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: quickstart-kibana-external
+  labels:
+    component: elasticsearch
+spec:
+  type: NodePort
+  selector:
+    common.k8s.elastic.co/type: kibana
+    kibana.k8s.elastic.co/name: quickstart
+  ports:
+  - name: 'https'
+    protocol: TCP
+    port: 5601
+    targetPort: 5601
+    nodePort: 30072
 ---
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
@@ -38,3 +60,42 @@ spec:
     count: 1
     config:
       node.store.allow_mmap: false
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true
+---
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: quickstart
+spec:
+  version: 8.1.3
+  count: 1
+  elasticsearchRef:
+    name: quickstart
+---
+apiVersion: apm.k8s.elastic.co/v1
+kind: ApmServer
+metadata:
+  name: apm-server-staging
+spec:
+  version: 8.1.3
+  count: 1
+  http:   
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  config:
+    apm-server:
+      capture_personal_data: true
+    instrumentation:
+      enabled: true
+    output:
+      elasticsearch:
+        hosts: ["quickstart-es-http.faas.svc.cluster.local:9200"]
+        username: elastic
+        password: GLJEj7ueWeDs6S76G7839t67
+    logging.level: info
+    logging.to_stderr: true
+    logging.metrics.enabled: true

@@ -1,4 +1,3 @@
-using Elasticsearch.Net;
 using FaasNet.EventMesh.Runtime;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,9 +6,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Serilog;
-using Serilog.Sinks.Elasticsearch;
+using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using System;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace FaasNet.EventMesh.Runtime.Website
@@ -29,48 +33,38 @@ namespace FaasNet.EventMesh.Runtime.Website
             services.AddRazorPages();
             services.AddServerSideBlazor();
             RegisterEventMeshService(services)
-                .AddRuntimeEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)))
-                .AddMessageBrokerEF(opt => opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly)));
+                .AddRuntimeEF(opt =>
+                {
+                    opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly));
+                    opt.LogTo(msg => Debug.WriteLine((msg)));
+                })
+                .AddMessageBrokerEF(opt =>
+                {
+                    opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly));
+                    opt.LogTo(msg => Debug.WriteLine((msg)));
+                });
             services.AddHostedService<RuntimeHostedService>();
             services.AddSingleton(Configuration);
+            var serviceName = "EventMeshServer";
+            var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
+            var resourceBuilder = ResourceBuilder.CreateDefault().AddService(serviceName, serviceVersion: assemblyVersion, serviceInstanceId: Environment.MachineName);
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();
-                var settings = new ConnectionConfiguration();
-                var autoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7;
-                var batchAction = ElasticOpType.Create;
-                if (TryGetEnum(Configuration, "Serilog:autoRegisterTemplateVersion", out AutoRegisterTemplateVersion? r))
+                loggingBuilder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+                loggingBuilder.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Information);
+                loggingBuilder.AddOpenTelemetry((opt) =>
                 {
-                    autoRegisterTemplateVersion = r.Value;
-                }
-
-                if (TryGetEnum(Configuration, "Serilog:batchAction", out ElasticOpType? op))
-                {
-                    batchAction = op.Value;
-                }
-
-                var logger = new LoggerConfiguration()
-                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Error)
-                    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(Configuration["Serilog:nodeUris"]))
+                    opt.SetResourceBuilder(resourceBuilder);
+                    opt.IncludeFormattedMessage = true;
+                    opt.AddOtlpExporter(o =>
                     {
-                        ModifyConnectionSettings = x =>
-                        {
-                            x.BasicAuthentication(Configuration["Serilog:user"], Configuration["Serilog:password"]);
-                            if (GetBoolean(Configuration, "Serilog:ignoreHttps"))
-                            {
-                                x.ServerCertificateValidationCallback((o, certificate, chain, errors) => true);
-                                x.ServerCertificateValidationCallback(CertificateValidations.AllowAll);
-                            }
-                            return x;
-                        },
-                        IndexFormat = Configuration["Serilog:indexFormat"],
-                        AutoRegisterTemplateVersion = autoRegisterTemplateVersion,
-                        TypeName = null,
-                        BatchAction = batchAction,
-                    })
-                    .WriteTo.Console().CreateLogger();
-                loggingBuilder.AddSerilog(logger);
+                        o.Endpoint = new Uri("http://localhost:30073/v1/logs");
+                        o.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    });
+                });
             });
+            InitMeterExporter(resourceBuilder);
         }
 
         #region Dependencies
@@ -128,6 +122,19 @@ namespace FaasNet.EventMesh.Runtime.Website
             }
 
             return services;
+        }
+
+        private static void InitMeterExporter(ResourceBuilder resourceBuilder)
+        {
+            var providerBuilder = Sdk.CreateMeterProviderBuilder()
+                .SetResourceBuilder(resourceBuilder)
+                .AddMeter(EventMeshMeter.Name)
+                .AddOtlpExporter(o =>
+                {
+                    o.Endpoint = new Uri("http://localhost:30073/v1/metrics");
+                    o.Protocol = OtlpExportProtocol.HttpProtobuf;
+                });
+            providerBuilder.Build();
         }
 
         #endregion

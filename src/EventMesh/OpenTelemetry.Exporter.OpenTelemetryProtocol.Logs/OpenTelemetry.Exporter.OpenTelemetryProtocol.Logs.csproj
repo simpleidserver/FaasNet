@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<!-- OmniSharp/VS Code requires TargetFrameworks to be in descending order for IntelliSense and analysis. -->
+		<TargetFrameworks>net6.0</TargetFrameworks>
+		<Description>OpenTelemetry protocol exporter for OpenTelemetry .NET</Description>
+		<PackageTags>$(PackageTags);OTLP</PackageTags>
+	</PropertyGroup>
+
+	<!--Do not run ApiCompat as this package has never released a stable version.
+  Remove this property once we have released a stable version.-->
+	<PropertyGroup>
+		<RunApiCompat>false</RunApiCompat>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="OpenTelemetry" Version="1.3.0-beta.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\OpenTelemetry.Exporter.OpenTelemetryProtocol\OpenTelemetry.Exporter.OpenTelemetryProtocol.csproj" />
+	</ItemGroup>
+</Project>

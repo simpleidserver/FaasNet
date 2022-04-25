@@ -43,6 +43,7 @@ namespace FaasNet.EventMesh.Runtime
             _logger = logger;
             _options = options.Value;
             IsRunning = true;
+            EventMeshMeter.Init();
         }
 
         public bool IsRunning { get; private set; }
@@ -138,6 +139,7 @@ namespace FaasNet.EventMesh.Runtime
                 EventMeshPackageReceived(this, new PackageEventArgs(package));
             }
 
+            EventMeshMeter.IncrementNbIncomingRequest();
             _logger.LogInformation("Command {command} is received with sequence {sequence}", package.Header.Command.Name, package.Header.Seq);
             var cmd = package.Header.Command;
             var messageHandler = _messageHandlers.First(m => m.Command == package.Header.Command);
@@ -162,6 +164,7 @@ namespace FaasNet.EventMesh.Runtime
                 return;
             }
 
+            EventMeshMeter.IncrementNbOutgoingRequest();
             _logger.LogInformation("Command {command} with sequence {sequence} is going to be sent", result.Header.Command.Name, result.Header.Seq);
             var writeCtx = new WriteBufferContext();
             result.Serialize(writeCtx);
