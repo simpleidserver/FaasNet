@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net5.0</TargetFramework>
+		<TargetFramework>net6.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
 	  <Content Remove="appsettings.json" />
@@ -16,6 +16,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Common\FaasNet.EventStoreDB\FaasNet.EventStoreDB.csproj" />
+		<ProjectReference Include="..\..\EventMesh\OpenTelemetry.Exporter.OpenTelemetryProtocol.Logs\OpenTelemetry.Exporter.OpenTelemetryProtocol.Logs.csproj" />
 		<ProjectReference Include="..\FaasNet.StateMachine.Worker.EF\FaasNet.StateMachine.Worker.EF.csproj" />
 		<ProjectReference Include="..\FaasNet.StateMachine.Worker.EventMesh\FaasNet.StateMachine.Worker.EventMesh.csproj" />
 	</ItemGroup>
@@ -23,6 +24,7 @@
 		<PackageReference Include="Grpc.AspNetCore" Version="2.44.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.12" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.12" />
+		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.3.0-beta.1" />
 		<Protobuf Include="Protos\statemachine.proto" GrpcServices="Server,Client" />
 	</ItemGroup>
 	<ItemGroup>

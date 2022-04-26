@@ -35,13 +35,6 @@ namespace FaasNet.StateMachine.Runtime.Domains.Instances
         public StateMachineInstanceStatus Status { get; set; }
         public virtual ICollection<StateMachineInstanceState> States { get; set; }
         public virtual ICollection<StateMachineInstanceHistory> Histories { get; set; }
-        public IEnumerable<EventUnlistenedEvent> EventRemovedEvts
-        {
-            get
-            {
-                return IntegrationEvents.Where(e => e is EventUnlistenedEvent).Cast<EventUnlistenedEvent>();
-            }
-        }
         public string OutputStr { get; set; }
         public JObject GetOutput()
         {

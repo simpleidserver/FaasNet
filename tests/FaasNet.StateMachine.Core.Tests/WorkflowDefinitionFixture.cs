@@ -465,9 +465,9 @@ namespace FaasNet.StateMachine.Core.Tests
                 .Build();
             var instance = await runtimeJob.InstanciateAndLaunch(workflowDefinition, "{'person' : { 'email': 'agentsimpleidserver@gmail.com' }, 'message': 'Hello', 'name': 'Name' }");
             var state = instance.States.First();
-            Assert.Equal(StateMachineInstanceStatus.ACTIVE, instance.Status);
+            Assert.Equal(StateMachineInstanceStatus.FAILED, instance.Status);
             Assert.Equal(StateMachineInstanceStateStatus.ERROR, state.Status);
-            Assert.Equal(2, state.Histories.Count);
+            Assert.Equal(3, state.Histories.Count);
         }
 
         [Fact]

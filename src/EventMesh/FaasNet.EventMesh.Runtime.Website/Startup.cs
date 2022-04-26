@@ -55,10 +55,9 @@ namespace FaasNet.EventMesh.Runtime.Website
                 {
                     opt.SetResourceBuilder(resourceBuilder);
                     opt.IncludeFormattedMessage = true;
-                    // opt.AddConsoleExporter();
                     opt.AddOtlpExporter(o =>
                     {
-                        o.Endpoint = new Uri("http://localhost:30073/v1/logs");
+                        o.Endpoint = new Uri(Configuration["OpenTelemetry:Otlp:Logs"]);
                         o.Protocol = OtlpExportProtocol.HttpProtobuf;
                     });
                 });
@@ -123,15 +122,14 @@ namespace FaasNet.EventMesh.Runtime.Website
             return services;
         }
 
-        private static void InitMeterExporter(ResourceBuilder resourceBuilder)
+        private void InitMeterExporter(ResourceBuilder resourceBuilder)
         {
             var providerBuilder = Sdk.CreateMeterProviderBuilder()
                 .SetResourceBuilder(resourceBuilder)
                 .AddMeter(EventMeshMeter.Name)
-                // .AddConsoleExporter()
                 .AddOtlpExporter(o =>
                 {
-                    o.Endpoint = new Uri("http://localhost:30073/v1/metrics");
+                    o.Endpoint = new Uri(Configuration["OpenTelemetry:Otlp:Metrics"]);
                     o.Protocol = OtlpExportProtocol.HttpProtobuf;
                 });
             providerBuilder.Build();

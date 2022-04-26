@@ -121,58 +121,56 @@ namespace FaasNet.EventMesh.Runtime
 
         private async Task HandleEventMeshPackage()
         {
-
-            UdpReceiveResult receiveResult;
             try
             {
-                receiveResult = await _udpClient.ReceiveAsync().WithCancellation(_cancellationToken);
+                UdpReceiveResult receiveResult = receiveResult = await _udpClient.ReceiveAsync().WithCancellation(_cancellationToken);
+                var buffer = receiveResult.Buffer;
+                var package = Package.Deserialize(new ReadBufferContext(buffer));
+                if (EventMeshPackageReceived != null)
+                {
+                    EventMeshPackageReceived(this, new PackageEventArgs(package));
+                }
+
+                EventMeshMeter.IncrementNbIncomingRequest();
+                _logger.LogInformation("Command {command} is received with sequence {sequence}", package.Header.Command.Name, package.Header.Seq);
+                var cmd = package.Header.Command;
+                var messageHandler = _messageHandlers.First(m => m.Command == package.Header.Command);
+                Package result = null;
+                try
+                {
+                    result = await messageHandler.Run(package, receiveResult.RemoteEndPoint, _cancellationToken);
+                }
+                catch (RuntimeException ex)
+                {
+                    _logger.LogError("Command {command}, sequence {sequence}, exception {exception}", package.Header.Command.Name, package.Header.Seq, ex.ToString());
+                    result = PackageResponseBuilder.Error(ex.SourceCommand, ex.SourceSeq, ex.Error);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError("Command {command}, sequence {sequence}, exception {exception}", package.Header.Command.Name, package.Header.Seq, ex.ToString());
+                    result = PackageResponseBuilder.Error(package.Header.Command, package.Header.Seq, Errors.INTERNAL_ERROR);
+                }
+
+                if (result == null)
+                {
+                    return;
+                }
+
+                EventMeshMeter.IncrementNbOutgoingRequest();
+                _logger.LogInformation("Command {command} with sequence {sequence} is going to be sent", result.Header.Command.Name, result.Header.Seq);
+                var writeCtx = new WriteBufferContext();
+                result.Serialize(writeCtx);
+                var resultPayload = writeCtx.Buffer.ToArray();
+                await _udpClient.SendAsync(resultPayload, resultPayload.Count(), receiveResult.RemoteEndPoint).WithCancellation(_cancellationToken);
+                if (EventMeshPackageSent != null)
+                {
+                    EventMeshPackageSent(this, new PackageEventArgs(result));
+                }
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
+                _logger.LogError(ex.ToString());
                 return;
-            }
-
-            var buffer = receiveResult.Buffer;
-            var package = Package.Deserialize(new ReadBufferContext(buffer));
-            if (EventMeshPackageReceived != null)
-            {
-                EventMeshPackageReceived(this, new PackageEventArgs(package));
-            }
-
-            EventMeshMeter.IncrementNbIncomingRequest();
-            _logger.LogInformation("Command {command} is received with sequence {sequence}", package.Header.Command.Name, package.Header.Seq);
-            var cmd = package.Header.Command;
-            var messageHandler = _messageHandlers.First(m => m.Command == package.Header.Command);
-            Package result = null;
-            try
-            {
-                result = await messageHandler.Run(package, receiveResult.RemoteEndPoint, _cancellationToken);
-            }
-            catch(RuntimeException ex)
-            {
-                _logger.LogError("Command {command}, sequence {sequence}, exception {exception}", package.Header.Command.Name, package.Header.Seq, ex.ToString());
-                result = PackageResponseBuilder.Error(ex.SourceCommand, ex.SourceSeq, ex.Error);
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError("Command {command}, sequence {sequence}, exception {exception}", package.Header.Command.Name, package.Header.Seq, ex.ToString());
-                result = PackageResponseBuilder.Error(package.Header.Command, package.Header.Seq, Errors.INTERNAL_ERROR);
-            }
-
-            if (result == null)
-            {
-                return;
-            }
-
-            EventMeshMeter.IncrementNbOutgoingRequest();
-            _logger.LogInformation("Command {command} with sequence {sequence} is going to be sent", result.Header.Command.Name, result.Header.Seq);
-            var writeCtx = new WriteBufferContext();
-            result.Serialize(writeCtx);
-            var resultPayload = writeCtx.Buffer.ToArray();
-            await _udpClient.SendAsync(resultPayload, resultPayload.Count(), receiveResult.RemoteEndPoint).WithCancellation(_cancellationToken);
-            if(EventMeshPackageSent != null)
-            {
-                EventMeshPackageSent(this, new PackageEventArgs(result));
             }
         }
 

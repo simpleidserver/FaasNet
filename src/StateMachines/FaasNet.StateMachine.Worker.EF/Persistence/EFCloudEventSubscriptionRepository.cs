@@ -1,5 +1,6 @@
 ﻿using FaasNet.StateMachine.Worker.Domains;
 using FaasNet.StateMachine.Worker.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,6 +15,11 @@ namespace FaasNet.StateMachine.Worker.EF.Persistence
         public EFCloudEventSubscriptionRepository(WorkerDBContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public Task<int> NbActiveSubscriptions(CancellationToken cancellationToken)
+        {
+            return _dbContext.Subscriptions.Where(c => !c.IsConsumed).CountAsync(cancellationToken);
         }
 
         public Task Add(CloudEventSubscriptionAggregate evt, CancellationToken cancellationToken)

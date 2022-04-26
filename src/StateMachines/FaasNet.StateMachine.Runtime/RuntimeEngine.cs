@@ -2,6 +2,7 @@
 using FaasNet.StateMachine.Runtime.Domains.Instances;
 using FaasNet.StateMachine.Runtime.Extensions;
 using FaasNet.StateMachine.Runtime.Processors;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +14,12 @@ namespace FaasNet.StateMachine.Runtime
     public class RuntimeEngine : IRuntimeEngine
     {
         private readonly IEnumerable<IStateProcessor> _stateProcessors;
+        private readonly ILogger<RuntimeEngine> _logger;
 
-        public RuntimeEngine(IEnumerable<IStateProcessor> stateProcessors)
+        public RuntimeEngine(IEnumerable<IStateProcessor> stateProcessors, ILogger<RuntimeEngine> logger)
         {
             _stateProcessors = stateProcessors;
+            _logger = logger;
         }
 
         #region Public Methods
@@ -37,6 +40,7 @@ namespace FaasNet.StateMachine.Runtime
 
         protected async Task InternalLaunch(StateMachineDefinitionAggregate workflowDefinitionAggregate, StateMachineInstanceAggregate workflowInstance, JToken input, string stateInstanceId, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Launch state machine instance, Id = {stateMachineInstanceId}, DefId = {stateMachineDefId}, StateInstanceId = {stateInstanceId}", workflowInstance.Id, workflowDefinitionAggregate.Id, stateInstanceId);
             if (workflowInstance.Status != Domains.Enums.StateMachineInstanceStatus.ACTIVE)
             {
                 return;
@@ -52,6 +56,7 @@ namespace FaasNet.StateMachine.Runtime
 
             if (stateInstance.Status == Domains.Enums.StateMachineInstanceStateStatus.CREATE)
             {
+                _logger.LogInformation("Create state, Id = {stateInstanceId}, DefId = {stateDefinitionId}", stateInstance.Id, stateDefinition.Id);
                 workflowInstance.StartState(stateInstance.Id, Transform(input, stateDefinition.StateDataFilterInput));
             }
 
@@ -89,6 +94,7 @@ namespace FaasNet.StateMachine.Runtime
 
         private async Task<ExecutionStateResult> ExecuteState(BaseStateMachineDefinitionState stateDefinition, StateMachineInstanceState stateInstance, StateMachineInstanceAggregate workflowInstance, StateMachineDefinitionAggregate workflowDefinitionAggregate, IStateProcessor stateProcessor, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Start state, Id = {stateInstanceId}, DefId = {stateDefinitionId}", stateInstance.Id, stateDefinition.Id);
             var executionContext = new StateMachineInstanceExecutionContext(stateDefinition, stateInstance, workflowInstance, workflowDefinitionAggregate);
             var stateProcessorResult = await stateProcessor.Process(executionContext, cancellationToken);
             if (stateProcessorResult.Status != StateProcessorStatus.OK)
@@ -96,9 +102,11 @@ namespace FaasNet.StateMachine.Runtime
                 switch (stateProcessorResult.Status)
                 {
                     case StateProcessorStatus.BLOCKED:
+                        _logger.LogInformation("Block state, Id = {stateInstanceId}, DefId = {stateDefinitionId}", stateInstance.Id, stateDefinition.Id);
                         workflowInstance.BlockState(stateInstance.Id);
                         break;
                     case StateProcessorStatus.ERROR:
+                        _logger.LogInformation("An error occured in the state, Id = {stateInstanceId}, DefId = {stateDefinitionId}, Exception = {}", stateInstance.Id, stateDefinition.Id, stateProcessorResult.Exception);
                         workflowInstance.ErrorState(stateInstance.Id, stateProcessorResult.Exception);
                         break;
                 }
@@ -107,9 +115,11 @@ namespace FaasNet.StateMachine.Runtime
             }
 
             var output = Transform(stateProcessorResult.Output, stateDefinition.StateDataFilterOuput);
+            _logger.LogInformation("Complete state, Id = {stateInstanceId}, DefId = {stateDefinitionId}", stateInstance.Id, stateDefinition.Id);
             workflowInstance.CompleteState(stateInstance.Id, output, stateProcessorResult.Transition);
             if (stateProcessorResult.IsEnd)
             {
+                _logger.LogInformation("Terminate state machine instance, Id = {stateMachineInstanceId}", stateInstance.Id);
                 workflowInstance.Terminate(output);
                 return ExecutionStateResult.Exit();
             }

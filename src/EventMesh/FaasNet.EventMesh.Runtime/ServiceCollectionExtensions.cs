@@ -21,6 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure<RuntimeOptions>(opt => { });
             }
 
+            services.AddLogging();
             services.AddTransient<IRuntimeHost, RuntimeHost>();
             services.AddTransient<IMessageHandler, HeartbeatMessageHandler>();
             services.AddTransient<IMessageHandler, HelloMessageHandler>();

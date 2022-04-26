@@ -3,6 +3,7 @@ using FaasNet.StateMachine.Runtime;
 using FaasNet.StateMachine.Runtime.Domains.Definitions;
 using FaasNet.StateMachine.Runtime.Domains.Instances;
 using FaasNet.StateMachine.Runtime.Serializer;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +17,14 @@ namespace FaasNet.StateMachine.Worker
         private readonly IRuntimeEngine _runtimeEngine;
         private readonly ICommitAggregateHelper _commitAggregateHelper;
         private readonly IIntegrationEventProcessor _integrationEventProcessor;
+        private readonly StateMachineWorkerOptions _options;
 
-        public StateMachineLauncher(IRuntimeEngine runtimeEngine, ICommitAggregateHelper commitAggregateHelper, IIntegrationEventProcessor integrationEventProcessor)
+        public StateMachineLauncher(IRuntimeEngine runtimeEngine, ICommitAggregateHelper commitAggregateHelper, IIntegrationEventProcessor integrationEventProcessor, IOptions<StateMachineWorkerOptions> options)
         {
             _runtimeEngine = runtimeEngine;
             _commitAggregateHelper = commitAggregateHelper;
             _integrationEventProcessor = integrationEventProcessor;
+            _options = options.Value;
         }
 
         public Task<StateMachineInstanceAggregate> InstanciateAndLaunch(StateMachineDefinitionAggregate workflowDefinitionAggregate, string input, CancellationToken cancellationToken)
@@ -41,11 +44,13 @@ namespace FaasNet.StateMachine.Worker
 
         public async Task<StateMachineInstanceAggregate> InstanciateAndLaunch(StateMachineDefinitionAggregate workflowDefinitionAggregate, JObject input, Dictionary<string, string> parameters, CancellationToken cancellationToken)
         {
+            StateMachineRuntimeMeter.IncrementCreatedStateMachineInstance(_options.WorkerName);
             var workflowInstance = Instanciate(workflowDefinitionAggregate);
             workflowInstance.Parameters = parameters;
             await _runtimeEngine.Launch(workflowDefinitionAggregate, workflowInstance, input, cancellationToken);
             await _integrationEventProcessor.Process(workflowInstance.IntegrationEvents.ToList(), cancellationToken);
             await _commitAggregateHelper.Commit(workflowInstance, cancellationToken);
+            if(workflowInstance.Status == Runtime.Domains.Enums.StateMachineInstanceStatus.TERMINATE) StateMachineRuntimeMeter.IncrementTerminatedStateMachineInstance(_options.WorkerName);
             return workflowInstance;
         }
 
@@ -58,6 +63,7 @@ namespace FaasNet.StateMachine.Worker
             await _runtimeEngine.Launch(stateMachineDef, stateMachineInstance, new JObject(), cancellationToken);
             await _integrationEventProcessor.Process(stateMachineInstance.IntegrationEvents.ToList(), cancellationToken);
             await _commitAggregateHelper.Commit(stateMachineInstance, cancellationToken);
+            if (stateMachineInstance.Status == Runtime.Domains.Enums.StateMachineInstanceStatus.TERMINATE) StateMachineRuntimeMeter.IncrementTerminatedStateMachineInstance(_options.WorkerName);
             return stateMachineInstance;
         }
 

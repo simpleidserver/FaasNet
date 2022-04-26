@@ -8,6 +8,7 @@ namespace FaasNet.StateMachine.Worker.Persistence
 {
     public interface ICloudEventSubscriptionRepository
     {
+        Task<int> NbActiveSubscriptions(CancellationToken cancellationToken);
         IQueryable<CloudEventSubscriptionAggregate> Query();
         Task Add(CloudEventSubscriptionAggregate evt, CancellationToken cancellationToken);
         Task Update(IEnumerable<CloudEventSubscriptionAggregate> evt, CancellationToken cancellationToken);

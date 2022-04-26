@@ -17,6 +17,11 @@ namespace FaasNet.StateMachine.Worker.Persistence
             _cloudEvents = new ConcurrentBag<CloudEventSubscriptionAggregate>();
         }
 
+        public Task<int> NbActiveSubscriptions(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_cloudEvents.Where(c => !c.IsConsumed).Count());
+        }
+
         public Task Add(CloudEventSubscriptionAggregate evt, CancellationToken cancellationToken)
         {
             _cloudEvents.Add((CloudEventSubscriptionAggregate)evt.Clone());
