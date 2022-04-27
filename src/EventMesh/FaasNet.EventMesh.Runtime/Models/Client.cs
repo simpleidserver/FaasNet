@@ -8,7 +8,7 @@ namespace FaasNet.EventMesh.Runtime.Models
 {
     public class Client
     {
-        private Client() { }
+        public Client() { }
 
         private Client(string id, string clientId, string urn)
         {
@@ -35,8 +35,8 @@ namespace FaasNet.EventMesh.Runtime.Models
                 return Sessions.Where(s => s.IsActive);
             }
         }
-        public ICollection<ClientTopic> Topics { get; set; }
-        public ICollection<ClientSession> Sessions { get; set; }
+        public virtual ICollection<ClientTopic> Topics { get; set; }
+        public virtual ICollection<ClientSession> Sessions { get; set; }
 
         #endregion
 

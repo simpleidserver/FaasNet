@@ -7,7 +7,9 @@ namespace FaasNet.EventMesh.Runtime.EF
 {
     public class EventMeshDBContext : DbContext
     {
-        public EventMeshDBContext(DbContextOptions<EventMeshDBContext> dbContextOptions) : base(dbContextOptions) { }
+        public EventMeshDBContext(DbContextOptions<EventMeshDBContext> dbContextOptions) : base(dbContextOptions)
+        {
+        }
 
 
         public static SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1, 1);

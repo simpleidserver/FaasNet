@@ -35,15 +35,31 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var subscriptionRequest = package as SubscriptionRequest;
-            var sessionResult = await GetActiveSession(package, subscriptionRequest.ClientId, subscriptionRequest.SessionId, cancellationToken);
+            ActiveSessionResult sessionResult = null;
+            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Get active session"))
+            {
+                sessionResult = await GetActiveSession(package, subscriptionRequest.ClientId, subscriptionRequest.SessionId, cancellationToken);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+            }
+
             var activeSession = sessionResult.Client.GetActiveSession(subscriptionRequest.SessionId);
             if (activeSession.Purpose != UserAgentPurpose.SUB)
             {
                 throw new RuntimeException(subscriptionRequest.Header.Command, subscriptionRequest.Header.Seq, Errors.UNAUTHORIZED_SUBSCRIBE);
             }
 
-            await SubscribeBridgeServerTopics(subscriptionRequest, sessionResult.Client, sessionResult.Vpn.BridgeServers);
-            await Subscribe(subscriptionRequest, sessionResult.Client);
+            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Register to bridge topics"))
+            {
+                await SubscribeBridgeServerTopics(subscriptionRequest, sessionResult.Client, sessionResult.Vpn.BridgeServers);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+            }
+
+            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Register to local topics"))
+            {
+                await Subscribe(subscriptionRequest, sessionResult.Client);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+            }
+
             VpnStore.Update(sessionResult.Vpn);
             await VpnStore.SaveChanges(cancellationToken);
             return PackageResponseBuilder.Subscription(package.Header.Seq);

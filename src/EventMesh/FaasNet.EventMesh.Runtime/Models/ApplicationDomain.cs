@@ -23,7 +23,7 @@ namespace FaasNet.EventMesh.Runtime.Models
         public string RootTopic { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
-        public ICollection<Application> Applications { get; set; }
+        public virtual ICollection<Application> Applications { get; set; }
         public override string Topic => "";
 
         #region Actions

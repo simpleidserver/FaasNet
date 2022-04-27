@@ -12,6 +12,6 @@ namespace FaasNet.EventMesh.Runtime.Models
         public int Version { get; set; }
         public float PosX { get; set; }
         public float PosY { get; set; }
-        public ICollection<ApplicationLink> Links { get; set; }
+        public virtual ICollection<ApplicationLink> Links { get; set; }
     }
 }

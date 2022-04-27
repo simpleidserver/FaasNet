@@ -17,7 +17,7 @@ namespace FaasNet.EventMesh.Runtime.Models
         public string Description { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
-        public ICollection<BridgeServer> BridgeServers { get; set; }
+        public virtual ICollection<BridgeServer> BridgeServers { get; set; }
 
         public static Vpn Create(string name, string description)
         {

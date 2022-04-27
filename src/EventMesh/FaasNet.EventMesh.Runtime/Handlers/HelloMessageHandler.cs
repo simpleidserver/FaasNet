@@ -28,13 +28,25 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var helloRequest = package as HelloRequest;
-            var vpn = await _vpnStore.Get(helloRequest.UserAgent.Vpn, cancellationToken);
+            Models.Vpn vpn = null;
+            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Get vpn"))
+            {
+                vpn = await _vpnStore.Get(helloRequest.UserAgent.Vpn, cancellationToken);
+                activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok);
+            }
+
             if (vpn == null)
             {
                 throw new RuntimeException(helloRequest.Header.Command, helloRequest.Header.Seq, Errors.UNKNOWN_VPN);
             }
 
-            var client = await _clientStore.GetByClientId(vpn.Name, helloRequest.UserAgent.ClientId, cancellationToken);
+            Models.Client client;
+            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Get client"))
+            {
+                client = await _clientStore.GetByClientId(vpn.Name, helloRequest.UserAgent.ClientId, cancellationToken);
+                activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok);
+            }
+            
             if (client == null)
             {
                 throw new RuntimeException(helloRequest.Header.Command, helloRequest.Header.Seq, Errors.INVALID_CLIENT);

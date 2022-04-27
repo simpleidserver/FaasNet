@@ -33,24 +33,40 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
         {
             var publishMessageRequest = package as PublishMessageRequest;
-            var sessionResult = await GetActiveSession(publishMessageRequest, publishMessageRequest.ClientId, publishMessageRequest.SessionId, cancellationToken);
+            ActiveSessionResult sessionResult = null;
+            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Get active session"))
+            {
+                sessionResult = await GetActiveSession(publishMessageRequest, publishMessageRequest.ClientId, publishMessageRequest.SessionId, cancellationToken);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+            }
+
             var activeSession = sessionResult.Client.GetActiveSession(publishMessageRequest.SessionId);
             if (activeSession.Purpose != UserAgentPurpose.PUB)
             {
                 throw new RuntimeException(publishMessageRequest.Header.Command, publishMessageRequest.Header.Seq, Errors.UNAUTHORIZED_PUBLISH);
             }
 
-            if(
-                (!string.IsNullOrWhiteSpace(publishMessageRequest.Urn) && _runtimeOpts.Urn == publishMessageRequest.Urn) ||
-                (string.IsNullOrWhiteSpace(publishMessageRequest.Urn)))
+            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Publish to local message brokers"))
             {
-                foreach(var publisher in _messagePublishers)
+                if (
+                    (!string.IsNullOrWhiteSpace(publishMessageRequest.Urn) && _runtimeOpts.Urn == publishMessageRequest.Urn) ||
+                    (string.IsNullOrWhiteSpace(publishMessageRequest.Urn)))
                 {
-                    await publisher.Publish(publishMessageRequest.CloudEvent, publishMessageRequest.Topic, sessionResult.Client);
+                    foreach (var publisher in _messagePublishers)
+                    {
+                        await publisher.Publish(publishMessageRequest.CloudEvent, publishMessageRequest.Topic, sessionResult.Client);
+                    }
                 }
+
+                activity?.SetStatus(ActivityStatusCode.Ok);
             }
 
-            await Broadcast(publishMessageRequest, sessionResult.Client, sessionResult.Vpn.BridgeServers);
+            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Broadcast message"))
+            {
+                await Broadcast(publishMessageRequest, sessionResult.Client, sessionResult.Vpn.BridgeServers);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+            }
+
             return PackageResponseBuilder.PublishMessage(package.Header.Seq);
         }
 

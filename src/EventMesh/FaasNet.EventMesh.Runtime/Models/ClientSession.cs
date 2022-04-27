@@ -9,7 +9,7 @@ namespace FaasNet.EventMesh.Runtime.Models
 {
     public class ClientSession
     {
-        private ClientSession()
+        public ClientSession()
         {
             Histories = new List<ClientSessionHistory>();
             Topics = new List<Topic>();
@@ -55,10 +55,10 @@ namespace FaasNet.EventMesh.Runtime.Models
         public int BufferCloudEvents { get; set; }
         public ClientSessionTypes Type { get; set; }
         public ClientSessionState State { get; set; }
-        public ICollection<ClientSessionHistory> Histories { get; set; }
-        public ICollection<Topic> Topics { get; set; }
-        public ICollection<ClientSessionPendingCloudEvent> PendingCloudEvents { get; set; }
-        public ICollection<ClientSessionBridge> Bridges { get; set; }
+        public virtual ICollection<ClientSessionHistory> Histories { get; set; }
+        public virtual ICollection<Topic> Topics { get; set; }
+        public virtual ICollection<ClientSessionPendingCloudEvent> PendingCloudEvents { get; set; }
+        public virtual ICollection<ClientSessionBridge> Bridges { get; set; }
         public bool IsActive
         {
             get

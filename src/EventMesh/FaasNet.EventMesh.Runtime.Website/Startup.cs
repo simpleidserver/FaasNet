@@ -36,6 +36,7 @@ namespace FaasNet.EventMesh.Runtime.Website
                 .AddRuntimeEF(opt =>
                 {
                     opt.UseLoggerFactory(loggerFactory);
+                    opt.UseLazyLoadingProxies(true);
                     opt.UseSqlServer(Configuration.GetConnectionString("EventMesh"), optionsBuilders => optionsBuilders.MigrationsAssembly(migrationsAssembly));
                 })
                 .AddMessageBrokerEF(opt =>
@@ -63,6 +64,7 @@ namespace FaasNet.EventMesh.Runtime.Website
                 });
             });
             InitMeterExporter(resourceBuilder);
+            InitActivitySourceExporter(resourceBuilder);
         }
 
         #region Dependencies
@@ -126,10 +128,23 @@ namespace FaasNet.EventMesh.Runtime.Website
         {
             var providerBuilder = Sdk.CreateMeterProviderBuilder()
                 .SetResourceBuilder(resourceBuilder)
-                .AddMeter(EventMeshMeter.Name)
+                .AddMeter(EventMeshMeter.MeterName)
                 .AddOtlpExporter(o =>
                 {
                     o.Endpoint = new Uri(Configuration["OpenTelemetry:Otlp:Metrics"]);
+                    o.Protocol = OtlpExportProtocol.HttpProtobuf;
+                });
+            providerBuilder.Build();
+        }
+
+        private void InitActivitySourceExporter(ResourceBuilder resourceBuilder)
+        {
+            var providerBuilder = Sdk.CreateTracerProviderBuilder()
+                .SetResourceBuilder(resourceBuilder)
+                .AddSource(EventMeshMeter.ActivitySourceName)
+                .AddOtlpExporter(o =>
+                {
+                    o.Endpoint = new Uri(Configuration["OpenTelemetry:Otlp:Traces"]);
                     o.Protocol = OtlpExportProtocol.HttpProtobuf;
                 });
             providerBuilder.Build();

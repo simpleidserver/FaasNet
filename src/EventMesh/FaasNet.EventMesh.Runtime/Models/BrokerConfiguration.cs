@@ -12,7 +12,7 @@ namespace FaasNet.EventMesh.Runtime.Models
 
         public string Name { get; set; }
         public string Protocol { get; set; }
-        public ICollection<BrokerConfigurationRecord> Records { get; set; }
+        public virtual ICollection<BrokerConfigurationRecord> Records { get; set; }
 
         public string GetValue(string name)
         {

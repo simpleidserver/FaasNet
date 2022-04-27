@@ -1,17 +1,21 @@
-﻿using System.Diagnostics.Metrics;
+﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 namespace FaasNet.EventMesh.Runtime
 {
     public static class EventMeshMeter
     {
-        private static Meter _eventMeshMeter = new (Name, Version);
+        private static Meter _eventMeshMeter = new (MeterName, Version);
         private static object _nbIncomingRequestLock = new object();
         private static object _nbOutgoingRequestLock = new object();
         private static int _nbIncomingRequest = 0;
         private static int _nbOutgoingRequest = 0;
 
-        public static string Name => "EventMesh";
+        public static string MeterName => "EventMeshMeter";
+        public static string ActivitySourceName => "EventMeshActivitySource";
         public static string Version => "1.0";
+
+        public static ActivitySource RequestActivitySource = new ActivitySource(ActivitySourceName);
 
         public static void IncrementNbIncomingRequest()
         {
