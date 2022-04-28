@@ -46,9 +46,7 @@ namespace FaasNet.EventMesh.Runtime.Website
                 });
             services.AddHostedService<RuntimeHostedService>();
             services.AddSingleton(Configuration);
-            var serviceName = "EventMeshServer";
-            var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
-            var resourceBuilder = ResourceBuilder.CreateDefault().AddService(serviceName, serviceVersion: assemblyVersion, serviceInstanceId: Environment.MachineName);
+            var resourceBuilder = ResourceBuilder.CreateDefault().AddService(EventMeshMeter.Name, serviceVersion: EventMeshMeter.Version, serviceInstanceId: Environment.MachineName);
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();
@@ -128,7 +126,7 @@ namespace FaasNet.EventMesh.Runtime.Website
         {
             var providerBuilder = Sdk.CreateMeterProviderBuilder()
                 .SetResourceBuilder(resourceBuilder)
-                .AddMeter(EventMeshMeter.MeterName)
+                .AddMeter(EventMeshMeter.Name)
                 .AddOtlpExporter(o =>
                 {
                     o.Endpoint = new Uri(Configuration["OpenTelemetry:Otlp:Metrics"]);
@@ -141,7 +139,7 @@ namespace FaasNet.EventMesh.Runtime.Website
         {
             var providerBuilder = Sdk.CreateTracerProviderBuilder()
                 .SetResourceBuilder(resourceBuilder)
-                .AddSource(EventMeshMeter.ActivitySourceName)
+                .AddSource(EventMeshMeter.Name)
                 .AddOtlpExporter(o =>
                 {
                     o.Endpoint = new Uri(Configuration["OpenTelemetry:Otlp:Traces"]);

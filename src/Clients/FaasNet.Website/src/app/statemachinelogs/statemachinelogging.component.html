@@ -1,0 +1,29 @@
+<div class="breadcrumb">
+  <ul>
+    <li>{{ "logging.title" | translate }}</li>
+    <li class="separator">\</li>
+    <li>{{ "logging.stateMachine" | translate }}</li>
+  </ul>
+</div>
+<div class="container">
+  <mat-card>
+    <mat-card-content>
+      <mat-tab-group animationDuration="0ms">
+        <!-- Dashboard -->
+        <mat-tab [label]="'logging.dashboard' | translate">
+          <div>
+            <b>URL</b> : <a [href]="stateMachineDashboardUrl | safe" target="_blank">{{ stateMachineDashboardUrl }}</a>
+          </div>
+          <iframe [src]="stateMachineDashboardUrl | safe" class="kibana-frame"></iframe>
+        </mat-tab>
+        <!-- Logs -->
+        <mat-tab [label]="'logging.logs' | translate">
+          <div>
+            <b>URL</b> : <a [href]="stateMachineLogsUrl | safe" target="_blank">{{ stateMachineLogsUrl }}</a>
+          </div>
+          <iframe [src]="stateMachineLogsUrl | safe" class="kibana-frame"></iframe>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

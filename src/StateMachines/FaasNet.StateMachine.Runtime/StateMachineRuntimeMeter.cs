@@ -1,64 +1,59 @@
-﻿using System.Diagnostics.Metrics;
+﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 namespace FaasNet.StateMachine.Runtime
 {
     public static class StateMachineRuntimeMeter
     {
-        private static Meter _stateMachineMeter;
         private static Counter<int> _createdStateMachineInstances;
         private static Counter<int> _terminatedStateMachineInstances;
-        private static int _activeSubscriptions;
+        private static Counter<int> _nbActiveSubscriptions;
         private static object _lockCreatedStateMachineInstance = new object();
         private static object _lockTerminatedStateMachineInstance = new object();
         private static object _lockActiveSubscriptions = new object();
-        private static object _lockIsInitialized = new object();
-        private static bool _isInitialized = false;
 
         public static string Version => "1.0";
+        public static string Name => "StateMachineWorker";
+        public static Meter StateMachineMeter = new Meter(Name, Version);
+        public static ActivitySource StateMachineWorkerActivitySource = new ActivitySource(Name, Version);
 
-        public static void IncrementCreatedStateMachineInstance(string workerName)
+        public static void IncrementCreatedStateMachineInstance()
         {
             lock(_lockCreatedStateMachineInstance)
             {
-                TryInit(workerName);
                 _createdStateMachineInstances.Add(1);
             }
         }
 
-        public static void IncrementTerminatedStateMachineInstance(string workerName)
+        public static void IncrementTerminatedStateMachineInstance()
         {
             lock(_lockTerminatedStateMachineInstance)
             {
-                TryInit(workerName);
                 _terminatedStateMachineInstances.Add(1);
             }
         }
 
-        public static void SetActiveSubscriptions(int activeSubscriptions, string workerName)
+        public static void IncrementActiveSubscriptions()
         {
             lock(_lockActiveSubscriptions)
             {
-                TryInit(workerName);
-                _activeSubscriptions = activeSubscriptions;
+                _nbActiveSubscriptions.Add(1);
             }
         }
 
-        private static bool TryInit(string workerName)
+        public static void DecrementActiveSubscriptions()
         {
-            lock(_lockIsInitialized)
+            lock (_lockActiveSubscriptions)
             {
-                if (_isInitialized)
-                {
-                    return false;
-                }
-
-                _stateMachineMeter = new(workerName, Version);
-                _createdStateMachineInstances = _stateMachineMeter.CreateCounter<int>("CreatedStateMachineInstances", "nb", "Created state machine instances");
-                _terminatedStateMachineInstances = _stateMachineMeter.CreateCounter<int>("TerminatedStateMachineInstances", "nb", "Terminated state machine instances");
-                _stateMachineMeter.CreateObservableGauge<int>("ActiveSubscriptions", () => _activeSubscriptions, "nb", "Active subscriptions");
-                _isInitialized = true;
-                return true;
+                _nbActiveSubscriptions.Add(-1);
             }
+        }
+
+        public static void Init()
+        {
+            _createdStateMachineInstances = StateMachineMeter.CreateCounter<int>("CreatedStateMachineInstances", "nb", "Created state machine instances");
+            _terminatedStateMachineInstances = StateMachineMeter.CreateCounter<int>("TerminatedStateMachineInstances", "nb", "Terminated state machine instances");
+            _nbActiveSubscriptions = StateMachineMeter.CreateCounter<int>("ActiveSubscriptions", "nb", "Active subscriptions");
         }
     }
 }

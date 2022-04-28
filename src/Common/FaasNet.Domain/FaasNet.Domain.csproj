@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+	  <TargetFrameworks>netstandard2.1</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MassTransit" Version="7.2.4" />

@@ -5,7 +5,6 @@ using FaasNet.StateMachine.Runtime.Domains.Instances;
 using FaasNet.StateMachine.Runtime.Serializer;
 using FaasNet.StateMachine.Worker.Persistence;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -25,11 +24,10 @@ namespace FaasNet.StateMachine.Worker
         private readonly IRuntimeEngine _runtimeEngine;
         private readonly ILogger<EventConsumerStore> _logger;
         private readonly ICollection<MessageListenerRecord> _listeners;
-        private readonly StateMachineWorkerOptions _workerOptions;
         private CancellationTokenSource _cancellationTokenSource;
         private bool _isInitialized = false;
 
-        public EventConsumerStore(ICloudEventSubscriptionRepository cloudEventSubscriptionRepository, ICommitAggregateHelper commitAggregateHelper, IDistributedLock distributedLock, IRuntimeEngine runtimeEngine, IEnumerable<IMessageListener> messageListeners, ILogger<EventConsumerStore> logger, IOptions<StateMachineWorkerOptions> options)
+        public EventConsumerStore(ICloudEventSubscriptionRepository cloudEventSubscriptionRepository, ICommitAggregateHelper commitAggregateHelper, IDistributedLock distributedLock, IRuntimeEngine runtimeEngine, IEnumerable<IMessageListener> messageListeners, ILogger<EventConsumerStore> logger)
         {
             _cloudEventSubscriptionRepository = cloudEventSubscriptionRepository;
             _commitAggregateHelper = commitAggregateHelper;
@@ -37,7 +35,6 @@ namespace FaasNet.StateMachine.Worker
             _messageListeners = messageListeners;
             _runtimeEngine = runtimeEngine;
             _logger = logger;
-            _workerOptions = options.Value;
             _listeners = new List<MessageListenerRecord>();
         }
 
@@ -103,8 +100,6 @@ namespace FaasNet.StateMachine.Worker
                     var splittedTopic = obj.TopicMessage.Split('/');
                     var expectedRootTopic = splittedTopic.First();
                     var expectedMessageTopic = splittedTopic.Last();
-                    var nbActiveSubscriptions = await _cloudEventSubscriptionRepository.NbActiveSubscriptions(_cancellationTokenSource.Token);
-                    StateMachineRuntimeMeter.SetActiveSubscriptions(nbActiveSubscriptions, _workerOptions.WorkerName);
                     var vpnSubscriptions = _cloudEventSubscriptionRepository.Query().Where(e => e.Vpn == obj.Vpn && e.Topic == expectedMessageTopic && e.RootTopic == expectedRootTopic && !e.IsConsumed).ToList();
                     var lst = vpnSubscriptions.Where(vs => obj.Content.Any(ce => ce.Type == vs.Type && ce.Source.ToString() == vs.Source)).GroupBy(k => k.WorkflowInstanceId);
                     using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -131,6 +126,7 @@ namespace FaasNet.StateMachine.Worker
                                 }
 
                                 subscription.IsConsumed = true;
+                                StateMachineRuntimeMeter.DecrementActiveSubscriptions();
                             }
                         }
 

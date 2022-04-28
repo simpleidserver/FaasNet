@@ -27,5 +27,9 @@ export const routes: Routes = [
   {
     path: 'logging/eventmesh',
     loadChildren: async () => (await import('./eventmeshlogs/eventmeshlogging.module')).EventMeshLoggingModule
+  },
+  {
+    path: 'logging/statemachine',
+    loadChildren: async () => (await import('./statemachinelogs/statemachinelogging.module')).StateMachineLoggingModule
   }
 ];

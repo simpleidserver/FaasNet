@@ -1,4 +1,5 @@
-﻿using FaasNet.StateMachine.Runtime.IntegrationEvents;
+﻿using FaasNet.StateMachine.Runtime;
+using FaasNet.StateMachine.Runtime.IntegrationEvents;
 using FaasNet.StateMachine.Worker.Domains;
 using FaasNet.StateMachine.Worker.Persistence;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,7 @@ namespace FaasNet.StateMachine.Worker.Handlers
         public async Task Process(EventListenedEvent evt, CancellationToken cancellationToken)
         {
             _logger.LogInformation("State machine instance {stateMachineInstanceId} is listening the event, RootTopic = {rootTopic}, MessageTopic = {messageTopic}, Source = {source}, Type = {type}, Vpn = {vpn}", evt.AggregateId, evt.RootTopic, evt.Topic, evt.Source, evt.Type, evt.Vpn);
+            StateMachineRuntimeMeter.IncrementActiveSubscriptions();
             await _cloudEventSubscriptionRepository.Add(CloudEventSubscriptionAggregate.Create(evt.AggregateId, evt.StateInstanceId, evt.RootTopic, evt.Source, evt.Type, evt.Vpn, evt.Topic), CancellationToken.None);
             await _cloudEventSubscriptionRepository.SaveChanges(cancellationToken);
         }

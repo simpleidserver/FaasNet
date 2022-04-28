@@ -30,6 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IAmqpChannelClientFactory, AmqpChannelUserPasswordClientFactory>();
             services.AddTransient<IRequestBodyBuilder, JsonRequestBodyBuilder>();
             services.AddTransient<IAsyncAPIParser, AsyncAPIParser>();
+            StateMachineRuntimeMeter.Init();
             return services;
         }
     }

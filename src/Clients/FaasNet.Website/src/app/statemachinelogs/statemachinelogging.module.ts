@@ -6,23 +6,23 @@ import { LoaderModule } from "../../components/loader/loader.module";
 import { MessagesModule } from "../../components/messages/messagesmodule";
 import { MonacoEditorModule } from "../../components/monaco-editor/editor.module";
 import { PipeModule } from "../pipes/pipemodule";
-import { EventMeshLoggingComponent } from "./eventmeshlogging.component";
-import { EventMeshLoggingRoutes } from "./eventmeshlogging.routes";
+import { StateMachineLoggingComponent } from "./statemachinelogging.component";
+import { StateMachineLoggingRoutes } from "./statemachinelogging.routes";
 
 @NgModule({
   imports: [
     MaterialModule,
     MonacoEditorModule.forRoot(),
     SharedModule,
-    EventMeshLoggingRoutes,
+    StateMachineLoggingRoutes,
     LoaderModule,
     AsyncApiEditorModule,
     MessagesModule,
     PipeModule
   ],
   declarations: [
-    EventMeshLoggingComponent
+    StateMachineLoggingComponent
   ]
 })
 
-export class EventMeshLoggingModule { }
+export class StateMachineLoggingModule { }

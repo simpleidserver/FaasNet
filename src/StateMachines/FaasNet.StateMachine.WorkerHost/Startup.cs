@@ -1,5 +1,5 @@
 using FaasNet.Common;
-using FaasNet.StateMachine.Worker;
+using FaasNet.StateMachine.Runtime;
 using FaasNet.StateMachine.WorkerHost.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,9 +12,9 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using System;
 using System.IO;
-using System.Reflection;
 
 namespace FaasNet.StateMachine.WorkerHost
 {
@@ -31,6 +31,25 @@ namespace FaasNet.StateMachine.WorkerHost
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var resourceBuilder = ResourceBuilder.CreateDefault().AddService(StateMachineRuntimeMeter.Name, serviceVersion: StateMachineRuntimeMeter.Version, serviceInstanceId: Environment.MachineName);
+            InitMeterExporter(resourceBuilder);
+            InitActivitySourceExporter(resourceBuilder);
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddOpenTelemetry((opt) =>
+                {
+                    opt.SetResourceBuilder(resourceBuilder);
+                    opt.IncludeFormattedMessage = true;
+                    opt.AddConsoleExporter();
+                    opt.AddOtlpExporter(o =>
+                    {
+                        o.Endpoint = new Uri(Configuration["OpenTelemetry:Otlp:Logs"]);
+                        o.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    });
+                });
+            });
+
             var dbPath = Path.Combine(WebHostEnvironment.ContentRootPath, "StateMachineWorker.db");
             services.AddGrpc();
             var loggerFactory = new LoggerFactory();
@@ -52,25 +71,6 @@ namespace FaasNet.StateMachine.WorkerHost
                     opt.Port = int.Parse(Configuration["EventMesh:Port"]);
                 });
             services.AddHostedService<EventConsumerHostedService>();
-            var serviceName = "StateMachineWorker";
-            var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
-            var resourceBuilder = ResourceBuilder.CreateDefault().AddService(serviceName, serviceVersion: assemblyVersion, serviceInstanceId: Environment.MachineName);
-            services.AddLogging(loggingBuilder =>
-            {
-                loggingBuilder.ClearProviders();
-                loggingBuilder.AddOpenTelemetry((opt) =>
-                {
-                    opt.SetResourceBuilder(resourceBuilder);
-                    opt.IncludeFormattedMessage = true;
-                    opt.AddConsoleExporter();
-                    opt.AddOtlpExporter(o =>
-                    {
-                        o.Endpoint = new Uri(Configuration["OpenTelemetry:Otlp:Logs"]);
-                        o.Protocol = OtlpExportProtocol.HttpProtobuf;
-                    });
-                });
-            });
-            InitMeterExporter(resourceBuilder);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -86,10 +86,23 @@ namespace FaasNet.StateMachine.WorkerHost
         {
             var providerBuilder = Sdk.CreateMeterProviderBuilder()
                 .SetResourceBuilder(resourceBuilder)
-                .AddMeter(StateMachineWorkerOptions.DefaultName)
+                .AddMeter(StateMachineRuntimeMeter.StateMachineMeter.Name)
                 .AddOtlpExporter(o =>
                 {
                     o.Endpoint = new Uri(Configuration["OpenTelemetry:Otlp:Metrics"]);
+                    o.Protocol = OtlpExportProtocol.HttpProtobuf;
+                });
+            providerBuilder.Build();
+        }
+
+        private void InitActivitySourceExporter(ResourceBuilder resourceBuilder)
+        {
+            var providerBuilder = Sdk.CreateTracerProviderBuilder()
+                .SetResourceBuilder(resourceBuilder)
+                .AddSource(StateMachineRuntimeMeter.StateMachineWorkerActivitySource.Name)
+                .AddOtlpExporter(o =>
+                {
+                    o.Endpoint = new Uri(Configuration["OpenTelemetry:Otlp:Traces"]);
                     o.Protocol = OtlpExportProtocol.HttpProtobuf;
                 });
             providerBuilder.Build();

@@ -22,6 +22,7 @@
         </mat-list-item>
         <div class="submenu" [class.expanded]="showLogging">
           <a mat-list-item class="submenuItem" [routerLink]="['/logging/eventmesh']" [routerLinkActive]="['is-active']"><div style="margin-left: 20px">{{ 'logging.eventmesh' | translate }}</div></a>
+          <a mat-list-item class="submenuItem" [routerLink]="['/logging/statemachine']" [routerLinkActive]="['is-active']"><div style="margin-left: 20px">{{ 'logging.stateMachine' | translate }}</div></a>
         </div>
       </mat-nav-list>
     </mat-drawer>
