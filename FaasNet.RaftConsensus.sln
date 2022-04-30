@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01. Core Layer", "01. Core Layer", "{5C5A8E54-DE20-4284-9FC5-F051B296A57A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Core", "src\RaftConsensus\FaasNet.RaftConsensus.Core\FaasNet.RaftConsensus.Core.csproj", "{0E063E33-1F05-405A-9C0B-71AE41F90867}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Client", "src\RaftConsensus\FaasNet.RaftConsensus.Client\FaasNet.RaftConsensus.Client.csproj", "{2B97E828-2036-4255-9679-48AD308C1328}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E063E33-1F05-405A-9C0B-71AE41F90867}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E063E33-1F05-405A-9C0B-71AE41F90867}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E063E33-1F05-405A-9C0B-71AE41F90867}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E063E33-1F05-405A-9C0B-71AE41F90867}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B97E828-2036-4255-9679-48AD308C1328}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B97E828-2036-4255-9679-48AD308C1328}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B97E828-2036-4255-9679-48AD308C1328}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B97E828-2036-4255-9679-48AD308C1328}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0E063E33-1F05-405A-9C0B-71AE41F90867} = {5C5A8E54-DE20-4284-9FC5-F051B296A57A}
+		{2B97E828-2036-4255-9679-48AD308C1328} = {5C5A8E54-DE20-4284-9FC5-F051B296A57A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A27C5EC-5C72-4BDD-908E-439CC843D258}
+	EndGlobalSection
+EndGlobal

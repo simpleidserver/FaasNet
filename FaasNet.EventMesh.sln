@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTelemetry.Exporter.Open
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00. OpenTelemetry", "00. OpenTelemetry", "{3A7C8C56-A93C-4722-9397-EF82EB5E4655}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.IntegrationEvents", "src\EventMesh\FaasNet.EventMesh.IntegrationEvents\FaasNet.EventMesh.IntegrationEvents.csproj", "{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{1186F448-3722-443F-A0C8-A0D4216D23D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1186F448-3722-443F-A0C8-A0D4216D23D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1186F448-3722-443F-A0C8-A0D4216D23D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +98,7 @@ Global
 		{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
 		{33040232-E628-448D-B85F-BC68D757D24B} = {3A7C8C56-A93C-4722-9397-EF82EB5E4655}
 		{1186F448-3722-443F-A0C8-A0D4216D23D9} = {3A7C8C56-A93C-4722-9397-EF82EB5E4655}
+		{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9BD3B8C-B2C9-468F-BF54-66BFE9B565EC}
