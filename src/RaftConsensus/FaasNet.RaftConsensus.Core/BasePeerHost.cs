@@ -5,6 +5,7 @@ using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,96 +13,117 @@ using System.Timers;
 
 namespace FaasNet.RaftConsensus.Core
 {
-    public abstract class BasePeerHost
+    public interface IPeerHost
+    {
+        IPEndPoint UdpServerEdp { get; }
+        Task Start(PeerInfo info, CancellationToken cancellationToken);
+        Task Stop();
+    }
+
+    public abstract class BasePeerHost : IPeerHost
     {
         private readonly ILogger<BasePeerHost> _logger;
-        private readonly IUdpClientServerFactory _udpClientFactory;
         private readonly ConsensusPeerOptions _options;
         private readonly IClusterStore _clusterNode;
-        private readonly ITermInfoStore _termInfoStore;
         private DateTime? _lastLeaderHeartbeatReceivedDateTime = null;
-        private CancellationTokenSource _tokenSource;
-        private CancellationToken _cancellationToken;
-        private UdpClient _udpClient;
         private System.Timers.Timer _leaderHeartbeatTimer;
 
-        public BasePeerHost(ILogger<BasePeerHost> logger, IUdpClientServerFactory udpClientServerFactory, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ITermInfoStore termInfoStore)
+        public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore)
         {
             _logger = logger;
-            _udpClientFactory = udpClientServerFactory;
             _options = options.Value;
             _clusterNode = clusterStore;
-            _termInfoStore = termInfoStore;
         }
 
         public bool IsRunning { get; private set; }
+        public PeerInfo Info { get; private set; }
+        public PeerStates State { get; private set; }
+        public CancellationTokenSource TokenSource { get; private set; }
+        public UdpClient UdpServer { get; private set; }
+        public IPEndPoint UdpServerEdp { get; private set; }
         public event EventHandler<EventArgs> PeerHostStarted;
+        public event EventHandler<EventArgs> PeerHostStopped;
 
-        public async Task Run(CancellationToken cancellationToken)
+        public Task Start(PeerInfo info, CancellationToken cancellationToken)
         {
+            if (info == null) throw new ArgumentNullException(nameof(info));
+            if (IsRunning) throw new InvalidOperationException("The peer is already running");
             _logger.LogInformation("Start peer");
-            await _termInfoStore.ResetFollower(cancellationToken);
-            await _termInfoStore.SaveChanges(cancellationToken);
-            _tokenSource = new CancellationTokenSource();
-            _cancellationToken = _tokenSource.Token;
-            _udpClient = _udpClientFactory.Build();
+            TokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            State = PeerStates.FOLLOWER;
+            UdpServer = BuildUdpClient();
             _leaderHeartbeatTimer = new System.Timers.Timer(_options.CheckLeaderHeartbeatTimerMS)
             {
                 Enabled = true
             };
             _leaderHeartbeatTimer.Elapsed += async(o, e) => await CheckLeaderHeartbeat(o, e);
+#pragma warning disable 4014
+            Task.Run(async () => await InternalRun(), cancellationToken);
+#pragma warning restore 4014
             IsRunning = true;
+            return Task.CompletedTask;
         }
 
-        public async Task Stop(CancellationToken cancellationToken)
+        public Task Stop()
         {
+            if (!IsRunning) throw new InvalidOperationException("The peer is not running");
             _logger.LogInformation("Stop peer");
-            _tokenSource.Cancel();
-            _udpClient.Close();
+            TokenSource.Cancel();
+            UdpServer.Close();
             _leaderHeartbeatTimer.Stop();
             IsRunning = false;
+            return Task.CompletedTask;
         }
 
         #region Timers
 
-        private async Task CheckLeaderHeartbeat(object source, ElapsedEventArgs e)
+        private Task CheckLeaderHeartbeat(object source, ElapsedEventArgs e)
         {
-            var termInfos = await _termInfoStore.GetAll(_cancellationToken);
-            var peers = await _clusterNode.GetAllPeers(CancellationToken.None);
-            foreach (var termInfo in termInfos)
+            if (State != PeerStates.FOLLOWER) return Task.CompletedTask;
+            var currentDatTime = DateTime.UtcNow;
+            if (_lastLeaderHeartbeatReceivedDateTime == null || _lastLeaderHeartbeatReceivedDateTime.Value.AddMilliseconds(_options.LeaderHeartbeatDurationMS) >= currentDatTime)
             {
-                if (termInfo.State != PeerStates.FOLLOWER) continue;
-                var currentDatTime = DateTime.UtcNow;
-                if (_lastLeaderHeartbeatReceivedDateTime == null || _lastLeaderHeartbeatReceivedDateTime.Value.AddMilliseconds(_options.LeaderHeartbeatDurationMS) >= currentDatTime)
-                {
-                    continue;
-                }
-
-                termInfo.State = PeerStates.CANDIDATE;
+                return Task.CompletedTask;
             }
 
-            await _termInfoStore.SaveChanges(_cancellationToken);
-            // Chaque terme correspond à une queue.
+            State = PeerStates.CANDIDATE;
+            // TODO: Send election process.
+            return Task.CompletedTask;
         }
 
         #endregion
 
         #region TCP Packages
 
-        private async Task HandleUDPPackage()
+        protected async Task InternalRun()
         {
-            if (PeerHostStarted != null)
+            if (PeerHostStarted != null) PeerHostStarted(this, new EventArgs());
+            await Init(TokenSource.Token);
+            try
             {
-                PeerHostStarted(this, new EventArgs());
+                while (true)
+                {
+                    TokenSource.Token.ThrowIfCancellationRequested();
+                    await HandleUDPPackage();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
 
+            if (PeerHostStopped != null) PeerHostStopped(this, new EventArgs());
+        }
+
+        private async Task HandleUDPPackage()
+        {
             try
             {
                 while(true)
                 {
-                    _cancellationToken.ThrowIfCancellationRequested();
-                    var receiveResult = await _udpClient.ReceiveAsync().WithCancellation(_cancellationToken);
-                    if (await HandleRaftConsensusPackage(receiveResult, _cancellationToken)) continue;
+                    TokenSource.Token.ThrowIfCancellationRequested();
+                    var receiveResult = await UdpServer.ReceiveAsync().WithCancellation(TokenSource.Token);
+                    if (await HandleRaftConsensusPackage(receiveResult, TokenSource.Token)) continue;
                 }
             }
             catch(Exception ex)
@@ -110,6 +132,7 @@ namespace FaasNet.RaftConsensus.Core
             }
         }
 
+        protected abstract Task Init(CancellationToken token);
         protected abstract Task<bool> HandlePackage(UdpReceiveResult udpResult);
 
         private async Task<bool> HandleRaftConsensusPackage(UdpReceiveResult udpResult, CancellationToken cancellationToken)
@@ -131,21 +154,16 @@ namespace FaasNet.RaftConsensus.Core
 
         private async Task Handle(LeaderHeartbeatRequest consensusPackage, CancellationToken cancellationToken)
         {
-            var termInfo = await _termInfoStore.Get(consensusPackage.TermId, cancellationToken);
-            if(termInfo == null)
-            {
-                return;
-            }
-
-            if(termInfo.Index != consensusPackage.Index)
-            {
-                return;
-            }
-
-            termInfo.LastHeartbeatRequest = DateTime.UtcNow;
-            await _termInfoStore.SaveChanges(cancellationToken);
+            if (consensusPackage.Header.TermId != Info.TermId) return;
+            _lastLeaderHeartbeatReceivedDateTime = DateTime.UtcNow;
         }
 
         #endregion
+
+        private UdpClient BuildUdpClient()
+        {
+            UdpServerEdp = new IPEndPoint(IPAddress.Any, 0);
+            return new UdpClient(UdpServerEdp);
+        }
     }
 }

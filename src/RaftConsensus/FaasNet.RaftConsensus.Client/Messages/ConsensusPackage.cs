@@ -7,13 +7,25 @@
 
         protected ConsensusPackage() { }
 
-        public Header Header { get; private set; }
+        public Header Header { get; set; }
+
+        public virtual void Serialize(WriteBufferContext context)
+        {
+            context.WriteString(MAGIC_CODE);
+            context.WriteString(PROTOCOL_VERSION);
+            Header.Serialize(context);
+        }
 
         public static ConsensusPackage Deserialize(ReadBufferContext context)
         {
-            context.NextString();
-            context.NextString();
-            return null;
+            var magicCode = context.NextString();
+            var version = context.NextString();
+            if (magicCode == MAGIC_CODE || version == PROTOCOL_VERSION) return null;
+            var header = Header.Deserialize(context);
+            return new ConsensusPackage
+            {
+                Header = header
+            };
         }
     }
 }

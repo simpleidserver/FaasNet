@@ -5,7 +5,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
 {
     public class BaseCommands
     {
-        private BaseCommands(int code)
+        protected BaseCommands(int code)
         {
             var cmdType = typeof(BaseCommands).GetFields(BindingFlags.Public | BindingFlags.Static)
                 .Single(f => f.FieldType == typeof(BaseCommands) && ((BaseCommands)f.GetValue(null)).Code == code);
@@ -46,11 +46,6 @@ namespace FaasNet.RaftConsensus.Client.Messages
             }
 
             return !a.Equals(b);
-        }
-
-        public static BaseCommands Deserialize(ReadBufferContext context)
-        {
-            return new BaseCommands(context.NextInt());
         }
 
         public bool Equals(BaseCommands other)
