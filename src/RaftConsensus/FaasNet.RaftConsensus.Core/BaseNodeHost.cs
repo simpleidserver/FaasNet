@@ -102,7 +102,8 @@ namespace FaasNet.RaftConsensus.Core
                 var consensusPackage = ConsensusPackage.Deserialize(bufferContext);
                 var peerHost = _peers.First(p => p.Info.TermId == consensusPackage.Header.TermId);
                 await UdpServer.SendAsync(udpResult.Buffer, udpResult.Buffer.Count(), peerHost.UdpServerEdp);
-                // Proxy !!!!!
+                var proxifiedUdpResult = await UdpServer.ReceiveAsync().WithCancellation(TokenSource.Token);
+                await UdpServer.SendAsync(proxifiedUdpResult.Buffer, proxifiedUdpResult.Buffer.Count(), udpResult.RemoteEndPoint);
             }
             catch(Exception ex)
             {

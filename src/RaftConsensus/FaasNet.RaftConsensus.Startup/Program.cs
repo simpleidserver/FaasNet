@@ -13,7 +13,7 @@ var firstNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
     {
         Port = 4002,
         Url = "localhost"
-    }/*,
+    },
     new ClusterNode
     {
         Port = 4003,
@@ -23,7 +23,7 @@ var firstNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
     {
         Port = 4004,
         Url = "localhost"
-    }*/
+    }
 });
 var secondNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
 {
@@ -34,7 +34,7 @@ var secondNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
     {
         Port = 4001,
         Url = "localhost"
-    }/*,
+    },
     new ClusterNode
     {
         Port = 4003,
@@ -44,7 +44,7 @@ var secondNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
     {
         Port = 4004,
         Url = "localhost"
-    }*/
+    }
 });
 var thirdNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
 {
@@ -89,10 +89,12 @@ var fourthNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
     }
 });
 
+// Four different nodes.
+// Each node contains one partition.
 await firstNode.Start(CancellationToken.None);
 await secondNode.Start(CancellationToken.None);
-// await thirdNode.Start(CancellationToken.None);
-// await fourthNode.Start(CancellationToken.None);
+await thirdNode.Start(CancellationToken.None);
+await fourthNode.Start(CancellationToken.None);
 
 Console.WriteLine("Press Enter to quit the application");
 Console.ReadLine();

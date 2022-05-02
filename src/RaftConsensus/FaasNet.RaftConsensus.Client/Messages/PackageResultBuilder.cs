@@ -10,5 +10,13 @@
                 VoteGranted = voteGranted
             };
         }
+
+        public static ConsensusPackage Empty(string termId, long termIndex)
+        {
+            return new EmptyResult
+            {
+                Header = new Header(ConsensusCommands.EMPTY_RESULT, termId, termIndex)
+            };
+        }
     }
 }

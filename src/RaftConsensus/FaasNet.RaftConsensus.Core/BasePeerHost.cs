@@ -32,8 +32,9 @@ namespace FaasNet.RaftConsensus.Core
         private int _nbPositiveVote = 0;
         private int _quorum = 0;
         private string _nodeId;
-        private System.Timers.Timer _leaderHeartbeatTimer;
+        private System.Timers.Timer _checkLeaderHeartbeatTimer;
         private System.Timers.Timer _electionCheckTimer;
+        private System.Timers.Timer _leaderHeartbeatTimer;
 
         public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore)
         {
@@ -57,16 +58,19 @@ namespace FaasNet.RaftConsensus.Core
             if (IsRunning) throw new InvalidOperationException("The peer is already running");
             _logger.LogInformation("Start peer");
             TokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            State = PeerStates.FOLLOWER;
+            SetFollower();
             _nodeId = nodeId;
             UdpServer = BuildUdpClient();
-            _leaderHeartbeatTimer = new System.Timers.Timer(RandomCheckLeaderHeartbeatTimerMS());
-            _electionCheckTimer = new System.Timers.Timer(_options.TimerMS);
-            _leaderHeartbeatTimer.Elapsed += async(o, e) => await CheckLeaderHeartbeat(o, e);
+            _checkLeaderHeartbeatTimer = new System.Timers.Timer();
+            _electionCheckTimer = new System.Timers.Timer(_options.CheckElectionTimerMS);
+            _leaderHeartbeatTimer = new System.Timers.Timer(_options.LeaderHeartbeatTimerMS);
+            _checkLeaderHeartbeatTimer.Elapsed += async(o, e) => await CheckLeaderHeartbeat(o, e);
             _electionCheckTimer.Elapsed += async (o, e) => await CheckElection(o, e);
+            _leaderHeartbeatTimer.Elapsed += async (o, e) => await BroadcastLeaderHeartbeat(o, e);
             _electionCheckTimer.AutoReset = false;
+            _checkLeaderHeartbeatTimer.AutoReset = false;
             _leaderHeartbeatTimer.AutoReset = false;
-            _leaderHeartbeatTimer.Start();
+            StartCheckLeaderHeartbeat();
 #pragma warning disable 4014
             Task.Run(async () => await InternalRun(), cancellationToken);
 #pragma warning restore 4014
@@ -81,77 +85,154 @@ namespace FaasNet.RaftConsensus.Core
             _logger.LogInformation("Stop peer");
             TokenSource.Cancel();
             UdpServer.Close();
-            _leaderHeartbeatTimer.Stop();
-            _electionCheckTimer.Stop();
+            StopCheckLeaderHeartbeat();
+            StopCheckElection();
             IsRunning = false;
             return Task.CompletedTask;
         }
 
-        #region Timers
+        #region Check learder heartbeat
 
         private async Task CheckLeaderHeartbeat(object source, ElapsedEventArgs e)
         {
-            _logger.LogInformation($"CheckLeaderHeartbeat, {State}");
             if (State != PeerStates.FOLLOWER) return;
             var currentDatTime = DateTime.UtcNow;
             if (_lastLeaderHeartbeatReceivedDateTime != null && _lastLeaderHeartbeatReceivedDateTime.Value.AddMilliseconds(_options.LeaderHeartbeatDurationMS) >= currentDatTime)
             {
                 _logger.LogInformation("{Node}:{TermId}, Leader heartbeat received {receptionDateTime}", _nodeId, Info.TermId, _lastLeaderHeartbeatReceivedDateTime);
-                _leaderHeartbeatTimer.Interval = RandomCheckLeaderHeartbeatTimerMS();
-                _leaderHeartbeatTimer.Start();
+                StartCheckLeaderHeartbeat();
                 return;
             }
 
             await StartElection();
         }
 
-        private async Task CheckElection(object source, ElapsedEventArgs e)
+        private void StopCheckLeaderHeartbeat()
         {
-            _logger.LogInformation("{Node}:{TermId}:{State}, nb positive vote {nbPositiveVote}", _nodeId, Info.TermId, State, _nbPositiveVote);
-            if (State != PeerStates.CANDIDATE || _expirationCheckElectionDateTime == null) return;
-            var currentDateTime = DateTime.UtcNow;
-            if (_nbPositiveVote >= _quorum)
-            {
-                _logger.LogInformation("{Node}:{TermId}, Peer is now the leader !", _nodeId, Info.TermId);
-                State = PeerStates.LEADER;
-                Info.TermIndex++;
-                return;
-            }
+            _checkLeaderHeartbeatTimer?.Stop();
+        }
 
-            if (_expirationCheckElectionDateTime.Value <= currentDateTime)
-            {
-                _leaderHeartbeatTimer.Interval = RandomCheckLeaderHeartbeatTimerMS();
-                _leaderHeartbeatTimer.Start();
-                return;
-            }
-
-            _electionCheckTimer.Start();
+        private void StartCheckLeaderHeartbeat()
+        {
+            if(_checkLeaderHeartbeatTimer != null) _checkLeaderHeartbeatTimer.Interval = new Random().Next(1000, 3000);
+            _checkLeaderHeartbeatTimer?.Start();
         }
 
         private async Task StartElection()
         {
             // Start to vote.
             _logger.LogInformation("{Node}:{TermId}, Start to vote", _nodeId, Info.TermId);
-            State = PeerStates.CANDIDATE;
             var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
-            _quorum = 1; // (nodes.Count() / 2) + 1;
-            /*
+            _quorum = (nodes.Count() / 2) + 1;
             if (_quorum == 0)
             {
                 _logger.LogError("{Node}:{TermId}, There is no enough nodes", _nodeId, Info.TermId);
                 return;
             }
-            */
 
             _nbPositiveVote = 0;
             _expirationCheckElectionDateTime = DateTime.UtcNow.AddMilliseconds(_options.ElectionCheckDurationMS);
-            _electionCheckTimer.Start();
+            SetCandidate();
             var pkg = PackageRequestBuilder.Vote(Info.TermId, Info.TermIndex + 1);
             foreach (var peer in nodes)
             {
                 var edp = new IPEndPoint(ResolveIPAddress(peer.Url), peer.Port);
                 await Send(pkg, edp, TokenSource.Token);
             }
+        }
+
+        #endregion
+
+        #region Check election
+
+        private Task CheckElection(object source, ElapsedEventArgs e)
+        {
+            if (State != PeerStates.CANDIDATE || _expirationCheckElectionDateTime == null) return Task.CompletedTask;
+            var currentDateTime = DateTime.UtcNow;
+            if (_nbPositiveVote >= _quorum)
+            {
+                _logger.LogInformation("{Node}:{TermId}, Peer is now the leader !", _nodeId, Info.TermId);
+                StartBroadcastLeaderHeartbeat();
+                SetLeader();
+                Info.TermIndex++;
+                return Task.CompletedTask;
+            }
+
+            if (_expirationCheckElectionDateTime.Value <= currentDateTime)
+            {
+                _logger.LogInformation("{Node}:{TermId}, Finish to check the election", _nodeId, Info.TermId);
+                SetFollower();
+                return Task.CompletedTask;
+            }
+
+            StartCheckElection();
+            return Task.CompletedTask;
+        }
+
+        private void StartCheckElection()
+        {
+            _electionCheckTimer?.Start();
+        }
+
+        private void StopCheckElection()
+        {
+            _electionCheckTimer?.Stop();
+        }
+
+        #endregion
+
+        #region Broadcast heartbeat
+
+        private async Task BroadcastLeaderHeartbeat(object source, ElapsedEventArgs e)
+        {
+            if (State != PeerStates.LEADER) return;
+            var pkg = PackageRequestBuilder.LeaderHeartbeat(Info.TermId, Info.TermIndex);
+            var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
+            foreach (var peer in nodes)
+            {
+                var edp = new IPEndPoint(ResolveIPAddress(peer.Url), peer.Port);
+                await Send(pkg, edp, TokenSource.Token);
+            }
+
+            StartBroadcastLeaderHeartbeat();
+        }
+
+        private void StartBroadcastLeaderHeartbeat()
+        {
+            _leaderHeartbeatTimer?.Start();
+        }
+
+        private void StopBroadcastLeaderHeartbeat()
+        {
+            _leaderHeartbeatTimer?.Stop();
+        }
+
+        #endregion
+
+        #region Change status
+
+        private void SetFollower()
+        {
+            State = PeerStates.FOLLOWER;
+            StartCheckLeaderHeartbeat();
+            StopCheckElection();
+            StopBroadcastLeaderHeartbeat();
+        }
+
+        private void SetCandidate()
+        {
+            State = PeerStates.CANDIDATE;
+            StopCheckLeaderHeartbeat();
+            StartCheckElection();
+            StopBroadcastLeaderHeartbeat();
+        }
+
+        private void SetLeader()
+        {
+            State = PeerStates.LEADER;
+            StopCheckLeaderHeartbeat();
+            StopCheckElection();
+            StartBroadcastLeaderHeartbeat();
         }
 
         #endregion
@@ -210,12 +291,8 @@ namespace FaasNet.RaftConsensus.Core
                 if (consensusPackage.Header.Command == ConsensusCommands.LEADER_HEARTBEAT_REQUEST) result = await Handle(consensusPackage as LeaderHeartbeatRequest, cancellationToken);
                 if (consensusPackage.Header.Command == ConsensusCommands.VOTE_REQUEST) result = await Handle(consensusPackage as VoteRequest, cancellationToken);
                 if (consensusPackage.Header.Command == ConsensusCommands.VOTE_RESULT) result = await Handle(consensusPackage as VoteResult, cancellationToken);
-                if (result != null)
-                {
-                    await Send(result, udpResult.RemoteEndPoint, cancellationToken);
-                }
-
-                // Proxify... [TODO!!!]
+                result = result == null ? PackageResultBuilder.Empty(Info.TermId, Info.TermIndex) : result;
+                await Send(result, udpResult.RemoteEndPoint, cancellationToken);
                 return true;
             }
             catch(Exception ex)
@@ -228,6 +305,7 @@ namespace FaasNet.RaftConsensus.Core
         private Task<ConsensusPackage> Handle(LeaderHeartbeatRequest consensusPackage, CancellationToken cancellationToken)
         {
             if (consensusPackage.Header.TermId != Info.TermId) return null;
+            _logger.LogInformation("{Node}:{TermId}, Heartbeat is received", _nodeId, Info.TermId);
             _lastLeaderHeartbeatReceivedDateTime = DateTime.UtcNow;
             return Task.FromResult((ConsensusPackage)null);
         }
@@ -240,8 +318,9 @@ namespace FaasNet.RaftConsensus.Core
             {
                 if (voteRequest.Header.TermIndex > Info.TermIndex)
                 {
-                    State = PeerStates.FOLLOWER;
-                } else if (
+                    SetFollower();
+                } 
+                else if (
                     (State == PeerStates.CANDIDATE || State == PeerStates.LEADER) ||
                     (Info.TermIndex >= voteRequest.Header.TermIndex)
                 )
@@ -250,7 +329,6 @@ namespace FaasNet.RaftConsensus.Core
                 }
             }
 
-            _logger.LogInformation("{Node}:{TermId}, is granted", _nodeId, Info.TermId);
             return Task.FromResult(PackageResultBuilder.Vote(Info.TermId, Info.TermIndex, isGranted));
         }
 
@@ -282,11 +360,6 @@ namespace FaasNet.RaftConsensus.Core
         {
             var hostEntry = Dns.GetHostEntry(url);
             return hostEntry.AddressList.First(a => a.AddressFamily == AddressFamily.InterNetwork);
-        }
-
-        private int RandomCheckLeaderHeartbeatTimerMS()
-        {
-            return new Random().Next(1000, 3000);
         }
     }
 }

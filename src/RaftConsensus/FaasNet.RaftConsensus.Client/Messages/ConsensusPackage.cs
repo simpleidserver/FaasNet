@@ -22,22 +22,9 @@
             var version = context.NextString();
             if (magicCode != MAGIC_CODE || version != PROTOCOL_VERSION) return null;
             var header = Header.Deserialize(context);
-            if(header.Command == ConsensusCommands.LEADER_HEARTBEAT_REQUEST)
-            {
-                return new LeaderHeartbeatRequest
-                {
-                    Header = header
-                };
-            }
-
-            if (header.Command == ConsensusCommands.VOTE_REQUEST)
-            {
-                return new VoteRequest
-                {
-                    Header = header
-                };
-            }
-
+            if (header.Command == ConsensusCommands.LEADER_HEARTBEAT_REQUEST) return new LeaderHeartbeatRequest { Header = header };
+            if (header.Command == ConsensusCommands.VOTE_REQUEST) return new VoteRequest { Header = header };
+            if (header.Command == ConsensusCommands.EMPTY_RESULT) return new EmptyResult { Header = header };
             if (header.Command == ConsensusCommands.VOTE_RESULT)
             {
                 var result = new VoteResult

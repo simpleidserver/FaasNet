@@ -5,6 +5,7 @@
         public static ConsensusCommands LEADER_HEARTBEAT_REQUEST = new ConsensusCommands(0, "LEADER_HEARTBEAT_REQUEST");
         public static ConsensusCommands VOTE_REQUEST = new ConsensusCommands(1, "VOTE_REQUEST");
         public static ConsensusCommands VOTE_RESULT = new ConsensusCommands(2, "VOTE_RESULT");
+        public static ConsensusCommands EMPTY_RESULT = new ConsensusCommands(3, "EMPTY_RESULT");
 
         protected ConsensusCommands(int code)
         {
