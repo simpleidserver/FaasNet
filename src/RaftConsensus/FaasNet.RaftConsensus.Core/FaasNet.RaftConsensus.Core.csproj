@@ -7,6 +7,7 @@
 	  <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\..\Common\FaasNet.Common\FaasNet.Common.csproj" />
 	  <ProjectReference Include="..\FaasNet.RaftConsensus.Client\FaasNet.RaftConsensus.Client.csproj" />
 	</ItemGroup>
 </Project>

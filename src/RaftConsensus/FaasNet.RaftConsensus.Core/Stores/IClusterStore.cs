@@ -8,21 +8,21 @@ namespace FaasNet.RaftConsensus.Core.Stores
 {
     public interface IClusterStore
     {
-        Task<IEnumerable<ClusterNode>> GetAllPeers(CancellationToken cancellationToken);
+        Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken);
     }
 
     public class InMemoryClusterStore : IClusterStore
     {
-        private readonly ConcurrentBag<ClusterNode> _peers;
+        private readonly ConcurrentBag<ClusterNode> _nodes;
 
-        public InMemoryClusterStore(ConcurrentBag<ClusterNode> peers)
+        public InMemoryClusterStore(ConcurrentBag<ClusterNode> nodes)
         {
-            _peers = peers;
+            _nodes = nodes;
         }
 
-        public Task<IEnumerable<ClusterNode>> GetAllPeers(CancellationToken cancellationToken)
+        public Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken)
         {
-            IEnumerable<ClusterNode> result = _peers.ToArray();
+            IEnumerable<ClusterNode> result = _nodes.ToArray();
             return Task.FromResult(result);
         }
     }

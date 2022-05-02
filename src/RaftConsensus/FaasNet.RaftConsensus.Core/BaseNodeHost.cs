@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -12,13 +13,20 @@ using System.Threading.Tasks;
 
 namespace FaasNet.RaftConsensus.Core
 {
-    public abstract class BaseNodeHost
+    public interface INodeHost
+    {
+        Task Start(CancellationToken cancellationToken);
+        Task Stop();
+    }
+
+    public abstract class BaseNodeHost : INodeHost
     {
         private readonly IPeerStore _peerStore;
         private readonly IPeerHostFactory _peerHostFactory;
         private readonly ILogger<BaseNodeHost> _logger;
         private readonly ConsensusPeerOptions _options;
         private BlockingCollection<IPeerHost> _peers;
+        private string _nodeId;
 
         public BaseNodeHost(IPeerStore peerStore, IPeerHostFactory peerHostFactory, ILogger<BaseNodeHost> logger, IOptions<ConsensusPeerOptions> options)
         {
@@ -26,6 +34,7 @@ namespace FaasNet.RaftConsensus.Core
             _peerHostFactory = peerHostFactory;
             _logger = logger;
             _options = options.Value;
+            _nodeId = Guid.NewGuid().ToString();
         }
 
         public bool IsRunning { get; private set; }
@@ -43,7 +52,7 @@ namespace FaasNet.RaftConsensus.Core
             Parallel.ForEach(peerInfoLst, async (peerInfo) =>
             {
                 var peerHost = _peerHostFactory.Build();
-                await peerHost.Start(peerInfo, cancellationToken);
+                await peerHost.Start(_nodeId, peerInfo, cancellationToken);
                 _peers.Add(peerHost);
             });
             UdpServer = BuildUdpClient();
@@ -89,9 +98,11 @@ namespace FaasNet.RaftConsensus.Core
             try
             {
                 var udpResult = await UdpServer.ReceiveAsync().WithCancellation(TokenSource.Token);
-                var bufferContext = new ReadBufferContext(udpResult.Buffer);
+                var bufferContext = new ReadBufferContext(udpResult.Buffer.ToArray());
                 var consensusPackage = ConsensusPackage.Deserialize(bufferContext);
-                // if(consensusPackage != null) 
+                var peerHost = _peers.First(p => p.Info.TermId == consensusPackage.Header.TermId);
+                await UdpServer.SendAsync(udpResult.Buffer, udpResult.Buffer.Count(), peerHost.UdpServerEdp);
+                // Proxy !!!!!
             }
             catch(Exception ex)
             {

@@ -5,14 +5,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
 {
     public class BaseCommands
     {
-        protected BaseCommands(int code)
-        {
-            var cmdType = typeof(BaseCommands).GetFields(BindingFlags.Public | BindingFlags.Static)
-                .Single(f => f.FieldType == typeof(BaseCommands) && ((BaseCommands)f.GetValue(null)).Code == code);
-            var name = ((BaseCommands)cmdType.GetValue(null)).Name;
-            Code = code;
-            Name = name;
-        }
+        protected BaseCommands() { }
 
         protected BaseCommands(int code, string name)
         {
@@ -77,6 +70,15 @@ namespace FaasNet.RaftConsensus.Client.Messages
         public override string ToString()
         {
             return Name;
+        }
+
+        protected void Init<T>(int code) where T : BaseCommands
+        {
+            var cmdType = typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static)
+                .Single(f => f.FieldType == typeof(T) && ((T)f.GetValue(null)).Code == code);
+            var name = ((T)cmdType.GetValue(null)).Name;
+            Code = code;
+            Name = name;
         }
     }
 }

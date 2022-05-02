@@ -2,7 +2,17 @@
 {
     public class VoteResult : ConsensusPackage
     {
-        public int Term { get; set; }
         public bool VoteGranted { get; set; }
+
+        public override void Serialize(WriteBufferContext context)
+        {
+            base.Serialize(context);
+            context.WriteBoolean(VoteGranted);
+        }
+
+        public void Extract(ReadBufferContext context)
+        {
+            VoteGranted = context.NextBoolean();
+        }
     }
 }

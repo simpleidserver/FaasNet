@@ -9,9 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Core"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Client", "src\RaftConsensus\FaasNet.RaftConsensus.Client\FaasNet.RaftConsensus.Client.csproj", "{2B97E828-2036-4255-9679-48AD308C1328}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Testing Layer", "02. Testing Layer", "{D63393ED-CE18-4AAF-8AED-E57FBF50FD0B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03. Testing Layer", "03. Testing Layer", "{D63393ED-CE18-4AAF-8AED-E57FBF50FD0B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Tests", "tests\FaasNet.RaftConsensus.Tests\FaasNet.RaftConsensus.Tests.csproj", "{004750A0-51B3-4AF6-8526-4782D39FD4BB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Common", "src\Common\FaasNet.Common\FaasNet.Common.csproj", "{7FD1CA87-582E-4ABA-90EE-6DBC4AF208C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaasNet.RaftConsensus.Startup", "src\RaftConsensus\FaasNet.RaftConsensus.Startup\FaasNet.RaftConsensus.Startup.csproj", "{86307474-560B-47BB-BA03-6AFB530D0135}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Startup Layer", "02. Startup Layer", "{489FAF68-CABA-41BC-A650-911D3B225F1B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +37,14 @@ Global
 		{004750A0-51B3-4AF6-8526-4782D39FD4BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{004750A0-51B3-4AF6-8526-4782D39FD4BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{004750A0-51B3-4AF6-8526-4782D39FD4BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FD1CA87-582E-4ABA-90EE-6DBC4AF208C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FD1CA87-582E-4ABA-90EE-6DBC4AF208C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FD1CA87-582E-4ABA-90EE-6DBC4AF208C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FD1CA87-582E-4ABA-90EE-6DBC4AF208C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86307474-560B-47BB-BA03-6AFB530D0135}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86307474-560B-47BB-BA03-6AFB530D0135}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86307474-560B-47BB-BA03-6AFB530D0135}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86307474-560B-47BB-BA03-6AFB530D0135}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,6 +53,8 @@ Global
 		{0E063E33-1F05-405A-9C0B-71AE41F90867} = {5C5A8E54-DE20-4284-9FC5-F051B296A57A}
 		{2B97E828-2036-4255-9679-48AD308C1328} = {5C5A8E54-DE20-4284-9FC5-F051B296A57A}
 		{004750A0-51B3-4AF6-8526-4782D39FD4BB} = {D63393ED-CE18-4AAF-8AED-E57FBF50FD0B}
+		{7FD1CA87-582E-4ABA-90EE-6DBC4AF208C9} = {5C5A8E54-DE20-4284-9FC5-F051B296A57A}
+		{86307474-560B-47BB-BA03-6AFB530D0135} = {489FAF68-CABA-41BC-A650-911D3B225F1B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6A27C5EC-5C72-4BDD-908E-439CC843D258}

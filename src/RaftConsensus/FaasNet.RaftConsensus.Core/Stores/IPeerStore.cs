@@ -22,7 +22,8 @@ namespace FaasNet.RaftConsensus.Core.Stores
 
         public Task<IEnumerable<PeerInfo>> GetAll(CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            IEnumerable<PeerInfo> peerInfos = _peerInfos;
+            return Task.FromResult(peerInfos);
         }
     }
 }
