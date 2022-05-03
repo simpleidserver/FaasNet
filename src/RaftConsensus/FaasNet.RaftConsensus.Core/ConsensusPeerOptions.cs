@@ -1,24 +1,37 @@
-﻿namespace FaasNet.RaftConsensus.Core
+﻿using System;
+
+namespace FaasNet.RaftConsensus.Core
 {
     public class ConsensusPeerOptions
     {
         public ConsensusPeerOptions()
         {
+            Url = "localhost";
             Port = Constants.DefaultPort;
-            LeaderHeartbeatDurationMS = 5 * 1000;
-            ElectionCheckDurationMS = 5 * 1000;
+            CheckLeaderHeartbeatIntervalMS = new Interval { MinMS = 4000, MaxMS = 10000 };
+            LeaderHeartbeatExpirationDurationMS = 11000;
+            ElectionCheckDurationMS = 1000;
             CheckElectionTimerMS = 200;
+            CheckLeaderHeartbeatTimerMS = 200;
             LeaderHeartbeatTimerMS = 1000;
         }
 
+        /// <summary>
+        /// Default URL.
+        /// </summary>
+        public string Url { get; set; }
         /// <summary>
         /// Default port.
         /// </summary>
         public int Port { get; set; }
         /// <summary>
-        /// Expiration time MS - Heartbeat check.
+        /// Interval - Check heartbeat.
         /// </summary>
-        public int LeaderHeartbeatDurationMS { get; set; }
+        public Interval CheckLeaderHeartbeatIntervalMS { get; set; }
+        /// <summary>
+        /// Expiration - Heartbeat.
+        /// </summary>
+        public int LeaderHeartbeatExpirationDurationMS { get; set; }
         /// <summary>
         /// Expiration time MS - election check.
         /// </summary>
@@ -28,8 +41,23 @@
         /// </summary>
         public int CheckElectionTimerMS { get; set; }
         /// <summary>
+        /// Interval - Check hearbeat timer.
+        /// </summary>
+        public int CheckLeaderHeartbeatTimerMS { get; set; }
+        /// <summary>
         /// Interval - Send heartbeat.
         /// </summary>
         public int LeaderHeartbeatTimerMS { get; set; }
+    }
+
+    public class Interval
+    {
+        public int MinMS { get; set; }
+        public int MaxMS { get; set; }
+
+        public int GetValue()
+        {
+            return new Random().Next(MinMS, MaxMS);
+        }
     }
 }

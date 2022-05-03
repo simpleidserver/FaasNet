@@ -19,12 +19,23 @@ namespace FaasNet.RaftConsensus.Client
             UdpClient = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
         }
 
+        public ConsensusClient(string url, int port) : this(new IPEndPoint(ResolveIPAddress(url), port)) { }
+
         public UdpClient UdpClient { get; private set; }
 
-        public async Task LeaderHeartbeat(string termId, long termIndex, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task LeaderHeartbeat(string termId, long termIndex, string url, int port, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.LeaderHeartbeat(termId, termIndex);
+            var package = PackageRequestBuilder.LeaderHeartbeat(termId, termIndex, url, port);
+            package.Serialize(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await UdpClient.SendAsync(payload, payload.Count(), _target).WithCancellation(cancellationToken);
+        }
+
+        public async Task AppendEntry(string termId, string key, string value, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.AppendEntry(termId, 0, key, value);
             package.Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await UdpClient.SendAsync(payload, payload.Count(), _target).WithCancellation(cancellationToken);
@@ -33,6 +44,12 @@ namespace FaasNet.RaftConsensus.Client
         public void Dispose()
         {
             UdpClient?.Dispose();
+        }
+
+        public static IPAddress ResolveIPAddress(string url)
+        {
+            var hostEntry = Dns.GetHostEntry(url);
+            return hostEntry.AddressList.First(a => a.AddressFamily == AddressFamily.InterNetwork);
         }
     }
 }

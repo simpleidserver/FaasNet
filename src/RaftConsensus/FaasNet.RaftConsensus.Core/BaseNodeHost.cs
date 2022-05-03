@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -15,6 +16,7 @@ namespace FaasNet.RaftConsensus.Core
 {
     public interface INodeHost
     {
+        BlockingCollection<IPeerHost> Peers { get; }
         Task Start(CancellationToken cancellationToken);
         Task Stop();
     }
@@ -37,6 +39,7 @@ namespace FaasNet.RaftConsensus.Core
             _nodeId = Guid.NewGuid().ToString();
         }
 
+        public BlockingCollection<IPeerHost> Peers => _peers;
         public bool IsRunning { get; private set; }
         public UdpClient UdpServer { get; private set; }
         public event EventHandler<EventArgs> NodeStarted;

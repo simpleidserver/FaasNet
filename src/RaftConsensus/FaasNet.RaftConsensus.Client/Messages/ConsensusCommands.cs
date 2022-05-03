@@ -6,6 +6,7 @@
         public static ConsensusCommands VOTE_REQUEST = new ConsensusCommands(1, "VOTE_REQUEST");
         public static ConsensusCommands VOTE_RESULT = new ConsensusCommands(2, "VOTE_RESULT");
         public static ConsensusCommands EMPTY_RESULT = new ConsensusCommands(3, "EMPTY_RESULT");
+        public static ConsensusCommands APPEND_ENTRY_REQUEST = new ConsensusCommands(4, "APPEND_ENTRY_REQUEST");
 
         protected ConsensusCommands(int code)
         {

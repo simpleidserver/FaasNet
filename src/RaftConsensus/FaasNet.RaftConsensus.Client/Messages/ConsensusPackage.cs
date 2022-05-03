@@ -22,7 +22,6 @@
             var version = context.NextString();
             if (magicCode != MAGIC_CODE || version != PROTOCOL_VERSION) return null;
             var header = Header.Deserialize(context);
-            if (header.Command == ConsensusCommands.LEADER_HEARTBEAT_REQUEST) return new LeaderHeartbeatRequest { Header = header };
             if (header.Command == ConsensusCommands.VOTE_REQUEST) return new VoteRequest { Header = header };
             if (header.Command == ConsensusCommands.EMPTY_RESULT) return new EmptyResult { Header = header };
             if (header.Command == ConsensusCommands.VOTE_RESULT)
@@ -31,6 +30,18 @@
                 {
                     Header = header
                 };
+                result.Extract(context);
+                return result;
+            }
+            if(header.Command == ConsensusCommands.APPEND_ENTRY_REQUEST)
+            {
+                var result = new AppendEntryRequest { Header = header };
+                result.Extract(context);
+                return result;
+            }
+            if (header.Command == ConsensusCommands.LEADER_HEARTBEAT_REQUEST)
+            {
+                var result = new LeaderHeartbeatRequest { Header = header };
                 result.Extract(context);
                 return result;
             }
