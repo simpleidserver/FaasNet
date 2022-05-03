@@ -8,7 +8,8 @@ using System.Collections.Concurrent;
 var allNodes = new List<INodeHost>();
 var firstNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
 {
-    new PeerInfo { TermId = "termId", ConfirmedTermIndex = 0 }
+    new PeerInfo { TermId = "termId", ConfirmedTermIndex = 0 },
+    new PeerInfo { TermId = "secondTermId", ConfirmedTermIndex = 0 }
 }, 4001, new ConcurrentBag<ClusterNode>
 {
     new ClusterNode
@@ -19,7 +20,8 @@ var firstNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
 });
 var secondNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
 {
-    new PeerInfo { TermId = "termId", ConfirmedTermIndex = 0 }
+    new PeerInfo { TermId = "termId", ConfirmedTermIndex = 0 },
+    new PeerInfo { TermId = "secondTermId", ConfirmedTermIndex = 0 }
 }, 4002, new ConcurrentBag<ClusterNode>
 {
     new ClusterNode
@@ -31,48 +33,20 @@ var secondNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
 allNodes.Add(firstNode);
 allNodes.Add(secondNode);
 
-// Four different nodes.
-// Each node contains one partition.
 await firstNode.Start(CancellationToken.None);
 await secondNode.Start(CancellationToken.None);
 
-// Select the leader.
-IPeerHost? leaderHost = null;
-while (leaderHost == null)
-{
-    var leaderNodes = allNodes.SelectMany(n => n.Peers).Where(p => p.State == PeerStates.LEADER);
-    if (leaderNodes.Any() || leaderNodes.Count() == 1)
-    {
-        leaderHost = leaderNodes.First();
-    }
+// Wait leaders have been chosen.
+WaitOnlyOneLeader(allNodes, "termId");
+WaitOnlyOneLeader(allNodes, "secondTermId");
 
-    Thread.Sleep(200);
-}
-
-Thread.Sleep(2000);
-
-// Append entry.
+// Append logs.
 var client = new ConsensusClient("localhost", 4001);
 client.AppendEntry("termId", "Key", "value", CancellationToken.None).Wait();
-
-var isLogPropagated = false;
-while(!isLogPropagated)
-{
-    isLogPropagated = true;
-    foreach (var nodes in allNodes)
-    {
-        var logs = nodes.Peers.First().LogStore.GetAll(CancellationToken.None).Result;
-        if (!logs.Any() || logs.Count() != 1) isLogPropagated = false;
-    }
-
-    Thread.Sleep(200);
-}
-
-string ss = "";
-
-// Wait at least one leader is selected.
-#pragma warning disable 4014
-#pragma warning restore 4014
+client = new ConsensusClient("localhost", 4001);
+client.AppendEntry("secondTermId", "SecondKey", "value", CancellationToken.None).Wait();
+WaitLogs(allNodes, p => p.Info.TermId == "termId", l => l.Key == "Key");
+WaitLogs(allNodes, p => p.Info.TermId == "secondTermId", l => l.Key == "SecondKey");
 
 Console.WriteLine("Press Enter to quit the application");
 Console.ReadLine();
@@ -87,4 +61,40 @@ static INodeHost BuildNodeHost(ConcurrentBag<PeerInfo> peers, int port, Concurre
         .AddLogging(l => l.AddConsole())
         .BuildServiceProvider();
     return serviceProvider.GetService<INodeHost>();
+}
+
+static void WaitOnlyOneLeader(List<INodeHost> nodes, string termId)
+{
+    while (true)
+    {
+        var peers = nodes.SelectMany(n => n.Peers).Where(p => p.Info.TermId == termId);
+        var leaderNodes = peers.Where(p => p.State == PeerStates.LEADER);
+        var followerNodes = peers.Where(p => p.State == PeerStates.FOLLOWER && p.ActiveNode != null);
+        if (leaderNodes.Count() == 1 && followerNodes.Count() == peers.Count() - 1)
+        {
+            return;
+        }
+
+        Thread.Sleep(200);
+    }
+}
+
+static void WaitLogs(List<INodeHost> nodes, Func<IPeerHost, bool> callbackPeers, Func<LogRecord, bool> callbackLogRecords)
+{
+    var isLogPropagated = false;
+    while (!isLogPropagated)
+    {
+        isLogPropagated = true;
+        foreach (var node in nodes)
+        {
+            var filteredPeers = node.Peers.Where(callbackPeers);
+            foreach (var filteredPeer in filteredPeers)
+            {
+                var filteredLogs = filteredPeer.LogStore.GetAll(CancellationToken.None).Result.Where(callbackLogRecords);
+                if (!filteredLogs.Any()) isLogPropagated = false;
+            }
+        }
+
+        Thread.Sleep(200);
+    }
 }

@@ -27,6 +27,7 @@ namespace FaasNet.RaftConsensus.Core
         private readonly IPeerHostFactory _peerHostFactory;
         private readonly ILogger<BaseNodeHost> _logger;
         private readonly ConsensusPeerOptions _options;
+        private readonly UdpClient _proxyClient;
         private BlockingCollection<IPeerHost> _peers;
         private string _nodeId;
 
@@ -36,6 +37,7 @@ namespace FaasNet.RaftConsensus.Core
             _peerHostFactory = peerHostFactory;
             _logger = logger;
             _options = options.Value;
+            _proxyClient = new UdpClient();
             _nodeId = Guid.NewGuid().ToString();
         }
 
@@ -52,12 +54,13 @@ namespace FaasNet.RaftConsensus.Core
             _peers = new BlockingCollection<IPeerHost>();
             TokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var peerInfoLst = await _peerStore.GetAll(cancellationToken);
-            Parallel.ForEach(peerInfoLst, async (peerInfo) =>
+            foreach(var peerInfo in peerInfoLst)
             {
                 var peerHost = _peerHostFactory.Build();
                 await peerHost.Start(_nodeId, peerInfo, cancellationToken);
                 _peers.Add(peerHost);
-            });
+            }
+
             UdpServer = BuildUdpClient();
 #pragma warning disable 4014
             Task.Run(async () => await InternalRun(), cancellationToken);
@@ -73,6 +76,7 @@ namespace FaasNet.RaftConsensus.Core
                 await peer.Stop();
             });
             IsRunning = false;
+            _proxyClient.Close();
             UdpServer.Close();
             return Task.CompletedTask;
         }
@@ -103,10 +107,11 @@ namespace FaasNet.RaftConsensus.Core
                 var udpResult = await UdpServer.ReceiveAsync().WithCancellation(TokenSource.Token);
                 var bufferContext = new ReadBufferContext(udpResult.Buffer.ToArray());
                 var consensusPackage = ConsensusPackage.Deserialize(bufferContext);
+                if(Ignore(consensusPackage)) return;
                 var peerHost = _peers.First(p => p.Info.TermId == consensusPackage.Header.TermId);
-                await UdpServer.SendAsync(udpResult.Buffer, udpResult.Buffer.Count(), peerHost.UdpServerEdp);
-                var proxifiedUdpResult = await UdpServer.ReceiveAsync().WithCancellation(TokenSource.Token);
-                await UdpServer.SendAsync(proxifiedUdpResult.Buffer, proxifiedUdpResult.Buffer.Count(), udpResult.RemoteEndPoint);
+                await _proxyClient.SendAsync(udpResult.Buffer, udpResult.Buffer.Count(), peerHost.UdpServerEdp);
+                var proxifiedUdpResult = await _proxyClient.ReceiveAsync().WithCancellation(TokenSource.Token);
+                await _proxyClient.SendAsync(proxifiedUdpResult.Buffer, proxifiedUdpResult.Buffer.Count(), udpResult.RemoteEndPoint);
             }
             catch(Exception ex)
             {
@@ -117,6 +122,11 @@ namespace FaasNet.RaftConsensus.Core
         private UdpClient BuildUdpClient()
         {
             return new UdpClient(new IPEndPoint(IPAddress.Any, _options.Port));
+        }
+
+        private bool Ignore(ConsensusPackage consensusPkg)
+        {
+            return consensusPkg.Header.Command == ConsensusCommands.EMPTY_RESULT;
         }
     }
 }

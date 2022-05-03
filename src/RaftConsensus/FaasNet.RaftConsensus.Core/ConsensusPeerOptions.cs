@@ -8,8 +8,8 @@ namespace FaasNet.RaftConsensus.Core
         {
             Url = "localhost";
             Port = Constants.DefaultPort;
-            CheckLeaderHeartbeatIntervalMS = new Interval { MinMS = 4000, MaxMS = 10000 };
-            LeaderHeartbeatExpirationDurationMS = 11000;
+            CheckLeaderHeartbeatIntervalMS = new Interval { MinMS = 4000, MaxMS = 8000 };
+            LeaderHeartbeatExpirationDurationMS = 12000;
             ElectionCheckDurationMS = 1000;
             CheckElectionTimerMS = 200;
             CheckLeaderHeartbeatTimerMS = 200;

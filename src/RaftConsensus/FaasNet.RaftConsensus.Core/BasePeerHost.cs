@@ -32,6 +32,8 @@ namespace FaasNet.RaftConsensus.Core
         private readonly ConsensusPeerOptions _options;
         private readonly IClusterStore _clusterStore;
         private readonly ILogStore _logStore;
+        private readonly IPeerStore _peerStore;
+        private readonly string _peerId;
         private LeaderNode _activeLeader = null;
         private DateTime? _expirationCheckElectionDateTime = null;
         private int _nbPositiveVote = 0;
@@ -41,12 +43,14 @@ namespace FaasNet.RaftConsensus.Core
         private System.Timers.Timer _electionCheckTimer;
         private System.Timers.Timer _leaderHeartbeatTimer;
 
-        public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore)
+        public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore, IPeerStore peerStore)
         {
             _logger = logger;
             _options = options.Value;
             _clusterStore = clusterStore;
+            _peerStore = peerStore;
             _logStore = logStore;
+            _peerId = Guid.NewGuid().ToString();
         }
 
         public bool IsRunning { get; private set; }
@@ -64,7 +68,7 @@ namespace FaasNet.RaftConsensus.Core
         {
             if (info == null) throw new ArgumentNullException(nameof(info));
             if (IsRunning) throw new InvalidOperationException("The peer is already running");
-            _logger.LogInformation("Start peer");
+            _logger.LogInformation("Start peer {PeerId}", _peerId);
             TokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             SetFollower();
             _nodeId = nodeId;
@@ -90,7 +94,7 @@ namespace FaasNet.RaftConsensus.Core
         public Task Stop()
         {
             if (!IsRunning) throw new InvalidOperationException("The peer is not running");
-            _logger.LogInformation("Stop peer");
+            _logger.LogInformation("Stop peer {PeerId}", _peerId);
             TokenSource.Cancel();
             UdpServer.Close();
             StopCheckLeaderHeartbeat();
@@ -112,7 +116,6 @@ namespace FaasNet.RaftConsensus.Core
 
             if (_activeLeader != null && _activeLeader.IsActive(_options.LeaderHeartbeatExpirationDurationMS))
             {
-                _logger.LogInformation("{Node}:{TermId}, Leader heartbeat received {receptionDateTime}", _nodeId, Info.TermId, _activeLeader.LastLeaderHeartbeatReceivedDateTime.Value);
                 if (State == PeerStates.CANDIDATE) SetFollower();
                 StartCheckLeaderHeartbeat(false);
                 return;
@@ -137,12 +140,12 @@ namespace FaasNet.RaftConsensus.Core
             var currentDateTime = DateTime.UtcNow;
             if (_expirationCheckElectionDateTime != null && _expirationCheckElectionDateTime.Value > currentDateTime) return;
             // Start to vote.
-            _logger.LogInformation("{Node}:{TermId}, Start to vote", _nodeId, Info.TermId);
+            _logger.LogInformation("{Node}:{PeerId}:{TermId}, Start to vote", _nodeId, _peerId, Info.TermId);
             var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
             _quorum = (nodes.Count() / 2) + 1;
             if (_quorum == 0)
             {
-                _logger.LogError("{Node}:{TermId}, There is no enough nodes", _nodeId, Info.TermId);
+                _logger.LogError("{Node}:{PeerId}:{TermId}, There is no enough nodes", _nodeId, _peerId, Info.TermId);
                 return;
             }
 
@@ -164,12 +167,12 @@ namespace FaasNet.RaftConsensus.Core
 
         private Task CheckElection(object source, ElapsedEventArgs e)
         {
-            _logger.LogInformation("{Node}:{TermId}, Check election {State}, nb votes {NbVotes}", _nodeId, Info.TermId, State, _nbPositiveVote);
+            _logger.LogInformation("{Node}:{PeerId}:{TermId}, Check election {State}, nb votes {NbVotes}", _nodeId, _peerId, Info.TermId, State, _nbPositiveVote);
             if (State != PeerStates.CANDIDATE || _expirationCheckElectionDateTime == null) return Task.CompletedTask;
             var currentDateTime = DateTime.UtcNow;
             if (_nbPositiveVote >= _quorum)
             {
-                _logger.LogInformation("{Node}:{TermId}, Peer is now the leader !", _nodeId, Info.TermId);
+                _logger.LogInformation("{Node}:{PeerId}:{TermId}, Peer is now the leader !", _nodeId, _peerId, Info.TermId);
                 StartBroadcastLeaderHeartbeat();
                 SetLeader();
                 Info.TermIndex++;
@@ -178,7 +181,7 @@ namespace FaasNet.RaftConsensus.Core
 
             if (_expirationCheckElectionDateTime.Value <= currentDateTime)
             {
-                _logger.LogInformation("{Node}:{TermId}, Finish to check the election", _nodeId, Info.TermId);
+                _logger.LogInformation("{Node}:{PeerId}:{TermId}, Finish to check the election", _nodeId, _peerId, Info.TermId);
                 SetFollower();
                 return Task.CompletedTask;
             }
@@ -210,6 +213,7 @@ namespace FaasNet.RaftConsensus.Core
             {
                 var edp = new IPEndPoint(ConsensusClient.ResolveIPAddress(peer.Url), peer.Port);
                 await Send(pkg, edp, TokenSource.Token);
+                // TODO : Sync with other PEERS.
             }
 
             StartBroadcastLeaderHeartbeat();
@@ -327,8 +331,7 @@ namespace FaasNet.RaftConsensus.Core
 
         private Task<ConsensusPackage> Handle(LeaderHeartbeatRequest consensusPackage, CancellationToken cancellationToken)
         {
-            if (consensusPackage.Header.TermId != Info.TermId) return null;
-            _logger.LogInformation("{Node}:{TermId}, Heartbeat is received", _nodeId, Info.TermId);
+            if (consensusPackage.Header.TermId != Info.TermId) return Task.FromResult((ConsensusPackage)null);
             _activeLeader = new LeaderNode { Port = consensusPackage.Port, Url = consensusPackage.Url, LastLeaderHeartbeatReceivedDateTime = DateTime.UtcNow };
             if (State == PeerStates.CANDIDATE) SetFollower();
             return Task.FromResult((ConsensusPackage)null);
@@ -364,7 +367,7 @@ namespace FaasNet.RaftConsensus.Core
 
         private async Task<ConsensusPackage> Handle(AppendEntryRequest appendEntry, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("{Node}:{TermId}, Receive log {State}", _nodeId, Info.TermId, State);
+            _logger.LogInformation("{Node}:{PeerId}:{TermId}, Receive log {State}", _nodeId, _peerId, Info.TermId, State);
             // Broadcast to all nodes
             if (State == PeerStates.LEADER)
             {
@@ -417,8 +420,11 @@ namespace FaasNet.RaftConsensus.Core
 
         private async Task AppendEntry(AppendEntryRequest appendEntry, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("{Node}:{TermId}, Add log '{Entry}'", _nodeId, Info.TermId, appendEntry.Key);
+            _logger.LogInformation("{Node}:{PeerId}:{TermId}, Add log '{Entry}'", _nodeId, _peerId, Info.TermId, appendEntry.Key);
             _logStore.Add(new LogRecord { Key = appendEntry.Key, Value = appendEntry.Value });
+            Info.Upgrade();
+            _peerStore.Update(Info);
+            await _peerStore.SaveChanges(cancellationToken);
             await _logStore.SaveChanges(cancellationToken);
         }
     }

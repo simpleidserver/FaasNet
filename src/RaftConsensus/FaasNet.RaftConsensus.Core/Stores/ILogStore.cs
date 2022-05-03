@@ -17,9 +17,9 @@ namespace FaasNet.RaftConsensus.Core.Stores
     {
         private readonly ConcurrentBag<LogRecord> _logRecords;
 
-        public InMemoryLogStore(ConcurrentBag<LogRecord> logRecords)
+        public InMemoryLogStore()
         {
-            _logRecords = logRecords;
+            _logRecords = new ConcurrentBag<LogRecord>();
         }
 
         public void Add(LogRecord logRecord)

@@ -5,5 +5,11 @@
         public string TermId { get; set; }
         public long ConfirmedTermIndex { get; set; }
         public long TermIndex { get; set; }
+
+        public void Upgrade()
+        {
+            ConfirmedTermIndex++;
+            TermIndex = ConfirmedTermIndex;
+        }
     }
 }

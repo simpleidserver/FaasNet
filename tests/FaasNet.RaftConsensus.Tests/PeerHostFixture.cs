@@ -15,7 +15,7 @@ namespace FaasNet.RaftConsensus.Tests
     public class PeerHostFixture
     {
         [Fact]
-        public async Task When_AppendLog_Then_LogIsReplicated()
+        public async Task When_AppendLogInOnePartition_Then_LogIsReplicated()
         {
             // ARRANGE
             var firstNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
@@ -45,10 +45,62 @@ namespace FaasNet.RaftConsensus.Tests
             var allNodes = new List<INodeHost> { firstNode, secondNode };
 
             // ACT
-            WaitOnlyOneLeader(allNodes);
+            WaitOnlyOneLeader(allNodes, "termId");
             var client = new ConsensusClient("localhost", 4001);
             client.AppendEntry("termId", "Key", "value", CancellationToken.None).Wait();
             WaitLogs(allNodes, p => p.Info.TermId == "termId", l => l.Key == "Key");
+
+            // ASSERT
+            var firstPeerLogs = firstNode.Peers.First().LogStore.GetAll(CancellationToken.None).Result;
+            var secondPeerLogs = secondNode.Peers.First().LogStore.GetAll(CancellationToken.None).Result;
+            Assert.Single(firstPeerLogs);
+            Assert.Single(secondPeerLogs);
+            Assert.Equal("Key", firstPeerLogs.First().Key);
+            Assert.Equal("Key", secondPeerLogs.First().Key);
+            await firstNode.Stop();
+            await secondNode.Stop();
+        }
+
+        [Fact]
+        public async Task When_AppendLogInTwoPartitions_Then_LogIsReplicated()
+        {
+            // ARRANGE
+            var firstNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
+            {
+                new PeerInfo { TermId = "termId", TermIndex = 0 },
+                new PeerInfo { TermId = "secondTermId", TermIndex = 0 }
+            }, 4001, new ConcurrentBag<ClusterNode>
+            {
+                new ClusterNode
+                {
+                    Port = 4002,
+                    Url = "localhost"
+                }
+            });
+            var secondNode = BuildNodeHost(new ConcurrentBag<PeerInfo>
+            {
+                new PeerInfo { TermId = "termId", TermIndex = 0 },
+                new PeerInfo { TermId = "secondTermId", TermIndex = 0 }
+            }, 4002, new ConcurrentBag<ClusterNode>
+            {
+                new ClusterNode
+                {
+                    Port = 4001,
+                    Url = "localhost"
+                }
+            });
+            await firstNode.Start(CancellationToken.None);
+            await secondNode.Start(CancellationToken.None);
+            var allNodes = new List<INodeHost> { firstNode, secondNode };
+
+            // ACT
+            WaitOnlyOneLeader(allNodes, "termId");
+            WaitOnlyOneLeader(allNodes, "secondTermId");
+            var client = new ConsensusClient("localhost", 4001);
+            client.AppendEntry("termId", "Key", "value", CancellationToken.None).Wait();
+            client.AppendEntry("secondTermId", "Key", "value", CancellationToken.None).Wait();
+            WaitLogs(allNodes, p => p.Info.TermId == "termId", l => l.Key == "Key");
+            WaitLogs(allNodes, p => p.Info.TermId == "secondTermId", l => l.Key == "Key");
 
             // ASSERT
             var firstPeerLogs = firstNode.Peers.First().LogStore.GetAll(CancellationToken.None).Result;
@@ -72,11 +124,11 @@ namespace FaasNet.RaftConsensus.Tests
             return serviceProvider.GetService<INodeHost>();
         }
 
-        private static void WaitOnlyOneLeader(List<INodeHost> nodes)
+        private static void WaitOnlyOneLeader(List<INodeHost> nodes, string termId)
         {
             while (true)
             {
-                var peers = nodes.SelectMany(n => n.Peers);
+                var peers = nodes.SelectMany(n => n.Peers).Where(p => p.Info.TermId == termId);
                 var leaderNodes = peers.Where(p => p.State == PeerStates.LEADER);
                 var followerNodes = peers.Where(p => p.State == PeerStates.FOLLOWER && p.ActiveNode != null);
                 if (leaderNodes.Count() == 1 && followerNodes.Count() == peers.Count() - 1)

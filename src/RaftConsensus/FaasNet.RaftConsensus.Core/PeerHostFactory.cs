@@ -20,7 +20,7 @@ namespace FaasNet.RaftConsensus.Core
         public IPeerHost Build()
         {
             var scope = _serviceProvider.CreateScope();
-            return (IPeerHost)scope.ServiceProvider.GetService(typeof(IPeerHost));
+            return scope.ServiceProvider.GetRequiredService<IPeerHost>();
         }
     }
 }
