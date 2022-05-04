@@ -47,16 +47,16 @@ namespace FaasNet.RaftConsensus.Tests
             // ACT
             WaitOnlyOneLeader(allNodes, "termId");
             var client = new ConsensusClient("localhost", 4001);
-            client.AppendEntry("termId", "Key", "value", CancellationToken.None).Wait();
-            WaitLogs(allNodes, p => p.Info.TermId == "termId", l => l.Key == "Key");
+            client.AppendEntry("termId", "value", CancellationToken.None).Wait();
+            WaitLogs(allNodes, p => p.Info.TermId == "termId", l => l.Value == "value");
 
             // ASSERT
             var firstPeerLogs = firstNode.Peers.First().LogStore.GetAll(CancellationToken.None).Result;
             var secondPeerLogs = secondNode.Peers.First().LogStore.GetAll(CancellationToken.None).Result;
             Assert.Single(firstPeerLogs);
             Assert.Single(secondPeerLogs);
-            Assert.Equal("Key", firstPeerLogs.First().Key);
-            Assert.Equal("Key", secondPeerLogs.First().Key);
+            Assert.Equal("value", firstPeerLogs.First().Value);
+            Assert.Equal("value", secondPeerLogs.First().Value);
             await firstNode.Stop();
             await secondNode.Stop();
         }
@@ -97,18 +97,18 @@ namespace FaasNet.RaftConsensus.Tests
             WaitOnlyOneLeader(allNodes, "termId");
             WaitOnlyOneLeader(allNodes, "secondTermId");
             var client = new ConsensusClient("localhost", 4001);
-            client.AppendEntry("termId", "Key", "value", CancellationToken.None).Wait();
-            client.AppendEntry("secondTermId", "Key", "value", CancellationToken.None).Wait();
-            WaitLogs(allNodes, p => p.Info.TermId == "termId", l => l.Key == "Key");
-            WaitLogs(allNodes, p => p.Info.TermId == "secondTermId", l => l.Key == "Key");
+            client.AppendEntry("termId", "value", CancellationToken.None).Wait();
+            client.AppendEntry("secondTermId", "value", CancellationToken.None).Wait();
+            WaitLogs(allNodes, p => p.Info.TermId == "termId", l => l.Value == "value");
+            WaitLogs(allNodes, p => p.Info.TermId == "secondTermId", l => l.Value == "value");
 
             // ASSERT
             var firstPeerLogs = firstNode.Peers.First().LogStore.GetAll(CancellationToken.None).Result;
             var secondPeerLogs = secondNode.Peers.First().LogStore.GetAll(CancellationToken.None).Result;
             Assert.Single(firstPeerLogs);
             Assert.Single(secondPeerLogs);
-            Assert.Equal("Key", firstPeerLogs.First().Key);
-            Assert.Equal("Key", secondPeerLogs.First().Key);
+            Assert.Equal("value", firstPeerLogs.First().Value);
+            Assert.Equal("value", secondPeerLogs.First().Value);
             await firstNode.Stop();
             await secondNode.Stop();
         }

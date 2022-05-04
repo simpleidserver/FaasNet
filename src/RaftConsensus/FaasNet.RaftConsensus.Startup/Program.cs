@@ -42,11 +42,11 @@ WaitOnlyOneLeader(allNodes, "secondTermId");
 
 // Append logs.
 var client = new ConsensusClient("localhost", 4001);
-client.AppendEntry("termId", "Key", "value", CancellationToken.None).Wait();
+client.AppendEntry("termId", "Value", CancellationToken.None).Wait();
 client = new ConsensusClient("localhost", 4001);
-client.AppendEntry("secondTermId", "SecondKey", "value", CancellationToken.None).Wait();
-WaitLogs(allNodes, p => p.Info.TermId == "termId", l => l.Key == "Key");
-WaitLogs(allNodes, p => p.Info.TermId == "secondTermId", l => l.Key == "SecondKey");
+client.AppendEntry("secondTermId", "SecondValue", CancellationToken.None).Wait();
+WaitLogs(allNodes, p => p.Info.TermId == "termId", l => l.Value == "Value");
+WaitLogs(allNodes, p => p.Info.TermId == "secondTermId", l => l.Value == "SecondValue");
 
 Console.WriteLine("Press Enter to quit the application");
 Console.ReadLine();

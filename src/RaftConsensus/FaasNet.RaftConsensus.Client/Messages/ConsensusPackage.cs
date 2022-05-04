@@ -45,6 +45,12 @@
                 result.Extract(context);
                 return result;
             }
+            if(header.Command == ConsensusCommands.LEADER_HEARTBEAT_RESULT)
+            {
+                var result = new LeaderHeartbeatResult { Header = header };
+                result.Extract(context);
+                return result;
+            }
 
             return new ConsensusPackage
             {

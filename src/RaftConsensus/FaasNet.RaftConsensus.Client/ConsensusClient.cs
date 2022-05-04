@@ -32,10 +32,10 @@ namespace FaasNet.RaftConsensus.Client
             await UdpClient.SendAsync(payload, payload.Count(), _target).WithCancellation(cancellationToken);
         }
 
-        public async Task AppendEntry(string termId, string key, string value, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task AppendEntry(string termId, string value, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AppendEntry(termId, 0, key, value);
+            var package = PackageRequestBuilder.AppendEntry(termId, 0, value);
             package.Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await UdpClient.SendAsync(payload, payload.Count(), _target).WithCancellation(cancellationToken);

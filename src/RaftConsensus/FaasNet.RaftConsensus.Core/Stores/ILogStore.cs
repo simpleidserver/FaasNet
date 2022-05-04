@@ -1,6 +1,7 @@
 ﻿using FaasNet.RaftConsensus.Core.Models;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +10,7 @@ namespace FaasNet.RaftConsensus.Core.Stores
     public interface ILogStore
     {
         Task<IEnumerable<LogRecord>> GetAll(CancellationToken cancellationToken);
+        Task<LogRecord> Get(long index, CancellationToken cancellationToken);
         void Add(LogRecord logRecord);
         Task<int> SaveChanges(CancellationToken cancellationToken);
     }
@@ -25,6 +27,11 @@ namespace FaasNet.RaftConsensus.Core.Stores
         public void Add(LogRecord logRecord)
         {
             _logRecords.Add(logRecord);
+        }
+
+        public Task<LogRecord> Get(long index, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_logRecords.FirstOrDefault(lr => lr.Index == index));
         }
 
         public Task<IEnumerable<LogRecord>> GetAll(CancellationToken cancellationToken)

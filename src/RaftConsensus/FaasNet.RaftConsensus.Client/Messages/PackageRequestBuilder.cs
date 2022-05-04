@@ -20,13 +20,13 @@
             };
         }
 
-        public static ConsensusPackage AppendEntry(string termId, long termIndex, string key, string value)
+        public static ConsensusPackage AppendEntry(string termId, long termIndex, string value, bool isProxified = false)
         {
             return new AppendEntryRequest
             {
                 Header = new Header(ConsensusCommands.APPEND_ENTRY_REQUEST, termId, termIndex),
-                Key = key,
-                Value = value
+                Value = value,
+                IsProxified = isProxified
             };
         }
     }

@@ -1,6 +1,6 @@
 ﻿namespace FaasNet.RaftConsensus.Client.Messages
 {
-    public class LeaderHeartbeatRequest : ConsensusPackage
+    public class LeaderHeartbeatResult : ConsensusPackage
     {
         public string Url { get; set; }
         public int Port { get; set; }

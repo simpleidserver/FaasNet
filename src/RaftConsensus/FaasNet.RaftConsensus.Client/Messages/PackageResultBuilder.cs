@@ -18,5 +18,15 @@
                 Header = new Header(ConsensusCommands.EMPTY_RESULT, termId, termIndex)
             };
         }
+
+        public static ConsensusPackage LeaderHeartbeat(string url, int port, string termId, long termIndex)
+        {
+            return new LeaderHeartbeatResult
+            {
+                Header = new Header(ConsensusCommands.LEADER_HEARTBEAT_RESULT, termId, termIndex),
+                Port = port,
+                Url = url
+            };
+        }
     }
 }

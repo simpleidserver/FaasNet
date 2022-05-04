@@ -152,7 +152,7 @@ namespace FaasNet.RaftConsensus.Core
             _nbPositiveVote = 0;
             _expirationCheckElectionDateTime = DateTime.UtcNow.AddMilliseconds(_options.ElectionCheckDurationMS);
             SetCandidate();
-            Info.TermIndex = Info.ConfirmedTermIndex + 1;
+            Info.Increment();
             var pkg = PackageRequestBuilder.Vote(Info.TermId, Info.TermIndex);
             foreach (var peer in nodes)
             {
@@ -175,7 +175,6 @@ namespace FaasNet.RaftConsensus.Core
                 _logger.LogInformation("{Node}:{PeerId}:{TermId}, Peer is now the leader !", _nodeId, _peerId, Info.TermId);
                 StartBroadcastLeaderHeartbeat();
                 SetLeader();
-                Info.TermIndex++;
                 return Task.CompletedTask;
             }
 
@@ -211,9 +210,8 @@ namespace FaasNet.RaftConsensus.Core
             var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
             foreach (var peer in nodes)
             {
-                var edp = new IPEndPoint(ConsensusClient.ResolveIPAddress(peer.Url), peer.Port);
-                await Send(pkg, edp, TokenSource.Token);
-                // TODO : Sync with other PEERS.
+                var ipEdp = new IPEndPoint(ConsensusClient.ResolveIPAddress(peer.Url), peer.Port);
+                await Send(pkg, ipEdp, TokenSource.Token);
             }
 
             StartBroadcastLeaderHeartbeat();
@@ -237,7 +235,7 @@ namespace FaasNet.RaftConsensus.Core
         {
             if (State == PeerStates.FOLLOWER) return;
             State = PeerStates.FOLLOWER;
-            Info.TermIndex = Info.ConfirmedTermIndex;
+            Info.Reset();
             StartCheckLeaderHeartbeat(true);
             StopCheckElection();
             StopBroadcastLeaderHeartbeat();
@@ -318,6 +316,7 @@ namespace FaasNet.RaftConsensus.Core
                 if (consensusPackage.Header.Command == ConsensusCommands.VOTE_REQUEST) result = await Handle(consensusPackage as VoteRequest, cancellationToken);
                 if (consensusPackage.Header.Command == ConsensusCommands.VOTE_RESULT) result = await Handle(consensusPackage as VoteResult, cancellationToken);
                 if (consensusPackage.Header.Command == ConsensusCommands.APPEND_ENTRY_REQUEST) result = await Handle(consensusPackage as AppendEntryRequest, cancellationToken);
+                if (consensusPackage.Header.Command == ConsensusCommands.LEADER_HEARTBEAT_RESULT) await Handle(consensusPackage as LeaderHeartbeatResult, cancellationToken);
                 result = result == null ? PackageResultBuilder.Empty(Info.TermId, Info.TermIndex) : result;
                 await Send(result, udpResult.RemoteEndPoint, cancellationToken);
                 return true;
@@ -334,7 +333,7 @@ namespace FaasNet.RaftConsensus.Core
             if (consensusPackage.Header.TermId != Info.TermId) return Task.FromResult((ConsensusPackage)null);
             _activeLeader = new LeaderNode { Port = consensusPackage.Port, Url = consensusPackage.Url, LastLeaderHeartbeatReceivedDateTime = DateTime.UtcNow };
             if (State == PeerStates.CANDIDATE) SetFollower();
-            return Task.FromResult((ConsensusPackage)null);
+            return Task.FromResult(PackageResultBuilder.LeaderHeartbeat(_options.Url, _options.Port, Info.TermId, Info.ConfirmedTermIndex));
         }
 
         private Task<ConsensusPackage> Handle(VoteRequest voteRequest, CancellationToken cancellationToken)
@@ -368,22 +367,7 @@ namespace FaasNet.RaftConsensus.Core
         private async Task<ConsensusPackage> Handle(AppendEntryRequest appendEntry, CancellationToken cancellationToken)
         {
             _logger.LogInformation("{Node}:{PeerId}:{TermId}, Receive log {State}", _nodeId, _peerId, Info.TermId, State);
-            // Broadcast to all nodes
-            if (State == PeerStates.LEADER)
-            {
-                var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
-                appendEntry.IsBroadcasted = true;
-                await AppendEntry(appendEntry, cancellationToken);
-                foreach (var node in nodes)
-                {
-                    var edp = new IPEndPoint(ConsensusClient.ResolveIPAddress(node.Url), node.Port);
-                    await Send(appendEntry, edp, TokenSource.Token);
-                }
-                return null;
-            }
-
-            // Add a log entry
-            if(appendEntry.IsBroadcasted)
+            if (State == PeerStates.LEADER || appendEntry.IsProxified)
             {
                 await AppendEntry(appendEntry, cancellationToken);
                 return null;
@@ -398,6 +382,19 @@ namespace FaasNet.RaftConsensus.Core
             }
 
             return null;
+        }
+
+        private async Task Handle(LeaderHeartbeatResult leaderHeartbeatResult, CancellationToken cancellationToken)
+        {
+            if (State != PeerStates.LEADER) return;
+            if (Info.ConfirmedTermIndex > leaderHeartbeatResult.Header.TermIndex)
+            {
+                var index = leaderHeartbeatResult.Header.TermIndex + 1;
+                var log = await _logStore.Get(index, cancellationToken);
+                var pkg = PackageRequestBuilder.AppendEntry(Info.TermId, index, log.Value, true);
+                var edp = new IPEndPoint(ConsensusClient.ResolveIPAddress(leaderHeartbeatResult.Url), leaderHeartbeatResult.Port);
+                await Send(pkg, edp, TokenSource.Token);
+            }
         }
 
         #endregion
@@ -420,8 +417,9 @@ namespace FaasNet.RaftConsensus.Core
 
         private async Task AppendEntry(AppendEntryRequest appendEntry, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("{Node}:{PeerId}:{TermId}, Add log '{Entry}'", _nodeId, _peerId, Info.TermId, appendEntry.Key);
-            _logStore.Add(new LogRecord { Key = appendEntry.Key, Value = appendEntry.Value });
+            if (appendEntry.IsProxified && appendEntry.Header.TermIndex <= Info.ConfirmedTermIndex) return;
+            _logger.LogInformation("{Node}:{PeerId}:{TermId}:{State}, Add log", _nodeId, _peerId, Info.TermId, State);
+            _logStore.Add(new LogRecord {Value = appendEntry.Value, Index = Info.ConfirmedTermIndex + 1, InsertionDateTime = DateTime.UtcNow });
             Info.Upgrade();
             _peerStore.Update(Info);
             await _peerStore.SaveChanges(cancellationToken);
