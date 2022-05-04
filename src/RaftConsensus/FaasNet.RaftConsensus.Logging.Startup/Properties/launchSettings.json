@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FaasNet.RaftConsensus.Logging.Startup": {
+      "commandName": "Project",
+      "commandLineArgs": "env=firstNode"
+    }
+  }
+}

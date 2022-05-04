@@ -15,9 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Common", "src\Common\FaasNet.Common\FaasNet.Common.csproj", "{7FD1CA87-582E-4ABA-90EE-6DBC4AF208C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaasNet.RaftConsensus.Startup", "src\RaftConsensus\FaasNet.RaftConsensus.Startup\FaasNet.RaftConsensus.Startup.csproj", "{86307474-560B-47BB-BA03-6AFB530D0135}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Startup", "src\RaftConsensus\FaasNet.RaftConsensus.Startup\FaasNet.RaftConsensus.Startup.csproj", "{86307474-560B-47BB-BA03-6AFB530D0135}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Startup Layer", "02. Startup Layer", "{489FAF68-CABA-41BC-A650-911D3B225F1B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Logging.Startup", "src\RaftConsensus\FaasNet.RaftConsensus.Logging.Startup\FaasNet.RaftConsensus.Logging.Startup.csproj", "{49BAD3BA-5CA6-47EE-A372-EB5CA0F4510C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{86307474-560B-47BB-BA03-6AFB530D0135}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86307474-560B-47BB-BA03-6AFB530D0135}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86307474-560B-47BB-BA03-6AFB530D0135}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49BAD3BA-5CA6-47EE-A372-EB5CA0F4510C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49BAD3BA-5CA6-47EE-A372-EB5CA0F4510C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49BAD3BA-5CA6-47EE-A372-EB5CA0F4510C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49BAD3BA-5CA6-47EE-A372-EB5CA0F4510C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +61,7 @@ Global
 		{004750A0-51B3-4AF6-8526-4782D39FD4BB} = {D63393ED-CE18-4AAF-8AED-E57FBF50FD0B}
 		{7FD1CA87-582E-4ABA-90EE-6DBC4AF208C9} = {5C5A8E54-DE20-4284-9FC5-F051B296A57A}
 		{86307474-560B-47BB-BA03-6AFB530D0135} = {489FAF68-CABA-41BC-A650-911D3B225F1B}
+		{49BAD3BA-5CA6-47EE-A372-EB5CA0F4510C} = {489FAF68-CABA-41BC-A650-911D3B225F1B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6A27C5EC-5C72-4BDD-908E-439CC843D258}
