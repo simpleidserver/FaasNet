@@ -2,20 +2,12 @@
 {
     public static class PackageResultBuilder
     {
-        public static ConsensusPackage Vote(string termId, long termIndex, bool voteGranted)
+        public static ConsensusPackage Vote(string url, int port, string termId, long termIndex, bool voteGranted)
         {
             return new VoteResult
             {
-                Header = new Header(ConsensusCommands.VOTE_RESULT, termId, termIndex),
+                Header = new Header(ConsensusCommands.VOTE_RESULT, termId, termIndex, url, port),
                 VoteGranted = voteGranted
-            };
-        }
-
-        public static ConsensusPackage Empty(string termId, long termIndex)
-        {
-            return new EmptyResult
-            {
-                Header = new Header(ConsensusCommands.EMPTY_RESULT, termId, termIndex)
             };
         }
 
@@ -23,9 +15,7 @@
         {
             return new LeaderHeartbeatResult
             {
-                Header = new Header(ConsensusCommands.LEADER_HEARTBEAT_RESULT, termId, termIndex),
-                Port = port,
-                Url = url
+                Header = new Header(ConsensusCommands.LEADER_HEARTBEAT_RESULT, termId, termIndex, url, port)
             };
         }
     }

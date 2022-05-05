@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -16,6 +15,7 @@ namespace FaasNet.RaftConsensus.Core
 {
     public interface INodeHost
     {
+        string NodeId { get; }
         BlockingCollection<IPeerHost> Peers { get; }
         Task Start(CancellationToken cancellationToken);
         Task Stop();
@@ -44,6 +44,7 @@ namespace FaasNet.RaftConsensus.Core
         public BlockingCollection<IPeerHost> Peers => _peers;
         public bool IsRunning { get; private set; }
         public UdpClient UdpServer { get; private set; }
+        public string NodeId => _nodeId;
         public event EventHandler<EventArgs> NodeStarted;
         public event EventHandler<EventArgs> NodeStopped;
         protected CancellationTokenSource TokenSource { get; private set; }
@@ -107,11 +108,8 @@ namespace FaasNet.RaftConsensus.Core
                 var udpResult = await UdpServer.ReceiveAsync().WithCancellation(TokenSource.Token);
                 var bufferContext = new ReadBufferContext(udpResult.Buffer.ToArray());
                 var consensusPackage = ConsensusPackage.Deserialize(bufferContext);
-                if(Ignore(consensusPackage)) return;
                 var peerHost = _peers.First(p => p.Info.TermId == consensusPackage.Header.TermId);
                 await _proxyClient.SendAsync(udpResult.Buffer, udpResult.Buffer.Count(), peerHost.UdpServerEdp);
-                var proxifiedUdpResult = await _proxyClient.ReceiveAsync().WithCancellation(TokenSource.Token);
-                await _proxyClient.SendAsync(proxifiedUdpResult.Buffer, proxifiedUdpResult.Buffer.Count(), udpResult.RemoteEndPoint);
             }
             catch(Exception ex)
             {
@@ -122,11 +120,6 @@ namespace FaasNet.RaftConsensus.Core
         private UdpClient BuildUdpClient()
         {
             return new UdpClient(new IPEndPoint(IPAddress.Any, _options.Port));
-        }
-
-        private bool Ignore(ConsensusPackage consensusPkg)
-        {
-            return consensusPkg.Header.Command == ConsensusCommands.EMPTY_RESULT;
         }
     }
 }
