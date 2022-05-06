@@ -4,7 +4,6 @@ using FaasNet.EventMesh.Runtime.Stores;
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,7 +24,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         public Commands Command => Commands.HELLO_REQUEST;
 
-        public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
+        public async Task<Package> Run(Package package, CancellationToken cancellationToken)
         {
             var helloRequest = package as HelloRequest;
             Models.Vpn vpn = null;
@@ -57,7 +56,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 throw new RuntimeException(helloRequest.Header.Command, helloRequest.Header.Seq, Errors.NOT_AUTHORIZED);
             }
 
-            var sessionId = client.AddSession(sender,
+            var sessionId = client.AddSession(
                 helloRequest.UserAgent.Environment,
                 helloRequest.UserAgent.Pid,
                 helloRequest.UserAgent.Purpose,

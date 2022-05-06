@@ -3,7 +3,6 @@ using FaasNet.EventMesh.Client.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 
 namespace FaasNet.EventMesh.Runtime.Models
 {
@@ -19,22 +18,8 @@ namespace FaasNet.EventMesh.Runtime.Models
 
         #region Properties
 
-        public IPEndPoint Endpoint
-        {
-            get
-            {
-                return new IPEndPoint(new IPAddress(IPAddressData), Port);
-            }
-            set
-            {
-                Port = value.Port;
-                IPAddressData = value.Address.GetAddressBytes();
-            }
-        }
-
         public string Id { get; set; }
         public string Vpn { get; set; }
-        public byte[] IPAddressData { get; set; }
         public int Port { get; set; }
         public string Environment { get; set; }
         public int Pid { get; set; }
@@ -129,14 +114,13 @@ namespace FaasNet.EventMesh.Runtime.Models
 
         #endregion
 
-        public static ClientSession Create(IPEndPoint edp, string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, string vpn, ClientSessionTypes type, TimeSpan expirationTimeSpan, bool isSessionInfinite)
+        public static ClientSession Create(string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, string vpn, ClientSessionTypes type, TimeSpan expirationTimeSpan, bool isSessionInfinite)
         {
             var createDateTime = DateTime.UtcNow;
             var expirationDateTime = createDateTime.Add(expirationTimeSpan);
             var result = new ClientSession
             {
                 Id = Guid.NewGuid().ToString(),
-                Endpoint = edp,
                 Environment = env,
                 Vpn = vpn,
                 Pid = pid,

@@ -1,12 +1,12 @@
 ﻿namespace FaasNet.RaftConsensus.Client.Messages
 {
-    public static class PackageResultBuilder
+    public static class ConsensusPackageResultBuilder
     {
         public static ConsensusPackage Vote(string url, int port, string termId, long termIndex, bool voteGranted)
         {
             return new VoteResult
             {
-                Header = new Header(ConsensusCommands.VOTE_RESULT, termId, termIndex, url, port),
+                Header = new ConsensusHeader(ConsensusCommands.VOTE_RESULT, termId, termIndex, url, port),
                 VoteGranted = voteGranted
             };
         }
@@ -15,7 +15,7 @@
         {
             return new LeaderHeartbeatResult
             {
-                Header = new Header(ConsensusCommands.LEADER_HEARTBEAT_RESULT, termId, termIndex, url, port)
+                Header = new ConsensusHeader(ConsensusCommands.LEADER_HEARTBEAT_RESULT, termId, termIndex, url, port)
             };
         }
     }

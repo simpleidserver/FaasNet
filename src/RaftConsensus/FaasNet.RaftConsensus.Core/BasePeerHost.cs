@@ -167,7 +167,7 @@ namespace FaasNet.RaftConsensus.Core
             _expirationCheckElectionDateTime = DateTime.UtcNow.AddMilliseconds(_options.ElectionCheckDurationMS);
             SetCandidate();
             Info.Increment();
-            var pkg = PackageRequestBuilder.Vote(_options.Url, _options.Port, Info.TermId, Info.TermIndex);
+            var pkg = ConsensusPackageRequestBuilder.Vote(_options.Url, _options.Port, Info.TermId, Info.TermIndex);
             foreach (var peer in nodes)
             {
                 var edp = new IPEndPoint(ConsensusClient.ResolveIPAddress(peer.Url), peer.Port);
@@ -220,7 +220,7 @@ namespace FaasNet.RaftConsensus.Core
         private async Task BroadcastLeaderHeartbeat(object source, ElapsedEventArgs e)
         {
             if (State != PeerStates.LEADER) return;
-            var pkg = PackageRequestBuilder.LeaderHeartbeat(_options.Url, _options.Port, Info.TermId, Info.TermIndex);
+            var pkg = ConsensusPackageRequestBuilder.LeaderHeartbeat(_options.Url, _options.Port, Info.TermId, Info.TermIndex);
             var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
             foreach (var peer in nodes)
             {
@@ -355,7 +355,7 @@ namespace FaasNet.RaftConsensus.Core
             _activeLeader = new LeaderNode { Port = consensusPackage.Header.SourcePort, Url = consensusPackage.Header.SourceUrl, LastLeaderHeartbeatReceivedDateTime = DateTime.UtcNow };
             if (State == PeerStates.CANDIDATE) SetFollower();
             _logger.LogInformation("{Node}:{PeerId}:{TermId}:{State}, LearderHearbeatRequest {ConfirmedIndex}", _nodeId, _peerId, Info.TermId, State, Info.ConfirmedTermIndex);
-            return Task.FromResult(PackageResultBuilder.LeaderHeartbeat(_options.Url, _options.Port, Info.TermId, Info.ConfirmedTermIndex));
+            return Task.FromResult(ConsensusPackageResultBuilder.LeaderHeartbeat(_options.Url, _options.Port, Info.TermId, Info.ConfirmedTermIndex));
         }
 
         private Task<ConsensusPackage> Handle(VoteRequest voteRequest, CancellationToken cancellationToken)
@@ -377,7 +377,7 @@ namespace FaasNet.RaftConsensus.Core
                 }
             }
 
-            return Task.FromResult(PackageResultBuilder.Vote(_options.Url, _options.Port, Info.TermId, Info.TermIndex, isGranted));
+            return Task.FromResult(ConsensusPackageResultBuilder.Vote(_options.Url, _options.Port, Info.TermId, Info.TermIndex, isGranted));
         }
 
         private Task<ConsensusPackage> Handle(VoteResult voteResult, CancellationToken cancellationToken)
@@ -414,7 +414,7 @@ namespace FaasNet.RaftConsensus.Core
                 _logger.LogInformation("{Node}:{PeerId}:{TermId}, Receive heartbeat {ConfirmedTermIndex} > {TermIndex}", _nodeId, _peerId, Info.TermId, Info.ConfirmedTermIndex, leaderHeartbeatResult.Header.TermIndex);
                 var index = leaderHeartbeatResult.Header.TermIndex + 1;
                 var log = await _logStore.Get(index, cancellationToken);
-                var pkg = PackageRequestBuilder.AppendEntry(Info.TermId, index, log.Value, true);
+                var pkg = ConsensusPackageRequestBuilder.AppendEntry(Info.TermId, index, log.Value, true);
                 var edp = new IPEndPoint(ConsensusClient.ResolveIPAddress(leaderHeartbeatResult.Header.SourceUrl), leaderHeartbeatResult.Header.SourcePort);
                 await Send(pkg, edp, TokenSource.Token);
             }

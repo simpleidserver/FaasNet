@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.32328.378
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01. Core Layer", "01. Core Layer", "{6E495E0A-0DC8-4E42-8C58-3C48506D3D24}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Core Layer", "02. Core Layer", "{6E495E0A-0DC8-4E42-8C58-3C48506D3D24}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03. Testing Layer", "03. Testing Layer", "{2A14F697-FFC8-402F-82B4-8128FE897DC9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04. Testing Layer", "04. Testing Layer", "{2A14F697-FFC8-402F-82B4-8128FE897DC9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Startup Layer", "02. Startup Layer", "{20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03. Startup Layer", "03. Startup Layer", "{20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime.Tests", "tests\FaasNet.EventMesh.Runtime.Tests\FaasNet.EventMesh.Runtime.Tests.csproj", "{AA3F0C66-7575-47D9-B45E-6B38F78E632D}"
 EndProject
@@ -32,6 +32,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00. OpenTelemetry", "00. OpenTelemetry", "{3A7C8C56-A93C-4722-9397-EF82EB5E4655}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.IntegrationEvents", "src\EventMesh\FaasNet.EventMesh.IntegrationEvents\FaasNet.EventMesh.IntegrationEvents.csproj", "{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01. Raft consensus Layer", "01. Raft consensus Layer", "{7A13262A-D1E6-4210-BA95-03A0741CBFA4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Core", "src\RaftConsensus\FaasNet.RaftConsensus.Core\FaasNet.RaftConsensus.Core.csproj", "{69259CDF-1E32-4310-9155-BC095FFDBECD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Client", "src\RaftConsensus\FaasNet.RaftConsensus.Client\FaasNet.RaftConsensus.Client.csproj", "{9FD70B89-220D-47E7-958D-E10F493F9436}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +89,14 @@ Global
 		{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69259CDF-1E32-4310-9155-BC095FFDBECD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69259CDF-1E32-4310-9155-BC095FFDBECD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69259CDF-1E32-4310-9155-BC095FFDBECD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69259CDF-1E32-4310-9155-BC095FFDBECD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FD70B89-220D-47E7-958D-E10F493F9436}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FD70B89-220D-47E7-958D-E10F493F9436}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FD70B89-220D-47E7-958D-E10F493F9436}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FD70B89-220D-47E7-958D-E10F493F9436}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,6 +113,8 @@ Global
 		{33040232-E628-448D-B85F-BC68D757D24B} = {3A7C8C56-A93C-4722-9397-EF82EB5E4655}
 		{1186F448-3722-443F-A0C8-A0D4216D23D9} = {3A7C8C56-A93C-4722-9397-EF82EB5E4655}
 		{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
+		{69259CDF-1E32-4310-9155-BC095FFDBECD} = {7A13262A-D1E6-4210-BA95-03A0741CBFA4}
+		{9FD70B89-220D-47E7-958D-E10F493F9436} = {7A13262A-D1E6-4210-BA95-03A0741CBFA4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9BD3B8C-B2C9-468F-BF54-66BFE9B565EC}

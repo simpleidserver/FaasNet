@@ -7,7 +7,7 @@
 
         protected ConsensusPackage() { }
 
-        public Header Header { get; set; }
+        public ConsensusHeader Header { get; set; }
 
         public virtual void Serialize(WriteBufferContext context)
         {
@@ -21,7 +21,7 @@
             var magicCode = context.NextString();
             var version = context.NextString();
             if (magicCode != MAGIC_CODE || version != PROTOCOL_VERSION) return null;
-            var header = Header.Deserialize(context);
+            var header = ConsensusHeader.Deserialize(context);
             if (header.Command == ConsensusCommands.VOTE_REQUEST) return new VoteRequest { Header = header };
             if (header.Command == ConsensusCommands.LEADER_HEARTBEAT_REQUEST) return new LeaderHeartbeatRequest { Header = header };
             if (header.Command == ConsensusCommands.LEADER_HEARTBEAT_RESULT) return new LeaderHeartbeatResult { Header = header };

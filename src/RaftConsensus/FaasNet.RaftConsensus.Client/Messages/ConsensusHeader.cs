@@ -1,8 +1,8 @@
 ﻿namespace FaasNet.RaftConsensus.Client.Messages
 {
-    public class Header
+    public class ConsensusHeader
     {
-        public Header(ConsensusCommands command, string termId, long termIndex, string sourceUrl, int sourcePort)
+        public ConsensusHeader(ConsensusCommands command, string termId, long termIndex, string sourceUrl, int sourcePort)
         {
             Command = command;
             TermId = termId;
@@ -26,10 +26,10 @@
             context.WriteInteger(SourcePort);
         }
 
-        public static Header Deserialize(ReadBufferContext context)
+        public static ConsensusHeader Deserialize(ReadBufferContext context)
         {
             var cmd = ConsensusCommands.Deserialize(context);
-            return new Header(cmd, context.NextString(), context.NextLong(), context.NextString(), context.NextInt());
+            return new ConsensusHeader(cmd, context.NextString(), context.NextLong(), context.NextString(), context.NextInt());
         }
     }
 }

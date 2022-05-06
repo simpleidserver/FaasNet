@@ -22,7 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.AddLogging();
-            services.AddTransient<IRuntimeHost, RuntimeHost>();
+            services.AddTransient<IRuntimeHost, EventMeshPeer>();
             services.AddTransient<IMessageHandler, HeartbeatMessageHandler>();
             services.AddTransient<IMessageHandler, HelloMessageHandler>();
             services.AddTransient<IMessageHandler, SubscribeMessageHandler>();

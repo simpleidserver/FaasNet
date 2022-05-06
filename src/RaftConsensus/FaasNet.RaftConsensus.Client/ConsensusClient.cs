@@ -26,7 +26,7 @@ namespace FaasNet.RaftConsensus.Client
         public async Task LeaderHeartbeat(string termId, long termIndex, string url, int port, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.LeaderHeartbeat(url, port, termId, termIndex);
+            var package = ConsensusPackageRequestBuilder.LeaderHeartbeat(url, port, termId, termIndex);
             package.Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await UdpClient.SendAsync(payload, payload.Count(), _target).WithCancellation(cancellationToken);
@@ -35,7 +35,7 @@ namespace FaasNet.RaftConsensus.Client
         public async Task AppendEntry(string termId, string value, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AppendEntry(termId, 0, value);
+            var package = ConsensusPackageRequestBuilder.AppendEntry(termId, 0, value);
             package.Serialize(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await UdpClient.SendAsync(payload, payload.Count(), _target).WithCancellation(cancellationToken);

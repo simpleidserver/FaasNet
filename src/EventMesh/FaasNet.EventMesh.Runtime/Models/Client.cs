@@ -84,9 +84,9 @@ namespace FaasNet.EventMesh.Runtime.Models
             topic.Offset += nbEventsConsumed;
         }
 
-        public string AddSession(IPEndPoint endpoint, string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, bool isServer, string vpn, TimeSpan expirationTimeSpan, bool isSessionInfinite)
+        public string AddSession(string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, bool isServer, string vpn, TimeSpan expirationTimeSpan, bool isSessionInfinite)
         {
-            var session = ClientSession.Create(endpoint, env, pid, purpose, bufferCloudEvents, vpn, isServer ? ClientSessionTypes.SERVER : ClientSessionTypes.CLIENT, expirationTimeSpan, isSessionInfinite);
+            var session = ClientSession.Create(env, pid, purpose, bufferCloudEvents, vpn, isServer ? ClientSessionTypes.SERVER : ClientSessionTypes.CLIENT, expirationTimeSpan, isSessionInfinite);
             session.Activate();
             Sessions.Add(session);
             return session.Id;
