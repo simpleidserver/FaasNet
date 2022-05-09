@@ -14,6 +14,8 @@ namespace FaasNet.RaftConsensus.Core
             CheckElectionTimerMS = 200;
             CheckLeaderHeartbeatTimerMS = 200;
             LeaderHeartbeatTimerMS = 1000;
+            GossipTimerMS = 1000;
+            GossipMaxNodeBroadcast = 2;
         }
 
         /// <summary>
@@ -48,6 +50,14 @@ namespace FaasNet.RaftConsensus.Core
         /// Interval - Send heartbeat.
         /// </summary>
         public int LeaderHeartbeatTimerMS { get; set; }
+        /// <summary>
+        /// Interval - Send gossip heartbeat.
+        /// </summary>
+        public int GossipTimerMS { get; set; }
+        /// <summary>
+        /// Maximum number of nodes to broadcast the message.
+        /// </summary>
+        public int GossipMaxNodeBroadcast{ get; set; }
     }
 
     public class Interval

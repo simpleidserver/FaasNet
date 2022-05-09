@@ -1,9 +1,13 @@
-﻿namespace FaasNet.RaftConsensus.Client.Messages
+﻿namespace FaasNet.RaftConsensus.Client.Messages.Gossip
 {
     public class GossipCommands: BaseCommands
     {
         public static GossipCommands HEARTBEAT_REQUEST = new GossipCommands(0, "HEARTBEAT_REQUEST");
         public static GossipCommands HEARTBEAT_RESULT = new GossipCommands(1, "HEARTBEAT_RESULT");
+        public static GossipCommands SYNC_REQUEST = new GossipCommands(2, "SYNC_REQUEST");
+        public static GossipCommands SYNC_RESULT = new GossipCommands(3, "SYNC_RESULT");
+        public static GossipCommands UPDATE_NODE_STATE_REQUEST = new GossipCommands(4, "UPDATE_NODE_STATE_REQUEST");
+        public static GossipCommands JOIN_NODE_REQUEST = new GossipCommands(5, "JOIN_NODE_REQUEST");
 
         protected GossipCommands(int code)
         {

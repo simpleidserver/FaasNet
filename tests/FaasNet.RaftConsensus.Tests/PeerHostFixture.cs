@@ -118,7 +118,7 @@ namespace FaasNet.RaftConsensus.Tests
             var serviceProvider = new ServiceCollection()
                 .AddConsensusPeer(o => o.Port = port)
                 .SetPeers(peers)
-                .SetClusterNodes(clusterNodes)
+                .SetNodeStates(new ConcurrentBag<NodeState>(clusterNodes.Select(n => n.ToNodeState())))
                 .Services
                 .BuildServiceProvider();
             return serviceProvider.GetService<INodeHost>();

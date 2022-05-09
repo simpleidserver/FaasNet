@@ -5,7 +5,7 @@ using FaasNet.RaftConsensus.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
-int initPort = 4000;
+int seedPort = 4000, nbNodeStarted = 0;
 
 Console.WriteLine("How many nodes do you want to start ?");
 int nbNodes = int.Parse(Console.ReadLine());
@@ -22,26 +22,40 @@ do
 while (continueExecution);
 
 var allNodes = new List<INodeHost>();
-for (int i = 0; i < nbNodes; i++)
+for (int i = 0; i <= nbNodes; i++)
 {
-    var clusterNodes = new ConcurrentBag<ClusterNode>();
-    for (int y = 0; y < nbNodes; y++) if (y != i) clusterNodes.Add(new ClusterNode { Url = "localhost", Port = initPort + y });
+    var clusterNodes = new ConcurrentBag<NodeState>();
     allNodes.Add(BuildNodeHost(
         new ConcurrentBag<PeerInfo>(peerInfos.Select(p => new PeerInfo { TermId = p })),
-        initPort + i,
-        clusterNodes,
+        seedPort + i,
         Path.Combine(Directory.GetCurrentDirectory(), i + "-log-{0}.txt")));
 }
 
-foreach (var node in allNodes)
+for(int i =0; i <= nbNodes; i++)
 {
+    var node = allNodes[i];
     await node.Start(CancellationToken.None);
-    foreach(var peer in node.Peers)
+    foreach (var peer in node.Peers)
     {
         peer.PeerIsFollower += (s, e) => Console.WriteLine($"Node '{e.NodeId}', Peer {e.PeerId}, Term {e.TermId} is follower");
         peer.PeerIsCandidate += (s, e) => Console.WriteLine($"Node '{e.NodeId}', Peer {e.PeerId}, Term {e.TermId} is candidate");
         peer.PeerIsLeader += (s, e) => Console.WriteLine($"Node '{e.NodeId}', Peer {e.PeerId}, Term {e.TermId} is leader");
     }
+
+    node.NodeStarted += (s, e) =>
+    {
+        nbNodeStarted++;
+        if (nbNodeStarted == nbNodes + 1)
+        {
+            for(int y = 1; y <= nbNodes; y++)
+            {
+                using (var gossipClient = new GossipClient("localhost", seedPort))
+                {
+                    gossipClient.JoinNode("localhost", seedPort + 1);
+                }
+            }
+        }
+    };
 }
 
 continueExecution = true;
@@ -65,7 +79,7 @@ do
 
     Console.WriteLine("Please enter the message");
     string message = Console.ReadLine();
-    var consensusClient = new ConsensusClient("localhost", initPort);
+    var consensusClient = new ConsensusClient("localhost", seedPort);
     await consensusClient.AppendEntry(termId, message, CancellationToken.None);
 }
 while (continueExecution);
@@ -75,12 +89,12 @@ Console.ReadLine();
 
 foreach (var node in allNodes) await node.Stop();
 
-static INodeHost BuildNodeHost(ConcurrentBag<PeerInfo> peers, int port, ConcurrentBag<ClusterNode> clusterNodes, string logPath)
+static INodeHost BuildNodeHost(ConcurrentBag<PeerInfo> peers, int port, string logPath)
 {
     var serviceProvider = new ServiceCollection()
         .AddConsensusPeer(o => o.Port = port)
-        .SetPeers(peers)
-        .SetClusterNodes(clusterNodes)
+        // .SetPeers(peers)
+        // .SetNodeStates(nodeStates)
         .UseLogFileStore(o => o.LogFilePath = logPath)
         .Services
         // .AddLogging(l => l.AddConsole())

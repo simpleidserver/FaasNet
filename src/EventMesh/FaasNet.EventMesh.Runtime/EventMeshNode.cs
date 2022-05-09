@@ -18,7 +18,7 @@ namespace FaasNet.EventMesh.Runtime
     {
         private readonly IEnumerable<IMessageHandler> _messageHandlers;
 
-        public EventMeshNode(IEnumerable<IMessageHandler> messageHandlers, IPeerStore peerStore, IPeerHostFactory peerHostFactory, ILogger<BaseNodeHost> logger, IOptions<ConsensusPeerOptions> options) : base(peerStore, peerHostFactory, logger, options)
+        public EventMeshNode(IEnumerable<IMessageHandler> messageHandlers, IPeerStore peerStore, RaftConsensus.Core.Stores.INodeStateStore nodeStateStore, IPeerHostFactory peerHostFactory, ILogger<BaseNodeHost> logger, IOptions<ConsensusPeerOptions> options, IEnumerable<RaftConsensus.Core.INodeStateStore> requestHandlers) : base(peerStore, peerHostFactory, logger, options, requestHandlers)
         {
             _messageHandlers = messageHandlers;
         }
@@ -71,5 +71,7 @@ namespace FaasNet.EventMesh.Runtime
                 }
             }
         }
+
+        // Add state.
     }
 }

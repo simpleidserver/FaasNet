@@ -1,5 +1,6 @@
 ﻿using FaasNet.RaftConsensus.Client.Extensions;
 using FaasNet.RaftConsensus.Client.Messages;
+using FaasNet.RaftConsensus.Client.Messages.Consensus;
 using System;
 using System.Linq;
 using System.Net;
@@ -19,7 +20,7 @@ namespace FaasNet.RaftConsensus.Client
             UdpClient = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
         }
 
-        public ConsensusClient(string url, int port) : this(new IPEndPoint(ResolveIPAddress(url), port)) { }
+        public ConsensusClient(string url, int port) : this(new IPEndPoint(IPAddressHelper.ResolveIPAddress(url), port)) { }
 
         public UdpClient UdpClient { get; private set; }
 
@@ -44,12 +45,6 @@ namespace FaasNet.RaftConsensus.Client
         public void Dispose()
         {
             UdpClient?.Dispose();
-        }
-
-        public static IPAddress ResolveIPAddress(string url)
-        {
-            var hostEntry = Dns.GetHostEntry(url);
-            return hostEntry.AddressList.First(a => a.AddressFamily == AddressFamily.InterNetwork);
         }
     }
 }

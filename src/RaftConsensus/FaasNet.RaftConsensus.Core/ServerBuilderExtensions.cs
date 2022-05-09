@@ -16,10 +16,10 @@ namespace FaasNet.RaftConsensus.Core
             return serverBuilder;
         }
 
-        public static ServerBuilder SetClusterNodes(this ServerBuilder serverBuilder, ConcurrentBag<ClusterNode> nodes)
+        public static ServerBuilder SetNodeStates(this ServerBuilder serverBuilder, ConcurrentBag<NodeState> nodeStates)
         {
-            var clusterStore = new InMemoryClusterStore(nodes);
-            serverBuilder.Services.AddSingleton<IClusterStore>(clusterStore);
+            var nodeStateStore = new InMemoryNodeStateStore(nodeStates);
+            serverBuilder.Services.AddSingleton<INodeStateStore>(nodeStateStore);
             return serverBuilder;
         }
 

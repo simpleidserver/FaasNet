@@ -1,6 +1,7 @@
 ﻿using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Extensions;
 using FaasNet.RaftConsensus.Client.Messages;
+using FaasNet.RaftConsensus.Client.Messages.Consensus;
 using FaasNet.RaftConsensus.Core.Models;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
@@ -36,7 +37,7 @@ namespace FaasNet.RaftConsensus.Core
     {
         private readonly ILogger<BasePeerHost> _logger;
         private readonly ConsensusPeerOptions _options;
-        private readonly IClusterStore _clusterStore;
+        private readonly ClusterStore _clusterStore;
         private readonly ILogStore _logStore;
         private readonly IPeerStore _peerStore;
         private readonly string _peerId;
@@ -50,7 +51,7 @@ namespace FaasNet.RaftConsensus.Core
         private System.Timers.Timer _electionCheckTimer;
         private System.Timers.Timer _leaderHeartbeatTimer;
 
-        public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore, IPeerStore peerStore)
+        public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, ClusterStore clusterStore, ILogStore logStore, IPeerStore peerStore)
         {
             _logger = logger;
             _options = options.Value;
@@ -170,7 +171,7 @@ namespace FaasNet.RaftConsensus.Core
             var pkg = ConsensusPackageRequestBuilder.Vote(_options.Url, _options.Port, Info.TermId, Info.TermIndex);
             foreach (var peer in nodes)
             {
-                var edp = new IPEndPoint(ConsensusClient.ResolveIPAddress(peer.Url), peer.Port);
+                var edp = new IPEndPoint(IPAddressHelper.ResolveIPAddress(peer.Url), peer.Port);
                 await Send(pkg, edp, TokenSource.Token);
             }
         }
@@ -224,7 +225,7 @@ namespace FaasNet.RaftConsensus.Core
             var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
             foreach (var peer in nodes)
             {
-                var ipEdp = new IPEndPoint(ConsensusClient.ResolveIPAddress(peer.Url), peer.Port);
+                var ipEdp = new IPEndPoint(IPAddressHelper.ResolveIPAddress(peer.Url), peer.Port);
                 await Send(pkg, ipEdp, TokenSource.Token);
             }
 
@@ -338,7 +339,7 @@ namespace FaasNet.RaftConsensus.Core
                 if (consensusPackage.Header.Command == ConsensusCommands.APPEND_ENTRY_REQUEST) result = await Handle(consensusPackage as AppendEntryRequest, cancellationToken);
                 if (consensusPackage.Header.Command == ConsensusCommands.LEADER_HEARTBEAT_RESULT) await Handle(consensusPackage as LeaderHeartbeatResult, cancellationToken);
                 if (result == null) return false;
-                var ipEdp = new IPEndPoint(ConsensusClient.ResolveIPAddress(consensusPackage.Header.SourceUrl), consensusPackage.Header.SourcePort);
+                var ipEdp = new IPEndPoint(IPAddressHelper.ResolveIPAddress(consensusPackage.Header.SourceUrl), consensusPackage.Header.SourcePort);
                 await Send(result, ipEdp, cancellationToken);
                 return true;
             }
@@ -398,7 +399,7 @@ namespace FaasNet.RaftConsensus.Core
             // Transfer to leader
             if(_activeLeader != null && _activeLeader.IsActive(_options.LeaderHeartbeatExpirationDurationMS))
             {
-                var edp = new IPEndPoint(ConsensusClient.ResolveIPAddress(_activeLeader.Url), _activeLeader.Port);
+                var edp = new IPEndPoint(IPAddressHelper.ResolveIPAddress(_activeLeader.Url), _activeLeader.Port);
                 await Send(appendEntry, edp, cancellationToken);
                 return null;
             }
@@ -415,7 +416,7 @@ namespace FaasNet.RaftConsensus.Core
                 var index = leaderHeartbeatResult.Header.TermIndex + 1;
                 var log = await _logStore.Get(index, cancellationToken);
                 var pkg = ConsensusPackageRequestBuilder.AppendEntry(Info.TermId, index, log.Value, true);
-                var edp = new IPEndPoint(ConsensusClient.ResolveIPAddress(leaderHeartbeatResult.Header.SourceUrl), leaderHeartbeatResult.Header.SourcePort);
+                var edp = new IPEndPoint(IPAddressHelper.ResolveIPAddress(leaderHeartbeatResult.Header.SourceUrl), leaderHeartbeatResult.Header.SourcePort);
                 await Send(pkg, edp, TokenSource.Token);
             }
         }

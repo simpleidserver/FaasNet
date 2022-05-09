@@ -1,4 +1,4 @@
-﻿namespace FaasNet.RaftConsensus.Client.Messages
+﻿namespace FaasNet.RaftConsensus.Client.Messages.Gossip
 {
     public class GossipPackage
     {
@@ -24,6 +24,34 @@
             if(header.Command == GossipCommands.HEARTBEAT_RESULT)
             {
                 var result = new GossipHeartbeatResult { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if(header.Command == GossipCommands.SYNC_REQUEST)
+            {
+                var result = new GossipSyncStateRequest { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if (header.Command == GossipCommands.SYNC_RESULT)
+            {
+                var result = new GossipSyncStateResult { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if (header.Command == GossipCommands.UPDATE_NODE_STATE_REQUEST)
+            {
+                var result = new GossipUpdateNodeStateRequest { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if (header.Command == GossipCommands.JOIN_NODE_REQUEST)
+            {
+                var result = new GossipJoinNodeRequest { Header = header };
                 result.Extract(context);
                 return result;
             }

@@ -1,4 +1,4 @@
-﻿namespace FaasNet.RaftConsensus.Client.Messages
+﻿namespace FaasNet.RaftConsensus.Client.Messages.Consensus
 {
     public static class ConsensusPackageResultBuilder
     {
