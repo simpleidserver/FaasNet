@@ -37,7 +37,7 @@ namespace FaasNet.RaftConsensus.Core
     {
         private readonly ILogger<BasePeerHost> _logger;
         private readonly ConsensusPeerOptions _options;
-        private readonly ClusterStore _clusterStore;
+        private readonly IClusterStore _clusterStore;
         private readonly ILogStore _logStore;
         private readonly IPeerStore _peerStore;
         private readonly string _peerId;
@@ -51,7 +51,7 @@ namespace FaasNet.RaftConsensus.Core
         private System.Timers.Timer _electionCheckTimer;
         private System.Timers.Timer _leaderHeartbeatTimer;
 
-        public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, ClusterStore clusterStore, ILogStore logStore, IPeerStore peerStore)
+        public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore, IPeerStore peerStore)
         {
             _logger = logger;
             _options = options.Value;
@@ -157,6 +157,7 @@ namespace FaasNet.RaftConsensus.Core
             // Start to vote.
             _logger.LogInformation("{Node}:{PeerId}:{TermId}, Start to vote", _nodeId, _peerId, Info.TermId);
             var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
+            nodes = nodes.Where(n => n.Port != _options.Port || n.Url != _options.Url);
             _quorum = (nodes.Count() / 2) + 1;
             if (_quorum == 0)
             {

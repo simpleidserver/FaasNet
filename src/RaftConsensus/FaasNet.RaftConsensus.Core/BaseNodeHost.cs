@@ -123,7 +123,7 @@ namespace FaasNet.RaftConsensus.Core
             try
             {
                 var udpResult = await UdpServer.ReceiveAsync().WithCancellation(TokenSource.Token);
-                // if (await TryHandleConsensusRequest(udpResult)) return;
+                if (await TryHandleConsensusRequest(udpResult)) return;
                 if (await TryHandleGossipRequest(udpResult)) return;
                 await HandleUDPPackage(udpResult, TokenSource.Token);
             }

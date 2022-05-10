@@ -3,57 +3,36 @@ using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
 int seedPort = 4000;
-var allNodes = CreateNodes();
+var peerInfos = AddPeers();
+var allNodes = CreateNodes(peerInfos);
 await StartNodes(allNodes);
 await DisplayMenu(allNodes);
-
-/*
-var peerInfos = new ConcurrentBag<string>();
-do
-{
-    Console.WriteLine("Enter 'Q' to stop adding new peer or enter the name of your peer");
-    string str = Console.ReadLine();
-    continueExecution = str != "Q";
-    if (continueExecution) peerInfos.Add(str);
-}
-while (continueExecution);
-
-continueExecution = true;
-do
-{
-    Console.WriteLine("Enter 'Q' to stop sending message / Enter 'inf' to display the status of the peers / Enter the name of the partition");
-    string termId = Console.ReadLine();
-    continueExecution = termId != "Q";
-    if(termId == "inf")
-    {
-        foreach(var node in allNodes)
-        {
-            foreach(var peer in node.Peers)
-            {
-                Console.WriteLine($"Node '{node.NodeId}', Peer '{peer.PeerId}', TermId '{peer.Info.TermId}', TermIndex '{peer.Info.ConfirmedTermIndex}', State '{peer.State}");
-            }
-        }
-
-        continue;
-    }
-
-    Console.WriteLine("Please enter the message");
-    string message = Console.ReadLine();
-    var consensusClient = new ConsensusClient("localhost", seedPort);
-    await consensusClient.AppendEntry(termId, message, CancellationToken.None);
-}
-while (continueExecution);
-*/
-
 Console.WriteLine("Press Enter to quit the application");
 Console.ReadLine();
 
 foreach (var node in allNodes) await node.Stop();
 
-ICollection<INodeHost> CreateNodes()
+ConcurrentBag<string> AddPeers()
+{
+    var continueExecution = true;
+    var peerInfos = new ConcurrentBag<string>();
+    do
+    {
+        Console.WriteLine("Enter 'Q' to stop adding new peer");
+        Console.WriteLine("Enter the name of your peer");
+        string str = Console.ReadLine();
+        continueExecution = str != "Q";
+        if (continueExecution) peerInfos.Add(str);
+    }
+    while (continueExecution);
+    return peerInfos;
+}
+
+ICollection<INodeHost> CreateNodes(ConcurrentBag<string> peerInfos)
 {
     Console.WriteLine("How many nodes do you want to start ?");
     int nbNodes = int.Parse(Console.ReadLine());
@@ -61,7 +40,7 @@ ICollection<INodeHost> CreateNodes()
     for (int i = 0; i <= nbNodes; i++)
     {
         allNodes.Add(BuildNodeHost(
-            new ConcurrentBag<PeerInfo>(/*peerInfos.Select(p => new PeerInfo { TermId = p })*/),
+            new ConcurrentBag<PeerInfo>(peerInfos.Select(p => new PeerInfo { TermId = p })),
             seedPort + i,
             Path.Combine(Directory.GetCurrentDirectory(), i + "-log-{0}.txt"),
             i == 0));
@@ -104,10 +83,15 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
     var continueExecution = true;
     do
     {
-        Console.WriteLine("Enter 'Q' to stop execution / Enter 'inf' to display the states / Start a new node 'addnode' / Stop one node 'stopnode'");
-        string termId = Console.ReadLine();
-        continueExecution = termId != "Q";
-        if (termId == "inf")
+        Console.WriteLine("Enter 'Q' to stop execution");
+        Console.WriteLine("Enter 'states' to display the states");
+        Console.WriteLine("Enter 'peers' to display the status of the peers");
+        Console.WriteLine("Enter 'appendentry' to append an entry");
+        Console.WriteLine("Start a new node 'addnode'");
+        Console.WriteLine("Stop one node 'stopnode'");
+        string menuId = Console.ReadLine();
+        continueExecution = menuId != "Q";
+        if (menuId == "states")
         {
             foreach (var node in nodes)
             {
@@ -121,10 +105,10 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
             continue;
         }
 
-        if(termId == "addnode")
+        if(menuId == "addnode")
         {
             var newNode = BuildNodeHost(
-                new ConcurrentBag<PeerInfo>(/*peerInfos.Select(p => new PeerInfo { TermId = p })*/),
+                new ConcurrentBag<PeerInfo>(peerInfos.Select(p => new PeerInfo { TermId = p })),
                 seedPort + nodes.Count(),
                 Path.Combine(Directory.GetCurrentDirectory(), nodes.Count() + "-log-{0}.txt"),
                 false);
@@ -133,12 +117,34 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
             continue;
         }
 
-        if (termId == "stopnode")
+        if (menuId == "stopnode")
         {
             Console.WriteLine("Enter the index");
             int index = int.Parse(Console.ReadLine());
             await nodes.ElementAt(index).Stop();
             continue;
+        }
+
+        if (menuId == "peers")
+        {
+            foreach (var node in allNodes)
+            {
+                foreach (var peer in node.Peers)
+                {
+                    Console.WriteLine($"Node '{node.NodeId}', Peer '{peer.PeerId}', TermId '{peer.Info.TermId}', TermIndex '{peer.Info.ConfirmedTermIndex}', State '{peer.State}");
+                }
+            }
+            continue;
+        }
+
+        if(menuId == "appendentry")
+        {
+            Console.WriteLine("Enter the termid");
+            string termId = Console.ReadLine();
+            Console.WriteLine("Please enter the message");
+            string message = Console.ReadLine();
+            var consensusClient = new ConsensusClient("localhost", seedPort);
+            await consensusClient.AppendEntry(termId, message, CancellationToken.None);
         }
     }
     while (continueExecution);
@@ -149,9 +155,8 @@ INodeHost BuildNodeHost(ConcurrentBag<PeerInfo> peers, int port, string logPath,
     var services = new ServiceCollection()
         .AddConsensusPeer(o => o.Port = port);
     if (isSeed) services.SetNodeStates(new ConcurrentBag<NodeState> { new ClusterNode { Port = 4000, Url = "localhost" }.ToNodeState() });
-        // .SetPeers(peers)
-        // .SetNodeStates(nodeStates)
     var serviceProvider = services.UseLogFileStore(o => o.LogFilePath = logPath)
+        .SetPeers(peers)
         .Services
         // .AddLogging(l => l.AddConsole())
         .BuildServiceProvider();
