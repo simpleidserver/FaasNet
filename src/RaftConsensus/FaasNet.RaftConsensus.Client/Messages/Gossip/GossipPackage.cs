@@ -56,6 +56,13 @@
                 return result;
             }
 
+            if (header.Command == GossipCommands.UPDATE_CLUSTER_NODES_REQUEST)
+            {
+                var result = new GossipUpdateClusterRequest { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
             return new GossipPackage { Header = header };
         }
     }

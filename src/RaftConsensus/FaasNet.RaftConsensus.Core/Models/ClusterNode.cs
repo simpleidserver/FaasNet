@@ -1,4 +1,5 @@
 ﻿using FaasNet.RaftConsensus.Client;
+using System;
 using System.Text.Json;
 
 namespace FaasNet.RaftConsensus.Core.Models
@@ -12,7 +13,7 @@ namespace FaasNet.RaftConsensus.Core.Models
         {
             return new NodeState
             {
-                EntityId = string.Empty,
+                EntityId = Guid.NewGuid().ToString(),
                 EntityType = StandardEntityTypes.Cluster,
                 EntityVersion = 0,
                 Value = JsonSerializer.Serialize(this)

@@ -31,5 +31,14 @@ namespace FaasNet.RaftConsensus.Client.Messages.Gossip
                 Url = url
             };
         }
+
+        public static GossipPackage UpdateClusterNodes(string url, int port, ICollection<ClusterNodeMessage> clusterNodes)
+        {
+            return new GossipUpdateClusterRequest
+            {
+                Header = new GossipHeader(GossipCommands.UPDATE_CLUSTER_NODES_REQUEST, url, port),
+                Nodes = clusterNodes
+            };
+        }
     }
 }

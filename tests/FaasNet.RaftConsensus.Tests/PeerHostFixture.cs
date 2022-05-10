@@ -14,6 +14,37 @@ namespace FaasNet.RaftConsensus.Tests
 {
     public class PeerHostFixture
     {
+        #region Gossip
+
+        [Fact]
+        public async Task When_JoinNodeToCluster_Then_StorageIsUpdated()
+        {
+            // ARRANGE
+            var seedNode = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4000, new ConcurrentBag<ClusterNode>(), true);
+            var firstNode = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4001, new ConcurrentBag<ClusterNode>());
+            await seedNode.Start(CancellationToken.None);
+            await firstNode.Start(CancellationToken.None);
+            WaitNodeIsStarted(seedNode);
+            WaitNodeIsStarted(firstNode);
+
+            // ACT
+            using (var gossipClient = new GossipClient("localhost", 4000)) await gossipClient.JoinNode("localhost", 4001);
+            var seedNodeStates = await WaitEntityTypes(seedNode, (nodes) => nodes.Count() == 2);
+            var firstNodeStates = await WaitEntityTypes(firstNode, (nodes) => nodes.Count() == 2);
+
+            // ASSERT
+            Assert.Equal(2, seedNodeStates.Count());
+            Assert.Equal(2, firstNodeStates.Count());
+            Assert.Equal(StandardEntityTypes.Cluster, seedNodeStates.ElementAt(0).EntityType);
+            Assert.Equal(StandardEntityTypes.Cluster, seedNodeStates.ElementAt(1).EntityType);
+            Assert.Equal("{\"Url\":\"localhost\",\"Port\":4000}", seedNodeStates.ElementAt(1).Value);
+            Assert.Equal("{\"Url\":\"localhost\",\"Port\":4001}", seedNodeStates.ElementAt(0).Value);
+            Assert.Equal("{\"Url\":\"localhost\",\"Port\":4000}", firstNodeStates.ElementAt(1).Value);
+            Assert.Equal("{\"Url\":\"localhost\",\"Port\":4001}", firstNodeStates.ElementAt(0).Value);
+        }
+
+        #endregion
+
         [Fact]
         public async Task When_AppendLogInOnePartition_Then_LogIsReplicated()
         {
@@ -113,15 +144,35 @@ namespace FaasNet.RaftConsensus.Tests
             await secondNode.Stop();
         }
 
-        private static INodeHost BuildNodeHost(ConcurrentBag<PeerInfo> peers, int port, ConcurrentBag<ClusterNode> clusterNodes)
+        private static INodeHost BuildNodeHost(ConcurrentBag<PeerInfo> peers, int port, ConcurrentBag<ClusterNode> clusterNodes, bool isSeed = false)
         {
-            var serviceProvider = new ServiceCollection()
-                .AddConsensusPeer(o => o.Port = port)
-                .SetPeers(peers)
-                .SetNodeStates(new ConcurrentBag<NodeState>(clusterNodes.Select(n => n.ToNodeState())))
+            var serviceCollection = new ServiceCollection()
+                .AddConsensusPeer(o => o.Port = port);
+            if (isSeed) serviceCollection.SetNodeStates(new ConcurrentBag<NodeState>(new List<NodeState> { new ClusterNode { Port = port, Url = "localhost" }.ToNodeState() }));
+            var serviceProvider = serviceCollection.SetPeers(peers)
+                // .SetNodeStates(new ConcurrentBag<NodeState>(clusterNodes.Select(n => n.ToNodeState())))
                 .Services
                 .BuildServiceProvider();
             return serviceProvider.GetService<INodeHost>();
+        }
+
+        private static void WaitNodeIsStarted(INodeHost node)
+        {
+            while(true)
+            {
+                if (node.IsStarted) return;
+                Thread.Sleep(200);
+            }
+        }
+
+        private static async Task<IEnumerable<NodeState>> WaitEntityTypes(INodeHost node, Func<IEnumerable<NodeState>, bool> callback)
+        {
+            while(true)
+            {
+                var entityTypes = await node.NodeStateStore.GetAllEntityTypes(CancellationToken.None);
+                if (callback(entityTypes)) return entityTypes;
+                Thread.Sleep(200);
+            }
         }
 
         private static void WaitOnlyOneLeader(List<INodeHost> nodes, string termId)

@@ -19,22 +19,21 @@ namespace FaasNet.RaftConsensus.Core.Stores
     public class ClusterStore : IClusterStore
     {
         private readonly INodeStateStore _nodeStateStore;
-        private readonly ConsensusPeerOptions _options;
 
-        public ClusterStore(INodeStateStore nodeStateStore, IOptions<ConsensusPeerOptions> options)
+        public ClusterStore(INodeStateStore nodeStateStore)
         {
             _nodeStateStore = nodeStateStore;
-            _options = options.Value;
         }
 
         public async Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken)
         {
             var lastEntityTypes = await _nodeStateStore.GetAllLastEntityTypes(StandardEntityTypes.Cluster, cancellationToken);
+            lastEntityTypes = lastEntityTypes.OrderBy(e => e.EntityVersion);
             var result = lastEntityTypes.Select(et => JsonSerializer.Deserialize<ClusterNode>(et.Value, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             }));
-            return result.Where(r => r.Url != _options.Url || r.Port != _options.Port);
+            return result;
         }
 
         public async Task<ClusterNode> GetNode(string url, int port, CancellationToken cancellationToken)
@@ -43,10 +42,12 @@ namespace FaasNet.RaftConsensus.Core.Stores
             return allNodes.FirstOrDefault(n => n.Port == port && n.Url == url);
         }
 
-        public Task AddNode(ClusterNode node, CancellationToken cancellationToken)
+        public async Task AddNode(ClusterNode node, CancellationToken cancellationToken)
         {
-            _nodeStateStore.Add(node.ToNodeState());
-            return Task.CompletedTask;
+            var lastEntityType = await _nodeStateStore.GetLastEntityType(StandardEntityTypes.Cluster, cancellationToken);
+            var nodeState = node.ToNodeState();
+            if (lastEntityType != null) nodeState.EntityVersion = lastEntityType.EntityVersion + 1;
+            _nodeStateStore.Add(nodeState);
         }
     }
 }

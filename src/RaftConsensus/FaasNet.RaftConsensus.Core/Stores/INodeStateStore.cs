@@ -13,6 +13,7 @@ namespace FaasNet.RaftConsensus.Core.Stores
         void Add(NodeState nodeState);
         void Update(NodeState nodeState);
         Task<int> SaveChanges(CancellationToken cancellationToken);
+        Task<IEnumerable<NodeState>> GetAllEntityTypes(CancellationToken cancellationToken);
         Task<IEnumerable<NodeState>> GetAllLastEntityTypes(CancellationToken cancellationToken);
         Task<IEnumerable<NodeState>> GetAllLastEntityTypes(string entityType, CancellationToken cancellationToken);
         Task<IEnumerable<NodeState>> GetAllSpecificEntityTypes(List<(string EntityType, int EntityVersion)> parameter, CancellationToken cancellationToken);
@@ -22,6 +23,11 @@ namespace FaasNet.RaftConsensus.Core.Stores
     public class InMemoryNodeStateStore : INodeStateStore
     {
         private readonly ConcurrentBag<NodeState> _nodeStates;
+
+        public InMemoryNodeStateStore() 
+        {
+            _nodeStates = new ConcurrentBag<NodeState>();
+        }
 
         public InMemoryNodeStateStore(ConcurrentBag<NodeState> nodeStates)
         {
@@ -36,6 +42,12 @@ namespace FaasNet.RaftConsensus.Core.Stores
         public void Update(NodeState nodeState)
         {
             _nodeStates.Remove(nodeState);
+        }
+
+        public Task<IEnumerable<NodeState>> GetAllEntityTypes(CancellationToken cancellationToken)
+        {
+            IEnumerable<NodeState> result = _nodeStates.OrderByDescending(ns => ns.EntityVersion);
+            return Task.FromResult(result);
         }
 
         public Task<IEnumerable<NodeState>> GetAllLastEntityTypes(CancellationToken cancellationToken)
@@ -53,7 +65,7 @@ namespace FaasNet.RaftConsensus.Core.Stores
         public Task<IEnumerable<NodeState>> GetAllSpecificEntityTypes(List<(string EntityType, int EntityVersion)> parameter, CancellationToken cancellationToken)
         {
             IEnumerable<NodeState> result = _nodeStates.Where(ns => parameter.Any(p => p.EntityType == ns.EntityType && p.EntityVersion == ns.EntityVersion));
-            throw new System.NotImplementedException();
+            return Task.FromResult(result);
         }
 
         public Task<NodeState> GetLastEntityType(string entityType, CancellationToken cancellationToken)

@@ -8,6 +8,7 @@
         public static GossipCommands SYNC_RESULT = new GossipCommands(3, "SYNC_RESULT");
         public static GossipCommands UPDATE_NODE_STATE_REQUEST = new GossipCommands(4, "UPDATE_NODE_STATE_REQUEST");
         public static GossipCommands JOIN_NODE_REQUEST = new GossipCommands(5, "JOIN_NODE_REQUEST");
+        public static GossipCommands UPDATE_CLUSTER_NODES_REQUEST = new GossipCommands(6, "UPDATE_CLUSTER_NODES_REQUEST");
 
         protected GossipCommands(int code)
         {

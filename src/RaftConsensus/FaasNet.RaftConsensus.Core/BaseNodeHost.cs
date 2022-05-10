@@ -22,7 +22,10 @@ namespace FaasNet.RaftConsensus.Core
     {
         event EventHandler<EventArgs> NodeStarted;
         string NodeId { get; }
+        int Port { get; }
+        bool IsStarted { get; }
         BlockingCollection<IPeerHost> Peers { get; }
+        INodeStateStore NodeStateStore { get; }
         Task Start(CancellationToken cancellationToken);
         Task Stop();
     }
@@ -38,6 +41,7 @@ namespace FaasNet.RaftConsensus.Core
         private System.Timers.Timer _gossipTimer;
         private BlockingCollection<IPeerHost> _peers;
         private string _nodeId;
+        private bool _isStarted = false;
 
         public BaseNodeHost(IPeerStore peerStore, IPeerHostFactory peerHostFactory, INodeStateStore nodeStateStore, IClusterStore clusterStore, ILogger<BaseNodeHost> logger, IOptions<ConsensusPeerOptions> options)
         {
@@ -52,6 +56,9 @@ namespace FaasNet.RaftConsensus.Core
         }
 
         public BlockingCollection<IPeerHost> Peers => _peers;
+        public INodeStateStore NodeStateStore => _nodeStateStore;
+        public bool IsStarted => _isStarted;
+        public int Port => _options.Port;
         public bool IsRunning { get; private set; }
         public UdpClient UdpServer { get; private set; }
         public ILogger<BaseNodeHost> Logger { get; private set; }
@@ -82,6 +89,7 @@ namespace FaasNet.RaftConsensus.Core
             IsRunning = false;
             _proxyClient.Close();
             UdpServer.Close();
+            _isStarted = false;
             return Task.CompletedTask;
         }
 
@@ -90,6 +98,7 @@ namespace FaasNet.RaftConsensus.Core
             try
             {
                 if (NodeStarted != null) NodeStarted(this, new EventArgs());
+                _isStarted = true;
                 while (true)
                 {
                     TokenSource.Token.ThrowIfCancellationRequested();
@@ -187,6 +196,7 @@ namespace FaasNet.RaftConsensus.Core
         private async Task BroadcastGossipHeartbeat(object source, ElapsedEventArgs e)
         {
             var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
+            nodes = nodes.Where(n => n.Port != _options.Port || n.Url != _options.Url);
             var totalNodes = nodes.Count();
             var nbNodes = _options.GossipMaxNodeBroadcast;
             if(totalNodes < nbNodes) nbNodes = totalNodes;
@@ -254,10 +264,24 @@ namespace FaasNet.RaftConsensus.Core
         private async Task<GossipPackage> HandleGossipRequest(GossipJoinNodeRequest request)
         {
             var cluster = await _clusterStore.GetNode(request.Url, request.Port, TokenSource.Token);
-            if (cluster == null) await _clusterStore.AddNode(new ClusterNode { Port = request.Port, Url = request.Url }, TokenSource.Token);
-            using (var gossipClient = new GossipClient(request.Url, request.Port))
+            if (cluster == null) 
             {
-                // await gossipClient.JoinNode(_options.Url, _options.Port, true, TokenSource.Token);
+                await _clusterStore.AddNode(new ClusterNode { Port = request.Port, Url = request.Url }, TokenSource.Token);
+                var allNodes = await _clusterStore.GetAllNodes(TokenSource.Token);
+                using (var gossipClient = new GossipClient(request.Url, request.Port))
+                {
+                    await gossipClient.UpdateClusterNodes(_options.Url, _options.Port, allNodes.Select(n => new ClusterNodeMessage { Port = n.Port, Url = n.Url }).ToList(), TokenSource.Token);
+                }
+            }
+
+            return null;
+        }
+
+        private async Task<GossipPackage> HandleGossipRequest(GossipUpdateClusterRequest request)
+        {
+            foreach(var node in request.Nodes)
+            {
+                await _clusterStore.AddNode(new ClusterNode { Port = node.Port, Url = node.Url }, TokenSource.Token);
             }
 
             return null;
