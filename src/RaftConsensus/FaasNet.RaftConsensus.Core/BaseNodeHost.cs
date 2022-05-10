@@ -247,6 +247,8 @@ namespace FaasNet.RaftConsensus.Core
             var states = await _nodeStateStore.GetAllLastEntityTypes(TokenSource.Token);
             var stateToBeSynced = states.Where(s => request.States.Any(st => st.EntityType == s.EntityType && s.EntityVersion < st.EntityVersion))
                 .ToDictionary(s => s.EntityType, s => s.EntityVersion + 1);
+            var missingStates = request.States.Where(rs => !states.Any(s => s.EntityType == rs.EntityType));
+            foreach (var missingState in missingStates) stateToBeSynced.Add(missingState.EntityType, missingState.EntityVersion);
             if (!stateToBeSynced.Any()) return null;
             return GossipPackageRequestBuilder.Sync(_options.Url, _options.Port, stateToBeSynced);
         }

@@ -70,6 +70,32 @@ namespace FaasNet.RaftConsensus.Tests
             Assert.Equal(4001, clusterNodes.First().Node.Port);
         }
 
+        [Fact]
+        public async Task When_StateIsAdded_Then_StorageIsUpdated()
+        {
+            // ARRANGE
+            var seedNode = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4000, new ConcurrentBag<ClusterNode>(), true);
+            var firstNode = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4001, new ConcurrentBag<ClusterNode>());
+            await seedNode.Start(CancellationToken.None);
+            await firstNode.Start(CancellationToken.None);
+            WaitNodeIsStarted(seedNode);
+            WaitNodeIsStarted(firstNode);
+            using (var gossipClient = new GossipClient("localhost", 4000)) await gossipClient.JoinNode("localhost", 4001);
+            var seedNodeStates = await WaitEntityTypes(seedNode, (nodes) => nodes.Count() == 2);
+            var firstNodeStates = await WaitEntityTypes(firstNode, (nodes) => nodes.Count() == 2);
+
+            // ACT
+            using (var gossipClient = new GossipClient("localhost", 4000)) await gossipClient.UpdateNodeState("Client", "id", "value");
+            var seedClient = (await WaitEntityTypes(seedNode, (nodes) => nodes.Any(n => n.EntityType == "Client"))).First(c => c.EntityType == "Client");
+            var firstNodeClient = (await WaitEntityTypes(firstNode, (nodes) => nodes.Any(n => n.EntityType == "Client"))).First(c => c.EntityType == "Client");
+
+            // ASSERT
+            Assert.NotNull(seedClient);
+            Assert.NotNull(firstNodeClient);
+            Assert.Equal("Client", seedClient.EntityType);
+            Assert.Equal("Client", firstNodeClient.EntityType);
+        }
+
         #endregion
 
         [Fact]

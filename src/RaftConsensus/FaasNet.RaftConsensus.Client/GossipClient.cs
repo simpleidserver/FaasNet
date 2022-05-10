@@ -43,6 +43,12 @@ namespace FaasNet.RaftConsensus.Client
             return Send(package, cancellationToken: cancellationToken);
         }
 
+        public Task UpdateNodeState(string entityType, string entityId, string value, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var package = GossipPackageRequestBuilder.UpdateNodeState(string.Empty, 0, entityType, entityId, value);
+            return Send(package, cancellationToken: cancellationToken);
+        }
+
         public async Task Send(GossipPackage gossipPackage, int? timeoutMS = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();

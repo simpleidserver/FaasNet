@@ -40,5 +40,16 @@ namespace FaasNet.RaftConsensus.Client.Messages.Gossip
                 Nodes = clusterNodes
             };
         }
+
+        public static GossipPackage UpdateNodeState(string url, int port, string entityType, string entityId, string value)
+        {
+            return new GossipUpdateNodeStateRequest
+            {
+                Header = new GossipHeader(GossipCommands.UPDATE_NODE_STATE_REQUEST, url, port),
+                EntityId = entityId,
+                EntityType = entityType,
+                Value = value
+            };
+        }
     }
 }

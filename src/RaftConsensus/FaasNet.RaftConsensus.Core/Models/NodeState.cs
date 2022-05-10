@@ -1,5 +1,8 @@
-﻿namespace FaasNet.RaftConsensus.Core.Models
+﻿using System.Diagnostics;
+
+namespace FaasNet.RaftConsensus.Core.Models
 {
+    [DebuggerDisplay("EntityType = {EntityType}, EntityId = {EntityId}, Value = {Value}")]
     public class NodeState
     {
         public string EntityType { get; set; }
