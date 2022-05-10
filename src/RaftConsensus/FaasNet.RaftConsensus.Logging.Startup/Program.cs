@@ -104,7 +104,7 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
     var continueExecution = true;
     do
     {
-        Console.WriteLine("Enter 'Q' to stop execution / Enter 'inf' to display the states / Start a new node 'addnode'");
+        Console.WriteLine("Enter 'Q' to stop execution / Enter 'inf' to display the states / Start a new node 'addnode' / Stop one node 'stopnode'");
         string termId = Console.ReadLine();
         continueExecution = termId != "Q";
         if (termId == "inf")
@@ -130,6 +130,15 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
                 false);
             await StartNode(newNode, nodes.Count());
             nodes.Add(newNode);
+            continue;
+        }
+
+        if (termId == "stopnode")
+        {
+            Console.WriteLine("Enter the index");
+            int index = int.Parse(Console.ReadLine());
+            await nodes.ElementAt(index).Stop();
+            continue;
         }
     }
     while (continueExecution);

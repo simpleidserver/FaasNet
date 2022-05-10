@@ -1,6 +1,5 @@
 ﻿using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.Models;
-using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;

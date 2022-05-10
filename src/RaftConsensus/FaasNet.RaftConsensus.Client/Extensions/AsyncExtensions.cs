@@ -16,7 +16,6 @@ namespace FaasNet.RaftConsensus.Client.Extensions
                 {
                     task, tcs.Task
                 };
-
                 Task delayTask = null;
                 if (timeOutMilliSeconds != null)
                 {

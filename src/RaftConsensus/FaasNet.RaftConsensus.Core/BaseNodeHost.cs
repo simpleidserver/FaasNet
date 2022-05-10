@@ -25,6 +25,7 @@ namespace FaasNet.RaftConsensus.Core
         int Port { get; }
         bool IsStarted { get; }
         BlockingCollection<IPeerHost> Peers { get; }
+        BlockingCollection<UnreachableClusterNode> UnreachableClusterNodes { get; }
         INodeStateStore NodeStateStore { get; }
         Task Start(CancellationToken cancellationToken);
         Task Stop();
@@ -42,6 +43,7 @@ namespace FaasNet.RaftConsensus.Core
         private BlockingCollection<IPeerHost> _peers;
         private string _nodeId;
         private bool _isStarted = false;
+        private BlockingCollection<UnreachableClusterNode> _clusterNodes;
 
         public BaseNodeHost(IPeerStore peerStore, IPeerHostFactory peerHostFactory, INodeStateStore nodeStateStore, IClusterStore clusterStore, ILogger<BaseNodeHost> logger, IOptions<ConsensusPeerOptions> options)
         {
@@ -56,7 +58,9 @@ namespace FaasNet.RaftConsensus.Core
         }
 
         public BlockingCollection<IPeerHost> Peers => _peers;
+        public BlockingCollection<UnreachableClusterNode> UnreachableClusterNodes => _clusterNodes;
         public INodeStateStore NodeStateStore => _nodeStateStore;
+        public IClusterStore ClusterStore => _clusterStore;
         public bool IsStarted => _isStarted;
         public int Port => _options.Port;
         public bool IsRunning { get; private set; }
@@ -71,6 +75,7 @@ namespace FaasNet.RaftConsensus.Core
         {
             if (IsRunning) throw new InvalidOperationException("The node is already running");
             _peers = new BlockingCollection<IPeerHost>();
+            _clusterNodes = new BlockingCollection<UnreachableClusterNode>();
             TokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             await RunConsensusPeers(cancellationToken);
             StartGossipTimer();
@@ -174,7 +179,7 @@ namespace FaasNet.RaftConsensus.Core
             if(packageResult == null) return true;
             using(var client = new GossipClient(gossipPackage.Header.SourceUrl, gossipPackage.Header.SourcePort))
             {
-                await client.Send(packageResult, TokenSource.Token);
+                await client.Send(packageResult, cancellationToken: TokenSource.Token);
             }
 
             return true;
@@ -205,9 +210,20 @@ namespace FaasNet.RaftConsensus.Core
             {
                 var rndNodeIndex = rnd.Next(0, totalNodes);
                 var selectedNode = nodes.ElementAt(rndNodeIndex);
-                using (var client = new GossipClient(selectedNode.Url, selectedNode.Port))
+                if (_clusterNodes.Any(n => n.Node.Url == selectedNode.Url && n.Node.Port == selectedNode.Port && n.ReactivationDateTime > DateTime.UtcNow)) continue;
+                try
                 {
-                    await client.Heartbeat(_options.Url, _options.Port, TokenSource.Token);
+                    using (var client = new GossipClient(selectedNode.Url, selectedNode.Port))
+                    {
+                        await client.Heartbeat(_options.Url, _options.Port, _options.GossipTimeoutHeartbeatMS, TokenSource.Token);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Logger.LogError(ex.ToString());
+                    var clusterNode = _clusterNodes.FirstOrDefault(c => c.Node.Port == selectedNode.Port && c.Node.Url == selectedNode.Url);
+                    if (clusterNode == null) _clusterNodes.Add(new UnreachableClusterNode(selectedNode, DateTime.UtcNow.AddMilliseconds(_options.GossipClusterNodeDeactivationDurationMS)));
+                    else clusterNode.ReactivationDateTime = DateTime.UtcNow.AddMilliseconds(_options.GossipClusterNodeDeactivationDurationMS);
                 }
             }
 
@@ -288,5 +304,17 @@ namespace FaasNet.RaftConsensus.Core
         }
 
         #endregion
+    }
+
+    public class UnreachableClusterNode
+    {
+        public UnreachableClusterNode(ClusterNode node, DateTime reactivationDateTime)
+        {
+            Node = node;
+            ReactivationDateTime = reactivationDateTime;
+        }
+
+        public ClusterNode Node { get; private set; }
+        public DateTime ReactivationDateTime { get; set; }
     }
 }

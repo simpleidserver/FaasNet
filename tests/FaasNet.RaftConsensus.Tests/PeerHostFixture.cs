@@ -31,6 +31,8 @@ namespace FaasNet.RaftConsensus.Tests
             using (var gossipClient = new GossipClient("localhost", 4000)) await gossipClient.JoinNode("localhost", 4001);
             var seedNodeStates = await WaitEntityTypes(seedNode, (nodes) => nodes.Count() == 2);
             var firstNodeStates = await WaitEntityTypes(firstNode, (nodes) => nodes.Count() == 2);
+            await seedNode.Stop();
+            await firstNode.Stop();
 
             // ASSERT
             Assert.Equal(2, seedNodeStates.Count());
@@ -41,6 +43,31 @@ namespace FaasNet.RaftConsensus.Tests
             Assert.Equal("{\"Url\":\"localhost\",\"Port\":4001}", seedNodeStates.ElementAt(0).Value);
             Assert.Equal("{\"Url\":\"localhost\",\"Port\":4000}", firstNodeStates.ElementAt(1).Value);
             Assert.Equal("{\"Url\":\"localhost\",\"Port\":4001}", firstNodeStates.ElementAt(0).Value);
+        }
+
+        [Fact]
+        public async Task When_NodeIsStopped_Then_NodeBecomeUnreachable()
+        {
+            // ARRANGE
+            var seedNode = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4000, new ConcurrentBag<ClusterNode>(), true);
+            var firstNode = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4001, new ConcurrentBag<ClusterNode>());
+            await seedNode.Start(CancellationToken.None);
+            await firstNode.Start(CancellationToken.None);
+            WaitNodeIsStarted(seedNode);
+            WaitNodeIsStarted(firstNode);
+            using (var gossipClient = new GossipClient("localhost", 4000)) await gossipClient.JoinNode("localhost", 4001);
+            var seedNodeStates = await WaitEntityTypes(seedNode, (nodes) => nodes.Count() == 2);
+            var firstNodeStates = await WaitEntityTypes(firstNode, (nodes) => nodes.Count() == 2);
+
+            // ACT
+            await firstNode.Stop();
+            var clusterNodes = WaitUnreachableClusterNodes(seedNode, (un) => un.Count() == 1);
+            await seedNode.Stop();
+
+            // ASSERT
+            Assert.Single(clusterNodes);
+            Assert.Equal("localhost", clusterNodes.First().Node.Url);
+            Assert.Equal(4001, clusterNodes.First().Node.Port);
         }
 
         #endregion
@@ -171,6 +198,15 @@ namespace FaasNet.RaftConsensus.Tests
             {
                 var entityTypes = await node.NodeStateStore.GetAllEntityTypes(CancellationToken.None);
                 if (callback(entityTypes)) return entityTypes;
+                Thread.Sleep(200);
+            }
+        }
+
+        private static IEnumerable<UnreachableClusterNode> WaitUnreachableClusterNodes(INodeHost node, Func<IEnumerable<UnreachableClusterNode>, bool> callback)
+        {
+            while(true)
+            {
+                if (callback(node.UnreachableClusterNodes)) return node.UnreachableClusterNodes.ToArray();
                 Thread.Sleep(200);
             }
         }

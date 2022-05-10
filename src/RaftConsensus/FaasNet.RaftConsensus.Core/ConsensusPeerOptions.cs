@@ -16,6 +16,8 @@ namespace FaasNet.RaftConsensus.Core
             LeaderHeartbeatTimerMS = 1000;
             GossipTimerMS = 1000;
             GossipMaxNodeBroadcast = 2;
+            GossipTimeoutHeartbeatMS = 2000;
+            GossipClusterNodeDeactivationDurationMS = 3000;
         }
 
         /// <summary>
@@ -55,9 +57,17 @@ namespace FaasNet.RaftConsensus.Core
         /// </summary>
         public int GossipTimerMS { get; set; }
         /// <summary>
-        /// Maximum number of nodes to broadcast the message.
+        /// Gossip - Maximum number of nodes to broadcast the message.
         /// </summary>
         public int GossipMaxNodeBroadcast{ get; set; }
+        /// <summary>
+        /// Gossip - Heartbeat request expire after MS.
+        /// </summary>
+        public int GossipTimeoutHeartbeatMS { get; set; }
+        /// <summary>
+        /// Gossip - When cluster node is not reachable then deactivate the node.
+        /// </summary>
+        public int GossipClusterNodeDeactivationDurationMS { get; set; }
     }
 
     public class Interval

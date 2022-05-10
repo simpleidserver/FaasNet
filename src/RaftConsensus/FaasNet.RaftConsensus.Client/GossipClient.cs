@@ -25,30 +25,31 @@ namespace FaasNet.RaftConsensus.Client
 
         public UdpClient UdpClient { get; private set; }
 
-        public Task Heartbeat(string url, int port, CancellationToken cancellationToken = default(CancellationToken))
+        public Task Heartbeat(string url, int port, int? timeout, CancellationToken cancellationToken = default(CancellationToken))
         {
             var package = GossipPackageRequestBuilder.Heartbeat(url, port);
-            return Send(package, cancellationToken);
-        }
-
-        public async Task Send(GossipPackage gossipPackage, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var writeCtx = new WriteBufferContext();
-            gossipPackage.Serialize(writeCtx);
-            var payload = writeCtx.Buffer.ToArray();
-            await UdpClient.SendAsync(payload, payload.Count(), _target).WithCancellation(cancellationToken);
+            return Send(package, timeout, cancellationToken);
         }
 
         public Task JoinNode(string url, int port, CancellationToken cancellationToken = default(CancellationToken))
         {
             var package = GossipPackageRequestBuilder.AddNode(url, port);
-            return Send(package, cancellationToken);
+            return Send(package, cancellationToken: cancellationToken);
         }
 
         public Task UpdateClusterNodes(string url, int port, ICollection<ClusterNodeMessage> clusterNodes, CancellationToken cancellationToken = default(CancellationToken))
         {
             var package = GossipPackageRequestBuilder.UpdateClusterNodes(url, port, clusterNodes);
-            return Send(package, cancellationToken);
+            return Send(package, cancellationToken: cancellationToken);
+        }
+
+        public async Task Send(GossipPackage gossipPackage, int? timeoutMS = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            gossipPackage.Serialize(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await UdpClient.SendAsync(payload, payload.Count(), _target).WithCancellation(cancellationToken, timeoutMS);
+            if (UdpClient.Available == 1) throw new TimeoutException();
         }
 
         public void Dispose()
