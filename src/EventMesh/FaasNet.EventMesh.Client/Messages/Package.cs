@@ -40,6 +40,16 @@ namespace FaasNet.EventMesh.Client.Messages
                 return result;
             }
 
+            if (Commands.SUBSCRIBE_RESPONSE == header.Command)
+            {
+                var result = new SubscriptionResult
+                {
+                    Header = header
+                };
+                result.Extract(context);
+                return result;
+            }
+
             if (Commands.ASYNC_MESSAGE_TO_CLIENT == header.Command)
             {
                 var result = new AsyncMessageToClient

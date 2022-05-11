@@ -1,15 +1,6 @@
-﻿using FaasNet.EventMesh.Client.Extensions;
-using FaasNet.EventMesh.Client.Messages;
-using FaasNet.EventMesh.Runtime.Exceptions;
-using FaasNet.EventMesh.Runtime.Stores;
-using Microsoft.Extensions.Options;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace FaasNet.EventMesh.Runtime.Handlers
+﻿namespace FaasNet.EventMesh.Runtime.Handlers
 {
+    /*
     public class AsyncMessageToServerHandler : IMessageHandler
     {
         private readonly IClientStore _clientStore;
@@ -58,4 +49,5 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             return null;
         }
     }
+    */
 }

@@ -18,7 +18,7 @@ namespace FaasNet.EventMesh.Runtime
     {
         private readonly IEnumerable<IMessageHandler> _messageHandlers;
 
-        public EventMeshNode(IEnumerable<IMessageHandler> messageHandlers, IPeerStore peerStore, RaftConsensus.Core.Stores.INodeStateStore nodeStateStore, IPeerHostFactory peerHostFactory, ILogger<BaseNodeHost> logger, IOptions<ConsensusPeerOptions> options, IEnumerable<RaftConsensus.Core.INodeStateStore> requestHandlers) : base(peerStore, peerHostFactory, logger, options, requestHandlers)
+        public EventMeshNode(IEnumerable<IMessageHandler> messageHandlers, IPeerStore peerStore, IPeerInfoStore peerInfoStore, INodeStateStore nodeStateStore, IClusterStore clusterStore, IPeerHostFactory peerHostFactory, ILogger<BaseNodeHost> logger, IOptions<ConsensusPeerOptions> options) : base(peerStore, peerInfoStore, peerHostFactory, nodeStateStore, clusterStore, logger, options)
         {
             _messageHandlers = messageHandlers;
         }
@@ -34,7 +34,7 @@ namespace FaasNet.EventMesh.Runtime
                     Logger.LogInformation("Command {command} is received with sequence {sequence}", package.Header.Command.Name, package.Header.Seq);
                     var cmd = package.Header.Command;
                     var messageHandler = _messageHandlers.First(m => m.Command == package.Header.Command);
-                    Package result = null;
+                    EventMeshPackageResult result = null;
                     try
                     {
                         result = await messageHandler.Run(package, cancellationToken);
@@ -42,12 +42,12 @@ namespace FaasNet.EventMesh.Runtime
                     catch (RuntimeException ex)
                     {
                         Logger.LogError("Command {command}, sequence {sequence}, exception {exception}", package.Header.Command.Name, package.Header.Seq, ex.ToString());
-                        result = PackageResponseBuilder.Error(ex.SourceCommand, ex.SourceSeq, ex.Error);
+                        result = EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(ex.SourceCommand, ex.SourceSeq, ex.Error));
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError("Command {command}, sequence {sequence}, exception {exception}", package.Header.Command.Name, package.Header.Seq, ex.ToString());
-                        result = PackageResponseBuilder.Error(package.Header.Command, package.Header.Seq, Errors.INTERNAL_ERROR);
+                        result = EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(package.Header.Command, package.Header.Seq, Errors.INTERNAL_ERROR));
                     }
 
                     if (result == null)
@@ -56,12 +56,22 @@ namespace FaasNet.EventMesh.Runtime
                         return;
                     }
 
-                    EventMeshMeter.IncrementNbOutgoingRequest();
-                    Logger.LogInformation("Command {command} with sequence {sequence} is going to be sent", result.Header.Command.Name, result.Header.Seq);
-                    var writeCtx = new WriteBufferContext();
-                    result.Serialize(writeCtx);
-                    var resultPayload = writeCtx.Buffer.ToArray();
-                    // await _udpClient.SendAsync(resultPayload, resultPayload.Count(), receiveResult.RemoteEndPoint).WithCancellation(_cancellationToken);
+                    if(result.Status == EventMeshPackageResultStatus.ADD_PEER)
+                    {
+                        await AddPeer(result.Termid);
+                        await StartPeer(result.Termid);
+                    }
+
+                    if(result.Status == EventMeshPackageResultStatus.SEND_RESULT)
+                    {
+                        EventMeshMeter.IncrementNbOutgoingRequest();
+                        Logger.LogInformation("Command {command} with sequence {sequence} is going to be sent", result.Package.Header.Command.Name, result.Package.Header.Seq);
+                        var writeCtx = new WriteBufferContext();
+                        result.Package.Serialize(writeCtx);
+                        var resultPayload = writeCtx.Buffer.ToArray();
+                        // await _udpClient.SendAsync(resultPayload, resultPayload.Count(), receiveResult.RemoteEndPoint).WithCancellation(_cancellationToken);
+                    }
+
                     activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok);
                 }
                 catch (Exception)
@@ -71,7 +81,5 @@ namespace FaasNet.EventMesh.Runtime
                 }
             }
         }
-
-        // Add state.
     }
 }

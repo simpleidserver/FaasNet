@@ -1,7 +1,6 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Stores;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,10 +17,11 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         public Commands Command => Commands.GET_ALL_VPNS_REQUEST;
 
-        public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
+        public async Task<EventMeshPackageResult> Run(Package package, CancellationToken cancellationToken)
         {
             var vpns = await _vpnStore.GetAll(cancellationToken);
-            return PackageResponseBuilder.GetAllVpns(package.Header.Seq, vpns.Select(v => v.Name));
+            var result = PackageResponseBuilder.GetAllVpns(package.Header.Seq, vpns.Select(v => v.Name));
+            return EventMeshPackageResult.SendResult(result);
         }
     }
 }

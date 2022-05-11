@@ -15,11 +15,11 @@ namespace FaasNet.RaftConsensus.Core.Stores
         Task AddNode(ClusterNode node, CancellationToken cancellationToken);
     }
 
-    public class ClusterStore : IClusterStore
+    public class InMemoryClusterStore : IClusterStore
     {
         private readonly INodeStateStore _nodeStateStore;
 
-        public ClusterStore(INodeStateStore nodeStateStore)
+        public InMemoryClusterStore(INodeStateStore nodeStateStore)
         {
             _nodeStateStore = nodeStateStore;
         }

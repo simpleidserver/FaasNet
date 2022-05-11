@@ -13,15 +13,16 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (callback != null) services.Configure(callback);
             else services.Configure<ConsensusPeerOptions>((o) => { });
-            var peerStore = new InMemoryPeerStore(new ConcurrentBag<PeerInfo>());
+            var peerStore = new InMemoryPeerInfoStore(new ConcurrentBag<PeerInfo>());
             services.AddLogging();
             services.AddTransient<INodeHost, StandaloneNodeHost>();
             services.AddTransient<IPeerHostFactory, PeerHostFactory>();
-            services.AddTransient<IClusterStore, ClusterStore>();
+            services.AddTransient<IClusterStore, InMemoryClusterStore>();
+            services.AddTransient<IPeerStore, InMemoryPeerStore>();
             services.AddScoped<IPeerHost, StandalonePeerHost>();
             services.AddScoped<ILogStore, InMemoryLogStore>();
             services.AddSingleton<INodeStateStore, InMemoryNodeStateStore>();
-            services.AddSingleton<IPeerStore>(peerStore);
+            services.AddSingleton<IPeerInfoStore>(peerStore);
             return new ServerBuilder(services);
         }
     }

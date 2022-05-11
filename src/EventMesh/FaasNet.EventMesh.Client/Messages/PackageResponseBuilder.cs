@@ -24,6 +24,16 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
+        public static Package Client(string seq, string queue)
+        {
+            var result = new AddClientResponse
+            {
+                Header = new Header(Commands.ADD_CLIENT_RESPONSE, HeaderStatus.SUCCESS, seq),
+                Queue = queue
+            };
+            return result;
+        }
+
         public static Package GetAllVpns(string seq, IEnumerable<string> vpns)
         {
             var result = new GetAllVpnResponse
@@ -34,9 +44,9 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package Subscription(string seq)
+        public static Package Subscription(string seq, IEnumerable<string> queueNames)
         {
-            var result = new Package
+            var result = new SubscriptionResult
             {
                 Header = new Header(Commands.SUBSCRIBE_RESPONSE, HeaderStatus.SUCCESS, seq)
             };

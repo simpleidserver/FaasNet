@@ -1,16 +1,6 @@
-﻿using FaasNet.EventMesh.Client;
-using FaasNet.EventMesh.Client.Messages;
-using FaasNet.EventMesh.Runtime.Exceptions;
-using FaasNet.EventMesh.Runtime.Models;
-using FaasNet.EventMesh.Runtime.Stores;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace FaasNet.EventMesh.Runtime.Handlers
+﻿namespace FaasNet.EventMesh.Runtime.Handlers
 {
+    /*
     public class AsyncMessageToClientAckHandler : BaseMessageHandler, IMessageHandler
     {
         private readonly IUdpClientServerFactory _udpClientFactory;
@@ -63,7 +53,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         private async Task<Package> TransmitCloudEvents(AsyncMessageAckToServer ackResponse, Models.Client client, ICollection<BridgeServer> bridgeServers)
         {
             var lastBridgeServer = ackResponse.BridgeServers.Last();
-            if(!bridgeServers.Any(bs => bs.Port == lastBridgeServer.Port && bs.Urn == lastBridgeServer.Urn))
+            if(!bridgeServers.Any(bs => bs.TargetPort == lastBridgeServer.Port && bs.TargetUrn == lastBridgeServer.Urn))
             {
                 throw new RuntimeException(ackResponse.Header.Command, ackResponse.Header.Seq, Errors.UNKNOWN_BRIDGE);
             }
@@ -76,4 +66,5 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             return await runtimeClient.TransferMessageToServerFromServer(ackResponse.ClientId, ackResponse.BrokerName, ackResponse.TopicMessage, ackResponse.TopicFilter, ackResponse.NbCloudEventsConsumed, ackResponse.BridgeServers, bridgeSessionId);
         }
     }
+    */
 }

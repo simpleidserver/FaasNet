@@ -75,6 +75,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Get all VPN response.
         /// </summary>
         public static Commands GET_ALL_VPNS_RESPONSE = new Commands(17, "GET_ALL_VPNS_RESPONSE");
+        /// <summary>
+        /// Request sent to create a client.
+        /// </summary>
+        public static Commands ADD_CLIENT_REQUEST = new Commands(18, "ADD_CLIENT_REQUEST");
+        /// <summary>
+        /// Result returned when a client is added;
+        /// </summary>
+        public static Commands ADD_CLIENT_RESPONSE = new Commands(19, "ADD_CLIENT_RESPONSE");
 
         private Commands(int code)
         {

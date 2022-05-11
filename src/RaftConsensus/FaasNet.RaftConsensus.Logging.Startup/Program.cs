@@ -87,6 +87,7 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
         Console.WriteLine("Enter 'states' to display the states");
         Console.WriteLine("Enter 'peers' to display the status of the peers");
         Console.WriteLine("Enter 'appendentry' to append an entry");
+        Console.WriteLine("Enter 'addpeer' to add a peer");
         Console.WriteLine("Start a new node 'addnode'");
         Console.WriteLine("Stop one node 'stopnode'");
         string menuId = Console.ReadLine();
@@ -145,6 +146,14 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
             string message = Console.ReadLine();
             var consensusClient = new ConsensusClient("localhost", seedPort);
             await consensusClient.AppendEntry(termId, message, CancellationToken.None);
+        }
+
+        if(menuId == "addpeer")
+        {
+            Console.WriteLine("Enter the termid");
+            string termId = Console.ReadLine();
+            var gossipClient = new GossipClient("localhost", seedPort);
+            await gossipClient.AddPeer(termId, CancellationToken.None);
         }
     }
     while (continueExecution);

@@ -1,50 +1,52 @@
 ﻿using FaasNet.EventMesh.Runtime.Models;
+using FaasNet.RaftConsensus.Core.Stores;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Runtime.Stores
 {
+    public interface IVpnStore
+    {
+        Task<IEnumerable<Vpn>> GetAll(CancellationToken cancellationToken);
+        Task<Vpn> Get(string name, CancellationToken cancellationToken);
+        Task Add(Vpn vpn, CancellationToken cancellationToken);
+    }
+
     public class VpnStore : IVpnStore
     {
-        private readonly ICollection<Vpn> _vpns;
+        private readonly INodeStateStore _nodeStateStore;
 
-        public VpnStore(ICollection<Vpn> vpns)
+        public VpnStore(INodeStateStore nodeStateStore)
         {
-            _vpns = vpns;
+            _nodeStateStore = nodeStateStore;
         }
 
-        public void Add(Vpn vpn)
+        public async Task<IEnumerable<Vpn>> GetAll(CancellationToken cancellationToken)
         {
-            _vpns.Add(vpn);
+            var lastEntityTypes = await _nodeStateStore.GetAllLastEntityTypes(StandardEntityTypes.Vpn, cancellationToken);
+            lastEntityTypes = lastEntityTypes.OrderBy(e => e.EntityVersion);
+            var result = lastEntityTypes.Select(et => JsonSerializer.Deserialize<Vpn>(et.Value, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            }));
+            return result;
         }
 
-        public Task<Vpn> Get(string name, CancellationToken cancellationToken)
+        public async Task<Vpn> Get(string name, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_vpns.FirstOrDefault(v => v.Name == name));
+            var allNodes = await GetAll(cancellationToken);
+            return allNodes.FirstOrDefault(n => n.Name == name);
         }
 
-        public void Update(Vpn vpn)
+        public async Task Add(Vpn vpn, CancellationToken cancellationToken)
         {
-            _vpns.Remove(_vpns.First(v => v.Name == vpn.Name));
-            _vpns.Add(vpn);
-        }
-
-        public void Delete(Vpn vpn)
-        {
-            _vpns.Remove(_vpns.First(v => v.Name == vpn.Name));
-        }
-
-        public Task<IEnumerable<Vpn>> GetAll(CancellationToken cancellationToken)
-        {
-            IEnumerable<Vpn> result = _vpns;
-            return Task.FromResult(result);
-        }
-
-        public Task<int> SaveChanges(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(1);
+            var lastEntityType = await _nodeStateStore.GetLastEntityType(StandardEntityTypes.Vpn, cancellationToken);
+            var nodeState = vpn.ToNodeState();
+            if (lastEntityType != null) nodeState.EntityVersion = lastEntityType.EntityVersion + 1;
+            _nodeStateStore.Add(nodeState);
         }
     }
 }

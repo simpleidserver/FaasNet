@@ -12,6 +12,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -34,6 +35,7 @@ namespace FaasNet.RaftConsensus.Core
     public abstract class BaseNodeHost : INodeHost
     {
         private readonly IPeerStore _peerStore;
+        private readonly IPeerInfoStore _peerInfoStore;
         private readonly IPeerHostFactory _peerHostFactory;
         private readonly INodeStateStore _nodeStateStore;
         private readonly IClusterStore _clusterStore;
@@ -45,9 +47,10 @@ namespace FaasNet.RaftConsensus.Core
         private bool _isStarted = false;
         private BlockingCollection<UnreachableClusterNode> _clusterNodes;
 
-        public BaseNodeHost(IPeerStore peerStore, IPeerHostFactory peerHostFactory, INodeStateStore nodeStateStore, IClusterStore clusterStore, ILogger<BaseNodeHost> logger, IOptions<ConsensusPeerOptions> options)
+        public BaseNodeHost(IPeerStore peerStore, IPeerInfoStore peerInfoStore, IPeerHostFactory peerHostFactory, INodeStateStore nodeStateStore, IClusterStore clusterStore, ILogger<BaseNodeHost> logger, IOptions<ConsensusPeerOptions> options)
         {
             _peerStore = peerStore;
+            _peerInfoStore = peerInfoStore;
             _peerHostFactory = peerHostFactory;
             _nodeStateStore = nodeStateStore;
             _clusterStore = clusterStore;
@@ -149,7 +152,7 @@ namespace FaasNet.RaftConsensus.Core
 
         private async Task RunConsensusPeers(CancellationToken cancellationToken)
         {
-            var peerInfoLst = await _peerStore.GetAll(cancellationToken);
+            var peerInfoLst = await _peerInfoStore.GetAll(cancellationToken);
             foreach (var peerInfo in peerInfoLst)
             {
                 var peerHost = _peerHostFactory.Build();
@@ -265,7 +268,16 @@ namespace FaasNet.RaftConsensus.Core
         {
             var existingValues = await _nodeStateStore.GetAllSpecificEntityTypes(request.States.Select(s => (EntityType: s.EntityType, EntityVersion: s.EntityVersion)).ToList(), TokenSource.Token);
             var missingValues = request.States.Where(s => !existingValues.Any(ev => ev.EntityType == s.EntityType && ev.EntityVersion >= s.EntityVersion));
-            foreach (var missingValue in missingValues) _nodeStateStore.Add(NodeState.Create(missingValue.EntityType, missingValue.EntityId, missingValue.Value, missingValue.EntityVersion));
+            foreach (var missingValue in missingValues)
+            {
+                _nodeStateStore.Add(NodeState.Create(missingValue.EntityType, missingValue.EntityId, missingValue.Value, missingValue.EntityVersion));
+                if (missingValue.EntityType == StandardEntityTypes.Peer)
+                {
+                    var peer = JsonSerializer.Deserialize<Peer>(missingValue.Value, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    await StartPeer(peer.TermId);
+                }
+            }
+
             await _nodeStateStore.SaveChanges(TokenSource.Token);
             return null;
         }
@@ -303,6 +315,28 @@ namespace FaasNet.RaftConsensus.Core
             }
 
             return null;
+        }
+
+        private async Task<GossipPackage> HandleGossipRequest(GossipAddPeerRequest request)
+        {
+            await StartPeer(request.TermId);
+            await AddPeer(request.TermId);
+            return null;
+        }
+
+        protected async Task AddPeer(string termId)
+        {
+            await _peerStore.Add(new Peer { TermId = termId }, TokenSource.Token);
+        }
+
+        protected async Task StartPeer(string termId)
+        {
+            var peerInfo = new PeerInfo { TermId = termId };
+            var peerHost = _peerHostFactory.Build();
+            await peerHost.Start(_nodeId, peerInfo, TokenSource.Token);
+            _peers.Add(peerHost);
+            _peerInfoStore.Add(peerInfo);
+            await _peerInfoStore.SaveChanges(TokenSource.Token);
         }
 
         #endregion

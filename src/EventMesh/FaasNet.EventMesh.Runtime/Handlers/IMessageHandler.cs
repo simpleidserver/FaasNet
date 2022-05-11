@@ -7,6 +7,6 @@ namespace FaasNet.EventMesh.Runtime.Handlers
     public interface IMessageHandler
     {
         Commands Command { get; }
-        Task<Package> Run(Package package, CancellationToken cancellationToken);
+        Task<EventMeshPackageResult> Run(Package package, CancellationToken cancellationToken);
     }
 }

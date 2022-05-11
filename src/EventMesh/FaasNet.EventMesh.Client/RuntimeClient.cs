@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Client
 {
-    public class RuntimeClient
+    public class RuntimeClient: IDisposable
     {
         private UdpClient _udpClient;
         private readonly IPAddress _clientIPAddress;
@@ -131,10 +131,12 @@ namespace FaasNet.EventMesh.Client
 
         public void Close()
         {
-            if (_udpClient != null)
-            {
-                _udpClient.Close();
-            }
+            if (_udpClient != null) _udpClient.Close();
+        }
+
+        public void Dispose()
+        {
+            Close();
         }
 
         public async Task<Package> AddBridge(string vpn, string urn, int port, string targetVpn, CancellationToken cancellationToken = default(CancellationToken))

@@ -63,6 +63,13 @@
                 return result;
             }
 
+            if (header.Command == GossipCommands.ADD_PEER_REQUEST)
+            {
+                var result = new GossipAddPeerRequest { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
             return new GossipPackage { Header = header };
         }
     }

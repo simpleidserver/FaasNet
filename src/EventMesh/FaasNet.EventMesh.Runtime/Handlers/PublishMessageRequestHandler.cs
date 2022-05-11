@@ -3,10 +3,8 @@ using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
-using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,37 +12,19 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 {
     public class PublishMessageRequestHandler : BaseMessageHandler, IMessageHandler
     {
-        private readonly IEnumerable<IMessagePublisher> _messagePublishers;
-        private readonly RuntimeOptions _runtimeOpts;
+        private readonly IMessageExchangeStore _messageExchangeStore;
 
-        public PublishMessageRequestHandler(
-            IUdpClientServerFactory udpClientServerFactory,
-            IVpnStore vpnStore, 
-            IClientStore clientStore,
-            IEnumerable<IMessagePublisher> messagePublishers,
-            IOptions<RuntimeOptions> runtimeOpts) : base(clientStore, vpnStore)
+        public PublishMessageRequestHandler(IVpnStore vpnStore, IClientSessionStore clientSessionStore, IMessageExchangeStore messageExchangeStore) : base(clientSessionStore, vpnStore)
         {
-            _messagePublishers = messagePublishers;
-            _runtimeOpts = runtimeOpts.Value;
+            _messageExchangeStore = messageExchangeStore;
         }
 
         public Commands Command => Commands.PUBLISH_MESSAGE_REQUEST;
 
-        public async Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
+        public async Task<EventMeshPackageResult> Run(Package package, CancellationToken cancellationToken)
         {
             var publishMessageRequest = package as PublishMessageRequest;
-            ActiveSessionResult sessionResult = null;
-            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Get active session"))
-            {
-                sessionResult = await GetActiveSession(publishMessageRequest, publishMessageRequest.ClientId, publishMessageRequest.SessionId, cancellationToken);
-                activity?.SetStatus(ActivityStatusCode.Ok);
-            }
-
-            var activeSession = sessionResult.Client.GetActiveSession(publishMessageRequest.SessionId);
-            if (activeSession.Purpose != UserAgentPurpose.PUB)
-            {
-                throw new RuntimeException(publishMessageRequest.Header.Command, publishMessageRequest.Header.Seq, Errors.UNAUTHORIZED_PUBLISH);
-            }
+            await CheckSession(publishMessageRequest, cancellationToken);
 
             using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Publish to local message brokers"))
             {
@@ -54,7 +34,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 {
                     foreach (var publisher in _messagePublishers)
                     {
-                        await publisher.Publish(publishMessageRequest.CloudEvent, publishMessageRequest.Topic, sessionResult.Client);
+                        await publisher.Publish(publishMessageRequest.CloudEvent, publishMessageRequest.Topic, sessionResult.ClientSession);
                     }
                 }
 
@@ -63,11 +43,33 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
             using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Broadcast message"))
             {
-                await Broadcast(publishMessageRequest, sessionResult.Client, sessionResult.Vpn.BridgeServers);
+                await Broadcast(publishMessageRequest, sessionResult.ClientSession, sessionResult.Vpn.BridgeServers);
                 activity?.SetStatus(ActivityStatusCode.Ok);
             }
 
             return PackageResponseBuilder.PublishMessage(package.Header.Seq);
+        }
+
+        private async Task CheckSession(PublishMessageRequest message, CancellationToken cancellationToken)
+        {
+            ActiveSessionResult sessionResult = null;
+            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Get active session"))
+            {
+                sessionResult = await GetActiveSession(message, message.SessionId, cancellationToken);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+            }
+
+            if (sessionResult.ClientSession.Purpose != UserAgentPurpose.PUB)
+            {
+                throw new RuntimeException(message.Header.Command, message.Header.Seq, Errors.UNAUTHORIZED_PUBLISH);
+            }
+        }
+
+        private async Task BroadcastMessage(PublishMessageRequest message, CancellationToken cancellationToken)
+        {
+            // get all the queues from exchange.
+            // append entry | append the message to the queue.
+            // a client must pool the message from the queue (consensus).
         }
 
         private async Task Broadcast(PublishMessageRequest publishMessageRequest, Models.Client client, ICollection<BridgeServer> bridgeServers)
@@ -82,7 +84,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         {
             var activeSession = client.GetActiveSession(publishMessageRequest.SessionId);
             var pid = Process.GetCurrentProcess().Id;
-            var runtimeClient = new RuntimeClient(bridgeServer.Urn, bridgeServer.Port);
+            var runtimeClient = new RuntimeClient(bridgeServer.TargetUrn, bridgeServer.TargetPort);
             var helloResponse = await runtimeClient.Hello(new UserAgent
             {
                 ClientId = client.ClientId,
@@ -93,7 +95,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 Port = _runtimeOpts.Port,
                 Pid = pid,
                 IsServer = true,
-                Vpn = bridgeServer.Vpn
+                Vpn = bridgeServer.TargetVpn
             });
             await runtimeClient.PublishMessage(client.ClientId, helloResponse.SessionId, publishMessageRequest.Topic, publishMessageRequest.CloudEvent, publishMessageRequest.Urn, publishMessageRequest.Port);
             await runtimeClient.Disconnect(client.ClientId, helloResponse.SessionId);

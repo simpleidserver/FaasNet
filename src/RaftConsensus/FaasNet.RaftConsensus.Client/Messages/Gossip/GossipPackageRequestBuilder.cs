@@ -51,5 +51,14 @@ namespace FaasNet.RaftConsensus.Client.Messages.Gossip
                 Value = value
             };
         }
+
+        public static GossipPackage AddPeer(string termId)
+        {
+            return new GossipAddPeerRequest
+            {
+                Header = new GossipHeader(GossipCommands.ADD_PEER_REQUEST, string.Empty, 0),
+                TermId = termId
+            };
+        }
     }
 }

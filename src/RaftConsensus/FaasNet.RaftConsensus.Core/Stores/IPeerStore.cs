@@ -1,6 +1,8 @@
-﻿using FaasNet.RaftConsensus.Core.Models;
-using System.Collections.Concurrent;
+﻿using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Core.Models;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,33 +10,43 @@ namespace FaasNet.RaftConsensus.Core.Stores
 {
     public interface IPeerStore
     {
-        Task<IEnumerable<PeerInfo>> GetAll(CancellationToken cancellationToken);
-        void Update(PeerInfo peerInfo);
-        Task<int> SaveChanges(CancellationToken cancellationToken);
+        Task<IEnumerable<Peer>> GetAll(CancellationToken cancellationToken);
+        Task Add(Peer peer, CancellationToken cancellationToken);
+        Task<Peer> Get(string termId, CancellationToken cancellationToken);
     }
 
     public class InMemoryPeerStore : IPeerStore
     {
-        private readonly ConcurrentBag<PeerInfo> _peerInfos;
+        private readonly INodeStateStore _nodeStateStore;
 
-        public InMemoryPeerStore(ConcurrentBag<PeerInfo> peerInfos)
+        public InMemoryPeerStore(INodeStateStore nodeStateStore)
         {
-            _peerInfos = peerInfos;
+            _nodeStateStore = nodeStateStore;
         }
 
-        public Task<IEnumerable<PeerInfo>> GetAll(CancellationToken cancellationToken)
+        public async Task<IEnumerable<Peer>> GetAll(CancellationToken cancellationToken)
         {
-            IEnumerable<PeerInfo> peerInfos = _peerInfos;
-            return Task.FromResult(peerInfos);
+            var lastEntityTypes = await _nodeStateStore.GetAllLastEntityTypes(StandardEntityTypes.Peer, cancellationToken);
+            lastEntityTypes = lastEntityTypes.OrderBy(e => e.EntityVersion);
+            var result = lastEntityTypes.Select(et => JsonSerializer.Deserialize<Peer>(et.Value, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            }));
+            return result;
         }
 
-        public void Update(PeerInfo peerInfo)
+        public async Task Add(Peer peer, CancellationToken cancellationToken)
         {
+            var lastEntityType = await _nodeStateStore.GetLastEntityType(StandardEntityTypes.Peer, cancellationToken);
+            var nodeState = peer.ToNodeState();
+            if (lastEntityType != null) nodeState.EntityVersion = lastEntityType.EntityVersion + 1;
+            _nodeStateStore.Add(nodeState);
         }
 
-        public Task<int> SaveChanges(CancellationToken cancellationToken)
+        public async Task<Peer> Get(string termId, CancellationToken cancellationToken)
         {
-            return Task.FromResult(1);
+            var allNodes = await GetAll(cancellationToken);
+            return allNodes.FirstOrDefault(n => n.TermId == termId);
         }
     }
 }

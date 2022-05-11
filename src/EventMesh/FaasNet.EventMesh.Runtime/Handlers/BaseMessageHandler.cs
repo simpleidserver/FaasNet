@@ -9,37 +9,37 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 {
     public class BaseMessageHandler
     {
-        public BaseMessageHandler(IClientStore clientStore, IVpnStore vpnStore)
+        public BaseMessageHandler(IClientSessionStore clientSessionStore, IVpnStore vpnStore)
         {
-            ClientStore = clientStore;
+            ClientSessionStore = clientSessionStore;
             VpnStore = vpnStore;
         }
 
-        protected IClientStore ClientStore { get; private set; }
+        protected IClientSessionStore ClientSessionStore { get; private set; }
         protected IVpnStore VpnStore { get; private set; }
 
-        protected async Task<ActiveSessionResult> GetActiveSession(Package requestPackage, string clientId, string sessionId, CancellationToken cancellationToken)
+        protected async Task<ActiveSessionResult> GetActiveSession(Package requestPackage, string sessionId, CancellationToken cancellationToken)
         {
-            var client = await ClientStore.GetBySession(clientId, sessionId, cancellationToken);
-            if (client == null)
+            var clientSession = await ClientSessionStore.Get(sessionId, cancellationToken);
+            if (clientSession == null)
             {
                 throw new RuntimeException(requestPackage.Header.Command, requestPackage.Header.Seq, Errors.INVALID_SESSION);
             }
 
-            var vpn = await VpnStore.Get(client.Vpn, cancellationToken);
-            return new ActiveSessionResult(vpn, client);
+            var vpn = await VpnStore.Get(clientSession.Vpn, cancellationToken);
+            return new ActiveSessionResult(vpn, clientSession);
         }
 
         protected class ActiveSessionResult
         {
-            public ActiveSessionResult(Vpn vpn, Models.Client client)
+            public ActiveSessionResult(Vpn vpn, ClientSession clientSession)
             {
                 Vpn = vpn;
-                Client = client;
+                ClientSession = clientSession;
             }
 
             public Vpn Vpn { get; private set; }
-            public Models.Client Client { get; private set; }
+            public ClientSession ClientSession { get; private set; }
         }
     }
 }

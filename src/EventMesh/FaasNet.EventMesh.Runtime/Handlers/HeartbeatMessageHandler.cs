@@ -1,5 +1,4 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,9 +8,10 @@ namespace FaasNet.EventMesh.Runtime.Handlers
     {
         public Commands Command => Commands.HEARTBEAT_REQUEST;
 
-        public Task<Package> Run(Package package, IPEndPoint sender, CancellationToken cancellationToken)
+        public Task<EventMeshPackageResult> Run(Package package, CancellationToken cancellationToken)
         {
-            return Task.FromResult(PackageResponseBuilder.HeartBeat(package.Header.Seq));
+            var result = PackageResponseBuilder.HeartBeat(package.Header.Seq);
+            return Task.FromResult(EventMeshPackageResult.SendResult(result));
         }
     }
 }

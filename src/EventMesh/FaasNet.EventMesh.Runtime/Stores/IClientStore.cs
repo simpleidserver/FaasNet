@@ -11,8 +11,7 @@ namespace FaasNet.EventMesh.Runtime.Stores
         Task<Models.Client> GetBySession(string clientId, string clientSessionId, CancellationToken cancellationToken);
         Task<Models.Client> GetByBridgeSession(string clientId, string bridgeUrn, string bridgeSessionId, CancellationToken cancellationToken);
         Task<IEnumerable<Models.Client>> GetAllByVpn(string name, CancellationToken cancellationToken);
-        void Add(Models.Client client);
-        void Remove(Models.Client client);
+        Task Add(Models.Client client, CancellationToken cancellationToken);
         Task CloseAllActiveSessions(CancellationToken cancellationToken);
         Task<int> SaveChanges(CancellationToken cancellationToken);
     }

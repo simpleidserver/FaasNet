@@ -1,24 +1,14 @@
-﻿using CloudNative.CloudEvents;
-using FaasNet.EventMesh.Client.Messages;
+﻿using FaasNet.EventMesh.Client.Messages;
+using FaasNet.RaftConsensus.Core.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Text.Json;
 
 namespace FaasNet.EventMesh.Runtime.Models
 {
     public class ClientSession
     {
-        public ClientSession()
-        {
-            Histories = new List<ClientSessionHistory>();
-            Topics = new List<Topic>();
-            PendingCloudEvents = new List<ClientSessionPendingCloudEvent>();
-            Bridges = new List<ClientSessionBridge>();
-        }
-
-        #region Properties
-
         public string Id { get; set; }
+        public string ClientId { get; set; }
         public string Vpn { get; set; }
         public int Port { get; set; }
         public string Environment { get; set; }
@@ -40,10 +30,6 @@ namespace FaasNet.EventMesh.Runtime.Models
         public int BufferCloudEvents { get; set; }
         public ClientSessionTypes Type { get; set; }
         public ClientSessionState State { get; set; }
-        public virtual ICollection<ClientSessionHistory> Histories { get; set; }
-        public virtual ICollection<Topic> Topics { get; set; }
-        public virtual ICollection<ClientSessionPendingCloudEvent> PendingCloudEvents { get; set; }
-        public virtual ICollection<ClientSessionBridge> Bridges { get; set; }
         public bool IsActive
         {
             get
@@ -52,69 +38,28 @@ namespace FaasNet.EventMesh.Runtime.Models
             }
         }
 
-        #endregion
-
-        #region Actions
-
         public void Activate()
         {
-            Histories.Add(new ClientSessionHistory
-            {
-                State = ClientSessionState.ACTIVE,
-                Timestamp = DateTime.UtcNow
-            });
             State = ClientSessionState.ACTIVE;
-        }
-
-        public void SubscribeTopic(string topicName, string brokerName)
-        {
-            Topics.Add(new Topic
-            {
-                BrokerName = brokerName,
-                Name = topicName
-            });
-        }
-
-        public bool HasTopic(string topicName, string brokerName)
-        {
-            return Topics.Any(t => t.Name == topicName && t.BrokerName == brokerName);
-        }
-
-        public bool TryAddPendingCloudEvent(string brokerName, string topicName, CloudEvent cloudEvt, out ICollection<CloudEvent> cloudEvts)
-        {
-            cloudEvts = null;
-            var pendingCloudEvts = PendingCloudEvents.Where(a => a.BrokerName == brokerName && a.Topic == topicName);
-            if (pendingCloudEvts.Count() + 1 >= BufferCloudEvents)
-            {
-                cloudEvts = pendingCloudEvts.Select(p => p.Evt).ToList();
-                cloudEvts.Add(cloudEvt);
-                PendingCloudEvents = PendingCloudEvents.Where(a => a.BrokerName != brokerName || a.Topic != topicName).ToList();
-                return false;
-            }
-
-            PendingCloudEvents.Add(new ClientSessionPendingCloudEvent { BrokerName = brokerName, Topic = topicName, Evt = cloudEvt });
-            return true;
-        }
-
-        public ClientSessionBridge GetBridge(string urn, int port, string vpn)
-        {
-            return Bridges.FirstOrDefault(b => b.Urn == urn && b.Port == port && b.Vpn == vpn);
-        }
-
-        public void AddBridge(ClientSessionBridge bridge)
-        {
-            Bridges.Add(bridge);
         }
 
         public void Close()
         {
             State = ClientSessionState.FINISH;
-            Histories.Add(new ClientSessionHistory {  State = ClientSessionState.FINISH, Timestamp = DateTime.UtcNow });
         }
 
-        #endregion
+        public NodeState ToNodeState()
+        {
+            return new NodeState
+            {
+                EntityType = StandardEntityTypes.ClientSession,
+                EntityId = Id,
+                EntityVersion = 0,
+                Value = JsonSerializer.Serialize(this)
+            };
+        }
 
-        public static ClientSession Create(string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, string vpn, ClientSessionTypes type, TimeSpan expirationTimeSpan, bool isSessionInfinite)
+        public static ClientSession Create(string env, int pid, UserAgentPurpose purpose, int bufferCloudEvents, string clientId, string vpn, ClientSessionTypes type, TimeSpan expirationTimeSpan, bool isSessionInfinite)
         {
             var createDateTime = DateTime.UtcNow;
             var expirationDateTime = createDateTime.Add(expirationTimeSpan);
@@ -123,6 +68,7 @@ namespace FaasNet.EventMesh.Runtime.Models
                 Id = Guid.NewGuid().ToString(),
                 Environment = env,
                 Vpn = vpn,
+                ClientId = clientId,
                 Pid = pid,
                 Purpose = purpose,
                 BufferCloudEvents = bufferCloudEvents,

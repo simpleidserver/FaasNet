@@ -11,8 +11,8 @@ namespace FaasNet.RaftConsensus.Core
     {
         public static ServerBuilder SetPeers(this ServerBuilder serverBuilder, ConcurrentBag<PeerInfo> peerInfos)
         {
-            var peerStore = new InMemoryPeerStore(peerInfos);
-            serverBuilder.Services.AddSingleton<IPeerStore>(peerStore);
+            var peerStore = new InMemoryPeerInfoStore(peerInfos);
+            serverBuilder.Services.AddSingleton<IPeerInfoStore>(peerStore);
             return serverBuilder;
         }
 

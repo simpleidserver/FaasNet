@@ -18,6 +18,7 @@ namespace FaasNet.RaftConsensus.Core.Stores
         Task<IEnumerable<NodeState>> GetAllLastEntityTypes(string entityType, CancellationToken cancellationToken);
         Task<IEnumerable<NodeState>> GetAllSpecificEntityTypes(List<(string EntityType, int EntityVersion)> parameter, CancellationToken cancellationToken);
         Task<NodeState> GetLastEntityType(string entityType, CancellationToken cancellationToken);
+        Task<NodeState> GetLastEntityId(string entityId, CancellationToken cancellationToken);
     }
 
     public class InMemoryNodeStateStore : INodeStateStore
@@ -71,6 +72,11 @@ namespace FaasNet.RaftConsensus.Core.Stores
         public Task<NodeState> GetLastEntityType(string entityType, CancellationToken cancellationToken)
         {
             return Task.FromResult(_nodeStates.OrderByDescending(ns => ns.EntityVersion).FirstOrDefault(ns => ns.EntityType == entityType));
+        }
+
+        public Task<NodeState> GetLastEntityId(string entityId, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_nodeStates.OrderByDescending(ns => ns.EntityVersion).FirstOrDefault(n => n.EntityId == entityId));
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)

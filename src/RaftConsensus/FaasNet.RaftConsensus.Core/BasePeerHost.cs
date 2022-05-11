@@ -39,7 +39,7 @@ namespace FaasNet.RaftConsensus.Core
         private readonly ConsensusPeerOptions _options;
         private readonly IClusterStore _clusterStore;
         private readonly ILogStore _logStore;
-        private readonly IPeerStore _peerStore;
+        private readonly IPeerInfoStore _peerStore;
         private readonly string _peerId;
         private LeaderNode _activeLeader = null;
         private DateTime? _expirationCheckElectionDateTime = null;
@@ -51,7 +51,7 @@ namespace FaasNet.RaftConsensus.Core
         private System.Timers.Timer _electionCheckTimer;
         private System.Timers.Timer _leaderHeartbeatTimer;
 
-        public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore, IPeerStore peerStore)
+        public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore, IPeerInfoStore peerStore)
         {
             _logger = logger;
             _options = options.Value;

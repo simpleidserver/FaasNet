@@ -1,23 +1,26 @@
-﻿using FaasNet.Domain.Exceptions;
-using FaasNet.EventMesh.Runtime.Resources;
+﻿using FaasNet.RaftConsensus.Core.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Text.Json;
 
 namespace FaasNet.EventMesh.Runtime.Models
 {
     public class Vpn
     {
-        public Vpn()
-        {
-            BridgeServers = new List<BridgeServer>();
-        }
-
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
-        public virtual ICollection<BridgeServer> BridgeServers { get; set; }
+
+        public NodeState ToNodeState()
+        {
+            return new NodeState
+            {
+                EntityType = StandardEntityTypes.Vpn,
+                EntityId = Guid.NewGuid().ToString(),
+                EntityVersion = 0,
+                Value = JsonSerializer.Serialize(this)
+            };
+        }
 
         public static Vpn Create(string name, string description)
         {
@@ -28,27 +31,6 @@ namespace FaasNet.EventMesh.Runtime.Models
                 CreateDateTime = DateTime.UtcNow,
                 UpdateDateTime = DateTime.UtcNow
             };
-        }
-
-        public void AddBridge(string urn, int port, string vpn)
-        {
-            var bridgeServer = GetBridgeServer(urn, port, vpn);
-            if (bridgeServer != null)
-            {
-                throw new DomainException(ErrorCodes.BRIDGE_ALREADY_EXISTS, Global.BridgeAlreadyExists);
-            }
-
-            BridgeServers.Add(new BridgeServer
-            {
-                Port = port,
-                Urn = urn,
-                Vpn = vpn
-            });
-        }
-
-        public BridgeServer GetBridgeServer(string urn, int port, string vpn)
-        {
-            return BridgeServers.FirstOrDefault(bs => bs.Urn == urn && bs.Port == port && bs.Vpn == vpn);
         }
     }
 }

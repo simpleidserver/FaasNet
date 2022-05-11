@@ -8,7 +8,7 @@ namespace FaasNet.EventMesh.Runtime.EF.Configurations
     {
         public void Configure(EntityTypeBuilder<BridgeServer> builder)
         {
-            builder.HasKey(b => b.Urn);
+            builder.HasKey(b => b.TargetUrn);
         }
     }
 }
