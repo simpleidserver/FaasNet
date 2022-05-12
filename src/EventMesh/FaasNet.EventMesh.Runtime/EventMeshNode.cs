@@ -1,6 +1,7 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Handlers;
+using FaasNet.RaftConsensus.Client.Extensions;
 using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
@@ -56,20 +57,23 @@ namespace FaasNet.EventMesh.Runtime
                         return;
                     }
 
-                    if(result.Status == EventMeshPackageResultStatus.ADD_PEER)
+                    if(result.Status.HasFlag(EventMeshPackageResultStatus.ADD_PEER))
                     {
                         await AddPeer(result.Termid);
                         await StartPeer(result.Termid);
                     }
 
-                    if(result.Status == EventMeshPackageResultStatus.SEND_RESULT)
+                    if(result.Status.HasFlag(EventMeshPackageResultStatus.SEND_RESULT))
                     {
                         EventMeshMeter.IncrementNbOutgoingRequest();
                         Logger.LogInformation("Command {command} with sequence {sequence} is going to be sent", result.Package.Header.Command.Name, result.Package.Header.Seq);
                         var writeCtx = new WriteBufferContext();
                         result.Package.Serialize(writeCtx);
                         var resultPayload = writeCtx.Buffer.ToArray();
-                        // await _udpClient.SendAsync(resultPayload, resultPayload.Count(), receiveResult.RemoteEndPoint).WithCancellation(_cancellationToken);
+                        using (var udpClient = new UdpClient())
+                        {
+                            await udpClient.SendAsync(resultPayload, resultPayload.Count(), udpResult.RemoteEndPoint).WithCancellation(TokenSource.Token);
+                        }
                     }
 
                     activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok);

@@ -13,9 +13,9 @@ namespace FaasNet.EventMesh.Runtime.Handlers
     public class AddBridgeMessageHandler : IMessageHandler
     {
         private readonly IVpnStore _vpnStore;
-        private readonly IBridgeStore _bridgeStore;
+        private readonly IBridgeServerStore _bridgeStore;
 
-        public AddBridgeMessageHandler(IVpnStore vpnStore, IBridgeStore bridgeStore)
+        public AddBridgeMessageHandler(IVpnStore vpnStore, IBridgeServerStore bridgeStore)
         {
             _vpnStore = vpnStore;
             _bridgeStore = bridgeStore;
@@ -51,10 +51,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
             try
             {
-                using (var runtimeClient = new RuntimeClient(addBridgeRequest.TargetUrn, addBridgeRequest.TargetPort))
-                {
-                    await runtimeClient.HeartBeat();
-                }
+                var eventMeshClient = new EventMeshClient(addBridgeRequest.TargetUrn, addBridgeRequest.TargetPort);
+                await eventMeshClient.Ping(cancellationToken);
             }
             catch (RuntimeClientException)
             {

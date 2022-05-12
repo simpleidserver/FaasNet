@@ -6,9 +6,9 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddRuntimeWebsite(this IServiceCollection services, Action<RuntimeOptions> callback = null)
+        public static IServiceCollection AddRuntimeWebsite(this IServiceCollection services, Action<EventMeshNodeOptions> callback = null)
         {
-            services.AddRuntime(callback);
+            services.AddEventMeshServer(callback);
             services.AddScoped<BreadcrumbState>();
             services.AddScoped<ViewClientState>();
             return services;

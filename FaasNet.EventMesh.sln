@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31624.102
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Core Layer", "02. Core Layer", "{6E495E0A-0DC8-4E42-8C58-3C48506D3D24}"
 EndProject
@@ -38,6 +38,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Core", "src\RaftConsensus\FaasNet.RaftConsensus.Core\FaasNet.RaftConsensus.Core.csproj", "{69259CDF-1E32-4310-9155-BC095FFDBECD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Client", "src\RaftConsensus\FaasNet.RaftConsensus.Client\FaasNet.RaftConsensus.Client.csproj", "{9FD70B89-220D-47E7-958D-E10F493F9436}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime.Console", "src\EventMesh\FaasNet.EventMesh.Runtime.Console\FaasNet.EventMesh.Runtime.Console.csproj", "{C212B250-18DD-4F63-B0B3-003FA45A8A9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +99,10 @@ Global
 		{9FD70B89-220D-47E7-958D-E10F493F9436}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FD70B89-220D-47E7-958D-E10F493F9436}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FD70B89-220D-47E7-958D-E10F493F9436}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C212B250-18DD-4F63-B0B3-003FA45A8A9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C212B250-18DD-4F63-B0B3-003FA45A8A9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C212B250-18DD-4F63-B0B3-003FA45A8A9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C212B250-18DD-4F63-B0B3-003FA45A8A9A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -115,6 +121,7 @@ Global
 		{BE0F462B-1C13-4160-8A71-7FCDDE0C6BF3} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
 		{69259CDF-1E32-4310-9155-BC095FFDBECD} = {7A13262A-D1E6-4210-BA95-03A0741CBFA4}
 		{9FD70B89-220D-47E7-958D-E10F493F9436} = {7A13262A-D1E6-4210-BA95-03A0741CBFA4}
+		{C212B250-18DD-4F63-B0B3-003FA45A8A9A} = {20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9BD3B8C-B2C9-468F-BF54-66BFE9B565EC}

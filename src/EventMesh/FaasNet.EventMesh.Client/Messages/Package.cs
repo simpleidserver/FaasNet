@@ -40,39 +40,29 @@ namespace FaasNet.EventMesh.Client.Messages
                 return result;
             }
 
+            if (Commands.ADD_CLIENT_REQUEST == header.Command)
+            {
+                var result = new AddClientRequest
+                {
+                    Header = header
+                };
+                result.Extract(context);
+                return result;
+            }
+
+            if(Commands.ADD_CLIENT_RESPONSE == header.Command)
+            {
+                var result = new AddClientResponse
+                {
+                    Header = header
+                };
+                result.Extract(context);
+                return result;
+            }
+
             if (Commands.SUBSCRIBE_RESPONSE == header.Command)
             {
                 var result = new SubscriptionResult
-                {
-                    Header = header
-                };
-                result.Extract(context);
-                return result;
-            }
-
-            if (Commands.ASYNC_MESSAGE_TO_CLIENT == header.Command)
-            {
-                var result = new AsyncMessageToClient
-                {
-                    Header = header
-                };
-                result.Extract(context);
-                return result;
-            }
-
-            if (Commands.ASYNC_MESSAGE_TO_CLIENT_ACK == header.Command)
-            {
-                var result = new AsyncMessageAckToServer
-                {
-                    Header = header
-                };
-                result.Extract(context);
-                return result;
-            }
-
-            if (Commands.ASYNC_MESSAGE_TO_SERVER == header.Command)
-            {
-                var result = new AsyncMessageToServer
                 {
                     Header = header
                 };
@@ -123,6 +113,16 @@ namespace FaasNet.EventMesh.Client.Messages
             if(Commands.GET_ALL_VPNS_RESPONSE == header.Command)
             {
                 var result = new GetAllVpnResponse
+                {
+                    Header = header
+                };
+                result.Extract(context);
+                return result;
+            }
+
+            if(Commands.ADD_VPN_REQUEST == header.Command)
+            {
+                var result = new AddVpnRequest
                 {
                     Header = header
                 };

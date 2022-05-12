@@ -8,7 +8,7 @@ namespace FaasNet.EventMesh.Runtime.Models
     public class MessageExchange
     {
         public string TopicFilter { get; set; }
-        public IEnumerable<string> ClientIds { get; set; }
+        public ICollection<string> ClientIds { get; set; }
 
         public bool IsMatch(string filter)
         {

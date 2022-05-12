@@ -15,9 +15,9 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         private readonly IVpnStore _vpnStore;
         private readonly IClientStore _clientStore;
         private readonly IClientSessionStore _clientSessionStore;
-        private readonly RuntimeOptions _options;
+        private readonly EventMeshNodeOptions _options;
 
-        public HelloMessageHandler(IVpnStore vpnStore, IClientStore clientStore, IClientSessionStore clientSessionStore, IOptions<RuntimeOptions> options)
+        public HelloMessageHandler(IVpnStore vpnStore, IClientStore clientStore, IClientSessionStore clientSessionStore, IOptions<EventMeshNodeOptions> options)
         {
             _vpnStore = vpnStore;
             _clientStore = clientStore;
@@ -57,7 +57,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             Models.Client client;
             using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Get client"))
             {
-                client = await _clientStore.GetByClientId(helloRequest.UserAgent.Vpn, helloRequest.UserAgent.ClientId, cancellationToken);
+                client = await _clientStore.Get(helloRequest.UserAgent.Vpn, helloRequest.UserAgent.ClientId, cancellationToken);
                 activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok);
             }
 

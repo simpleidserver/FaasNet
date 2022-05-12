@@ -1,7 +1,9 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
+using FaasNet.RaftConsensus.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace FaasNet.EventMesh.Runtime.Models
 {
@@ -31,9 +33,25 @@ namespace FaasNet.EventMesh.Runtime.Models
             }
         }
 
+        public static string BuildId(string vpn, string clientId)
+        {
+            return $"{vpn}_{clientId}";
+        }
+
         public static string BuildQueueName(string clientId)
         {
             return $"queue-{clientId}";
+        }
+
+        public NodeState ToNodeState()
+        {
+            return new NodeState
+            {
+                EntityType = StandardEntityTypes.Client,
+                EntityId = Id,
+                EntityVersion = 0,
+                Value = JsonSerializer.Serialize(this)
+            };
         }
 
         public static Client Create(string vpn, string clientId, string urn, List<UserAgentPurpose> purposes = null)

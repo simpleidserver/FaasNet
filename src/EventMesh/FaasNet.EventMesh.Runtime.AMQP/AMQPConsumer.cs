@@ -25,7 +25,7 @@ namespace FaasNet.EventMesh.Runtime.AMQP
             IBrokerConfigurationStore brokerConfigurationStore,
             IClientStore clientStore,
             IOptions<AMQPOptions> opts,
-            IOptions<RuntimeOptions> runtimeOpts) : base(runtimeOpts)
+            IOptions<EventMeshNodeOptions> runtimeOpts) : base(runtimeOpts)
         {
             _opts = opts.Value;
             _brokerConfigurationStore = brokerConfigurationStore;

@@ -2,9 +2,9 @@
 
 namespace FaasNet.EventMesh.Runtime
 {
-    public class RuntimeOptions
+    public class EventMeshNodeOptions
     {
-        public RuntimeOptions()
+        public EventMeshNodeOptions()
         {
             Urn = "first.eventmesh.io";
             IPAddress = Client.Constants.DefaultIPAddress;

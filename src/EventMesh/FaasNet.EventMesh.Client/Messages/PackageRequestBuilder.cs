@@ -18,6 +18,27 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
+        public static Package AddVPN(string vpn)
+        {
+            var result = new AddVpnRequest
+            {
+                Header = new Header(Commands.ADD_VPN_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
+                Vpn = vpn
+            };
+            return result;
+        }
+
+        public static Package AddClient(string vpn, string clientId)
+        {
+            var result = new AddClientRequest
+            {
+                Header = new Header(Commands.ADD_CLIENT_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
+                Vpn = vpn,
+                ClientId = clientId
+            };
+            return result;
+        }
+
         public static HelloRequest Hello(UserAgent userAgent)
         {
             var result = new HelloRequest
@@ -60,32 +81,12 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package AsyncMessageAckToServer(string clientId, string brokerName, string topicMessage, string topicFilter, int nbCloudEventsConsumed, ICollection<AsyncMessageBridgeServer> bridgeServers, string sessionId, string seq = null, bool isClient = false)
-        {
-            var result = new AsyncMessageAckToServer
-            {
-                Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT_ACK, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
-                BrokerName = brokerName,
-                TopicMessage = topicMessage,
-                TopicFilter = topicFilter,
-                NbCloudEventsConsumed = nbCloudEventsConsumed,
-                BridgeServers = bridgeServers,
-                ClientId = clientId,
-                SessionId = sessionId,
-                IsClient = isClient
-            };
-            return result;
-        }
-
-        public static Package PublishMessage(string clientId, string sessionId, string topicName, CloudEvent cloudEvent, string urn = null, int port = default(int), string seq = null)
+        public static Package PublishMessage(string sessionId, string topicName, CloudEvent cloudEvent, string seq = null)
         {
             var result = new PublishMessageRequest
             {
                 Header = new Header(Commands.PUBLISH_MESSAGE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
-                ClientId = clientId,
                 CloudEvent = cloudEvent,
-                Port = port,
-                Urn = urn,
                 SessionId = sessionId,
                 Topic = topicName
             };

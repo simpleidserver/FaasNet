@@ -6,4 +6,7 @@
     <PackageReference Include="CloudNative.CloudEvents" Version="2.2.0" />
     <PackageReference Include="CloudNative.CloudEvents.SystemTextJson" Version="2.2.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\RaftConsensus\FaasNet.RaftConsensus.Client\FaasNet.RaftConsensus.Client.csproj" />
+  </ItemGroup>
 </Project>

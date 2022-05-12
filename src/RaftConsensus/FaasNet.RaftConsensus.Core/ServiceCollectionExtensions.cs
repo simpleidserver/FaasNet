@@ -1,5 +1,4 @@
-﻿using FaasNet.Common;
-using FaasNet.RaftConsensus.Core;
+﻿using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Models;
 using FaasNet.RaftConsensus.Core.Stores;
 using System;
@@ -9,7 +8,8 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static ServerBuilder AddConsensusPeer(this IServiceCollection services, Action<ConsensusPeerOptions> callback = null)
+
+        public static IServiceCollection RegisterConsensusPeer(this IServiceCollection services, Action<ConsensusPeerOptions> callback = null)
         {
             if (callback != null) services.Configure(callback);
             else services.Configure<ConsensusPeerOptions>((o) => { });
@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ILogStore, InMemoryLogStore>();
             services.AddSingleton<INodeStateStore, InMemoryNodeStateStore>();
             services.AddSingleton<IPeerInfoStore>(peerStore);
-            return new ServerBuilder(services);
+            return services;
         }
     }
 }

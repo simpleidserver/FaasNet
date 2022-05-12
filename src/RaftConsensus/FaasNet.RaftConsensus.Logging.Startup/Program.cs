@@ -1,9 +1,9 @@
 ﻿
+using FaasNet.Common;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
 int seedPort = 4000;

@@ -79,4 +79,15 @@ namespace FaasNet.EventMesh.Runtime.Models
             return result;
         }
     }
+    public enum ClientSessionState
+    {
+        ACTIVE = 0,
+        FINISH = 1
+    }
+
+    public enum ClientSessionTypes
+    {
+        CLIENT = 0,
+        SERVER = 1
+    }
 }

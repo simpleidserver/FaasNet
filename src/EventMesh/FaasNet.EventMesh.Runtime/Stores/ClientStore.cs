@@ -1,67 +1,38 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using FaasNet.RaftConsensus.Core.Stores;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Runtime.Stores
 {
+    public interface IClientStore
+    {
+        Task Add(Models.Client client, CancellationToken cancellationToken);
+        Task<Models.Client> Get(string vpn, string clientId, CancellationToken cancellationToken);
+    }
+
     public class ClientStore : IClientStore
     {
-        private readonly ICollection<Models.Client> _clients;
+        private readonly INodeStateStore _nodeStateStore;
 
-        public ClientStore(ICollection<Models.Client> clients)
+        public ClientStore(INodeStateStore nodeStateStore)
         {
-            _clients = clients;
+            _nodeStateStore = nodeStateStore;
         }
 
-        public void Add(Models.Client client)
+        public async Task Add(Models.Client client, CancellationToken cancellationToken)
         {
-            _clients.Add(client);
+            var lastEntityId = await _nodeStateStore.GetLastEntityId(client.Id, cancellationToken);
+            var nodeState = client.ToNodeState();
+            if (lastEntityId != null) nodeState.EntityVersion = lastEntityId.EntityVersion + 1;
+            _nodeStateStore.Add(nodeState);
         }
 
-        public Task<IEnumerable<Models.Client>> GetAllByVpn(string name, CancellationToken cancellationToken)
+        public async Task<Models.Client> Get(string vpn, string clientId, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_clients.Where(c => c.Vpn == name));
-        }
-
-        public Task<Models.Client> GetByBridgeSession(string clientId, string bridgeUrn, string bridgeSessionId, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(_clients.FirstOrDefault(c => c.ClientId == clientId && c.Sessions.Any(s => s.Bridges.Any(b => b.Urn == bridgeUrn && b.SessionId == bridgeSessionId))));
-        }
-
-        public Task<Models.Client> GetByClientId(string vpn, string clientId, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(_clients.FirstOrDefault(c => c.Vpn == vpn && c.ClientId == clientId));
-        }
-
-        public Task<Models.Client> GetById(string id, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(_clients.FirstOrDefault(c => c.Id == id));
-        }
-
-        public Task<Models.Client> GetBySession(string clientId, string clientSessionId, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(_clients.FirstOrDefault(c => c.ClientId == clientId && c.Sessions.Any(s => s.Id == clientSessionId)));
-        }
-
-        public Task CloseAllActiveSessions(CancellationToken cancellationToken)
-        {
-            foreach(var client in _clients)
-            {
-                client.CloseActiveSession();
-            }
-
-            return Task.CompletedTask;
-        }
-
-        public void Remove(Models.Client client)
-        {
-            _clients.Remove(client);
-        }
-
-        public Task<int> SaveChanges(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(1);
+            var nodeState = await _nodeStateStore.GetLastEntityId(Models.Client.BuildId(vpn, clientId), cancellationToken);
+            if (nodeState == null) return null;
+            return JsonSerializer.Deserialize<Models.Client>(nodeState.Value, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
     }
 }

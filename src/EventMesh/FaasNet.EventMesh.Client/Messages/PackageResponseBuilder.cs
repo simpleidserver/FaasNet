@@ -1,5 +1,4 @@
-﻿using CloudNative.CloudEvents;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.Messages
 {
@@ -53,50 +52,11 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package AsyncMessageToClient(ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicName, string topicFilter, ICollection<CloudEvent> cloudEvts)
-        {
-            var result = new AsyncMessageToClient
-            {
-                Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT, HeaderStatus.SUCCESS, null),
-                BridgeServers = bridgeServers,
-                BrokerName = brokerName,
-                TopicMessage = topicName,
-                CloudEvents = cloudEvts,
-                TopicFilter = topicFilter
-            };
-            return result;
-        }
-
-        public static Package AsyncMessageToServer(string clientId, ICollection<AsyncMessageBridgeServer> bridgeServers, string brokerName, string topicMessage, string topicFilter, ICollection<CloudEvent> cloudEvts, string sessionId)
-        {
-            var result = new AsyncMessageToServer
-            {
-                Header = new Header(Commands.ASYNC_MESSAGE_TO_SERVER, HeaderStatus.SUCCESS, null),
-                ClientId = clientId,
-                BridgeServers = bridgeServers,
-                BrokerName = brokerName,
-                TopicMessage = topicMessage,
-                CloudEvents = cloudEvts,
-                SessionId = sessionId,
-                TopicFilter = topicFilter
-            };
-            return result;
-        }
-
         public static Package PublishMessage(string seq)
         {
             var result = new Package
             {
                 Header = new Header(Commands.PUBLISH_MESSAGE_RESONSE, HeaderStatus.SUCCESS, seq)
-            };
-            return result;
-        }
-
-        public static Package Bridge(string seq)
-        {
-            var result = new Package
-            {
-                // Header = new Header(Commands.BRIDGE_RESPONSE, HeaderStatus.SUCCESS, seq)
             };
             return result;
         }
@@ -119,11 +79,11 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package AsyncMessageToClient(string seq)
+        public static Package AddVpn(string seq)
         {
             var result = new Package
             {
-                Header = new Header(Commands.ASYNC_MESSAGE_TO_CLIENT_ACK_RESPONSE, HeaderStatus.SUCCESS, seq)
+                Header = new Header(Commands.ADD_VPN_RESPONSE, HeaderStatus.SUCCESS, seq)
             };
             return result;
         }

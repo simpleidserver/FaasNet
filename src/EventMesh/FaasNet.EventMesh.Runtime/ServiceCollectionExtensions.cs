@@ -1,51 +1,34 @@
 ﻿using FaasNet.EventMesh.Runtime;
 using FaasNet.EventMesh.Runtime.Handlers;
-using FaasNet.EventMesh.Runtime.MessageBroker;
-using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
+using FaasNet.RaftConsensus.Core;
 using System;
-using System.Collections.Generic;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static ServerBuilder AddRuntime(this IServiceCollection services, Action<RuntimeOptions> callback = null)
+        public static IServiceCollection RegisterEventMeshServer(this IServiceCollection services, Action<ConsensusPeerOptions> consensusCallback = null, Action<EventMeshNodeOptions> callback = null)
         {
-            if (callback != null)
-            {
-                services.Configure(callback);
-            }
-            else
-            {
-                services.Configure<RuntimeOptions>(opt => { });
-            }
-
+            if (callback != null) services.Configure(callback);
+            services.Configure<EventMeshNodeOptions>(opt => { });
             services.AddLogging();
-            services.AddTransient<IRuntimeHost, EventMeshPeer>();
+            services.RegisterConsensusPeer(consensusCallback);
+            services.AddTransient<INodeHost, EventMeshNode>();
+            services.AddTransient<IBridgeServerStore, BridgeServerStore>();
+            services.AddTransient<IClientSessionStore, ClientSessionStore>();
+            services.AddTransient<IClientStore, ClientStore>();
+            services.AddTransient<IMessageExchangeStore, MessageExchangeStore>();
+            services.AddTransient<IVpnStore, VpnStore>();
+            services.AddTransient<IMessageHandler, AddBridgeMessageHandler>();
+            services.AddTransient<IMessageHandler, AddClientMessageHandler>();
+            services.AddTransient<IMessageHandler, DisconnectMessageHandler>();
+            services.AddTransient<IMessageHandler, GetAllVpnsMessageHandler>();
             services.AddTransient<IMessageHandler, HeartbeatMessageHandler>();
             services.AddTransient<IMessageHandler, HelloMessageHandler>();
-            services.AddTransient<IMessageHandler, SubscribeMessageHandler>();
-            services.AddTransient<IMessageHandler, AsyncMessageToClientAckHandler>();
-            services.AddTransient<IMessageHandler, AsyncMessageToServerHandler>();
-            services.AddTransient<IMessageHandler, AddBridgeMessageHandler>();
-            services.AddTransient<IMessageHandler, DisconnectMessageHandler>();
             services.AddTransient<IMessageHandler, PublishMessageRequestHandler>();
-            services.AddTransient<IMessageHandler, GetAllVpnsMessageHandler>();
-            services.AddSingleton<IUdpClientServerFactory, UdpClientServerFactory>();
-            services.AddSingleton<IBrokerConfigurationStore>(new BrokerConfigurationStore());
-            services.AddSingleton<IVpnStore>(new VpnStore(new List<Vpn>()));
-            services.AddSingleton<IClientStore>(new ClientStore(new List<Client>()));
-            services.AddSingleton<IApplicationDomainRepository>(new ApplicationDomainRepository(new List<ApplicationDomain>()));
-            services.AddSingleton<IMessageDefinitionRepository>(new MessageDefinitionRepository(new List<MessageDefinition>()));
-            return new ServerBuilder(services);
-        }
-
-        public static IServiceCollection AddInMemoryMessageBroker(this IServiceCollection services)
-        {
-            services.AddSingleton<IMessageConsumer, InMemoryMessageConsumer>();
-            services.AddSingleton<IMessagePublisher, InMemoryMessagePublisher>();
-            services.AddSingleton<IEventMeshCloudEventRepository>(new InMemoryEventMeshCloudEventRepository());
+            services.AddTransient<IMessageHandler, SubscribeMessageHandler>();
+            services.AddTransient<IMessageHandler, AddVpnMessageHandler>();
             return services;
         }
     }

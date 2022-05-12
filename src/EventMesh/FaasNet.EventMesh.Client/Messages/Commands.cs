@@ -31,58 +31,53 @@ namespace FaasNet.EventMesh.Client.Messages
         /// </summary>
         public static Commands SUBSCRIBE_RESPONSE = new Commands(5, "SUBSCRIBE_RESPONSE");
         /// <summary>
-        /// Server push async message to client.
-        /// </summary>
-        public static Commands ASYNC_MESSAGE_TO_CLIENT = new Commands(6, "ASYNC_MESSAGE_TO_CLIENT");
-        /// <summary>
-        /// Client reply ack of async msg to server.
-        /// </summary>
-        public static Commands ASYNC_MESSAGE_TO_CLIENT_ACK = new Commands(7, "ASYNC_MESSAGE_TO_CLIENT_ACK");
-        /// <summary>
         /// Add a bridge.
         /// </summary>
-        public static Commands ADD_BRIDGE_REQUEST = new Commands(8, "ADD_BRIDGE_REQUEST");
+        public static Commands ADD_BRIDGE_REQUEST = new Commands(6, "ADD_BRIDGE_REQUEST");
         /// <summary>
         /// Server reply add bridge response.
         /// </summary>
-        public static Commands ADD_BRIDGE_RESPONSE = new Commands(9, "ADD_BRIDGE_RESPONSE");
-        /// <summary>
-        /// Server sends async message to a server.
-        /// </summary>
-        public static Commands ASYNC_MESSAGE_TO_SERVER = new Commands(10, "ASYNC_MESSAGE_TO_SERVER");
+        public static Commands ADD_BRIDGE_RESPONSE = new Commands(7, "ADD_BRIDGE_RESPONSE");
         /// <summary>
         /// Send disconnect request to close the session.
         /// </summary>
-        public static Commands DISCONNECT_REQUEST = new Commands(11, "DISCONNECT_REQUEST");
+        public static Commands DISCONNECT_REQUEST = new Commands(8, "DISCONNECT_REQUEST");
         /// <summary>
         /// Reply disconnect response.
         /// </summary>
-        public static Commands DISCONNECT_RESPONSE = new Commands(12, "DISCONNECT_RESPONSE");
-        public static Commands ASYNC_MESSAGE_TO_CLIENT_ACK_RESPONSE = new Commands(13, "ASYNC_MESSAGE_TO_CLIENT_ACK_RESPONSE");
+        public static Commands DISCONNECT_RESPONSE = new Commands(9, "DISCONNECT_RESPONSE");
         /// <summary>
         /// Client send message request to the server.
         /// </summary>
-        public static Commands PUBLISH_MESSAGE_REQUEST = new Commands(14, "PUBLISH_MESSAGE_REQUEST");
+        public static Commands PUBLISH_MESSAGE_REQUEST = new Commands(10, "PUBLISH_MESSAGE_REQUEST");
         /// <summary>
         /// Server reply message response to the client.
         /// </summary>
-        public static Commands PUBLISH_MESSAGE_RESONSE = new Commands(15, "PUBLISH_MESSAGE_RESONSE");
+        public static Commands PUBLISH_MESSAGE_RESONSE = new Commands(11, "PUBLISH_MESSAGE_RESONSE");
         /// <summary>
         /// Get all VPN request.
         /// </summary>
-        public static Commands GET_ALL_VPNS_REQUEST = new Commands(16, "GET_ALL_VPNS_REQUEST");
+        public static Commands GET_ALL_VPNS_REQUEST = new Commands(12, "GET_ALL_VPNS_REQUEST");
         /// <summary>
         /// Get all VPN response.
         /// </summary>
-        public static Commands GET_ALL_VPNS_RESPONSE = new Commands(17, "GET_ALL_VPNS_RESPONSE");
+        public static Commands GET_ALL_VPNS_RESPONSE = new Commands(13, "GET_ALL_VPNS_RESPONSE");
         /// <summary>
         /// Request sent to create a client.
         /// </summary>
-        public static Commands ADD_CLIENT_REQUEST = new Commands(18, "ADD_CLIENT_REQUEST");
+        public static Commands ADD_CLIENT_REQUEST = new Commands(14, "ADD_CLIENT_REQUEST");
         /// <summary>
         /// Result returned when a client is added;
         /// </summary>
-        public static Commands ADD_CLIENT_RESPONSE = new Commands(19, "ADD_CLIENT_RESPONSE");
+        public static Commands ADD_CLIENT_RESPONSE = new Commands(15, "ADD_CLIENT_RESPONSE");
+        /// <summary>
+        /// Request sent to create a VPN.
+        /// </summary>
+        public static Commands ADD_VPN_REQUEST = new Commands(16, "ADD_VPN_REQUEST");
+        /// <summary>
+        /// Result returned when a VPN is added.
+        /// </summary>
+        public static Commands ADD_VPN_RESPONSE = new Commands(17, "ADD_VPN_RESPONSE");
 
         private Commands(int code)
         {

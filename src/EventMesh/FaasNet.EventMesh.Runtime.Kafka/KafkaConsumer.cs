@@ -23,7 +23,7 @@ namespace FaasNet.EventMesh.Runtime.Kafka
             IBrokerConfigurationStore brokerConfigurationStore,
             IOptions<KafkaOptions> options,
             IClientStore clientStore,
-            IOptions<RuntimeOptions> runtimeOpts) : base(runtimeOpts)
+            IOptions<EventMeshNodeOptions> runtimeOpts) : base(runtimeOpts)
         {
             _brokerConfigurationStore = brokerConfigurationStore;
             _opts = options.Value;

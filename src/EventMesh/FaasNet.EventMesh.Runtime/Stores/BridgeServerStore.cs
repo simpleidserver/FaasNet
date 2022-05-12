@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Runtime.Stores
 {
-    public interface IBridgeStore
+    public interface IBridgeServerStore
     {
         Task<IEnumerable<BridgeServer>> GetAll(CancellationToken cancellationToken);
         Task Add(BridgeServer vpn, CancellationToken cancellationToken);
     }
 
-    public class BridgeServerStore : IBridgeStore
+    public class BridgeServerStore : IBridgeServerStore
     {
         private readonly INodeStateStore _nodeStateStore;
 

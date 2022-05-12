@@ -50,8 +50,10 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             var result = new List<string>();
             foreach (var topicFilter in subscriptionRequest.TopicFilters)
             {
-                var messageExchange = await _messageExchangeStore.Get(subscriptionRequest.ClientId, topicFilter.Topic, cancellationToken);
-                if (messageExchange == null) await _messageExchangeStore.Add(new Models.MessageExchange { ClientId = subscriptionRequest.ClientId, TopicFilter = topicFilter.Topic }, cancellationToken);
+                var messageExchange = await _messageExchangeStore.Get(topicFilter.Topic, cancellationToken);
+                if (messageExchange == null) messageExchange = new Models.MessageExchange { TopicFilter = topicFilter.Topic };
+                if (!messageExchange.ClientIds.Contains(subscriptionRequest.ClientId)) messageExchange.ClientIds.Add(subscriptionRequest.ClientId);
+                await _messageExchangeStore.Add(messageExchange, cancellationToken);
                 result.Add(Models.Client.BuildQueueName(subscriptionRequest.ClientId));
             }
 
