@@ -1,16 +1,19 @@
 ﻿using FaasNet.RaftConsensus.Core.Models;
+using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace FaasNet.EventMesh.Runtime.Models
 {
     public class MessageExchange
     {
-        public string ClientId { get; set; }
-        public string Topic { get; set; }
+        public string TopicFilter { get; set; }
+        public IEnumerable<string> ClientIds { get; set; }
 
-        public static string BuildId(string clientId, string topic)
+        public bool IsMatch(string filter)
         {
-            return $"{clientId}_{topic}";
+            var regex = new Regex(TopicFilter);
+            return regex.IsMatch(filter);
         }
 
         public NodeState ToNodeState()
@@ -18,7 +21,7 @@ namespace FaasNet.EventMesh.Runtime.Models
             return new NodeState
             {
                 EntityType = StandardEntityTypes.MessageExchange,
-                EntityId = BuildId(ClientId, Topic),
+                EntityId = TopicFilter,
                 EntityVersion = 0,
                 Value = JsonSerializer.Serialize(this)
             };

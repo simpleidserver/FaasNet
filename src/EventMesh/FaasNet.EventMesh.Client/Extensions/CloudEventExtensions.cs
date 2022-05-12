@@ -8,6 +8,13 @@ namespace FaasNet.EventMesh.Client.Extensions
 {
     public static class CloudEventExtensions
     {
+        public static string SerializeBase64(this CloudEvent cloudEvent)
+        {
+            var bufferContext = new WriteBufferContext();
+            Serialize(cloudEvent, bufferContext);
+            return Convert.ToBase64String(bufferContext.Buffer.ToArray());
+        }
+
         public static void Serialize(this CloudEvent cloudEvent, WriteBufferContext bufferContext)
         {
             var formatter = new JsonEventFormatter();

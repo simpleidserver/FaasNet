@@ -1,10 +1,17 @@
-﻿using FaasNet.EventMesh.Client;
+﻿using FaasNet.EventMesh.Client.Extensions;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
+using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Core;
+using FaasNet.RaftConsensus.Core.Models;
+using FaasNet.RaftConsensus.Core.Stores;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,10 +20,14 @@ namespace FaasNet.EventMesh.Runtime.Handlers
     public class PublishMessageRequestHandler : BaseMessageHandler, IMessageHandler
     {
         private readonly IMessageExchangeStore _messageExchangeStore;
+        private readonly IClusterStore _clusterStore;
+        private readonly ConsensusPeerOptions _peerOptions;
 
-        public PublishMessageRequestHandler(IVpnStore vpnStore, IClientSessionStore clientSessionStore, IMessageExchangeStore messageExchangeStore) : base(clientSessionStore, vpnStore)
+        public PublishMessageRequestHandler(IVpnStore vpnStore, IClientSessionStore clientSessionStore, IMessageExchangeStore messageExchangeStore, IClusterStore clusterStore, IOptions<ConsensusPeerOptions> peerOption) : base(clientSessionStore, vpnStore)
         {
             _messageExchangeStore = messageExchangeStore;
+            _clusterStore = clusterStore;
+            _peerOptions = peerOption.Value;
         }
 
         public Commands Command => Commands.PUBLISH_MESSAGE_REQUEST;
@@ -25,29 +36,10 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         {
             var publishMessageRequest = package as PublishMessageRequest;
             await CheckSession(publishMessageRequest, cancellationToken);
-
-            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Publish to local message brokers"))
-            {
-                if (
-                    (!string.IsNullOrWhiteSpace(publishMessageRequest.Urn) && _runtimeOpts.Urn == publishMessageRequest.Urn) ||
-                    (string.IsNullOrWhiteSpace(publishMessageRequest.Urn)))
-                {
-                    foreach (var publisher in _messagePublishers)
-                    {
-                        await publisher.Publish(publishMessageRequest.CloudEvent, publishMessageRequest.Topic, sessionResult.ClientSession);
-                    }
-                }
-
-                activity?.SetStatus(ActivityStatusCode.Ok);
-            }
-
-            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Broadcast message"))
-            {
-                await Broadcast(publishMessageRequest, sessionResult.ClientSession, sessionResult.Vpn.BridgeServers);
-                activity?.SetStatus(ActivityStatusCode.Ok);
-            }
-
-            return PackageResponseBuilder.PublishMessage(package.Header.Seq);
+            var queueNames = await GetQueueNames(publishMessageRequest, cancellationToken);
+            await BroadcastMessage(publishMessageRequest, queueNames, cancellationToken);
+            var result = PackageResponseBuilder.PublishMessage(package.Header.Seq);
+            return EventMeshPackageResult.SendResult(result);
         }
 
         private async Task CheckSession(PublishMessageRequest message, CancellationToken cancellationToken)
@@ -65,40 +57,47 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             }
         }
 
-        private async Task BroadcastMessage(PublishMessageRequest message, CancellationToken cancellationToken)
+        private async Task<IEnumerable<string>> GetQueueNames(PublishMessageRequest message, CancellationToken cancellationToken)
         {
-            // get all the queues from exchange.
-            // append entry | append the message to the queue.
-            // a client must pool the message from the queue (consensus).
+            IEnumerable<MessageExchange> messageExchanges;
+            using(var activity = EventMeshMeter.RequestActivitySource.StartActivity("Get all message exchange"))
+            {
+                messageExchanges = await _messageExchangeStore.GetAll(cancellationToken);
+                activity?.SetStatus(ActivityStatusCode.Ok);
+            }
+
+            var queueNames = new List<string>();
+            foreach(var messageExchange in messageExchanges)
+            {
+                if (messageExchange.IsMatch(message.Topic)) queueNames.AddRange(messageExchange.ClientIds.Select(ci => Models.Client.BuildQueueName((ci))));
+            }
+
+            return queueNames;
         }
 
-        private async Task Broadcast(PublishMessageRequest publishMessageRequest, Models.Client client, ICollection<BridgeServer> bridgeServers)
+        private async Task BroadcastMessage(PublishMessageRequest message, IEnumerable<string> queueNames, CancellationToken cancellationToken)
         {
-            foreach (var bridgeServer in bridgeServers)
+            var rndClusterNode = await GetRandomClusterNode(cancellationToken);
+            var base64Message = message.CloudEvent.SerializeBase64();
+            using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Broadcast message"))
             {
-                await Broadcast(publishMessageRequest, bridgeServer, client);
+                using (var consensusClient = new ConsensusClient(rndClusterNode.Url, rndClusterNode.Port))
+                {
+                    foreach (var queueName in queueNames)
+                    {
+                        await consensusClient.AppendEntry(queueName, base64Message, cancellationToken);
+                    }
+                }
             }
         }
 
-        private async Task Broadcast(PublishMessageRequest publishMessageRequest, BridgeServer bridgeServer, Models.Client client)
+        private async Task<ClusterNode> GetRandomClusterNode(CancellationToken cancellationToken)
         {
-            var activeSession = client.GetActiveSession(publishMessageRequest.SessionId);
-            var pid = Process.GetCurrentProcess().Id;
-            var runtimeClient = new RuntimeClient(bridgeServer.TargetUrn, bridgeServer.TargetPort);
-            var helloResponse = await runtimeClient.Hello(new UserAgent
-            {
-                ClientId = client.ClientId,
-                Purpose = activeSession.Purpose,
-                Environment = activeSession.Environment,
-                BufferCloudEvents = activeSession.BufferCloudEvents,
-                Urn = _runtimeOpts.Urn,
-                Port = _runtimeOpts.Port,
-                Pid = pid,
-                IsServer = true,
-                Vpn = bridgeServer.TargetVpn
-            });
-            await runtimeClient.PublishMessage(client.ClientId, helloResponse.SessionId, publishMessageRequest.Topic, publishMessageRequest.CloudEvent, publishMessageRequest.Urn, publishMessageRequest.Port);
-            await runtimeClient.Disconnect(client.ClientId, helloResponse.SessionId);
+            var nodes = await _clusterStore.GetAllNodes(cancellationToken);
+            nodes = nodes.Where(n => n.Port != _peerOptions.Port || n.Url != _peerOptions.Url);
+            var rnd = new Random();
+            var rndIndex = rnd.Next(0, nodes.Count() - 1);
+            return nodes.ElementAt(rndIndex);
         }
     }
 }
