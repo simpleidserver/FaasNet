@@ -1,7 +1,9 @@
 ﻿using CloudNative.CloudEvents;
 using CloudNative.CloudEvents.SystemTextJson;
 using FaasNet.EventMesh.Client.Messages;
+using FaasNet.RaftConsensus.Client.Messages;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FaasNet.EventMesh.Client.Extensions
@@ -28,6 +30,12 @@ namespace FaasNet.EventMesh.Client.Extensions
                 bufferContext.WriteString(property.Key.Type.Name);
                 bufferContext.WriteString(property.Value.ToString());
             }
+        }
+
+        public static CloudEvent DeserializeCloudEvent(this IEnumerable<byte> payload)
+        {
+            var readBufferContext = new ReadBufferContext(payload.ToArray());
+            return readBufferContext.DeserializeCloudEvent();
         }
 
         public static CloudEvent DeserializeCloudEvent(this ReadBufferContext context)

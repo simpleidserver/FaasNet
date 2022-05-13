@@ -1,4 +1,6 @@
 ﻿
+using FaasNet.RaftConsensus.Client.Messages;
+
 namespace FaasNet.EventMesh.Client.Messages
 {
     public class Package
@@ -50,16 +52,7 @@ namespace FaasNet.EventMesh.Client.Messages
                 return result;
             }
 
-            if(Commands.ADD_CLIENT_RESPONSE == header.Command)
-            {
-                var result = new AddClientResponse
-                {
-                    Header = header
-                };
-                result.Extract(context);
-                return result;
-            }
-
+            if (Commands.ADD_CLIENT_RESPONSE == header.Command) return new AddClientResponse { Header = header };
             if (Commands.SUBSCRIBE_RESPONSE == header.Command)
             {
                 var result = new SubscriptionResult
@@ -126,6 +119,20 @@ namespace FaasNet.EventMesh.Client.Messages
                 {
                     Header = header
                 };
+                result.Extract(context);
+                return result;
+            }
+
+            if (Commands.READ_NEXT_MESSAGE_REQUEST == header.Command)
+            {
+                var result = new ReadNextMessageRequest { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if (Commands.READ_NEXT_MESSAGE_RESPONSE == header.Command)
+            {
+                var result = new ReadNextMessageResponse { Header = header };
                 result.Extract(context);
                 return result;
             }

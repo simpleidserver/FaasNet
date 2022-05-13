@@ -1,20 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using FaasNet.RaftConsensus.Client.Messages;
 
 namespace FaasNet.EventMesh.Client.Messages
 {
     public class SubscriptionResult : Package
     {
-        public IEnumerable<string> QueueNames { get; set; }
+        public string QueueName { get; set; }
 
         public override void Serialize(WriteBufferContext context)
         {
             base.Serialize(context);
-            context.WriteStringArray(QueueNames);
+            context.WriteString(QueueName);
         }
 
         public void Extract(ReadBufferContext context)
         {
-            QueueNames = context.NextStringArray();
+            QueueName = context.NextString();
         }
     }
 }

@@ -25,22 +25,10 @@ namespace FaasNet.EventMesh.Runtime.Models
         public string Vpn { get; set; }
         public DateTime CreateDateTime { get; set; }
         public ICollection<int> Purposes { get; set; }
-        public string Queue
-        {
-            get
-            {
-                return BuildQueueName(Id);
-            }
-        }
 
         public static string BuildId(string vpn, string clientId)
         {
             return $"{vpn}_{clientId}";
-        }
-
-        public static string BuildQueueName(string clientId)
-        {
-            return $"queue-{clientId}";
         }
 
         public NodeState ToNodeState()
@@ -48,7 +36,7 @@ namespace FaasNet.EventMesh.Runtime.Models
             return new NodeState
             {
                 EntityType = StandardEntityTypes.Client,
-                EntityId = Id,
+                EntityId = BuildId(Vpn, ClientId),
                 EntityVersion = 0,
                 Value = JsonSerializer.Serialize(this)
             };

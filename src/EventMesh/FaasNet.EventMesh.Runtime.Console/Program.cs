@@ -1,7 +1,8 @@
-﻿
-using FaasNet.Common;
+﻿using FaasNet.Common;
 using FaasNet.EventMesh.Client;
+using FaasNet.EventMesh.Client.Messages;
 using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Client.Messages.Consensus;
 using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -70,6 +71,11 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
         Console.WriteLine("- Enter 'peers' to display the peers");
         Console.WriteLine("- Enter 'addvpn' to add a VPN");
         Console.WriteLine("- Enter 'addclient' to add a client");
+        Console.WriteLine("- Enter 'publishmsg' to publish a message");
+        Console.WriteLine("- Enter 'submsg' to subscribe");
+        // Pouvoir souscrire à un topic.
+        // Pouvoir publier sur un topic.
+        // Le seed kafka peut directement publier sur eventmesh.
         string menuId = Console.ReadLine();
         continueExecution = menuId != "Q";
         if (menuId == "states")
@@ -114,7 +120,34 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
             Console.WriteLine("Enter the client identifier");
             string clientId = Console.ReadLine();
             var eventMeshClient = new EventMeshClient("localhost", seedPort);
-            await eventMeshClient.AddClient(vpn, clientId, CancellationToken.None);
+            await eventMeshClient.AddClient(vpn, clientId, new List<UserAgentPurpose> { UserAgentPurpose.SUB, UserAgentPurpose.PUB }, CancellationToken.None);
+            continue;
+        }
+
+        if (menuId == "publishmsg")
+        {
+            Console.WriteLine("Enter the VPN");
+            var vpn = Console.ReadLine();
+            Console.WriteLine("Enter the client identifier");
+            var clientIdentifier = Console.ReadLine();
+            var eventMeshClient = new EventMeshClient("localhost", seedPort);
+            var session = await eventMeshClient.CreatePubSession(vpn, clientIdentifier, CancellationToken.None);
+            await session.Publish("person.created", new { firstName = "firstName" }, CancellationToken.None);
+            continue;
+        }
+
+        if (menuId == "submsg")
+        {
+            Console.WriteLine("Enter the VPN");
+            var vpn = Console.ReadLine();
+            Console.WriteLine("Enter the client identifier");
+            var clientIdentifier = Console.ReadLine();
+            var eventMeshClient = new EventMeshClient("localhost", seedPort);
+            var session = await eventMeshClient.CreateSubSession(vpn, clientIdentifier, CancellationToken.None);
+            await session.Subscribe("person.created", (ce) =>
+            {
+                Console.WriteLine("COUCOU");
+            }, CancellationToken.None);
             continue;
         }
     }

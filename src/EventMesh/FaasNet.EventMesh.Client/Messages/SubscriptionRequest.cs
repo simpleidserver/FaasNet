@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FaasNet.RaftConsensus.Client.Messages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,7 +14,6 @@ namespace FaasNet.EventMesh.Client.Messages
 
         #region Properties
 
-        public string ClientId { get; set; }
         public string SessionId { get; set; }
         public ICollection<SubscriptionItem> TopicFilters { get; set; }
 
@@ -22,7 +22,6 @@ namespace FaasNet.EventMesh.Client.Messages
         public override void Serialize(WriteBufferContext context)
         {
             base.Serialize(context);
-            context.WriteString(ClientId);
             context.WriteString(SessionId);
             context.WriteInteger(TopicFilters.Count());
             foreach(var topic in TopicFilters)
@@ -33,7 +32,6 @@ namespace FaasNet.EventMesh.Client.Messages
 
         public void Extract(ReadBufferContext context)
         {
-            ClientId = context.NextString();
             SessionId = context.NextString();
             int nbTopics = context.NextInt();
             for(int i = 0; i < nbTopics; i++)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FaasNet.RaftConsensus.Client.Messages;
+using System;
 using System.Linq;
 using System.Reflection;
 

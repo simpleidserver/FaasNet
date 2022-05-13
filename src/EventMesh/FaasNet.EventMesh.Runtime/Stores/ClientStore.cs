@@ -22,8 +22,8 @@ namespace FaasNet.EventMesh.Runtime.Stores
 
         public async Task Add(Models.Client client, CancellationToken cancellationToken)
         {
-            var lastEntityId = await _nodeStateStore.GetLastEntityId(client.Id, cancellationToken);
             var nodeState = client.ToNodeState();
+            var lastEntityId = await _nodeStateStore.GetLastEntityId(nodeState.EntityId, cancellationToken);
             if (lastEntityId != null) nodeState.EntityVersion = lastEntityId.EntityVersion + 1;
             _nodeStateStore.Add(nodeState);
         }

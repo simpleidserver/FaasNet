@@ -7,8 +7,13 @@ namespace FaasNet.EventMesh.Runtime.Models
 {
     public class MessageExchange
     {
+        public MessageExchange()
+        {
+            QueueNames = new List<string>();
+        }
+
         public string TopicFilter { get; set; }
-        public ICollection<string> ClientIds { get; set; }
+        public ICollection<string> QueueNames { get; set; }
 
         public bool IsMatch(string filter)
         {

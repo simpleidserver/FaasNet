@@ -2,6 +2,7 @@
 using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Handlers;
 using FaasNet.RaftConsensus.Client.Extensions;
+using FaasNet.RaftConsensus.Client.Messages;
 using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,7 @@ namespace FaasNet.EventMesh.Runtime
                     EventMeshPackageResult result = null;
                     try
                     {
-                        result = await messageHandler.Run(package, cancellationToken);
+                        result = await messageHandler.Run(package, Peers, cancellationToken);
                     }
                     catch (RuntimeException ex)
                     {

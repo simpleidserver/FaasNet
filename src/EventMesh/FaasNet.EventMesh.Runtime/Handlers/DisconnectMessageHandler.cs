@@ -1,6 +1,8 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
+using FaasNet.RaftConsensus.Core;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +16,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         public Commands Command => Commands.DISCONNECT_REQUEST;
 
-        public async Task<EventMeshPackageResult> Run(Package package, CancellationToken cancellationToken)
+        public async Task<EventMeshPackageResult> Run(Package package, IEnumerable<IPeerHost> peers, CancellationToken cancellationToken)
         {
             var disconnectRequest = package as DisconnectRequest;
             var sessionResult = await GetActiveSession(package, disconnectRequest.SessionId, cancellationToken);

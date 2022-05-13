@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CloudNative.CloudEvents;
+using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.Messages
 {
@@ -23,12 +24,11 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package Client(string seq, string queue)
+        public static Package Client(string seq)
         {
             var result = new AddClientResponse
             {
-                Header = new Header(Commands.ADD_CLIENT_RESPONSE, HeaderStatus.SUCCESS, seq),
-                Queue = queue
+                Header = new Header(Commands.ADD_CLIENT_RESPONSE, HeaderStatus.SUCCESS, seq)
             };
             return result;
         }
@@ -43,11 +43,12 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package Subscription(string seq, IEnumerable<string> queueNames)
+        public static Package Subscription(string seq, string queueName)
         {
             var result = new SubscriptionResult
             {
-                Header = new Header(Commands.SUBSCRIBE_RESPONSE, HeaderStatus.SUCCESS, seq)
+                Header = new Header(Commands.SUBSCRIBE_RESPONSE, HeaderStatus.SUCCESS, seq),
+                QueueName = queueName
             };
             return result;
         }
@@ -86,6 +87,17 @@ namespace FaasNet.EventMesh.Client.Messages
                 Header = new Header(Commands.ADD_VPN_RESPONSE, HeaderStatus.SUCCESS, seq)
             };
             return result;
+        }
+
+        public static Package ReadNextMessage(CloudEvent cloudEvt, int evtOffset, string seq)
+        {
+            return new ReadNextMessageResponse
+            {
+                Header = new Header(Commands.READ_NEXT_MESSAGE_RESPONSE, HeaderStatus.SUCCESS, seq),
+                ContainsMessage = cloudEvt != null,
+                CloudEvt = cloudEvt,
+                EvtOffset = evtOffset
+            };
         }
 
         public static Package Error(Commands requestCommand, string seq, Errors error)

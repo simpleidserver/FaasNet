@@ -37,9 +37,8 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 return string.Empty;
             }
 
-            var size = Buffer.First();
             var result = Buffer.GetString();
-            CurrentOffset += size;
+            CurrentOffset += (ushort)result.Count();
             return result;
         }
 

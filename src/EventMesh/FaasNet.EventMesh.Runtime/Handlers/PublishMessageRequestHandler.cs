@@ -32,7 +32,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         public Commands Command => Commands.PUBLISH_MESSAGE_REQUEST;
 
-        public async Task<EventMeshPackageResult> Run(Package package, CancellationToken cancellationToken)
+        public async Task<EventMeshPackageResult> Run(Package package, IEnumerable<IPeerHost> peers, CancellationToken cancellationToken)
         {
             var publishMessageRequest = package as PublishMessageRequest;
             await CheckSession(publishMessageRequest, cancellationToken);
@@ -69,10 +69,10 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             var queueNames = new List<string>();
             foreach(var messageExchange in messageExchanges)
             {
-                if (messageExchange.IsMatch(message.Topic)) queueNames.AddRange(messageExchange.ClientIds.Select(ci => Models.Client.BuildQueueName((ci))));
+                if (messageExchange.IsMatch(message.Topic)) queueNames.AddRange(messageExchange.QueueNames);
             }
 
-            return queueNames;
+            return queueNames.Distinct();
         }
 
         private async Task BroadcastMessage(PublishMessageRequest message, IEnumerable<string> queueNames, CancellationToken cancellationToken)

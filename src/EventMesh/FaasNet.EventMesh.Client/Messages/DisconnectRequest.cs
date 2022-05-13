@@ -1,4 +1,6 @@
 ﻿
+using FaasNet.RaftConsensus.Client.Messages;
+
 namespace FaasNet.EventMesh.Client.Messages
 {
     public class DisconnectRequest : Package

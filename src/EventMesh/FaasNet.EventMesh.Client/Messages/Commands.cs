@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FaasNet.RaftConsensus.Client.Messages;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -78,6 +79,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result returned when a VPN is added.
         /// </summary>
         public static Commands ADD_VPN_RESPONSE = new Commands(17, "ADD_VPN_RESPONSE");
+        /// <summary>
+        /// Request sent to read the next message.
+        /// </summary>
+        public static Commands READ_NEXT_MESSAGE_REQUEST = new Commands(18, "READ_MESSAGE_REQUEST");
+        /// <summary>
+        /// Result returned when message is sent.
+        /// </summary>
+        public static Commands READ_NEXT_MESSAGE_RESPONSE = new Commands(19, "READ_MESSAGE_RESPONSE");
 
         private Commands(int code)
         {

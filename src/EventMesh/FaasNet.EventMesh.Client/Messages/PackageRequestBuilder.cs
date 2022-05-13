@@ -28,13 +28,14 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package AddClient(string vpn, string clientId)
+        public static Package AddClient(string vpn, string clientId, ICollection<UserAgentPurpose> purposes)
         {
             var result = new AddClientRequest
             {
                 Header = new Header(Commands.ADD_CLIENT_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
                 Vpn = vpn,
-                ClientId = clientId
+                ClientId = clientId,
+                Purposes = purposes
             };
             return result;
         }
@@ -69,13 +70,12 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static SubscriptionRequest Subscribe(string clientId, ICollection<SubscriptionItem> subscriptionItems, string sessionId, string seq = null)
+        public static SubscriptionRequest Subscribe(ICollection<SubscriptionItem> subscriptionItems, string sessionId, string seq = null)
         {
             var result = new SubscriptionRequest
             {
                 Header = new Header(Commands.SUBSCRIBE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
                 TopicFilters = subscriptionItems,
-                ClientId = clientId,
                 SessionId = sessionId
             };
             return result;
@@ -102,6 +102,16 @@ namespace FaasNet.EventMesh.Client.Messages
                 TargetUrn = urn,
                 TargetVpn = targetVpn,
                 Vpn = vpn
+            };
+            return result;
+        }
+
+        public static Package ReadNextMessage(string sessionId, string seq = null)
+        {
+            var result = new ReadNextMessageRequest
+            {
+                Header = new Header(Commands.READ_NEXT_MESSAGE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
+                SessionId = sessionId
             };
             return result;
         }

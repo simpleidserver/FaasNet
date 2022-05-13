@@ -1,5 +1,6 @@
 ﻿using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client.Extensions;
+using FaasNet.RaftConsensus.Client.Messages;
 
 namespace FaasNet.EventMesh.Client.Messages
 {

@@ -29,6 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IMessageHandler, PublishMessageRequestHandler>();
             services.AddTransient<IMessageHandler, SubscribeMessageHandler>();
             services.AddTransient<IMessageHandler, AddVpnMessageHandler>();
+            services.AddTransient<IMessageHandler, ReadNextMessageHandler>();
             return services;
         }
     }

@@ -4,6 +4,8 @@ using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Exceptions;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
+using FaasNet.RaftConsensus.Core;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +25,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         public Commands Command => Commands.ADD_BRIDGE_REQUEST;
 
-        public async Task<EventMeshPackageResult> Run(Package package, CancellationToken cancellationToken)
+        public async Task<EventMeshPackageResult> Run(Package package, IEnumerable<IPeerHost> peers, CancellationToken cancellationToken)
         {
             var addBridgeRequest = package as AddBridgeRequest;
             await CheckVpn(addBridgeRequest, cancellationToken);

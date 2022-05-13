@@ -1,4 +1,5 @@
 ﻿
+using FaasNet.RaftConsensus.Client.Messages;
 using System;
 
 namespace FaasNet.EventMesh.Client.Messages

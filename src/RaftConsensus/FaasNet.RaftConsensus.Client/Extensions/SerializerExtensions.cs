@@ -14,7 +14,7 @@ namespace FaasNet.RaftConsensus.Client.Extensions
             var result = new List<byte>();
             str = str ?? string.Empty;
             var payload = Encoding.ASCII.GetBytes(str);
-            result.Add((byte)payload.Count());
+            result.AddRange(payload.Count().ToBytes());
             result.AddRange(payload);
             return result;
         }
@@ -74,7 +74,7 @@ namespace FaasNet.RaftConsensus.Client.Extensions
 
         public static string GetString(this Queue<byte> queue)
         {
-            var size = queue.Dequeue();
+            var size = (uint)queue.GetInt();
             return Encoding.ASCII.GetString(queue.Dequeue(size).ToArray());
         }
 

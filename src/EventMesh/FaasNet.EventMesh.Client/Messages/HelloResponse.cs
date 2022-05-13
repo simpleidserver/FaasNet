@@ -1,4 +1,6 @@
-﻿namespace FaasNet.EventMesh.Client.Messages
+﻿using FaasNet.RaftConsensus.Client.Messages;
+
+namespace FaasNet.EventMesh.Client.Messages
 {
     public class HelloResponse : Package
     {

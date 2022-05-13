@@ -3,6 +3,7 @@ using FaasNet.EventMesh.Client.Exceptions;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Extensions;
+using FaasNet.RaftConsensus.Client.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,15 +60,15 @@ namespace FaasNet.EventMesh.Client
             }
         }
 
-        public async Task<IEventMeshClientPubSession> CreatePubSession(string clientId, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEventMeshClientPubSession> CreatePubSession(string vpn, string clientId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var pubSession = await CreateSession(clientId, cancellationToken);
+            var pubSession = await CreateSession(vpn, clientId, UserAgentPurpose.PUB, cancellationToken);
             return new EventMeshClientPubSession(pubSession, _ipAddr, _port);
         }
 
-        public async Task<IEventMeshClientSubSession> CreateSubSession(string clientId, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEventMeshClientSubSession> CreateSubSession(string vpn, string clientId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var subSession = await CreateSession(clientId, cancellationToken);
+            var subSession = await CreateSession(vpn, clientId, UserAgentPurpose.SUB, cancellationToken);
             return new EventMeshClientSubSession(subSession, _ipAddr, _port);
         }
 
@@ -87,12 +88,12 @@ namespace FaasNet.EventMesh.Client
             }
         }
 
-        public async Task AddClient(string vpn, string clientId, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task AddClient(string vpn, string clientId, List<UserAgentPurpose> purposes, CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var udpClient = new UdpClient())
             {
                 var writeCtx = new WriteBufferContext();
-                var package = PackageRequestBuilder.AddClient(vpn, clientId);
+                var package = PackageRequestBuilder.AddClient(vpn, clientId, purposes);
                 package.Serialize(writeCtx);
                 var payload = writeCtx.Buffer.ToArray();
                 await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
@@ -116,9 +117,9 @@ namespace FaasNet.EventMesh.Client
             }
         }
 
-        private async Task<HelloResponse> CreateSession(string clientId, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<HelloResponse> CreateSession(string vpn, string clientId, UserAgentPurpose purpose, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var userAgent = new UserAgent { ClientId = clientId, Purpose = UserAgentPurpose.PUB };
+            var userAgent = new UserAgent { ClientId = clientId, Vpn = vpn, Purpose = purpose };
             using (var udpClient = new UdpClient())
             {
                 var writeCtx = new WriteBufferContext();
@@ -143,7 +144,22 @@ namespace FaasNet.EventMesh.Client
 
     public interface IEventMeshClientSubSession
     {
+        Task<SubscriptionResult> Subscribe(string topicFilter, Action<CloudEvent> callback, CancellationToken cancellationToken);
+    }
 
+    public class SubscriptionResult
+    {
+        private readonly CancellationTokenSource _cancellationTokenSource;
+
+        internal SubscriptionResult(CancellationTokenSource cancellationTokenSource)
+        {
+            _cancellationTokenSource = cancellationTokenSource;
+        }
+
+        public void Close()
+        {
+            _cancellationTokenSource.Cancel();
+        }
     }
 
     internal class EventMeshClientPubSession : IEventMeshClientPubSession
@@ -202,6 +218,70 @@ namespace FaasNet.EventMesh.Client
             _session = session;
             _ipAddr = ipAddr;
             _port = port;
+        }
+
+        public async Task<SubscriptionResult> Subscribe(string topicFilter, Action<CloudEvent> callback, CancellationToken cancellationToken)
+        {
+            var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var result = new SubscriptionResult(cancellationTokenSource);
+            await Subscribe(topicFilter, cancellationToken);
+#pragma warning disable 4014
+            Task.Run(async () => await Handle(callback, cancellationTokenSource.Token));
+#pragma warning restore 4014
+            return result;
+        }
+
+        private async Task Subscribe(string topicFilter, CancellationToken cancellationToken)
+        {
+            using (var udpClient = new UdpClient())
+            {
+                var writeCtx = new WriteBufferContext();
+                var package = PackageRequestBuilder.Subscribe(new List<SubscriptionItem>
+                {
+                    new SubscriptionItem
+                    {
+                        Topic = topicFilter
+                    }
+                }, _session.SessionId);
+                package.Serialize(writeCtx);
+                var payload = writeCtx.Buffer.ToArray();
+                await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+                var resultPayload = await udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+                var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                var packageResult = Package.Deserialize(readCtx);
+                EventMeshClient.EnsureSuccessStatus(package, packageResult);
+            }
+        }
+
+        private async Task Handle(Action<CloudEvent> callback, CancellationToken cancellationToken)
+        {
+            try
+            {
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    using (var udpClient = new UdpClient())
+                    {
+                        var writeCtx = new WriteBufferContext();
+                        var package = PackageRequestBuilder.ReadNextMessage(_session.SessionId);
+                        package.Serialize(writeCtx);
+                        var payload = writeCtx.Buffer.ToArray();
+                        await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+                        var resultPayload = await udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+                        var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                        var packageResult = Package.Deserialize(readCtx);
+                        EventMeshClient.EnsureSuccessStatus(package, packageResult);
+                        var result = packageResult as ReadNextMessageResponse;
+                        if (result.ContainsMessage)
+                        {
+                            callback(result.CloudEvt);
+                        }
+                    }
+
+                    Thread.Sleep(200);
+                }
+            }
+            catch { }
         }
     }
 }

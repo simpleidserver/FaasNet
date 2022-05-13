@@ -26,7 +26,7 @@ namespace FaasNet.EventMesh.Runtime.Stores
 
         public async Task<IEnumerable<MessageExchange>> GetAll(CancellationToken cancellationToken)
         {
-            var result = await _nodeStateStore.GetAllLastEntityTypes(cancellationToken);
+            var result = await _nodeStateStore.GetAllLastEntityTypes(StandardEntityTypes.MessageExchange, cancellationToken);
             return result.Select(n => JsonSerializer.Deserialize<MessageExchange>(n.Value, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }));
         }
 

@@ -1,21 +1,20 @@
 ﻿using FaasNet.RaftConsensus.Client.Messages;
-using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.Messages
 {
-    public class GetAllVpnResponse : Package
+    public class ReadNextMessageRequest : Package
     {
-        public IEnumerable<string> Vpns { get; set; }
+        public string SessionId { get; set; }
 
         public override void Serialize(WriteBufferContext context)
         {
             base.Serialize(context);
-            context.WriteStringArray(Vpns);
+            context.WriteString(SessionId);
         }
 
         public void Extract(ReadBufferContext context)
         {
-            Vpns = context.NextStringArray();
+            SessionId = context.NextString();
         }
     }
 }
