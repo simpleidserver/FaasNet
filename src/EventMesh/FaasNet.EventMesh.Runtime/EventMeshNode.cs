@@ -61,7 +61,8 @@ namespace FaasNet.EventMesh.Runtime
                     if(result.Status.HasFlag(EventMeshPackageResultStatus.ADD_PEER))
                     {
                         await AddPeer(result.Termid);
-                        await StartPeer(result.Termid);
+                        var peerHost = await StartPeer(result.Termid);
+                        if (result.LogRecord != null) await peerHost.AppendEntry(result.LogRecord, TokenSource.Token);
                     }
 
                     if(result.Status.HasFlag(EventMeshPackageResultStatus.SEND_RESULT))
@@ -74,6 +75,7 @@ namespace FaasNet.EventMesh.Runtime
                         using (var udpClient = new UdpClient())
                         {
                             await udpClient.SendAsync(resultPayload, resultPayload.Count(), udpResult.RemoteEndPoint).WithCancellation(TokenSource.Token);
+                            udpClient.Close();
                         }
                     }
 

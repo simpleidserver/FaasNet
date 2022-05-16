@@ -66,6 +66,7 @@ namespace FaasNet.RaftConsensus.Client
 
         public void Dispose()
         {
+            UdpClient?.Close();
             UdpClient?.Dispose();
         }
     }

@@ -7,7 +7,6 @@ using FaasNet.EventMesh.Runtime.Stores;
 using FaasNet.RaftConsensus.Core;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,10 +15,12 @@ namespace FaasNet.EventMesh.Runtime.Handlers
     public class ReadNextMessageHandler : IMessageHandler
     {
         private readonly IClientSessionStore _clientSessionStore;
+        private readonly IQueueStore _queueStore;
 
-        public ReadNextMessageHandler(IClientSessionStore clientSessionStore)
+        public ReadNextMessageHandler(IClientSessionStore clientSessionStore, IQueueStore queueStore)
         {
             _clientSessionStore = clientSessionStore;
+            _queueStore = queueStore;
         }
 
         public Commands Command => Commands.READ_NEXT_MESSAGE_REQUEST;
@@ -57,10 +58,9 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         {
             using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Read next message"))
             {
-                var selectedPeer = peers.Single(p => p.Info.TermId == session.Queue);
-                var lastLog = await selectedPeer.LogStore.Get(session.EvtOffset, cancellationToken);
-                if (lastLog == null) return null;
-                var cloudEvt = Convert.FromBase64String(lastLog.Value).DeserializeCloudEvent();
+                var lastLog = await _queueStore.Get(session.Queue, session.EvtOffset, cancellationToken);
+                if (string.IsNullOrWhiteSpace(lastLog)) return null;
+                var cloudEvt = Convert.FromBase64String(lastLog).DeserializeCloudEvent();
                 activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok);
                 return cloudEvt;
             }

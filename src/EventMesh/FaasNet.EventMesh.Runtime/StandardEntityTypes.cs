@@ -7,5 +7,6 @@
         public const string BridgeServer = "BRIDGE_SERVER";
         public const string MessageExchange = "MESSAGE_EXCHANGE";
         public const string Client = "CLIENT";
+        public const string Queue = "QUEUE_{0}";
     }
 }

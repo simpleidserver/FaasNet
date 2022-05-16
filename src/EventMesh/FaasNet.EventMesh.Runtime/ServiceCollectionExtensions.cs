@@ -20,6 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IClientStore, ClientStore>();
             services.AddTransient<IMessageExchangeStore, MessageExchangeStore>();
             services.AddTransient<IVpnStore, VpnStore>();
+            services.AddTransient<IQueueStore, QueueStore>();
             services.AddTransient<IMessageHandler, AddBridgeMessageHandler>();
             services.AddTransient<IMessageHandler, AddClientMessageHandler>();
             services.AddTransient<IMessageHandler, DisconnectMessageHandler>();
@@ -30,6 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IMessageHandler, SubscribeMessageHandler>();
             services.AddTransient<IMessageHandler, AddVpnMessageHandler>();
             services.AddTransient<IMessageHandler, ReadNextMessageHandler>();
+            services.AddScoped<IPeerHost, EventMeshPeer>();
             return services;
         }
     }

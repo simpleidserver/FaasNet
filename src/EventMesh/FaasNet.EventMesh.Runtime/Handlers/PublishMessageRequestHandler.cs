@@ -1,7 +1,6 @@
 ﻿using FaasNet.EventMesh.Client.Extensions;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Exceptions;
-using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core;
@@ -36,10 +35,20 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         {
             var publishMessageRequest = package as PublishMessageRequest;
             await CheckSession(publishMessageRequest, cancellationToken);
-            var queueNames = await GetQueueNames(publishMessageRequest, cancellationToken);
-            await BroadcastMessage(publishMessageRequest, queueNames, cancellationToken);
             var result = PackageResponseBuilder.PublishMessage(package.Header.Seq);
-            return EventMeshPackageResult.SendResult(result);
+            if (CheckPeerExists(peers, publishMessageRequest.Topic))
+            {
+                await SendMessage(publishMessageRequest, cancellationToken);
+                return EventMeshPackageResult.SendResult(result);
+            }
+
+            var base64Message = publishMessageRequest.CloudEvent.SerializeBase64();
+            return EventMeshPackageResult.AddPeer(publishMessageRequest.Topic, result, new LogRecord
+            {
+                Index = 0,
+                Value = base64Message,
+                InsertionDateTime = DateTime.UtcNow
+            });
         }
 
         private async Task CheckSession(PublishMessageRequest message, CancellationToken cancellationToken)
@@ -57,25 +66,13 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             }
         }
 
-        private async Task<IEnumerable<string>> GetQueueNames(PublishMessageRequest message, CancellationToken cancellationToken)
+        private bool CheckPeerExists(IEnumerable<IPeerHost> peers, string topicName)
         {
-            IEnumerable<MessageExchange> messageExchanges;
-            using(var activity = EventMeshMeter.RequestActivitySource.StartActivity("Get all message exchange"))
-            {
-                messageExchanges = await _messageExchangeStore.GetAll(cancellationToken);
-                activity?.SetStatus(ActivityStatusCode.Ok);
-            }
-
-            var queueNames = new List<string>();
-            foreach(var messageExchange in messageExchanges)
-            {
-                if (messageExchange.IsMatch(message.Topic)) queueNames.AddRange(messageExchange.QueueNames);
-            }
-
-            return queueNames.Distinct();
+            var peer = peers.FirstOrDefault(p => p.Info.TermId == topicName);
+            return peer != null;
         }
 
-        private async Task BroadcastMessage(PublishMessageRequest message, IEnumerable<string> queueNames, CancellationToken cancellationToken)
+        private async Task SendMessage(PublishMessageRequest message, CancellationToken cancellationToken)
         {
             var rndClusterNode = await GetRandomClusterNode(cancellationToken);
             var base64Message = message.CloudEvent.SerializeBase64();
@@ -83,10 +80,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             {
                 using (var consensusClient = new ConsensusClient(rndClusterNode.Url, rndClusterNode.Port))
                 {
-                    foreach (var queueName in queueNames)
-                    {
-                        await consensusClient.AppendEntry(queueName, base64Message, cancellationToken);
-                    }
+                    await consensusClient.AppendEntry(message.Topic, base64Message, cancellationToken);
                 }
             }
         }

@@ -278,7 +278,6 @@ namespace FaasNet.RaftConsensus.Core
                 }
             }
 
-            await _nodeStateStore.SaveChanges(TokenSource.Token);
             return null;
         }
 
@@ -287,7 +286,6 @@ namespace FaasNet.RaftConsensus.Core
             var nodeState = await _nodeStateStore.GetLastEntityType(request.EntityType, TokenSource.Token);
             if(nodeState == null) _nodeStateStore.Add(NodeState.Create(request.EntityType, request.EntityId, request.Value));
             else nodeState.Update(request.Value);
-            await _nodeStateStore.SaveChanges(TokenSource.Token);
             return null;
         }
 
@@ -329,7 +327,7 @@ namespace FaasNet.RaftConsensus.Core
             await _peerStore.Add(new Peer { TermId = termId }, TokenSource.Token);
         }
 
-        protected async Task StartPeer(string termId)
+        protected async Task<IPeerHost> StartPeer(string termId)
         {
             var peerInfo = new PeerInfo { TermId = termId };
             var peerHost = _peerHostFactory.Build();
@@ -337,6 +335,7 @@ namespace FaasNet.RaftConsensus.Core
             _peers.Add(peerHost);
             _peerInfoStore.Add(peerInfo);
             await _peerInfoStore.SaveChanges(TokenSource.Token);
+            return peerHost;
         }
 
         #endregion

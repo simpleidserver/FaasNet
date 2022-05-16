@@ -12,10 +12,9 @@ namespace FaasNet.RaftConsensus.Core.Stores
     {
         void Add(NodeState nodeState);
         void Update(NodeState nodeState);
-        Task<int> SaveChanges(CancellationToken cancellationToken);
-        Task<IEnumerable<NodeState>> GetAllEntityTypes(CancellationToken cancellationToken);
         Task<IEnumerable<NodeState>> GetAllLastEntityTypes(CancellationToken cancellationToken);
         Task<IEnumerable<NodeState>> GetAllLastEntityTypes(string entityType, CancellationToken cancellationToken);
+        Task<NodeState> GetSpecificEntityType(string entityType, int entityVersion, CancellationToken cancellationToken);
         Task<IEnumerable<NodeState>> GetAllSpecificEntityTypes(List<(string EntityType, int EntityVersion)> parameter, CancellationToken cancellationToken);
         Task<NodeState> GetLastEntityType(string entityType, CancellationToken cancellationToken);
         Task<NodeState> GetLastEntityId(string entityId, CancellationToken cancellationToken);
@@ -45,12 +44,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
             _nodeStates.Remove(nodeState);
         }
 
-        public Task<IEnumerable<NodeState>> GetAllEntityTypes(CancellationToken cancellationToken)
-        {
-            IEnumerable<NodeState> result = _nodeStates.OrderByDescending(ns => ns.EntityVersion);
-            return Task.FromResult(result);
-        }
-
         public Task<IEnumerable<NodeState>> GetAllLastEntityTypes(CancellationToken cancellationToken)
         {
             IEnumerable<NodeState> result = _nodeStates.OrderByDescending(ns => ns.EntityVersion).GroupBy(ns => ns.EntityType).Select(ns => ns.First());
@@ -61,6 +54,12 @@ namespace FaasNet.RaftConsensus.Core.Stores
         {
             IEnumerable<NodeState> result = _nodeStates.Where(ns => ns.EntityType == entityType).OrderByDescending(ns => ns.EntityVersion).GroupBy(ns => ns.EntityId).Select(ns => ns.First());
             return Task.FromResult(result);
+        }
+
+        public async Task<NodeState> GetSpecificEntityType(string entityType, int entityVersion, CancellationToken cancellationToken)
+        {
+            var entityTypes = await GetAllSpecificEntityTypes(new List<(string EntityType, int EntityVersion)> { (EntityType: entityType, EntityVersion: entityVersion) }, cancellationToken);
+            return entityTypes.FirstOrDefault();
         }
 
         public Task<IEnumerable<NodeState>> GetAllSpecificEntityTypes(List<(string EntityType, int EntityVersion)> parameter, CancellationToken cancellationToken)

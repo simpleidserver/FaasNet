@@ -2,9 +2,9 @@
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.RaftConsensus.Client;
-using FaasNet.RaftConsensus.Client.Messages.Consensus;
 using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Models;
+using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
@@ -73,6 +73,19 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
         Console.WriteLine("- Enter 'addclient' to add a client");
         Console.WriteLine("- Enter 'publishmsg' to publish a message");
         Console.WriteLine("- Enter 'submsg' to subscribe");
+        // Nous avons plusieurs stratégies :
+        // le message doit être publié sur un topic persisté sur plusieurs noeuds.
+        // le client peut appeler de façon régulière un seul topic pour récupérer tous les messages (aucun filtre possible).
+        // session : sub.
+        // subscription : type = subscribe, index, topic.
+        // append message => topic => read message.
+        // le client peut utiliser une session persistée qui va permettre de récupérer dans son propre storage l'ensemble des messages.
+        // session : sub.
+        // subscription: type = persisted, topic filter
+        // append message => topic => route to specific group id.
+        // https://towardsdatascience.com/the-design-of-an-event-store-8c751c47db6f
+        // Chaque node peut avoir un ou plusieurs peers.
+
         // Pouvoir souscrire à un topic.
         // Pouvoir publier sur un topic.
         // Le seed kafka peut directement publier sur eventmesh.
@@ -82,7 +95,7 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
         {
             foreach (var node in nodes)
             {
-                var entityTypes = await node.NodeStateStore.GetAllEntityTypes(CancellationToken.None);
+                var entityTypes = await node.NodeStateStore.GetAllLastEntityTypes(CancellationToken.None);
                 foreach (var entityType in entityTypes)
                 {
                     Console.WriteLine($"Port = {node.Port}, Type = {entityType.EntityType}, Version = {entityType.EntityVersion}, Value = {entityType.Value}");
@@ -158,9 +171,18 @@ INodeHost BuildNodeHost(int port, bool isSeed = false)
 {
     var serverBuilder = new ServiceCollection()
         .AddEventMeshServer(o => o.Port = port);
+       //  .UseRocksDB(o => { o.SubPath = $"node{port}"; });
     if (isSeed) serverBuilder.SetNodeStates(new ConcurrentBag<NodeState> { new ClusterNode { Port = 4000, Url = "localhost" }.ToNodeState() });
     var serviceProvider = serverBuilder.Services
         // .AddLogging(l => l.AddConsole())
         .BuildServiceProvider();
+    /*
+    if(isSeed)
+    {
+        var nodeStateStore = serviceProvider.GetRequiredService<INodeStateStore>();
+        nodeStateStore.Add(new ClusterNode { Port = 4000, Url = "localhost" }.ToNodeState());
+    }
+    */
+
     return serviceProvider.GetRequiredService<INodeHost>();
 }

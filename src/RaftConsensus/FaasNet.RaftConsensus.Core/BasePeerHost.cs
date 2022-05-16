@@ -18,7 +18,6 @@ namespace FaasNet.RaftConsensus.Core
 {
     public interface IPeerHost
     {
-        ILogStore LogStore { get; }
         LeaderNode ActiveNode { get; }
         IPEndPoint UdpServerEdp { get; }
         string PeerId { get; }
@@ -26,6 +25,7 @@ namespace FaasNet.RaftConsensus.Core
         PeerStates State { get; }
         Task Start(string nodeId, PeerInfo info, CancellationToken cancellationToken);
         Task Stop();
+        Task AppendEntry(LogRecord logRecord, CancellationToken cancellationToken);
         event EventHandler<EventArgs> PeerHostStarted;
         event EventHandler<EventArgs> PeerHostStopped;
         event EventHandler<PeerHostEventArgs> PeerIsFollower;
@@ -69,12 +69,13 @@ namespace FaasNet.RaftConsensus.Core
         public UdpClient UdpServer { get; private set; }
         public IPEndPoint UdpServerEdp { get; private set; }
         public LeaderNode ActiveNode => _activeLeader;
-        public ILogStore LogStore => _logStore;
         public event EventHandler<EventArgs> PeerHostStarted;
         public event EventHandler<EventArgs> PeerHostStopped;
         public event EventHandler<PeerHostEventArgs> PeerIsFollower;
         public event EventHandler<PeerHostEventArgs> PeerIsCandidate;
         public event EventHandler<PeerHostEventArgs> PeerIsLeader;
+        protected IClusterStore ClusterStore => _clusterStore;
+        protected ConsensusPeerOptions Options => _options;
 
         public Task Start(string nodeId, PeerInfo info, CancellationToken cancellationToken)
         {
@@ -117,6 +118,19 @@ namespace FaasNet.RaftConsensus.Core
             IsRunning = false;
             return Task.CompletedTask;
         }
+
+        public async Task AppendEntry(LogRecord logRecord, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("{Node}:{PeerId}:{TermId}:{State}, Add log", _nodeId, _peerId, Info.TermId, State);
+            _logStore.Add(logRecord);
+            Info.Upgrade();
+            _peerStore.Update(Info);
+            await _peerStore.SaveChanges(cancellationToken);
+            await _logStore.SaveChanges(cancellationToken);
+            await AddEntry(logRecord, cancellationToken);
+        }
+
+        protected abstract Task AddEntry(LogRecord logRecord, CancellationToken cancellationToken);
 
         #region Check learder heartbeat
 
@@ -443,12 +457,8 @@ namespace FaasNet.RaftConsensus.Core
         private async Task AppendEntry(AppendEntryRequest appendEntry, CancellationToken cancellationToken)
         {
             if (appendEntry.IsProxified && appendEntry.Header.TermIndex <= Info.ConfirmedTermIndex) return;
-            _logger.LogInformation("{Node}:{PeerId}:{TermId}:{State}, Add log", _nodeId, _peerId, Info.TermId, State);
-            _logStore.Add(new LogRecord {Value = appendEntry.Value, Index = Info.ConfirmedTermIndex + 1, InsertionDateTime = DateTime.UtcNow });
-            Info.Upgrade();
-            _peerStore.Update(Info);
-            await _peerStore.SaveChanges(cancellationToken);
-            await _logStore.SaveChanges(cancellationToken);
+            var logRecord = new LogRecord { Value = appendEntry.Value, Index = Info.ConfirmedTermIndex + 1, InsertionDateTime = DateTime.UtcNow };
+            await AppendEntry(logRecord, cancellationToken);
         }
     }
 
