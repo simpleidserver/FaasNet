@@ -83,7 +83,6 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 helloRequest.UserAgent.Purpose,
                 client.ClientId,
                 helloRequest.UserAgent.Vpn,
-                helloRequest.UserAgent.IsServer ? ClientSessionTypes.SERVER : ClientSessionTypes.CLIENT,
                 ComputeSessionExpirationDateTime(helloRequest),
                 helloRequest.UserAgent.IsSessionInfinite);
             await _clientSessionStore.Add(session, cancellationToken);

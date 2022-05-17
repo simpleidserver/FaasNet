@@ -62,7 +62,7 @@ namespace FaasNet.EventMesh.Runtime
                     {
                         await AddPeer(result.Termid);
                         var peerHost = await StartPeer(result.Termid);
-                        if (result.LogRecord != null) await peerHost.AppendEntry(result.LogRecord, TokenSource.Token);
+                        if (result.LogRecord != null) await peerHost.AppendEntry(result.LogRecord, true, TokenSource.Token);
                     }
 
                     if(result.Status.HasFlag(EventMeshPackageResultStatus.SEND_RESULT))

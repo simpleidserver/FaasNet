@@ -137,6 +137,20 @@ namespace FaasNet.EventMesh.Client.Messages
                 return result;
             }
 
+            if (Commands.READ_TOPIC_MESSAGE_REQUEST == header.Command)
+            {
+                var result = new ReadMessageTopicRequest { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if (Commands.READ_TOPIC_MESSAGE_RESPONSE == header.Command)
+            {
+                var result = new ReadMessageTopicResponse { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
             return new Package
             {
                 Header = header

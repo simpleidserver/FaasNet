@@ -9,7 +9,6 @@ namespace FaasNet.EventMesh.Client.Messages
         public UserAgent()
         {
             Purpose = UserAgentPurpose.SUB;
-            IsServer = false;
         }
 
         #region Properties
@@ -21,7 +20,6 @@ namespace FaasNet.EventMesh.Client.Messages
         public string Password { get; set; }
         public string Version { get; set; }
         public UserAgentPurpose Purpose { get; set; }
-        public bool IsServer { get; set; }
         public int Pid { get; set; }
         public bool IsSessionInfinite { get; set; }
         public TimeSpan? Expiration { get; set; }
@@ -37,7 +35,6 @@ namespace FaasNet.EventMesh.Client.Messages
             context.WriteString(Password);
             context.WriteString(Version);
             Purpose.Serialize(context);
-            context.WriteBoolean(IsServer);
             context.WriteInteger(Pid);
             context.WriteBoolean(IsSessionInfinite);
             context.WriteTimeSpan(Expiration);
@@ -54,7 +51,6 @@ namespace FaasNet.EventMesh.Client.Messages
                 Password = context.NextString(),
                 Version = context.NextString(),
                 Purpose = UserAgentPurpose.Deserialize(context),
-                IsServer = context.NextBoolean(),
                 Pid = context.NextInt(),
                 IsSessionInfinite = context.NextBoolean(),
                 Expiration = context.NextTimeSpan()

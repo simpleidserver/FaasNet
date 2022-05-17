@@ -96,7 +96,7 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
         {
             foreach (var node in nodes)
             {
-                var entityTypes = await node.NodeStateStore.GetAllEntityTypes(CancellationToken.None);
+                var entityTypes = await node.NodeStateStore.GetAllLastEntityTypes(CancellationToken.None);
                 foreach(var entityType in entityTypes)
                 {
                     Console.WriteLine($"Port = {node.Port}, Type = {entityType.EntityType}, Version = {entityType.EntityVersion}, Value = {entityType.Value}");

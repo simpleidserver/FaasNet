@@ -4,7 +4,6 @@ using FaasNet.EventMesh.Client.Messages;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Models;
-using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
@@ -72,23 +71,8 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
         Console.WriteLine("- Enter 'addvpn' to add a VPN");
         Console.WriteLine("- Enter 'addclient' to add a client");
         Console.WriteLine("- Enter 'publishmsg' to publish a message");
-        Console.WriteLine("- Enter 'submsg' to subscribe");
-        // Nous avons plusieurs stratégies :
-        // le message doit être publié sur un topic persisté sur plusieurs noeuds.
-        // le client peut appeler de façon régulière un seul topic pour récupérer tous les messages (aucun filtre possible).
-        // session : sub.
-        // subscription : type = subscribe, index, topic.
-        // append message => topic => read message.
-        // le client peut utiliser une session persistée qui va permettre de récupérer dans son propre storage l'ensemble des messages.
-        // session : sub.
-        // subscription: type = persisted, topic filter
-        // append message => topic => route to specific group id.
-        // https://towardsdatascience.com/the-design-of-an-event-store-8c751c47db6f
-        // Chaque node peut avoir un ou plusieurs peers.
-
-        // Pouvoir souscrire à un topic.
-        // Pouvoir publier sur un topic.
-        // Le seed kafka peut directement publier sur eventmesh.
+        Console.WriteLine("- Enter 'persistedsub' to subscribe to a group identifier");
+        Console.WriteLine("- Enter 'directsub' to subscribe to a topic");
         string menuId = Console.ReadLine();
         continueExecution = menuId != "Q";
         if (menuId == "states")
@@ -149,7 +133,25 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
             continue;
         }
 
-        if (menuId == "submsg")
+        if (menuId == "persistedsub")
+        {
+            Console.WriteLine("Enter the VPN");
+            var vpn = Console.ReadLine();
+            Console.WriteLine("Enter the client identifier");
+            var clientIdentifier = Console.ReadLine();
+            Console.WriteLine("Enter the group identifier");
+            var groupId = Console.ReadLine();
+            var eventMeshClient = new EventMeshClient("localhost", seedPort);
+            var session = await eventMeshClient.CreateSubSession(vpn, clientIdentifier, CancellationToken.None);
+            await session.PersistedSubscribe("person.created", groupId, (ce) =>
+            {
+                Console.WriteLine("Persisted sub");
+            }, CancellationToken.None);
+            continue;
+        }
+
+
+        if (menuId == "directsub")
         {
             Console.WriteLine("Enter the VPN");
             var vpn = Console.ReadLine();
@@ -157,9 +159,9 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
             var clientIdentifier = Console.ReadLine();
             var eventMeshClient = new EventMeshClient("localhost", seedPort);
             var session = await eventMeshClient.CreateSubSession(vpn, clientIdentifier, CancellationToken.None);
-            await session.Subscribe("person.created", (ce) =>
+            session.DirectSubscribe("person.created", (ce) =>
             {
-                Console.WriteLine("COUCOU");
+                Console.WriteLine("Direct sub");
             }, CancellationToken.None);
             continue;
         }

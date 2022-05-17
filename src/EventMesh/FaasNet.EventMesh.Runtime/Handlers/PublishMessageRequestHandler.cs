@@ -45,7 +45,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             var base64Message = publishMessageRequest.CloudEvent.SerializeBase64();
             return EventMeshPackageResult.AddPeer(publishMessageRequest.Topic, result, new LogRecord
             {
-                Index = 0,
+                Index = 1,
                 Value = base64Message,
                 InsertionDateTime = DateTime.UtcNow
             });

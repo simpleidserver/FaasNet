@@ -23,9 +23,9 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<EventMeshPackageResult> Run(Package package, IEnumerable<IPeerHost> peers, CancellationToken cancellationToken)
         {
             var subscriptionRequest = package as SubscriptionRequest;
-            var activeSession = await CheckSession(subscriptionRequest, cancellationToken);
-            await AddMessageExchanges(activeSession.ClientSession.Queue, subscriptionRequest, cancellationToken);
-            var result = PackageResponseBuilder.Subscription(package.Header.Seq, activeSession.ClientSession.Queue);
+            await CheckSession(subscriptionRequest, cancellationToken);
+            await AddMessageExchanges(subscriptionRequest.GroupId, subscriptionRequest, cancellationToken);
+            var result = PackageResponseBuilder.Subscription(subscriptionRequest.Header.Seq, subscriptionRequest.GroupId);
             return EventMeshPackageResult.SendResult(result);
         }
 

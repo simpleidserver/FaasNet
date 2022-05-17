@@ -70,11 +70,12 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static SubscriptionRequest Subscribe(ICollection<SubscriptionItem> subscriptionItems, string sessionId, string seq = null)
+        public static SubscriptionRequest Subscribe(string groupId, ICollection<SubscriptionItem> subscriptionItems, string sessionId, string seq = null)
         {
             var result = new SubscriptionRequest
             {
                 Header = new Header(Commands.SUBSCRIBE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
+                GroupId = groupId,
                 TopicFilters = subscriptionItems,
                 SessionId = sessionId
             };
@@ -106,12 +107,24 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package ReadNextMessage(string sessionId, string seq = null)
+        public static Package ReadNextMessage(string sessionId, string groupId, string seq = null)
         {
             var result = new ReadNextMessageRequest
             {
                 Header = new Header(Commands.READ_NEXT_MESSAGE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
-                SessionId = sessionId
+                SessionId = sessionId,
+                GroupId = groupId
+            };
+            return result;
+        }
+
+        public static Package ReadTopicMessage(string topic, int evtOffset, string seq = null)
+        {
+            var result = new ReadMessageTopicRequest
+            {
+                Header = new Header(Commands.READ_TOPIC_MESSAGE_REQUEST, HeaderStatus.SUCCESS, seq ?? GenerateRandomSeq()),
+                Topic = topic,
+                EvtOffset = evtOffset
             };
             return result;
         }

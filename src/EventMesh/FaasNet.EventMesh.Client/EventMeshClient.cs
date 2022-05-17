@@ -144,7 +144,8 @@ namespace FaasNet.EventMesh.Client
 
     public interface IEventMeshClientSubSession
     {
-        Task<SubscriptionResult> Subscribe(string topicFilter, Action<CloudEvent> callback, CancellationToken cancellationToken);
+        Task<SubscriptionResult> PersistedSubscribe(string topicFilter, string groupId, Action<CloudEvent> callback, CancellationToken cancellationToken);
+        SubscriptionResult DirectSubscribe(string topicFilter, Action<CloudEvent> callback, CancellationToken cancellationToken);
     }
 
     public class SubscriptionResult
@@ -212,6 +213,7 @@ namespace FaasNet.EventMesh.Client
         private readonly HelloResponse _session;
         private readonly IPAddress _ipAddr;
         private readonly int _port;
+        private int _offsetEvt;
 
         public EventMeshClientSubSession(HelloResponse session, IPAddress ipAddr, int port)
         {
@@ -220,23 +222,34 @@ namespace FaasNet.EventMesh.Client
             _port = port;
         }
 
-        public async Task<SubscriptionResult> Subscribe(string topicFilter, Action<CloudEvent> callback, CancellationToken cancellationToken)
+        public async Task<SubscriptionResult> PersistedSubscribe(string topicFilter, string groupId, Action<CloudEvent> callback, CancellationToken cancellationToken)
         {
             var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var result = new SubscriptionResult(cancellationTokenSource);
-            await Subscribe(topicFilter, cancellationToken);
+            await PersistedSubscribe(topicFilter, groupId, cancellationToken);
 #pragma warning disable 4014
-            Task.Run(async () => await Handle(callback, cancellationTokenSource.Token));
+            Task.Run(async () => await HandlePersistedSubscribe(callback, groupId, cancellationTokenSource.Token));
 #pragma warning restore 4014
             return result;
         }
 
-        private async Task Subscribe(string topicFilter, CancellationToken cancellationToken)
+        public SubscriptionResult DirectSubscribe(string topicName, Action<CloudEvent> callback, CancellationToken cancellationToken)
+        {
+            _offsetEvt = 1;
+            var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var result = new SubscriptionResult(cancellationTokenSource);
+#pragma warning disable 4014
+            Task.Run(async () => await HandleDirectSubscribe(callback, topicName, cancellationTokenSource.Token));
+#pragma warning restore 4014
+            return result;
+        }
+
+        private async Task PersistedSubscribe(string topicFilter, string groupId, CancellationToken cancellationToken)
         {
             using (var udpClient = new UdpClient())
             {
                 var writeCtx = new WriteBufferContext();
-                var package = PackageRequestBuilder.Subscribe(new List<SubscriptionItem>
+                var package = PackageRequestBuilder.Subscribe(groupId, new List<SubscriptionItem>
                 {
                     new SubscriptionItem
                     {
@@ -253,7 +266,7 @@ namespace FaasNet.EventMesh.Client
             }
         }
 
-        private async Task Handle(Action<CloudEvent> callback, CancellationToken cancellationToken)
+        private async Task HandlePersistedSubscribe(Action<CloudEvent> callback, string groupId, CancellationToken cancellationToken)
         {
             try
             {
@@ -263,7 +276,7 @@ namespace FaasNet.EventMesh.Client
                     using (var udpClient = new UdpClient())
                     {
                         var writeCtx = new WriteBufferContext();
-                        var package = PackageRequestBuilder.ReadNextMessage(_session.SessionId);
+                        var package = PackageRequestBuilder.ReadNextMessage(_session.SessionId, groupId);
                         package.Serialize(writeCtx);
                         var payload = writeCtx.Buffer.ToArray();
                         await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
@@ -275,6 +288,38 @@ namespace FaasNet.EventMesh.Client
                         if (result.ContainsMessage)
                         {
                             callback(result.CloudEvt);
+                        }
+                    }
+
+                    Thread.Sleep(200);
+                }
+            }
+            catch { }
+        }
+
+        private async Task HandleDirectSubscribe(Action<CloudEvent> callback, string topicName, CancellationToken cancellationToken)
+        {
+            try
+            {
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    using (var udpClient = new UdpClient())
+                    {
+                        var writeCtx = new WriteBufferContext();
+                        var package = PackageRequestBuilder.ReadTopicMessage(topicName, _offsetEvt);
+                        package.Serialize(writeCtx);
+                        var payload = writeCtx.Buffer.ToArray();
+                        await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+                        var resultPayload = await udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+                        var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                        var packageResult = Package.Deserialize(readCtx);
+                        EventMeshClient.EnsureSuccessStatus(package, packageResult);
+                        var result = packageResult as ReadMessageTopicResponse;
+                        if (result.ContainsMessage)
+                        {
+                            callback(result.Value);
+                            _offsetEvt++;
                         }
                     }
 

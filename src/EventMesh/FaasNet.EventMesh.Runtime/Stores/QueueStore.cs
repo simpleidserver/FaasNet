@@ -8,7 +8,7 @@ namespace FaasNet.EventMesh.Runtime.Stores
 {
     public interface IQueueStore
     {
-        Task<string> Get(string queueName, int offset, CancellationToken cancellationToken);
+        Task<string> Dequeue(string queueName, CancellationToken cancellationToken);
         Task Add(string queueName, string message, CancellationToken cancellationToken);
     }
 
@@ -21,10 +21,16 @@ namespace FaasNet.EventMesh.Runtime.Stores
             _nodeStateStore = nodeStateStore;
         }
 
-        public async Task<string> Get(string queueName, int offset, CancellationToken cancellationToken)
+        public async Task<string> Dequeue(string queueName, CancellationToken cancellationToken)
         {
-            var message = await _nodeStateStore.GetSpecificEntityType(string.Format(StandardEntityTypes.Queue, queueName), offset, cancellationToken);
-            return message?.Value;
+            var consumedQueueMessage = string.Format(StandardEntityTypes.ConsumedQueueMessage, queueName);
+            var lastEntityType = await _nodeStateStore.GetLastEntityType(consumedQueueMessage, cancellationToken);
+            var version = lastEntityType == null ? 0 : lastEntityType.EntityVersion;
+            var entityType = await _nodeStateStore.GetSpecificEntityType(string.Format(StandardEntityTypes.Queue, queueName), version, cancellationToken);
+            if (entityType == null) return null;
+            var nodeState = new NodeState { EntityId = Guid.NewGuid().ToString(), EntityType = string.Format(StandardEntityTypes.ConsumedQueueMessage, queueName), EntityVersion = version + 1, Value = queueName };
+            _nodeStateStore.Add(nodeState);
+            return entityType.Value;
         }
 
         public async Task Add(string queueName, string message, CancellationToken cancellationToken)

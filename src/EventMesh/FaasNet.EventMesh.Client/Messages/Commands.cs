@@ -87,6 +87,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result returned when message is sent.
         /// </summary>
         public static Commands READ_NEXT_MESSAGE_RESPONSE = new Commands(19, "READ_MESSAGE_RESPONSE");
+        /// <summary>
+        /// Request sent to read topic message.
+        /// </summary>
+        public static Commands READ_TOPIC_MESSAGE_REQUEST = new Commands(20, "READ_TOPIC_MESSAGE_REQUEST");
+        /// <summary>
+        /// Result returned when message is sent.
+        /// </summary>
+        public static Commands READ_TOPIC_MESSAGE_RESPONSE = new Commands(21, "READ_TOPIC_MESSAGE_RESPONSE");
 
         private Commands(int code)
         {

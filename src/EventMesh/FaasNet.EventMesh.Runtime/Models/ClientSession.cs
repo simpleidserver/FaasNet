@@ -11,8 +11,6 @@ namespace FaasNet.EventMesh.Runtime.Models
         public string Id { get; set; }
         public string ClientId { get; set; }
         public string Vpn { get; set; }
-        public int Port { get; set; }
-        public int EvtOffset { get; set; }
         public int Pid { get; set; }
         public int PurposeCode { get; set; }
         [JsonIgnore]
@@ -29,20 +27,12 @@ namespace FaasNet.EventMesh.Runtime.Models
         }
         public DateTime CreateDateTime { get; set; }
         public DateTime? ExpirationDateTime { get; set; }
-        public ClientSessionTypes Type { get; set; }
         public ClientSessionState State { get; set; }
         public bool IsActive
         {
             get
             {
                 return State == ClientSessionState.ACTIVE && ((ExpirationDateTime == null) || (ExpirationDateTime != null && ExpirationDateTime > DateTime.UtcNow));
-            }
-        }
-        public string Queue
-        {
-            get
-            {
-                return $"{Vpn}_{ClientId}_{Id}";
             }
         }
 
@@ -56,11 +46,6 @@ namespace FaasNet.EventMesh.Runtime.Models
             State = ClientSessionState.FINISH;
         }
 
-        public void ConsumeEvent()
-        {
-            EvtOffset++;
-        }
-
         public NodeState ToNodeState()
         {
             return new NodeState
@@ -72,7 +57,7 @@ namespace FaasNet.EventMesh.Runtime.Models
             };
         }
 
-        public static ClientSession Create(int pid, UserAgentPurpose purpose, string clientId, string vpn, ClientSessionTypes type, TimeSpan expirationTimeSpan, bool isSessionInfinite)
+        public static ClientSession Create(int pid, UserAgentPurpose purpose, string clientId, string vpn, TimeSpan expirationTimeSpan, bool isSessionInfinite)
         {
             var createDateTime = DateTime.UtcNow;
             var expirationDateTime = createDateTime.Add(expirationTimeSpan);
@@ -83,9 +68,7 @@ namespace FaasNet.EventMesh.Runtime.Models
                 ClientId = clientId,
                 Pid = pid,
                 Purpose = purpose,
-                Type = type,
                 CreateDateTime = DateTime.UtcNow,
-                EvtOffset = 1,
                 ExpirationDateTime = isSessionInfinite ? null : expirationDateTime
             };
             return result;
@@ -95,11 +78,5 @@ namespace FaasNet.EventMesh.Runtime.Models
     {
         ACTIVE = 0,
         FINISH = 1
-    }
-
-    public enum ClientSessionTypes
-    {
-        CLIENT = 0,
-        SERVER = 1
     }
 }

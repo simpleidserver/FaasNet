@@ -14,7 +14,7 @@ namespace FaasNet.RaftConsensus.Core
         {
         }
 
-        protected override Task AddEntry(LogRecord logRecord, CancellationToken cancellationToken)
+        protected override Task AddEntry(LogRecord logRecord, bool forceAdd, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

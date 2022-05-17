@@ -53,6 +53,16 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
+        public static Package Subscription(string seq)
+        {
+            var result = new SubscriptionResult
+            {
+                Header = new Header(Commands.SUBSCRIBE_RESPONSE, HeaderStatus.SUCCESS, seq),
+                QueueName = string.Empty
+            };
+            return result;
+        }
+
         public static Package PublishMessage(string seq)
         {
             var result = new Package
@@ -89,14 +99,25 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package ReadNextMessage(CloudEvent cloudEvt, int evtOffset, string seq)
+        public static Package ReadNextMessage(CloudEvent cloudEvt, string seq)
         {
             return new ReadNextMessageResponse
             {
                 Header = new Header(Commands.READ_NEXT_MESSAGE_RESPONSE, HeaderStatus.SUCCESS, seq),
                 ContainsMessage = cloudEvt != null,
-                CloudEvt = cloudEvt,
-                EvtOffset = evtOffset
+                CloudEvt = cloudEvt
+            };
+        }
+
+        public static Package ReadTopicMessage(string topic, CloudEvent value, int evtOffset, string seq)
+        {
+            return new ReadMessageTopicResponse
+            {
+                Header = new Header(Commands.READ_TOPIC_MESSAGE_RESPONSE, HeaderStatus.SUCCESS, seq),
+                Topic = topic,
+                Value = value,
+                EvtOffset = evtOffset,
+                ContainsMessage = value != null
             };
         }
 

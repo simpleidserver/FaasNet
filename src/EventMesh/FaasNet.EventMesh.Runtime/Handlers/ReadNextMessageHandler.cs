@@ -28,13 +28,12 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<EventMeshPackageResult> Run(Package package, IEnumerable<IPeerHost> peers, CancellationToken cancellationToken)
         {
             var readMessage = package as ReadNextMessageRequest;
-            var session = await GetSession(readMessage, cancellationToken);
-            var nextMessage = await ReadNextMessage(session, peers, cancellationToken);
-            var result = PackageResponseBuilder.ReadNextMessage(null, 0, package.Header.Seq);
+            await GetSession(readMessage, cancellationToken);
+            var nextMessage = await ReadNextMessage(readMessage, peers, cancellationToken);
+            var result = PackageResponseBuilder.ReadNextMessage(null, package.Header.Seq);
             if (nextMessage != null)
             {
-                await UpdateSessionEvtIndex(session, cancellationToken);
-                result = PackageResponseBuilder.ReadNextMessage(nextMessage, session.EvtOffset, package.Header.Seq);
+                result = PackageResponseBuilder.ReadNextMessage(nextMessage, package.Header.Seq);
             }
 
             return EventMeshPackageResult.SendResult(result);
@@ -54,22 +53,16 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             return clientSession;
         }
 
-        private async Task<CloudEvent> ReadNextMessage(ClientSession session, IEnumerable<IPeerHost> peers, CancellationToken cancellationToken)
+        private async Task<CloudEvent> ReadNextMessage(ReadNextMessageRequest request, IEnumerable<IPeerHost> peers, CancellationToken cancellationToken)
         {
             using (var activity = EventMeshMeter.RequestActivitySource.StartActivity("Read next message"))
             {
-                var lastLog = await _queueStore.Get(session.Queue, session.EvtOffset, cancellationToken);
+                var lastLog = await _queueStore.Dequeue(request.GroupId, cancellationToken);
                 if (string.IsNullOrWhiteSpace(lastLog)) return null;
                 var cloudEvt = Convert.FromBase64String(lastLog).DeserializeCloudEvent();
                 activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok);
                 return cloudEvt;
             }
-        }
-
-        private async Task UpdateSessionEvtIndex(ClientSession session, CancellationToken cancellationToken)
-        {
-            session.EvtOffset++;
-            await _clientSessionStore.Add(session, cancellationToken);
         }
     }
 }

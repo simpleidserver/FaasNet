@@ -145,7 +145,8 @@ namespace FaasNet.RaftConsensus.Core
             var bufferContext = new ReadBufferContext(udpResult.Buffer.ToArray());
             var consensusPackage = ConsensusPackage.Deserialize(bufferContext);
             if (consensusPackage == null) return false;
-            var peerHost = _peers.First(p => p.Info.TermId == consensusPackage.Header.TermId);
+            var peerHost = _peers.FirstOrDefault(p => p.Info.TermId == consensusPackage.Header.TermId);
+            if (peerHost == null) return true;
             await _proxyClient.SendAsync(udpResult.Buffer, udpResult.Buffer.Count(), peerHost.UdpServerEdp);
             return true;
         }

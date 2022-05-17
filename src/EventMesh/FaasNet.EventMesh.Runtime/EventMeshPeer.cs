@@ -33,9 +33,9 @@ namespace FaasNet.EventMesh.Runtime
             return Task.CompletedTask;
         }
 
-        protected override async Task AddEntry(LogRecord logRecord, CancellationToken cancellationToken)
+        protected override async Task AddEntry(LogRecord logRecord, bool forceAdd, CancellationToken cancellationToken)
         {
-            if (State != PeerStates.LEADER) return;
+            if (State != PeerStates.LEADER && !forceAdd) return;
             var queueNames = await GetQueueNames(cancellationToken);
             await AppendMessage(queueNames, logRecord, cancellationToken);
         }
