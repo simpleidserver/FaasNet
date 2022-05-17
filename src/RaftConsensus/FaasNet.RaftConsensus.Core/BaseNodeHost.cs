@@ -181,7 +181,7 @@ namespace FaasNet.RaftConsensus.Core
             if (gossipPackage == null) return false;
             var packageResult = await HandleGossipRequest(gossipPackage);
             if(packageResult == null) return true;
-            using(var client = new GossipClient(gossipPackage.Header.SourceUrl, gossipPackage.Header.SourcePort))
+            using (var client = new GossipClient(gossipPackage.Header.SourceUrl, gossipPackage.Header.SourcePort))
             {
                 await client.Send(packageResult, cancellationToken: TokenSource.Token);
             }
@@ -230,7 +230,6 @@ namespace FaasNet.RaftConsensus.Core
                     else clusterNode.ReactivationDateTime = DateTime.UtcNow.AddMilliseconds(_options.GossipClusterNodeDeactivationDurationMS);
                 }
             }
-
             StartGossipTimer();
         }
 

@@ -4,7 +4,9 @@ using FaasNet.EventMesh.Client.Messages;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Models;
+using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
 int seedPort = 4000;
@@ -172,19 +174,17 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
 INodeHost BuildNodeHost(int port, bool isSeed = false)
 {
     var serverBuilder = new ServiceCollection()
-        .AddEventMeshServer(o => o.Port = port);
-       //  .UseRocksDB(o => { o.SubPath = $"node{port}"; });
-    if (isSeed) serverBuilder.SetNodeStates(new ConcurrentBag<NodeState> { new ClusterNode { Port = 4000, Url = "localhost" }.ToNodeState() });
+        .AddEventMeshServer(o => o.Port = port)
+        .UseRocksDB(o => { o.SubPath = $"node{port}"; });
+    // if (isSeed) serverBuilder.SetNodeStates(new ConcurrentBag<NodeState> { new ClusterNode { Port = 4000, Url = "localhost" }.ToNodeState() });
     var serviceProvider = serverBuilder.Services
         // .AddLogging(l => l.AddConsole())
         .BuildServiceProvider();
-    /*
     if(isSeed)
     {
         var nodeStateStore = serviceProvider.GetRequiredService<INodeStateStore>();
         nodeStateStore.Add(new ClusterNode { Port = 4000, Url = "localhost" }.ToNodeState());
     }
-    */
 
     return serviceProvider.GetRequiredService<INodeHost>();
 }

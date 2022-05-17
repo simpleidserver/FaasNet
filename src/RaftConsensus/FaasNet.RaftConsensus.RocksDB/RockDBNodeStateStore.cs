@@ -17,10 +17,12 @@ namespace FaasNet.RaftConsensus.RocksDB
     {
         private static SemaphoreSlim _lock = new SemaphoreSlim(1);
         private readonly RaftConsensusRocksDBOptions _options;
+        private readonly RocksDBConnectionPool _connectionPool;
 
         public RockDBNodeStateStore(IOptions<RaftConsensusRocksDBOptions> options)
         {
             _options = options.Value;
+            _connectionPool = new RocksDBConnectionPool();
         }
 
         public void Add(NodeState nodeState)
@@ -39,11 +41,11 @@ namespace FaasNet.RaftConsensus.RocksDB
 
         public async Task<IEnumerable<NodeState>> GetAllLastEntityTypes(CancellationToken cancellationToken)
         {
-            _lock.Wait();
+            await _lock.WaitAsync(cancellationToken);
             var result = new List<NodeState>();
-            using (var db = RocksDb.Open(BuildOptions(), GetFolderPathByTypeValue()))
+            var db = _connectionPool.GetConnection(BuildOptions(), GetFolderPathByTypeValue());
+            using (var iterator = db.NewIterator())
             {
-                var iterator = db.NewIterator();
                 iterator.SeekToFirst();
                 while (iterator.Valid())
                 {
@@ -59,11 +61,11 @@ namespace FaasNet.RaftConsensus.RocksDB
 
         public async Task<IEnumerable<NodeState>> GetAllLastEntityTypes(string entityType, CancellationToken cancellationToken)
         {
-            _lock.Wait();
+            await _lock.WaitAsync(cancellationToken);
             var result = new List<NodeState>();
-            using (var db = RocksDb.Open(BuildOptions(), GetFolderPathByTypeVersion(entityType)))
+            var db = _connectionPool.GetConnection(BuildOptions(), GetFolderPathByTypeVersion(entityType));
+            using (var iterator = db.NewIterator())
             {
-                var iterator = db.NewIterator();
                 iterator.SeekToFirst();
                 while (iterator.Valid())
                 {
@@ -83,47 +85,41 @@ namespace FaasNet.RaftConsensus.RocksDB
             return entityTypes.FirstOrDefault();
         }
 
-        public Task<IEnumerable<NodeState>> GetAllSpecificEntityTypes(List<(string EntityType, int EntityVersion)> parameter, CancellationToken cancellationToken)
+        public async Task<IEnumerable<NodeState>> GetAllSpecificEntityTypes(List<(string EntityType, int EntityVersion)> parameter, CancellationToken cancellationToken)
         {
-            _lock.Wait();
+            await _lock.WaitAsync(cancellationToken);
             var result = new List<NodeState>();
-            foreach(var grp in parameter.GroupBy(k => k.EntityType))
+            foreach (var grp in parameter.GroupBy(k => k.EntityType))
             {
-                using (var db = RocksDb.Open(BuildOptions(), GetFolderPathByHistoryTypeVersionValue(grp.Key)))
+                var db = _connectionPool.GetConnection(BuildOptions(), GetFolderPathByHistoryTypeVersionValue(grp.Key));
+                foreach (var record in grp)
                 {
-                    foreach (var record in grp)
-                    {
-                        var value = db.Get(record.EntityVersion.ToString());
-                        if (string.IsNullOrWhiteSpace(value)) continue;
-                        result.Add(JsonSerializer.Deserialize<NodeState>(value, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }));
-                    }
+                    var value = db.Get(record.EntityVersion.ToString());
+                    if (string.IsNullOrWhiteSpace(value)) continue;
+                    result.Add(JsonSerializer.Deserialize<NodeState>(value, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }));
                 }
             }
 
             _lock.Release();
-            return Task.FromResult((IEnumerable<NodeState>)result);
+            return result;
         }
 
-        public Task<NodeState> GetLastEntityId(string entityId, CancellationToken cancellationToken)
+        public async Task<NodeState> GetLastEntityId(string entityId, CancellationToken cancellationToken)
         {
-            _lock.Wait();
-            using (var db = RocksDb.Open(BuildOptions(), GetFolderPathByLastIdValue()))
-            {
-                var value = db.Get(entityId);
-                _lock.Release();
-                return Parse(value);
-            }
+            await _lock.WaitAsync(cancellationToken);
+            var db = _connectionPool.GetConnection(BuildOptions(), GetFolderPathByLastIdValue());
+            var value = db.Get(entityId);
+            _lock.Release();
+            return await Parse(value);
         }
 
-        public Task<NodeState> GetLastEntityType(string entityType, CancellationToken cancellationToken)
+        public async Task<NodeState> GetLastEntityType(string entityType, CancellationToken cancellationToken)
         {
-            _lock.Wait();
-            using (var db = RocksDb.Open(BuildOptions(), GetFolderPathByTypeValue()))
-            {
-                var value = db.Get(entityType);
-                _lock.Release();
-                return Parse(value);
-            }
+            await _lock.WaitAsync(cancellationToken);
+            var db = _connectionPool.GetConnection(BuildOptions(), GetFolderPathByTypeValue());
+            var value = db.Get(entityType);
+            _lock.Release();
+            return await Parse(value);
         }
 
         private DbOptions BuildOptions()
@@ -141,33 +137,20 @@ namespace FaasNet.RaftConsensus.RocksDB
 
         private void StoreEntityId(NodeState nodeState, string json)
         {
-            using (var db = RocksDb.Open(BuildOptions(), GetFolderPathByLastIdValue()))
-            {
-                db.Put(nodeState.EntityId, json);
-            }
-
-            using (var db = RocksDb.Open(BuildOptions(), GetFolderPathByLastVersionValue()))
-            {
-                db.Put(nodeState.EntityId, nodeState.EntityVersion.ToString());
-            }
+            var db = _connectionPool.GetConnection(BuildOptions(), GetFolderPathByLastIdValue());
+            db.Put(nodeState.EntityId, json);
+            db = _connectionPool.GetConnection(BuildOptions(), GetFolderPathByLastVersionValue());
+            db.Put(nodeState.EntityId, nodeState.EntityVersion.ToString());
         }
 
         private void StoreEntityType(NodeState nodeState, string json)
         {
-            using (var db = RocksDb.Open(BuildOptions(), GetFolderPathByTypeValue()))
-            {
-                db.Put(nodeState.EntityType, json);
-            }
-
-            using (var db = RocksDb.Open(BuildOptions(), GetFolderPathByHistoryTypeVersionValue(nodeState.EntityType)))
-            {
-                db.Put(nodeState.EntityVersion.ToString(), json);
-            }
-
-            using (var db = RocksDb.Open(BuildOptions(), GetFolderPathByTypeVersion(nodeState.EntityType)))
-            {
-                db.Put(nodeState.EntityId, json);
-            }
+            var db = _connectionPool.GetConnection(BuildOptions(), GetFolderPathByTypeValue());
+            db.Put(nodeState.EntityType, json);
+            db = _connectionPool.GetConnection(BuildOptions(), GetFolderPathByHistoryTypeVersionValue(nodeState.EntityType));
+            db.Put(nodeState.EntityVersion.ToString(), json);
+            db = _connectionPool.GetConnection(BuildOptions(), GetFolderPathByTypeVersion(nodeState.EntityType));
+            db.Put(nodeState.EntityId, json);
         }
 
         private string GetFolderPathByLastIdValue()
