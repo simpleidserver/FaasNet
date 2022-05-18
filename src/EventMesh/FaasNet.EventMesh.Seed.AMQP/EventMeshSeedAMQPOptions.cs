@@ -1,11 +1,11 @@
 ﻿using RabbitMQ.Client;
 using System;
 
-namespace FaasNet.EventMesh.Runtime.AMQP
+namespace FaasNet.EventMesh.Seed.AMQP
 {
-    public class AMQPOptions : BaseBrokerOptions
+    public class EventMeshSeedAMQPOptions
     {
-        public AMQPOptions()
+        public EventMeshSeedAMQPOptions()
         {
             ConnectionFactory = (o) =>
             {
@@ -15,14 +15,11 @@ namespace FaasNet.EventMesh.Runtime.AMQP
                 o.Password = "guest";
             };
             TopicName = "amq.topic";
-            QueueName = "streamQueue";
-            BrokerName = "amqp";
-            Source = "urn:eventmesh";
+            JobId = "AMQPTopic";
         }
 
         public Action<ConnectionFactory> ConnectionFactory { get; set; }
         public string TopicName { get; set; }
-        public string QueueName { get; set; }
-        public string Source { get; set; }
+        public string JobId { get; set; }
     }
 }

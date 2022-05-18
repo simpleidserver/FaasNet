@@ -3,9 +3,9 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.12" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.2.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj" />
+    <ProjectReference Include="..\FaasNet.EventMesh.Seed\FaasNet.EventMesh.Seed.csproj" />
   </ItemGroup>
 </Project>

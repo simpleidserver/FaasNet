@@ -126,8 +126,6 @@ namespace FaasNet.RaftConsensus.Core
             _logStore.Add(logRecord);
             Info.Upgrade();
             _peerStore.Update(Info);
-            await _peerStore.SaveChanges(cancellationToken);
-            await _logStore.SaveChanges(cancellationToken);
             await AddEntry(logRecord, forceAdd, cancellationToken);
         }
 

@@ -9,7 +9,7 @@ using System.IO;
 using System.Net.Mime;
 using System.Text;
 
-namespace FaasNet.EventMesh.Runtime.AMQP
+namespace FaasNet.EventMesh.Seed.AMQP
 {
     public static class BasicDeliverEventArgsExtensions
     {
@@ -19,11 +19,8 @@ namespace FaasNet.EventMesh.Runtime.AMQP
         public static CloudEvent ToCloudEvent(this BasicDeliverEventArgs message, CloudEventFormatter cloudEventFormatter, string source, string topicName)
         {
             var properties = message.BasicProperties;
-            if (HasCloudEventsContentType(message, out var contentType))
-            {
-                return cloudEventFormatter.DecodeStructuredModeMessage(new MemoryStream(message.Body.ToArray()), new ContentType(contentType), null);
-            }
-
+            if (HasCloudEventsContentType(message, out var contentType)) return cloudEventFormatter.DecodeStructuredModeMessage(new MemoryStream(message.Body.ToArray()), new ContentType(contentType), null);
+            
             var cloudEvent = new CloudEvent();
             if (properties.Headers.ContainsKey(SpecVersionAmqpHeader))
             {

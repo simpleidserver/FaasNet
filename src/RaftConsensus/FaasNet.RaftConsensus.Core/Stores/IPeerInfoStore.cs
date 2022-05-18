@@ -11,7 +11,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
         Task<IEnumerable<PeerInfo>> GetAll(CancellationToken cancellationToken);
         void Update(PeerInfo peerInfo);
         void Add(PeerInfo peerInfo);
-        Task<int> SaveChanges(CancellationToken cancellationToken);
     }
 
     public class InMemoryPeerInfoStore : IPeerInfoStore
@@ -31,16 +30,12 @@ namespace FaasNet.RaftConsensus.Core.Stores
 
         public void Update(PeerInfo peerInfo)
         {
+
         }
 
         public void Add(PeerInfo peerInfo)
         {
             _peerInfos.Add(peerInfo);
-        }
-
-        public Task<int> SaveChanges(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(1);
         }
     }
 }

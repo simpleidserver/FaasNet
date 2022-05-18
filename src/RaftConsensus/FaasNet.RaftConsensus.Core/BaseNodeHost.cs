@@ -334,7 +334,6 @@ namespace FaasNet.RaftConsensus.Core
             await peerHost.Start(_nodeId, peerInfo, TokenSource.Token);
             _peers.Add(peerHost);
             _peerInfoStore.Add(peerInfo);
-            await _peerInfoStore.SaveChanges(TokenSource.Token);
             return peerHost;
         }
 

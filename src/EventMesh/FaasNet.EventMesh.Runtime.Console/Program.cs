@@ -6,40 +6,20 @@ using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Models;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
 
-int seedPort = 4000;
-var allNodes = CreateNodes();
+const int seedPort = 4000;
+int nbNode = 1;
+var allNodes = new List<INodeHost> { BuildNodeHost(seedPort, true) };
 await StartNodes(allNodes);
 await DisplayMenu(allNodes);
 Console.WriteLine("Press Enter to quit the application");
 Console.ReadLine();
+await StopNodes(allNodes);
 
-foreach (var node in allNodes) await node.Stop();
 
-ICollection<INodeHost> CreateNodes()
+async Task StartNodes(IEnumerable<INodeHost> allNodes)
 {
-    Console.WriteLine("How many nodes do you want to start ?");
-    int nbNodes = int.Parse(Console.ReadLine());
-    var allNodes = new List<INodeHost>();
-    for (int i = 0; i <= nbNodes; i++)
-    {
-        allNodes.Add(BuildNodeHost(
-            seedPort + i,
-            i == 0));
-    }
-
-    return allNodes;
-}
-
-async Task StartNodes(ICollection<INodeHost> nodes)
-{
-    int nbNodes = nodes.Count();
-    for (int i = 0; i < nbNodes; i++)
-    {
-        await StartNode(nodes.ElementAt(i), nbNodes);
-    }
+    for (int i = 0; i < allNodes.Count(); i++) await StartNode(allNodes.ElementAt(i), i);
 }
 
 async Task StartNode(INodeHost node, int nbNodes)
@@ -62,12 +42,18 @@ async Task StartNode(INodeHost node, int nbNodes)
     };
 }
 
+async Task StopNodes(IEnumerable<INodeHost> allNodes)
+{
+    foreach (var node in allNodes) await node.Stop();
+}
+
 async Task DisplayMenu(ICollection<INodeHost> nodes)
 {
     var continueExecution = true;
     do
     {
         Console.WriteLine("- Enter 'Q' to stop execution");
+        Console.WriteLine("- Enter 'addnode' to add a node");
         Console.WriteLine("- Enter 'states' to display the states");
         Console.WriteLine("- Enter 'peers' to display the peers");
         Console.WriteLine("- Enter 'addvpn' to add a VPN");
@@ -77,6 +63,16 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
         Console.WriteLine("- Enter 'directsub' to subscribe to a topic");
         string menuId = Console.ReadLine();
         continueExecution = menuId != "Q";
+        if(menuId == "addnode")
+        {
+            int currentPort = seedPort + nbNode;
+            var newHost = BuildNodeHost(currentPort, false);
+            await StartNode(newHost, nbNode);
+            allNodes.Add(newHost);
+            nbNode++;
+            continue;
+        }
+
         if (menuId == "states")
         {
             foreach (var node in nodes)
@@ -151,7 +147,6 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
             }, CancellationToken.None);
             continue;
         }
-
 
         if (menuId == "directsub")
         {

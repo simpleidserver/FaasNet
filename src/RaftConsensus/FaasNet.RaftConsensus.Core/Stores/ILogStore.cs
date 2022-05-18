@@ -12,10 +12,8 @@ namespace FaasNet.RaftConsensus.Core.Stores
     public interface ILogStore
     {
         string TermId { get; set; }
-        Task<IEnumerable<LogRecord>> GetAll(CancellationToken cancellationToken);
         Task<LogRecord> Get(long index, CancellationToken cancellationToken);
         void Add(LogRecord logRecord);
-        Task<int> SaveChanges(CancellationToken cancellationToken);
     }
 
     public class InMemoryLogStore : ILogStore
@@ -37,17 +35,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
         public Task<LogRecord> Get(long index, CancellationToken cancellationToken)
         {
             return Task.FromResult(_logRecords.FirstOrDefault(lr => lr.Index == index));
-        }
-
-        public Task<IEnumerable<LogRecord>> GetAll(CancellationToken cancellationToken)
-        {
-            IEnumerable<LogRecord> result = _logRecords.ToArray();
-            return Task.FromResult(result);
-        }
-
-        public Task<int> SaveChanges(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(1);
         }
     }
 

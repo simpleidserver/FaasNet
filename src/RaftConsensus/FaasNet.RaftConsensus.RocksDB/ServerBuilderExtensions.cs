@@ -12,6 +12,8 @@ namespace FaasNet.Common
             if (callback == null) serverBuilder.Services.Configure<RaftConsensusRocksDBOptions>(o => { });
             else serverBuilder.Services.Configure(callback);
             serverBuilder.Services.AddSingleton<INodeStateStore, RockDBNodeStateStore>();
+            serverBuilder.Services.AddSingleton<IPeerInfoStore, RocksDBPeerInfoStore>();
+            serverBuilder.Services.AddSingleton<ILogStore, RocksDBLogStore>();
             return serverBuilder;
         }
     }

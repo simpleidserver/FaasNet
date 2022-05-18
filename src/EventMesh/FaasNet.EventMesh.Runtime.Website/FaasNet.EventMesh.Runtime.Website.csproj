@@ -7,8 +7,6 @@
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FaasNet.EventMesh.Runtime.AMQP\FaasNet.EventMesh.Runtime.AMQP.csproj" />
-    <ProjectReference Include="..\FaasNet.EventMesh.Runtime.EF\FaasNet.EventMesh.Runtime.EF.csproj" />
     <ProjectReference Include="..\FaasNet.EventMesh.Runtime.Kafka\FaasNet.EventMesh.Runtime.Kafka.csproj" />
     <ProjectReference Include="..\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj" />
     <ProjectReference Include="..\OpenTelemetry.Exporter.OpenTelemetryProtocol.Logs\OpenTelemetry.Exporter.OpenTelemetryProtocol.Logs.csproj" />
