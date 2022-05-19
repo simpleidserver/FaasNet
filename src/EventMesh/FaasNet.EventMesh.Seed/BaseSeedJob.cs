@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.Seed
 {
-    public abstract class BaseSeedJob
+    public abstract class BaseSeedJob : ISeedJob
     {
         private CancellationTokenSource _tokenSource;
         private SeedOptions _seedOptions;
@@ -31,7 +31,7 @@ namespace FaasNet.EventMesh.Seed
             IsRunning = true;
         }
 
-        public async void Stop()
+        public async Task Stop()
         {
             if (!IsRunning) throw new InvalidOperationException("Seed is not running");
             _tokenSource.Cancel();

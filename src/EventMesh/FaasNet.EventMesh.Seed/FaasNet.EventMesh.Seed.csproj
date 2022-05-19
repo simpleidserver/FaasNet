@@ -6,6 +6,7 @@
 		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\..\Common\FaasNet.Common\FaasNet.Common.csproj" />
 	  <ProjectReference Include="..\FaasNet.EventMesh.Client\FaasNet.EventMesh.Client.csproj" />
 	</ItemGroup>
 </Project>

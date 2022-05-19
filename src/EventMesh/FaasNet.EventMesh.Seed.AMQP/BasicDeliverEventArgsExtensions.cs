@@ -22,7 +22,7 @@ namespace FaasNet.EventMesh.Seed.AMQP
             if (HasCloudEventsContentType(message, out var contentType)) return cloudEventFormatter.DecodeStructuredModeMessage(new MemoryStream(message.Body.ToArray()), new ContentType(contentType), null);
             
             var cloudEvent = new CloudEvent();
-            if (properties.Headers.ContainsKey(SpecVersionAmqpHeader))
+            if (properties.Headers != null && properties.Headers.ContainsKey(SpecVersionAmqpHeader))
             {
                 var version = Encoding.ASCII.GetString(properties.Headers[SpecVersionAmqpHeader] as byte[]);
                 var specVersion = CloudEventsSpecVersion.FromVersionId(version);
