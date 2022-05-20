@@ -22,8 +22,10 @@ namespace FaasNet.EventMesh.Seed.AMQP
 
         protected override string JobId => _options.JobId;
 
-        protected override Task Subscribe(int offset, CancellationToken cancellationToken)
+        protected override Task Subscribe(CancellationToken cancellationToken)
         {
+            const string topicName = "#";
+            var offset = SubscriptionStore.GetOffset(JobId, topicName, cancellationToken);
             var channel = BuildConnection().CreateModel();
             var queue = channel.QueueDeclare(
                 "AMQPEventMesh",
@@ -34,7 +36,7 @@ namespace FaasNet.EventMesh.Seed.AMQP
                 {
                     { "x-queue-type", "stream" }
                 });
-            channel.QueueBind(queue, _options.TopicName, "#");
+            channel.QueueBind(queue, _options.TopicName, topicName);
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += (s, evt) => Handle(s, evt, cancellationToken);
             channel.BasicQos(0, 100, false);

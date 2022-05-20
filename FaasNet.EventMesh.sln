@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.32328.378
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Core Layer", "02. Core Layer", "{6E495E0A-0DC8-4E42-8C58-3C48506D3D24}"
 EndProject
@@ -12,8 +12,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime.Tests", "tests\FaasNet.EventMesh.Runtime.Tests\FaasNet.EventMesh.Runtime.Tests.csproj", "{AA3F0C66-7575-47D9-B45E-6B38F78E632D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime", "src\EventMesh\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj", "{01F03240-2025-4F1B-B1F6-76A8FD694784}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime.Kafka", "src\EventMesh\FaasNet.EventMesh.Runtime.Kafka\FaasNet.EventMesh.Runtime.Kafka.csproj", "{E03361DA-DFB2-4DC0-A6D6-0F3306891EB4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Runtime.Website", "src\EventMesh\FaasNet.EventMesh.Runtime.Website\FaasNet.EventMesh.Runtime.Website.csproj", "{0E50F0C2-5E8B-4F4F-90B5-CC9EE62805B1}"
 EndProject
@@ -45,6 +43,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01. Seeds", "01. Seeds", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Common", "src\Common\FaasNet.Common\FaasNet.Common.csproj", "{2D703121-6391-42AB-8D68-8AD85EB5BB4B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Seed.Kafka", "src\EventMesh\FaasNet.EventMesh.Seed.Kafka\FaasNet.EventMesh.Seed.Kafka.csproj", "{07C9335C-511F-49A1-AD60-BB0C709971C4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Protocols", "02. Protocols", "{225E35C4-C3C2-4319-96BF-CBF86DCB5C46}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Protocols.AMQP", "src\EventMesh\FaasNet.EventMesh.Protocols.AMQP\FaasNet.EventMesh.Protocols.AMQP.csproj", "{3442A638-E7C0-45CC-8A7D-F2A40D65AB93}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,10 +63,6 @@ Global
 		{01F03240-2025-4F1B-B1F6-76A8FD694784}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01F03240-2025-4F1B-B1F6-76A8FD694784}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01F03240-2025-4F1B-B1F6-76A8FD694784}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E03361DA-DFB2-4DC0-A6D6-0F3306891EB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E03361DA-DFB2-4DC0-A6D6-0F3306891EB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E03361DA-DFB2-4DC0-A6D6-0F3306891EB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E03361DA-DFB2-4DC0-A6D6-0F3306891EB4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0E50F0C2-5E8B-4F4F-90B5-CC9EE62805B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0E50F0C2-5E8B-4F4F-90B5-CC9EE62805B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E50F0C2-5E8B-4F4F-90B5-CC9EE62805B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -111,6 +111,14 @@ Global
 		{2D703121-6391-42AB-8D68-8AD85EB5BB4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D703121-6391-42AB-8D68-8AD85EB5BB4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D703121-6391-42AB-8D68-8AD85EB5BB4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07C9335C-511F-49A1-AD60-BB0C709971C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07C9335C-511F-49A1-AD60-BB0C709971C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07C9335C-511F-49A1-AD60-BB0C709971C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07C9335C-511F-49A1-AD60-BB0C709971C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3442A638-E7C0-45CC-8A7D-F2A40D65AB93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3442A638-E7C0-45CC-8A7D-F2A40D65AB93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3442A638-E7C0-45CC-8A7D-F2A40D65AB93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3442A638-E7C0-45CC-8A7D-F2A40D65AB93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,7 +126,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{AA3F0C66-7575-47D9-B45E-6B38F78E632D} = {2A14F697-FFC8-402F-82B4-8128FE897DC9}
 		{01F03240-2025-4F1B-B1F6-76A8FD694784} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
-		{E03361DA-DFB2-4DC0-A6D6-0F3306891EB4} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
 		{0E50F0C2-5E8B-4F4F-90B5-CC9EE62805B1} = {20A0BD99-A4F3-4FD5-A6FA-1935D7464DB8}
 		{3A26857C-8F60-4BC2-8B9C-56BEE26B59BF} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
 		{33040232-E628-448D-B85F-BC68D757D24B} = {3A7C8C56-A93C-4722-9397-EF82EB5E4655}
@@ -132,6 +139,9 @@ Global
 		{2DDF1EB1-B20F-419F-9A09-34A5550D4467} = {B7CDEBEF-C508-4EFA-BEC9-9D9D6E5D80C5}
 		{B7CDEBEF-C508-4EFA-BEC9-9D9D6E5D80C5} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
 		{2D703121-6391-42AB-8D68-8AD85EB5BB4B} = {7A13262A-D1E6-4210-BA95-03A0741CBFA4}
+		{07C9335C-511F-49A1-AD60-BB0C709971C4} = {B7CDEBEF-C508-4EFA-BEC9-9D9D6E5D80C5}
+		{225E35C4-C3C2-4319-96BF-CBF86DCB5C46} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
+		{3442A638-E7C0-45CC-8A7D-F2A40D65AB93} = {225E35C4-C3C2-4319-96BF-CBF86DCB5C46}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9BD3B8C-B2C9-468F-BF54-66BFE9B565EC}

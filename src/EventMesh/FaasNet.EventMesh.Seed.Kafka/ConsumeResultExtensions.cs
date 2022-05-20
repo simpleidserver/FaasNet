@@ -5,7 +5,7 @@ using Confluent.Kafka;
 using System;
 using System.Text;
 
-namespace FaasNet.EventMesh.Runtime.Kafka
+namespace FaasNet.EventMesh.Seed.Kafka
 {
     public static class ConsumeResultExtensions
     {
@@ -27,7 +27,7 @@ namespace FaasNet.EventMesh.Runtime.Kafka
             }
 
             var cloudEvent = new CloudEvent();
-            if (message.Message.Headers.TryGetLastBytes(SpecVersionKafkaHeader, out var bytes))
+            if (message.Message.Headers != null && message.Message.Headers.TryGetLastBytes(SpecVersionKafkaHeader, out var bytes))
             {
                 var version = Encoding.UTF8.GetString(bytes);
                 var specVersion = CloudEventsSpecVersion.FromVersionId(version);
@@ -49,7 +49,7 @@ namespace FaasNet.EventMesh.Runtime.Kafka
             {
                 { SpecVersionKafkaHeader, Encoding.UTF8.GetBytes(cloudEvt.SpecVersion.VersionId) }
             };
-            foreach(var pair in cloudEvt.GetPopulatedAttributes())
+            foreach (var pair in cloudEvt.GetPopulatedAttributes())
             {
                 var attribute = pair.Key;
                 if (attribute == cloudEvt.SpecVersion.DataContentTypeAttribute || attribute.Name == Partitioning.PartitionKeyAttribute.Name)

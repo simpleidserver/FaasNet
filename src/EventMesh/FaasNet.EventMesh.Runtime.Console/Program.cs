@@ -1,12 +1,43 @@
-﻿using FaasNet.Common;
+﻿using Amqp;
+using FaasNet.Common;
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Protocols.AMQP;
+using FaasNet.EventMesh.Protocols.AMQP.Framing;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Models;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
+using RabbitMQ.Client;
 
+var frame = new Frame { Channel = 4, Type = 0 };
+var payload = frame.Serialize();
+var buffer = new ByteBuffer(payload, 0, payload.Count(), 0);
+Frame.Decode(buffer, out ushort channel);
+
+var amqpServer = new AMQPServer();
+amqpServer.Start();
+Console.WriteLine("Press enter");
+Console.ReadLine();
+
+// Address address = new Address("amqp://guest:guest@localhost:5672");
+// Connection connection = new Connection(address);
+// Session session = new Session(connection);
+/*
+var factory = new ConnectionFactory() { HostName = "localhost", Port = 5672, UserName = "guest", Password = "guest" };
+using (var connection = factory.CreateConnection())
+using (var channel = connection.CreateModel())
+{
+    channel.QueueDeclare(queue: "hello",
+                         durable: false,
+                         exclusive: false,
+                         autoDelete: false,
+                         arguments: null);
+}
+*/
+
+/*
 const int seedPort = 4000;
 int nbNode = 1;
 var allNodes = new List<INodeHost> { BuildNodeHost(seedPort, true) };
@@ -183,3 +214,4 @@ INodeHost BuildNodeHost(int port, bool isSeed = false)
 
     return serviceProvider.GetRequiredService<INodeHost>();
 }
+*/

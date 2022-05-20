@@ -26,8 +26,7 @@ namespace FaasNet.EventMesh.Seed
         {
             if (IsRunning) throw new InvalidOperationException("Seed is already running");
             _tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            var offset = await SubscriptionStore.GetOffset(JobId, cancellationToken);
-            await Subscribe(offset, _tokenSource.Token);
+            await Subscribe(_tokenSource.Token);
             IsRunning = true;
         }
 
@@ -46,7 +45,7 @@ namespace FaasNet.EventMesh.Seed
             await pubSession.Publish(topic, cloudEvt, cancellationToken);
         }
 
-        protected abstract Task Subscribe(int offset, CancellationToken cancellationToken);
+        protected abstract Task Subscribe(CancellationToken cancellationToken);
         protected abstract Task Unsubscribe(CancellationToken cancellationToken);
         protected abstract string JobId { get; }
     }
