@@ -10,11 +10,7 @@ using FaasNet.RaftConsensus.Core.Models;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
-
-var frame = new Frame { Channel = 4, Type = 0 };
-var payload = frame.Serialize();
-var buffer = new ByteBuffer(payload, 0, payload.Count(), 0);
-Frame.Decode(buffer, out ushort channel);
+using ConnectionFactory = RabbitMQ.Client.ConnectionFactory;
 
 var amqpServer = new AMQPServer();
 amqpServer.Start();

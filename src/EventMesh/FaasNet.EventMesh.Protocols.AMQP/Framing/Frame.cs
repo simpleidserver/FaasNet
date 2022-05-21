@@ -1,5 +1,6 @@
 ﻿using Amqp;
 using Amqp.Framing;
+using Amqp.Types;
 using System;
 
 namespace FaasNet.EventMesh.Protocols.AMQP.Framing
@@ -29,31 +30,33 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Framing
         public FrameTypes Type { get; set; }
         public ushort Channel { get; set; }
 
-        public static void Decode(ByteBuffer buffer, out ushort channel)
+        public static void Decode(ByteBuffer buffer, out ushort channel, out DescribedList command)
         {
             AmqpBitConverter.ReadUInt(buffer);
             AmqpBitConverter.ReadUByte(buffer);
             AmqpBitConverter.ReadUByte(buffer);
             channel = AmqpBitConverter.ReadUShort(buffer);
+            if (buffer.Length > 0)
+            {
+                var tt = Encoder.ReadDescribed(buffer, Encoder.ReadFormatCode(buffer));
+                command = (DescribedList)tt;
+            }
+            else
+            {
+                command = null;
+            }
         }
 
-        public byte[] Serialize()
+        public ByteBuffer Serialize(DescribedList cmd)
         {
             var buffer = new ByteBuffer(CmdBufferSize, false);
             buffer.Append(FixedWidth.UInt);
             AmqpBitConverter.WriteUByte(buffer, DOFF);
             AmqpBitConverter.WriteUByte(buffer, (byte)Type);
-            switch(Type)
-            {
-                case FrameTypes.Amqp:
-                    AmqpBitConverter.WriteUShort(buffer, Channel);
-                    break;
-            }
-
-            var accepted = new Accepted();
-            accepted.Encode(buffer);
+            AmqpBitConverter.WriteUShort(buffer, Channel);
+            cmd.Encode(buffer);
             AmqpBitConverter.WriteInt(buffer.Buffer, buffer.Offset, buffer.Length);
-            return buffer.Buffer;
+            return buffer;
         }
     }
 }
