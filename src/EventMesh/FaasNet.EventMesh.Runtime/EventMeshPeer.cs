@@ -17,7 +17,7 @@ namespace FaasNet.EventMesh.Runtime
         private readonly IMessageExchangeStore _messageExchangeStore;
         private readonly IQueueStore _queueStore;
 
-        public EventMeshPeer(IMessageExchangeStore messageExchangeStore, IQueueStore queueStore, ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore, IPeerInfoStore peerStore) : base(logger, options, clusterStore, logStore, peerStore)
+        public EventMeshPeer(IMessageExchangeStore messageExchangeStore, IQueueStore queueStore, ILogger<BasePeerHost> logger, IOptions<ConsensusNodeOptions> nodeOptions, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore, IPeerInfoStore peerStore) : base(logger, nodeOptions, options, clusterStore, logStore, peerStore)
         {
             _messageExchangeStore = messageExchangeStore;
             _queueStore = queueStore;

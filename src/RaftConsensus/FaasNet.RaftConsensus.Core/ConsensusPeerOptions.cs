@@ -6,28 +6,15 @@ namespace FaasNet.RaftConsensus.Core
     {
         public ConsensusPeerOptions()
         {
-            Url = "localhost";
-            Port = Constants.DefaultPort;
             CheckLeaderHeartbeatIntervalMS = new Interval { MinMS = 4000, MaxMS = 8000 };
             LeaderHeartbeatExpirationDurationMS = 12000;
             ElectionCheckDurationMS = 1000;
             CheckElectionTimerMS = 200;
             CheckLeaderHeartbeatTimerMS = 200;
             LeaderHeartbeatTimerMS = 1000;
-            GossipTimerMS = 1000;
-            GossipMaxNodeBroadcast = 2;
-            GossipTimeoutHeartbeatMS = 2000;
-            GossipClusterNodeDeactivationDurationMS = 3000;
         }
 
-        /// <summary>
-        /// Default URL.
-        /// </summary>
-        public string Url { get; set; }
-        /// <summary>
-        /// Default port.
-        /// </summary>
-        public int Port { get; set; }
+
         /// <summary>
         /// Interval - Check heartbeat.
         /// </summary>
@@ -52,22 +39,6 @@ namespace FaasNet.RaftConsensus.Core
         /// Interval - Send heartbeat.
         /// </summary>
         public int LeaderHeartbeatTimerMS { get; set; }
-        /// <summary>
-        /// Interval - Send gossip heartbeat.
-        /// </summary>
-        public int GossipTimerMS { get; set; }
-        /// <summary>
-        /// Gossip - Maximum number of nodes to broadcast the message.
-        /// </summary>
-        public int GossipMaxNodeBroadcast{ get; set; }
-        /// <summary>
-        /// Gossip - Heartbeat request expire after MS.
-        /// </summary>
-        public int GossipTimeoutHeartbeatMS { get; set; }
-        /// <summary>
-        /// Gossip - When cluster node is not reachable then deactivate the node.
-        /// </summary>
-        public int GossipClusterNodeDeactivationDurationMS { get; set; }
     }
 
     public class Interval

@@ -9,12 +9,6 @@ namespace FaasNet.Common
 {
     public static class ServerBuilderExtensions
     {
-        public static ServerBuilder AddConsensusPeer(this IServiceCollection services, Action<ConsensusPeerOptions> callback = null)
-        {
-            services.RegisterConsensusPeer(callback);
-            return new ServerBuilder(services);
-        }
-
         public static ServerBuilder SetPeers(this ServerBuilder serverBuilder, ConcurrentBag<PeerInfo> peerInfos)
         {
             var peerStore = new InMemoryPeerInfoStore(peerInfos);

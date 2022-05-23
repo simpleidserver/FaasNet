@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31624.102
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Core Layer", "02. Core Layer", "{6E495E0A-0DC8-4E42-8C58-3C48506D3D24}"
 EndProject
@@ -48,6 +48,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Protocols", "02. Protocols", "{225E35C4-C3C2-4319-96BF-CBF86DCB5C46}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Protocols.AMQP", "src\EventMesh\FaasNet.EventMesh.Protocols.AMQP\FaasNet.EventMesh.Protocols.AMQP.csproj", "{3442A638-E7C0-45CC-8A7D-F2A40D65AB93}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Protocols", "src\EventMesh\FaasNet.EventMesh.Protocols\FaasNet.EventMesh.Protocols.csproj", "{E90801D3-9D40-4B3F-AA3F-4015C03262A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,6 +121,10 @@ Global
 		{3442A638-E7C0-45CC-8A7D-F2A40D65AB93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3442A638-E7C0-45CC-8A7D-F2A40D65AB93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3442A638-E7C0-45CC-8A7D-F2A40D65AB93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E90801D3-9D40-4B3F-AA3F-4015C03262A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E90801D3-9D40-4B3F-AA3F-4015C03262A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E90801D3-9D40-4B3F-AA3F-4015C03262A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E90801D3-9D40-4B3F-AA3F-4015C03262A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -142,6 +148,7 @@ Global
 		{07C9335C-511F-49A1-AD60-BB0C709971C4} = {B7CDEBEF-C508-4EFA-BEC9-9D9D6E5D80C5}
 		{225E35C4-C3C2-4319-96BF-CBF86DCB5C46} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
 		{3442A638-E7C0-45CC-8A7D-F2A40D65AB93} = {225E35C4-C3C2-4319-96BF-CBF86DCB5C46}
+		{E90801D3-9D40-4B3F-AA3F-4015C03262A5} = {225E35C4-C3C2-4319-96BF-CBF86DCB5C46}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9BD3B8C-B2C9-468F-BF54-66BFE9B565EC}

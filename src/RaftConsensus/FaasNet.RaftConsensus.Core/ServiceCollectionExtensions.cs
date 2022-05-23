@@ -8,10 +8,11 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-
-        public static IServiceCollection RegisterConsensusPeer(this IServiceCollection services, Action<ConsensusPeerOptions> callback = null)
+        public static IServiceCollection RegisterConsensusPeer(this IServiceCollection services, Action<ConsensusNodeOptions> nodeOptionsCallback = null, Action<ConsensusPeerOptions> callback = null)
         {
-            if (callback != null) services.Configure(callback);
+            if (nodeOptionsCallback != null) services.Configure(nodeOptionsCallback);
+            else services.Configure<ConsensusNodeOptions>((o) => { });
+            if (callback != null) services.Configure(nodeOptionsCallback);
             else services.Configure<ConsensusPeerOptions>((o) => { });
             var peerStore = new InMemoryPeerInfoStore(new ConcurrentBag<PeerInfo>());
             services.AddLogging();

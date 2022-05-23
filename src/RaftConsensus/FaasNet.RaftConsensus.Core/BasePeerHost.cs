@@ -37,6 +37,7 @@ namespace FaasNet.RaftConsensus.Core
     public abstract class BasePeerHost : IPeerHost
     {
         private readonly ILogger<BasePeerHost> _logger;
+        private readonly ConsensusNodeOptions _nodeOptions;
         private readonly ConsensusPeerOptions _options;
         private readonly IClusterStore _clusterStore;
         private readonly ILogStore _logStore;
@@ -52,9 +53,10 @@ namespace FaasNet.RaftConsensus.Core
         private System.Timers.Timer _electionCheckTimer;
         private System.Timers.Timer _leaderHeartbeatTimer;
 
-        public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore, IPeerInfoStore peerStore)
+        public BasePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusNodeOptions> nodeOptions, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore, IPeerInfoStore peerStore)
         {
             _logger = logger;
+            _nodeOptions = nodeOptions.Value;
             _options = options.Value;
             _clusterStore = clusterStore;
             _peerStore = peerStore;
@@ -175,7 +177,7 @@ namespace FaasNet.RaftConsensus.Core
             // Start to vote.
             _logger.LogInformation("{Node}:{PeerId}:{TermId}, Start to vote", _nodeId, _peerId, Info.TermId);
             var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
-            nodes = nodes.Where(n => n.Port != _options.Port || n.Url != _options.Url);
+            nodes = nodes.Where(n => n.Port != _nodeOptions.Port || n.Url != _nodeOptions.Url);
             _quorum = (nodes.Count() / 2) + 1;
             if (_quorum == 0)
             {
@@ -187,7 +189,7 @@ namespace FaasNet.RaftConsensus.Core
             _expirationCheckElectionDateTime = DateTime.UtcNow.AddMilliseconds(_options.ElectionCheckDurationMS);
             SetCandidate();
             Info.Increment();
-            var pkg = ConsensusPackageRequestBuilder.Vote(_options.Url, _options.Port, Info.TermId, Info.TermIndex);
+            var pkg = ConsensusPackageRequestBuilder.Vote(_nodeOptions.Url, _nodeOptions.Port, Info.TermId, Info.TermIndex);
             foreach (var peer in nodes)
             {
                 var edp = new IPEndPoint(IPAddressHelper.ResolveIPAddress(peer.Url), peer.Port);
@@ -240,7 +242,7 @@ namespace FaasNet.RaftConsensus.Core
         private async Task BroadcastLeaderHeartbeat(object source, ElapsedEventArgs e)
         {
             if (State != PeerStates.LEADER) return;
-            var pkg = ConsensusPackageRequestBuilder.LeaderHeartbeat(_options.Url, _options.Port, Info.TermId, Info.TermIndex);
+            var pkg = ConsensusPackageRequestBuilder.LeaderHeartbeat(_nodeOptions.Url, _nodeOptions.Port, Info.TermId, Info.TermIndex);
             var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
             foreach (var peer in nodes)
             {
@@ -375,7 +377,7 @@ namespace FaasNet.RaftConsensus.Core
             _activeLeader = new LeaderNode { Port = consensusPackage.Header.SourcePort, Url = consensusPackage.Header.SourceUrl, LastLeaderHeartbeatReceivedDateTime = DateTime.UtcNow };
             if (State == PeerStates.CANDIDATE) SetFollower();
             _logger.LogInformation("{Node}:{PeerId}:{TermId}:{State}, LearderHearbeatRequest {ConfirmedIndex}", _nodeId, _peerId, Info.TermId, State, Info.ConfirmedTermIndex);
-            return Task.FromResult(ConsensusPackageResultBuilder.LeaderHeartbeat(_options.Url, _options.Port, Info.TermId, Info.ConfirmedTermIndex));
+            return Task.FromResult(ConsensusPackageResultBuilder.LeaderHeartbeat(_nodeOptions.Url, _nodeOptions.Port, Info.TermId, Info.ConfirmedTermIndex));
         }
 
         private Task<ConsensusPackage> Handle(VoteRequest voteRequest, CancellationToken cancellationToken)
@@ -397,7 +399,7 @@ namespace FaasNet.RaftConsensus.Core
                 }
             }
 
-            return Task.FromResult(ConsensusPackageResultBuilder.Vote(_options.Url, _options.Port, Info.TermId, Info.TermIndex, isGranted));
+            return Task.FromResult(ConsensusPackageResultBuilder.Vote(_nodeOptions.Url, _nodeOptions.Port, Info.TermId, Info.TermIndex, isGranted));
         }
 
         private Task<ConsensusPackage> Handle(VoteResult voteResult, CancellationToken cancellationToken)

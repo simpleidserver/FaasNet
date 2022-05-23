@@ -18,15 +18,13 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 {
     public class PublishMessageRequestHandler : BaseMessageHandler, IMessageHandler
     {
-        private readonly IMessageExchangeStore _messageExchangeStore;
         private readonly IClusterStore _clusterStore;
-        private readonly ConsensusPeerOptions _peerOptions;
+        private readonly ConsensusNodeOptions _nodeOptions;
 
-        public PublishMessageRequestHandler(IVpnStore vpnStore, IClientSessionStore clientSessionStore, IMessageExchangeStore messageExchangeStore, IClusterStore clusterStore, IOptions<ConsensusPeerOptions> peerOption) : base(clientSessionStore, vpnStore)
+        public PublishMessageRequestHandler(IVpnStore vpnStore, IClientSessionStore clientSessionStore, IClusterStore clusterStore, IOptions<ConsensusNodeOptions> nodeOptions) : base(clientSessionStore, vpnStore)
         {
-            _messageExchangeStore = messageExchangeStore;
             _clusterStore = clusterStore;
-            _peerOptions = peerOption.Value;
+            _nodeOptions = nodeOptions.Value;
         }
 
         public Commands Command => Commands.PUBLISH_MESSAGE_REQUEST;
@@ -88,7 +86,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         private async Task<ClusterNode> GetRandomClusterNode(CancellationToken cancellationToken)
         {
             var nodes = await _clusterStore.GetAllNodes(cancellationToken);
-            nodes = nodes.Where(n => n.Port != _peerOptions.Port || n.Url != _peerOptions.Url);
+            nodes = nodes.Where(n => n.Port != _nodeOptions.Port || n.Url != _nodeOptions.Url);
             var rnd = new Random();
             var rndIndex = rnd.Next(0, nodes.Count() - 1);
             return nodes.ElementAt(rndIndex);

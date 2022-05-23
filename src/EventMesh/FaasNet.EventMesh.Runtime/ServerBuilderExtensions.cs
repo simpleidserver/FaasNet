@@ -7,9 +7,9 @@ namespace FaasNet.Common
 {
     public static class ServerBuilderExtensions
     {
-        public static ServerBuilder AddEventMeshServer(this IServiceCollection services, Action<ConsensusPeerOptions> consensusCallback = null, Action<EventMeshNodeOptions> callback = null)
+        public static ServerBuilder AddEventMeshServer(this IServiceCollection services, Action<ConsensusNodeOptions> consensusNodeCallback = null, Action<ConsensusPeerOptions> consensusCallback = null, Action<EventMeshNodeOptions> callback = null)
         {
-            services.RegisterEventMeshServer(consensusCallback, callback);
+            services.RegisterEventMeshServer(consensusNodeCallback, consensusCallback, callback);
             return new ServerBuilder(services);
         }
     }

@@ -5,6 +5,16 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Framing
 {
     public struct ProtocolHeader
     {
+        public static ProtocolHeader SASLHeaderNegotiation = new ProtocolHeader
+        {
+            Id = 3,
+            Major = 1
+        };
+        public static ProtocolHeader SASLHeaderSecuredConnection = new ProtocolHeader
+        {
+            Id = 0,
+            Major = 1
+        };
         public byte Id;
 
         public byte Major;

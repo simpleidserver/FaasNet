@@ -8,12 +8,12 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection RegisterEventMeshServer(this IServiceCollection services, Action<ConsensusPeerOptions> consensusCallback = null, Action<EventMeshNodeOptions> callback = null)
+        public static IServiceCollection RegisterEventMeshServer(this IServiceCollection services, Action<ConsensusNodeOptions> consensusNodeOptions, Action<ConsensusPeerOptions> consensusPeerOptions = null, Action<EventMeshNodeOptions> callback = null)
         {
             if (callback != null) services.Configure(callback);
             services.Configure<EventMeshNodeOptions>(opt => { });
             services.AddLogging();
-            services.RegisterConsensusPeer(consensusCallback);
+            services.RegisterConsensusPeer(consensusNodeOptions, consensusPeerOptions);
             services.AddTransient<INodeHost, EventMeshNode>();
             services.AddTransient<IBridgeServerStore, BridgeServerStore>();
             services.AddTransient<IClientSessionStore, ClientSessionStore>();

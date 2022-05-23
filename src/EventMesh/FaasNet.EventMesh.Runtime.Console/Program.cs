@@ -1,48 +1,36 @@
-﻿using Amqp;
-using FaasNet.Common;
+﻿using FaasNet.Common;
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.Messages;
-using FaasNet.EventMesh.Protocols.AMQP;
-using FaasNet.EventMesh.Protocols.AMQP.Framing;
+using FaasNet.EventMesh.Protocols;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Models;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
-using RabbitMQ.Client;
-using ConnectionFactory = RabbitMQ.Client.ConnectionFactory;
 
-var amqpServer = new AMQPServer();
-amqpServer.Start();
-Console.WriteLine("Press enter");
-Console.ReadLine();
-
-// Address address = new Address("amqp://guest:guest@localhost:5672");
-// Connection connection = new Connection(address);
-// Session session = new Session(connection);
-/*
-var factory = new ConnectionFactory() { HostName = "localhost", Port = 5672, UserName = "guest", Password = "guest" };
-using (var connection = factory.CreateConnection())
-using (var channel = connection.CreateModel())
-{
-    channel.QueueDeclare(queue: "hello",
-                         durable: false,
-                         exclusive: false,
-                         autoDelete: false,
-                         arguments: null);
-}
-*/
-
-/*
 const int seedPort = 4000;
 int nbNode = 1;
 var allNodes = new List<INodeHost> { BuildNodeHost(seedPort, true) };
+await StartAMQPProtocol();
 await StartNodes(allNodes);
 await DisplayMenu(allNodes);
 Console.WriteLine("Press Enter to quit the application");
 Console.ReadLine();
 await StopNodes(allNodes);
 
+async Task StartAMQPProtocol()
+{
+    var serviceCollection = new ServiceCollection();
+    var serverBuilder = new ServerBuilder(serviceCollection);
+    serverBuilder.UseAMQPProtocol(o =>
+    {
+        o.Port = 5672;
+        o.EventMeshPort = 4000;
+    });
+    var serviceProvider = serverBuilder.Services.BuildServiceProvider();
+    var proxy = serviceProvider.GetRequiredService<IProxy>();
+    await proxy.Start();
+}
 
 async Task StartNodes(IEnumerable<INodeHost> allNodes)
 {
@@ -196,7 +184,7 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
 INodeHost BuildNodeHost(int port, bool isSeed = false)
 {
     var serverBuilder = new ServiceCollection()
-        .AddEventMeshServer(o => o.Port = port)
+        .AddEventMeshServer(consensusNodeCallback: o => o.Port = port)
         .UseRocksDB(o => { o.SubPath = $"node{port}"; });
     // if (isSeed) serverBuilder.SetNodeStates(new ConcurrentBag<NodeState> { new ClusterNode { Port = 4000, Url = "localhost" }.ToNodeState() });
     var serviceProvider = serverBuilder.Services
@@ -210,4 +198,3 @@ INodeHost BuildNodeHost(int port, bool isSeed = false)
 
     return serviceProvider.GetRequiredService<INodeHost>();
 }
-*/

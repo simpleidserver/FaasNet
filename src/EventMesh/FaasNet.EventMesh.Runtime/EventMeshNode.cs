@@ -20,12 +20,12 @@ namespace FaasNet.EventMesh.Runtime
     {
         private readonly IEnumerable<IMessageHandler> _messageHandlers;
 
-        public EventMeshNode(IEnumerable<IMessageHandler> messageHandlers, IPeerStore peerStore, IPeerInfoStore peerInfoStore, INodeStateStore nodeStateStore, IClusterStore clusterStore, IPeerHostFactory peerHostFactory, ILogger<BaseNodeHost> logger, IOptions<ConsensusPeerOptions> options) : base(peerStore, peerInfoStore, peerHostFactory, nodeStateStore, clusterStore, logger, options)
+        public EventMeshNode(IEnumerable<IMessageHandler> messageHandlers, IPeerStore peerStore, IPeerInfoStore peerInfoStore, INodeStateStore nodeStateStore, IClusterStore clusterStore, IPeerHostFactory peerHostFactory, ILogger<BaseNodeHost> logger, IOptions<ConsensusNodeOptions> options) : base(peerStore, peerInfoStore, peerHostFactory, nodeStateStore, clusterStore, logger, options)
         {
             _messageHandlers = messageHandlers;
         }
 
-        protected override async Task HandleUDPPackage(UdpReceiveResult udpResult, CancellationToken cancellationToken)
+        protected override async Task HandlePackage(UdpReceiveResult udpResult, CancellationToken cancellationToken)
         {
             var package = Package.Deserialize(new ReadBufferContext(udpResult.Buffer.ToArray()));
             using (var activity = EventMeshMeter.RequestActivitySource.StartActivity(package.Header.Command.Name))

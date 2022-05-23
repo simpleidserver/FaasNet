@@ -10,7 +10,7 @@ namespace FaasNet.RaftConsensus.Core
 {
     public class StandalonePeerHost : BasePeerHost
     {
-        public StandalonePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore, IPeerInfoStore peerStore) : base(logger, options, clusterStore, logStore, peerStore)
+        public StandalonePeerHost(ILogger<BasePeerHost> logger, IOptions<ConsensusNodeOptions> nodeOptions, IOptions<ConsensusPeerOptions> options, IClusterStore clusterStore, ILogStore logStore, IPeerInfoStore peerStore) : base(logger, nodeOptions, options, clusterStore, logStore, peerStore)
         {
         }
 

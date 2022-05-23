@@ -4,9 +4,9 @@
   </PropertyGroup>
   <ItemGroup>
 	  <PackageReference Include="AMQPNetLite" Version="2.4.4" />
-	  <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FaasNet.EventMesh.Protocols\FaasNet.EventMesh.Protocols.csproj" />
+    <ProjectReference Include="..\..\Common\FaasNet.Common\FaasNet.Common.csproj" />
+    <ProjectReference Include="..\FaasNet.EventMesh.Client\FaasNet.EventMesh.Client.csproj" />
   </ItemGroup>
 </Project>

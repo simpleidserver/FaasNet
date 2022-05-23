@@ -2,6 +2,7 @@
 using Amqp.Framing;
 using Amqp.Types;
 using System;
+using System.Linq;
 
 namespace FaasNet.EventMesh.Protocols.AMQP.Framing
 {
