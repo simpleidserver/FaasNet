@@ -1,6 +1,5 @@
 ﻿using Amqp;
 using Amqp.Framing;
-using Amqp.Types;
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Protocols.AMQP.Framing;
 using Microsoft.Extensions.Options;
@@ -21,15 +20,16 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
 
         public string RequestName => "amqp:attach:list";
 
-        public async Task<IEnumerable<ByteBuffer>> Handle(StateObject state, DescribedList cmd, byte[] payload, ushort channel, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ByteBuffer>> Handle(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)
         {
-            var attachCmd = cmd as Attach;
+            var attachCmd = parameter.Cmd as Attach;
             var target = attachCmd.Target as Target;
-            if(target != null && !string.IsNullOrWhiteSpace(target.Address)) state.Session.EventMeshPubSession = await CreatePubSession(state.Session, cancellationToken);
+            state.Session.Link = attachCmd;
+            if (target != null && !string.IsNullOrWhiteSpace(target.Address)) state.Session.EventMeshPubSession = await CreatePubSession(state.Session, cancellationToken);
             return new ByteBuffer[]
             {
-                BuildAttachResponse(channel, attachCmd),
-                BuildFrameResponse(channel, attachCmd)
+                BuildAttachResponse(parameter.Channel, attachCmd),
+                BuildFrameResponse(parameter.Channel, attachCmd)
             };
         }
 

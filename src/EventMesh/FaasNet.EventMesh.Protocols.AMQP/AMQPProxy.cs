@@ -3,6 +3,7 @@ using Amqp.Sasl;
 using Amqp.Types;
 using FaasNet.EventMesh.Protocols.AMQP.Framing;
 using FaasNet.EventMesh.Protocols.AMQP.Handlers;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,13 @@ namespace FaasNet.EventMesh.Protocols.AMQP
         private readonly EventMeshAMQPOptions _options;
         private readonly IEnumerable<IRequestHandler> _requestHandlers;
         private static ManualResetEvent _lock = new ManualResetEvent(false);
+        private readonly ILogger<AMQPProxy> _logger;
 
-        public AMQPProxy(IOptions<EventMeshAMQPOptions> options, IEnumerable<IRequestHandler> requestHandlers)
+        public AMQPProxy(IOptions<EventMeshAMQPOptions> options, IEnumerable<IRequestHandler> requestHandlers, ILogger<AMQPProxy> logger)
         {
             _options = options.Value;
             _requestHandlers = requestHandlers;
+            _logger = logger;
         }
 
         protected override void Init()
@@ -112,9 +115,10 @@ namespace FaasNet.EventMesh.Protocols.AMQP
             byte[] payload = null;
             Frame.Decode(frameBuffer, out channel, out command);
             if (frameBuffer.Length > 0) payload = buffer.Skip(frameBuffer.Offset + FixedWidth.UInt).Take(frameBuffer.Length - FixedWidth.UInt).ToArray();
-            Console.WriteLine($"Receive {command.Descriptor.Name}");
+            _logger.LogInformation("Receive {command}", command.Descriptor.Name);
             var requestHandler = _requestHandlers.First(r => r.RequestName == command.Descriptor.Name);
-            var result = await requestHandler.Handle(stateObject, command, payload, channel, TokenSource.Token);
+            var parameter = new RequestParameter(command, payload, channel);
+            var result = await requestHandler.Handle(stateObject, parameter, TokenSource.Token);
             if (result == null)
             {
                 var newState = new StateObject { WorkSocket = stateObject.WorkSocket, Session = stateObject.Session };

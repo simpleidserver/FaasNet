@@ -139,6 +139,7 @@ namespace FaasNet.EventMesh.Client
     public interface IEventMeshClientPubSession
     {
         Task Publish(string topicName, object obj, CancellationToken cancellationToken = default(CancellationToken));
+        Task Publish(string topicName, string str, CancellationToken cancellationToken = default(CancellationToken));
         Task Publish(string topicName, CloudEvent cloudEvent, CancellationToken cancellationToken = default(CancellationToken));
     }
 
@@ -178,6 +179,11 @@ namespace FaasNet.EventMesh.Client
 
         public Task Publish(string topicName, object obj, CancellationToken cancellationToken = default(CancellationToken))
         {
+            return Publish(topicName, JsonSerializer.Serialize(obj), cancellationToken);
+        }
+
+        public Task Publish(string topicName, string str, CancellationToken cancellationToken = default(CancellationToken))
+        {
             var cloudEvt = new CloudEvent
             {
                 Id = Guid.NewGuid().ToString(),
@@ -185,7 +191,7 @@ namespace FaasNet.EventMesh.Client
                 Source = new Uri("http://localhost"),
                 Type = topicName,
                 DataContentType = "application/json",
-                Data = JsonSerializer.Serialize(obj),
+                Data = str,
                 Time = DateTimeOffset.UtcNow
             };
             return Publish(topicName, cloudEvt, cancellationToken);

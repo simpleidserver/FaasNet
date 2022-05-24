@@ -1,9 +1,8 @@
 ﻿using Amqp;
 using Amqp.Framing;
-using Amqp.Types;
 using FaasNet.EventMesh.Protocols.AMQP.Framing;
-using Microsoft.Extensions.Options;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,33 +10,36 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
 {
     public class TransferHandler : IRequestHandler
     {
-        private readonly EventMeshAMQPOptions _options;
-
-        public TransferHandler(IOptions<EventMeshAMQPOptions> options)
-        {
-            _options = options.Value;
-        }
-
         public string RequestName => "amqp:transfer:list";
 
-        public Task<IEnumerable<ByteBuffer>> Handle(StateObject state, DescribedList cmd, byte[] payload, ushort channel, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ByteBuffer>> Handle(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)
         {
-            var transfer = cmd as Transfer;
-            var disposeResult = new Frame { Channel = channel, Type = FrameTypes.Amqp };
-            var dispose = new Dispose
+            await PublishMessage(state, parameter, cancellationToken);
+            return new List<ByteBuffer>
             {
-                State = transfer.State
+                BuildDispose(state, parameter)
             };
-            IEnumerable<ByteBuffer> result = new List<ByteBuffer>
-            {
-                disposeResult.Serialize(dispose)
-            };
-            return Task.FromResult(result);
         }
 
-        private async Task PublishMessage(StateObject state, byte[] payload)
+        private async Task PublishMessage(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)
         {
-            // state.Session.EventMeshPubSession.Publish()
+            var target = state.Session.Link.Target as Target;
+            await state.Session.EventMeshPubSession.Publish(target.Address, Encoding.UTF8.GetString(parameter.Payload), cancellationToken);
+        }
+
+        private ByteBuffer BuildDispose(StateObject state, RequestParameter parameter)
+        {
+            var transfer = parameter.Cmd as Transfer;
+            var disposeResult = new Frame { Channel = parameter.Channel, Type = FrameTypes.Amqp };
+            var dispose = new Dispose 
+            { 
+                State = transfer.State, 
+                Role = true,
+                First = transfer.DeliveryId,
+                Last = transfer.DeliveryId,
+                Settled = true
+            };
+            return disposeResult.Serialize(dispose);
         }
     }
 }

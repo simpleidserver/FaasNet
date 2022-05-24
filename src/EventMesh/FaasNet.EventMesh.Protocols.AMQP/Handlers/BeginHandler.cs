@@ -1,6 +1,5 @@
 ﻿using Amqp;
 using Amqp.Framing;
-using Amqp.Types;
 using FaasNet.EventMesh.Protocols.AMQP.Framing;
 using System.Collections.Generic;
 using System.Threading;
@@ -12,11 +11,10 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
     {
         public string RequestName => "amqp:begin:list";
 
-        public Task<IEnumerable<ByteBuffer>> Handle(StateObject state, DescribedList cmd, byte[] payload, ushort channel, CancellationToken cancellationToken)
+        public Task<IEnumerable<ByteBuffer>> Handle(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)
         {
-            var requestBegin = cmd as Begin;
-            var beginResult = new Frame { Channel = channel, Type = FrameTypes.Amqp };
-            var begin = new Begin { RemoteChannel = channel };
+            var beginResult = new Frame { Channel = parameter.Channel, Type = FrameTypes.Amqp };
+            var begin = new Begin { RemoteChannel = parameter.Channel };
             IEnumerable<ByteBuffer> result = new[]
             {
                 beginResult.Serialize(begin)

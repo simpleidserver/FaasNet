@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client;
+﻿using Amqp.Framing;
+using FaasNet.EventMesh.Client;
 
 namespace FaasNet.EventMesh.Protocols.AMQP
 {
@@ -7,7 +8,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP
     {
         public string ClientId { get; set; }
         public string Password { get; set; }
-
         public IEventMeshClientPubSession EventMeshPubSession { get; set; }
+        public Attach Link { get; set; }
     }
 }

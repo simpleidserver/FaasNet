@@ -14,9 +14,9 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
     {
         public string RequestName => "amqp:sasl-init:list";
 
-        public Task<IEnumerable<ByteBuffer>> Handle(StateObject state, DescribedList cmd, byte[] payload, ushort channel, CancellationToken cancellationToken)
+        public Task<IEnumerable<ByteBuffer>> Handle(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)
         {
-            var saslInit = cmd as SaslInit;
+            var saslInit = parameter.Cmd as SaslInit;
             if (saslInit.Mechanism.ToString() != "PLAIN") throw new InvalidOperationException("Only PLAIN authentication mechanisme is supported");
             var saslInitResult = new Frame { Channel = 0, Type = FrameTypes.Sasl };
             var salsOutcome = new SaslOutcome { Code = SaslCode.Auth };

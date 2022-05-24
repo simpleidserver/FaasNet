@@ -11,6 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (callback == null) services.Configure<EventMeshAMQPOptions>((o) => { });
             services.Configure(callback);
+            services.AddLogging();
             services.AddTransient<IProxy, AMQPProxy>();
             services.AddTransient<IRequestHandler, OpenHandler>();
             services.AddTransient<IRequestHandler, SASLInitHandler>();
