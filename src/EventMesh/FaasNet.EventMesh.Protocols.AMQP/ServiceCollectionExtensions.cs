@@ -18,6 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IRequestHandler, BeginHandler>();
             services.AddTransient<IRequestHandler, AttachHandler>();
             services.AddTransient<IRequestHandler, TransferHandler>();
+            services.AddTransient<IRequestHandler, FlowHandler>();
             return services;
         }
     }

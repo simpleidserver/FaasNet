@@ -1,6 +1,7 @@
 ﻿using Amqp;
 using Amqp.Sasl;
 using Amqp.Types;
+using FaasNet.EventMesh.Protocols.AMQP.Extensions;
 using FaasNet.EventMesh.Protocols.AMQP.Framing;
 using FaasNet.EventMesh.Protocols.AMQP.Handlers;
 using Microsoft.Extensions.Logging;
@@ -54,8 +55,10 @@ namespace FaasNet.EventMesh.Protocols.AMQP
             _lock.Set();
             var listener = (Socket)ar.AsyncState;
             var handler = listener.EndAccept(ar);
-            var state = new StateObject();
-            state.WorkSocket = handler;
+            var state = new StateObject
+            {
+                WorkSocket = handler
+            };
             handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
         }
 
@@ -63,6 +66,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP
         {
             var state = (StateObject)ar.AsyncState;
             var handler = state.WorkSocket;
+            if(!handler.IsConnected()) { Dispose(state); return; }
             int nbBytes = handler.EndReceive(ar);
             byte[] buffer = state.Buffer.Take(nbBytes).ToArray();
             if (ProtocolHeader.SASLHeaderNegotiation.Serialize().SequenceEqual(buffer))
@@ -84,6 +88,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP
         {
             var result = ProtocolHeader.SASLHeaderNegotiation.Serialize();
             var handler = stateObject.WorkSocket;
+            if (!handler.IsConnected()) { Dispose(stateObject); return; }
             handler.Send(result, 0, result.Length, 0);
             var saslFrame = new Frame { Channel = 0, Type = FrameTypes.Sasl };
             var cmd = new SaslMechanisms
@@ -101,6 +106,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP
         {
             var result = ProtocolHeader.SASLHeaderSecuredConnection.Serialize();
             var handler = stateObject.WorkSocket;
+            if (!handler.IsConnected()) { Dispose(stateObject); return; }
             handler.Send(result, 0, result.Length, 0);
             var newState = new StateObject { WorkSocket = stateObject.WorkSocket, Session = stateObject.Session };
             newState.WorkSocket.BeginReceive(newState.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), newState);
@@ -111,6 +117,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP
             ushort channel;
             DescribedList command;
             var handler = stateObject.WorkSocket;
+            if (!handler.IsConnected()) { Dispose(stateObject); return; }
             var frameBuffer = new ByteBuffer(buffer, 0, buffer.Count(), 0);
             byte[] payload = null;
             Frame.Decode(frameBuffer, out channel, out command);
@@ -136,6 +143,11 @@ namespace FaasNet.EventMesh.Protocols.AMQP
             var state = (StateObject)ar.AsyncState;
             var newState = new StateObject { WorkSocket = state.WorkSocket, Session = state.Session };
             newState.WorkSocket.BeginReceive(newState.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), newState);
+        }
+
+        private void Dispose(StateObject stateObject)
+        {
+            if (stateObject.Session.EventMeshSubSession != null) stateObject.Session.EventMeshSubSession.Close();
         }
     }
 }

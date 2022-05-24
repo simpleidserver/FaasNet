@@ -59,5 +59,16 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Framing
             AmqpBitConverter.WriteInt(buffer.Buffer, buffer.Offset, buffer.Length);
             return buffer;
         }
+
+        public ByteBuffer Serialize(DescribedList cmd, ByteBuffer payload)
+        {
+            var buffer = Serialize(cmd);
+            int payloadSize = payload.Length;
+            int frameSize = buffer.Length + payloadSize;
+            AmqpBitConverter.WriteInt(buffer.Buffer, buffer.Offset, frameSize);
+            AmqpBitConverter.WriteBytes(buffer, payload.Buffer, payload.Offset, payloadSize);
+            payload.Complete(payloadSize);
+            return buffer;
+        }
     }
 }
