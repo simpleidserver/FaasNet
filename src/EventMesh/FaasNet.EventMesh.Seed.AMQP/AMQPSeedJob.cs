@@ -22,10 +22,10 @@ namespace FaasNet.EventMesh.Seed.AMQP
 
         protected override string JobId => _options.JobId;
 
-        protected override Task Subscribe(CancellationToken cancellationToken)
+        protected override async Task Subscribe(CancellationToken cancellationToken)
         {
             const string topicName = "#";
-            var offset = SubscriptionStore.GetOffset(JobId, topicName, cancellationToken);
+            var offset = await SubscriptionStore.GetOffset(JobId, topicName, cancellationToken);
             var channel = BuildConnection().CreateModel();
             var queue = channel.QueueDeclare(
                 "AMQPEventMesh",
@@ -42,7 +42,6 @@ namespace FaasNet.EventMesh.Seed.AMQP
             channel.BasicQos(0, 100, false);
             var consumerTag = channel.BasicConsume(queue, false, string.Empty, new Dictionary<string, object> { { "x-stream-offset", offset } }, consumer);
             _subscriptionRecord = new SubscriptionRecord { Channel = channel, ConsumerTag = consumerTag };
-            return Task.CompletedTask;
         }
 
         protected override Task Unsubscribe(CancellationToken cancellationToken)

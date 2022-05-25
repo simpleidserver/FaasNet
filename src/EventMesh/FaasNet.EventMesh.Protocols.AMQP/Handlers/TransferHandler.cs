@@ -1,7 +1,6 @@
 ﻿using Amqp;
 using Amqp.Framing;
 using FaasNet.EventMesh.Protocols.AMQP.Framing;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,13 +11,10 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
     {
         public string RequestName => "amqp:transfer:list";
 
-        public async Task<IEnumerable<ByteBuffer>> Handle(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)
+        public async Task<RequestResult> Handle(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)
         {
             await PublishMessage(state, parameter, cancellationToken);
-            return new List<ByteBuffer>
-            {
-                BuildDispose(state, parameter)
-            };
+            return RequestResult.Ok(BuildDispose(state, parameter));
         }
 
         private async Task PublishMessage(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)

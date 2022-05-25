@@ -1,4 +1,5 @@
-﻿using FaasNet.RaftConsensus.Client;
+﻿using FaasNet.Common.Extensions;
+using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Extensions;
 using FaasNet.RaftConsensus.Client.Messages;
 using FaasNet.RaftConsensus.Client.Messages.Consensus;
@@ -7,6 +8,7 @@ using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -43,6 +45,7 @@ namespace FaasNet.RaftConsensus.Core
         private readonly ILogStore _logStore;
         private readonly IPeerInfoStore _peerStore;
         private readonly string _peerId;
+        private ConcurrentBag<AppendEntryRequest> _appendEntryRequestLst;
         private LeaderNode _activeLeader = null;
         private DateTime? _expirationCheckElectionDateTime = null;
         private int _nbPositiveVote = 0;
@@ -86,6 +89,7 @@ namespace FaasNet.RaftConsensus.Core
             if (IsRunning) throw new InvalidOperationException("The peer is already running");
             _logStore.TermId = info.TermId;
             _udpClient = new UdpClient();
+            _appendEntryRequestLst = new ConcurrentBag<AppendEntryRequest>();
             _logger.LogInformation("Start peer {PeerId}", _peerId);
             TokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             SetFollower();
@@ -371,13 +375,20 @@ namespace FaasNet.RaftConsensus.Core
             }
         }
 
-        private Task<ConsensusPackage> Handle(LeaderHeartbeatRequest consensusPackage, CancellationToken cancellationToken)
+        private async Task<ConsensusPackage> Handle(LeaderHeartbeatRequest consensusPackage, CancellationToken cancellationToken)
         {
-            if (consensusPackage.Header.TermId != Info.TermId) return Task.FromResult((ConsensusPackage)null);
+            if (consensusPackage.Header.TermId != Info.TermId) return null; ;
             _activeLeader = new LeaderNode { Port = consensusPackage.Header.SourcePort, Url = consensusPackage.Header.SourceUrl, LastLeaderHeartbeatReceivedDateTime = DateTime.UtcNow };
+            for(var i = 0; i < _appendEntryRequestLst.Count(); i++)
+            {
+                var appendEntry = _appendEntryRequestLst.ElementAt(i);
+                await Send(appendEntry, cancellationToken);
+                _appendEntryRequestLst.Remove(appendEntry);
+            }
+
             if (State == PeerStates.CANDIDATE) SetFollower();
             _logger.LogInformation("{Node}:{PeerId}:{TermId}:{State}, LearderHearbeatRequest {ConfirmedIndex}", _nodeId, _peerId, Info.TermId, State, Info.ConfirmedTermIndex);
-            return Task.FromResult(ConsensusPackageResultBuilder.LeaderHeartbeat(_nodeOptions.Url, _nodeOptions.Port, Info.TermId, Info.ConfirmedTermIndex));
+            return ConsensusPackageResultBuilder.LeaderHeartbeat(_nodeOptions.Url, _nodeOptions.Port, Info.TermId, Info.ConfirmedTermIndex);
         }
 
         private Task<ConsensusPackage> Handle(VoteRequest voteRequest, CancellationToken cancellationToken)
@@ -420,11 +431,10 @@ namespace FaasNet.RaftConsensus.Core
             // Transfer to leader
             if(_activeLeader != null && _activeLeader.IsActive(_options.LeaderHeartbeatExpirationDurationMS))
             {
-                var edp = new IPEndPoint(IPAddressHelper.ResolveIPAddress(_activeLeader.Url), _activeLeader.Port);
-                await Send(appendEntry, edp, cancellationToken);
+                await Send(appendEntry, cancellationToken);
                 return null;
             }
-
+            else _appendEntryRequestLst.Add(appendEntry);
             return null;
         }
 
@@ -441,6 +451,12 @@ namespace FaasNet.RaftConsensus.Core
                 var edp = new IPEndPoint(IPAddressHelper.ResolveIPAddress(leaderHeartbeatResult.Header.SourceUrl), leaderHeartbeatResult.Header.SourcePort);
                 await Send(pkg, edp, TokenSource.Token);
             }
+        }
+
+        private async Task Send(AppendEntryRequest appendEntry, CancellationToken cancellationToken)
+        {
+            var edp = new IPEndPoint(IPAddressHelper.ResolveIPAddress(_activeLeader.Url), _activeLeader.Port);
+            await Send(appendEntry, edp, cancellationToken);
         }
 
         #endregion

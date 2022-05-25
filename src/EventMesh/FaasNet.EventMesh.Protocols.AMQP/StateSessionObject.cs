@@ -11,5 +11,6 @@ namespace FaasNet.EventMesh.Protocols.AMQP
         public IEventMeshClientPubSession EventMeshPubSession { get; set; }
         public SubscriptionResult EventMeshSubSession { get; set; }
         public Attach Link { get; set; }
+        public uint DeliveryId { get; set; }
     }
 }

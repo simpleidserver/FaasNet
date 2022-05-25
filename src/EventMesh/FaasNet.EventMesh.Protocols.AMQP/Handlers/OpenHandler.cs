@@ -18,7 +18,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
 
         public string RequestName => "amqp:open:list";
 
-        public Task<IEnumerable<ByteBuffer>> Handle(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)
+        public Task<RequestResult> Handle(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)
         {
             var openResult = new Frame { Channel = parameter.Channel, Type = FrameTypes.Amqp };
             var cmdResult = new Amqp.Framing.Open
@@ -27,11 +27,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
                 MaxFrameSize = _options.MaxFrameSize,
                 ChannelMax = _options.MaxChannel
             };
-            IEnumerable<ByteBuffer> result = new[]
-            {
-                openResult.Serialize(cmdResult)
-            };
-            return Task.FromResult(result);
+            return Task.FromResult(RequestResult.Ok(openResult.Serialize(cmdResult)));
         }
     }
 }

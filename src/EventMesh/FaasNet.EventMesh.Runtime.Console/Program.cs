@@ -2,6 +2,7 @@
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Protocols;
+using FaasNet.EventMesh.Seed;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Models;
@@ -17,6 +18,11 @@ await DisplayMenu(allNodes);
 Console.WriteLine("Press Enter to quit the application");
 Console.ReadLine();
 await StopNodes(allNodes);
+
+// Offrir la possibilité de stocker le seed dans rocksdb.
+// Ajouter un bridge entre deux VPNS.
+// Ajouter des tests unitaires.
+// Supporter WS-Socket.
 
 async Task StartAMQPProtocol()
 {
@@ -76,6 +82,8 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
         Console.WriteLine("- Enter 'publishmsg' to publish a message");
         Console.WriteLine("- Enter 'persistedsub' to subscribe to a group identifier");
         Console.WriteLine("- Enter 'directsub' to subscribe to a topic");
+        Console.WriteLine("- Enter 'startamqpseed' to listen amqp");
+        Console.WriteLine("- Enter 'startkafkaseed' to listen kafka");
         string menuId = Console.ReadLine();
         continueExecution = menuId != "Q";
         if(menuId == "addnode")
@@ -173,9 +181,19 @@ async Task DisplayMenu(ICollection<INodeHost> nodes)
             var session = await eventMeshClient.CreateSubSession(vpn, clientIdentifier, CancellationToken.None);
             session.DirectSubscribe("person.created", (ce) =>
             {
-                Console.WriteLine("Direct sub");
+                Console.WriteLine($"Direct sub {ce.Data}");
             }, CancellationToken.None);
             continue;
+        }
+
+        if (menuId == "startamqpseed")
+        {
+            await StartAMQPSeed();
+        }
+
+        if(menuId == "startkafkaseed")
+        {
+            await StartKafkaSeed();
         }
     }
     while (continueExecution);
@@ -197,4 +215,45 @@ INodeHost BuildNodeHost(int port, bool isSeed = false)
     }
 
     return serviceProvider.GetRequiredService<INodeHost>();
+}
+
+async Task StartAMQPSeed()
+{
+    var serviceCollection = new ServiceCollection();
+    serviceCollection.AddAMQPSeed(seed =>
+    {
+        seed.EventMeshPort = 4000;
+        seed.Vpn = "default";
+        seed.ClientId = "clientId";
+        seed.EventMeshUrl = "localhost";
+    }, amqp =>
+    {
+        amqp.ConnectionFactory = (c) =>
+        {
+            c.UserName = "default_user_TBRVU8sYJmyVBXKeiTD";
+            c.Password = "d67v-U305u8Sh0dOwn02pTIuo2jsnLwY";
+            c.Port = 30007;
+        };
+    });
+    var serviceProvider = serviceCollection.BuildServiceProvider();
+    var seedJob = serviceProvider.GetRequiredService<ISeedJob>();
+    await seedJob.Start(CancellationToken.None);
+}
+
+async Task StartKafkaSeed()
+{
+    var serviceCollection = new ServiceCollection();
+    serviceCollection.AddKafkaSeed(seed =>
+    {
+        seed.EventMeshPort = 4000;
+        seed.Vpn = "default";
+        seed.ClientId = "clientId";
+        seed.EventMeshUrl = "localhost";
+    }, kafka =>
+    {
+        kafka.BootstrapServers = "localhost:29092";
+    });
+    var serviceProvider = serviceCollection.BuildServiceProvider();
+    var seedJob = serviceProvider.GetRequiredService<ISeedJob>();
+    await seedJob.Start(CancellationToken.None);
 }

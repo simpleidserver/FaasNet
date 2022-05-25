@@ -4,7 +4,6 @@ using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Protocols.AMQP.Extensions;
 using FaasNet.EventMesh.Protocols.AMQP.Framing;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +20,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
 
         public string RequestName => "amqp:attach:list";
 
-        public async Task<IEnumerable<ByteBuffer>> Handle(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)
+        public async Task<RequestResult> Handle(StateObject state, RequestParameter parameter, CancellationToken cancellationToken)
         {
             var attachCmd = parameter.Cmd as Attach;
             var target = attachCmd.Target as Target;
@@ -29,11 +28,11 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
             state.Session.Link = attachCmd;
             if (target != null && !string.IsNullOrWhiteSpace(target.Address)) state.Session.EventMeshPubSession = await CreatePubSession(state.Session, cancellationToken);
             if (source != null && !string.IsNullOrWhiteSpace(source.Address)) state.Session.EventMeshSubSession = await CreateSubSession(parameter, state, cancellationToken);
-            return new ByteBuffer[]
+            return RequestResult.Ok(new ByteBuffer[]
             {
                 BuildAttachResponse(parameter.Channel, attachCmd),
                 BuildFrameResponse(attachCmd, parameter.Channel, attachCmd)
-            };
+            });
         }
 
         private async Task<SubscriptionResult> CreateSubSession(RequestParameter parameter, StateObject state, CancellationToken cancellationToken)
@@ -51,10 +50,11 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
                 var transfer = new Transfer 
                 { 
                     Handle = attachCmd.Handle,
-                    DeliveryId = 2                    
+                    DeliveryId = state.Session.DeliveryId                    
                 };
                 var byteBuffer = result.Serialize(transfer, messageByteBuffer);
                 state.WorkSocket.Send(byteBuffer.Buffer, byteBuffer.Offset, byteBuffer.Length, 0);
+                state.Session.DeliveryId = state.Session.DeliveryId + 1;
             }, cancellationToken);
             return subscriptionResult;
         }
@@ -68,11 +68,18 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
         private static ByteBuffer BuildAttachResponse(ushort channel, Attach requestAttach)
         {
             var result = new Frame { Channel = channel, Type = FrameTypes.Amqp };
-            var attach = new Attach { LinkName = requestAttach.LinkName, Handle = requestAttach.Handle };
+            var attach = new Attach 
+            { 
+                LinkName = requestAttach.LinkName, 
+                Handle = requestAttach.Handle,
+                Role = !requestAttach.Role,
+                Source = requestAttach.Source,
+                Target = requestAttach.Target
+            };
             return result.Serialize(attach);
         }
 
-        private static ByteBuffer BuildFrameResponse(Attach attachCmd, ushort channel, Attach requestAttach)
+        private ByteBuffer BuildFrameResponse(Attach attachCmd, ushort channel, Attach requestAttach)
         {
             var target = attachCmd.Target as Target;
             var isReceiverEdp = target != null && !string.IsNullOrWhiteSpace(target.Address);
@@ -80,12 +87,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
             var flow = new Flow { Handle = requestAttach.Handle };
             if (isReceiverEdp)
             {
-                flow.LinkCredit = 1;
-                flow.IncomingWindow = 1;
-            }
-            else
-            {
-                flow.OutgoingWindow = 1;
+                flow.LinkCredit = _options.SessionLinkCredit;
             }
 
             return result.Serialize(flow);
