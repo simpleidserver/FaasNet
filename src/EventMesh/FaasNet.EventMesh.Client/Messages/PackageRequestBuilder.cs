@@ -18,6 +18,15 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
+        public static Package GetAllBridge()
+        {
+            var result = new Package
+            {
+                Header = new Header(Commands.GET_ALL_BRIDGE_VPN_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq())
+            };
+            return result;
+        }
+
         public static Package AddVPN(string vpn)
         {
             var result = new AddVpnRequest
@@ -102,7 +111,7 @@ namespace FaasNet.EventMesh.Client.Messages
                 TargetPort = port,
                 TargetUrn = urn,
                 TargetVpn = targetVpn,
-                Vpn = vpn
+                SourceVpn = vpn
             };
             return result;
         }

@@ -21,6 +21,7 @@ namespace FaasNet.EventMesh.Seed
 
         public bool IsRunning { get; private set; }
         public ISubscriptionStore SubscriptionStore { get; private set; }
+        public SeedOptions Options => _seedOptions;
 
         public async Task Start(CancellationToken cancellationToken)
         {

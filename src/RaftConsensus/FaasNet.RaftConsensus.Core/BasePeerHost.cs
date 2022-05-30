@@ -82,6 +82,7 @@ namespace FaasNet.RaftConsensus.Core
         public event EventHandler<PeerHostEventArgs> PeerIsLeader;
         protected IClusterStore ClusterStore => _clusterStore;
         protected ConsensusPeerOptions Options => _options;
+        protected ILogger<BasePeerHost> Logger => _logger;
 
         public Task Start(string nodeId, PeerInfo info, CancellationToken cancellationToken)
         {
@@ -338,6 +339,7 @@ namespace FaasNet.RaftConsensus.Core
                     TokenSource.Token.ThrowIfCancellationRequested();
                     var receiveResult = await UdpServer.ReceiveAsync().WithCancellation(TokenSource.Token);
                     if (await HandleRaftConsensusPackage(receiveResult, TokenSource.Token)) continue;
+                    await HandlePackage(receiveResult);
                 }
             }
             catch(Exception ex)

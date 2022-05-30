@@ -1,5 +1,4 @@
-﻿
-using FaasNet.RaftConsensus.Client.Messages;
+﻿using FaasNet.RaftConsensus.Client.Messages;
 
 namespace FaasNet.EventMesh.Client.Messages
 {
@@ -7,7 +6,7 @@ namespace FaasNet.EventMesh.Client.Messages
     {
         #region Properties
 
-        public string Vpn { get; set; }
+        public string SourceVpn { get; set; }
         public string TargetVpn { get; set; }
         public string TargetUrn { get; set; }
         public int TargetPort { get; set; }
@@ -17,7 +16,7 @@ namespace FaasNet.EventMesh.Client.Messages
         public override void Serialize(WriteBufferContext context)
         {
             base.Serialize(context);
-            context.WriteString(Vpn);
+            context.WriteString(SourceVpn);
             context.WriteString(TargetVpn);
             context.WriteString(TargetUrn);
             context.WriteInteger(TargetPort);
@@ -25,7 +24,7 @@ namespace FaasNet.EventMesh.Client.Messages
 
         public void Extract(ReadBufferContext context)
         {
-            Vpn = context.NextString();
+            SourceVpn = context.NextString();
             TargetVpn = context.NextString();
             TargetUrn = context.NextString();
             TargetPort = context.NextInt();

@@ -63,20 +63,20 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package PublishMessage(string seq)
-        {
-            var result = new Package
-            {
-                Header = new Header(Commands.PUBLISH_MESSAGE_RESONSE, HeaderStatus.SUCCESS, seq)
-            };
-            return result;
-        }
-
         public static Package AddBridge(string seq)
         {
             var result = new Package
             {
                 Header = new Header(Commands.ADD_BRIDGE_RESPONSE, HeaderStatus.SUCCESS, seq)
+            };
+            return result;
+        }
+
+        public static Package PublishMessage(string seq)
+        {
+            var result = new Package
+            {
+                Header = new Header(Commands.PUBLISH_MESSAGE_RESONSE, HeaderStatus.SUCCESS, seq)
             };
             return result;
         }
@@ -95,6 +95,16 @@ namespace FaasNet.EventMesh.Client.Messages
             var result = new Package
             {
                 Header = new Header(Commands.ADD_VPN_RESPONSE, HeaderStatus.SUCCESS, seq)
+            };
+            return result;
+        }
+
+        public static Package GetBridges(IEnumerable<BridgeServerResponse> servers, string seq)
+        {
+            var result = new GetAllBridgeResponse
+            {
+                Header = new Header(Commands.GET_ALL_BRIDGE_VPN_RESPONSE, HeaderStatus.SUCCESS, seq),
+                Servers = servers
             };
             return result;
         }

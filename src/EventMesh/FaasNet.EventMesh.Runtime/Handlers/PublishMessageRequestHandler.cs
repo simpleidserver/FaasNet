@@ -32,6 +32,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<EventMeshPackageResult> Run(Package package, IEnumerable<IPeerHost> peers, CancellationToken cancellationToken)
         {
             var publishMessageRequest = package as PublishMessageRequest;
+            var cloudEvent = publishMessageRequest.CloudEvent;
+            cloudEvent.Type = publishMessageRequest.Topic;
             await CheckSession(publishMessageRequest, cancellationToken);
             var result = PackageResponseBuilder.PublishMessage(package.Header.Seq);
             if (CheckPeerExists(peers, publishMessageRequest.Topic))
@@ -40,7 +42,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 return EventMeshPackageResult.SendResult(result);
             }
 
-            var base64Message = publishMessageRequest.CloudEvent.SerializeBase64();
+            var base64Message = cloudEvent.SerializeBase64();
             return EventMeshPackageResult.AddPeer(publishMessageRequest.Topic, result, new LogRecord
             {
                 Index = 1,

@@ -21,7 +21,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IMessageExchangeStore, MessageExchangeStore>();
             services.AddTransient<IVpnStore, VpnStore>();
             services.AddTransient<IQueueStore, QueueStore>();
-            services.AddTransient<IMessageHandler, AddBridgeMessageHandler>();
+            services.AddTransient<IMessageHandler, AddBridgeVpnMessageHandler>();
+            services.AddTransient<IMessageHandler, GetAllBridgeVpnMessageHandler>();
             services.AddTransient<IMessageHandler, AddClientMessageHandler>();
             services.AddTransient<IMessageHandler, DisconnectMessageHandler>();
             services.AddTransient<IMessageHandler, GetAllVpnsMessageHandler>();

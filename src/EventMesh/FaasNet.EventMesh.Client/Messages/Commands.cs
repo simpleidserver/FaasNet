@@ -79,7 +79,6 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result returned when a VPN is added.
         /// </summary>
         public static Commands ADD_VPN_RESPONSE = new Commands(17, "ADD_VPN_RESPONSE");
-        /// <summary>
         /// Request sent to read the next message.
         /// </summary>
         public static Commands READ_NEXT_MESSAGE_REQUEST = new Commands(18, "READ_MESSAGE_REQUEST");
@@ -95,6 +94,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result returned when message is sent.
         /// </summary>
         public static Commands READ_TOPIC_MESSAGE_RESPONSE = new Commands(21, "READ_TOPIC_MESSAGE_RESPONSE");
+        /// <summary>
+        /// Request sent to get all VPN bridge.
+        /// </summary>
+        public static Commands GET_ALL_BRIDGE_VPN_REQUEST = new Commands(22, "GET_ALL_BRIDGE_VPN_REQUEST");
+        /// <summary>
+        /// Result returned when VPN are returned.
+        /// </summary>
+        public static Commands GET_ALL_BRIDGE_VPN_RESPONSE = new Commands(23, "GET_ALL_BRIDGE_VPN_RESPONSE");
 
         private Commands(int code)
         {

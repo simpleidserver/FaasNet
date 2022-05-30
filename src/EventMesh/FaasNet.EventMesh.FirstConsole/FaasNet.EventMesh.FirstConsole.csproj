@@ -6,6 +6,6 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\FaasNet.EventMesh.Seed.AMQP\FaasNet.EventMesh.Seed.AMQP.csproj" />
+	  <ProjectReference Include="..\FaasNet.EventMesh.Common\FaasNet.EventMesh.Common.csproj" />
 	</ItemGroup>
 </Project>

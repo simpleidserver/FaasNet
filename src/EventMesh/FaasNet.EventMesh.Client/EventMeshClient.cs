@@ -104,6 +104,39 @@ namespace FaasNet.EventMesh.Client
             }
         }
 
+        public async Task<IEnumerable<BridgeServerResponse>> GetAllBridges(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var udpClient = new UdpClient())
+            {
+                var writeCtx = new WriteBufferContext();
+                var package = PackageRequestBuilder.GetAllBridge();
+                package.Serialize(writeCtx);
+                var payload = writeCtx.Buffer.ToArray();
+                await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+                var resultPayload = await udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+                var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                var packageResult = Package.Deserialize(readCtx);
+                EnsureSuccessStatus(package, packageResult);
+                return (packageResult as GetAllBridgeResponse).Servers;
+            }
+        }
+
+        public async Task AddBridge(string vpn, string url, int port, string targetVpn, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var udpClient = new UdpClient())
+            {
+                var writeCtx = new WriteBufferContext();
+                var package = PackageRequestBuilder.AddBridge(vpn, url, port, targetVpn);
+                package.Serialize(writeCtx);
+                var payload = writeCtx.Buffer.ToArray();
+                await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+                var resultPayload = await udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+                var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                var packageResult = Package.Deserialize(readCtx);
+                EnsureSuccessStatus(package, packageResult);
+            }
+        }
+
         internal static void EnsureSuccessStatus(Package packageRequest, Package packageResponse)
         {
             if (packageResponse.Header.Status != HeaderStatus.SUCCESS)

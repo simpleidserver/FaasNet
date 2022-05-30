@@ -63,16 +63,6 @@ namespace FaasNet.EventMesh.Client.Messages
                 return result;
             }
 
-            if (Commands.ADD_BRIDGE_REQUEST == header.Command)
-            {
-                var result = new AddBridgeRequest
-                {
-                    Header = header
-                };
-                result.Extract(context);
-                return result;
-            }
-
             if (Commands.DISCONNECT_REQUEST == header.Command)
             {
                 var result = new DisconnectRequest
@@ -113,7 +103,8 @@ namespace FaasNet.EventMesh.Client.Messages
                 return result;
             }
 
-            if(Commands.ADD_VPN_REQUEST == header.Command)
+
+            if (Commands.ADD_VPN_REQUEST == header.Command)
             {
                 var result = new AddVpnRequest
                 {
@@ -122,7 +113,6 @@ namespace FaasNet.EventMesh.Client.Messages
                 result.Extract(context);
                 return result;
             }
-
             if (Commands.READ_NEXT_MESSAGE_REQUEST == header.Command)
             {
                 var result = new ReadNextMessageRequest { Header = header };
@@ -147,6 +137,20 @@ namespace FaasNet.EventMesh.Client.Messages
             if (Commands.READ_TOPIC_MESSAGE_RESPONSE == header.Command)
             {
                 var result = new ReadMessageTopicResponse { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if (Commands.ADD_BRIDGE_REQUEST == header.Command)
+            {
+                var result = new AddBridgeRequest { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if (Commands.GET_ALL_BRIDGE_VPN_RESPONSE == header.Command)
+            {
+                var result = new GetAllBridgeResponse { Header = header };
                 result.Extract(context);
                 return result;
             }
