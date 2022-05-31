@@ -1,4 +1,5 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
+using FaasNet.RaftConsensus.Client.Messages;
 using Xunit;
 
 namespace FaasNet.EventMesh.Runtime.Tests
@@ -29,7 +30,6 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var message = PackageRequestBuilder.Hello(new UserAgent
             {
-                Environment = "TST",
                 Password = "password",
                 Pid = 2000,
                 Purpose = UserAgentPurpose.SUB,
@@ -46,7 +46,6 @@ namespace FaasNet.EventMesh.Runtime.Tests
             Assert.Equal(message.Header.Seq, newMessage.Header.Seq);
             Assert.Equal(message.Header.Status.Code, newMessage.Header.Status.Code);
             Assert.Equal(message.Header.Status.Desc, newMessage.Header.Status.Desc);
-            Assert.Equal(message.UserAgent.Environment, newMessage.UserAgent.Environment);
             Assert.Equal(message.UserAgent.Password, newMessage.UserAgent.Password);
             Assert.Equal(message.UserAgent.Pid, newMessage.UserAgent.Pid);
             Assert.Equal(message.UserAgent.Purpose.Code, newMessage.UserAgent.Purpose.Code);

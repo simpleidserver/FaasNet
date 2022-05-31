@@ -60,16 +60,22 @@ namespace FaasNet.EventMesh.Client
             }
         }
 
-        public async Task<IEventMeshClientPubSession> CreatePubSession(string vpn, string clientId, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEventMeshClientPubSession> CreatePubSession(string vpn, string clientId, TimeSpan? expirationTime = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var pubSession = await CreateSession(vpn, clientId, UserAgentPurpose.PUB, cancellationToken);
-            return new EventMeshClientPubSession(pubSession, _ipAddr, _port);
+            var pubSession = await CreateSession(vpn, clientId, UserAgentPurpose.PUB, expirationTime, false, cancellationToken);
+            return new EventMeshClientPubSession(pubSession, clientId, _ipAddr, _port);
         }
 
-        public async Task<IEventMeshClientSubSession> CreateSubSession(string vpn, string clientId, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEventMeshClientPubSession> CreatePubSession(string vpn, string clientId, TimeSpan? expirationTime = null, bool isInfinite = false, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var subSession = await CreateSession(vpn, clientId, UserAgentPurpose.SUB, cancellationToken);
-            return new EventMeshClientSubSession(subSession, _ipAddr, _port);
+            var pubSession = await CreateSession(vpn, clientId, UserAgentPurpose.PUB, expirationTime, isInfinite, cancellationToken);
+            return new EventMeshClientPubSession(pubSession, clientId, _ipAddr, _port);
+        }
+
+        public async Task<IEventMeshClientSubSession> CreateSubSession(string vpn, string clientId, TimeSpan? expirationTime = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var subSession = await CreateSession(vpn, clientId, UserAgentPurpose.SUB, expirationTime, false, cancellationToken);
+            return new EventMeshClientSubSession(subSession, clientId, _ipAddr, _port);
         }
 
         public async Task AddVpn(string vpn, CancellationToken cancellationToken = default(CancellationToken))
@@ -137,6 +143,22 @@ namespace FaasNet.EventMesh.Client
             }
         }
 
+        public async Task Disconnect(string clientId, string sessionId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using(var udpClient = new UdpClient())
+            {
+                var writeCtx = new WriteBufferContext();
+                var package = PackageRequestBuilder.Disconnect(clientId, sessionId);
+                package.Serialize(writeCtx);
+                var payload = writeCtx.Buffer.ToArray();
+                await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+                var resultPayload = await udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+                var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                var packageResult = Package.Deserialize(readCtx);
+                EnsureSuccessStatus(package, packageResult);
+            }
+        }
+
         internal static void EnsureSuccessStatus(Package packageRequest, Package packageResponse)
         {
             if (packageResponse.Header.Status != HeaderStatus.SUCCESS)
@@ -150,9 +172,9 @@ namespace FaasNet.EventMesh.Client
             }
         }
 
-        private async Task<HelloResponse> CreateSession(string vpn, string clientId, UserAgentPurpose purpose, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<HelloResponse> CreateSession(string vpn, string clientId, UserAgentPurpose purpose, TimeSpan? expirationTime = null, bool isInfinite = false, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var userAgent = new UserAgent { ClientId = clientId, Vpn = vpn, Purpose = purpose };
+            var userAgent = new UserAgent { ClientId = clientId, Vpn = vpn, Purpose = purpose, Expiration = expirationTime, IsSessionInfinite = isInfinite };
             using (var udpClient = new UdpClient())
             {
                 var writeCtx = new WriteBufferContext();
@@ -174,38 +196,43 @@ namespace FaasNet.EventMesh.Client
         Task Publish(string topicName, object obj, CancellationToken cancellationToken = default(CancellationToken));
         Task Publish(string topicName, string str, CancellationToken cancellationToken = default(CancellationToken));
         Task Publish(string topicName, CloudEvent cloudEvent, CancellationToken cancellationToken = default(CancellationToken));
+        Task Disconnect(CancellationToken cancellationToken = default(CancellationToken));
     }
 
     public interface IEventMeshClientSubSession
     {
+        string SessionId { get; }
         Task<SubscriptionResult> PersistedSubscribe(string topicFilter, string groupId, Action<CloudEvent> callback, CancellationToken cancellationToken);
         SubscriptionResult DirectSubscribe(string topicFilter, Action<CloudEvent> callback, CancellationToken cancellationToken);
+        Task Disconnect(CancellationToken cancellationToken = default(CancellationToken));
     }
 
     public class SubscriptionResult
     {
-        private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly Func<CancellationToken, Task> _disconnectCallback;
 
-        internal SubscriptionResult(CancellationTokenSource cancellationTokenSource)
+        internal SubscriptionResult(Func<CancellationToken, Task> disconnectCallback)
         {
-            _cancellationTokenSource = cancellationTokenSource;
+            _disconnectCallback = disconnectCallback;
         }
 
-        public void Close()
+        public async void Close()
         {
-            _cancellationTokenSource.Cancel();
+            await _disconnectCallback(CancellationToken.None);
         }
     }
 
     internal class EventMeshClientPubSession : IEventMeshClientPubSession
     {
         private readonly HelloResponse _session;
+        private readonly string _clientId;
         private readonly IPAddress _ipAddr;
         private readonly int _port;
 
-        public EventMeshClientPubSession(HelloResponse session, IPAddress ipAddr, int port)
+        public EventMeshClientPubSession(HelloResponse session, string clientId, IPAddress ipAddr, int port)
         {
             _session = session;
+            _clientId = clientId;
             _ipAddr = ipAddr;
             _port = port;
         }
@@ -245,42 +272,83 @@ namespace FaasNet.EventMesh.Client
                 EventMeshClient.EnsureSuccessStatus(package, packageResult);
             }
         }
+
+        public async Task Disconnect(CancellationToken cancellationToken = default)
+        {
+            using (var udpClient = new UdpClient())
+            {
+                var writeCtx = new WriteBufferContext();
+                var package = PackageRequestBuilder.Disconnect(_clientId, _session.SessionId);
+                package.Serialize(writeCtx);
+                var payload = writeCtx.Buffer.ToArray();
+                await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
+                var resultPayload = await udpClient.ReceiveAsync();
+                var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                var packageResult = Package.Deserialize(readCtx);
+                EventMeshClient.EnsureSuccessStatus(package, packageResult);
+            }
+        }
     }
 
     internal class EventMeshClientSubSession : IEventMeshClientSubSession
     {
         private readonly HelloResponse _session;
+        private readonly string _clientId;
         private readonly IPAddress _ipAddr;
         private readonly int _port;
         private int _offsetEvt;
+        private CancellationTokenSource _activeSubscriptionCancellationTokenSource = null;
 
-        public EventMeshClientSubSession(HelloResponse session, IPAddress ipAddr, int port)
+        public EventMeshClientSubSession(HelloResponse session, string clientId, IPAddress ipAddr, int port)
         {
             _session = session;
+            _clientId = clientId;
             _ipAddr = ipAddr;
             _port = port;
         }
 
+        public string SessionId => _session.SessionId;
+
         public async Task<SubscriptionResult> PersistedSubscribe(string topicFilter, string groupId, Action<CloudEvent> callback, CancellationToken cancellationToken)
         {
-            var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            var result = new SubscriptionResult(cancellationTokenSource);
+            if (_activeSubscriptionCancellationTokenSource != null) throw new InvalidOperationException("There is already an active subscription");
+            _activeSubscriptionCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var activeSubscription = new SubscriptionResult(Disconnect);
             await PersistedSubscribe(topicFilter, groupId, cancellationToken);
 #pragma warning disable 4014
-            Task.Run(async () => await HandlePersistedSubscribe(callback, groupId, cancellationTokenSource.Token));
+            Task.Run(async () => await HandlePersistedSubscribe(callback, groupId, _activeSubscriptionCancellationTokenSource.Token));
 #pragma warning restore 4014
-            return result;
+            return activeSubscription;
         }
 
         public SubscriptionResult DirectSubscribe(string topicName, Action<CloudEvent> callback, CancellationToken cancellationToken)
         {
+            if (_activeSubscriptionCancellationTokenSource != null) throw new InvalidOperationException("There is already an active subscription");
             _offsetEvt = 1;
-            var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            var result = new SubscriptionResult(cancellationTokenSource);
+            _activeSubscriptionCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var activeSubscription = new SubscriptionResult(Disconnect);
 #pragma warning disable 4014
-            Task.Run(async () => await HandleDirectSubscribe(callback, topicName, cancellationTokenSource.Token));
+            Task.Run(async () => await HandleDirectSubscribe(callback, topicName, _activeSubscriptionCancellationTokenSource.Token));
 #pragma warning restore 4014
-            return result;
+            return activeSubscription;
+        }
+
+        public async Task Disconnect(CancellationToken cancellationToken = default)
+        {
+            using (var udpClient = new UdpClient())
+            {
+                var writeCtx = new WriteBufferContext();
+                var package = PackageRequestBuilder.Disconnect(_clientId, _session.SessionId);
+                package.Serialize(writeCtx);
+                var payload = writeCtx.Buffer.ToArray();
+                await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port));
+                var resultPayload = await udpClient.ReceiveAsync();
+                var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                var packageResult = Package.Deserialize(readCtx);
+                EventMeshClient.EnsureSuccessStatus(package, packageResult);
+            }
+
+            if (_activeSubscriptionCancellationTokenSource != null) _activeSubscriptionCancellationTokenSource.Cancel();
         }
 
         private async Task PersistedSubscribe(string topicFilter, string groupId, CancellationToken cancellationToken)

@@ -25,7 +25,6 @@ namespace FaasNet.EventMesh.Common
 
         public static async Task Start(int seedPort, int amqpPort = 5672)
         {
-            // Ajouter un bridge entre deux VPNS.
             // Ajouter des tests unitaires.
             // Supporter WS-Socket.
             _seedPort = seedPort;
@@ -176,7 +175,7 @@ namespace FaasNet.EventMesh.Common
                     Console.WriteLine("Enter the client identifier");
                     var clientIdentifier = Console.ReadLine();
                     var eventMeshClient = new EventMeshClient("localhost", _seedPort);
-                    var session = await eventMeshClient.CreatePubSession(vpn, clientIdentifier, CancellationToken.None);
+                    var session = await eventMeshClient.CreatePubSession(vpn, clientIdentifier, null, CancellationToken.None);
                     await session.Publish("person.created", new { firstName = "firstName" }, CancellationToken.None);
                     continue;
                 }
@@ -190,7 +189,7 @@ namespace FaasNet.EventMesh.Common
                     Console.WriteLine("Enter the group identifier");
                     var groupId = Console.ReadLine();
                     var eventMeshClient = new EventMeshClient("localhost", _seedPort);
-                    var session = await eventMeshClient.CreateSubSession(vpn, clientIdentifier, CancellationToken.None);
+                    var session = await eventMeshClient.CreateSubSession(vpn, clientIdentifier, null, CancellationToken.None);
                     await session.PersistedSubscribe("person.created", groupId, (ce) =>
                     {
                         Console.WriteLine("Persisted sub");
@@ -205,7 +204,7 @@ namespace FaasNet.EventMesh.Common
                     Console.WriteLine("Enter the client identifier");
                     var clientIdentifier = Console.ReadLine();
                     var eventMeshClient = new EventMeshClient("localhost", _seedPort);
-                    var session = await eventMeshClient.CreateSubSession(vpn, clientIdentifier, CancellationToken.None);
+                    var session = await eventMeshClient.CreateSubSession(vpn, clientIdentifier, null, CancellationToken.None);
                     session.DirectSubscribe("person.created", (ce) =>
                     {
                         Console.WriteLine($"Direct sub {ce.Data}");

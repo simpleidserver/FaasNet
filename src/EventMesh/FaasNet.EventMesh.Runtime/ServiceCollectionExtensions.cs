@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Runtime;
+﻿using FaasNet.Common;
+using FaasNet.EventMesh.Runtime;
 using FaasNet.EventMesh.Runtime.Handlers;
 using FaasNet.EventMesh.Runtime.Stores;
 using FaasNet.RaftConsensus.Core;
@@ -8,6 +9,12 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
+        public static ServerBuilder AddEventMeshServer(this IServiceCollection services, Action<ConsensusNodeOptions> consensusNodeCallback = null, Action<ConsensusPeerOptions> consensusCallback = null, Action<EventMeshNodeOptions> callback = null)
+        {
+            services.RegisterEventMeshServer(consensusNodeCallback, consensusCallback, callback);
+            return new ServerBuilder(services);
+        }
+
         public static IServiceCollection RegisterEventMeshServer(this IServiceCollection services, Action<ConsensusNodeOptions> consensusNodeOptions, Action<ConsensusPeerOptions> consensusPeerOptions = null, Action<EventMeshNodeOptions> callback = null)
         {
             if (callback != null) services.Configure(callback);

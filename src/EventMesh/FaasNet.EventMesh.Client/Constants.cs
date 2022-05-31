@@ -5,7 +5,7 @@ namespace FaasNet.EventMesh.Client
 {
     public class Constants
     {
-        public const int DefaultPort = 4889;
+        public const int DefaultPort = 4000;
         public const string DefaultUrl = "localhost";
         public const string DefaultVpn = "default";
         public const string DefaultIPAddress = "127.0.0.1";

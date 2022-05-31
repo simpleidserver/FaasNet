@@ -60,10 +60,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 activity?.SetStatus(ActivityStatusCode.Ok);
             }
 
-            if (sessionResult.ClientSession.Purpose != UserAgentPurpose.PUB)
-            {
-                throw new RuntimeException(message.Header.Command, message.Header.Seq, Errors.UNAUTHORIZED_PUBLISH);
-            }
+            if (sessionResult.ClientSession.Purpose != UserAgentPurpose.PUB) throw new RuntimeException(message.Header.Command, message.Header.Seq, Errors.UNAUTHORIZED_PUBLISH);
+            if (!sessionResult.ClientSession.IsActive) throw new RuntimeException(message.Header.Command, message.Header.Seq, Errors.NO_ACTIVE_SESSION);
         }
 
         private bool CheckPeerExists(IEnumerable<IPeerHost> peers, string topicName)

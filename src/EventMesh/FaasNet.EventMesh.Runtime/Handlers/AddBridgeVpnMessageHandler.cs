@@ -29,7 +29,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<EventMeshPackageResult> Run(Package package, IEnumerable<IPeerHost> peers, CancellationToken cancellationToken)
         {
             var addBridgeRequest = package as AddBridgeRequest;
-            if (!(await IsServerReachable(addBridgeRequest.TargetUrn, addBridgeRequest.TargetPort, cancellationToken))) return EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(Commands.ADD_BRIDGE_RESPONSE, addBridgeRequest.Header.Seq, Errors.TARGET_NOT_REACHABLE));
+            if (!(await IsServerReachable(addBridgeRequest.TargetUrn, addBridgeRequest.TargetPort, cancellationToken))) return EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(Commands.ADD_BRIDGE_REQUEST, addBridgeRequest.Header.Seq, Errors.TARGET_NOT_REACHABLE));
             var allTargetVpns = await GetAllVpns(addBridgeRequest.TargetUrn, addBridgeRequest.TargetPort, cancellationToken);
             if (!allTargetVpns.Contains(addBridgeRequest.TargetVpn)) return EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(Commands.ADD_BRIDGE_REQUEST, addBridgeRequest.Header.Seq, Errors.UNKNOWN_TARGET_VPN));
             var currentVpns = await _vpnStore.GetAll(cancellationToken);

@@ -85,11 +85,11 @@ namespace FaasNet.EventMesh.Seed.VpnBridge
             foreach(var bridgeServer in listenRecord.Bridges)
             {
                 var sourceEventMeshClient = new EventMeshClient(bridgeServer.TargetUrn, bridgeServer.TargetPort);
-                var subSession = await sourceEventMeshClient.CreateSubSession(bridgeServer.TargetVpn, Options.ClientId, _tokenSource.Token);
+                var subSession = await sourceEventMeshClient.CreateSubSession(bridgeServer.TargetVpn, Options.ClientId, null, _tokenSource.Token);
                 var subscriptionResult = await subSession.PersistedSubscribe("*", _options.EventMeshServerGroupId, async (cloudEvt) =>
                 {
                     var targetEventMeshClient = new EventMeshClient(Options.EventMeshUrl, Options.EventMeshPort);
-                    var pubSession = await targetEventMeshClient.CreatePubSession(bridgeServer.SourceVpn, Options.ClientId, _tokenSource.Token);
+                    var pubSession = await targetEventMeshClient.CreatePubSession(bridgeServer.SourceVpn, Options.ClientId, null, _tokenSource.Token);
                     await pubSession.Publish(cloudEvt.Type, cloudEvt, _tokenSource.Token);
                 }, _tokenSource.Token);
                 listenRecord.Subscriptions.Add(subscriptionResult);

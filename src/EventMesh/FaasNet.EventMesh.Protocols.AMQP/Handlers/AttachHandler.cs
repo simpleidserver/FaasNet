@@ -41,7 +41,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
             var attachCmd = parameter.Cmd as Attach;
             var source = attachCmd.Source as Source;
             var evtMeshClient = new EventMeshClient(_options.EventMeshUrl, _options.EventMeshPort);
-            var subSession = await evtMeshClient.CreateSubSession(_options.EventMeshVpn, session.ClientId, cancellationToken);
+            var subSession = await evtMeshClient.CreateSubSession(_options.EventMeshVpn, session.ClientId, null, cancellationToken);
             var subscriptionResult = subSession.DirectSubscribe(source.Address, (cb) =>
             {
                 var message = new Message(cb.Data.ToString());
@@ -62,7 +62,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP.Handlers
         private async Task<IEventMeshClientPubSession> CreatePubSession(StateSessionObject session, CancellationToken cancellationToken)
         {
             var evtMeshClient = new EventMeshClient(_options.EventMeshUrl, _options.EventMeshPort);
-            return await evtMeshClient.CreatePubSession(_options.EventMeshVpn, session.ClientId, cancellationToken);
+            return await evtMeshClient.CreatePubSession(_options.EventMeshVpn, session.ClientId, null, cancellationToken);
         }
 
         private static ByteBuffer BuildAttachResponse(ushort channel, Attach requestAttach)

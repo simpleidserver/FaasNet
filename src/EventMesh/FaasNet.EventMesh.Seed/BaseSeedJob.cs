@@ -42,7 +42,7 @@ namespace FaasNet.EventMesh.Seed
         protected async Task Publish(string topic, CloudEvent cloudEvt, CancellationToken cancellationToken)
         {
             var evtMeshClient = new EventMeshClient(_seedOptions.EventMeshUrl, _seedOptions.EventMeshPort);
-            var pubSession = await evtMeshClient.CreatePubSession(_seedOptions.Vpn, _seedOptions.ClientId, cancellationToken);
+            var pubSession = await evtMeshClient.CreatePubSession(_seedOptions.Vpn, _seedOptions.ClientId, null, cancellationToken);
             await pubSession.Publish(topic, cloudEvt, cancellationToken);
         }
 

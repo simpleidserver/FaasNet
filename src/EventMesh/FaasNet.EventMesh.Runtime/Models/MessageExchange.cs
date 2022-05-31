@@ -17,6 +17,7 @@ namespace FaasNet.EventMesh.Runtime.Models
 
         public bool IsMatch(string filter)
         {
+            if (TopicFilter == Constants.FilterWildcard) return true;
             var regex = new Regex(TopicFilter);
             return regex.IsMatch(filter);
         }

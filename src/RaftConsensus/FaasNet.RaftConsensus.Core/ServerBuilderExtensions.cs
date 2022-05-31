@@ -4,6 +4,7 @@ using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace FaasNet.Common
 {

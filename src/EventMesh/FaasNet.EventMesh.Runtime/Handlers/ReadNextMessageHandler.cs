@@ -50,6 +50,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
             if(clientSession == null) throw new RuntimeException(request.Header.Command, request.Header.Seq, Errors.INVALID_SESSION);
             if(clientSession.Purpose != UserAgentPurpose.SUB) throw new RuntimeException(request.Header.Command, request.Header.Seq, Errors.UNAUTHORIZED_PUBLISH);
+            if (!clientSession.IsActive) throw new RuntimeException(request.Header.Command, request.Header.Seq, Errors.NO_ACTIVE_SESSION);
             return clientSession;
         }
 
