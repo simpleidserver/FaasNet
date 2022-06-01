@@ -20,18 +20,20 @@ namespace FaasNet.EventMesh.Common
     {
         private static int _seedPort;
         private static int _amqpPort = 5672;
+        private static int _webSocketPort = 2803;
         private static int _nbNode;
         private static List<INodeHost> _allNodes;
 
-        public static async Task Start(int seedPort, int amqpPort = 5672)
+        public static async Task Start(int seedPort, int amqpPort = 5672, int webSocketPort = 2803)
         {
-            // Ajouter des tests unitaires.
             // Supporter WS-Socket.
             _seedPort = seedPort;
             _amqpPort = amqpPort;
+            _webSocketPort = webSocketPort;
             _nbNode = 1;
             _allNodes = new List<INodeHost> { BuildNodeHost(seedPort, true) };
             await StartAMQPProtocol();
+            await StartWebSocketProtocol();
             await StartNodes(_allNodes);
             await DisplayMenu(_allNodes);
         }
@@ -44,6 +46,20 @@ namespace FaasNet.EventMesh.Common
             {
                 o.Port = _amqpPort;
                 o.EventMeshPort = _seedPort;
+            });
+            var serviceProvider = serverBuilder.Services.BuildServiceProvider();
+            var proxy = serviceProvider.GetRequiredService<IProxy>();
+            await proxy.Start();
+        }
+
+        private static async Task StartWebSocketProtocol()
+        {
+            var serviceCollection = new ServiceCollection();
+            var serverBuilder = new ServerBuilder(serviceCollection);
+            serverBuilder.UseWebSocket(o =>
+            {
+                o.EventMeshPort = _seedPort;
+                o.Port = _webSocketPort;
             });
             var serviceProvider = serverBuilder.Services.BuildServiceProvider();
             var proxy = serviceProvider.GetRequiredService<IProxy>();

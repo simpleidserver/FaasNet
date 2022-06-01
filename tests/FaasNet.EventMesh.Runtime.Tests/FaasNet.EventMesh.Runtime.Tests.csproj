@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\EventMesh\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh\FaasNet.EventMesh.Seed.VpnBridge\FaasNet.EventMesh.Seed.VpnBridge.csproj" />
   </ItemGroup>
 </Project>

@@ -23,8 +23,10 @@ namespace FaasNet.EventMesh.Protocols
             if (!IsRunning) throw new InvalidOperationException("The proxy is not running");
             IsRunning = false;
             TokenSource.Cancel();
+            Shutdown();
         }
 
         protected abstract void Init();
+        protected abstract void Shutdown();
     }
 }

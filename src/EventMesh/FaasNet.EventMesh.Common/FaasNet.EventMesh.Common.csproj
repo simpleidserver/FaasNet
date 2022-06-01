@@ -13,6 +13,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\..\RaftConsensus\FaasNet.RaftConsensus.RocksDB\FaasNet.RaftConsensus.RocksDB.csproj" />
 	  <ProjectReference Include="..\FaasNet.EventMesh.Protocols.AMQP\FaasNet.EventMesh.Protocols.AMQP.csproj" />
+	  <ProjectReference Include="..\FaasNet.EventMesh.Protocols.WebSocket\FaasNet.EventMesh.Protocols.WebSocket.csproj" />
 	  <ProjectReference Include="..\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj" />
 	  <ProjectReference Include="..\FaasNet.EventMesh.Seed.AMQP\FaasNet.EventMesh.Seed.AMQP.csproj" />
 	  <ProjectReference Include="..\FaasNet.EventMesh.Seed.Kafka\FaasNet.EventMesh.Seed.Kafka.csproj" />

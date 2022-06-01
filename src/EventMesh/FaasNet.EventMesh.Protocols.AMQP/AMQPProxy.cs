@@ -21,6 +21,7 @@ namespace FaasNet.EventMesh.Protocols.AMQP
         private readonly IEnumerable<IRequestHandler> _requestHandlers;
         private static ManualResetEvent _lock = new ManualResetEvent(false);
         private readonly ILogger<AMQPProxy> _logger;
+        private Socket _server;
 
         public AMQPProxy(IOptions<EventMeshAMQPOptions> options, IEnumerable<IRequestHandler> requestHandlers, ILogger<AMQPProxy> logger)
         {
@@ -32,10 +33,15 @@ namespace FaasNet.EventMesh.Protocols.AMQP
         protected override void Init()
         {
             var localEndPoint = new IPEndPoint(IPAddress.Loopback, _options.Port);
-            var server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            server.Bind(localEndPoint);
-            server.Listen();
-            Task.Run(() => Handle(server));
+            _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _server.Bind(localEndPoint);
+            _server.Listen();
+            Task.Run(() => Handle(_server));
+        }
+
+        protected override void Shutdown()
+        {
+            _server.Close();
         }
 
         private void Handle(Socket server)

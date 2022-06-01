@@ -16,7 +16,6 @@ namespace FaasNet.EventMesh.Client.Messages
         public static Errors INVALID_SEQ = new Errors("INVALID_SEQ");
         public static Errors INVALID_BRIDGE = new Errors("INVALID_BRIDGE");
         public static Errors BRIDGE_NOT_ACTIVE = new Errors("BRIDGE_NOT_ACTIVE");
-        public static Errors BRIDGE_EXISTS = new Errors("BRIDGE_EXISTS");
         public static Errors UNKNOWN_BRIDGE = new Errors("UNKNOWN_BRIDGE");
         public static Errors UNKNOWN_VPN = new Errors("UNKNOWN_VPN");
         public static Errors UNKNOWN_SOURCE_VPN = new Errors("UNKNOWN_SOURCE_VPN");

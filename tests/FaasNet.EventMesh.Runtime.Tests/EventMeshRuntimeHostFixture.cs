@@ -5,6 +5,7 @@ using FaasNet.EventMesh.Client.Exceptions;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
+using FaasNet.EventMesh.Seed;
 using FaasNet.RaftConsensus.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -22,29 +23,29 @@ namespace FaasNet.EventMesh.Runtime.Tests
         public async Task When_Ping_Then_NoExceptionIsThrown()
         {
             // ARRANGE
-            var host = new ServiceCollection().AddEventMeshServer().Services.BuildServiceProvider().GetRequiredService<INodeHost>();
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4000).Services.BuildServiceProvider().GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4000);
             await client.Ping();
             await host.Stop();
         }
 
-        #region Ge all VPNS
+        #region Get all VPNS
 
         [Fact]
         public async Task When_GetAllVpns_Then_VpnsAreReturned()
         {
             // ARRANGE
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4001).AddVpns(new List<Vpn>
             {
                 Vpn.Create("default", "default")
             }).ServiceProvider.GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4001);
             var response = await client.GetAllVpns();
             await host.Stop();
 
@@ -63,14 +64,14 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4002).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4002);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.CreateSubSession("wrongVpn", "clientId"));
             await host.Stop();
 
@@ -86,14 +87,14 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4003).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4003);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.CreateSubSession(vpn.Name, "wrongClientId"));
             await host.Stop();
 
@@ -109,14 +110,14 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4004).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4004);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.CreatePubSession(vpn.Name, newClient.ClientId, null, CancellationToken.None));
             await host.Stop();
 
@@ -132,14 +133,14 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4005).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4005);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.CreatePubSession(vpn.Name, newClient.ClientId, TimeSpan.FromHours(5), CancellationToken.None));
             await host.Stop();
 
@@ -155,14 +156,14 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4006).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4006);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.CreatePubSession(vpn.Name, newClient.ClientId, null, true, CancellationToken.None));
             await host.Stop();
 
@@ -178,14 +179,14 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4007).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4007);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.CreateSubSession(vpn.Name, newClient.ClientId, TimeSpan.FromSeconds(10), CancellationToken.None));
             await host.Stop();
 
@@ -201,14 +202,14 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4008).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4008);
             await client.CreateSubSession(vpn.Name, newClient.ClientId, null, CancellationToken.None);
             await host.Stop();
         }
@@ -219,14 +220,14 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4009).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4009);
             await client.CreatePubSession(vpn.Name, newClient.ClientId, null, CancellationToken.None);
             await host.Stop();
         }
@@ -241,14 +242,14 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4010).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4010);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Disconnect(newClient.ClientId, "sessionid"));
             await host.Stop();
 
@@ -264,7 +265,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4011).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
@@ -282,7 +283,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Data = "testttt",
                 ["comexampleextension1"] = "value"
             };
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port : 4011);
             var pubSession = await client.CreatePubSession(vpn.Name, newClient.ClientId, null, CancellationToken.None);
             await pubSession.Disconnect(CancellationToken.None);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await pubSession.Publish("topic", cloudEvent, CancellationToken.None));
@@ -300,7 +301,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
-            var serviceProvider = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var serviceProvider = new ServiceCollection().AddEventMeshServer(o => o.Port = 4012).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider;
@@ -309,7 +310,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4012);
             var pubSession = await client.CreateSubSession(vpn.Name, newClient.ClientId, null, CancellationToken.None);
             pubSession.DirectSubscribe("topic", (c) => { }, CancellationToken.None);
             await pubSession.Disconnect(CancellationToken.None);
@@ -331,14 +332,14 @@ namespace FaasNet.EventMesh.Runtime.Tests
             // ARRANGE
             var vpn = Vpn.Create("default", "default");
             var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
-            var host = new ServiceCollection().AddEventMeshServer().AddVpns(new List<Vpn>
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4013).AddVpns(new List<Vpn>
             {
                 vpn
             }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
             await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new EventMeshClient();
+            var client = new EventMeshClient(port: 4013);
             var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge(vpn.Name, "urn", 6000, vpn.Name, CancellationToken.None));
             await host.Stop();
 
@@ -348,46 +349,66 @@ namespace FaasNet.EventMesh.Runtime.Tests
             Assert.Equal(Errors.TARGET_NOT_REACHABLE, exception.Error);
         }
 
-        #endregion
-
-        /*
-
-        #region Add Bridge
-
         [Fact]
-        public async Task When_AddSameBridgeTwice_Then_ErrorIsReturned()
+        public async Task When_AddBridge_And_TargetVpnIsUnknown_Then_ErrorIsReturned()
         {
             // ARRANGE
-            var firstVpn = Vpn.Create("default", "default");
+            var vpn = Vpn.Create("default", "default");
             var secondVpn = Vpn.Create("default", "default");
-            var firstVpnClient = Models.Client.Create(firstVpn.Name, "clientId", "urn");
-            var secondVpnClient = Models.Client.Create(secondVpn.Name, "clientId", "urn");
-            var firstBuilder = new RuntimeHostBuilder(opt =>
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
+            var secondNewClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
+            var firstHost = new ServiceCollection().AddEventMeshServer(o => o.Port = 4014).AddVpns(new List<Vpn>
             {
-                opt.Port = 4997;
-                opt.Urn = "localhost";
-            });
-            var secondBuilder = new RuntimeHostBuilder(opt =>
+                vpn
+            }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
+            var secondHost = new ServiceCollection().AddEventMeshServer(n => n.Port = 6000).AddVpns(new List<Vpn>
             {
-                opt.Port = 4998;
-                opt.Urn = "localhost";
-            });
-            var firstHost = firstBuilder.AddVpns(new List<Vpn> { firstVpn }).AddClients(new List<Models.Client> { firstVpnClient }).Build();
-            await firstHost.Run(CancellationToken.None);
-            var secondHost = secondBuilder.AddVpns(new List<Vpn> { secondVpn }).AddClients(new List<Models.Client> { secondVpnClient }).Build();
-            await secondHost.Run(CancellationToken.None);
+                secondVpn
+            }).AddClients(new List<Models.Client> { secondNewClient }).ServiceProvider.GetRequiredService<INodeHost>();
+            await firstHost.Start(CancellationToken.None);
+            await secondHost.Start(CancellationToken.None);
 
             // ACT
-            var client = new RuntimeClient(port: 4997);
-            await client.AddBridge(firstVpn.Name, "localhost", 4998, secondVpn.Name, CancellationToken.None);
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge(firstVpn.Name, "localhost", 4998, secondVpn.Name, CancellationToken.None));
-            await firstHost.Stop(CancellationToken.None);
-            await secondHost.Stop(CancellationToken.None);
+            var client = new EventMeshClient(port : 4014);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge(vpn.Name, "localhost", 6000, "invalidTargetVpn", CancellationToken.None));
+            await firstHost.Stop();
+            await secondHost.Stop();
 
             // ASSERT
             Assert.NotNull(exception);
             Assert.Equal(HeaderStatus.FAIL, exception.Status);
-            Assert.Equal(Errors.BRIDGE_EXISTS, exception.Error);
+            Assert.Equal(Errors.UNKNOWN_TARGET_VPN, exception.Error);
+        }
+
+        [Fact]
+        public async Task When_AddBridge_And_SourceVpnIsUnknown_Then_ErrorIsReturned()
+        {
+            // ARRANGE
+            var vpn = Vpn.Create("default", "default");
+            var secondVpn = Vpn.Create("default", "default");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
+            var secondNewClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
+            var firstHost = new ServiceCollection().AddEventMeshServer(o => o.Port = 4015).AddVpns(new List<Vpn>
+            {
+                vpn
+            }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
+            var secondHost = new ServiceCollection().AddEventMeshServer(n => n.Port = 6001).AddVpns(new List<Vpn>
+            {
+                secondVpn
+            }).AddClients(new List<Models.Client> { secondNewClient }).ServiceProvider.GetRequiredService<INodeHost>();
+            await firstHost.Start(CancellationToken.None);
+            await secondHost.Start(CancellationToken.None);
+
+            // ACT
+            var client = new EventMeshClient(port : 4015);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge("invalidTargetVpn", "localhost", 6001, secondVpn.Name, CancellationToken.None));
+            await firstHost.Stop();
+            await secondHost.Stop();
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.UNKNOWN_SOURCE_VPN, exception.Error);
         }
 
         #endregion
@@ -395,87 +416,9 @@ namespace FaasNet.EventMesh.Runtime.Tests
         #region Subscribe
 
         [Fact]
-        public async Task When_Subscribe_And_CloseUdpClient_Then_SessionIsRemoved()
+        public async Task When_Subscribe_ToOneSpecificTopic_Then_MessageIsReturned()
         {
             // ARRANGE
-            var vpn = Vpn.Create("default", "default");
-            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn");
-            var builder = new RuntimeHostBuilder(opt =>
-            {
-                opt.Port = 4991;
-            });
-            var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            await host.Run(CancellationToken.None);
-
-            // ACT
-            var client = new RuntimeClient(port: 4991);
-            var response = await client.Hello(new UserAgent
-            {
-                ClientId = newClient.ClientId,
-                Environment = "TST",
-                Password = "password",
-                Pid = 2000,
-                Purpose = UserAgentPurpose.SUB,
-                Version = "0",
-                Vpn = vpn.Name
-            });
-            client.UdpClient.Close();
-            var exception = await Assert.ThrowsAsync<RuntimeClientSessionClosedException>(async () => await client.Subscribe(newClient.ClientId, response.SessionId, new List<SubscriptionItem>
-            {
-                new SubscriptionItem
-                {
-                    Topic = "topic"
-                }
-            }));
-            await host.Stop(CancellationToken.None);
-
-            // ASSERT
-            var lastSession = newClient.Sessions.First();
-            Assert.False(newClient.ActiveSessions.Any());
-            Assert.True(newClient.Sessions.Count() == 1);
-            Assert.Equal(ClientSessionState.FINISH, lastSession.State);
-            Assert.NotNull(exception);
-        }
-
-        [Fact]
-        public async Task When_Subscribe_And_ThereIsNoActiveSession_Then_ExceptionIsThrown()
-        {
-            // ARRANGE
-            var vpn = Vpn.Create("default", "default");
-            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn");
-            var builder = new RuntimeHostBuilder(opt =>
-            {
-                opt.Port = 4992;
-            });
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            await host.Run(CancellationToken.None);
-
-            // ACT
-            var client = new RuntimeClient(port: 4992);
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Subscribe(newClient.ClientId, "sessionId", new List<SubscriptionItem>
-            {
-                new SubscriptionItem
-                {
-                    Topic = "topic"
-                }
-            }));
-            await host.Stop(CancellationToken.None);
-
-            // ASSERT
-            Assert.NotNull(exception);
-            Assert.Equal(HeaderStatus.FAIL, exception.Status);
-            Assert.Equal(Errors.INVALID_SESSION, exception.Error);
-        }
-
-        [Fact]
-        public async Task When_Subscribe_And_SessionDoesntHaveCorrectPurpose_ThenExceptionIsThrown()
-        {
-            // ARRANGE
-            const string topicName = "Test.COUCOU";
-            var vpn = Vpn.Create("default", "default");
-            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
-            AsyncMessageToClient msg = null;
             var cloudEvent = new CloudEvent
             {
                 Type = "com.github.pull.create",
@@ -487,52 +430,36 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Data = "testttt",
                 ["comexampleextension1"] = "value"
             };
-            var builder = new RuntimeHostBuilder(opt =>
+            var vpn = Vpn.Create("default", "default");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB, UserAgentPurpose.SUB });
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4016).AddVpns(new List<Vpn>
             {
-                opt.Port = 5003;
-            });
-            builder.AddInMemoryMessageBroker();
-            var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
-            var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            await host.Run(CancellationToken.None);
+                vpn
+            }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
+            await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new RuntimeClient(port: 5003);
-            var helloResponse = await client.Hello(new UserAgent
+            CloudEvent receivedCloudEvt = null;
+            var client = new EventMeshClient(port: 4016);
+            var subSession = await client.CreateSubSession(vpn.Name, newClient.ClientId, null, CancellationToken.None);
+            subSession.DirectSubscribe("person.created", (cb) =>
             {
-                ClientId = newClient.ClientId,
-                Environment = "TST",
-                Password = "password",
-                Pid = 2000,
-                Purpose = UserAgentPurpose.PUB,
-                Version = "0",
-                BufferCloudEvents = 1,
-                Vpn = vpn.Name
-            });
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.Subscribe(newClient.ClientId, helloResponse.SessionId, new List<SubscriptionItem>
-            {
-                new SubscriptionItem
-                {
-                    Topic = topicName
-                }
-            }));
-            await host.Stop(CancellationToken.None);
+                receivedCloudEvt = cb;
+            }, CancellationToken.None);
+            var pubSession = await client.CreatePubSession(vpn.Name, newClient.ClientId, null, CancellationToken.None);
+            await pubSession.Publish("person.created", cloudEvent, CancellationToken.None);
+            while (receivedCloudEvt == null) Thread.Sleep(500);
+            await host.Stop();
 
             // ASSERT
-            Assert.NotNull(exception);
-            Assert.Equal(HeaderStatus.FAIL, exception.Status);
-            Assert.Equal(Errors.UNAUTHORIZED_SUBSCRIBE, exception.Error);
+            Assert.NotNull(receivedCloudEvt);
+            Assert.Equal("person.created", receivedCloudEvt.Type);
         }
 
         [Fact]
-        public async Task When_Subscribe_ToOneTopic_Then_MessagesAreReceived()
+        public async Task When_Subscribe_To_WildCardTopic_Then_MessageIsReturned()
         {
             // ARRANGE
-            const string topicName = "Test.COUCOU";
-            var vpn = Vpn.Create("default", "default");
-            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
-            AsyncMessageToClient msg = null;
             var cloudEvent = new CloudEvent
             {
                 Type = "com.github.pull.create",
@@ -544,64 +471,57 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Data = "testttt",
                 ["comexampleextension1"] = "value"
             };
-            var builder = new RuntimeHostBuilder(opt =>
+            var vpn = Vpn.Create("default", "default");
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB, UserAgentPurpose.SUB });
+            var host = new ServiceCollection().AddEventMeshServer(o => o.Port = 4017).AddVpns(new List<Vpn>
             {
-                opt.Port = 4993;
-            });
-            builder.AddInMemoryMessageBroker();
-            var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
-            var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
-            var vpnStore = serviceProvider.GetRequiredService<IVpnStore>();
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            await host.Run(CancellationToken.None);
+                vpn
+            }).AddClients(new List<Models.Client> { newClient }).ServiceProvider.GetRequiredService<INodeHost>();
+            await host.Start(CancellationToken.None);
 
             // ACT
-            var client = new RuntimeClient(port: 4993);
-            var helloResponse = await client.Hello(new UserAgent
+            CloudEvent receivedCloudEvt = null;
+            var client = new EventMeshClient(port: 4017);
+            var subSession = await client.CreateSubSession(vpn.Name, newClient.ClientId, null, CancellationToken.None);
+            await subSession.PersistedSubscribe("person.*", "groupId", (cb) =>
             {
-                ClientId = newClient.ClientId,
-                Environment = "TST",
-                Password = "password",
-                Pid = 2000,
-                Purpose = UserAgentPurpose.SUB,
-                Version = "0",
-                BufferCloudEvents = 1,
-                Vpn = vpn.Name
-            });
-            await client.Subscribe(newClient.ClientId, helloResponse.SessionId, new List<SubscriptionItem>
-            {
-                new SubscriptionItem
-                {
-                    Topic = topicName
-                }
-            }, (m) =>
-            {
-                msg = m;
-            });
-            await messagePublisher.Publish(cloudEvent, topicName, newClient);
-            while (msg == null)
-            {
-                Thread.Sleep(100);
-            }
+                receivedCloudEvt = cb;
+            }, CancellationToken.None);
+            var pubSession = await client.CreatePubSession(vpn.Name, newClient.ClientId, null, CancellationToken.None);
+            await pubSession.Publish("person.created", cloudEvent, CancellationToken.None);
+            while (receivedCloudEvt == null) Thread.Sleep(500);
+            await host.Stop();
 
             // ASSERT
-            var topic = newClient.Topics.First();
-            Assert.NotNull(msg);
-            Assert.Equal(Constants.InMemoryBrokername, topic.BrokerName);
-            Assert.Equal(1, topic.Offset);
-            Assert.Equal(topicName, topic.Name);
+            Assert.NotNull(receivedCloudEvt);
+            Assert.Equal("person.created", receivedCloudEvt.Type);
         }
 
-        [Fact]
-        public async Task When_AddBridge_And_Subscribe_ToOneTopic_Then_MessageIsReceivedFromSecondServer()
+        // [Fact]
+        public async Task When_Add_VpnBridge_BetweenTwoServers_Then_MessageCanBeTransmitted()
         {
             // ARRANGE
-            const string topicName = "Test.COUCOU";
-            var firstVpn = Vpn.Create("default", "default");
+            var vpn = Vpn.Create("default", "default");
             var secondVpn = Vpn.Create("default", "default");
-            var firstVpnClient = Models.Client.Create(firstVpn.Name, "clientId", "urn");
-            var secondVpnClient = Models.Client.Create(secondVpn.Name, "clientId", "urn");
-            AsyncMessageToClient msg = null;
+            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB, UserAgentPurpose.SUB });
+            var secondNewClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB, UserAgentPurpose.SUB });
+            var firstPubClient = Models.Client.Create(vpn.Name, "publishClientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB, UserAgentPurpose.SUB });
+            var secondPubClient = Models.Client.Create(vpn.Name, "publishClientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB, UserAgentPurpose.SUB });
+            var firstHost = new ServiceCollection().AddEventMeshServer(o => o.Port = 4018).AddVpns(new List<Vpn>
+            {
+                vpn
+            }).AddClients(new List<Models.Client> { newClient, firstPubClient }).ServiceProvider.GetRequiredService<INodeHost>();
+            var secondHost = new ServiceCollection().AddEventMeshServer(n => n.Port = 6002).AddVpns(new List<Vpn>
+            {
+                secondVpn
+            }).AddClients(new List<Models.Client> { secondNewClient, secondPubClient }).ServiceProvider.GetRequiredService<INodeHost>();
+            var vpnBridgeSink = new ServiceCollection().AddVpnBridgeSeed(o => o.EventMeshPort = 4018).BuildServiceProvider().GetRequiredService<ISeedJob>();
+            await firstHost.Start(CancellationToken.None);
+            await secondHost.Start(CancellationToken.None);
+            await vpnBridgeSink.Start(CancellationToken.None);
+
+            // ACT
+            CloudEvent receivedCloudEvt = null;
             var cloudEvent = new CloudEvent
             {
                 Type = "com.github.pull.create",
@@ -613,244 +533,26 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 Data = "testttt",
                 ["comexampleextension1"] = "value"
             };
-            var firstBuilder = new RuntimeHostBuilder(opt =>
+            var firstClient = new EventMeshClient(port: 4018);
+            await firstClient.AddBridge("default", "localhost", 6002, "default", CancellationToken.None);
+            var subSession = await firstClient.CreateSubSession("default", "clientId", null, CancellationToken.None);
+            subSession.DirectSubscribe("person.created", (ce) =>
             {
-                opt.Port = 5001;
-                opt.Urn = "localhost";
-            }).AddInMemoryMessageBroker();
-            var secondBuilder = new RuntimeHostBuilder(opt =>
-            {
-                opt.Port = 5002;
-                opt.Urn = "localhost";
-            }).AddInMemoryMessageBroker();
-            var secondServiceProvider = secondBuilder.ServiceCollection.BuildServiceProvider();
-            var messagePublisher = secondServiceProvider.GetRequiredService<IMessagePublisher>();
-            var firstHost = firstBuilder.AddVpns(new List<Vpn> { firstVpn }).AddClients(new List<Models.Client> { firstVpnClient }).Build();
-            await firstHost.Run(CancellationToken.None);
-            var secondHost = secondBuilder.AddVpns(new List<Vpn> { secondVpn }).AddClients(new List<Models.Client> { secondVpnClient }).Build();
-            await secondHost.Run(CancellationToken.None);
-
-            // ACT
-            var client = new RuntimeClient(port: 5001);
-            await client.AddBridge(firstVpn.Name, "localhost", 5002, secondVpn.Name, CancellationToken.None);
-            var helloResponse = await client.Hello(new UserAgent
-            {
-                ClientId = firstVpnClient.ClientId,
-                Environment = "TST",
-                Password = "password",
-                Pid = 2000,
-                Purpose = UserAgentPurpose.SUB,
-                Version = "0",
-                BufferCloudEvents = 1,
-                Vpn = firstVpn.Name
-            });
-            var subscriptionResult = await client.Subscribe(firstVpnClient.ClientId, helloResponse.SessionId, new List<SubscriptionItem>
-            {
-                new SubscriptionItem
-                {
-                    Topic = topicName
-                }
-            }, (m) =>
-            {
-                msg = m;
-            });
-            await messagePublisher.Publish(cloudEvent, topicName, secondVpnClient);
-            while (msg == null)
-            {
-                Thread.Sleep(100);
-            }
-            await subscriptionResult.Stop(CancellationToken.None);
-            var firstServerClient = firstVpnClient;
-            var secondServerClient = secondVpnClient;
-            var secondTopic = secondServerClient.Topics.First();
-            var firstSession = firstServerClient.Sessions.First();
-            var secondSession = secondServerClient.Sessions.First();
-            while (firstSession.State != ClientSessionState.FINISH)
-            {
-                Thread.Sleep(100);
-            }
-
-            await firstHost.Stop(CancellationToken.None);
-            await secondHost.Stop(CancellationToken.None);
+                receivedCloudEvt = ce;
+            }, CancellationToken.None);
+            var secondClient = new EventMeshClient(port: 6002);
+            var pubSession = await secondClient.CreatePubSession("default", "clientId", null, CancellationToken.None);
+            await pubSession.Publish("person.created", cloudEvent, CancellationToken.None);
+            while (receivedCloudEvt == null) Thread.Sleep(500);
+            await firstHost.Stop();
+            await secondHost.Stop();
+            await vpnBridgeSink.Stop();
 
             // ASSERT
-            Assert.Equal(ClientSessionState.FINISH, firstSession.State);
-            Assert.Equal(ClientSessionState.FINISH, secondSession.State);
-            Assert.Equal(1, secondTopic.Offset);
-            Assert.Equal("inmemory", secondTopic.BrokerName);
-            Assert.Equal("Test.COUCOU", secondTopic.Name);
+            Assert.NotNull(receivedCloudEvt);
+            Assert.Equal("person.created", receivedCloudEvt.Type);
         }
 
         #endregion
-
-        #region Publish Message
-
-        [Fact]
-        public async Task When_PublishMessage_And_ThereIsNoActiveSession_Then_ExceptionIsThrown()
-        {
-            // ARRANGE
-            var vpn = Vpn.Create("default", "default");
-            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn");
-            var cloudEvent = new CloudEvent
-            {
-                Type = "com.github.pull.create",
-                Source = new Uri("https://github.com/cloudevents/spec/pull"),
-                Subject = "123",
-                Id = "A234-1234-1234",
-                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
-                DataContentType = "application/json",
-                Data = "testttt",
-                ["comexampleextension1"] = "value"
-            };
-            var builder = new RuntimeHostBuilder(opt =>
-            {
-                opt.Port = 5004;
-            });
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            await host.Run(CancellationToken.None);
-
-            // ACT
-            var client = new RuntimeClient(port: 5004);
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.PublishMessage(newClient.ClientId, "sessionId", "topic", cloudEvent));
-            await host.Stop(CancellationToken.None);
-
-            // ASSERT
-            Assert.NotNull(exception);
-            Assert.Equal(HeaderStatus.FAIL, exception.Status);
-            Assert.Equal(Errors.INVALID_SESSION, exception.Error);
-        }
-
-        [Fact]
-        public async Task When_PublishMessage_And_SessionDoesntHaveCorrectPurpose_ThenExceptionIsThrown()
-        {
-            // ARRANGE
-            var vpn = Vpn.Create("default", "default");
-            var newClient = Models.Client.Create(vpn.Name, "clientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
-            const string topicName = "Test.COUCOU";
-            var cloudEvent = new CloudEvent
-            {
-                Type = "com.github.pull.create",
-                Source = new Uri("https://github.com/cloudevents/spec/pull"),
-                Subject = "123",
-                Id = "A234-1234-1234",
-                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
-                DataContentType = "application/json",
-                Data = "testttt",
-                ["comexampleextension1"] = "value"
-            };
-            var builder = new RuntimeHostBuilder(opt =>
-            {
-                opt.Port = 5005;
-            });
-            builder.AddInMemoryMessageBroker();
-            var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
-            var messagePublisher = serviceProvider.GetRequiredService<IMessagePublisher>();
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { newClient }).Build();
-            await host.Run(CancellationToken.None);
-
-            // ACT
-            var client = new RuntimeClient(port: 5005);
-            var helloResponse = await client.Hello(new UserAgent
-            {
-                ClientId = newClient.ClientId,
-                Environment = "TST",
-                Password = "password",
-                Pid = 2000,
-                Purpose = UserAgentPurpose.SUB,
-                Version = "0",
-                BufferCloudEvents = 1,
-                Vpn = vpn.Name
-            });
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.PublishMessage(newClient.ClientId, helloResponse.SessionId, "topic", cloudEvent));
-            await host.Stop(CancellationToken.None);
-
-            // ASSERT
-            Assert.NotNull(exception);
-            Assert.Equal(HeaderStatus.FAIL, exception.Status);
-            Assert.Equal(Errors.UNAUTHORIZED_PUBLISH, exception.Error);
-        }
-
-        [Fact]
-        public async Task When_PublishMessage_And_SubscribeToOneTopic_Then_MessageIsReceived()
-        {
-            // ARRANGE
-            const string topicName = "Test.COUCOU";
-            var vpn = Vpn.Create("default", "default");
-            var firstSubClient = Models.Client.Create(vpn.Name, "subClientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.SUB });
-            var firstPubClient = Models.Client.Create(vpn.Name, "pubClientId", "urn", new List<UserAgentPurpose> { UserAgentPurpose.PUB });
-            AsyncMessageToClient msg = null;
-            var cloudEvent = new CloudEvent
-            {
-                Type = "com.github.pull.create",
-                Source = new Uri("https://github.com/cloudevents/spec/pull"),
-                Subject = "123",
-                Id = "A234-1234-1234",
-                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
-                DataContentType = "application/json",
-                Data = "testttt",
-                ["comexampleextension1"] = "value"
-            };
-            var builder = new RuntimeHostBuilder(opt =>
-            {
-                opt.Port = 5006;
-            });
-            builder.AddInMemoryMessageBroker();
-            var serviceProvider = builder.ServiceCollection.BuildServiceProvider();
-            var host = builder.AddVpns(new List<Vpn> { vpn }).AddClients(new List<Models.Client> { firstSubClient, firstPubClient }).Build();
-            await host.Run(CancellationToken.None);
-
-            // ACT
-            var subClient = new RuntimeClient(port: 5006);
-            var subClientHelloResponse = await subClient.Hello(new UserAgent
-            {
-                ClientId = firstSubClient.ClientId,
-                Environment = "TST",
-                Password = "password",
-                Pid = 2000,
-                Purpose = UserAgentPurpose.SUB,
-                Version = "0",
-                BufferCloudEvents = 1,
-                Vpn = vpn.Name
-            });
-            await subClient.Subscribe(firstSubClient.ClientId, subClientHelloResponse.SessionId, new List<SubscriptionItem>
-            {
-                new SubscriptionItem
-                {
-                    Topic = topicName
-                }
-            }, (m) =>
-            {
-                msg = m;
-            });
-            var pubClient = new RuntimeClient(port: 5006);
-            var pubClientHelloResponse = await pubClient.Hello(new UserAgent
-            {
-                ClientId = firstPubClient.ClientId,
-                Environment = "TST",
-                Password = "password",
-                Pid = 2000,
-                Purpose = UserAgentPurpose.PUB,
-                Version = "0",
-                BufferCloudEvents = 1,
-                Vpn = vpn.Name
-            });
-            await pubClient.PublishMessage(firstPubClient.ClientId, pubClientHelloResponse.SessionId, topicName, cloudEvent);
-            while (msg == null)
-            {
-                Thread.Sleep(100);
-            }
-
-            await host.Stop(CancellationToken.None);
-
-            // ASSERT
-            var topic = firstSubClient.Topics.First();
-            Assert.NotNull(msg);
-            Assert.Equal(Constants.InMemoryBrokername, topic.BrokerName);
-            Assert.Equal(1, topic.Offset);
-            Assert.Equal(topicName, topic.Name);
-        }
-
-        #endregion
-        */
     }
 }

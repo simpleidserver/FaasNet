@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+	<style>
+		#messages {
+			list-style-type: none;
+			padding: 0px;
+			margin: 0px;
+		}
+		
+		#messages > li {
+			padding: 5px;
+			border: 1px solid gray;
+		}
+	</style>
+</head>
+<body>
+	<button id="directlySubscribe">Directly subscribe to events</button>
+	<p id="isSubscribed">Subscription is active</p>
+	<ul id="messages">
+		
+	</ul>
+	<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+	<script>
+		const ws = new WebSocket("ws://localhost:2803");
+		$(document).ready(function() {
+			ws.onmessage = function(data) {
+				$("#messages").append("<li>" + data.data + "</li>");
+			};
+			$("#isSubscribed").hide();
+			$("#directlySubscribe").click(function() {
+				var directSubscribe = {
+					requestType: "DIRECTLY_SUBSCRIBE",
+					vpn: "default",
+					clientId: "clientId",
+					filter: "person.created"
+				};
+				const json = JSON.stringify(directSubscribe);
+				ws.send(json);
+				$("#directlySubscribe").hide();
+				$("#isSubscribed").show();
+			});
+		});
+	</script>
+</body>
+</html>
