@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	  <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FaasNet.RaftConsensus.Core\FaasNet.RaftConsensus.Core.csproj" />
+  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="dotnet-etcd" Version="5.2.0" />
+	</ItemGroup>
+</Project>

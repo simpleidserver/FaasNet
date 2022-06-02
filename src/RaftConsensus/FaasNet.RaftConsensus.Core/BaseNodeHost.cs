@@ -108,6 +108,7 @@ namespace FaasNet.RaftConsensus.Core
             {
                 if (NodeStarted != null) NodeStarted(this, new EventArgs());
                 _isStarted = true;
+                await _clusterStore.SelfRegister(new ClusterNode { Url = _options.Url, Port = _options.Port }, CancellationToken.None);
                 while (true)
                 {
                     TokenSource.Token.ThrowIfCancellationRequested();
@@ -287,32 +288,6 @@ namespace FaasNet.RaftConsensus.Core
             var nodeState = await _nodeStateStore.GetLastEntityType(request.EntityType, TokenSource.Token);
             if(nodeState == null) _nodeStateStore.Add(NodeState.Create(request.EntityType, request.EntityId, request.Value));
             else nodeState.Update(request.Value);
-            return null;
-        }
-
-        private async Task<GossipPackage> HandleGossipRequest(GossipJoinNodeRequest request)
-        {
-            var cluster = await _clusterStore.GetNode(request.Url, request.Port, TokenSource.Token);
-            if (cluster == null) 
-            {
-                await _clusterStore.AddNode(new ClusterNode { Port = request.Port, Url = request.Url }, TokenSource.Token);
-                var allNodes = await _clusterStore.GetAllNodes(TokenSource.Token);
-                using (var gossipClient = new GossipClient(request.Url, request.Port))
-                {
-                    await gossipClient.UpdateClusterNodes(Url, Port, allNodes.Select(n => new ClusterNodeMessage { Port = n.Port, Url = n.Url }).ToList(), TokenSource.Token);
-                }
-            }
-
-            return null;
-        }
-
-        private async Task<GossipPackage> HandleGossipRequest(GossipUpdateClusterRequest request)
-        {
-            foreach(var node in request.Nodes)
-            {
-                await _clusterStore.AddNode(new ClusterNode { Port = node.Port, Url = node.Url }, TokenSource.Token);
-            }
-
             return null;
         }
 

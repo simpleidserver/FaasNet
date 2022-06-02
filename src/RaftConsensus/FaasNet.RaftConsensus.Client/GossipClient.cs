@@ -2,7 +2,6 @@
 using FaasNet.RaftConsensus.Client.Messages;
 using FaasNet.RaftConsensus.Client.Messages.Gossip;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -29,18 +28,6 @@ namespace FaasNet.RaftConsensus.Client
         {
             var package = GossipPackageRequestBuilder.Heartbeat(url, port);
             return Send(package, timeout, cancellationToken);
-        }
-
-        public Task JoinNode(string url, int port, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var package = GossipPackageRequestBuilder.AddNode(url, port);
-            return Send(package, cancellationToken: cancellationToken);
-        }
-
-        public Task UpdateClusterNodes(string url, int port, ICollection<ClusterNodeMessage> clusterNodes, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var package = GossipPackageRequestBuilder.UpdateClusterNodes(url, port, clusterNodes);
-            return Send(package, cancellationToken: cancellationToken);
         }
 
         public Task AddPeer(string termId, CancellationToken cancellationToken = default(CancellationToken))

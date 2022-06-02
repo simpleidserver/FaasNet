@@ -49,20 +49,6 @@
                 return result;
             }
 
-            if (header.Command == GossipCommands.JOIN_NODE_REQUEST)
-            {
-                var result = new GossipJoinNodeRequest { Header = header };
-                result.Extract(context);
-                return result;
-            }
-
-            if (header.Command == GossipCommands.UPDATE_CLUSTER_NODES_REQUEST)
-            {
-                var result = new GossipUpdateClusterRequest { Header = header };
-                result.Extract(context);
-                return result;
-            }
-
             if (header.Command == GossipCommands.ADD_PEER_REQUEST)
             {
                 var result = new GossipAddPeerRequest { Header = header };

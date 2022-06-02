@@ -10,9 +10,8 @@ namespace FaasNet.RaftConsensus.Core.Stores
 {
     public interface IClusterStore
     {
+        Task SelfRegister(ClusterNode node, CancellationToken cancellationToken);
         Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken);
-        Task<ClusterNode> GetNode(string url, int port, CancellationToken cancellationToken);
-        Task AddNode(ClusterNode node, CancellationToken cancellationToken);
     }
 
     public class InMemoryClusterStore : IClusterStore
@@ -22,6 +21,14 @@ namespace FaasNet.RaftConsensus.Core.Stores
         public InMemoryClusterStore(INodeStateStore nodeStateStore)
         {
             _nodeStateStore = nodeStateStore;
+        }
+
+        public async Task SelfRegister(ClusterNode node, CancellationToken cancellationToken)
+        {
+            var lastEntityType = await _nodeStateStore.GetLastEntityType(StandardEntityTypes.Cluster, cancellationToken);
+            var nodeState = node.ToNodeState();
+            if (lastEntityType != null) nodeState.EntityVersion = lastEntityType.EntityVersion + 1;
+            _nodeStateStore.Add(nodeState);
         }
 
         public async Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken)
@@ -39,14 +46,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
         {
             var allNodes = await GetAllNodes(cancellationToken);
             return allNodes.FirstOrDefault(n => n.Port == port && n.Url == url);
-        }
-
-        public async Task AddNode(ClusterNode node, CancellationToken cancellationToken)
-        {
-            var lastEntityType = await _nodeStateStore.GetLastEntityType(StandardEntityTypes.Cluster, cancellationToken);
-            var nodeState = node.ToNodeState();
-            if (lastEntityType != null) nodeState.EntityVersion = lastEntityType.EntityVersion + 1;
-            _nodeStateStore.Add(nodeState);
         }
     }
 }

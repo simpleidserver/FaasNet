@@ -22,25 +22,6 @@ namespace FaasNet.RaftConsensus.Client.Messages.Gossip
             };
         }
 
-        public static GossipPackage AddNode(string url, int port)
-        {
-            return new GossipJoinNodeRequest
-            {
-                Header = new GossipHeader(GossipCommands.JOIN_NODE_REQUEST, url, port),
-                Port = port,
-                Url = url
-            };
-        }
-
-        public static GossipPackage UpdateClusterNodes(string url, int port, ICollection<ClusterNodeMessage> clusterNodes)
-        {
-            return new GossipUpdateClusterRequest
-            {
-                Header = new GossipHeader(GossipCommands.UPDATE_CLUSTER_NODES_REQUEST, url, port),
-                Nodes = clusterNodes
-            };
-        }
-
         public static GossipPackage UpdateNodeState(string url, int port, string entityType, string entityId, string value)
         {
             return new GossipUpdateNodeStateRequest

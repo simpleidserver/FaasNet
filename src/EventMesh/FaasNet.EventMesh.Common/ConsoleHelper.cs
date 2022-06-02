@@ -3,10 +3,7 @@ using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Protocols;
 using FaasNet.EventMesh.Seed;
-using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core;
-using FaasNet.RaftConsensus.Core.Models;
-using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -26,7 +23,6 @@ namespace FaasNet.EventMesh.Common
 
         public static async Task Start(int seedPort, int amqpPort = 5672, int webSocketPort = 2803)
         {
-            // Supporter WS-Socket.
             _seedPort = seedPort;
             _amqpPort = amqpPort;
             _webSocketPort = webSocketPort;
@@ -83,11 +79,7 @@ namespace FaasNet.EventMesh.Common
 
             node.NodeStarted += (s, e) =>
             {
-                if (node.Port == _seedPort) return;
-                using (var gossipClient = new GossipClient("localhost", _seedPort))
-                {
-                    gossipClient.JoinNode("localhost", node.Port);
-                }
+
             };
         }
 
@@ -255,16 +247,6 @@ namespace FaasNet.EventMesh.Common
             var serviceProvider = serverBuilder.Services
                 // .AddLogging(l => l.AddConsole())
                 .BuildServiceProvider();
-            // if(isSeed)
-            {
-                var nodeStateStore = serviceProvider.GetRequiredService<INodeStateStore>();
-                var clusterStore = serviceProvider.GetRequiredService<IClusterStore>();
-                if (!clusterStore.GetAllNodes(CancellationToken.None).Result.Any())
-                {
-                    clusterStore.AddNode(new ClusterNode { Port = _seedPort, Url = "localhost" }, CancellationToken.None).Wait();
-                }
-            }
-
             return serviceProvider.GetRequiredService<INodeHost>();
         }
 

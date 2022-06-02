@@ -30,7 +30,13 @@
         /// Gossip - When cluster node is not reachable then deactivate the node.
         /// </summary>
         public int GossipClusterNodeDeactivationDurationMS { get; set; }
+        /// <summary>
+        /// Url of the node.
+        /// </summary>
         public string Url { get; set; }
+        /// <summary>
+        /// Port of the node.
+        /// </summary>
         public int Port { get; set; }
     }
 }

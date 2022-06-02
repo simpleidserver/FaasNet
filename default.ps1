@@ -45,7 +45,7 @@ task compile -depends clean {
 
 # Publish assets
 task publishCLI {
-	exec { dotnet publish $source_dir\Clients\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
+	# exec { dotnet publish $source_dir\Clients\FaasNet.CLI\FaasNet.CLI.csproj -c $config -o $result_dir\cli }
 }
 
 task publishDocker {
@@ -58,6 +58,14 @@ task publishDocker {
 	exec { dotnet publish $source_dir\StateMachines\FaasNet.StateMachine.SqlServer.Startup\FaasNet.StateMachine.SqlServer.Startup.csproj -c $config -o $result_dir\services\StateMachineApi }
 	exec { dotnet publish $source_dir\Gateway\FaasNet.Gateway.Startup\FaasNet.Gateway.Startup.csproj -c $config -o $result_dir\services\Gateway }
 	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Runtime.Website\FaasNet.EventMesh.Runtime.Website.csproj -c $config -o $result_dir\services\EventMeshServer }
+}
+
+task publishEventMeshService {
+	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Service\FaasNet.EventMesh.Service.csproj -c Release -o $result_dir\eventMeshService }
+}
+
+task deployEventMeshService {
+	exec { sc.exe create "EventMesh Service" binpath="$result_dir\eventMeshService\FaasNet.EventMesh.Service.exe" }
 }
 
 # Pack
