@@ -2,10 +2,10 @@
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Options;
 using RocksDbSharp;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -190,8 +190,8 @@ namespace FaasNet.RaftConsensus.RocksDB
 
         private string GetPath()
         {
-            if(string.IsNullOrWhiteSpace(_options.SubPath)) return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "storage");
-            return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), _options.SubPath, "storage");
+            if(string.IsNullOrWhiteSpace(_options.SubPath)) return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "storage");
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _options.SubPath, "storage");
         }
     }
 }

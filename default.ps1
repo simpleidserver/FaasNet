@@ -61,11 +61,11 @@ task publishDocker {
 }
 
 task publishEventMeshService {
-	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Service\FaasNet.EventMesh.Service.csproj -c Release -o $result_dir\eventMeshService }
+	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Service\FaasNet.EventMesh.Service.csproj -c $config -o $result_dir\eventMeshService }
 }
 
 task deployEventMeshService {
-	exec { sc.exe create "EventMesh Service" binpath="$result_dir\eventMeshService\FaasNet.EventMesh.Service.exe" }
+	exec { sc.exe create "EventMesh Service" binpath="$result_dir\eventMeshService\FaasNet.EventMesh.Service.exe --contentRoot $result_dir\eventMeshService" }
 }
 
 # Pack

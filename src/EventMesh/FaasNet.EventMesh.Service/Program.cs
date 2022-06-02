@@ -1,16 +1,7 @@
 ﻿using FaasNet.Common;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using FaasNet.EventMesh.Service;
 
-namespace FaasNet.EventMesh.Service
-{
-    internal class Program
-    {
-        public static void Main(string[] args) { }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+using IHost host = Host.CreateDefaultBuilder(args)
                 .UseWindowsService(o =>
                 {
                     o.ServiceName = "EventMesh Service";
@@ -21,10 +12,12 @@ namespace FaasNet.EventMesh.Service
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    var options = hostContext.Configuration.GetValue<EventMeshServerOptions>("eventmesh");
+                    var options = hostContext.Configuration.Get<EventMeshServerOptions>();
                     services.AddEventMeshServer(consensusNodeCallback: o => o.Port = options.Port)
-                        .UseRocksDB(o => { o.SubPath = $"node{options.Port}"; });
+                        .UseRocksDB(o => 
+                        { 
+                            o.SubPath = $"node{options.Port}"; 
+                        });
                     services.AddHostedService<EventMeshServerWorker>();
-                });
-    }
-}
+                }).Build();
+await host.RunAsync();
