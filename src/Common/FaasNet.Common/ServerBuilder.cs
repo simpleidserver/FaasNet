@@ -6,6 +6,11 @@ namespace FaasNet.Common
     {
         private ServiceProvider _serviceProvider;
 
+        public ServerBuilder()
+        {
+            Services = new ServiceCollection();
+        }
+
         public ServerBuilder(IServiceCollection services)
         {
             Services = services;

@@ -22,5 +22,14 @@ namespace FaasNet.RaftConsensus.Client.Messages.Gossip
                 States = states.Select(kvp => new GossipStateResult { EntityType = kvp.Key, EntityVersion = kvp.Value.Version, Value = kvp.Value.Value }).ToList()
             };
         }
+
+        public static GossipPackage GetClusterNodes(string sourceUrl, int sourcePort, ICollection<ClusterNodeResult> clusterNodes)
+        {
+            return new GossipGetClusterNodesResult
+            {
+                Header = new GossipHeader(GossipCommands.GET_CLUSTER_NODES_RESULT, sourceUrl, sourcePort),
+                ClusterNodes = clusterNodes
+            };
+        }
     }
 }

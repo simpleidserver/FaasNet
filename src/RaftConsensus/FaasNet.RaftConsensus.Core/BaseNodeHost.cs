@@ -183,9 +183,19 @@ namespace FaasNet.RaftConsensus.Core
             if (gossipPackage == null) return false;
             var packageResult = await HandleGossipRequest(gossipPackage);
             if(packageResult == null) return true;
-            using (var client = new GossipClient(gossipPackage.Header.SourceUrl, gossipPackage.Header.SourcePort))
+            if(!string.IsNullOrWhiteSpace(gossipPackage.Header.SourceUrl))
             {
-                await client.Send(packageResult, cancellationToken: TokenSource.Token);
+                using (var client = new GossipClient(gossipPackage.Header.SourceUrl, gossipPackage.Header.SourcePort))
+                {
+                    await client.Send(packageResult, cancellationToken: TokenSource.Token);
+                }
+            }
+            else
+            {
+                using (var client = new GossipClient(transportResult.RemoteEndPoint))
+                {
+                    await client.Send(packageResult, cancellationToken: TokenSource.Token);
+                }
             }
 
             return true;
@@ -296,6 +306,16 @@ namespace FaasNet.RaftConsensus.Core
             await StartPeer(request.TermId);
             await AddPeer(request.TermId);
             return null;
+        }
+
+        private async Task<GossipPackage> HandleGossipRequest(GossipGetClusterNodesRequest request)
+        {
+            var allNodes = await _clusterStore.GetAllNodes(TokenSource.Token);
+            return GossipPackageResultBuilder.GetClusterNodes(_options.Url, _options.Port, allNodes.Select(n => new ClusterNodeResult
+            {
+                Port = n.Port,
+                Url = n.Url
+            }).ToList());
         }
 
         protected async Task AddPeer(string termId)

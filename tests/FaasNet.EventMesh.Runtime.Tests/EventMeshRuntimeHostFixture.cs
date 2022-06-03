@@ -554,5 +554,70 @@ namespace FaasNet.EventMesh.Runtime.Tests
         }
 
         #endregion
+
+        #region Add VPN
+
+        [Fact]
+        public async Task When_AddSameVpnTwice_Then_ErrorIsReturned()
+        {
+            // ARRANGE
+            var firstHost = new ServiceCollection().AddEventMeshServer(o => o.Port = 4019).ServiceProvider.GetRequiredService<INodeHost>();
+            await firstHost.Start(CancellationToken.None);
+
+            // ACT
+            var client = new EventMeshClient(port: 4019);
+            await client.AddVpn("default", CancellationToken.None);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddVpn("default"));
+            await firstHost.Stop();
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.VPN_ALREADY_EXISTS, exception.Error);
+        }
+
+        #endregion
+
+        #region Add Client
+
+        [Fact]
+        public async Task When_AddClientAndVpnDoesntExist_Then_ErrorIsReturned()
+        {
+            // ARRANGE
+            var firstHost = new ServiceCollection().AddEventMeshServer(o => o.Port = 4020).ServiceProvider.GetRequiredService<INodeHost>();
+            await firstHost.Start(CancellationToken.None);
+
+            // ACT
+            var client = new EventMeshClient(port: 4020);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddClient("default", "clientId", new List<UserAgentPurpose> { }, CancellationToken.None));
+            await firstHost.Stop();
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.UNKNOWN_VPN, exception.Error);
+        }
+
+        [Fact]
+        public async Task When_AddSameClientTwice_Then_ErrorIsReturned()
+        {
+            // ARRANGE
+            var firstHost = new ServiceCollection().AddEventMeshServer(o => o.Port = 4021).ServiceProvider.GetRequiredService<INodeHost>();
+            await firstHost.Start(CancellationToken.None);
+
+            // ACT
+            var client = new EventMeshClient(port: 4021);
+            await client.AddVpn("default", CancellationToken.None);
+            await client.AddClient("default", "clientId", new List<UserAgentPurpose> { }, CancellationToken.None);
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddClient("default", "clientId", new List<UserAgentPurpose> { }, CancellationToken.None));
+            await firstHost.Stop();
+
+            // ASSERT
+            Assert.NotNull(exception);
+            Assert.Equal(HeaderStatus.FAIL, exception.Status);
+            Assert.Equal(Errors.CLIENT_ALREADY_EXISTS, exception.Error);
+        }
+
+        #endregion
     }
 }

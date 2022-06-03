@@ -2,6 +2,7 @@
 using FaasNet.RaftConsensus.Client.Messages;
 using FaasNet.RaftConsensus.Client.Messages.Gossip;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -40,6 +41,18 @@ namespace FaasNet.RaftConsensus.Client
         {
             var package = GossipPackageRequestBuilder.UpdateNodeState(string.Empty, 0, entityType, entityId, value);
             return Send(package, cancellationToken: cancellationToken);
+        }
+
+        public async Task<ICollection<ClusterNodeResult>> GetClusterNodes(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var package = GossipPackageRequestBuilder.GetClusterNodes();
+            var writeCtx = new WriteBufferContext();
+            package.Serialize(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await UdpClient.SendAsync(payload, payload.Count(), _target).WithCancellation(cancellationToken);
+            var udpReceivedResult = await UdpClient.ReceiveAsync();
+            var readCtx = new ReadBufferContext(udpReceivedResult.Buffer);
+            return (GossipPackage.Deserialize(readCtx) as GossipGetClusterNodesResult).ClusterNodes;
         }
 
         public async Task Send(GossipPackage gossipPackage, int? timeoutMS = null, CancellationToken cancellationToken = default(CancellationToken))

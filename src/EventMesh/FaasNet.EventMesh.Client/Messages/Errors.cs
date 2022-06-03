@@ -25,6 +25,8 @@ namespace FaasNet.EventMesh.Client.Messages
         public static Errors SESSION_LIFETIME_TOOLONG = new Errors("SESSION_LIFETIME_TOOLONG");
         public static Errors SESSION_LIFETIME_CANNOT_BE_INFINITE = new Errors("SESSION_LIFETIME_CANNOT_BE_INFINITE");
         public static Errors SESSION_LIFETIME_TOOSHORT = new Errors("SESSION_LIFETIME_TOOSHORT");
+        public static Errors VPN_ALREADY_EXISTS = new Errors("VPN_ALREADY_EXISTS");
+        public static Errors CLIENT_ALREADY_EXISTS = new Errors("CLIENT_ALREADY_EXISTS");
         private Errors(string code)
         {
             Code = code;

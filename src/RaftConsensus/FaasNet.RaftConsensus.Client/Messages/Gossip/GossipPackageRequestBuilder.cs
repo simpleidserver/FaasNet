@@ -41,5 +41,13 @@ namespace FaasNet.RaftConsensus.Client.Messages.Gossip
                 TermId = termId
             };
         }
+
+        public static GossipPackage GetClusterNodes()
+        {
+            return new GossipGetClusterNodesRequest
+            {
+                Header = new GossipHeader(GossipCommands.GET_CLUSTER_NODES_REQUEST, string.Empty, 0)
+            };
+        }
     }
 }

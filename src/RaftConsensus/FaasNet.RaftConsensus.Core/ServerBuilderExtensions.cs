@@ -4,12 +4,17 @@ using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace FaasNet.Common
 {
     public static class ServerBuilderExtensions
     {
+        public static ServerBuilder AddConsensusPeer(this ServerBuilder serverBuilder, Action<ConsensusNodeOptions> nodeOptionsCallback = null, Action<ConsensusPeerOptions> callback = null)
+        {
+            serverBuilder.Services.RegisterConsensusPeer(nodeOptionsCallback, callback);
+            return serverBuilder;
+        }
+
         public static ServerBuilder SetPeers(this ServerBuilder serverBuilder, ConcurrentBag<PeerInfo> peerInfos)
         {
             var peerStore = new InMemoryPeerInfoStore(peerInfos);

@@ -21,7 +21,15 @@
             if (version != PROTOCOL_VERSION || magicCode != MAGIC_CODE) return null;
             var header = GossipHeader.Deserialize(context);
             if (header.Command == GossipCommands.HEARTBEAT_REQUEST) return new GossipHeartbeatRequest { Header = header };
-            if(header.Command == GossipCommands.HEARTBEAT_RESULT)
+            if (header.Command == GossipCommands.GET_CLUSTER_NODES_REQUEST) return new GossipGetClusterNodesRequest { Header = header };
+            if (header.Command == GossipCommands.GET_CLUSTER_NODES_RESULT)
+            {
+                var result = new GossipGetClusterNodesResult { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if (header.Command == GossipCommands.HEARTBEAT_RESULT)
             {
                 var result = new GossipHeartbeatResult { Header = header };
                 result.Extract(context);

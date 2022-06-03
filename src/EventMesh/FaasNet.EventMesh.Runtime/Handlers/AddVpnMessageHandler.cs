@@ -21,6 +21,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         public async Task<EventMeshPackageResult> Run(Package package, IEnumerable<IPeerHost> peers, CancellationToken cancellationToken)
         {
             var addVpn = package as AddVpnRequest;
+            var existingVpn = await _vpnStore.Get(addVpn.Vpn, cancellationToken);
+            if (existingVpn != null) return EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(addVpn.Header.Command, addVpn.Header.Seq, Errors.VPN_ALREADY_EXISTS));
             var vpn = Models.Vpn.Create(addVpn.Vpn, string.Empty);
             await _vpnStore.Add(vpn, cancellationToken);
             var result = PackageResponseBuilder.AddVpn(package.Header.Seq);

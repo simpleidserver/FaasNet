@@ -8,6 +8,8 @@
         public static GossipCommands SYNC_RESULT = new GossipCommands(3, "SYNC_RESULT");
         public static GossipCommands UPDATE_NODE_STATE_REQUEST = new GossipCommands(4, "UPDATE_NODE_STATE_REQUEST");
         public static GossipCommands ADD_PEER_REQUEST = new GossipCommands(5, "ADD_PEER_REQUEST");
+        public static GossipCommands GET_CLUSTER_NODES_REQUEST = new GossipCommands(6, "GET_CLUSTER_NODES_REQUEST");
+        public static GossipCommands GET_CLUSTER_NODES_RESULT = new GossipCommands(7, "GET_CLUSTER_NODES_RESULT");
 
         protected GossipCommands(int code)
         {
