@@ -1,9 +1,8 @@
-﻿using FaasNet.Plugin;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace FaasNet.EventMesh.Protocols.AMQP
 {
-    public class EventMeshAMQPPlugin : IPlugin<EventMeshAMQPOptions>
+    public class EventMeshAMQPPlugin : IProtocolPlugin<EventMeshAMQPOptions>
     {
         public void Load(IServiceCollection services, EventMeshAMQPOptions options)
         {

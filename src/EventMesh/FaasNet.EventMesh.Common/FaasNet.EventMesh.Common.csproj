@@ -15,9 +15,9 @@
 	  <ProjectReference Include="..\FaasNet.EventMesh.Protocols.AMQP\FaasNet.EventMesh.Protocols.AMQP.csproj" />
 	  <ProjectReference Include="..\FaasNet.EventMesh.Protocols.WebSocket\FaasNet.EventMesh.Protocols.WebSocket.csproj" />
 	  <ProjectReference Include="..\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj" />
-	  <ProjectReference Include="..\FaasNet.EventMesh.Seed.AMQP\FaasNet.EventMesh.Seed.AMQP.csproj" />
-	  <ProjectReference Include="..\FaasNet.EventMesh.Seed.Kafka\FaasNet.EventMesh.Seed.Kafka.csproj" />
-	  <ProjectReference Include="..\FaasNet.EventMesh.Seed.RocksDB\FaasNet.EventMesh.Seed.RocksDB.csproj" />
-	  <ProjectReference Include="..\FaasNet.EventMesh.Seed.VpnBridge\FaasNet.EventMesh.Seed.VpnBridge.csproj" />
+	  <ProjectReference Include="..\FaasNet.EventMesh.Sink.AMQP\FaasNet.EventMesh.Sink.AMQP.csproj" />
+	  <ProjectReference Include="..\FaasNet.EventMesh.Sink.Kafka\FaasNet.EventMesh.Sink.Kafka.csproj" />
+	  <ProjectReference Include="..\FaasNet.EventMesh.Sink.RocksDB\FaasNet.EventMesh.Sink.RocksDB.csproj" />
+	  <ProjectReference Include="..\FaasNet.EventMesh.Sink.VpnBridge\FaasNet.EventMesh.Sink.VpnBridge.csproj" />
 	</ItemGroup>
 </Project>

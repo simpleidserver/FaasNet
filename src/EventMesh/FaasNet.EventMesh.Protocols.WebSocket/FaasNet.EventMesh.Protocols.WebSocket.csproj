@@ -10,4 +10,9 @@
   <ItemGroup>
     <ProjectReference Include="..\FaasNet.EventMesh.Protocols\FaasNet.EventMesh.Protocols.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

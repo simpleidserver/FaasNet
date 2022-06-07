@@ -1,6 +1,6 @@
 ﻿using FaasNet.Common;
+using FaasNet.EventMesh.Protocols;
 using FaasNet.EventMesh.Service;
-using FaasNet.Plugin;
 
 using IHost host = Host.CreateDefaultBuilder(args)
                 .UseWindowsService(o =>
@@ -16,9 +16,9 @@ using IHost host = Host.CreateDefaultBuilder(args)
                     var pluginsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
                     IEnumerable<string> pluginPaths = new string[0];
                     if(Directory.Exists(pluginsDirectory)) pluginPaths = Directory.EnumerateDirectories(pluginsDirectory);
-                    var discoveredPlugins = pluginPaths.Select(p =>
+                    var discoveredProtocolPlugins = pluginPaths.Select(p =>
                     {
-                        if (PluginEntryDiscovery.TryExtract(p, out IDiscoveredPlugin discoveredPlugin)) return discoveredPlugin;
+                        if (ProtocolPluginEntryDiscovery.TryExtract(p, out IDiscoveredPlugin discoveredPlugin)) return discoveredPlugin;
                         return null;
                     }).Where(p => p != null);
                     var options = hostContext.Configuration.Get<EventMeshServerOptions>();
@@ -27,7 +27,7 @@ using IHost host = Host.CreateDefaultBuilder(args)
                         { 
                             o.SubPath = $"node{options.Port}"; 
                         });
-                    foreach (var discoveredPlugin in discoveredPlugins) discoveredPlugin.Load(serverBuilder.Services);
+                    foreach (var discoveredPlugin in discoveredProtocolPlugins) discoveredPlugin.Load(serverBuilder.Services);
                     services.AddHostedService<EventMeshServerWorker>();
                 }).Build();
 await host.RunAsync();

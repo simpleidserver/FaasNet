@@ -3,6 +3,9 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FaasNet.EventMesh.Sink\FaasNet.EventMesh.Sink.csproj" />
+  </ItemGroup>
+  <ItemGroup>
   	<PackageReference Include="RocksDB" Version="7.1.2.28620" />
   </ItemGroup>
 </Project>

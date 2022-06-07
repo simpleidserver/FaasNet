@@ -61,7 +61,8 @@ task publishDocker {
 }
 
 task publishEventMeshPlugins {
-	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Protocols.AMQP\FaasNet.EventMesh.Protocols.AMQP.csproj -c $config -o $result_dir\eventMeshServicePlugins\FaasNet.EventMesh.Protocols.AMQP }
+	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Protocols.AMQP\FaasNet.EventMesh.Protocols.AMQP.csproj -c $config -o $result_dir\protocolPlugins\FaasNet.EventMesh.Protocols.AMQP }
+	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Protocols.WebSocket\FaasNet.EventMesh.Protocols.WebSocket.csproj -c $config -o $result_dir\protocolPlugins\FaasNet.EventMesh.Protocols.WebSocket }
 }
 
 task publishEventMeshService {

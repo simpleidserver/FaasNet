@@ -2,7 +2,4 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FaasNet.EventMesh.Seed\FaasNet.EventMesh.Seed.csproj" />
-  </ItemGroup>
 </Project>

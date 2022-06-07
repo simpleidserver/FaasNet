@@ -5,7 +5,7 @@ using FaasNet.EventMesh.Client.Exceptions;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Runtime.Models;
 using FaasNet.EventMesh.Runtime.Stores;
-using FaasNet.EventMesh.Seed;
+using FaasNet.EventMesh.Sink;
 using FaasNet.RaftConsensus.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -515,7 +515,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
             {
                 secondVpn
             }).AddClients(new List<Models.Client> { secondNewClient, secondPubClient }).ServiceProvider.GetRequiredService<INodeHost>();
-            var vpnBridgeSink = new ServiceCollection().AddVpnBridgeSeed(o => o.EventMeshPort = 4018).BuildServiceProvider().GetRequiredService<ISeedJob>();
+            var vpnBridgeSink = new ServiceCollection().AddVpnBridgeSeed(o => o.EventMeshPort = 4018).BuildServiceProvider().GetRequiredService<ISinkJob>();
             await firstHost.Start(CancellationToken.None);
             await secondHost.Start(CancellationToken.None);
             await vpnBridgeSink.Start(CancellationToken.None);

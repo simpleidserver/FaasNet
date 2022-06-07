@@ -2,7 +2,7 @@
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Protocols;
-using FaasNet.EventMesh.Seed;
+using FaasNet.EventMesh.Sink;
 using FaasNet.RaftConsensus.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -269,7 +269,7 @@ namespace FaasNet.EventMesh.Common
                 };
             }).UseSeedRocksDB();
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            var seedJob = serviceProvider.GetRequiredService<ISeedJob>();
+            var seedJob = serviceProvider.GetRequiredService<ISinkJob>();
             await seedJob.Start(CancellationToken.None);
         }
 
@@ -281,7 +281,7 @@ namespace FaasNet.EventMesh.Common
                 o.EventMeshPort = _seedPort;
             }).UseSeedRocksDB(); ;
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            var seedJob = serviceProvider.GetRequiredService<ISeedJob>();
+            var seedJob = serviceProvider.GetRequiredService<ISinkJob>();
             await seedJob.Start(CancellationToken.None);
         }
 
@@ -299,7 +299,7 @@ namespace FaasNet.EventMesh.Common
                 kafka.BootstrapServers = "localhost:29092";
             }).UseSeedRocksDB();
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            var seedJob = serviceProvider.GetRequiredService<ISeedJob>();
+            var seedJob = serviceProvider.GetRequiredService<ISinkJob>();
             await seedJob.Start(CancellationToken.None);
         }
     }
