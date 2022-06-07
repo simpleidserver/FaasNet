@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "FaasNet.EventMesh.Service": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:53054;http://localhost:53055"
+    }
+  }
+}
