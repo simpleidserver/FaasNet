@@ -6,7 +6,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection UseSeedRocksDB(this IServiceCollection services, Action<EventMeshSinkRocksDBOptions> callback = null)
+        public static IServiceCollection UseSinkRocksDB(this IServiceCollection services, Action<EventMeshSinkRocksDBOptions> callback = null)
         {
             if (callback == null) services.Configure<EventMeshSinkRocksDBOptions>(o => { });
             else services.Configure(callback);

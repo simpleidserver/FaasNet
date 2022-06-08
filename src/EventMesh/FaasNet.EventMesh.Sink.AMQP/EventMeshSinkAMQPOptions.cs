@@ -7,19 +7,19 @@ namespace FaasNet.EventMesh.Sink.AMQP
     {
         public EventMeshSinkAMQPOptions()
         {
-            ConnectionFactory = (o) =>
-            {
-                o.HostName = "127.0.0.1";
-                o.Port = 5672;
-                o.UserName = "guest";
-                o.Password = "guest";
-            };
+            AMQPHostName = "127.0.0.1";
+            AMQPPort = 5672;
+            AMQPUserName = "guest";
+            AMQPPassword = "guest";
             TopicName = "amq.topic";
             JobId = "AMQPTopic";
         }
 
-        public Action<ConnectionFactory> ConnectionFactory { get; set; }
         public string TopicName { get; set; }
         public string JobId { get; set; }
+        public string AMQPHostName { get; set; }
+        public int AMQPPort { get; set; }
+        public string AMQPUserName { get; set; }
+        public string AMQPPassword { get; set; }
     }
 }

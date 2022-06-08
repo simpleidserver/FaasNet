@@ -54,7 +54,10 @@ namespace FaasNet.EventMesh.Sink.AMQP
         {
             if (_connection != null) return _connection;
             var connectionFactory = new ConnectionFactory();
-            _options.ConnectionFactory(connectionFactory);
+            connectionFactory.HostName = _options.AMQPHostName;
+            connectionFactory.Port = _options.AMQPPort;
+            connectionFactory.UserName = _options.AMQPUserName;
+            connectionFactory.Password = _options.AMQPPassword;
             _connection = connectionFactory.CreateConnection();
             return _connection;
         }

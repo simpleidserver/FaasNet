@@ -261,13 +261,10 @@ namespace FaasNet.EventMesh.Common
                 seed.EventMeshUrl = "localhost";
             }, amqp =>
             {
-                amqp.ConnectionFactory = (c) =>
-                {
-                    c.UserName = "default_user_TBRVU8sYJmyVBXKeiTD";
-                    c.Password = "d67v-U305u8Sh0dOwn02pTIuo2jsnLwY";
-                    c.Port = 30007;
-                };
-            }).UseSeedRocksDB();
+                amqp.AMQPUserName = "default_user_TBRVU8sYJmyVBXKeiTD";
+                amqp.AMQPPassword = "d67v-U305u8Sh0dOwn02pTIuo2jsnLwY";
+                amqp.AMQPPort = 30007;
+            }).UseSinkRocksDB();
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var seedJob = serviceProvider.GetRequiredService<ISinkJob>();
             await seedJob.Start(CancellationToken.None);
@@ -279,7 +276,7 @@ namespace FaasNet.EventMesh.Common
             serviceCollection.AddVpnBridgeSeed(o =>
             {
                 o.EventMeshPort = _seedPort;
-            }).UseSeedRocksDB(); ;
+            }).UseSinkRocksDB(); ;
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var seedJob = serviceProvider.GetRequiredService<ISinkJob>();
             await seedJob.Start(CancellationToken.None);
@@ -297,7 +294,7 @@ namespace FaasNet.EventMesh.Common
             }, kafka =>
             {
                 kafka.BootstrapServers = "localhost:29092";
-            }).UseSeedRocksDB();
+            }).UseSinkRocksDB();
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var seedJob = serviceProvider.GetRequiredService<ISinkJob>();
             await seedJob.Start(CancellationToken.None);

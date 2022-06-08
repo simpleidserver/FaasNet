@@ -6,9 +6,9 @@ namespace FaasNet.Common
 {
     public static class ServerBuilderExtensions
     {
-        public static ServerBuilder UseSeedRocksDB(this ServerBuilder serverBuilder, Action<EventMeshSinkRocksDBOptions> callback = null)
+        public static ServerBuilder UseSinkRocksDB(this ServerBuilder serverBuilder, Action<EventMeshSinkRocksDBOptions> callback = null)
         {
-            serverBuilder.Services.UseSeedRocksDB(callback);
+            serverBuilder.Services.UseSinkRocksDB(callback);
             return serverBuilder;
         }
     }

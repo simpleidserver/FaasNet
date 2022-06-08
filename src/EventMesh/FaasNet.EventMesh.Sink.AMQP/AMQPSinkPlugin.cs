@@ -15,7 +15,10 @@ namespace FaasNet.EventMesh.Sink.AMQP
             }, s =>
             {
                 s.JobId = pluginOptions.JobId;
-                s.ConnectionFactory = pluginOptions.ConnectionFactory;
+                s.AMQPHostName = pluginOptions.AMQPHostName;
+                s.AMQPPort = pluginOptions.AMQPPort;
+                s.AMQPUserName = pluginOptions.AMQPUserName;
+                s.AMQPPassword = pluginOptions.AMQPPassword;
                 s.TopicName = pluginOptions.TopicName;
             });
         }
