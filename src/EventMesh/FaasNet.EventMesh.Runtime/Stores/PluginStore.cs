@@ -56,7 +56,7 @@ namespace FaasNet.EventMesh.Runtime.Stores
             else record.IsActive = isEnabled;
             lock(_lock)
             {
-                File.WriteAllText(GetPluginFilePath(), JsonSerializer.Serialize(record, new JsonSerializerOptions
+                File.WriteAllText(GetPluginFilePath(), JsonSerializer.Serialize(records, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 }));
@@ -69,7 +69,8 @@ namespace FaasNet.EventMesh.Runtime.Stores
             {
                 var path = GetPluginFilePath();
                 if (!File.Exists(path)) return new List<PluginRecord>();
-                return JsonSerializer.Deserialize<ICollection<PluginRecord>>(File.ReadAllText(path), new JsonSerializerOptions
+                var json = File.ReadAllText(path);
+                return JsonSerializer.Deserialize<List<PluginRecord>>(json, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });

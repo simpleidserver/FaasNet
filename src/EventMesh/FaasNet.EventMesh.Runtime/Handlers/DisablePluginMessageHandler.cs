@@ -24,7 +24,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
 
         public Task<EventMeshPackageResult> Run(Package package, IEnumerable<IPeerHost> peers, CancellationToken cancellationToken)
         {
-            var disablePluginRequest = package as EnablePluginRequest;
+            var disablePluginRequest = package as DisablePluginRequest;
             var allPlugins = GetAllPluginsMessageHandler.ExtractPluginInfos(_options.ProtocolsPluginSubPath);
             allPlugins.AddRange(GetAllPluginsMessageHandler.ExtractPluginInfos(_options.SinksPluginSubPath));
             var selectedPlugin = allPlugins.FirstOrDefault(p => p.Name == disablePluginRequest.PluginName);

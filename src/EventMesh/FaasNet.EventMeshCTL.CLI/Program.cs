@@ -147,7 +147,13 @@ namespace FaasNet.EventMeshCTL.CLI
                     var configuration = EventMeshCTLConfigurationManager.Get();
                     var evtMeshClient = new EventMeshClient(configuration.Url, configuration.Port);
                     var plugins = await evtMeshClient.GetAllPlugins(token);
-                    foreach(var plugin in plugins) Console.WriteLine($"{plugin.Name}, {plugin.Description}, {plugin.IsActive}");
+                    foreach (var plugin in plugins)
+                    {
+                        Console.WriteLine($"Name = {plugin.Name}");
+                        Console.WriteLine($"Description = {plugin.Description}");
+                        Console.WriteLine($"Is active = {plugin.IsActive}");
+                        Console.WriteLine();
+                    }
                 });
             });
         }
@@ -164,6 +170,7 @@ namespace FaasNet.EventMeshCTL.CLI
                     var configuration = EventMeshCTLConfigurationManager.Get();
                     var evtMeshClient = new EventMeshClient(configuration.Url, configuration.Port);
                     await evtMeshClient.EnablePlugin(nameOption.ParsedValue, token);
+                    DisplaySuccess("Plugin is enabled");
                 });
             });
         }
@@ -179,7 +186,8 @@ namespace FaasNet.EventMeshCTL.CLI
                 {
                     var configuration = EventMeshCTLConfigurationManager.Get();
                     var evtMeshClient = new EventMeshClient(configuration.Url, configuration.Port);
-                    await evtMeshClient.EnablePlugin(nameOption.ParsedValue, token);
+                    await evtMeshClient.DisablePlugin(nameOption.ParsedValue, token);
+                    DisplaySuccess("Plugin is disabled");
                 });
             });
         }
@@ -188,6 +196,13 @@ namespace FaasNet.EventMeshCTL.CLI
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"Error code = {ex.Error.Code}");
+            Console.ResetColor();
+        }
+
+        private static void DisplaySuccess(string msg)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(msg);
             Console.ResetColor();
         }
     }

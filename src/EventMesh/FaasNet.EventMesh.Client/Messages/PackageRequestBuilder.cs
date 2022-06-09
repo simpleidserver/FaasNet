@@ -157,7 +157,7 @@ namespace FaasNet.EventMesh.Client.Messages
 
         public static Package DisablePlugin(string pluginName)
         {
-            return new EnablePluginRequest
+            return new DisablePluginRequest
             {
                 Header = new Header(Commands.DISABLE_PLUGIN_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
                 PluginName = pluginName

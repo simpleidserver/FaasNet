@@ -39,15 +39,10 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             return pluginInfos;
         }
 
-        private static string CombineAndSanitize(string path, string relativePath)
-        {
-            return $"{path.TrimEnd('/')}/{relativePath}";
-        }
-
         public static List<PluginResponse> ExtractPluginInfos(string subPath)
         {
             var result = new List<PluginResponse>();
-            var rootPluginPath = CombineAndSanitize(AppDomain.CurrentDomain.BaseDirectory, subPath);
+            var rootPluginPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, subPath);
             var allPluginPath = Directory.EnumerateDirectories(rootPluginPath);
             foreach (var pluginPath in allPluginPath)
             {

@@ -2,7 +2,7 @@
 
 namespace FaasNet.EventMesh.Client.Messages
 {
-    internal class DisablePluginRequest : Package
+    public class DisablePluginRequest : Package
     {
         public string PluginName { get; set; }
 

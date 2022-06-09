@@ -24,7 +24,7 @@ namespace FaasNet.EventMesh.Client.Messages
         {
             var plugins = new List<PluginResponse>();
             var nb = context.NextInt();
-            for (int i = 0; i < nb; i++) PluginResponse.Extract(context);
+            for (int i = 0; i < nb; i++) plugins.Add(PluginResponse.Extract(context));
             Plugins = plugins;
         }
     }
