@@ -21,7 +21,10 @@ namespace FaasNet.EventMesh.Client
             { Commands.PUBLISH_MESSAGE_REQUEST, Commands.PUBLISH_MESSAGE_RESONSE },
             { Commands.GET_ALL_VPNS_REQUEST, Commands.GET_ALL_VPNS_RESPONSE },
             { Commands.ADD_VPN_REQUEST, Commands.ADD_VPN_RESPONSE },
-            { Commands.ADD_CLIENT_REQUEST, Commands.ADD_CLIENT_RESPONSE }
+            { Commands.ADD_CLIENT_REQUEST, Commands.ADD_CLIENT_RESPONSE },
+            { Commands.GET_ALL_PLUGINS_REQUEST, Commands.GET_ALL_PLUGINS_RESPONSE },
+            { Commands.ENABLE_PLUGIN_REQUEST, Commands.ENABLE_PLUGIN_RESPONSE },
+            { Commands.DISABLE_PLUGIN_REQUEST, Commands.DISABLE_PLUGIN_RESPONSE }
         };
     }
 }

@@ -155,6 +155,27 @@ namespace FaasNet.EventMesh.Client.Messages
                 return result;
             }
 
+            if(Commands.GET_ALL_PLUGINS_RESPONSE == header.Command)
+            {
+                var result = new GetAllPluginsResponse { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if(Commands.ENABLE_PLUGIN_REQUEST == header.Command)
+            {
+                var result = new EnablePluginRequest { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if (Commands.DISABLE_PLUGIN_REQUEST == header.Command)
+            {
+                var result = new DisablePluginRequest { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
             return new Package
             {
                 Header = header

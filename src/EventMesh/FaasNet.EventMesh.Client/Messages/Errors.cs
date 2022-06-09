@@ -20,6 +20,7 @@ namespace FaasNet.EventMesh.Client.Messages
         public static Errors UNKNOWN_VPN = new Errors("UNKNOWN_VPN");
         public static Errors UNKNOWN_SOURCE_VPN = new Errors("UNKNOWN_SOURCE_VPN");
         public static Errors UNKNOWN_TARGET_VPN = new Errors("UNKNOWN_TARGET_VPN");
+        public static Errors UNKNOWN_PLUGIN = new Errors("UNKNOWN_PLUGIN");
         public static Errors UNAUTHORIZED_PUBLISH = new Errors("UNAUTHORIZED_PUBLISH");
         public static Errors UNAUTHORIZED_SUBSCRIBE = new Errors("UNAUTHORIZED_SUBSCRIBE");
         public static Errors SESSION_LIFETIME_TOOLONG = new Errors("SESSION_LIFETIME_TOOLONG");

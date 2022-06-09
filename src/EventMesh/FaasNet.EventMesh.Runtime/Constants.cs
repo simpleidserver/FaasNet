@@ -4,6 +4,8 @@
     {
         public const string FilterWildcard = "*";
         public const string InMemoryBrokername = "inmemory";
+        public const string ProtocolsPluginSubPath = "protocolPlugins";
+        public const string SinksPluginSubPath = "sinkPlugins";
 
         public static class LockNames
         {

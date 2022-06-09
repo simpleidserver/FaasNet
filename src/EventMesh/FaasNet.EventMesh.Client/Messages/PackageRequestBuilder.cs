@@ -138,6 +138,32 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
+        public static Package GetAllPlugins()
+        {
+            return new GetAllPluginsRequest
+            {
+                Header = new Header(Commands.GET_ALL_PLUGINS_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq())
+            };
+        }
+
+        public static Package EnablePlugin(string pluginName)
+        {
+            return new EnablePluginRequest
+            {
+                Header = new Header(Commands.ENABLE_PLUGIN_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
+                PluginName = pluginName
+            };
+        }
+
+        public static Package DisablePlugin(string pluginName)
+        {
+            return new EnablePluginRequest
+            {
+                Header = new Header(Commands.DISABLE_PLUGIN_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
+                PluginName = pluginName
+            };
+        }
+
         private static string GenerateRandomSeq()
         {
             var builder = new StringBuilder(SEQ_LENGTH);

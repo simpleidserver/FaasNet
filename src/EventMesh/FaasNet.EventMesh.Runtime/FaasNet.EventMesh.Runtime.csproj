@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\RaftConsensus\FaasNet.RaftConsensus.Core\FaasNet.RaftConsensus.Core.csproj" />
     <ProjectReference Include="..\FaasNet.EventMesh.Client\FaasNet.EventMesh.Client.csproj" />
+    <ProjectReference Include="..\FaasNet.EventMesh.Plugin\FaasNet.EventMesh.Plugin.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\Global.Designer.cs">

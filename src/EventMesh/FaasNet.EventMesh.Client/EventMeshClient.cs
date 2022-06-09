@@ -159,17 +159,59 @@ namespace FaasNet.EventMesh.Client
             }
         }
 
+        public async Task<ICollection<PluginResponse>> GetAllPlugins(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var udpClient = new UdpClient())
+            {
+                var writeCtx = new WriteBufferContext();
+                var package = PackageRequestBuilder.GetAllPlugins();
+                package.Serialize(writeCtx);
+                var payload = writeCtx.Buffer.ToArray();
+                await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+                var resultPayload = await udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+                var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                var packageResult = Package.Deserialize(readCtx);
+                EnsureSuccessStatus(package, packageResult);
+                return (packageResult as GetAllPluginsResponse).Plugins;
+            }
+        }
+
+        public async Task EnablePlugin(string pluginName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var udpClient = new UdpClient())
+            {
+                var writeCtx = new WriteBufferContext();
+                var package = PackageRequestBuilder.EnablePlugin(pluginName);
+                package.Serialize(writeCtx);
+                var payload = writeCtx.Buffer.ToArray();
+                await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+                var resultPayload = await udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+                var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                var packageResult = Package.Deserialize(readCtx);
+                EnsureSuccessStatus(package, packageResult);
+            }
+        }
+
+        public async Task DisablePlugin(string pluginName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var udpClient = new UdpClient())
+            {
+                var writeCtx = new WriteBufferContext();
+                var package = PackageRequestBuilder.DisablePlugin(pluginName);
+                package.Serialize(writeCtx);
+                var payload = writeCtx.Buffer.ToArray();
+                await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+                var resultPayload = await udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+                var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                var packageResult = Package.Deserialize(readCtx);
+                EnsureSuccessStatus(package, packageResult);
+            }
+        }
+
         internal static void EnsureSuccessStatus(Package packageRequest, Package packageResponse)
         {
-            if (packageResponse.Header.Status != HeaderStatus.SUCCESS)
-            {
-                throw new RuntimeClientResponseException(packageResponse.Header.Status, packageResponse.Header.Error);
-            }
-
-            if (packageRequest.Header.Seq != packageRequest.Header.Seq)
-            {
-                throw new RuntimeClientResponseException(HeaderStatus.FAIL, Errors.INVALID_SEQ, "the seq in the request doesn't match the seq in the response");
-            }
+            if (packageResponse.Header.Status != HeaderStatus.SUCCESS) throw new RuntimeClientResponseException(packageResponse.Header.Status, packageResponse.Header.Error);
+            if (packageRequest.Header.Seq != packageRequest.Header.Seq) throw new RuntimeClientResponseException(HeaderStatus.FAIL, Errors.INVALID_SEQ, "the seq in the request doesn't match the seq in the response");
         }
 
         private async Task<HelloResponse> CreateSession(string vpn, string clientId, UserAgentPurpose purpose, TimeSpan? expirationTime = null, bool isInfinite = false, CancellationToken cancellationToken = default(CancellationToken))

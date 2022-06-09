@@ -8,5 +8,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Common\FaasNet.Common\FaasNet.Common.csproj" />
     <ProjectReference Include="..\FaasNet.EventMesh.Client\FaasNet.EventMesh.Client.csproj" />
+    <ProjectReference Include="..\FaasNet.EventMesh.Plugin\FaasNet.EventMesh.Plugin.csproj" />
   </ItemGroup>
 </Project>

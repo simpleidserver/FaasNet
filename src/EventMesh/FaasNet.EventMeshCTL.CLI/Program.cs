@@ -17,6 +17,9 @@ namespace FaasNet.EventMeshCTL.CLI
             AddVpnCommand(app);
             AddClientCommand(app);
             AddGetAllVpnCommand(app);
+            AddGetPluginsCommand(app);
+            AddEnablePluginCommand(app);
+            AddDisablePluginCommand(app);
             app.OnExecute(() =>
             {
                 Console.WriteLine("Specify a command");
@@ -130,6 +133,53 @@ namespace FaasNet.EventMeshCTL.CLI
                     }
 
                     Console.WriteLine($"Client {idOption.ParsedValue} has been added");
+                });
+            });
+        }
+
+        private static void AddGetPluginsCommand(CommandLineApplication app)
+        {
+            app.Command("get_plugins", getPluginsCmd =>
+            {
+                getPluginsCmd.Description = "Get all plugins";
+                getPluginsCmd.OnExecuteAsync(async (token) =>
+                {
+                    var configuration = EventMeshCTLConfigurationManager.Get();
+                    var evtMeshClient = new EventMeshClient(configuration.Url, configuration.Port);
+                    var plugins = await evtMeshClient.GetAllPlugins(token);
+                    foreach(var plugin in plugins) Console.WriteLine($"{plugin.Name}, {plugin.Description}, {plugin.IsActive}");
+                });
+            });
+        }
+
+        private static void AddEnablePluginCommand(CommandLineApplication app)
+        {
+            app.Command("enable_plugin", enablePluginCmd =>
+            {
+                enablePluginCmd.Description = "Enable plugin";
+                var nameOption = enablePluginCmd.Option<string>("-n|--name <NAME>", "The name", CommandOptionType.SingleValue);
+                nameOption.IsRequired();
+                enablePluginCmd.OnExecuteAsync(async (token) =>
+                {
+                    var configuration = EventMeshCTLConfigurationManager.Get();
+                    var evtMeshClient = new EventMeshClient(configuration.Url, configuration.Port);
+                    await evtMeshClient.EnablePlugin(nameOption.ParsedValue, token);
+                });
+            });
+        }
+
+        private static void AddDisablePluginCommand(CommandLineApplication app)
+        {
+            app.Command("disable_plugin", disablePluginCmd =>
+            {
+                disablePluginCmd.Description = "Disable plugin";
+                var nameOption = disablePluginCmd.Option<string>("-n|--name <NAME>", "The name", CommandOptionType.SingleValue);
+                nameOption.IsRequired();
+                disablePluginCmd.OnExecuteAsync(async (token) =>
+                {
+                    var configuration = EventMeshCTLConfigurationManager.Get();
+                    var evtMeshClient = new EventMeshClient(configuration.Url, configuration.Port);
+                    await evtMeshClient.EnablePlugin(nameOption.ParsedValue, token);
                 });
             });
         }

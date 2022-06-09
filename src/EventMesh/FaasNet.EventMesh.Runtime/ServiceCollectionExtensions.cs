@@ -25,6 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IBridgeServerStore, BridgeServerStore>();
             services.AddTransient<IClientSessionStore, ClientSessionStore>();
             services.AddTransient<IClientStore, ClientStore>();
+            services.AddTransient<IPluginStore, PluginStore>();
             services.AddTransient<IMessageExchangeStore, MessageExchangeStore>();
             services.AddTransient<IVpnStore, VpnStore>();
             services.AddTransient<IQueueStore, QueueStore>();
@@ -40,6 +41,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IMessageHandler, AddVpnMessageHandler>();
             services.AddTransient<IMessageHandler, ReadNextMessageHandler>();
             services.AddTransient<IMessageHandler, ReadTopicMessageHandler>();
+            services.AddTransient<IMessageHandler, GetAllPluginsMessageHandler>();
+            services.AddTransient<IMessageHandler, EnablePluginMessageHandler>();
+            services.AddTransient<IMessageHandler, DisablePluginMessageHandler>();
             services.AddScoped<IPeerHost, EventMeshPeer>();
             return services;
         }

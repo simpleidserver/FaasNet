@@ -102,6 +102,31 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result returned when VPN are returned.
         /// </summary>
         public static Commands GET_ALL_BRIDGE_VPN_RESPONSE = new Commands(23, "GET_ALL_BRIDGE_VPN_RESPONSE");
+        /// <summary>
+        /// Request sent to get all the plugins.
+        /// </summary>
+        public static Commands GET_ALL_PLUGINS_REQUEST = new Commands(24, "GET_ALL_PLUGINS_REQUEST");
+        /// <summary>
+        /// Results returned when plugins are returned.
+        /// </summary>
+        public static Commands GET_ALL_PLUGINS_RESPONSE = new Commands(25, "GET_ALL_PLUGINS_RESPONSE");
+        /// <summary>
+        /// Request sent to enable a plugin.
+        /// </summary>
+        public static Commands ENABLE_PLUGIN_REQUEST = new Commands(26, "ENABLE_PLUGIN_REQUEST");
+        /// <summary>
+        /// Result returned when plugin is enabled.
+        /// </summary>
+        public static Commands ENABLE_PLUGIN_RESPONSE = new Commands(27, "ENABLE_PLUGIN_RESPONSE");
+        /// <summary>
+        /// Request sent to disable a plugin.
+        /// </summary>
+        public static Commands DISABLE_PLUGIN_REQUEST = new Commands(28, "DISABLE_PLUGIN_REQUEST");
+        /// <summary>
+        /// Result returned when a plugin is disabled.
+        /// </summary>
+        public static Commands DISABLE_PLUGIN_RESPONSE = new Commands(29, "DISABLE_PLUGIN_RESPONSE");
+
 
         private Commands(int code)
         {

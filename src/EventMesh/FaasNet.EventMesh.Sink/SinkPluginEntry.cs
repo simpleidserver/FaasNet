@@ -1,6 +1,8 @@
-﻿namespace FaasNet.EventMesh.Sink
+﻿using FaasNet.EventMesh.Plugin;
+
+namespace FaasNet.EventMesh.Sink
 {
-    public class SinkPluginEntry
+    public class SinkPluginEntry : PluginEntry
     {
         public string DllName { get; set; }
         public object SinkOptions { get; set; }

@@ -1,6 +1,8 @@
-﻿using McMaster.NETCore.Plugins;
+﻿using FaasNet.EventMesh.Plugin;
+using McMaster.NETCore.Plugins;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,12 +12,13 @@ namespace FaasNet.EventMesh.Protocols
 {
     public class ProtocolPluginEntryDiscovery
     {
-        public static bool TryExtract(string pluginDirectoryPath, out IDiscoveredPlugin discoveryPlugin)
+        public static bool TryExtract(string pluginDirectoryPath, IEnumerable<string> activePlugins, out IDiscoveredPlugin discoveryPlugin)
         {
             discoveryPlugin = null;
-            var appsettingsFilePath = Path.Combine(pluginDirectoryPath, "appsettings.json");
+            var appsettingsFilePath = Path.Combine(pluginDirectoryPath, PluginConstants.ConfigurationFileName);
             if (!File.Exists(appsettingsFilePath)) return false;
             var pluginEntry = JsonSerializer.Deserialize<ProtocolPluginEntry>(File.ReadAllText(appsettingsFilePath));
+            if (!activePlugins.Contains(pluginEntry.Name)) return false;
             var dllPath = Path.Combine(pluginDirectoryPath, pluginEntry.DllName);
             if(!File.Exists(dllPath)) return false;
             var loader = PluginLoader.CreateFromAssemblyFile(
