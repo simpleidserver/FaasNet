@@ -24,26 +24,27 @@
       href: eventmesh/concepts.md
     - name: Install server
       items:
-      - name: Nuget
-        href: eventmesh/nuget.md
-      - name: Docker
-        href: eventmesh/docker.md
-    - name: Portal
-      href: eventmesh/portal.md
-    - name: Message brokers
+      - name: Installing on Windows
+        href: eventmesh/installserveronwindows.md
+    - name: Install CLI
       items:
-      - name: RabbitMQ
-        href: eventmesh/rabbitmq.md
-      - name: Apache Kafka
-        href: eventmesh/kafka.md
-    - name: Configure client
+      - name: Installing on Windows
+        href: eventmesh/installclionwindows.md
+    - name: CLI
+      href: eventmesh/cli.md
+    - name: Plugins
+      href: eventmesh/plugins.md
       items:
-       - name: Listen topics
-         href: eventmesh/listentopics.md
-       - name: Publish messages
-         href: eventmesh/publishmessages.md
-    - name: Protocol
-      href: eventmesh/protocol.md
+      - name: AMQP1.0 protocol
+        href: eventmesh/pluginamqp.md
+      - name: Websocket protocol
+        href: eventmesh/pluginwebsocket.md
+      - name: AMQP1.0 sink connector
+        href: eventmesh/pluginsinkamqp.md
+      - name: Kafka sink connector
+        href: eventmesh/pluginsinkkafka.md
+      - name: VPN bridge sink connector
+        href: eventmesh/pluginsinkvpnbridge.md
 - name: CLI
   items:
    - name: Overview
