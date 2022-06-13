@@ -11,9 +11,15 @@ namespace FaasNet.EventMesh.Plugin
 {
     public class PluginEntryDiscovery
     {
-        public static bool TryExtract(string pluginDirectoryPath, IEnumerable<string> activePlugins, out IDiscoveredPlugin discoveryPlugin)
+        public static bool TryExtract(string pluginDirectoryPath, IEnumerable<string> activePlugins, IEnumerable<Type> additionalSharedTypes, out IDiscoveredPlugin discoveryPlugin)
         {
             discoveryPlugin = null;
+            var sharedTypes = new List<Type> { typeof(IPlugin<>), typeof(IServiceCollection) };
+            if(additionalSharedTypes != null)
+            {
+                foreach(var additionalSharedType in additionalSharedTypes) sharedTypes.Add(additionalSharedType);
+            }
+
             var pluginEntry = PluginConfigurationFile.Read(pluginDirectoryPath);
             if(pluginEntry == null) return false;
             if (!activePlugins.Contains(pluginEntry.Name)) return false;
@@ -21,7 +27,7 @@ namespace FaasNet.EventMesh.Plugin
             if (!File.Exists(dllPath)) return false;
             var loader = PluginLoader.CreateFromAssemblyFile(
                 dllPath,
-                sharedTypes: new[] { typeof(IPlugin<>), typeof(IServiceCollection) });
+                sharedTypes: sharedTypes.ToArray());
             var assembly = loader.LoadDefaultAssembly();
             var types = assembly.GetTypes();
             var pluginType = types.FirstOrDefault(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPlugin<>)));

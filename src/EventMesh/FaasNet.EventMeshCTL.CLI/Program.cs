@@ -84,7 +84,7 @@ namespace FaasNet.EventMeshCTL.CLI
                         return;
                     }
 
-                    Console.WriteLine($"VPN {vpnName} has been added");
+                    DisplaySuccess($"VPN {vpnName} has been added");
                 });
             });
         }
@@ -115,7 +115,7 @@ namespace FaasNet.EventMeshCTL.CLI
                 idOption.DefaultValue = "clientId";
                 var pubEnabled = addClientCmd.Option<bool>("-p|--publish_enabled <PUBLISH>", "Enable publish", CommandOptionType.SingleValue);
                 pubEnabled.DefaultValue = true;
-                var subEnabled = addClientCmd.Option<bool>("-s|--subription_enabled <SUBSCRIPTION>", "Enable subscription", CommandOptionType.SingleValue);
+                var subEnabled = addClientCmd.Option<bool>("-s|--subscription_enabled <SUBSCRIPTION>", "Enable subscription", CommandOptionType.SingleValue);
                 subEnabled.DefaultValue = true;
                 addClientCmd.OnExecuteAsync(async (token) =>
                 {
@@ -134,7 +134,7 @@ namespace FaasNet.EventMeshCTL.CLI
                         return;
                     }
 
-                    Console.WriteLine($"Client {idOption.ParsedValue} has been added");
+                    DisplaySuccess($"Client {idOption.ParsedValue} has been added");
                 });
             });
         }

@@ -41,7 +41,7 @@ FaasNet.EventMeshCTL.CLI.exe update_plugin_configuration --name=<PLUGIN_NAME> --
 ```
 
 > [!IMPORTANT]
-> Once the plugin is properly configured. The EventMesh server must be restarted in order to take into consideration your modifications.
+> Once the plugin is properly configured. The EventMesh server must be restarted in order to take into account your modifications.
 
 ## Supported plugins
 

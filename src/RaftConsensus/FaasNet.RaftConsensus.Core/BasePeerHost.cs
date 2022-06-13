@@ -183,12 +183,14 @@ namespace FaasNet.RaftConsensus.Core
             _logger.LogInformation("{Node}:{PeerId}:{TermId}, Start to vote", _nodeId, _peerId, Info.TermId);
             var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
             nodes = nodes.Where(n => n.Port != _nodeOptions.Port || n.Url != _nodeOptions.Url);
-            _quorum = (nodes.Count() / 2) + 1;
+            _quorum = !nodes.Any() ? 0 : (nodes.Count() / 2) + 1;
+            /*
             if (_quorum == 0)
             {
                 _logger.LogError("{Node}:{PeerId}:{TermId}, There is no enough nodes", _nodeId, _peerId, Info.TermId);
                 return;
             }
+            */
 
             _nbPositiveVote = 0;
             _expirationCheckElectionDateTime = DateTime.UtcNow.AddMilliseconds(_options.ElectionCheckDurationMS);

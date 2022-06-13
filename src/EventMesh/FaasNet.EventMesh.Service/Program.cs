@@ -1,8 +1,10 @@
 ﻿using FaasNet.Common;
 using FaasNet.EventMesh.Plugin;
+using FaasNet.EventMesh.Protocols;
 using FaasNet.EventMesh.Runtime;
 using FaasNet.EventMesh.Runtime.Stores;
 using FaasNet.EventMesh.Service;
+using FaasNet.EventMesh.Sink;
 
 using IHost host = Host.CreateDefaultBuilder(args)
                 .UseWindowsService(o =>
@@ -26,6 +28,7 @@ using IHost host = Host.CreateDefaultBuilder(args)
                     var activePlugins = pluginStore.GetActivePlugins();
                     LoadProtocolPlugins(serverBuilder.Services, activePlugins);
                     LoadSinkPlugins(serverBuilder.Services, activePlugins);
+                    services.AddHostedService<EventMeshServerWorker>();
                 }).Build();
 await host.RunAsync();
 
@@ -36,11 +39,11 @@ static void LoadProtocolPlugins(IServiceCollection services, IEnumerable<string>
     if (Directory.Exists(pluginsDirectory)) pluginPaths = Directory.EnumerateDirectories(pluginsDirectory);
     var discoveredProtocolPlugins = pluginPaths.Select(p =>
     {
-        if (PluginEntryDiscovery.TryExtract(p, activePlugins, out IDiscoveredPlugin discoveredPlugin)) return discoveredPlugin;
+        if (PluginEntryDiscovery.TryExtract(p, activePlugins, new[] { typeof(IProxy) }, out IDiscoveredPlugin discoveredPlugin)) return discoveredPlugin;
         return null;
     }).Where(p => p != null);
     foreach (var discoveredPlugin in discoveredProtocolPlugins) discoveredPlugin.Load(services);
-    services.AddHostedService<EventMeshServerWorker>();
+    services.AddHostedService<EventMeshProxyWorker>();
 }
 
 static void LoadSinkPlugins(IServiceCollection services, IEnumerable<string> activePlugins)
@@ -50,7 +53,7 @@ static void LoadSinkPlugins(IServiceCollection services, IEnumerable<string> act
     if (Directory.Exists(pluginsDirectory)) pluginPaths = Directory.EnumerateDirectories(pluginsDirectory);
     var discoveredSinkPlugins = pluginPaths.Select(p =>
     {
-        if (PluginEntryDiscovery.TryExtract(p, activePlugins, out IDiscoveredPlugin discoveredPlugin)) return discoveredPlugin;
+        if (PluginEntryDiscovery.TryExtract(p, activePlugins, new[] { typeof(ISinkJob) }, out IDiscoveredPlugin discoveredPlugin)) return discoveredPlugin;
         return null;
     }).Where(p => p != null);
     foreach (var discoveredPlugin in discoveredSinkPlugins) discoveredPlugin.Load(services);
