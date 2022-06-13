@@ -20,6 +20,8 @@ namespace FaasNet.EventMeshCTL.CLI
             AddGetPluginsCommand(app);
             AddEnablePluginCommand(app);
             AddDisablePluginCommand(app);
+            AddGetPluginConfiguration(app);
+            AddUpdatePluginConfiguration(app);
             app.OnExecute(() =>
             {
                 Console.WriteLine("Specify a command");
@@ -188,6 +190,64 @@ namespace FaasNet.EventMeshCTL.CLI
                     var evtMeshClient = new EventMeshClient(configuration.Url, configuration.Port);
                     await evtMeshClient.DisablePlugin(nameOption.ParsedValue, token);
                     DisplaySuccess("Plugin is disabled");
+                });
+            });
+        }
+
+        private static void AddGetPluginConfiguration(CommandLineApplication app)
+        {
+            app.Command("get_plugin_configuration", disablePluginCmd =>
+            {
+                disablePluginCmd.Description = "Get plugin configuration";
+                var nameOption = disablePluginCmd.Option<string>("-n|--name <NAME>", "Plugin name", CommandOptionType.SingleValue);
+                nameOption.IsRequired();
+                disablePluginCmd.OnExecuteAsync(async (token) =>
+                {
+                    var configuration = EventMeshCTLConfigurationManager.Get();
+                    var evtMeshClient = new EventMeshClient(configuration.Url, configuration.Port);
+                    try
+                    {
+                        var configurationRecords = await evtMeshClient.GetPluginConfiguration(nameOption.ParsedValue, token);
+                        foreach (var record in configurationRecords)
+                        {
+                            Console.WriteLine($"Name = {record.Name}");
+                            Console.WriteLine($"Description = {record.Description}");
+                            Console.WriteLine($"Configured value = {record.ConfiguredValue}");
+                            Console.WriteLine();
+                        }
+                    }
+                    catch(RuntimeClientResponseException ex)
+                    {
+                        DisplayError(ex);
+                    }
+                });
+            });
+        }
+
+        private static void AddUpdatePluginConfiguration(CommandLineApplication app)
+        {
+            app.Command("update_plugin_configuration", updatePluginCmd =>
+            {
+                updatePluginCmd.Description = "Update plugin configuration";
+                var nameOption = updatePluginCmd.Option<string>("-n|--name <NAME>", "Plugin name", CommandOptionType.SingleValue);
+                nameOption.IsRequired();
+                var propertyKey = updatePluginCmd.Option<string>("-k|--key <KEY>", "Property key", CommandOptionType.SingleValue);
+                propertyKey.IsRequired();
+                var propertyValue = updatePluginCmd.Option<string>("-v|--value <VALUE>", "Property value", CommandOptionType.SingleValue);
+                propertyValue.IsRequired();
+                updatePluginCmd.OnExecuteAsync(async (token) =>
+                {
+                    var configuration = EventMeshCTLConfigurationManager.Get();
+                    var evtMeshClient = new EventMeshClient(configuration.Url, configuration.Port);
+                    try
+                    {
+                        await evtMeshClient.UpdatePluginConfiguration(nameOption.ParsedValue, propertyKey.ParsedValue, propertyValue.ParsedValue, token);
+                        DisplaySuccess("Plugin configuration has been updated");
+                    }
+                    catch (RuntimeClientResponseException ex)
+                    {
+                        DisplayError(ex);
+                    }
                 });
             });
         }

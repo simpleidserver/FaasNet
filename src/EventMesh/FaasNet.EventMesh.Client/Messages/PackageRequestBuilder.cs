@@ -164,6 +164,26 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static Package GetPluginConfiguration(string pluginName)
+        {
+            return new GetPluginConfigurationRequest
+            {
+                Header = new Header(Commands.GET_PLUGIN_CONFIGURATION_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
+                Name = pluginName
+            };
+        }
+
+        public static Package UpdatePluginConfiguration(string pluginName, string propertyName, string propertyValue)
+        {
+            return new UpdatePluginConfigurationRequest
+            {
+                Header = new Header(Commands.UPDATE_PLUGIN_CONFIGURATION_REQUEST, HeaderStatus.SUCCESS, GenerateRandomSeq()),
+                Name = pluginName,
+                PropertyName = propertyName,
+                PropertyValue = propertyValue
+            };
+        }
+
         private static string GenerateRandomSeq()
         {
             var builder = new StringBuilder(SEQ_LENGTH);

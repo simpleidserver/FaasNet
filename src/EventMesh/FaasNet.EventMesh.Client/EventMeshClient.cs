@@ -208,6 +208,39 @@ namespace FaasNet.EventMesh.Client
             }
         }
 
+        public async Task<ICollection<PluginConfigurationRecordResponse>> GetPluginConfiguration(string pluginName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var udpClient = new UdpClient())
+            {
+                var writeCtx = new WriteBufferContext();
+                var package = PackageRequestBuilder.GetPluginConfiguration(pluginName);
+                package.Serialize(writeCtx);
+                var payload = writeCtx.Buffer.ToArray();
+                await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+                var resultPayload = await udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+                var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                var packageResult = Package.Deserialize(readCtx);
+                EnsureSuccessStatus(package, packageResult);
+                return (packageResult as GetPluginConfigurationResponse).Records;
+            }
+        }
+
+        public async Task UpdatePluginConfiguration(string pluginName, string propertyKey, string propertyValue, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var udpClient = new UdpClient())
+            {
+                var writeCtx = new WriteBufferContext();
+                var package = PackageRequestBuilder.UpdatePluginConfiguration(pluginName, propertyKey, propertyValue);
+                package.Serialize(writeCtx);
+                var payload = writeCtx.Buffer.ToArray();
+                await udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddr, _port)).WithCancellation(cancellationToken);
+                var resultPayload = await udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+                var readCtx = new ReadBufferContext(resultPayload.Buffer);
+                var packageResult = Package.Deserialize(readCtx);
+                EnsureSuccessStatus(package, packageResult);
+            }
+        }
+
         internal static void EnsureSuccessStatus(Package packageRequest, Package packageResponse)
         {
             if (packageResponse.Header.Status != HeaderStatus.SUCCESS) throw new RuntimeClientResponseException(packageResponse.Header.Status, packageResponse.Header.Error);

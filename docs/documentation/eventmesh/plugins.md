@@ -15,11 +15,33 @@ A plugin can manually be installed :
 
 ## Enable a plugin
 
-Once the plugin is installed, open a command prompt and execute the command `FaasNet.EventMeshCTL.CLI.exe  enable_plugin -n=<PLUGIN_NAME>` to enable the plugin.
+Once the plugin is installed, open a command prompt and execute the command `FaasNet.EventMeshCTL.CLI.exe  enable_plugin --name=<PLUGIN_NAME>` to enable the plugin.
 
 If the plugin is successfully enabled then a success message is displayed.
 
-The EventMesh server must be restarted to take into consideration the new activated plugins.
+## Configure a plugin
+
+There are two methods to configure a plugin. Either by editing the `appsettings.json` configuration file present inside the plugin directory or by using the CLI.
+
+All the available configuration records can be displayed by executing the command line 
+
+```
+FaasNet.EventMeshCTL.CLI.exe get_plugin_configuration --name=<PLUGIN_NAME>
+```
+
+For each configuration record, the CLI displays :
+* Unique property name.
+* Short description.
+* Configured value (coming from the configuration file).
+
+Any configuration record can be updated like this 
+
+```
+FaasNet.EventMeshCTL.CLI.exe update_plugin_configuration --name=<PLUGIN_NAME> --key=<PROPERTY_KEY> --value=<PROPERTY_VALUE>
+```
+
+> [!IMPORTANT]
+> Once the plugin is properly configured. The EventMesh server must be restarted in order to take into consideration your modifications.
 
 ## Supported plugins
 

@@ -6,11 +6,27 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddKafkaSeed(this IServiceCollection services, Action<SinkOptions> seedOptionsCallback = null, Action<KafkaSinkOptions> kafkaOptionsCallback = null)
+        public static IServiceCollection AddKafkaSeed(this IServiceCollection services, Action<KafkaSinkOptions> kafkaOptionsCallback = null)
         {
-            services.AddSeed(seedOptionsCallback);
-            if (kafkaOptionsCallback == null) services.Configure<KafkaSinkOptions>((o) => { });
-            else services.Configure(kafkaOptionsCallback);
+            if (kafkaOptionsCallback == null)
+            {
+                services.AddSeed(null);
+                services.Configure<KafkaSinkOptions>((o) => { });
+            }
+            else
+            {
+                var opt = new KafkaSinkOptions();
+                kafkaOptionsCallback(opt);
+                services.AddSeed((t) =>
+                {
+                    t.EventMeshPort = opt.EventMeshPort;
+                    t.EventMeshUrl = opt.EventMeshUrl;
+                    t.Vpn = opt.Vpn;
+                    t.ClientId = opt.ClientId;
+                });
+                services.Configure(kafkaOptionsCallback);
+            }
+
             services.AddTransient<ISinkJob, KafkaSinkJob>();
             return services;
         }

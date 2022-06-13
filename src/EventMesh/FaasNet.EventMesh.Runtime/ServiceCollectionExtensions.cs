@@ -44,6 +44,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IMessageHandler, GetAllPluginsMessageHandler>();
             services.AddTransient<IMessageHandler, EnablePluginMessageHandler>();
             services.AddTransient<IMessageHandler, DisablePluginMessageHandler>();
+            services.AddTransient<IMessageHandler, GetPluginConfigurationMessageHandler>();
+            services.AddTransient<IMessageHandler, UpdatePluginConfigurationMessageHandler>();
             services.AddScoped<IPeerHost, EventMeshPeer>();
             return services;
         }

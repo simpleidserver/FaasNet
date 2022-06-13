@@ -1,19 +1,18 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FaasNet.EventMesh.Plugin;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FaasNet.EventMesh.Sink.Kafka
 {
-    public class KafkaSinkPlugin : ISinkPlugin<KafkaSinkOptions>
+    public class KafkaSinkPlugin : IPlugin<KafkaSinkOptions>
     {
-        public void Load(IServiceCollection services, SinkOptions sinkOptions, KafkaSinkOptions pluginOptions)
+        public void Load(IServiceCollection services, KafkaSinkOptions pluginOptions)
         {
             services.AddKafkaSeed(s =>
             {
-                s.EventMeshPort = sinkOptions.EventMeshPort;
-                s.EventMeshUrl = sinkOptions.EventMeshUrl;
-                s.Vpn = sinkOptions.Vpn;
-                s.ClientId = sinkOptions.ClientId;
-            }, s =>
-            {
+                s.EventMeshPort = pluginOptions.EventMeshPort;
+                s.EventMeshUrl = pluginOptions.EventMeshUrl;
+                s.Vpn = pluginOptions.Vpn;
+                s.ClientId = pluginOptions.ClientId;
                 s.BootstrapServers = pluginOptions.BootstrapServers;
                 s.GroupId = pluginOptions.GroupId;
                 s.JobId = pluginOptions.JobId;

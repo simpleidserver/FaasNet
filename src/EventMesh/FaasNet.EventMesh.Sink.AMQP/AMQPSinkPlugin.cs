@@ -1,19 +1,18 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FaasNet.EventMesh.Plugin;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FaasNet.EventMesh.Sink.AMQP
 {
-    public class AMQPSinkPlugin : ISinkPlugin<EventMeshSinkAMQPOptions>
+    public class AMQPSinkPlugin : IPlugin<EventMeshSinkAMQPOptions>
     {
-        public void Load(IServiceCollection services, SinkOptions sinkOptions, EventMeshSinkAMQPOptions pluginOptions)
+        public void Load(IServiceCollection services, EventMeshSinkAMQPOptions pluginOptions)
         {
-            services.AddAMQPSeed(s =>
+            services.AddAMQPSeed(s => 
             {
-                s.EventMeshPort = sinkOptions.EventMeshPort;
-                s.EventMeshUrl = sinkOptions.EventMeshUrl;
-                s.Vpn = sinkOptions.Vpn;
-                s.ClientId = sinkOptions.ClientId;
-            }, s =>
-            {
+                s.EventMeshPort = pluginOptions.EventMeshPort;
+                s.EventMeshUrl = pluginOptions.EventMeshUrl;
+                s.Vpn = pluginOptions.Vpn;
+                s.ClientId = pluginOptions.ClientId;
                 s.JobId = pluginOptions.JobId;
                 s.AMQPHostName = pluginOptions.AMQPHostName;
                 s.AMQPPort = pluginOptions.AMQPPort;

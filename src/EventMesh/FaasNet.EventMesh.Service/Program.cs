@@ -1,9 +1,8 @@
 ﻿using FaasNet.Common;
-using FaasNet.EventMesh.Protocols;
+using FaasNet.EventMesh.Plugin;
 using FaasNet.EventMesh.Runtime;
 using FaasNet.EventMesh.Runtime.Stores;
 using FaasNet.EventMesh.Service;
-using FaasNet.EventMesh.Sink;
 
 using IHost host = Host.CreateDefaultBuilder(args)
                 .UseWindowsService(o =>
@@ -37,7 +36,7 @@ static void LoadProtocolPlugins(IServiceCollection services, IEnumerable<string>
     if (Directory.Exists(pluginsDirectory)) pluginPaths = Directory.EnumerateDirectories(pluginsDirectory);
     var discoveredProtocolPlugins = pluginPaths.Select(p =>
     {
-        if (ProtocolPluginEntryDiscovery.TryExtract(p, activePlugins, out FaasNet.EventMesh.Protocols.IDiscoveredPlugin discoveredPlugin)) return discoveredPlugin;
+        if (PluginEntryDiscovery.TryExtract(p, activePlugins, out IDiscoveredPlugin discoveredPlugin)) return discoveredPlugin;
         return null;
     }).Where(p => p != null);
     foreach (var discoveredPlugin in discoveredProtocolPlugins) discoveredPlugin.Load(services);
@@ -51,7 +50,7 @@ static void LoadSinkPlugins(IServiceCollection services, IEnumerable<string> act
     if (Directory.Exists(pluginsDirectory)) pluginPaths = Directory.EnumerateDirectories(pluginsDirectory);
     var discoveredSinkPlugins = pluginPaths.Select(p =>
     {
-        if (SinkPluginEntryDiscovery.TryExtract(p, activePlugins, out FaasNet.EventMesh.Sink.IDiscoveredPlugin discoveredPlugin)) return discoveredPlugin;
+        if (PluginEntryDiscovery.TryExtract(p, activePlugins, out IDiscoveredPlugin discoveredPlugin)) return discoveredPlugin;
         return null;
     }).Where(p => p != null);
     foreach (var discoveredPlugin in discoveredSinkPlugins) discoveredPlugin.Load(services);

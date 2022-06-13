@@ -24,7 +24,9 @@ namespace FaasNet.EventMesh.Client
             { Commands.ADD_CLIENT_REQUEST, Commands.ADD_CLIENT_RESPONSE },
             { Commands.GET_ALL_PLUGINS_REQUEST, Commands.GET_ALL_PLUGINS_RESPONSE },
             { Commands.ENABLE_PLUGIN_REQUEST, Commands.ENABLE_PLUGIN_RESPONSE },
-            { Commands.DISABLE_PLUGIN_REQUEST, Commands.DISABLE_PLUGIN_RESPONSE }
+            { Commands.DISABLE_PLUGIN_REQUEST, Commands.DISABLE_PLUGIN_RESPONSE },
+            { Commands.GET_PLUGIN_CONFIGURATION_REQUEST, Commands.GET_PLUGIN_CONFIGURATION_RESPONSE },
+            { Commands.UPDATE_PLUGIN_CONFIGURATION_REQUEST, Commands.UPDATE_PLUGIN_CONFIGURATION_RESPONSE }
         };
     }
 }

@@ -1,5 +1,4 @@
-﻿using FaasNet.EventMesh.Plugin;
-using McMaster.NETCore.Plugins;
+﻿using McMaster.NETCore.Plugins;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -8,54 +7,54 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 
-namespace FaasNet.EventMesh.Protocols
+namespace FaasNet.EventMesh.Plugin
 {
-    public class ProtocolPluginEntryDiscovery
+    public class PluginEntryDiscovery
     {
         public static bool TryExtract(string pluginDirectoryPath, IEnumerable<string> activePlugins, out IDiscoveredPlugin discoveryPlugin)
         {
             discoveryPlugin = null;
-            var appsettingsFilePath = Path.Combine(pluginDirectoryPath, PluginConstants.ConfigurationFileName);
-            if (!File.Exists(appsettingsFilePath)) return false;
-            var pluginEntry = JsonSerializer.Deserialize<ProtocolPluginEntry>(File.ReadAllText(appsettingsFilePath));
+            var pluginEntry = PluginConfigurationFile.Read(pluginDirectoryPath);
+            if(pluginEntry == null) return false;
             if (!activePlugins.Contains(pluginEntry.Name)) return false;
             var dllPath = Path.Combine(pluginDirectoryPath, pluginEntry.DllName);
-            if(!File.Exists(dllPath)) return false;
+            if (!File.Exists(dllPath)) return false;
             var loader = PluginLoader.CreateFromAssemblyFile(
                 dllPath,
-                sharedTypes: new[] { typeof(IProtocolPlugin<>), typeof(IServiceCollection) });
+                sharedTypes: new[] { typeof(IPlugin<>), typeof(IServiceCollection) });
             var assembly = loader.LoadDefaultAssembly();
             var types = assembly.GetTypes();
-            var pluginType = types.FirstOrDefault(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition().Name.StartsWith("IProtocolPlugin")));
+            var pluginType = types.FirstOrDefault(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPlugin<>)));
             if (pluginType == null) return false;
             var optionType = pluginType.GetInterfaces()[0].GenericTypeArguments[0];
-            dynamic option = Activator.CreateInstance(optionType);
-            var serializedConfiguration = string.Empty;
-            if(pluginEntry.Configuration != null) serializedConfiguration = JsonSerializer.Serialize(pluginEntry.Configuration);
-            if(!string.IsNullOrWhiteSpace(serializedConfiguration)) option = JsonSerializer.Deserialize(serializedConfiguration, optionType, new JsonSerializerOptions
+            var ttt = PluginEntryOption.Extract(optionType);
+            dynamic pluginConfiguration = Activator.CreateInstance(optionType);
+            var serializedPluginConfiguration = string.Empty;
+            if (pluginEntry.Options != null) serializedPluginConfiguration = JsonSerializer.Serialize(pluginEntry.Options);
+            if (!string.IsNullOrWhiteSpace(serializedPluginConfiguration)) pluginConfiguration = JsonSerializer.Deserialize(serializedPluginConfiguration, optionType, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
-            discoveryPlugin = new DiscoveredPlugin(pluginType, option);
+            discoveryPlugin = new DiscoveredPlugin(pluginType, pluginConfiguration);
             return true;
         }
 
         private class DiscoveredPlugin : IDiscoveredPlugin
         {
             private readonly Type _pluginType;
-            private readonly dynamic _option;
+            private readonly dynamic _pluginOption;
 
-            public DiscoveredPlugin(Type pluginType, dynamic option)
+            public DiscoveredPlugin(Type pluginType, dynamic pluginOptions)
             {
                 _pluginType = pluginType;
-                _option = option;
+                _pluginOption = pluginOptions;
             }
 
             public void Load(IServiceCollection services)
             {
                 var pluginInstance = Activator.CreateInstance(_pluginType);
                 var loadFn = _pluginType.GetMethod("Load", BindingFlags.Public | BindingFlags.Instance);
-                loadFn.Invoke(pluginInstance, new object[] { services, _option });
+                loadFn.Invoke(pluginInstance, new object[] { services, _pluginOption });
             }
         }
     }

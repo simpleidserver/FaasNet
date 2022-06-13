@@ -126,6 +126,22 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result returned when a plugin is disabled.
         /// </summary>
         public static Commands DISABLE_PLUGIN_RESPONSE = new Commands(29, "DISABLE_PLUGIN_RESPONSE");
+        /// <summary>
+        /// Request sent to get the plugin configuration.
+        /// </summary>
+        public static Commands GET_PLUGIN_CONFIGURATION_REQUEST = new Commands(30, "GET_PLUGIN_CONFIGURATION_REQUEST");
+        /// <summary>
+        /// Result returned to get the plugin configuration
+        /// </summary>
+        public static Commands GET_PLUGIN_CONFIGURATION_RESPONSE = new Commands(31, "GET_PLUGIN_CONFIGURATION_RESPONSE");
+        /// <summary>
+        /// Request sent to update the plugin configuration.
+        /// </summary>
+        public static Commands UPDATE_PLUGIN_CONFIGURATION_REQUEST = new Commands(32, "UPDATE_PLUGIN_CONFIGURATION_REQUEST");
+        /// <summary>
+        /// Result returned when the plugin configuration is updated.
+        /// </summary>
+        public static Commands UPDATE_PLUGIN_CONFIGURATION_RESPONSE = new Commands(33, "UPDATE_PLUGIN_CONFIGURATION_RESPONSE");
 
 
         private Commands(int code)

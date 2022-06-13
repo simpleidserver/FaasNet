@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace FaasNet.EventMesh.Protocols
+namespace FaasNet.EventMesh.Plugin
 {
-    public interface IProtocolPlugin<T> where T : class
+    public interface IPlugin<T> where T : class
     {
         void Load(IServiceCollection services, T options);
     }

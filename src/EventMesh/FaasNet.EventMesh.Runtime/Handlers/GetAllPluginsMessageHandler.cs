@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -46,11 +45,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             var allPluginPath = Directory.EnumerateDirectories(rootPluginPath);
             foreach (var pluginPath in allPluginPath)
             {
-                var json = File.ReadAllText(Path.Combine(pluginPath, PluginConstants.ConfigurationFileName));
-                var pluginEntry = JsonSerializer.Deserialize<PluginEntry>(json, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+                var pluginEntry = PluginConfigurationFile.Read(pluginPath);
                 result.Add(new PluginResponse
                 {
                     Name = pluginEntry.Name,
