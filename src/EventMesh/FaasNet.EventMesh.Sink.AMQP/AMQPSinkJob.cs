@@ -11,6 +11,7 @@ namespace FaasNet.EventMesh.Sink.AMQP
 {
     public class AMQPSinkJob : BaseSinkJob
     {
+        private const string TOPIC_NAME = "#";
         private IConnection _connection;
         private readonly EventMeshSinkAMQPOptions _options;
         private SubscriptionRecord _subscriptionRecord;
@@ -24,8 +25,7 @@ namespace FaasNet.EventMesh.Sink.AMQP
 
         protected override async Task Subscribe(CancellationToken cancellationToken)
         {
-            const string topicName = "#";
-            var offset = await SubscriptionStore.GetOffset(JobId, topicName, cancellationToken);
+            var offset = await SubscriptionStore.GetOffset(JobId, TOPIC_NAME, cancellationToken);
             var channel = BuildConnection().CreateModel();
             var queue = channel.QueueDeclare(
                 "AMQPEventMesh",
@@ -36,7 +36,7 @@ namespace FaasNet.EventMesh.Sink.AMQP
                 {
                     { "x-queue-type", "stream" }
                 });
-            channel.QueueBind(queue, _options.TopicName, topicName);
+            channel.QueueBind(queue, _options.TopicName, TOPIC_NAME);
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += (s, evt) => Handle(s, evt, cancellationToken);
             channel.BasicQos(0, 100, false);
@@ -73,6 +73,7 @@ namespace FaasNet.EventMesh.Sink.AMQP
             var jsonEventFormatter = new JsonEventFormatter();
             var cloudEvent = evt.ToCloudEvent(jsonEventFormatter, evt.Exchange, evt.RoutingKey);
             await Publish(evt.RoutingKey, cloudEvent, cancellationToken);
+            await SubscriptionStore.IncrementOffset(JobId, TOPIC_NAME, cancellationToken);
         }
     }
 }

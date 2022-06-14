@@ -1,7 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Amqp;
 const int port = 5672;
-Console.WriteLine("Hello, World!");
 ReceiveMessage();
 SendMessage();
 Console.WriteLine("Press enter to quit the application");
@@ -29,7 +28,10 @@ static void ReceiveMessage()
         var connection = new Connection(address);
         var session = new Session(connection);
         var receiver = new ReceiverLink(session, "receiver-link", "q1");
-        var message = receiver.Receive();
-        Console.WriteLine("Received " + message.Body.ToString());
+        while(true)
+        {
+            var message = receiver.Receive();
+            Console.WriteLine("Received " + message.Body.ToString());
+        }
     });
 }

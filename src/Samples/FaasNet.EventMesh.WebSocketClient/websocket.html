@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+	<style>
+		#messages {
+			list-style-type: none;
+			padding: 0px;
+			margin: 0px;
+		}
+		
+		#messages > li {
+			padding: 5px;
+			border: 1px solid gray;
+		}
+	</style>
+</head>
+<body>
+	<div>
+		<h1>Publish</h1>
+		<div>
+			<div>
+				<label>Content</label>
+				<input type="text" id="messageTxt" />
+			</div>
+			<div>
+				<label>Topic</label>
+				<input type="text" id="messageTopic" />
+			</div>
+			<button id="sendMessage">Send</button>
+		</div>
+	</div>
+	<div>
+		<h1>Subscribe</h1>
+		<div id="sub">
+			<div>
+				<label>Topic</label>
+				<input type="text" id="subTopic" />
+			</div>
+			<button id="startSubscription">Start subscription</button>
+		</div>
+		<ul id="messages">
+			
+		</ul>
+	</div>
+	<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+	<script>
+		const ws = new WebSocket("ws://localhost:2803");
+		$(document).ready(function() {
+			var initSubscription = function() {
+				ws.onmessage = function(data) {
+					$("#messages").append("<li>" + data.data + "</li>");
+				};
+				$("#startSubscription").click(function() {
+					const subTopic = $("#subTopic").val();
+					var directSubscribe = {
+						requestType: "DIRECTLY_SUBSCRIBE",
+						vpn: "default",
+						clientId: "subscribeClient",
+						filter: subTopic
+					};
+					const json = JSON.stringify(directSubscribe);
+					ws.send(json);
+					$("#sub").hide();
+				});
+			};
+			var initPublish = function() {
+				$("#sendMessage").click(function() {
+					const msg = $("#messageTxt").val();
+					const topic = $("#messageTopic").val();
+					var publishMsg = {
+						requestType: 'PUBLISH',
+						vpn: 'default',
+						id: 'id',
+						subject: 'subject',
+						topic: topic,
+						clientId: 'publishClient',
+						content: msg
+					};
+					const json = JSON.stringify(publishMsg);
+					ws.send(json);
+					$("#messageTxt").val('');
+					$("#messageTopic").val('');
+				});
+			};
+			initSubscription();
+			initPublish();
+		});
+	</script>
+</body>
+</html>

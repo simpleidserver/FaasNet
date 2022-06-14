@@ -13,7 +13,7 @@ namespace FaasNet.Common
             else serverBuilder.Services.Configure(callback);
             serverBuilder.Services.AddSingleton<INodeStateStore, RockDBNodeStateStore>();
             serverBuilder.Services.AddSingleton<IPeerInfoStore, RocksDBPeerInfoStore>();
-            serverBuilder.Services.AddSingleton<ILogStore, RocksDBLogStore>();
+            serverBuilder.Services.AddScoped<ILogStore, RocksDBLogStore>();
             return serverBuilder;
         }
     }

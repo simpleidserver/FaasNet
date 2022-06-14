@@ -253,14 +253,12 @@ namespace FaasNet.EventMesh.Common
         private static async Task StartAMQPSeed()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddAMQPSeed(seed =>
+            serviceCollection.AddAMQPSeed(amqp =>
             {
-                seed.EventMeshPort = _seedPort;
-                seed.Vpn = "default";
-                seed.ClientId = "clientId";
-                seed.EventMeshUrl = "localhost";
-            }, amqp =>
-            {
+                amqp.EventMeshPort = _seedPort;
+                amqp.Vpn = "default";
+                amqp.ClientId = "clientId";
+                amqp.EventMeshUrl = "localhost";
                 amqp.AMQPUserName = "default_user_TBRVU8sYJmyVBXKeiTD";
                 amqp.AMQPPassword = "d67v-U305u8Sh0dOwn02pTIuo2jsnLwY";
                 amqp.AMQPPort = 30007;
@@ -285,14 +283,12 @@ namespace FaasNet.EventMesh.Common
         private static async Task StartKafkaSeed()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddKafkaSeed(seed =>
+            serviceCollection.AddKafkaSeed(kafka =>
             {
-                seed.EventMeshPort = _seedPort;
-                seed.Vpn = "default";
-                seed.ClientId = "clientId";
-                seed.EventMeshUrl = "localhost";
-            }, kafka =>
-            {
+                kafka.EventMeshPort = _seedPort;
+                kafka.Vpn = "default";
+                kafka.ClientId = "clientId";
+                kafka.EventMeshUrl = "localhost";
                 kafka.BootstrapServers = "localhost:29092";
             }).UseSinkRocksDB();
             var serviceProvider = serviceCollection.BuildServiceProvider();

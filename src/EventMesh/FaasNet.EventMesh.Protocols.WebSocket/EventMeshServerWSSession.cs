@@ -2,6 +2,7 @@
 using FaasNet.EventMesh.Client;
 using NetCoreServer;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -11,6 +12,7 @@ namespace FaasNet.EventMesh.Protocols.WebSocket
 {
     public class EventMeshServerWSSession: WsSession
     {
+        private readonly Dictionary<Guid, SubscriptionResult> _subscriptions = new Dictionary<Guid, SubscriptionResult>();
         private readonly EventMeshWebSocketOptions _options;
 
         public EventMeshServerWSSession(EventMeshWebSocketOptions options, WsServer server) : base(server)
@@ -26,6 +28,11 @@ namespace FaasNet.EventMesh.Protocols.WebSocket
         public override void OnWsDisconnected()
         {
             base.OnWsDisconnected();
+            if(_subscriptions.ContainsKey(Id))
+            {
+                _subscriptions[Id].Close();
+                _subscriptions.Remove(Id);
+            }
         }
 
         public override async void OnWsReceived(byte[] buffer, long offset, long size)
@@ -67,11 +74,12 @@ namespace FaasNet.EventMesh.Protocols.WebSocket
             if (subscribeRequest == null || subscribeRequest.RequestType != "DIRECTLY_SUBSCRIBE") return false;
             var eventMeshClient = new EventMeshClient(_options.EventMeshUrl, _options.EventMeshPort);
             var subSession = await eventMeshClient.CreateSubSession(subscribeRequest.Vpn, subscribeRequest.ClientId, null, CancellationToken.None);
-            subSession.DirectSubscribe(subscribeRequest.Filter, (ce) =>
+            var subscriptionResult = subSession.DirectSubscribe(subscribeRequest.Filter, (ce) =>
             {
                 var json = JsonSerializer.Serialize(new CloudEventResult { Data = ce.Data.ToString(), Type = ce.Type });
                 var session = SendText(json);
             }, CancellationToken.None);
+            if (!_subscriptions.ContainsKey(Id)) _subscriptions.Add(Id, subscriptionResult);
             return true;
         }
 

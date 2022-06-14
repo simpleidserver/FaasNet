@@ -22,13 +22,13 @@ using IHost host = Host.CreateDefaultBuilder(args)
                         .UseRocksDB(o =>
                         {
                             o.SubPath = $"node{options.Port}";
-                        })
-                        .UseSinkRocksDB();
+                        });
                     var pluginStore = serverBuilder.ServiceProvider.GetRequiredService<IPluginStore>();
                     var activePlugins = pluginStore.GetActivePlugins();
+                    services.AddHostedService<EventMeshServerWorker>();
                     LoadProtocolPlugins(serverBuilder.Services, activePlugins);
                     LoadSinkPlugins(serverBuilder.Services, activePlugins);
-                    services.AddHostedService<EventMeshServerWorker>();
+                    serverBuilder.UseSinkRocksDB();
                 }).Build();
 await host.RunAsync();
 

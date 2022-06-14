@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-management
+  labels:
+    app: rabbitmq
+spec:
+  ports:
+  - port: 15672
+    name: http
+    nodePort: 30006
+  - port: 5672
+    name: tcp
+    protocol: TCP
+    nodePort: 30007
+  selector:
+    app.kubernetes.io/name: hello-world
+  type: NodePort
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+    name: hello-world
+spec:
+  rabbitmq:
+    additionalPlugins:
+      - rabbitmq_amqp1_0

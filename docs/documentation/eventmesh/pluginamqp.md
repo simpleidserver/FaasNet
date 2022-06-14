@@ -26,12 +26,12 @@ The ZIP file can be downloaded [here]().
 
 ## Quick start
 
-Once you have an up and running EventMesh server with `ProtocolAmqp` plugin enabled, you can start using any client compliant with the AMQP 1.0 protocol.
+Once you have an up and running EventMesh server with `ProtocolAmqp` plugin enabled, you can start using any client compliant with the [AMQP 1.0 protocol](http://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-complete-v1.0-os.pdf).
 
 ### Configure client and VPN
 
 Before going further, a Virtual Private Network (VPN) and two clients must be configured.
-Those information will be used to publish message and subscribe to one or more topic.
+Those information will be used to publish message and subscribe to one topic.
 
 Open a command prompt and create a topic named `default` :
 
@@ -56,7 +56,7 @@ FaasNet.EventMeshCTL.CLI.exe add_client --vpn=default --identifier=subscribeClie
 If the plugin is not yet configured, it can be enabled like this
 
 ```
-FaasNet.EventMeshCTL.CLI.exe get_plugin_configuration --name=ProtocolAmqp
+FaasNet.EventMeshCTL.CLI.exe enable_plugin --name=ProtocolAmqp
 ```
 
 Its configuration can be updated either by [using CLI](cli.md) or by updating the configuration file `appsettings.json`.
@@ -69,7 +69,7 @@ When the configuration is finished, a client can be created and can start publis
 
 The source code of this project can be found [here]().
 
-### Create a client
+## Create a client
 
 In this tutorial, we will explain how to create a C# client to publish message and subscribe to one topic `q1`.
 
@@ -108,8 +108,11 @@ static void ReceiveMessage()
         var connection = new Connection(address);
         var session = new Session(connection);
         var receiver = new ReceiverLink(session, "receiver-link", "q1");
-        var message = receiver.Receive();
-        Console.WriteLine("Received " + message.Body.ToString());
+        while(true)
+        {
+            var message = receiver.Receive();
+            Console.WriteLine("Received " + message.Body.ToString());
+        }
     });
 }
 ```
@@ -127,7 +130,7 @@ Console.ReadLine();
 
 Build the project and run.
 
-The console application should displayed two messages :
+The console application must display two messages :
 
 ```
 Send Hello AMQP!
