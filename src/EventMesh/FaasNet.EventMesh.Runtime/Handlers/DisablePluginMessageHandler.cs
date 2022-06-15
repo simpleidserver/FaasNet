@@ -27,6 +27,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             var disablePluginRequest = package as DisablePluginRequest;
             var allPlugins = GetAllPluginsMessageHandler.ExtractPluginInfos(_options.ProtocolsPluginSubPath);
             allPlugins.AddRange(GetAllPluginsMessageHandler.ExtractPluginInfos(_options.SinksPluginSubPath));
+            var allDiscoveryPlugin = GetAllPluginsMessageHandler.ExtractPluginInfos(_options.DiscoveriesPluginSubPath);
+            if(allDiscoveryPlugin.Any(p => p.Name == disablePluginRequest.PluginName)) return Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(disablePluginRequest.Header.Command, disablePluginRequest.Header.Seq, Errors.CANNOT_DISABLE_DISCOVERY_PLUGIN)));
             var selectedPlugin = allPlugins.FirstOrDefault(p => p.Name == disablePluginRequest.PluginName);
             if (selectedPlugin == null) return Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(disablePluginRequest.Header.Command, disablePluginRequest.Header.Seq, Errors.UNKNOWN_PLUGIN)));
             _pluginStore.Disable(disablePluginRequest.PluginName);

@@ -7,12 +7,9 @@
     <ProjectReference Include="..\..\EventMesh\FaasNet.EventMesh.Plugin\FaasNet.EventMesh.Plugin.csproj" />
     <ProjectReference Include="..\FaasNet.RaftConsensus.Core\FaasNet.RaftConsensus.Core.csproj" />
   </ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="dotnet-etcd" Version="5.2.0" />
-	</ItemGroup>
-	<ItemGroup>
-	  <None Update="appsettings.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

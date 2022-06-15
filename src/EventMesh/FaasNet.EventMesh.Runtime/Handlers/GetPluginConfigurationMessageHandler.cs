@@ -30,6 +30,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             var getPluginConfiguration = package as GetPluginConfigurationRequest;
             if (TryExtractConfiguration(_options.ProtocolsPluginSubPath, getPluginConfiguration.Name, out result)) return Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.GetPluginConfiguration(result, package.Header.Seq)));
             if (TryExtractConfiguration(_options.SinksPluginSubPath, getPluginConfiguration.Name, out result)) return Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.GetPluginConfiguration(result, package.Header.Seq)));
+            if (TryExtractConfiguration(_options.DiscoveriesPluginSubPath, getPluginConfiguration.Name, out result)) return Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.GetPluginConfiguration(result, package.Header.Seq)));
             return Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(package.Header.Command, package.Header.Seq, Errors.UNKNOWN_PLUGIN)));
         }
 
@@ -59,7 +60,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 result = new List<PluginConfigurationRecordResponse>();
                 foreach (var entry in entries)
                 {
-                    var value = entry.PropertyInfo.GetValue(pluginConfiguration)?.ToString();
+                    var value = JsonSerializer.Serialize(entry.PropertyInfo.GetValue(pluginConfiguration));
                     result.Add(new PluginConfigurationRecordResponse(entry.Name, entry.Description, entry.DefaultValue, value));
                 }
 

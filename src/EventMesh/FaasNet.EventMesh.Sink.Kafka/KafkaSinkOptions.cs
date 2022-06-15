@@ -11,6 +11,7 @@ namespace FaasNet.EventMesh.Sink.Kafka
             GroupId = "EventMeshKafka";
             GetMetadataTimeout = TimeSpan.FromSeconds(2);
             ListenKafkaTopicTimerMS = 5 * 1000;
+            BootstrapServers = "localhost:29092";
         }
 
         /// <summary>
@@ -31,12 +32,12 @@ namespace FaasNet.EventMesh.Sink.Kafka
         /// <summary>
         /// Timeout in MS to fetch metadata from Kafka.
         /// </summary>
-        [PluginEntryOptionProperty("kafkaMetadataTimeout", "Job identifier.")]
+        [PluginEntryOptionProperty("kafkaMetadataTimeout", "Timeout in MS to fetch metadata from Kafka.")]
         public TimeSpan GetMetadataTimeout { get; set; }
         /// <summary>
         /// Timer in MS used to fetch kafka topics.
         /// </summary>
-        [PluginEntryOptionProperty("kafkaTopicTimerMS", "Timer in MS used to fetch kafka topics..")]
+        [PluginEntryOptionProperty("kafkaTopicTimerMS", "Timer in MS used to fetch kafka topics.")]
         public int ListenKafkaTopicTimerMS { get; set; }
     }
 }

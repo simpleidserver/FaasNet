@@ -13,6 +13,7 @@ namespace FaasNet.EventMesh.Runtime
             MinSubSessionExpirationTimeSpan = TimeSpan.FromMinutes(1);
             ProtocolsPluginSubPath = Constants.ProtocolsPluginSubPath;
             SinksPluginSubPath = Constants.SinksPluginSubPath;
+            DiscoveriesPluginSubPath = Constants.DiscoveriesPluginSubPath;
         }
 
         public int WaitLocalSubscriptionIntervalMS { get; set; }
@@ -28,5 +29,9 @@ namespace FaasNet.EventMesh.Runtime
         /// Sub path where sinks plugin are stored.
         /// </summary>
         public string SinksPluginSubPath { get; set; }
+        /// <summary>
+        /// Sub path where discoveries plugin are stored.
+        /// </summary>
+        public string DiscoveriesPluginSubPath { get; set; }
     }
 }

@@ -21,19 +21,23 @@ namespace FaasNet.RaftConsensus.Discovery.Etcd
         public async Task SelfRegister(ClusterNode node, CancellationToken cancellationToken)
         {
             var connection = EtcdConnectionPool.Build(_options);
-            await connection.Client.PutAsync($"{_options.EventMeshPrefix}/{node.Port}", JsonSerializer.Serialize(node), new Grpc.Core.Metadata()
+            Grpc.Core.Metadata headers = null;
+            if (connection.AuthResult != null) headers = new Grpc.Core.Metadata()
             {
                 new Grpc.Core.Metadata.Entry(TOKEN_NAME, connection.AuthResult.Token)
-            }, cancellationToken : cancellationToken);
+            };
+            await connection.Client.PutAsync($"{_options.EventMeshPrefix}/{node.Port}", JsonSerializer.Serialize(node), headers, cancellationToken : cancellationToken);
         }
 
         public async Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken)
         {
             var connection = EtcdConnectionPool.Build(_options);
-            var dic = await connection.Client.GetRangeValAsync($"{_options.EventMeshPrefix}/", new Grpc.Core.Metadata()
+            Grpc.Core.Metadata headers = null;
+            if (connection.AuthResult != null) headers = new Grpc.Core.Metadata()
             {
                 new Grpc.Core.Metadata.Entry(TOKEN_NAME, connection.AuthResult.Token)
-            });
+            };
+            var dic = await connection.Client.GetRangeValAsync($"{_options.EventMeshPrefix}/", headers);
             var result = new List<ClusterNode>();
             foreach(var kvs in dic)
             {

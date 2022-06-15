@@ -1,6 +1,7 @@
 ﻿using FaasNet.RaftConsensus.Core.Stores;
 using FaasNet.RaftConsensus.Discovery.Etcd;
 using System;
+using System.Linq;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -10,6 +11,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             if (callback != null) services.Configure(callback);
             else services.Configure<EtcdOptions>(o => { });
+            var serviceDescriptor = services.FirstOrDefault(s => s.ServiceType == typeof(IClusterStore));
+            if (serviceDescriptor != null) services.Remove(serviceDescriptor);
             services.AddTransient<IClusterStore, EtcdClusterStore>();
             return services;
         }

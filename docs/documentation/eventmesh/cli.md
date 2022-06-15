@@ -105,6 +105,40 @@ Disable one plugin.
 | --------- | ----------- | ------------- |
 | -n/--name | Plugin name |               |
 
+## Get plugin configuration
+
+**Command**
+
+`get_plugin_configuration`
+
+**Description**
+
+Get plugin configuration
+
+**Options**
+
+| Option    | Description | Default value |
+| --------- | ----------- | ------------- |
+| -n/--name | Plugin name |               |
+
+## Update plugin configuration
+
+**Command**
+
+`update_plugin_configuration`
+
+**Description**
+
+Update plugin configuration
+
+**Options**
+
+| Option    | Description     | Default value |
+| --------- | --------------- | ------------- |
+| -n/--name | Plugin name     |               |
+| -k/--key  | Property key    |               |
+| -v/--value | Property value |               |
+
 ## Version
 
 **Command**

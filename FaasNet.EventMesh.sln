@@ -71,6 +71,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Sink.Rock
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.EventMesh.Plugin", "src\EventMesh\FaasNet.EventMesh.Plugin\FaasNet.EventMesh.Plugin.csproj", "{47847CD3-9CF4-4BF3-984C-94013E48D444}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Discovery.Config", "src\RaftConsensus\FaasNet.RaftConsensus.Discovery.Config\FaasNet.RaftConsensus.Discovery.Config.csproj", "{C1FF9184-E53D-486C-B4A2-6455BA0D212D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -173,6 +175,10 @@ Global
 		{47847CD3-9CF4-4BF3-984C-94013E48D444}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47847CD3-9CF4-4BF3-984C-94013E48D444}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47847CD3-9CF4-4BF3-984C-94013E48D444}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1FF9184-E53D-486C-B4A2-6455BA0D212D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1FF9184-E53D-486C-B4A2-6455BA0D212D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1FF9184-E53D-486C-B4A2-6455BA0D212D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1FF9184-E53D-486C-B4A2-6455BA0D212D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -205,6 +211,7 @@ Global
 		{01E4D8EF-A594-4497-B1CA-D17372656006} = {B7CDEBEF-C508-4EFA-BEC9-9D9D6E5D80C5}
 		{810659FD-5FAE-41B8-BC14-4499B6993CFB} = {B7CDEBEF-C508-4EFA-BEC9-9D9D6E5D80C5}
 		{47847CD3-9CF4-4BF3-984C-94013E48D444} = {6E495E0A-0DC8-4E42-8C58-3C48506D3D24}
+		{C1FF9184-E53D-486C-B4A2-6455BA0D212D} = {8B617B76-FFD2-4DBE-921E-B7DB73309530}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9BD3B8C-B2C9-468F-BF54-66BFE9B565EC}

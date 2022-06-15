@@ -28,6 +28,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         {
             var plugins = ExtractPlugins(_options.ProtocolsPluginSubPath);
             plugins.AddRange(ExtractPlugins(_options.SinksPluginSubPath));
+            plugins.AddRange(ExtractPlugins(_options.DiscoveriesPluginSubPath));
             return Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.GetAllPlugins(plugins, package.Header.Seq)));
         }
 

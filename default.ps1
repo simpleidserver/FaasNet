@@ -66,6 +66,8 @@ task publishEventMeshPlugins {
 	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Sink.AMQP\FaasNet.EventMesh.Sink.AMQP.csproj -c $config -o $result_dir\sinkPlugins\FaasNet.EventMesh.Sink.AMQP }
 	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Sink.Kafka\FaasNet.EventMesh.Sink.Kafka.csproj -c $config -o $result_dir\sinkPlugins\FaasNet.EventMesh.Sink.Kafka }
 	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Sink.VpnBridge\FaasNet.EventMesh.Sink.VpnBridge.csproj -c $config -o $result_dir\sinkPlugins\FaasNet.EventMesh.Sink.VpnBridgea }
+	exec { dotnet publish $source_dir\RaftConsensus\FaasNet.RaftConsensus.Discovery.Config\FaasNet.RaftConsensus.Discovery.Config.csproj -c $config -o $result_dir\discoveryPlugins\FaasNet.RaftConsensus.Discovery.Config }
+	exec { dotnet publish $source_dir\RaftConsensus\FaasNet.RaftConsensus.Discovery.Etcd\FaasNet.RaftConsensus.Discovery.Etcd.csproj -c $config -o $result_dir\discoveryPlugins\FaasNet.RaftConsensus.Discovery.Etcd }
 }
 
 task publishEventMeshService {

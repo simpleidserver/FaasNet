@@ -3,6 +3,7 @@
 EventMesh server supports plugins. Plugins extend core functionality in a variety of ways: 
 * Support more protocols.
 * Support more sink connectors. A sink connector consumes records from an event store or message broker and stream the data events to the EventMesh server.
+* Support more discovery methods. To form a cluster, new nodes need to be able to discover their peers.
 
 ## Install a plugin
 
@@ -12,6 +13,7 @@ A plugin can manually be installed :
 3. Based on the nature of the plugin, move the folder into the appropriate sub-folder of the local EventMesh server.
    * If the plugin supports an additional protocol then the sub-folder is `protocolPlugins`.
    * If the plugin supports a new sink connector then the sub-folder is `sinkPlugins`.
+   * If the plugin supports an additional discovery method then the sub-folder is `discoveryPlugins`.
 
 ## Enable a plugin
 
@@ -54,3 +56,5 @@ The table below lists plugins
 | [SinkAMQP](pluginsinkamqp.md)               | sinkPlugins      | Consume records from AMQP server                    |
 | [SinkKafka](pluginsinkkafka.md)             | sinkPlugins      | Consume records from KAFKA server                   |
 | [SinkVpnBridge](pluginsinkvpnbridge.md)     | sinkPlugins      | Consume records from Virtual Private Network bridge |
+| [DiscoveryConfig](plugindiscoveryconfig.md) | discoveryPlugins | Use configuration file to discover peers            |
+| [DiscoveryEtcd](plugindiscoveryetcd.md)     | discoveryPlugins | Use etcd to discover peers                          |

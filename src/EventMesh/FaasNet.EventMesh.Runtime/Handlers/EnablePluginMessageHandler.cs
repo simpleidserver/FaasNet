@@ -27,10 +27,21 @@ namespace FaasNet.EventMesh.Runtime.Handlers
             var enablePluginRequest = package as EnablePluginRequest;
             var allPlugins = GetAllPluginsMessageHandler.ExtractPluginInfos(_options.ProtocolsPluginSubPath);
             allPlugins.AddRange(GetAllPluginsMessageHandler.ExtractPluginInfos(_options.SinksPluginSubPath));
+            var allDiscoveryPlugin = GetAllPluginsMessageHandler.ExtractPluginInfos(_options.DiscoveriesPluginSubPath);
+            allPlugins.AddRange(allDiscoveryPlugin);
             var selectedPlugin = allPlugins.FirstOrDefault(p => p.Name == enablePluginRequest.PluginName);
             if (selectedPlugin == null) return Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(enablePluginRequest.Header.Command, enablePluginRequest.Header.Seq, Errors.UNKNOWN_PLUGIN)));
+            DisableUnusedDiscoveryPlugins(allDiscoveryPlugin, enablePluginRequest.PluginName);
             _pluginStore.Enable(enablePluginRequest.PluginName);
             return Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.EnablePlugin(enablePluginRequest.Header.Seq)));
+        }
+
+        private void DisableUnusedDiscoveryPlugins(List<PluginResponse> allDiscoveryPlugin, string pluginName)
+        {
+            var isDiscoveryPlugin = allDiscoveryPlugin.Any(p => p.Name == pluginName);
+            if (!isDiscoveryPlugin) return;
+            var unusedDiscoveryPlugin = allDiscoveryPlugin.Where(p => p.Name != pluginName);
+            foreach (var plugin in unusedDiscoveryPlugin) _pluginStore.Disable(plugin.Name);
         }
     }
 }

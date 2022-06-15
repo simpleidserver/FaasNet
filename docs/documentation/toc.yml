@@ -45,6 +45,10 @@
         href: eventmesh/pluginsinkkafka.md
       - name: VPN bridge sink connector
         href: eventmesh/pluginsinkvpnbridge.md
+      - name: Configuration file Peer Discovery
+        href: eventmesh/plugindiscoveryconfig.md
+      - name: Etcd Peer Discovery
+        href: eventmesh/plugindiscoveryetcd.md
 - name: CLI
   items:
    - name: Overview

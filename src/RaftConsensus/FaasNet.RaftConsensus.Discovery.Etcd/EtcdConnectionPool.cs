@@ -11,11 +11,16 @@ namespace FaasNet.RaftConsensus.Discovery.Etcd
         {
             if (_connection != null) return _connection;
             var client = new EtcdClient(options.ConnectionString);
-            var authResult = client.Authenticate(new AuthenticateRequest
+            AuthenticateResponse authResult = null;
+            if(!string.IsNullOrWhiteSpace(options.Username)&& !string.IsNullOrWhiteSpace(options.Password))
             {
-                Name = options.Username,
-                Password = options.Password
-            });
+                authResult = client.Authenticate(new AuthenticateRequest
+                {
+                    Name = options.Username,
+                    Password = options.Password
+                });
+            }
+
             _connection = new EtcdConnection { Client = client, AuthResult = authResult };
             return _connection;
         }

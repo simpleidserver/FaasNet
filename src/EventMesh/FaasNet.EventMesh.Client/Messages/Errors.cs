@@ -29,6 +29,7 @@ namespace FaasNet.EventMesh.Client.Messages
         public static Errors SESSION_LIFETIME_TOOSHORT = new Errors("SESSION_LIFETIME_TOOSHORT");
         public static Errors VPN_ALREADY_EXISTS = new Errors("VPN_ALREADY_EXISTS");
         public static Errors CLIENT_ALREADY_EXISTS = new Errors("CLIENT_ALREADY_EXISTS");
+        public static Errors CANNOT_DISABLE_DISCOVERY_PLUGIN = new Errors("CANNOT_DISABLE_DISCOVERY_PLUGIN");
         private Errors(string code)
         {
             Code = code;

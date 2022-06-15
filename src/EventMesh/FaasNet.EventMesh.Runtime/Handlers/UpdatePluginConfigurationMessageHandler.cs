@@ -1,6 +1,7 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Plugin;
 using FaasNet.RaftConsensus.Core;
+using FaasNet.RaftConsensus.Core.Models;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,12 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         {
             var updatePluginConfiguration = package as UpdatePluginConfigurationRequest;
             var result = UpdateConfiguration(_options.ProtocolsPluginSubPath, updatePluginConfiguration.Name, updatePluginConfiguration.PropertyName, updatePluginConfiguration.PropertyValue);
-            if (result == UpdateConfigurationResult.UNKNOWNPLUGIN) result = UpdateConfiguration(_options.SinksPluginSubPath, updatePluginConfiguration.Name, updatePluginConfiguration.PropertyName, updatePluginConfiguration.PropertyValue);
+            if (result == UpdateConfigurationResult.UNKNOWNPLUGIN)
+            {
+                result = UpdateConfiguration(_options.SinksPluginSubPath, updatePluginConfiguration.Name, updatePluginConfiguration.PropertyName, updatePluginConfiguration.PropertyValue);
+                if(result == UpdateConfigurationResult.UNKNOWNPLUGIN) result = UpdateConfiguration(_options.DiscoveriesPluginSubPath, updatePluginConfiguration.Name, updatePluginConfiguration.PropertyName, updatePluginConfiguration.PropertyValue);
+            }
+
             if (result == UpdateConfigurationResult.UNKNOWNPROPERTY) Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(package.Header.Command, package.Header.Seq, Errors.UNKNOWN_PLUGIN_PROPERTY)));
             if(result == UpdateConfigurationResult.SUCCESS) return Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.UpdatePluginConfiguration(package.Header.Seq)));
             return Task.FromResult(EventMeshPackageResult.SendResult(PackageResponseBuilder.Error(package.Header.Command, package.Header.Seq, Errors.UNKNOWN_PLUGIN)));
@@ -78,6 +84,16 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         {
             object result = value;
             if (propertyInfo.PropertyType == typeof(int)) result = int.Parse(value);
+            if(propertyInfo.PropertyType.IsGenericType)
+            {
+                var record = JsonSerializer.Deserialize(value, typeof(ICollection<ClusterNode>), new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+                propertyInfo.SetValue(obj, record);
+                return;
+            }
+
             propertyInfo.SetValue(obj, result);
         }
     }
