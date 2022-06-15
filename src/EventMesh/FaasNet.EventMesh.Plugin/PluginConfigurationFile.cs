@@ -20,19 +20,5 @@ namespace FaasNet.EventMesh.Plugin
                 return pluginEntry;
             }
         }
-
-        public static void Write(string directory, PluginEntry entry)
-        {
-            lock (_lock)
-            {
-                var appsettingsFilePath = Path.Combine(directory, PluginConstants.ConfigurationFileName);
-                if (!File.Exists(appsettingsFilePath)) return;
-                var json = JsonSerializer.Serialize<PluginEntry>(entry, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-                File.WriteAllText(appsettingsFilePath, json);
-            }
-        }
     }
 }

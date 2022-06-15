@@ -1,4 +1,5 @@
-﻿using McMaster.NETCore.Plugins;
+﻿using FaasNet.Common;
+using McMaster.NETCore.Plugins;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -32,41 +33,43 @@ namespace FaasNet.EventMesh.Plugin
             var types = assembly.GetTypes();
             var pluginType = types.FirstOrDefault(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPlugin<>)));
             if (pluginType == null) return false;
-            var optionType = pluginType.GetInterfaces()[0].GenericTypeArguments[0];
-            var ttt = PluginEntryOption.Extract(optionType);
-            dynamic pluginConfiguration = Activator.CreateInstance(optionType);
             var serializedPluginConfiguration = string.Empty;
-            if (pluginEntry.Options != null) serializedPluginConfiguration = JsonSerializer.Serialize(pluginEntry.Options);
-            if (!string.IsNullOrWhiteSpace(serializedPluginConfiguration)) pluginConfiguration = JsonSerializer.Deserialize(serializedPluginConfiguration, optionType, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-            discoveryPlugin = new DiscoveredPlugin(pluginType, pluginConfiguration);
+            discoveryPlugin = new DiscoveredPlugin(pluginEntry.Name, pluginType);
             return true;
         }
 
         private class DiscoveredPlugin : IDiscoveredPlugin
         {
+            private readonly string _pluginName;
             private readonly Type _pluginType;
-            private readonly dynamic _pluginOption;
 
-            public DiscoveredPlugin(Type pluginType, dynamic pluginOptions)
+            public DiscoveredPlugin(string pluginName, Type pluginType)
             {
+                _pluginName = pluginName;
                 _pluginType = pluginType;
-                _pluginOption = pluginOptions;
             }
 
-            public void Load(IServiceCollection services)
+            public void Load(ServerBuilder serverBuilder)
             {
+                var pluginStore = serverBuilder.ServiceProvider.GetRequiredService<IPluginStore>();
+                var optionType = _pluginType.GetInterfaces()[0].GenericTypeArguments[0];
+                dynamic pluginConfiguration = Activator.CreateInstance(optionType);
+                var pluginOption = pluginStore.GetOption(_pluginName);
+                var serializedPluginConfiguration = string.Empty;
+                if (pluginOption != null) serializedPluginConfiguration = JsonSerializer.Serialize(pluginOption);
+                if (!string.IsNullOrWhiteSpace(serializedPluginConfiguration)) pluginConfiguration = JsonSerializer.Deserialize(serializedPluginConfiguration, optionType, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
                 var pluginInstance = Activator.CreateInstance(_pluginType);
                 var loadFn = _pluginType.GetMethod("Load", BindingFlags.Public | BindingFlags.Instance);
-                loadFn.Invoke(pluginInstance, new object[] { services, _pluginOption });
+                loadFn.Invoke(pluginInstance, new object[] { serverBuilder.Services, pluginConfiguration });
             }
         }
     }
 
     public interface IDiscoveredPlugin
     {
-        void Load(IServiceCollection services);
+        void Load(ServerBuilder services);
     }
 }

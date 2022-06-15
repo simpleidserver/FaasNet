@@ -17,8 +17,9 @@ namespace FaasNet.EventMesh.Runtime.Handlers
     public class UpdatePluginConfigurationMessageHandler : IMessageHandler
     {
         private readonly EventMeshNodeOptions _options;
+        private readonly IPluginStore _pluginStore;
 
-        public UpdatePluginConfigurationMessageHandler(IOptions<EventMeshNodeOptions> options)
+        public UpdatePluginConfigurationMessageHandler(IOptions<EventMeshNodeOptions> options, IPluginStore pluginStore)
         {
             _options = options.Value;
         }
@@ -59,14 +60,14 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 if (selectedProperty == null) return UpdateConfigurationResult.UNKNOWNPROPERTY;
                 var serializedPluginConfiguration = string.Empty;
                 dynamic pluginConfiguration = Activator.CreateInstance(optionType);
-                if (pluginEntry.Options != null) serializedPluginConfiguration = JsonSerializer.Serialize(pluginEntry.Options); 
+                var pluginOption = _pluginStore.GetOption(pluginEntry.Name);
+                if (pluginOption != null) serializedPluginConfiguration = JsonSerializer.Serialize(pluginOption);
                 if (!string.IsNullOrWhiteSpace(serializedPluginConfiguration)) pluginConfiguration = JsonSerializer.Deserialize(serializedPluginConfiguration, optionType, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
                 SetValue(pluginConfiguration, selectedProperty.PropertyInfo, propertyValue);
-                pluginEntry.Options = pluginConfiguration;
-                PluginConfigurationFile.Write(pluginPath, pluginEntry);
+                _pluginStore.UpdateOptions(pluginEntry.Name, pluginConfiguration);
                 return UpdateConfigurationResult.SUCCESS;
             }
 

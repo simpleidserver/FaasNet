@@ -4,13 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 
-namespace FaasNet.EventMesh.Runtime.Stores
+namespace FaasNet.EventMesh.Plugin
 {
     public interface IPluginStore
     {
         IEnumerable<string> GetActivePlugins();
+        object GetOption(string pluginName);
         void Enable(string pluginName);
         void Disable(string pluginName);
+        bool UpdateOptions(string pluginName, object options);
         bool IsActive(string pluginName);
     }
 
@@ -25,6 +27,12 @@ namespace FaasNet.EventMesh.Runtime.Stores
             return plugins.Where(p => p.IsActive).Select(p => p.Name);
         }
 
+        public object GetOption(string pluginName)
+        {
+            var plugins = Read();
+            return plugins.FirstOrDefault(p => p.Name == pluginName)?.Options;
+        }
+
         public void Enable(string pluginName)
         {
             Update(pluginName, true);
@@ -33,6 +41,31 @@ namespace FaasNet.EventMesh.Runtime.Stores
         public void Disable(string pluginName)
         {
             Update(pluginName, false);
+        }
+
+        public bool UpdateOptions(string pluginName, object options)
+        {
+            var records = Read();
+            var record = records.FirstOrDefault(r => r.Name == pluginName);
+            if (record == null)
+            {
+                records.Add(new PluginRecord
+                {
+                    Name = pluginName,
+                    IsActive = false,
+                    Options = options
+                });
+            }
+            else record.Options = options;
+            lock (_lock)
+            {
+                File.WriteAllText(GetPluginFilePath(), JsonSerializer.Serialize(records, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }));
+            }
+
+            return true;
         }
 
         public bool IsActive(string pluginName)
@@ -54,7 +87,7 @@ namespace FaasNet.EventMesh.Runtime.Stores
                 });
             }
             else record.IsActive = isEnabled;
-            lock(_lock)
+            lock (_lock)
             {
                 File.WriteAllText(GetPluginFilePath(), JsonSerializer.Serialize(records, new JsonSerializerOptions
                 {
@@ -65,7 +98,7 @@ namespace FaasNet.EventMesh.Runtime.Stores
 
         private ICollection<PluginRecord> Read()
         {
-            lock(_lock)
+            lock (_lock)
             {
                 var path = GetPluginFilePath();
                 if (!File.Exists(path)) return new List<PluginRecord>();
@@ -79,6 +112,8 @@ namespace FaasNet.EventMesh.Runtime.Stores
 
         private static string GetPluginFilePath()
         {
+            var env = Environment.GetEnvironmentVariable("EVENTMESH_PLUGIN");
+            if (!string.IsNullOrWhiteSpace(env)) return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"plugin.{env}.json");
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FILE_NAME);
             return path;
         }
@@ -87,6 +122,7 @@ namespace FaasNet.EventMesh.Runtime.Stores
         {
             public string Name { get; set; }
             public bool IsActive { get; set; }
+            public object Options { get; set; }
         }
     }
 }

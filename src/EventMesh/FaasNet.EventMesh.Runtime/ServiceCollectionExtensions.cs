@@ -1,4 +1,5 @@
 ﻿using FaasNet.Common;
+using FaasNet.EventMesh.Plugin;
 using FaasNet.EventMesh.Runtime;
 using FaasNet.EventMesh.Runtime.Handlers;
 using FaasNet.EventMesh.Runtime.Stores;

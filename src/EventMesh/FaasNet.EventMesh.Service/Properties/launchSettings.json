@@ -4,7 +4,8 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "EVENTMESH_PLUGIN": "discoveryetcd"
       },
       "applicationUrl": "https://localhost:53054;http://localhost:53055"
     }

@@ -1,4 +1,5 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Plugin;
 using FaasNet.EventMesh.Runtime.Stores;
 using FaasNet.RaftConsensus.Core;
 using Microsoft.Extensions.Options;

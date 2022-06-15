@@ -16,10 +16,12 @@ namespace FaasNet.EventMesh.Runtime.Handlers
     public class GetPluginConfigurationMessageHandler : IMessageHandler
     {
         private readonly EventMeshNodeOptions _options;
+        private readonly IPluginStore _pluginStore;
 
-        public GetPluginConfigurationMessageHandler(IOptions<EventMeshNodeOptions> options)
+        public GetPluginConfigurationMessageHandler(IOptions<EventMeshNodeOptions> options, IPluginStore pluginStore)
         {
             _options = options.Value;
+            _pluginStore = pluginStore;
         }
 
         public Commands Command => Commands.GET_PLUGIN_CONFIGURATION_REQUEST;
@@ -52,7 +54,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 dynamic pluginConfiguration = Activator.CreateInstance(optionType);
                 var entries = PluginEntryOption.Extract(optionType);
                 var serializedPluginConfiguration = string.Empty;
-                if (pluginEntry.Options != null) serializedPluginConfiguration = JsonSerializer.Serialize(pluginEntry.Options);
+                var pluginOption = _pluginStore.GetOption(pluginEntry.Name);
+                if (pluginOption != null) serializedPluginConfiguration = JsonSerializer.Serialize(pluginOption);
                 if (!string.IsNullOrWhiteSpace(serializedPluginConfiguration)) pluginConfiguration = JsonSerializer.Deserialize(serializedPluginConfiguration, optionType, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
