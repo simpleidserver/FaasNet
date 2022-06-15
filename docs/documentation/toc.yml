@@ -32,6 +32,8 @@
         href: eventmesh/installclionwindows.md
     - name: CLI
       href: eventmesh/cli.md
+    - name: Clustering
+      href: eventmesh/clustering.md
     - name: Plugins
       href: eventmesh/plugins.md
       items:
