@@ -1,10 +1,10 @@
 # Clustering
 
-An EventMesh cluster is a logical grouping of one or several peers, each sharing Clients, Virtual Private Network, Sessions.
-Any node present in the cluster must be able to process any type of request such as: add VPN client, create subscription session.
+An EventMesh cluster is a logical grouping of one or several peer nodes, each sharing Clients, Virtual Private Network, Sessions.
+Any peer present in the cluster must be able to process any type of request such as: add VPN client, create subscription session.
 Only queues are not replicated everywhere.
 
-Because queues are not replicated among all the nodes but only on a specific amount. The queue availability cannot be guaranteed on all the nodes.
+Because queues are not replicated among all the peers but only on a specific amount. The queue availability cannot be guaranteed on all the peers.
 
 Two types of data can easily be identified:
 * Server data : data needed by a peer to process a request.

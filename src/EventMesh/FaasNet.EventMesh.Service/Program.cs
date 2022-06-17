@@ -13,12 +13,20 @@ using IHost host = Host.CreateDefaultBuilder(args)
                 })
                 .ConfigureAppConfiguration(c =>
                 {
+                    // var hosting = c.HostingEnvironment;
+                    // host.
                     c.AddJsonFile("appsettings.json");
+                    // c.AddJsonFile($"appsettings.{c.HostingEnvironment}.json", optional: true);
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
                     var options = hostContext.Configuration.Get<EventMeshServerOptions>();
-                    var serverBuilder = services.AddEventMeshServer(consensusNodeCallback: o => o.Port = options.Port)
+                    var serverBuilder = services.AddEventMeshServer(consensusNodeCallback: o =>
+                    {
+                        o.Port = options.Port;
+                        o.ExposedUrl = options.ExposedUrl;
+                        o.ExposedPort = options.ExposedPort;
+                    })
                         .UseRocksDB(o =>
                         {
                             o.SubPath = $"node{options.Port}";

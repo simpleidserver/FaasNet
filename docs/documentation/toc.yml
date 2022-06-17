@@ -20,8 +20,10 @@
      href: serverlessworkflows/inject.md
 - name: EventMesh
   items:
-    - name: Concepts
-      href: eventmesh/concepts.md
+    - name: Glossary
+      href: eventmesh/glossary.md
+    - name: Architecture
+      href: eventmesh/architecture.md
     - name: Install server
       items:
       - name: Installing on Windows

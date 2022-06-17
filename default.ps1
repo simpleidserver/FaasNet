@@ -60,18 +60,16 @@ task publishDocker {
 	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Runtime.Website\FaasNet.EventMesh.Runtime.Website.csproj -c $config -o $result_dir\services\EventMeshServer }
 }
 
-task publishEventMeshPlugins {
-	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Protocols.AMQP\FaasNet.EventMesh.Protocols.AMQP.csproj -c $config -o $result_dir\protocolPlugins\FaasNet.EventMesh.Protocols.AMQP }
-	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Protocols.WebSocket\FaasNet.EventMesh.Protocols.WebSocket.csproj -c $config -o $result_dir\protocolPlugins\FaasNet.EventMesh.Protocols.WebSocket }
-	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Sink.AMQP\FaasNet.EventMesh.Sink.AMQP.csproj -c $config -o $result_dir\sinkPlugins\FaasNet.EventMesh.Sink.AMQP }
-	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Sink.Kafka\FaasNet.EventMesh.Sink.Kafka.csproj -c $config -o $result_dir\sinkPlugins\FaasNet.EventMesh.Sink.Kafka }
-	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Sink.VpnBridge\FaasNet.EventMesh.Sink.VpnBridge.csproj -c $config -o $result_dir\sinkPlugins\FaasNet.EventMesh.Sink.VpnBridgea }
-	exec { dotnet publish $source_dir\RaftConsensus\FaasNet.RaftConsensus.Discovery.Config\FaasNet.RaftConsensus.Discovery.Config.csproj -c $config -o $result_dir\discoveryPlugins\FaasNet.RaftConsensus.Discovery.Config }
-	exec { dotnet publish $source_dir\RaftConsensus\FaasNet.RaftConsensus.Discovery.Etcd\FaasNet.RaftConsensus.Discovery.Etcd.csproj -c $config -o $result_dir\discoveryPlugins\FaasNet.RaftConsensus.Discovery.Etcd }
-}
-
-task publishEventMeshService {
+task publishDockerEventMeshService {
+	rd "$result_dir\eventMeshService" -recurse -force  -ErrorAction SilentlyContinue | out-null
 	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Service\FaasNet.EventMesh.Service.csproj -c $config -o $result_dir\eventMeshService }
+	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Protocols.AMQP\FaasNet.EventMesh.Protocols.AMQP.csproj -c $config -o $result_dir\eventMeshService\protocolPlugins\FaasNet.EventMesh.Protocols.AMQP }
+	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Protocols.WebSocket\FaasNet.EventMesh.Protocols.WebSocket.csproj -c $config -o $result_dir\eventMeshService\protocolPlugins\FaasNet.EventMesh.Protocols.WebSocket }
+	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Sink.AMQP\FaasNet.EventMesh.Sink.AMQP.csproj -c $config -o $result_dir\eventMeshService\sinkPlugins\FaasNet.EventMesh.Sink.AMQP }
+	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Sink.Kafka\FaasNet.EventMesh.Sink.Kafka.csproj -c $config -o $result_dir\eventMeshService\sinkPlugins\FaasNet.EventMesh.Sink.Kafka }
+	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMesh.Sink.VpnBridge\FaasNet.EventMesh.Sink.VpnBridge.csproj -c $config -o $result_dir\eventMeshService\sinkPlugins\FaasNet.EventMesh.Sink.VpnBridgea }
+	exec { dotnet publish $source_dir\RaftConsensus\FaasNet.RaftConsensus.Discovery.Config\FaasNet.RaftConsensus.Discovery.Config.csproj -c $config -o $result_dir\eventMeshService\discoveryPlugins\FaasNet.RaftConsensus.Discovery.Config }
+	exec { dotnet publish $source_dir\RaftConsensus\FaasNet.RaftConsensus.Discovery.Etcd\FaasNet.RaftConsensus.Discovery.Etcd.csproj -c $config -o $result_dir\eventMeshService\discoveryPlugins\FaasNet.RaftConsensus.Discovery.Etcd }
 }
 
 task publishEventMeshCLI {

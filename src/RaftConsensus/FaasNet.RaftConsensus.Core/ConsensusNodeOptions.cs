@@ -9,8 +9,10 @@
             GossipMaxNodeBroadcast = 2;
             GossipTimeoutHeartbeatMS = 2000;
             GossipClusterNodeDeactivationDurationMS = 3000;
-            Port = 4000;
             Url = "localhost";
+            Port = 4000;
+            ExposedUrl = "localhost";
+            ExposedPort = 4000;
         }
 
         public int SynchronizeTimerMS { get; set; }
@@ -38,5 +40,13 @@
         /// Port of the node.
         /// </summary>
         public int Port { get; set; }
+        /// <summary>
+        /// Exposed Url.
+        /// </summary>
+        public string ExposedUrl { get; set; }
+        /// <summary>
+        /// Exposed Port.
+        /// </summary>
+        public int ExposedPort { get; set; }
     }
 }

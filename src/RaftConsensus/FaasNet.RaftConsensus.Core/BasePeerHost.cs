@@ -25,7 +25,7 @@ namespace FaasNet.RaftConsensus.Core
         string PeerId { get; }
         PeerInfo Info { get; }
         PeerStates State { get; }
-        Task Start(string nodeId, PeerInfo info, CancellationToken cancellationToken);
+        Task Start(UdpClient udpClient, string nodeId, PeerInfo info, CancellationToken cancellationToken);
         Task Stop();
         Task AppendEntry(LogRecord logRecord, bool forceAdd, CancellationToken cancellationToken);
         Task<LogRecord> ReadRecord(int evtOffet, CancellationToken cancellationToken);
@@ -44,6 +44,7 @@ namespace FaasNet.RaftConsensus.Core
         private readonly IClusterStore _clusterStore;
         private readonly ILogStore _logStore;
         private readonly IPeerInfoStore _peerStore;
+        private UdpClient _udpClient;
         private readonly string _peerId;
         private ConcurrentBag<AppendEntryRequest> _appendEntryRequestLst;
         private LeaderNode _activeLeader = null;
@@ -51,7 +52,6 @@ namespace FaasNet.RaftConsensus.Core
         private int _nbPositiveVote = 0;
         private int _quorum = 0;
         private string _nodeId;
-        private UdpClient _udpClient;
         private System.Timers.Timer _checkLeaderHeartbeatTimer;
         private System.Timers.Timer _electionCheckTimer;
         private System.Timers.Timer _leaderHeartbeatTimer;
@@ -84,18 +84,18 @@ namespace FaasNet.RaftConsensus.Core
         protected ConsensusPeerOptions Options => _options;
         protected ILogger<BasePeerHost> Logger => _logger;
 
-        public Task Start(string nodeId, PeerInfo info, CancellationToken cancellationToken)
+        public Task Start(UdpClient udpClient, string nodeId, PeerInfo info, CancellationToken cancellationToken)
         {
             if (info == null) throw new ArgumentNullException(nameof(info));
             if (IsRunning) throw new InvalidOperationException("The peer is already running");
+            _udpClient = udpClient;
             _logStore.TermId = info.TermId;
-            _udpClient = new UdpClient();
             _appendEntryRequestLst = new ConcurrentBag<AppendEntryRequest>();
             _logger.LogInformation("Start peer {PeerId}", _peerId);
             TokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             SetFollower();
             _nodeId = nodeId;
-            UdpServer = BuildUdpClient();
+            UdpServer = BuildUdpServer();
             _checkLeaderHeartbeatTimer = new System.Timers.Timer(_options.CheckLeaderHeartbeatTimerMS);
             _electionCheckTimer = new System.Timers.Timer(_options.CheckElectionTimerMS);
             _leaderHeartbeatTimer = new System.Timers.Timer(_options.LeaderHeartbeatTimerMS);
@@ -120,7 +120,6 @@ namespace FaasNet.RaftConsensus.Core
             _logger.LogInformation("Stop peer {PeerId}", _peerId);
             TokenSource.Cancel();
             UdpServer.Close();
-            _udpClient.Close();
             StopCheckLeaderHeartbeat();
             StopCheckElection();
             IsRunning = false;
@@ -465,7 +464,7 @@ namespace FaasNet.RaftConsensus.Core
 
         #endregion
 
-        private UdpClient BuildUdpClient()
+        private UdpClient BuildUdpServer()
         {
             var localEdp = new IPEndPoint(IPAddress.Any, 0);
             var result = new UdpClient(localEdp);

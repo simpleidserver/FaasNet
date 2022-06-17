@@ -159,7 +159,7 @@ namespace FaasNet.RaftConsensus.Core
             foreach (var peerInfo in peerInfoLst)
             {
                 var peerHost = _peerHostFactory.Build();
-                await peerHost.Start(_nodeId, peerInfo, cancellationToken);
+                await peerHost.Start(UdpServer, _nodeId, peerInfo, cancellationToken);
                 _peers.Add(peerHost);
             }
         }
@@ -185,14 +185,14 @@ namespace FaasNet.RaftConsensus.Core
             if(packageResult == null) return true;
             if(!string.IsNullOrWhiteSpace(gossipPackage.Header.SourceUrl))
             {
-                using (var client = new GossipClient(gossipPackage.Header.SourceUrl, gossipPackage.Header.SourcePort))
+                using (var client = new GossipClient(gossipPackage.Header.SourceUrl, gossipPackage.Header.SourcePort, UdpServer))
                 {
                     await client.Send(packageResult, cancellationToken: TokenSource.Token);
                 }
             }
             else
             {
-                using (var client = new GossipClient(transportResult.RemoteEndPoint))
+                using (var client = new GossipClient(transportResult.RemoteEndPoint, UdpServer, false))
                 {
                     await client.Send(packageResult, cancellationToken: TokenSource.Token);
                 }
@@ -327,7 +327,7 @@ namespace FaasNet.RaftConsensus.Core
         {
             var peerInfo = new PeerInfo { TermId = termId };
             var peerHost = _peerHostFactory.Build();
-            await peerHost.Start(_nodeId, peerInfo, TokenSource.Token);
+            await peerHost.Start(UdpServer, _nodeId, peerInfo, TokenSource.Token);
             _peers.Add(peerHost);
             _peerInfoStore.Add(peerInfo);
             return peerHost;

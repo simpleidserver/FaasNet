@@ -53,7 +53,7 @@ namespace FaasNet.EventMeshCTL.CLI
                 clusterStatusCmd.OnExecuteAsync(async (token) =>
                 {
                     var configuration = EventMeshCTLConfigurationManager.Get();
-                    var gossipClient = new GossipClient(configuration.Url, configuration.Port);
+                    var gossipClient = new GossipClient("127.0.0.1", /*configuration.Url, */ configuration.Port);
                     var clusterNodes = await gossipClient.GetClusterNodes();
                     Console.WriteLine("Current nodes");
                     foreach (var clusterNode in clusterNodes) Console.WriteLine($"Url={clusterNode.Url}, Port={clusterNode.Port}");

@@ -1,6 +1,6 @@
 # Command-line interface
 
-`FaasNet.EventMeshCTL.CLI.exe` is the CLI tool that ships with EventMeshServer. It supports a wide range of operations, mostly administrative in nature.
+`FaasNet.EventMeshCTL.CLI.exe` is the CLI tool that ships with EventMesh. It supports a wide range of operations, mostly administrative in nature.
 This includes
 
 * Access to cluster status.

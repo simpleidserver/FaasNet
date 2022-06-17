@@ -1,11 +1,14 @@
-FROM mcr.microsoft.com/dotnet/aspnet:5.0
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 
-COPY build/results/services/EventMeshServer/ App/
-ENV ASPNETCORE_URLS=http://*:5001
+COPY build/results/eventMeshService/ App/
 
-EXPOSE 5001
-EXPOSE 4000
+RUN apt-get update
+RUN apt-get --yes --force-yes install libc6-dev libsnappy-dev
+
+EXPOSE 4000/udp
+EXPOSE 5672/tcp
+EXPOSE 2803/tcp
 
 WORKDIR /App
 
-ENTRYPOINT ["dotnet", "FaasNet.EventMesh.Runtime.Website.dll"]
+ENTRYPOINT ["dotnet", "FaasNet.EventMesh.Service.dll"]

@@ -14,14 +14,21 @@ namespace FaasNet.RaftConsensus.Client
     public class GossipClient : IDisposable
     {
         private readonly IPEndPoint _target;
+        private readonly bool _dispose = true;
 
-        public GossipClient(IPEndPoint target)
+        public GossipClient(IPEndPoint target, UdpClient udpClient, bool dispose = true)
         {
             _target = target;
-            UdpClient = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
+            UdpClient = udpClient;
+            _dispose = dispose;
         }
 
-        public GossipClient(string url, int port) : this(new IPEndPoint(IPAddressHelper.ResolveIPAddress(url), port)) { }
+        public GossipClient(string url, int port) : this(new IPEndPoint(IPAddressHelper.ResolveIPAddress(url), port), new UdpClient(new IPEndPoint(IPAddress.Any, 0))) { }
+
+        public GossipClient(string url, int port, UdpClient udpClient) : this(new IPEndPoint(IPAddressHelper.ResolveIPAddress(url), port), udpClient) 
+        {
+            _dispose = false;
+        }
 
         public UdpClient UdpClient { get; private set; }
 
@@ -66,6 +73,7 @@ namespace FaasNet.RaftConsensus.Client
 
         public void Dispose()
         {
+            if (!_dispose) return;
             UdpClient?.Close();
             UdpClient?.Dispose();
         }

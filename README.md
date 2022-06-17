@@ -10,7 +10,7 @@ For project documentation, please visit [docs](https://simpleidserver.github.io/
 
 | Command                     | Description                             |
 | --------------------------  | --------------------------------------- |
-| psake publishWebsite 		  | Publish website                         |
+| psake publishWebsite 		| Publish website                       	|
 | psake publishDockerCI       | Build and publish docker images         |
 | psake packTemplate          | Build template package                  |
 
@@ -34,3 +34,9 @@ psake publishWebsite
 ```
 psake packTemplate
 ```
+
+## Deploy EventMesh - Docker
+
+psake publishDockerEventMeshService
+docker build -t eventmesh -f EventMeshDockerFile .
+docker run --name eventmesh -p 4000:4000/udp eventmesh

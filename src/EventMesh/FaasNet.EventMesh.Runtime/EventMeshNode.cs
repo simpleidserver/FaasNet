@@ -72,11 +72,7 @@ namespace FaasNet.EventMesh.Runtime
                         var writeCtx = new WriteBufferContext();
                         result.Package.Serialize(writeCtx);
                         var resultPayload = writeCtx.Buffer.ToArray();
-                        using (var udpClient = new UdpClient())
-                        {
-                            await udpClient.SendAsync(resultPayload, resultPayload.Count(), udpResult.RemoteEndPoint).WithCancellation(TokenSource.Token);
-                            udpClient.Close();
-                        }
+                        await UdpServer.SendAsync(resultPayload, resultPayload.Count(), udpResult.RemoteEndPoint).WithCancellation(TokenSource.Token);
                     }
 
                     activity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok);
