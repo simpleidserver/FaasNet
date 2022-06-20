@@ -10,7 +10,7 @@ For project documentation, please visit [docs](https://simpleidserver.github.io/
 
 | Command                     | Description                             |
 | --------------------------  | --------------------------------------- |
-| psake publishWebsite 		| Publish website                       	|
+| psake publishWebsite 		  | Publish website                       	|
 | psake publishDockerCI       | Build and publish docker images         |
 | psake packTemplate          | Build template package                  |
 

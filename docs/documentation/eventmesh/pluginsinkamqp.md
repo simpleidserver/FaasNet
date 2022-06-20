@@ -22,67 +22,63 @@ The ZIP file can be downloaded [here]().
 | amqpTopicName     | Name of the topic exchange                | amq.topic          	|
 | amqpUserName      | AMQP username                             | guest          		|
 | amqpPassword      | AMQP password                             | guest          		|
-| eventMeshUrl      | EventMesh server URL                      | localhost     		|
-| eventMeshPort     | EventMesh server Port                     | 4000         			|
-| eventMeshVpn      | EventMesh server VPN                      | default       		|
+| eventMeshUrl      | EventMesh peer URL                     	| localhost     		|
+| eventMeshPort     | EventMesh peer Port                    	| 4000         			|
+| eventMeshVpn      | EventMesh peer VPN                     	| default       		|
 | clientId      	| Client identifier used to publish message | publishClientId       |
 
 ## Quick start
 
-Once the plugin `SinkAMQP` is configured and enabled, you can deploy an AMQP 1.0 server such as RabbitMQ.
+Once you have an up and running EventMesh peer with `SinkAMQP` plugin installed, you can deploy an AMQP 1.0 server such as RabbitMQ.
 
-In this tutorial we will explain how to deploy a local RabbitMQ server with the plugin `rabbitmq_amqp1_0` enabled via Kubernetes.
+In this tutorial we will explain how to deploy a local RabbitMQ server with the plugin `rabbitmq_amqp1_0` enabled via Docker.
 
-### Deploy RabbitMQ via Kubernetes
+### Configure client and VPN
 
-Open a command prompt and install the RabbitMQ Cluster Kubernetes Operator
+Before going further, a Virtual Private Network (VPN) and one client must be configured.
+Those information will be used to publish message.
 
-```
-kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
-```
-
-Deploy RabbitMQ
+Open a command prompt and create a topic named `default` :
 
 ```
-kubectl apply -f "https://raw.githubusercontent.com/simpleidserver/FaasNet/master/src/Samples/FaasNet.EventMesh.AmqpSink/rabbitmq.yml"
+FaasNet.EventMeshCTL.CLI.exe add_vpn --name=default
 ```
 
-When the RabbitMQ server is running, fetch the default credentials username/password from the Kubernetes secrets.
-Both values are encoded in base64 and must be decoded.
+Add a client `publishClientId`, as the name suggests, it will be used to publish message.
 
 ```
-kubectl get secret hello-world-default-user -o jsonpath='{.data.user}'
-kubectl get secret hello-world-default-user -o jsonpath='{.data.password}'
+FaasNet.EventMeshCTL.CLI.exe add_client --vpn=default --identifier=publishClientId --publish_enabled=true --subscription_enabled=false
 ```
 
-### Update plugin configuration
+### Deploy RabbitMQ via Docker
 
-Always in a command prompt, use the CLI to update the username and password with the values obtained from the previous step.
-
-```
-FaasNet.EventMeshCTL.CLI.exe update_plugin_configuration --name=SinkAMQP --key=amqpUserName --value=<USERNAME>
-FaasNet.EventMeshCTL.CLI.exe update_plugin_configuration --name=SinkAMQP --key=amqpPassword --value=<PASSWORD>
-```
-
-Use the AMQP port `30007`.
+Download the Docker file
 
 ```
-FaasNet.EventMeshCTL.CLI.exe update_plugin_configuration --name=SinkAMQP --key=amqpPort --value=30007
+https://raw.githubusercontent.com/simpleidserver/FaasNet/master/Samples/FaasNet.EventMesh.AmqpSink/AmqpServerDockerFile
 ```
 
-And use the client identifier `publishClient`.
+Open a command prompt and build the docker image
 
 ```
-FaasNet.EventMeshCTL.CLI.exe update_plugin_configuration --name=SinkAMQP --key=clientId --value=publishClient
+docker build -t amqpserver -f AmqpServerDockerFile .
+```
+
+Run RabbitMQ peer with the plugin `rabbitmq_amqp1_0` enabled.
+
+```
+docker run --name rabbitmq -p 5672:5672 -p 15672:15672 amqpserver
 ```
 
 ### Enable the plugin
 
-Enable the plugin and restart the EventMesh server to take into account your changes.
+Enable the plugin and restart the EventMesh peer to take into account your changes.
+
+By default, the configuration is correct and there is no need to update it.
 
 ```
 FaasNet.EventMeshCTL.CLI.exe enable_plugin --name=SinkAMQP
 ```
 
-Now the EventMesh server is running, it should be able to capture all the events coming from the exchange name `amq.topic`.
-You can publish some messages in RabbitMQ and check if they are captured by the EventMesh server.
+Now the EventMesh peer is running, it should be able to capture all the events coming from the exchange name `amq.topic`.
+You can publish some messages in RabbitMQ and check if they are captured by the EventMesh peer.

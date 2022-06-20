@@ -10,6 +10,7 @@ namespace FaasNet.EventMesh.Runtime.Models
         public string TargetUrn { get; set; }
         public int TargetPort { get; set; }
         public string TargetVpn { get; set; }
+        public string TargetClientId { get; set; }
 
         public NodeState ToNodeState()
         {

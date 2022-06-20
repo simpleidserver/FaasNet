@@ -3,18 +3,12 @@ services:
   evtmeshnode1:
     image: 'eventmesh'
     environment:
-      EVENTMESH_PLUGIN: "discoveryetcd"
       ASPNETCORE_ENVIRONMENT: "dockerfirstnode"
     ports:
       - "4001:4000/udp"
   evtmeshnode2:
     image: 'eventmesh'
     environment:
-      EVENTMESH_PLUGIN: "discoveryetcd"
       ASPNETCORE_ENVIRONMENT: "dockersecondnode"
     ports:
       - "4002:4000/udp"
-  etcd:
-    image: 'bitnami/etcd:latest'
-    environment:
-      - ALLOW_NONE_AUTHENTICATION=yes

@@ -3,7 +3,7 @@
     "Name": "DiscoveryEtcd",
     "IsActive": true,
     "Options": {
-      "ConnectionString": "http://etcd:23790"
+      "ConnectionString": "http://etcd:2379"
     }
   }
 ]

@@ -1,0 +1,1 @@
+Configure a cluster of two EventMesh peers and use ETCD discovery method.

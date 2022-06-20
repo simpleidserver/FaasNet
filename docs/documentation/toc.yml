@@ -24,10 +24,12 @@
       href: eventmesh/glossary.md
     - name: Architecture
       href: eventmesh/architecture.md
-    - name: Install server
+    - name: Install peer
       items:
       - name: Installing on Windows
         href: eventmesh/installserveronwindows.md
+      - name: Installing on Docker
+        href: eventmesh/installserverondocker.md
     - name: Install CLI
       items:
       - name: Installing on Windows

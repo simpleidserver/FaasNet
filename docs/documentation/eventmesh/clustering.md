@@ -28,7 +28,7 @@ To ensure fault tolerance, EventMesh replicates queues across peers using the [R
 Data is divided into partitions. Each partition has a number of replicas. Among the replica set, a leader is determined by the raft protocol which takes in requests and performs all of the processing.
 All other peers are passive followers. When the leader becomes unavailable, the followers transparently select a new leader.
 
-Eah peer in the cluster my be both leader and follower at the same time of different partitions.
+Each peer in the cluster may be both leader and follower at the same time of different partitions.
 
 In EventMesh, the partition key corresponds to the `groupId` or the `topic` name
 
@@ -42,11 +42,35 @@ An EventMesh cluster can be formed in a number of ways :
 * Using etcd-based discovery (via a plugin).
 * Using in-memory list on nodes (enabled by default).
 
-In order to have an up and running cluster one plugin must be enabled.
+In order to have an up and running cluster one of the plugin above must be enabled.
 For more information please refer to the `Plugins` chapter.
 
 # Quick start
 
 In this tutorial, we are going to install two EventMesh servers with the plugin `DiscoveryEtcd` enabled via Docker.
 
-TODO
+Download the docker compose file 
+
+```
+https://raw.githubusercontent.com/simpleidserver/FaasNet/master/src/Samples/FaasNet.EventMesh.EtcdCluster/docker-compose.yml
+```
+
+Open a command prompt and execute the following command 
+
+```
+docker-compose up
+```
+
+Two peers will be deployed and are listening the ports `4000` and `4001`.
+
+Always in a command prompt, add a new VPN 
+
+```
+FaasNet.EventMeshCTL.CLI.exe add_vpn --name=vpn --port=4001
+```
+
+Check if the VPN is correctly replicated in the second node by executing the following command 
+
+```
+FaasNet.EventMeshCTL.CLI.exe get_all_vpn --port=4002
+```

@@ -39,7 +39,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 SourceVpn = addBridgeRequest.SourceVpn, 
                 TargetPort = addBridgeRequest.TargetPort, 
                 TargetUrn = addBridgeRequest.TargetUrn, 
-                TargetVpn = addBridgeRequest.TargetVpn 
+                TargetVpn = addBridgeRequest.TargetVpn,
+                TargetClientId = addBridgeRequest.TargetClientId
             }, cancellationToken);
             return EventMeshPackageResult.SendResult(PackageResponseBuilder.AddBridge(addBridgeRequest.Header.Seq));
         }

@@ -27,7 +27,8 @@ namespace FaasNet.EventMesh.Runtime.Handlers
                 SourceVpn = b.SourceVpn,
                 TargetPort = b.TargetPort,
                 TargetUrn = b.TargetUrn,
-                TargetVpn = b.TargetVpn
+                TargetVpn = b.TargetVpn,
+                TargetClientId = b.TargetClientId
             }).ToList(), package.Header.Seq));
         }
     }

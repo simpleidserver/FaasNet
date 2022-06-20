@@ -1,6 +1,6 @@
 # Installing on Windows Manually
 
-This guide describes how EventMesh server can be installed and configured manually on Windows.
+This guide describes how EventMesh peer node can be installed and configured manually on Windows.
 
 ## Download zip
 

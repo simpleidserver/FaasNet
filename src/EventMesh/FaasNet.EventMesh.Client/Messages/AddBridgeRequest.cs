@@ -10,6 +10,7 @@ namespace FaasNet.EventMesh.Client.Messages
         public string TargetVpn { get; set; }
         public string TargetUrn { get; set; }
         public int TargetPort { get; set; }
+        public string TargetClientId { get; set; }
 
         #endregion
 
@@ -20,6 +21,7 @@ namespace FaasNet.EventMesh.Client.Messages
             context.WriteString(TargetVpn);
             context.WriteString(TargetUrn);
             context.WriteInteger(TargetPort);
+            context.WriteString(TargetClientId);
         }
 
         public void Extract(ReadBufferContext context)
@@ -28,6 +30,7 @@ namespace FaasNet.EventMesh.Client.Messages
             TargetVpn = context.NextString();
             TargetUrn = context.NextString();
             TargetPort = context.NextInt();
+            TargetClientId = context.NextString();
         }
     }
 }

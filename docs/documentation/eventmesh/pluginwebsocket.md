@@ -17,12 +17,12 @@ The ZIP file can be downloaded [here]().
 | Name              | Description                                                                                 | Default value |
 | ----------------- | ------------------------------------------------------------------------------------------- | ------------- |
 | port              | Websocket port                                                                              | 2803          |
-| eventMeshUrl      | EventMesh server URL                                                                        | localhost     |
-| eventMeshPort     | EventMesh server Port                                                                       | 4000          |
+| eventMeshUrl      | EventMesh peer URL            	                                                          | localhost     |
+| eventMeshPort     | EventMesh peer Port                                                               	      | 4000          |
 
 ## Quick start
 
-Once you have an up and running EventMesh server with `ProtocolWebsocket` plugin enabled, you can start using any client compliant with the [WebSocket protocol](https://datatracker.ietf.org/doc/html/rfc6455).
+Once you have an up and running EventMesh peer with `ProtocolWebsocket` plugin installed, you can start using any client compliant with the [WebSocket protocol](https://datatracker.ietf.org/doc/html/rfc6455).
 
 ### Configure client and VPN
 
@@ -55,7 +55,7 @@ If the plugin is not yet configured, it can be enabled like this
 FaasNet.EventMeshCTL.CLI.exe enable_plugin --name=ProtocolWebsocket
 ```
 
-Its configuration can be updated either by [using CLI](cli.md) or by updating the configuration file `appsettings.json`.
+Its configuration can be updated either by [using CLI](cli.md) or by updating the configuration file `plugin.json`.
 
 Don't forget that the EventMesh server must be restarted, otherwise the changes are not taken into account.
 
@@ -173,7 +173,7 @@ Under the `Subscribe` block, enter the topic name for example `q1` and click on 
 
 Under the `Publish` block, enter the topic name `q1`, write a message and click on the `Send` button.
 
-The message will be transferred to the EventMesh server and will be displayed in the HTML page.
+The message will be transferred to the EventMesh peer and will be displayed in the HTML page.
 
 The websocket plugin accepts two types of request. 
 

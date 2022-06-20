@@ -87,7 +87,7 @@ namespace FaasNet.EventMesh.Runtime.Handlers
         {
             var nodes = await _clusterStore.GetAllNodes(cancellationToken);
             if (nodes.Count() == 1) return nodes.First();
-            nodes = nodes.Where(n => n.Port != _nodeOptions.Port || n.Url != _nodeOptions.Url);
+            nodes = nodes.Where(n => n.Port != _nodeOptions.ExposedPort && n.Url != _nodeOptions.ExposedUrl);
             var rnd = new Random();
             var rndIndex = rnd.Next(0, nodes.Count() - 1);
             return nodes.ElementAt(rndIndex);

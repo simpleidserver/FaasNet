@@ -11,9 +11,4 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\FaasNet.EventMesh.Client\FaasNet.EventMesh.Client.csproj" />
 	</ItemGroup>
-	<ItemGroup>
-	  <None Update="appsettings.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
 </Project>

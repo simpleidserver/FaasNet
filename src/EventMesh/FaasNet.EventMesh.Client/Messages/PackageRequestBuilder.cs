@@ -103,7 +103,7 @@ namespace FaasNet.EventMesh.Client.Messages
             return result;
         }
 
-        public static Package AddBridge(string vpn, string urn, int port, string targetVpn, string seq = null)
+        public static Package AddBridge(string vpn, string urn, int port, string targetVpn, string targetClientId, string seq = null)
         {
             var result = new AddBridgeRequest
             {
@@ -111,7 +111,8 @@ namespace FaasNet.EventMesh.Client.Messages
                 TargetPort = port,
                 TargetUrn = urn,
                 TargetVpn = targetVpn,
-                SourceVpn = vpn
+                SourceVpn = vpn,
+                TargetClientId = targetClientId,
             };
             return result;
         }

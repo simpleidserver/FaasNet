@@ -37,6 +37,7 @@ namespace FaasNet.EventMesh.Client.Messages
         public string TargetUrn { get; set; }
         public int TargetPort { get; set; }
         public string TargetVpn { get; set; }
+        public string TargetClientId { get; set; }
 
         public void Serialize(WriteBufferContext context)
         {
@@ -44,6 +45,7 @@ namespace FaasNet.EventMesh.Client.Messages
             context.WriteString(TargetUrn);
             context.WriteInteger(TargetPort);
             context.WriteString(TargetVpn);
+            context.WriteString(TargetClientId);
         }
 
         public static BridgeServerResponse Deserialize(ReadBufferContext context)
@@ -53,7 +55,8 @@ namespace FaasNet.EventMesh.Client.Messages
                 SourceVpn = context.NextString(),
                 TargetUrn = context.NextString(),
                 TargetPort = context.NextInt(),
-                TargetVpn = context.NextString()
+                TargetVpn = context.NextString(),
+                TargetClientId = context.NextString()
             };
         }
     }

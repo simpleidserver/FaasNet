@@ -20,13 +20,13 @@ The ZIP file can be downloaded [here]().
 | maxFrameSize      | Largest frame size that the sending peer is able to accept on this connection.              | 1000          |
 | maxChannel        | The channel-max value is the highest channel number that can be used on the connection      | 1000          |
 | sessionLinkCredit | Current maximum number of messages that can be handled at the receiver endpoint of the link | 255           |
-| eventMeshVpn      | EventMesh server VPN                                                                        | default       |
-| eventMeshUrl      | EventMesh server URL                                                                        | localhost     |
-| eventMeshPort     | EventMesh server Port                                                                       | 4000          |
+| eventMeshVpn      | EventMesh peer VPN            	                                                          | default       |
+| eventMeshUrl      | EventMesh peer URL      	                                                                  | localhost     |
+| eventMeshPort     | EventMesh peer Port       	                                                              | 4000          |
 
 ## Quick start
 
-Once you have an up and running EventMesh server with `ProtocolAmqp` plugin enabled, you can start using any client compliant with the [AMQP 1.0 protocol](http://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-complete-v1.0-os.pdf).
+Once you have an up and running EventMesh peer with `ProtocolAmqp` plugin installed, you can start using any client compliant with the [AMQP 1.0 protocol](http://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-complete-v1.0-os.pdf).
 
 ### Configure client and VPN
 
@@ -59,9 +59,9 @@ If the plugin is not yet configured, it can be enabled like this
 FaasNet.EventMeshCTL.CLI.exe enable_plugin --name=ProtocolAmqp
 ```
 
-Its configuration can be updated either by [using CLI](cli.md) or by updating the configuration file `appsettings.json`.
+Its configuration can be updated either by [using CLI](cli.md) or by updating the configuration file `plugin.json`.
 
-Don't forget that the EventMesh server must be restarted, otherwise the changes are not taken into account.
+Don't forget that the EventMesh peer must be restarted, otherwise the changes are not taken into account.
 
 When the configuration is finished, a client can be created and can start publishing message.
 

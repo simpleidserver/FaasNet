@@ -65,8 +65,8 @@ namespace FaasNet.RaftConsensus.Core
         public INodeStateStore NodeStateStore => _nodeStateStore;
         public IClusterStore ClusterStore => _clusterStore;
         public bool IsStarted => _isStarted;
-        public int Port => _options.Port;
-        public string Url => _options.Url;
+        public int Port => _options.ExposedPort;
+        public string Url => _options.ExposedUrl;
         public UdpClient UdpServer { get; private set; }
         public bool IsRunning { get; private set; }
         public ILogger<BaseNodeHost> Logger { get; private set; }
@@ -108,7 +108,7 @@ namespace FaasNet.RaftConsensus.Core
             {
                 if (NodeStarted != null) NodeStarted(this, new EventArgs());
                 _isStarted = true;
-                await _clusterStore.SelfRegister(new ClusterNode { Url = _options.Url, Port = _options.Port }, CancellationToken.None);
+                await _clusterStore.SelfRegister(new ClusterNode { Url = _options.ExposedUrl, Port = _options.ExposedPort }, CancellationToken.None);
                 while (true)
                 {
                     TokenSource.Token.ThrowIfCancellationRequested();
@@ -220,9 +220,9 @@ namespace FaasNet.RaftConsensus.Core
             nodes = nodes.Where(n => n.Port != Port || n.Url != Url);
             var totalNodes = nodes.Count();
             var nbNodes = _options.GossipMaxNodeBroadcast;
-            if(totalNodes < nbNodes) nbNodes = totalNodes;
+            if (totalNodes < nbNodes) nbNodes = totalNodes;
             var rnd = new Random();
-            for(var i = 0; i < nbNodes; i++)
+            for (var i = 0; i < nbNodes; i++)
             {
                 var rndNodeIndex = rnd.Next(0, totalNodes);
                 var selectedNode = nodes.ElementAt(rndNodeIndex);

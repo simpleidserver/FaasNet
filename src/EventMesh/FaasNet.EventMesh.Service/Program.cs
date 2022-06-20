@@ -11,12 +11,12 @@ using IHost host = Host.CreateDefaultBuilder(args)
                 {
                     o.ServiceName = "EventMesh Service";
                 })
-                .ConfigureAppConfiguration(c =>
+                .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    // var hosting = c.HostingEnvironment;
-                    // host.
-                    c.AddJsonFile("appsettings.json");
-                    // c.AddJsonFile($"appsettings.{c.HostingEnvironment}.json", optional: true);
+                    var env = hostingContext.HostingEnvironment;
+                    config.AddJsonFile("appsettings.json");
+                    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                    if(!string.IsNullOrWhiteSpace(environment)) config.AddJsonFile($"appsettings.{environment}.json", optional: true);
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
