@@ -69,10 +69,10 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="installing-on-windows-manually">Installing on Windows Manually</h1>
 
-<p>This guide describes how EventMesh peer node can be installed and configured manually on Windows.</p>
+<p>This guide describes how EventMesh Peer Node can be installed and configured manually on Windows.</p>
 <h2 id="download-zip">Download zip</h2>
-<p>Download the zip file <a href="TODO">EventMeshServer.zip</a> and extract its content into a new directory.</p>
-<h2 id="deploy-the-windows-service">Deploy the windows service</h2>
+<p>Download the zip file <a href="https://github.com/simpleidserver/FaasNet/releases/latest/download/EventMeshService.zip">EventMeshService.zip</a> and extract its content into a new directory.</p>
+<h2 id="deploy-the-windows-service">Deploy the Windows Service</h2>
 <p>As an administrator, open a command prompt and execute the following command. The parameter <code>$result_dir</code> must be replaced by the full path of the new directory.
 The windows account used to run the windows service must have READ and WRITE access to this new directory otherwise the key-value storage cannot be created.</p>
 <pre><code>sc.exe create &quot;EventMesh Service&quot; binpath=&quot;$result_dir\FaasNet.EventMesh.Service.exe --contentRoot $result_dir&quot;
@@ -93,7 +93,7 @@ Now, the CLI can be downloaded to manage the local EventMesh peer.</p>
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.6/docs/documentation/eventmesh/installserveronwindows.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/eventmesh/installserveronwindows.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
