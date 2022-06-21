@@ -69,6 +69,7 @@ task publishWebsite {
 	exec { git checkout master }
 }
 
+# Test
 task test {	
     Push-Location -Path $base_dir\tests\FaasNet.EventMesh.Runtime.Tests
 
@@ -85,4 +86,12 @@ task test {
     } finally {
         Pop-Location
     }
+}
+
+# Publish Docker
+task publishDockerEventMesh {
+	[xml]$XmlDoc = Get-Content -Path .\Directory.Build.props
+	$VersionPrefix = $XmlDoc.Project.PropertyGroup.VersionPrefix
+	docker build -t simpleidserver/faaseventmesh:$VersionPrefix -f EventMeshDockerFile .
+	docker push simpleidserver/faaseventmesh:$VersionPrefix
 }

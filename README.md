@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/5heds9x31qc688b9?svg=true)](https://ci.appveyor.com/project/simpleidserver/faasnet)
 
-FaasNet is an open-source implementation of EventMesh implemented in DOTNET CORE.
+FaasNet is an open-source implementation of EventMesh. 
 
 For project documentation, please visit [docs](https://simpleidserver.github.io/FaasNet/documentation/eventmesh/glossary.html).
 

@@ -1,12 +1,12 @@
 # Installing on Windows Manually
 
-This guide describes how EventMesh peer node can be installed and configured manually on Windows.
+This guide describes how EventMesh Peer Node can be installed and configured manually on Windows.
 
 ## Download zip
 
-Download the zip file [EventMeshServer.zip](TODO) and extract its content into a new directory.
+Download the zip file [EventMeshService.zip](https://github.com/simpleidserver/FaasNet/releases/latest/download/EventMeshService.zip) and extract its content into a new directory.
 
-## Deploy the windows service
+## Deploy the Windows Service
 
 As an administrator, open a command prompt and execute the following command. The parameter `$result_dir` must be replaced by the full path of the new directory.
 The windows account used to run the windows service must have READ and WRITE access to this new directory otherwise the key-value storage cannot be created.

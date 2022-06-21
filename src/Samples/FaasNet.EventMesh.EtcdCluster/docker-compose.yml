@@ -1,14 +1,14 @@
 version: '2'
 services:
   evtmeshnode1:
-    image: 'eventmesh'
+    image: 'simpleidserver/faaseventmesh:0.0.6'
     environment:
       EVENTMESH_PLUGIN: "discoveryetcd"
       ASPNETCORE_ENVIRONMENT: "dockerfirstnode"
     ports:
       - "4001:4000/udp"
   evtmeshnode2:
-    image: 'eventmesh'
+    image: 'simpleidserver/faaseventmesh:0.0.6'
     environment:
       EVENTMESH_PLUGIN: "discoveryetcd"
       ASPNETCORE_ENVIRONMENT: "dockersecondnode"

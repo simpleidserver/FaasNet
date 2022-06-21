@@ -10,7 +10,7 @@ Consume events from Kafka server.
 
 **Link**
 
-The ZIP file can be downloaded [here]().
+The ZIP file can be downloaded [here](https://github.com/simpleidserver/FaasNet/releases/latest/download/EventMeshSinksKafka.zip).
 
 **Options**
 
@@ -54,7 +54,7 @@ FaasNet.EventMeshCTL.CLI.exe add_client --vpn=default --identifier=publishClient
 Download the file
 
 ```
-https://raw.githubusercontent.com/simpleidserver/FaasNet/master/Samples/FaasNet.EventMesh.KafkaSink/docker-compose.yml
+https://raw.githubusercontent.com/simpleidserver/FaasNet/master/src/Samples/FaasNet.EventMesh.KafkaSink/docker-compose.yml
 ```
 
 Open a command prompt and execute the command below to deploy Apache Kafka

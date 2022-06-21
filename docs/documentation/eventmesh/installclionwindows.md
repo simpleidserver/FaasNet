@@ -6,7 +6,7 @@ The CLI is used to manage one local or remote instance of an EventMesh Peer.
 
 ## Download zip
 
-Download the ZIP file [EventMeshCLI.zip](#) and extract its content into a new Directory.
+Download the ZIP file [EventMeshCLI.zip](https://github.com/simpleidserver/FaasNet/releases/latest/download/EventMeshCLI.zip) and extract its content into a new Directory.
 The windows account must have READ and WRITE access to this directory otherwise the configuration file cannot be updated or read.
 
 ## Register the service

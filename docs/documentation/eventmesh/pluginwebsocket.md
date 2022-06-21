@@ -10,7 +10,7 @@ Support Websocket protocol.
 
 **Link**
 
-The ZIP file can be downloaded [here]().
+The ZIP file can be downloaded [here](https://github.com/simpleidserver/FaasNet/releases/latest/download/EventMeshProtocolsWebsocket.zip).
 
 **Options**
 
@@ -63,7 +63,7 @@ When the configuration is finished, a client can be created and can start publis
 
 ## Source code
 
-The source code of this project can be found [here]().
+The source code of this project can be found [here](https://github.com/simpleidserver/FaasNet/tree/master/src/Samples/FaasNet.EventMesh.WebSocketClient).
 
 ## Create a client
 

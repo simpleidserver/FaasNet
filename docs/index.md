@@ -1,1 +1,1 @@
-[EventMesh documentation](/documentation/eventmesh/glossary.html)
+[EventMesh documentation](/FaasNet/documentation/eventmesh/glossary.html)

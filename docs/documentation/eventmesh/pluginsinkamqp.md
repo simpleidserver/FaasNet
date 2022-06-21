@@ -10,7 +10,7 @@ Consume events from AMQP 1.0 server.
 
 **Link**
 
-The ZIP file can be downloaded [here]().
+The ZIP file can be downloaded [here](https://github.com/simpleidserver/FaasNet/releases/latest/download/EventMeshSinksAMQP.zip).
 
 **Options**
 
@@ -55,7 +55,7 @@ FaasNet.EventMeshCTL.CLI.exe add_client --vpn=default --identifier=publishClient
 Download the Docker file
 
 ```
-https://raw.githubusercontent.com/simpleidserver/FaasNet/master/Samples/FaasNet.EventMesh.AmqpSink/AmqpServerDockerFile
+https://raw.githubusercontent.com/simpleidserver/FaasNet/master/src/Samples/FaasNet.EventMesh.AmqpSink/AmqpServerDockerFile
 ```
 
 Open a command prompt and build the docker image

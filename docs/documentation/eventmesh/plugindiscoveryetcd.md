@@ -10,7 +10,7 @@ Use Etcd to discover peers.
 
 **Link**
 
-The ZIP file can be downloaded [here]().
+The ZIP file can be downloaded [here](https://github.com/simpleidserver/FaasNet/releases/latest/download/EventMeshDiscoveryEtcd.zip).
 
 **Options**
 
