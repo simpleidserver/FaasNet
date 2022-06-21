@@ -81,9 +81,9 @@ namespace FaasNet.RaftConsensus.Core
             _peers = new BlockingCollection<IPeerHost>();
             _clusterNodes = new BlockingCollection<UnreachableClusterNode>();
             TokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            UdpServer = new UdpClient(new IPEndPoint(IPAddress.Any, _options.Port));
             await RunConsensusPeers(cancellationToken);
             StartGossipTimer();
-            UdpServer = new UdpClient(new IPEndPoint(IPAddress.Any, _options.Port));
 #pragma warning disable 4014
             Task.Run(async () => await InternalRun(), cancellationToken);
 #pragma warning restore 4014

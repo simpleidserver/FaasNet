@@ -340,7 +340,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
 
             // ACT
             var client = new EventMeshClient(port: 4013);
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge(vpn.Name, "urn", 6000, vpn.Name, CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge(vpn.Name, "urn", 6000, vpn.Name, "clientId", CancellationToken.None));
             await host.Stop();
 
             // ASSERT
@@ -370,7 +370,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
 
             // ACT
             var client = new EventMeshClient(port : 4014);
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge(vpn.Name, "localhost", 6000, "invalidTargetVpn", CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge(vpn.Name, "localhost", 6000, "invalidTargetVpn", "clientId", CancellationToken.None));
             await firstHost.Stop();
             await secondHost.Stop();
 
@@ -401,7 +401,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
 
             // ACT
             var client = new EventMeshClient(port : 4015);
-            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge("invalidTargetVpn", "localhost", 6001, secondVpn.Name, CancellationToken.None));
+            var exception = await Assert.ThrowsAsync<RuntimeClientResponseException>(async () => await client.AddBridge("invalidTargetVpn", "localhost", 6001, secondVpn.Name, "clientId", CancellationToken.None));
             await firstHost.Stop();
             await secondHost.Stop();
 
@@ -534,7 +534,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
                 ["comexampleextension1"] = "value"
             };
             var firstClient = new EventMeshClient(port: 4018);
-            await firstClient.AddBridge("default", "localhost", 6002, "default", CancellationToken.None);
+            await firstClient.AddBridge("default", "localhost", 6002, "default", "clientId", CancellationToken.None);
             var subSession = await firstClient.CreateSubSession("default", "clientId", null, CancellationToken.None);
             subSession.DirectSubscribe("person.created", (ce) =>
             {

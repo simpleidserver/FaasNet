@@ -43,11 +43,13 @@ An EventMesh cluster can be formed in a number of ways :
 * Using in-memory list on nodes (enabled by default).
 
 In order to have an up and running cluster one of the plugin above must be enabled.
-For more information please refer to the `Plugins` chapter.
+For more information please refer to the [Plugins](plugins.md) chapter.
 
 # Quick start
 
-In this tutorial, we are going to install two EventMesh servers with the plugin `DiscoveryEtcd` enabled via Docker.
+In this tutorial, we are going to build an EventMesh cluster with two Peers by using Docker. 
+
+The plugin `DiscoveryEtcd` is used as a discovery method.
 
 Download the docker compose file 
 
@@ -61,15 +63,15 @@ Open a command prompt and execute the following command
 docker-compose up
 ```
 
-Two peers will be deployed and are listening the ports `4000` and `4001`.
+Two peers will be deployed and will listen the ports `4000` and `4001`.
 
-Always in a command prompt, add a new VPN 
+Always in a command prompt, add a new Message VPN 
 
 ```
 FaasNet.EventMeshCTL.CLI.exe add_vpn --name=vpn --port=4001
 ```
 
-Check if the VPN is correctly replicated in the second node by executing the following command 
+Check if the Message VPN is correctly replicated in the second node by executing the following command 
 
 ```
 FaasNet.EventMeshCTL.CLI.exe get_all_vpn --port=4002

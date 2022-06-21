@@ -103,7 +103,7 @@ namespace FaasNet.EventMeshCTL.CLI
         {
             app.Command("add_vpn_bridge", addVpnBridgeCmd =>
             {
-                addVpnBridgeCmd.Description = "Add VPN bridge";
+                addVpnBridgeCmd.Description = "Add bridge between two Message VPN";
                 var sourceVpnOption = addVpnBridgeCmd.Option<string>("-v|--vpn <VPN>", "Source VPN", CommandOptionType.SingleValue);
                 sourceVpnOption.DefaultValue = Constants.DefaultVpn;
                 var targetVpnOptions = addVpnBridgeCmd.Option<string>("-tv|--tvpn <VPN>", "Target VPN", CommandOptionType.SingleValue);
@@ -399,7 +399,7 @@ namespace FaasNet.EventMeshCTL.CLI
                         {
                             if(ce != null)
                             {
-                                DisplaySuccess($"Receive a message {ce.Data}");
+                                Console.WriteLine($"Message received : {ce.Data}");
                                 await subscriptionResult.Disconnect();
                                 return;
                             }

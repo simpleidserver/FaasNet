@@ -19,9 +19,11 @@ Add one Virtual Private Network (VPN).
 
 **Options**
 
-| Option    | Description  | Default value |
-| --------  | ------------ | ------------- |
-| -n/--name | VPN name     | default       |
+| Option    | Description    | Default value |
+| --------  | -------------- | ------------- |
+| -n/--name | VPN name       | default       |
+| -u/--url	| EventMesh URL	 | localhost     |
+| -p/--port	| EventMesh Port | 4000          |
 
 
 ## Get all Virtual Private Network (VPN)
@@ -32,7 +34,12 @@ Add one Virtual Private Network (VPN).
 
 **Description**
 
-Display all the VPN.
+Display all Message VPN.
+
+| Option                                   | Description          | Default value |
+| ---------------------------------------- | -------------------- | ------------- |
+| -u/--url						           | EventMesh URL		  | localhost     |
+| -p/--port								   | EventMesh Port		  | 4000          |
 
 ## Add client
 
@@ -49,9 +56,33 @@ Add one client.
 | Option                                   | Description          | Default value |
 | ---------------------------------------- | -------------------- | ------------- |
 | -v/--vpn                                 | VPN name             | default       |
-| -id/--identifier <LOGIN>                 | Client identifier    | clientId      |
-| -p/--publish_enabled <PUBLISH>           | Can publish messages | True          |
-| -s/--subscription_enabled <SUBSCRIPTION> | Can subscribe        | True          |
+| -id/--identifier                         | Client identifier    | clientId      |
+| -p/--publish_enabled            		   | Can publish messages | True          |
+| -s/--subscription_enabled 			   | Can subscribe        | True          |
+| -u/--url						           | EventMesh URL		  | localhost     |
+| -p/--port								   | EventMesh Port		  | 4000          |
+
+## Add Message VPN bridge
+
+**Command**
+
+`add_vpn_bridge`
+
+**Description**
+
+Add bridge between two Message VPN
+
+**Options**
+
+| Option                                   | Description          | Default value |
+| ---------------------------------------- | -------------------- | ------------- |
+| -v/--vpn                                 | Source VPN           | default       |
+| -tv/--tvpn                               | Target VPN           | default       |
+| -tu/--turn                               | Target URN           | 		      |
+| -tp/--tport                              | Target Port          | 4000	      |
+| -ti/--tid				                   | Client identifier    | 		      |
+| -u/--url						           | EventMesh URL		  | localhost     |
+| -p/--port								   | EventMesh Port		  | 4000          |
 
 ## Display cluster status
 
@@ -63,6 +94,13 @@ Add one client.
 
 Display cluster status.
 
+**Options**
+
+| Option                                   | Description          | Default value |
+| ---------------------------------------- | -------------------- | ------------- |
+| -u/--url						           | EventMesh URL		  | localhost     |
+| -p/--port								   | EventMesh Port		  | 4000          |
+
 ## Get plugins
 
 **Command**
@@ -72,6 +110,13 @@ Display cluster status.
 **Description**
 
 Display all plugins.
+
+**Options**
+
+| Option                                   | Description          | Default value |
+| ---------------------------------------- | -------------------- | ------------- |
+| -u/--url						           | EventMesh URL		  | localhost     |
+| -p/--port								   | EventMesh Port		  | 4000          |
 
 ## Enable plugin
 
@@ -85,9 +130,11 @@ Enable one plugin.
 
 **Options**
 
-| Option    | Description | Default value |
-| --------- | ----------- | ------------- |
-| -n/--name | Plugin name |               |
+| Option    | Description    | Default value |
+| --------- | -------------- | ------------- |
+| -n/--name | Plugin name 	 |               |
+| -u/--url	| EventMesh URL	 | localhost     |
+| -p/--port	| EventMesh Port | 4000          |
 
 ## Disable plugin
 
@@ -101,9 +148,11 @@ Disable one plugin.
 
 **Options**
 
-| Option    | Description | Default value |
-| --------- | ----------- | ------------- |
-| -n/--name | Plugin name |               |
+| Option    | Description    | Default value |
+| --------- | -------------- | ------------- |
+| -n/--name | Plugin name    |               |
+| -u/--url	| EventMesh URL	 | localhost     |
+| -p/--port	| EventMesh Port | 4000          |
 
 ## Get plugin configuration
 
@@ -117,9 +166,11 @@ Get plugin configuration
 
 **Options**
 
-| Option    | Description | Default value |
-| --------- | ----------- | ------------- |
-| -n/--name | Plugin name |               |
+| Option    | Description    | Default value |
+| --------- | -------------- | ------------- |
+| -n/--name | Plugin name    |               |
+| -u/--url	| EventMesh URL	 | localhost     |
+| -p/--port	| EventMesh Port | 4000          |
 
 ## Update plugin configuration
 
@@ -133,11 +184,54 @@ Update plugin configuration
 
 **Options**
 
-| Option    | Description     | Default value |
-| --------- | --------------- | ------------- |
-| -n/--name | Plugin name     |               |
-| -k/--key  | Property key    |               |
-| -v/--value | Property value |               |
+| Option     | Description     | Default value |
+| ---------- | --------------- | ------------- |
+| -n/--name  | Plugin name     |               |
+| -k/--key   | Property key    |               |
+| -v/--value | Property value  |               |
+| -u/--url	 | EventMesh URL   | localhost     |
+| -p/--port	 | EventMesh Port  | 4000          |
+
+## Publish one message
+
+**Command**
+
+`publish_message`
+
+**Description**
+
+Publish one message
+
+**Options**
+
+| Option             | Description       | Default value |
+| ------------------ | ----------------- | ------------- |
+| -v/--vpn	         | VPN name          | default       |
+| -id/--identifier   | Client identifier | clientId      |
+| -t/--topic         | Topic message     |               |
+| -m/--message       | Message content   |               |
+| -u/--url	         | EventMesh URL     | localhost     |
+| -p/--port	         | EventMesh Port    | 4000          |
+
+## Read one message
+
+**Command**
+
+`read_message`
+
+**Description**
+
+Read one message
+
+**Options**
+
+| Option             | Description       | Default value |
+| ------------------ | ----------------- | ------------- |
+| -v/--vpn	         | VPN name          | default       |
+| -id/--identifier   | Client identifier | clientId      |
+| -t/--topic         | Topic message     |               |
+| -u/--url	         | EventMesh URL     | localhost     |
+| -p/--port	         | EventMesh Port    | 4000          |
 
 ## Version
 

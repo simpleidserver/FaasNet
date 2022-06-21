@@ -1,8 +1,8 @@
 # Plugins
 
-EventMesh server supports plugins. Plugins extend core functionality in a variety of ways: 
-* Support more protocols.
-* Support more sink connectors. A sink connector consumes records from an event store or message broker and stream the data events to the EventMesh server.
+EventMesh Peer supports plugins. Plugins extend core functionality in a variety of ways: 
+* Support more communication protocols.
+* Support more sink connectors. A sink connector consumes records from an event store or message broker and stream the data events to the EventMesh cluster.
 * Support more discovery methods. To form a cluster, new nodes need to be able to discover their peers.
 
 ## Install a plugin
@@ -10,7 +10,7 @@ EventMesh server supports plugins. Plugins extend core functionality in a variet
 A plugin can manually be installed :
 1. Download the zip file.
 2. Extract its content.
-3. Based on the nature of the plugin, move the folder into the appropriate sub-folder of the local EventMesh server.
+3. Based on the nature of the plugin, move the folder into the appropriate sub-folder of the local EventMesh peer.
    * If the plugin supports an additional protocol then the sub-folder is `protocolPlugins`.
    * If the plugin supports a new sink connector then the sub-folder is `sinkPlugins`.
    * If the plugin supports an additional discovery method then the sub-folder is `discoveryPlugins`.
@@ -23,7 +23,7 @@ If the plugin is successfully enabled then a success message is displayed.
 
 ## Configure a plugin
 
-There are two methods to configure a plugin. Either by editing the `appsettings.json` configuration file present inside the plugin directory or by using the CLI.
+There are two methods to configure a plugin. Either by editing the `plugin.json` configuration file present inside the EventMesh Peer directory or by using the CLI.
 
 All the available configuration records can be displayed by executing the command line 
 
@@ -43,7 +43,7 @@ FaasNet.EventMeshCTL.CLI.exe update_plugin_configuration --name=<PLUGIN_NAME> --
 ```
 
 > [!IMPORTANT]
-> Once the plugin is properly configured. The EventMesh server must be restarted in order to take into account your modifications.
+> Once the plugin is properly configured. The EventMesh Peer must be restarted in order to take into account your modifications.
 
 ## Supported plugins
 

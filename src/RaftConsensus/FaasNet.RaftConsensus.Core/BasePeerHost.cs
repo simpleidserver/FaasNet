@@ -252,8 +252,16 @@ namespace FaasNet.RaftConsensus.Core
             var nodes = await _clusterStore.GetAllNodes(TokenSource.Token);
             foreach (var peer in nodes)
             {
-                var ipEdp = new IPEndPoint(IPAddressHelper.ResolveIPAddress(peer.Url), peer.Port);
-                await Send(pkg, ipEdp, TokenSource.Token);
+                try
+                {
+                    var ipEdp = new IPEndPoint(IPAddressHelper.ResolveIPAddress(peer.Url), peer.Port);
+                    await Send(pkg, ipEdp, TokenSource.Token);
+                }
+                catch(Exception ex)
+                {
+                    Logger.LogError(ex.ToString());
+                    return;
+                }
             }
 
             StartBroadcastLeaderHeartbeat();

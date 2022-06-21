@@ -4,7 +4,7 @@ pull_requests:
 branches:
   only:
   - master
-image: Visual Studio 2019
+image: Visual Studio 2022
 nuget:
   disable_publish_on_pr: true
 install:
@@ -13,34 +13,40 @@ build_script:
 - cmd: >-
     .\psake.cmd ci
 
-    7z a FaasNetCLI.zip .\build\results\cli\*
+    7z a EventMeshCLI.zip .\build\results\eventMeshCLI\*
+    7z a EventMeshService.zip .\build\results\eventMeshService\*
+    7z a EventMeshProtocolsAMQP.zip .\build\results\protocolPlugins\FaasNet.EventMesh.Protocols.AMQP\*
+    7z a EventMeshProtocolsWebsocket.zip .\build\results\protocolPlugins\FaasNet.EventMesh.Protocols.WebSocket\*
+    7z a EventMeshSinksAMQP.zip .\build\results\sinkPlugins\FaasNet.EventMesh.Sink.AMQP\*
+    7z a EventMeshSinksKafka.zip .\build\results\sinkPlugins\FaasNet.EventMesh.Sink.Kafka\*
+    7z a EventMeshSinksVpnBridge.zip .\build\results\sinkPlugins\FaasNet.EventMesh.Sink.VpnBridge\*
+    7z a EventMeshDiscoveryConfig.zip .\build\results\discoveryPlugins\FaasNet.RaftConsensus.Discovery.Config
+    7z a EventMeshDiscoveryEtcd.zip .\build\results\discoveryPlugins\FaasNet.RaftConsensus.Discovery.Etcd
 test: off
 artifacts:
-- path: FaasNetCLI.zip
-  name: FaasNetCli
-- path: build\results\*.nupkg
-  name: NuGet
+- path: EventMeshCLI.zip
+  name: EventMeshCLI.zip
+- path: EventMeshService.zip
+  name: EventMeshService.zip
+- path: EventMeshProtocolsAMQP.zip
+  name: EventMeshProtocolsAMQP.zip
+- path: EventMeshProtocolsWebsocket.zip
+  name: EventMeshProtocolsWebsocket.zip
+- path: EventMeshSinksAMQP.zip
+  name: EventMeshSinksAMQP.zip
+- path: EventMeshSinksKafka.zip
+  name: EventMeshSinksKafka.zip
+- path: EventMeshSinksVpnBridge.zip
+  name: EventMeshSinksVpnBridge.zip
+- path: EventMeshDiscoveryConfig.zip
+  name: EventMeshDiscoveryConfig.zip
+- path: EventMeshDiscoveryEtcd.zip
+  name: EventMeshDiscoveryEtcd.zip
 deploy:
-- provider: NuGet
-  server: https://www.myget.org/F/advance-ict/api/v2/package
-  api_key:
-    secure: zs1JVjFHRdvB36fGq2rN8MR7QeJnCVkt7VTG4ZHT5OYDNpuh2AlGHqK+rseevn8l
-  skip_symbols: true
-  artifact: /.*\.nupkg/
-  on:
-    branch: master
-- provider: NuGet
-  name: production
-  artifact: /.*\.nupkg/
-  api_key:
-    secure: ppwdCVQ3Ue4Msodk0VafBwlpujkDBddjGg7okIRojYiVFhVD6fhd7ERijm3RzSGD
-  on:
-    branch: master
-    appveyor_repo_tag: true
 - provider: GitHub
   auth_token:
-    secure: KClBXPIP3znuFgDuIU57bL97c8n8/We9y26umeKHK2QQrp8S05lfxD6DzQUc1sob
-  artifact: FaasNetCli
+    secure: +U/L+mprfN3zjYnRB3B4oCdZlfGAiHv1hnVZZglvDQj0Mew4Y2I5BQoCli8hJd6u
+  artifact: /.*\.zip/
   on:
     branch: master
     appveyor_repo_tag: true

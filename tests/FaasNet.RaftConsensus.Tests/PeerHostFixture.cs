@@ -24,33 +24,26 @@ namespace FaasNet.RaftConsensus.Tests
         {
             // ARRANGE
             const int expectedNumberOfNodes = 2;
-            var firstNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4000, new ConcurrentBag<ClusterNode>());
-            var secondNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4001, new ConcurrentBag<ClusterNode>());
+            var clusterStore = new InMemoryClusterStore();
+            var firstNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4000, clusterStore);
+            var secondNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4001, clusterStore);
             await firstNodeResult.NodeHost.Start(CancellationToken.None);
             await secondNodeResult.NodeHost.Start(CancellationToken.None);
             WaitNodeIsStarted(firstNodeResult.NodeHost);
             WaitNodeIsStarted(secondNodeResult.NodeHost);
 
             // ACT
-            while ((await firstNodeResult.ClusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
-            while ((await secondNodeResult.ClusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
+            while ((await clusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
             ICollection<ClusterNodeResult> clusterNodes;
             using (var gossipClient = new GossipClient("localhost", 4000)) clusterNodes = await gossipClient.GetClusterNodes();
             await firstNodeResult.NodeHost.Stop();
             await secondNodeResult.NodeHost.Stop();
-            var firstNodeClusterNodes = await firstNodeResult.ClusterStore.GetAllNodes(CancellationToken.None);
-            var secondNodeClusterNodes = await secondNodeResult.ClusterStore.GetAllNodes(CancellationToken.None);
+            var nodeClusterNodes = await clusterStore.GetAllNodes(CancellationToken.None);
 
             // ASSERT
-            Assert.Equal(2, firstNodeClusterNodes.Count());
-            Assert.Equal(2, secondNodeClusterNodes.Count());
-            Assert.True(firstNodeClusterNodes.Any(cn => cn.Port == 4000 && cn.Url == "localhost") == true);
-            Assert.True(firstNodeClusterNodes.Any(cn => cn.Port == 4001 && cn.Url == "localhost") == true);
-            Assert.True(secondNodeClusterNodes.Any(cn => cn.Port == 4000 && cn.Url == "localhost") == true);
-            Assert.True(secondNodeClusterNodes.Any(cn => cn.Port == 4001 && cn.Url == "localhost") == true);
-            Assert.Equal(2, clusterNodes.Count());
-            Assert.True(clusterNodes.Any(cn => cn.Port == 4000 && cn.Url == "localhost") == true);
-            Assert.True(clusterNodes.Any(cn => cn.Port == 4001 && cn.Url == "localhost") == true);
+            Assert.Equal(2, nodeClusterNodes.Count());
+            Assert.True(nodeClusterNodes.Any(cn => cn.Port == 4000 && cn.Url == "localhost") == true);
+            Assert.True(nodeClusterNodes.Any(cn => cn.Port == 4001 && cn.Url == "localhost") == true);
         }
 
         [Fact]
@@ -58,14 +51,14 @@ namespace FaasNet.RaftConsensus.Tests
         {
             // ARRANGE
             const int expectedNumberOfNodes = 2;
-            var firstNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4001, new ConcurrentBag<ClusterNode>());
-            var secondNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4002, new ConcurrentBag<ClusterNode>());
+            var clusterStore = new InMemoryClusterStore();
+            var firstNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4002, clusterStore);
+            var secondNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4003, clusterStore);
             await firstNodeResult.NodeHost.Start(CancellationToken.None);
             await secondNodeResult.NodeHost.Start(CancellationToken.None);
             WaitNodeIsStarted(firstNodeResult.NodeHost);
             WaitNodeIsStarted(secondNodeResult.NodeHost);
-            while ((await firstNodeResult.ClusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
-            while ((await secondNodeResult.ClusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
+            while ((await clusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
 
             // ACT
             await secondNodeResult.NodeHost.Stop();
@@ -75,7 +68,7 @@ namespace FaasNet.RaftConsensus.Tests
             // ASSERT
             Assert.Single(clusterNodes);
             Assert.Equal("localhost", clusterNodes.First().Node.Url);
-            Assert.Equal(4002, clusterNodes.First().Node.Port);
+            Assert.Equal(4003, clusterNodes.First().Node.Port);
         }
 
         [Fact]
@@ -83,17 +76,17 @@ namespace FaasNet.RaftConsensus.Tests
         {
             // ARRANGE
             const int expectedNumberOfNodes = 2;
-            var firstNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4003, new ConcurrentBag<ClusterNode>());
-            var secondNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4004, new ConcurrentBag<ClusterNode>());
+            var clusterStore = new InMemoryClusterStore();
+            var firstNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4004, clusterStore);
+            var secondNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo>(), 4005, clusterStore);
             await firstNodeResult.NodeHost.Start(CancellationToken.None);
             await secondNodeResult.NodeHost.Start(CancellationToken.None);
             WaitNodeIsStarted(firstNodeResult.NodeHost);
             WaitNodeIsStarted(secondNodeResult.NodeHost);
-            while ((await firstNodeResult.ClusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
-            while ((await secondNodeResult.ClusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
+            while ((await clusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
 
             // ACT
-            using (var gossipClient = new GossipClient("localhost", 4003)) await gossipClient.UpdateNodeState("Client", "id", "value");
+            using (var gossipClient = new GossipClient("localhost", 4004)) await gossipClient.UpdateNodeState("Client", "id", "value");
             var seedClient = (await WaitEntityTypes(firstNodeResult.NodeHost, (nodes) => nodes.Any(n => n.EntityType == "Client"))).First(c => c.EntityType == "Client");
             var firstNodeClient = (await WaitEntityTypes(secondNodeResult.NodeHost, (nodes) => nodes.Any(n => n.EntityType == "Client"))).First(c => c.EntityType == "Client");
 
@@ -114,19 +107,19 @@ namespace FaasNet.RaftConsensus.Tests
         {
             // ARRANGE
             const int expectedNumberOfNodes = 2;
-            var firstNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo> { new PeerInfo { TermId = "termId", TermIndex = 0 } }, 4005, new ConcurrentBag<ClusterNode>());
-            var secondNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo> { new PeerInfo { TermId = "termId", TermIndex = 0 } }, 4006, new ConcurrentBag<ClusterNode>());
+            var clusterStore = new InMemoryClusterStore();
+            var firstNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo> { new PeerInfo { TermId = "termId", TermIndex = 0 } }, 4006, clusterStore);
+            var secondNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo> { new PeerInfo { TermId = "termId", TermIndex = 0 } }, 4007, clusterStore);
             await firstNodeResult.NodeHost.Start(CancellationToken.None);
             await secondNodeResult.NodeHost.Start(CancellationToken.None);
             WaitNodeIsStarted(firstNodeResult.NodeHost);
             WaitNodeIsStarted(secondNodeResult.NodeHost);
-            while ((await firstNodeResult.ClusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
-            while ((await secondNodeResult.ClusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
+            while ((await clusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
             var allNodes = new List<INodeHost> { firstNodeResult.NodeHost, secondNodeResult.NodeHost };
 
             // ACT
             WaitOnlyOneLeader(allNodes, "termId");
-            var client = new ConsensusClient("localhost", 4005);
+            var client = new ConsensusClient("localhost", 4006);
             client.AppendEntry("termId", "value", CancellationToken.None).Wait();
             await WaitLogs(allNodes, 1, p => p.Info.TermId == "termId", l => l.Value == "value" && l.Index == 1);
 
@@ -144,20 +137,20 @@ namespace FaasNet.RaftConsensus.Tests
         {
             // ARRANGE
             const int expectedNumberOfNodes = 2;
-            var firstNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo> { new PeerInfo { TermId = "termId", TermIndex = 0 }, new PeerInfo { TermId = "secondTermId", TermIndex = 0 } }, 4007, new ConcurrentBag<ClusterNode>());
-            var secondNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo> { new PeerInfo { TermId = "termId", TermIndex = 0 }, new PeerInfo { TermId = "secondTermId", TermIndex = 0 } }, 4008, new ConcurrentBag<ClusterNode>());
+            var clusterStore = new InMemoryClusterStore();
+            var firstNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo> { new PeerInfo { TermId = "termId", TermIndex = 0 }, new PeerInfo { TermId = "secondTermId", TermIndex = 0 } }, 4008, clusterStore);
+            var secondNodeResult = BuildNodeHost(new ConcurrentBag<PeerInfo> { new PeerInfo { TermId = "termId", TermIndex = 0 }, new PeerInfo { TermId = "secondTermId", TermIndex = 0 } }, 4009, clusterStore);
             await firstNodeResult.NodeHost.Start(CancellationToken.None);
             await secondNodeResult.NodeHost.Start(CancellationToken.None);
             WaitNodeIsStarted(firstNodeResult.NodeHost);
             WaitNodeIsStarted(secondNodeResult.NodeHost);
-            while ((await firstNodeResult.ClusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
-            while ((await secondNodeResult.ClusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
+            while ((await clusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
             var allNodes = new List<INodeHost> { firstNodeResult.NodeHost, secondNodeResult.NodeHost };
 
             // ACT
             WaitOnlyOneLeader(allNodes, "termId");
             WaitOnlyOneLeader(allNodes, "secondTermId");
-            var client = new ConsensusClient("localhost", 4007);
+            var client = new ConsensusClient("localhost", 4008);
             client.AppendEntry("termId", "value", CancellationToken.None).Wait();
             client.AppendEntry("secondTermId", "value", CancellationToken.None).Wait();
             await WaitLogs(allNodes, 1, p => p.Info.TermId == "termId", l => l.Value == "value" && l.Index == 1);
@@ -178,21 +171,26 @@ namespace FaasNet.RaftConsensus.Tests
 
         #endregion
 
-        private static NodeResult BuildNodeHost(ConcurrentBag<PeerInfo> peers, int port, ConcurrentBag<ClusterNode> clusterNodes)
+        private static NodeResult BuildNodeHost(ConcurrentBag<PeerInfo> peers, int port, InMemoryClusterStore clusterStore)
         {
-            var serviceProvider = new ServerBuilder()
-                .AddConsensusPeer(o => o.Port = port)
-                .SetPeers(peers)
-                .ServiceProvider;
+            var serverBuilder = new ServerBuilder()
+                .AddConsensusPeer(o =>
+                {
+                    o.Port = port;
+                    o.ExposedPort = port;
+                })
+                .SetPeers(peers);
+            var type = serverBuilder.Services.First(s => s.ServiceType == typeof(IClusterStore));
+            serverBuilder.Services.Remove(type);
+            serverBuilder.Services.AddSingleton<IClusterStore>(clusterStore);
+            var serviceProvider = serverBuilder.ServiceProvider;
             var nodeHost = serviceProvider.GetRequiredService<INodeHost>();
-            var clusterStore = serviceProvider.GetRequiredService<IClusterStore>();
-            return new NodeResult { NodeHost = nodeHost, ClusterStore = clusterStore };
+            return new NodeResult { NodeHost = nodeHost };
         }
 
         private class NodeResult
         {
             public INodeHost NodeHost { get; set; }
-            public IClusterStore ClusterStore { get; set; }
         }
 
         private static void WaitNodeIsStarted(INodeHost node)

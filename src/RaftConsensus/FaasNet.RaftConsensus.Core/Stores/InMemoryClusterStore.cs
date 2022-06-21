@@ -11,48 +11,32 @@ namespace FaasNet.RaftConsensus.Core.Stores
         Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken);
     }
 
-    public class InMemoryClusterPool
+    public class InMemoryClusterStore : IClusterStore
     {
         private static object _obj = new object();
-        private static ICollection<ClusterNode> _clusterNodes = new List<ClusterNode>();
+        private readonly ICollection<ClusterNode> _clusterNodes;
 
-        public static ICollection<ClusterNode> ClusterNodes
+        public InMemoryClusterStore()
         {
-            get
-            {
-                lock(_obj)
-                {
-                    if (_clusterNodes == null)
-                    {
-                        _clusterNodes = new List<ClusterNode>();
-                    }
-
-                    return _clusterNodes;
-                }
-            }
+            _clusterNodes = new List<ClusterNode>();
         }
 
-        public static void Add(ClusterNode clusterNode)
+        public Task SelfRegister(ClusterNode node, CancellationToken cancellationToken)
         {
             lock(_obj)
             {
-                ClusterNodes.Add(clusterNode);
+                _clusterNodes.Add(node);
+                return Task.CompletedTask;
             }
-        }
-    }
-
-    public class InMemoryClusterStore : IClusterStore
-    {
-        public Task SelfRegister(ClusterNode node, CancellationToken cancellationToken)
-        {
-            InMemoryClusterPool.Add(node);
-            return Task.CompletedTask;
         }
 
         public Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken)
         {
-            IEnumerable<ClusterNode> result = InMemoryClusterPool.ClusterNodes;
-            return Task.FromResult(result);
+            lock(_obj)
+            {
+                IEnumerable<ClusterNode> result = _clusterNodes;
+                return Task.FromResult(result);
+            }
         }
     }
 }

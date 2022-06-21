@@ -1,30 +1,10 @@
-- name: Big Picture
-  href: bigpicture/index.md
-- name: Getting Started
-  href: gettingstarted/index.md
-- name: Functions
-  items:
-   - name: Create and deploy a function
-     href: functions/create.md
-   - name: Web portal
-     href: functions/portal.md
-- name: Workflows
-  items:
-   - name: Hello World workflow
-     href: serverlessworkflows/helloworld.md
-   - name: REST.API call
-     href: serverlessworkflows/restapi.md
-   - name: Switch
-     href: serverlessworkflows/switch.md
-   - name: Inject
-     href: serverlessworkflows/inject.md
 - name: EventMesh
   items:
     - name: Glossary
       href: eventmesh/glossary.md
     - name: Architecture
       href: eventmesh/architecture.md
-    - name: Install peer
+    - name: Install Peer
       items:
       - name: Installing on Windows
         href: eventmesh/installserveronwindows.md
@@ -55,12 +35,3 @@
         href: eventmesh/plugindiscoveryconfig.md
       - name: Etcd Peer Discovery
         href: eventmesh/plugindiscoveryetcd.md
-- name: CLI
-  items:
-   - name: Overview
-     href: cli/overview.md
-   - name: Function
-     href: cli/function.md
-   - name: Configuration
-     href: cli/configuration.md
-  

@@ -18,10 +18,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddLogging();
             services.AddTransient<INodeHost, StandaloneNodeHost>();
             services.AddTransient<IPeerHostFactory, PeerHostFactory>();
-            services.AddTransient<IClusterStore, InMemoryClusterStore>();
             services.AddTransient<IPeerStore, InMemoryPeerStore>();
             services.AddScoped<IPeerHost, StandalonePeerHost>();
             services.AddScoped<ILogStore, InMemoryLogStore>();
+            services.AddSingleton<IClusterStore, InMemoryClusterStore>();
             services.AddSingleton<INodeStateStore, InMemoryNodeStateStore>();
             services.AddSingleton<IPeerInfoStore>(peerStore);
             return services;

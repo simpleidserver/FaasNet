@@ -27,5 +27,5 @@ The windows service can be stopped like this :
 sc.exe stop "EventMesh Service"
 ```
 
-After some minutes, the EventMesh server is launched and is listening on the port 4000.
-Now, the CLI can be downloaded to manage the local EventMesh server.
+After some minutes, the EventMesh peer is launched and is listening on the port 4000.
+Now, the CLI can be downloaded to manage the local EventMesh peer.
