@@ -13,14 +13,31 @@ build_script:
 - cmd: >-
     .\psake.cmd ci
 
+
     7z a EventMeshCLI.zip .\build\results\eventMeshCLI\*
+
+
     7z a EventMeshService.zip .\build\results\eventMeshService\*
+
+
     7z a EventMeshProtocolsAMQP.zip .\build\results\protocolPlugins\FaasNet.EventMesh.Protocols.AMQP\*
+
+
     7z a EventMeshProtocolsWebsocket.zip .\build\results\protocolPlugins\FaasNet.EventMesh.Protocols.WebSocket\*
+
+
     7z a EventMeshSinksAMQP.zip .\build\results\sinkPlugins\FaasNet.EventMesh.Sink.AMQP\*
+
+
     7z a EventMeshSinksKafka.zip .\build\results\sinkPlugins\FaasNet.EventMesh.Sink.Kafka\*
+
+
     7z a EventMeshSinksVpnBridge.zip .\build\results\sinkPlugins\FaasNet.EventMesh.Sink.VpnBridge\*
+
+
     7z a EventMeshDiscoveryConfig.zip .\build\results\discoveryPlugins\FaasNet.RaftConsensus.Discovery.Config
+
+
     7z a EventMeshDiscoveryEtcd.zip .\build\results\discoveryPlugins\FaasNet.RaftConsensus.Discovery.Etcd
 test: off
 artifacts:
