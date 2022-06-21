@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Clustering </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Clustering ">
+    <meta name="generator" content="docfx 2.59.2.0">
+    
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../styles/docfx.css">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <meta property="docfx:navrel" content="../../toc.html">
+    <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="clustering">Clustering</h1>
+
+<p>An EventMesh cluster is a logical grouping of one or several peer nodes, each sharing Clients, Virtual Private Network, Sessions.
+Any peer present in the cluster must be able to process any type of request such as: add VPN client, create subscription session.
+Only queues are not replicated everywhere.</p>
+<p>Because queues are not replicated among all the peers but only on a specific amount. The queue availability cannot be guaranteed on all the peers.</p>
+<p>Two types of data can easily be identified:</p>
+<ul>
+<li>Server data : data needed by a peer to process a request.</li>
+<li>Client data : messages that the client is interested in consuming.</li>
+</ul>
+<p>For each data type, there is a different data replication strategy.</p>
+<h1 id="server-data---gossip-protocol">Server data - Gossip protocol</h1>
+<p>EventMesh implements the <a href="https://en.wikipedia.org/wiki/Gossip_protocol">Gossip protocol</a> to replicate the data among all the peers.</p>
+<p>Gossip protocol is used to replicate the following data :</p>
+<ul>
+<li>Clients</li>
+<li>Virtual Private Network</li>
+<li>Sessions</li>
+</ul>
+<h1 id="client-data---distributed-queue">Client data - Distributed queue</h1>
+<p>To ensure fault tolerance, EventMesh replicates queues across peers using the <a href="https://en.wikipedia.org/wiki/Raft_(algorithm)">Raft protocol</a>.</p>
+<p>Data is divided into partitions. Each partition has a number of replicas. Among the replica set, a leader is determined by the raft protocol which takes in requests and performs all of the processing.
+All other peers are passive followers. When the leader becomes unavailable, the followers transparently select a new leader.</p>
+<p>Each peer in the cluster may be both leader and follower at the same time of different partitions.</p>
+<p>In EventMesh, the partition key corresponds to the <code>groupId</code> or the <code>topic</code> name</p>
+<p>Now, you have a better understanding of the different data replication strategy.
+We are going to explain how to form a cluster.</p>
+<h1 id="cluster-formation">Cluster Formation</h1>
+<p>An EventMesh cluster can be formed in a number of ways :</p>
+<ul>
+<li>Listing cluster nodes in configuration file (via a plugin).</li>
+<li>Using etcd-based discovery (via a plugin).</li>
+<li>Using in-memory list on nodes (enabled by default).</li>
+</ul>
+<p>In order to have an up and running cluster one of the plugin above must be enabled.
+For more information please refer to the <a href="plugins.html">Plugins</a> chapter.</p>
+<h1 id="quick-start">Quick start</h1>
+<p>In this tutorial, we are going to build an EventMesh cluster with two Peers by using Docker.</p>
+<p>The plugin <code>DiscoveryEtcd</code> is used as a discovery method.</p>
+<p>Download the docker compose file</p>
+<pre><code>https://raw.githubusercontent.com/simpleidserver/FaasNet/master/src/Samples/FaasNet.EventMesh.EtcdCluster/docker-compose.yml
+</code></pre>
+<p>Open a command prompt and execute the following command</p>
+<pre><code>docker-compose up
+</code></pre>
+<p>Two peers will be deployed and will listen the ports <code>4000</code> and <code>4001</code>.</p>
+<p>Always in a command prompt, add a new Message VPN</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe add_vpn --name=vpn --port=4001
+</code></pre>
+<p>Check if the Message VPN is correctly replicated in the second node by executing the following command</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe get_all_vpn --port=4002
+</code></pre>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.6/docs/documentation/eventmesh/clustering.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

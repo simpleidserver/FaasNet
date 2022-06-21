@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Concepts </title>
+    <title>Installing on Docker </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Concepts ">
-    <meta name="generator" content="docfx 2.58.3.0">
+    <meta name="title" content="Installing on Docker ">
+    <meta name="generator" content="docfx 2.59.2.0">
     
     <link rel="shortcut icon" href="../../favicon.ico">
     <link rel="stylesheet" href="../../styles/docfx.vendor.css">
@@ -67,28 +67,17 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="concepts">Concepts</h1>
+<h1 id="installing-on-docker">Installing on Docker</h1>
 
-<h2 id="server">Server</h2>
-<p>Acts as a proxy between message brokers and clients.</p>
-<p><img src="images/eventmesh-1.png" alt="Architecture"></p>
-<h2 id="client">Client</h2>
-<p>Client can be any types of application which implements the EventMesh protocol and who are interesting on publishing or receiving messages.</p>
-<h2 id="session">Session</h2>
-<p>Client can have one or more sessions.
-There are two types of session :</p>
-<ul>
-<li>SUB : subscribe to one or more topics.</li>
-<li>PUB : publish messages.</li>
-</ul>
-<h2 id="bridge">Bridge</h2>
-<p>Link between two servers. When a bridge is established, messages can be transfered from one server to an another.
-Any client with an active session can subscribe to one or more topics present in different brokers and those brokers can be hosted on different machines.</p>
-<p>The schema below shows a client with active sessions on two EventMesh servers hosted on different machines.
-It has one active session which subscribed to the topic <code>Person.*</code>. Therefore the client can receive messages from two RabbitMQ brokers hosted on different machines.</p>
-<p><img src="images/eventmesh-2.png" alt="Bridge"></p>
-<h2 id="cloudevent">CloudEvent</h2>
-<p>All messages coming from Brokers are translated into CloudEvent and vice versa.</p>
+<p>This guide describes how EventMesh peer can be installed on Docker.</p>
+<h2 id="deploy-a-windows-service">Deploy a windows service</h2>
+<div class="IMPORTANT">
+<h5>Important</h5>
+<p>Docker must be installed on your machine.</p>
+</div>
+<p>Open a command prompt and execute the following command line. An EventMesh peer will be deployed and listening the port 4000.</p>
+<pre><code>docker run --name eventmesh -p 4000:4000/udp eventmesh
+</code></pre>
 </article>
           </div>
           
@@ -97,7 +86,7 @@ It has one active session which subscribed to the topic <code>Person.*</code>. T
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/eventmesh/concepts.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.6/docs/documentation/eventmesh/installserverondocker.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

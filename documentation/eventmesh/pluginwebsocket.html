@@ -1,0 +1,347 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Websocket protocol plugin </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Websocket protocol plugin ">
+    <meta name="generator" content="docfx 2.59.2.0">
+    
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../styles/docfx.css">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <meta property="docfx:navrel" content="../../toc.html">
+    <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="websocket-protocol-plugin">Websocket protocol plugin</h1>
+
+<p><strong>Name</strong></p>
+<p>ProtocolWebsocket</p>
+<p><strong>Description</strong></p>
+<p>Support Websocket protocol.</p>
+<p><strong>Link</strong></p>
+<p>The ZIP file can be downloaded <a href="">here</a>.</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>port</td>
+<td>Websocket port</td>
+<td>2803</td>
+</tr>
+<tr>
+<td>eventMeshUrl</td>
+<td>EventMesh peer URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>eventMeshPort</td>
+<td>EventMesh peer Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick start</h2>
+<p>Once you have an up and running EventMesh peer with <code>ProtocolWebsocket</code> plugin installed, you can start using any client compliant with the <a href="https://datatracker.ietf.org/doc/html/rfc6455">WebSocket protocol</a>.</p>
+<h3 id="configure-client-and-vpn">Configure client and VPN</h3>
+<p>Before going further, a Virtual Private Network (VPN) and two clients must be configured.
+Those information will be used to publish message and subscribe to one topic.</p>
+<p>Open a command prompt and create a topic named <code>default</code> :</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe add_vpn --name=default
+</code></pre>
+<p>Add a client <code>publishClient</code>, as the name suggests, it will be used to publish message.</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe add_client --vpn=default --identifier=publishClient --publish_enabled=true --subscription_enabled=false
+</code></pre>
+<p>Add a client <code>subscribeClient</code>, this client will be used for subscription.</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe add_client --vpn=default --identifier=subscribeClient --publish_enabled=false --subscription_enabled=true
+</code></pre>
+<h3 id="configure-the-plugin">Configure the plugin</h3>
+<p>If the plugin is not yet configured, it can be enabled like this</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe enable_plugin --name=ProtocolWebsocket
+</code></pre>
+<p>Its configuration can be updated either by <a href="cli.html">using CLI</a> or by updating the configuration file <code>plugin.json</code>.</p>
+<p>Don't forget that the EventMesh server must be restarted, otherwise the changes are not taken into account.</p>
+<p>When the configuration is finished, a client can be created and can start publishing message.</p>
+<h2 id="source-code">Source code</h2>
+<p>The source code of this project can be found <a href="">here</a>.</p>
+<h2 id="create-a-client">Create a client</h2>
+<p>In this tutorial, we will explain how to create a javascript client to publish message and subscribe to one topic.</p>
+<p>Create an HTML page and add the following content :</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+&lt;head&gt;
+    &lt;title&gt;&lt;/title&gt;
+	&lt;style&gt;
+		#messages {
+			list-style-type: none;
+			padding: 0px;
+			margin: 0px;
+		}
+		
+		#messages &gt; li {
+			padding: 5px;
+			border: 1px solid gray;
+		}
+	&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+	&lt;div&gt;
+		&lt;h1&gt;Publish&lt;/h1&gt;
+		&lt;div&gt;
+			&lt;div&gt;
+				&lt;label&gt;Content&lt;/label&gt;
+				&lt;input type=&quot;text&quot; id=&quot;messageTxt&quot; /&gt;
+			&lt;/div&gt;
+			&lt;div&gt;
+				&lt;label&gt;Topic&lt;/label&gt;
+				&lt;input type=&quot;text&quot; id=&quot;messageTopic&quot; /&gt;
+			&lt;/div&gt;
+			&lt;button id=&quot;sendMessage&quot;&gt;Send&lt;/button&gt;
+		&lt;/div&gt;
+	&lt;/div&gt;
+	&lt;div&gt;
+		&lt;h1&gt;Subscribe&lt;/h1&gt;
+		&lt;div id=&quot;sub&quot;&gt;
+			&lt;div&gt;
+				&lt;label&gt;Topic&lt;/label&gt;
+				&lt;input type=&quot;text&quot; id=&quot;subTopic&quot; /&gt;
+			&lt;/div&gt;
+			&lt;button id=&quot;startSubscription&quot;&gt;Start subscription&lt;/button&gt;
+		&lt;/div&gt;
+		&lt;ul id=&quot;messages&quot;&gt;
+			
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.js&quot; integrity=&quot;sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
+	&lt;script&gt;
+		const ws = new WebSocket(&quot;ws://localhost:2803&quot;);
+		$(document).ready(function() {
+			var initSubscription = function() {
+				ws.onmessage = function(data) {
+					$(&quot;#messages&quot;).append(&quot;&lt;li&gt;&quot; + data.data + &quot;&lt;/li&gt;&quot;);
+				};
+				$(&quot;#startSubscription&quot;).click(function() {
+					const subTopic = $(&quot;#subTopic&quot;).val();
+					var directSubscribe = {
+						requestType: &quot;DIRECTLY_SUBSCRIBE&quot;,
+						vpn: &quot;default&quot;,
+						clientId: &quot;subscribeClient&quot;,
+						filter: subTopic
+					};
+					const json = JSON.stringify(directSubscribe);
+					ws.send(json);
+					$(&quot;#sub&quot;).hide();
+				});
+			};
+			var initPublish = function() {
+				$(&quot;#sendMessage&quot;).click(function() {
+					const msg = $(&quot;#messageTxt&quot;).val();
+					const topic = $(&quot;#messageTopic&quot;).val();
+					var publishMsg = {
+						requestType: 'PUBLISH',
+						vpn: 'default',
+						id: 'id',
+						subject: 'subject',
+						topic: topic,
+						clientId: 'publishClient',
+						content: msg
+					};
+					const json = JSON.stringify(publishMsg);
+					ws.send(json);
+					$(&quot;#messageTxt&quot;).val('');
+					$(&quot;#messageTopic&quot;).val('');
+				});
+			};
+			initSubscription();
+			initPublish();
+		});
+	&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Open your preferred web browser and browse the HTML file.</p>
+<p>There are two blocks displayed in the UI.</p>
+<p>Under the <code>Subscribe</code> block, enter the topic name for example <code>q1</code> and click on the button <code>Start subscription</code> to start listening messages coming from the topic <code>q1</code>.</p>
+<p>Under the <code>Publish</code> block, enter the topic name <code>q1</code>, write a message and click on the <code>Send</code> button.</p>
+<p>The message will be transferred to the EventMesh peer and will be displayed in the HTML page.</p>
+<p>The websocket plugin accepts two types of request.</p>
+<p><strong>Subscribe request</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>requestType</td>
+<td>Type of request</td>
+<td>DIRECTLY_SUBSCRIBE</td>
+</tr>
+<tr>
+<td>vpn</td>
+<td>VPN name</td>
+<td></td>
+</tr>
+<tr>
+<td>clientId</td>
+<td>Client identifier</td>
+<td></td>
+</tr>
+<tr>
+<td>filter</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Publish request</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>requestType</td>
+<td>Type of request</td>
+<td>PUBLISH</td>
+</tr>
+<tr>
+<td>vpn</td>
+<td>VPN name</td>
+<td></td>
+</tr>
+<tr>
+<td>id</td>
+<td>An identifier for the event</td>
+<td></td>
+</tr>
+<tr>
+<td>subject</td>
+<td>This describes the subject of the event in the context of the event producer</td>
+<td></td>
+</tr>
+<tr>
+<td>topic</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>clientId</td>
+<td>Client identifier</td>
+<td></td>
+</tr>
+<tr>
+<td>content</td>
+<td>Event data specific to the event type</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.6/docs/documentation/eventmesh/pluginwebsocket.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Plugins </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Plugins ">
+    <meta name="generator" content="docfx 2.59.2.0">
+    
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../styles/docfx.css">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <meta property="docfx:navrel" content="../../toc.html">
+    <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="plugins">Plugins</h1>
+
+<p>EventMesh Peer supports plugins. Plugins extend core functionality in a variety of ways:</p>
+<ul>
+<li>Support more communication protocols.</li>
+<li>Support more sink connectors. A sink connector consumes records from an event store or message broker and stream the data events to the EventMesh cluster.</li>
+<li>Support more discovery methods. To form a cluster, new nodes need to be able to discover their peers.</li>
+</ul>
+<h2 id="install-a-plugin">Install a plugin</h2>
+<p>A plugin can manually be installed :</p>
+<ol>
+<li>Download the zip file.</li>
+<li>Extract its content.</li>
+<li>Based on the nature of the plugin, move the folder into the appropriate sub-folder of the local EventMesh peer.
+<ul>
+<li>If the plugin supports an additional protocol then the sub-folder is <code>protocolPlugins</code>.</li>
+<li>If the plugin supports a new sink connector then the sub-folder is <code>sinkPlugins</code>.</li>
+<li>If the plugin supports an additional discovery method then the sub-folder is <code>discoveryPlugins</code>.</li>
+</ul>
+</li>
+</ol>
+<h2 id="enable-a-plugin">Enable a plugin</h2>
+<p>Once the plugin is installed, open a command prompt and execute the command <code>FaasNet.EventMeshCTL.CLI.exe  enable_plugin --name=&lt;PLUGIN_NAME&gt;</code> to enable the plugin.</p>
+<p>If the plugin is successfully enabled then a success message is displayed.</p>
+<h2 id="configure-a-plugin">Configure a plugin</h2>
+<p>There are two methods to configure a plugin. Either by editing the <code>plugin.json</code> configuration file present inside the EventMesh Peer directory or by using the CLI.</p>
+<p>All the available configuration records can be displayed by executing the command line</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe get_plugin_configuration --name=&lt;PLUGIN_NAME&gt;
+</code></pre>
+<p>For each configuration record, the CLI displays :</p>
+<ul>
+<li>Unique property name.</li>
+<li>Short description.</li>
+<li>Configured value (coming from the configuration file).</li>
+</ul>
+<p>Any configuration record can be updated like this</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe update_plugin_configuration --name=&lt;PLUGIN_NAME&gt; --key=&lt;PROPERTY_KEY&gt; --value=&lt;PROPERTY_VALUE&gt;
+</code></pre>
+<div class="IMPORTANT">
+<h5>Important</h5>
+<p>Once the plugin is properly configured. The EventMesh Peer must be restarted in order to take into account your modifications.</p>
+</div>
+<h2 id="supported-plugins">Supported plugins</h2>
+<p>The table below lists plugins</p>
+<table>
+<thead>
+<tr>
+<th>Plugin name</th>
+<th>Folder</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="pluginamqp.html">ProtocolAmqp</a></td>
+<td>protocolPlugins</td>
+<td>Support AMQP1.0 protocol</td>
+</tr>
+<tr>
+<td><a href="pluginwebsocket.html">ProtocolWebsocket</a></td>
+<td>protocolPlugins</td>
+<td>Support WebSocket protocol</td>
+</tr>
+<tr>
+<td><a href="pluginsinkamqp.html">SinkAMQP</a></td>
+<td>sinkPlugins</td>
+<td>Consume records from AMQP server</td>
+</tr>
+<tr>
+<td><a href="pluginsinkkafka.html">SinkKafka</a></td>
+<td>sinkPlugins</td>
+<td>Consume records from KAFKA server</td>
+</tr>
+<tr>
+<td><a href="pluginsinkvpnbridge.html">SinkVpnBridge</a></td>
+<td>sinkPlugins</td>
+<td>Consume records from Virtual Private Network bridge</td>
+</tr>
+<tr>
+<td><a href="plugindiscoveryconfig.html">DiscoveryConfig</a></td>
+<td>discoveryPlugins</td>
+<td>Use configuration file to discover peers</td>
+</tr>
+<tr>
+<td><a href="plugindiscoveryetcd.html">DiscoveryEtcd</a></td>
+<td>discoveryPlugins</td>
+<td>Use etcd to discover peers</td>
+</tr>
+</tbody>
+</table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.6/docs/documentation/eventmesh/plugins.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

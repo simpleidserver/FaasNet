@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>RabbitMQ </title>
+    <title>Installing the EventMesh CLI on Windows </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="RabbitMQ ">
-    <meta name="generator" content="docfx 2.58.3.0">
+    <meta name="title" content="Installing the EventMesh CLI on Windows ">
+    <meta name="generator" content="docfx 2.59.2.0">
     
     <link rel="shortcut icon" href="../../favicon.ico">
     <link rel="stylesheet" href="../../styles/docfx.vendor.css">
@@ -67,67 +67,21 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="rabbitmq">RabbitMQ</h1>
+<h1 id="installing-the-eventmesh-cli-on-windows">Installing the EventMesh CLI on Windows</h1>
 
-<p>An EventMesh server can be configured to consume and publish messages from / to RabbitMQ.</p>
-<div class="WARNING">
-<h5>Warning</h5>
-<p>Before you start, Make sure there is a Visual Studio Solution with a <a href="/documentation/eventmesh/installation.html">configured EventMesh server</a>.</p>
-</div>
-<h2 id="source-code">Source Code</h2>
-<p>The source code of this project can be found <a href="https://github.com/simpleidserver/FaasNet/tree/master/samples/EventMeshServerRabbitMQ">here</a>.</p>
-<h2 id="configure-eventmesh-server">Configure EventMesh server</h2>
-<p>The Nuget package <code>FaasNet.EventMesh.Runtime.AMQP</code> must be installed.</p>
-<pre><code>dotnet add package FaasNet.EventMesh.Runtime.AMQP
+<p>This guide describes how EventMesh CLI can be installed and configured manually on Windows.</p>
+<p>The CLI is used to manage one local or remote instance of an EventMesh Peer.</p>
+<h2 id="download-zip">Download zip</h2>
+<p>Download the ZIP file <a href="#">EventMeshCLI.zip</a> and extract its content into a new Directory.
+The windows account must have READ and WRITE access to this directory otherwise the configuration file cannot be updated or read.</p>
+<h2 id="register-the-service">Register the service</h2>
+<p>Open the environment variable window and add the full path of this new directory into the <code>PATH</code> environment variable.</p>
+<p>Open a new command prompt and execute <code>FaasNet.EventMeshCTL.CLI.exe version</code>. If the version is displayed then the CLI is correctly installed.</p>
+<p>You can check if the EventMesh peer is running on your local machine by executing this command <code>FaasNet.EventMeshCTL.CLI.exe cluster_status</code>.
+You should see at least one instance listening on the port 4000.</p>
+<pre><code>Current nodes
+Url=localhost, Port=4000
 </code></pre>
-<p>Edit the file containing the configuration of the EventMesh server and add the line <code>AddAMQP()</code> after <code>RuntimeHostBuilder</code> or <code>AddRuntime</code>.</p>
-<p>Standalone EventMesh server :</p>
-<pre><code>new RuntimeHostBuilder(opt =&gt;
-{
-    opt.Port = &quot;localhost&quot;;
-    opt.Urn = 4000;
-}).AddAMQP();
-</code></pre>
-<p>EventMesh server with UI :</p>
-<pre><code> services.AddRuntimeWebsite(opt =&gt;
-{
-    opt.Urn = &quot;localhost&quot;;
-    opt.Port = 4000;
-}).AddAMQP();
-</code></pre>
-<p>The function <code>AddAMQP</code> accepts one optional parameter in entry. It can be used to configure the behavior of the library.
-The following properties can be configured :</p>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Description</th>
-<th>Default value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>TopicName</td>
-<td>Name of the RabbitMQ exchange. Used during publish-subscribe</td>
-<td>amq.topic</td>
-</tr>
-<tr>
-<td>QueueName</td>
-<td>A queue with the following pattern <code>{QueueName}-{TopicName}</code> is created when a session subscribe to a topic</td>
-<td>streamQueue</td>
-</tr>
-<tr>
-<td>BrokerName</td>
-<td>Name of the configured message broker. This value must be unique for each configure message broker</td>
-<td>amqp</td>
-</tr>
-<tr>
-<td>ConnectionFactory</td>
-<td>Contains the configuration used to establish connection with RabbitMQ</td>
-<td>HostName: 127.0.0.1, Port: 5672, UserName: guest, Password: guest</td>
-</tr>
-</tbody>
-</table>
 </article>
           </div>
           
@@ -136,7 +90,7 @@ The following properties can be configured :</p>
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/eventmesh/rabbitmq.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.6/docs/documentation/eventmesh/installclionwindows.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

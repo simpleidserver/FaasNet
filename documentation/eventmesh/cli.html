@@ -1,0 +1,561 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Command-line interface </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Command-line interface ">
+    <meta name="generator" content="docfx 2.59.2.0">
+    
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../styles/docfx.css">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <meta property="docfx:navrel" content="../../toc.html">
+    <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="command-line-interface">Command-line interface</h1>
+
+<p><code>FaasNet.EventMeshCTL.CLI.exe</code> is the CLI tool that ships with EventMesh. It supports a wide range of operations, mostly administrative in nature.
+This includes</p>
+<ul>
+<li>Access to cluster status.</li>
+<li>Client and VPN management.</li>
+<li>Manage plugins.</li>
+</ul>
+<h2 id="add-virtual-private-network-vpn">Add Virtual Private Network (VPN)</h2>
+<p><strong>Command</strong></p>
+<p><code>add_vpn</code></p>
+<p><strong>Description</strong></p>
+<p>Add one Virtual Private Network (VPN).</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-n/--name</td>
+<td>VPN name</td>
+<td>default</td>
+</tr>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="get-all-virtual-private-network-vpn">Get all Virtual Private Network (VPN)</h2>
+<p><strong>Command</strong></p>
+<p><code>get_all_vpn</code></p>
+<p><strong>Description</strong></p>
+<p>Display all Message VPN.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="add-client">Add client</h2>
+<p><strong>Command</strong></p>
+<p><code>add_client</code></p>
+<p><strong>Description</strong></p>
+<p>Add one client.</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-v/--vpn</td>
+<td>VPN name</td>
+<td>default</td>
+</tr>
+<tr>
+<td>-id/--identifier</td>
+<td>Client identifier</td>
+<td>clientId</td>
+</tr>
+<tr>
+<td>-p/--publish_enabled</td>
+<td>Can publish messages</td>
+<td>True</td>
+</tr>
+<tr>
+<td>-s/--subscription_enabled</td>
+<td>Can subscribe</td>
+<td>True</td>
+</tr>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="add-message-vpn-bridge">Add Message VPN bridge</h2>
+<p><strong>Command</strong></p>
+<p><code>add_vpn_bridge</code></p>
+<p><strong>Description</strong></p>
+<p>Add bridge between two Message VPN</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-v/--vpn</td>
+<td>Source VPN</td>
+<td>default</td>
+</tr>
+<tr>
+<td>-tv/--tvpn</td>
+<td>Target VPN</td>
+<td>default</td>
+</tr>
+<tr>
+<td>-tu/--turn</td>
+<td>Target URN</td>
+<td></td>
+</tr>
+<tr>
+<td>-tp/--tport</td>
+<td>Target Port</td>
+<td>4000</td>
+</tr>
+<tr>
+<td>-ti/--tid</td>
+<td>Client identifier</td>
+<td></td>
+</tr>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="display-cluster-status">Display cluster status</h2>
+<p><strong>Command</strong></p>
+<p><code>cluster_status</code></p>
+<p><strong>Description</strong></p>
+<p>Display cluster status.</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="get-plugins">Get plugins</h2>
+<p><strong>Command</strong></p>
+<p><code>get_plugins</code></p>
+<p><strong>Description</strong></p>
+<p>Display all plugins.</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="enable-plugin">Enable plugin</h2>
+<p><strong>Command</strong></p>
+<p><code>enable_plugin</code></p>
+<p><strong>Description</strong></p>
+<p>Enable one plugin.</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-n/--name</td>
+<td>Plugin name</td>
+<td></td>
+</tr>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="disable-plugin">Disable plugin</h2>
+<p><strong>Command</strong></p>
+<p><code>disable_plugin</code></p>
+<p><strong>Description</strong></p>
+<p>Disable one plugin.</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-n/--name</td>
+<td>Plugin name</td>
+<td></td>
+</tr>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="get-plugin-configuration">Get plugin configuration</h2>
+<p><strong>Command</strong></p>
+<p><code>get_plugin_configuration</code></p>
+<p><strong>Description</strong></p>
+<p>Get plugin configuration</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-n/--name</td>
+<td>Plugin name</td>
+<td></td>
+</tr>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="update-plugin-configuration">Update plugin configuration</h2>
+<p><strong>Command</strong></p>
+<p><code>update_plugin_configuration</code></p>
+<p><strong>Description</strong></p>
+<p>Update plugin configuration</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-n/--name</td>
+<td>Plugin name</td>
+<td></td>
+</tr>
+<tr>
+<td>-k/--key</td>
+<td>Property key</td>
+<td></td>
+</tr>
+<tr>
+<td>-v/--value</td>
+<td>Property value</td>
+<td></td>
+</tr>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="publish-one-message">Publish one message</h2>
+<p><strong>Command</strong></p>
+<p><code>publish_message</code></p>
+<p><strong>Description</strong></p>
+<p>Publish one message</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-v/--vpn</td>
+<td>VPN name</td>
+<td>default</td>
+</tr>
+<tr>
+<td>-id/--identifier</td>
+<td>Client identifier</td>
+<td>clientId</td>
+</tr>
+<tr>
+<td>-t/--topic</td>
+<td>Topic message</td>
+<td></td>
+</tr>
+<tr>
+<td>-m/--message</td>
+<td>Message content</td>
+<td></td>
+</tr>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="read-one-message">Read one message</h2>
+<p><strong>Command</strong></p>
+<p><code>read_message</code></p>
+<p><strong>Description</strong></p>
+<p>Read one message</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-v/--vpn</td>
+<td>VPN name</td>
+<td>default</td>
+</tr>
+<tr>
+<td>-id/--identifier</td>
+<td>Client identifier</td>
+<td>clientId</td>
+</tr>
+<tr>
+<td>-t/--topic</td>
+<td>Topic message</td>
+<td></td>
+</tr>
+<tr>
+<td>-u/--url</td>
+<td>EventMesh URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>-p/--port</td>
+<td>EventMesh Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="version">Version</h2>
+<p><strong>Command</strong></p>
+<p><code>version</code></p>
+<p><strong>Description</strong></p>
+<p>Display the CLI version.</p>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.6/docs/documentation/eventmesh/cli.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

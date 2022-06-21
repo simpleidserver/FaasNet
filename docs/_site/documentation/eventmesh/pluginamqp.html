@@ -1,0 +1,237 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>AMQP 1.0 protocol plugin </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="AMQP 1.0 protocol plugin ">
+    <meta name="generator" content="docfx 2.59.2.0">
+    
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../styles/docfx.css">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <meta property="docfx:navrel" content="../../toc.html">
+    <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="amqp-10-protocol-plugin">AMQP 1.0 protocol plugin</h1>
+
+<p><strong>Name</strong></p>
+<p>ProtocolAmqp</p>
+<p><strong>Description</strong></p>
+<p>AMQP 1.0 protocol.</p>
+<p><strong>Link</strong></p>
+<p>The ZIP file can be downloaded <a href="">here</a>.</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+<th>Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>port</td>
+<td>AMQP Port</td>
+<td>5672</td>
+</tr>
+<tr>
+<td>maxFrameSize</td>
+<td>Largest frame size that the sending peer is able to accept on this connection.</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>maxChannel</td>
+<td>The channel-max value is the highest channel number that can be used on the connection</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>sessionLinkCredit</td>
+<td>Current maximum number of messages that can be handled at the receiver endpoint of the link</td>
+<td>255</td>
+</tr>
+<tr>
+<td>eventMeshVpn</td>
+<td>EventMesh peer VPN</td>
+<td>default</td>
+</tr>
+<tr>
+<td>eventMeshUrl</td>
+<td>EventMesh peer URL</td>
+<td>localhost</td>
+</tr>
+<tr>
+<td>eventMeshPort</td>
+<td>EventMesh peer Port</td>
+<td>4000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick start</h2>
+<p>Once you have an up and running EventMesh peer with <code>ProtocolAmqp</code> plugin installed, you can start using any client compliant with the <a href="http://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-complete-v1.0-os.pdf">AMQP 1.0 protocol</a>.</p>
+<h3 id="configure-client-and-vpn">Configure client and VPN</h3>
+<p>Before going further, a Virtual Private Network (VPN) and two clients must be configured.
+Those information will be used to publish message and subscribe to one topic.</p>
+<p>Open a command prompt and create a topic named <code>default</code> :</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe add_vpn --name=default
+</code></pre>
+<p>Add a client <code>publishClient</code>, as the name suggests, it will be used to publish message.</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe add_client --vpn=default --identifier=publishClient --publish_enabled=true --subscription_enabled=false
+</code></pre>
+<p>Add a client <code>subscribeClient</code>, this client will be used for subscription.</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe add_client --vpn=default --identifier=subscribeClient --publish_enabled=false --subscription_enabled=true
+</code></pre>
+<h3 id="configure-the-plugin">Configure the plugin</h3>
+<p>If the plugin is not yet configured, it can be enabled like this</p>
+<pre><code>FaasNet.EventMeshCTL.CLI.exe enable_plugin --name=ProtocolAmqp
+</code></pre>
+<p>Its configuration can be updated either by <a href="cli.html">using CLI</a> or by updating the configuration file <code>plugin.json</code>.</p>
+<p>Don't forget that the EventMesh peer must be restarted, otherwise the changes are not taken into account.</p>
+<p>When the configuration is finished, a client can be created and can start publishing message.</p>
+<h2 id="source-code">Source Code</h2>
+<p>The source code of this project can be found <a href="">here</a>.</p>
+<h2 id="create-a-client">Create a client</h2>
+<p>In this tutorial, we will explain how to create a C# client to publish message and subscribe to one topic <code>q1</code>.</p>
+<p>Create a new console application and install the Nuget package <code>AmqpNetLite</code></p>
+<pre><code>dotnet add package AmqpNetLite 
+</code></pre>
+<p>In the <code>Program.cs</code> file add a static method used to send message.</p>
+<pre><code>static void SendMessage()
+{
+    var address = new Address($&quot;amqp://publishClient:publishClient@localhost:{port}&quot;);
+    var connection = new Connection(address);
+    var session = new Session(connection);
+    var message = new Message(&quot;Hello AMQP!&quot;);
+    var sender = new SenderLink(session, &quot;sender-link&quot;, &quot;q1&quot;);
+    Console.WriteLine(&quot;Sent Hello AMQP!&quot;);
+    sender.Send(message);
+    sender.Close();
+    session.Close();
+    connection.Close();
+}
+</code></pre>
+<p>Add a second static method used to subscribe to a topic :</p>
+<pre><code>static void ReceiveMessage()
+{
+    Task.Run(() =&gt;
+    {
+        var address = new Address($&quot;amqp://subscribeClient:subscribeClient@localhost:{port}&quot;);
+        var connection = new Connection(address);
+        var session = new Session(connection);
+        var receiver = new ReceiverLink(session, &quot;receiver-link&quot;, &quot;q1&quot;);
+        while(true)
+        {
+            var message = receiver.Receive();
+            Console.WriteLine(&quot;Received &quot; + message.Body.ToString());
+        }
+    });
+}
+</code></pre>
+<p>Call both methods like this :</p>
+<pre><code>const int port = 5672;
+Console.WriteLine(&quot;Hello, World!&quot;);
+ReceiveMessage();
+SendMessage();
+Console.WriteLine(&quot;Press enter to quit the application&quot;);
+Console.ReadLine();
+</code></pre>
+<p>Build the project and run.</p>
+<p>The console application must display two messages :</p>
+<pre><code>Send Hello AMQP!
+Received Hello AMQP!
+</code></pre>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.6/docs/documentation/eventmesh/pluginamqp.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

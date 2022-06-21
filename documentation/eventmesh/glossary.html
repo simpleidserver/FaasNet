@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Portal </title>
+    <title>EventMesh glossary and concepts </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Portal ">
-    <meta name="generator" content="docfx 2.58.3.0">
+    <meta name="title" content="EventMesh glossary and concepts ">
+    <meta name="generator" content="docfx 2.59.2.0">
     
     <link rel="shortcut icon" href="../../favicon.ico">
     <link rel="stylesheet" href="../../styles/docfx.vendor.css">
@@ -67,41 +67,33 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="portal">Portal</h1>
+<h1 id="eventmesh-glossary-and-concepts">EventMesh glossary and concepts</h1>
 
-<p>A portal can be installed to administrate the EventMesh Server.</p>
-<pre><code>mkdir QuickStart
-cd QuickStart
-
-mkdir src
-cd src
-
-dotnet new evtmeshinmemui -n EventMeshServer
-</code></pre>
-<p>The following files will be created :</p>
+<h2 id="peer-node">Peer node</h2>
+<p>A Peer Node is a communication endpoint capable of treating EventMesh, Raft and Gossip request.</p>
+<p>Two or more Peers can form a cluster, they all share the same functionality.</p>
+<h2 id="cluster">Cluster</h2>
+<p>A cluster network is two or more services working together for a common purpose.</p>
+<p>These networks take advantage of the parallel processing power. In addition to the increased processing power, can also provide scalability, high availability and failover capabilities.</p>
+<h2 id="client">Client</h2>
+<p>Any types of application that implement the EventMesh protocol.</p>
+<p>A client is capable of sending and/or receiving messages.</p>
+<h2 id="session">Session</h2>
+<p>A session is a communication channel established between one Peer Node and a client.</p>
+<p>It is used to send and receive messages.</p>
+<p>There are two kinds of session :</p>
 <ul>
-<li><em>Program.cs</em> and <em>Startup.cs</em> : application entry point.</li>
-<li><em>Pages</em> : Razor pages.</li>
+<li><strong>Subscription</strong> : Subscribe to one or more topics.</li>
+<li><strong>Publish</strong> : Publish one or more messages.</li>
 </ul>
-<p>In case the Visual Studio Support is needed, a solution can be created :</p>
-<pre><code>cd ..
-dotnet new sln -n QuickStart
-</code></pre>
-<p>Add the EventMesh server into the solution :</p>
-<pre><code>dotnet sln add ./src/EventMeshServer/EventMeshServer.csproj
-</code></pre>
-<p>Run the EventMesh server and browse the URL : <a href="http://localhost:5001">http://localhost:5001</a>.</p>
-<pre><code>cd src/EventMeshServer
-dotnet run --urls=http://localhost:5001
-</code></pre>
-<p>The following UI is displayed. It contains four options :</p>
-<ul>
-<li><em>Status</em> : Display the status of the EventMesh server.</li>
-<li><em>Clients</em> : Display all the clients.</li>
-<li><em>Brokers</em> : Display all the configured message brokers.</li>
-<li><em>Bridges</em> : Display all the bridges.</li>
-</ul>
-<p><img src="images/portal-1.png" alt="Portal"></p>
+<h2 id="topic">Topic</h2>
+<p>Topic is a mean of classifying information.</p>
+<h2 id="message-virtual-private-network-vpn">Message Virtual Private Network (VPN)</h2>
+<p>Allows for the segregation of topic space and clients. Message VPNs also group clients connecting to a network of event broker, such that messages published within a particular group are only visible to that group's clients.</p>
+<h2 id="message-vpn-bridge">Message VPN bridge</h2>
+<p>Link two Message VPNs so that messages published to one message VPN that match the topic subscriptions set for the bridge are also delivered to the linked message VPN.</p>
+<h2 id="cloudevent">CloudEvent</h2>
+<p>Specification for describing event data in a common way.</p>
 </article>
           </div>
           
@@ -110,7 +102,7 @@ dotnet run --urls=http://localhost:5001
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/master/docs/documentation/eventmesh/portal.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.6/docs/documentation/eventmesh/glossary.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
