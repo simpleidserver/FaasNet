@@ -13,7 +13,7 @@ properties {
 }
 
 # CI tasks
-task ci -depends compile, test, publishDockerEventMeshService, publishEventMeshCLI
+task ci -depends compile, publishDockerEventMeshService, publishEventMeshCLI
 
 task clean {
 	rd "$source_dir\artifacts" -recurse -force  -ErrorAction SilentlyContinue | out-null

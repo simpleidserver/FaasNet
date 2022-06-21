@@ -58,7 +58,7 @@ namespace FaasNet.EventMesh.Runtime.Tests
 
         #region Create session
 
-        // [Fact]
+        [Fact]
         public async Task When_CreateSession_And_VpnDoesntExist_Then_ErrorIsReturned()
         {
             // ARRANGE
