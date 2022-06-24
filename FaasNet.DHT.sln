@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01. Common Layer", "01. Common Layer", "{C2C3F206-38C2-4676-A882-E70E9CF18ECB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.DHT.Chord.Core", "src\DHT\FaasNet.DHT.Chord.Core\FaasNet.DHT.Chord.Core.csproj", "{1565D3C4-75DB-45B9-B7CD-79A3056FE921}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Startup Layer", "02. Startup Layer", "{274DD9AB-C600-4B80-B449-FD999F94AA11}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.DHT.Chord.Service", "src\DHT\FaasNet.DHT.Chord.Service\FaasNet.DHT.Chord.Service.csproj", "{F696F6E4-541D-438E-A24E-F09655AA3C02}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Common", "src\Common\FaasNet.Common\FaasNet.Common.csproj", "{0077B7FE-7EE8-4DA9-920D-E852A8DE903C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.DHT.Chord.Client", "src\DHT\FaasNet.DHT.Chord.Client\FaasNet.DHT.Chord.Client.csproj", "{4544CB5A-ECCF-4483-92FA-045425607634}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Chord", "02. Chord", "{5F8CD729-0B60-413B-B739-7A21446D2DDF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1565D3C4-75DB-45B9-B7CD-79A3056FE921}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1565D3C4-75DB-45B9-B7CD-79A3056FE921}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1565D3C4-75DB-45B9-B7CD-79A3056FE921}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1565D3C4-75DB-45B9-B7CD-79A3056FE921}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F696F6E4-541D-438E-A24E-F09655AA3C02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F696F6E4-541D-438E-A24E-F09655AA3C02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F696F6E4-541D-438E-A24E-F09655AA3C02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F696F6E4-541D-438E-A24E-F09655AA3C02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0077B7FE-7EE8-4DA9-920D-E852A8DE903C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0077B7FE-7EE8-4DA9-920D-E852A8DE903C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0077B7FE-7EE8-4DA9-920D-E852A8DE903C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0077B7FE-7EE8-4DA9-920D-E852A8DE903C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4544CB5A-ECCF-4483-92FA-045425607634}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4544CB5A-ECCF-4483-92FA-045425607634}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4544CB5A-ECCF-4483-92FA-045425607634}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4544CB5A-ECCF-4483-92FA-045425607634}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1565D3C4-75DB-45B9-B7CD-79A3056FE921} = {5F8CD729-0B60-413B-B739-7A21446D2DDF}
+		{F696F6E4-541D-438E-A24E-F09655AA3C02} = {274DD9AB-C600-4B80-B449-FD999F94AA11}
+		{0077B7FE-7EE8-4DA9-920D-E852A8DE903C} = {C2C3F206-38C2-4676-A882-E70E9CF18ECB}
+		{4544CB5A-ECCF-4483-92FA-045425607634} = {5F8CD729-0B60-413B-B739-7A21446D2DDF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7CF61372-9F71-40E2-B983-7E41746883C0}
+	EndGlobalSection
+EndGlobal
