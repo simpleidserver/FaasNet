@@ -20,6 +20,16 @@ namespace FaasNet.DHT.Chord.Client
             _socket = CreateSession();
         }
 
+        public void Create(int dimFingerTable)
+        {
+            var request = PackageRequestBuilder.Create(dimFingerTable);
+            var writeBufferContext = new WriteBufferContext();
+            request.Serialize(writeBufferContext);
+            _socket.Send(writeBufferContext.Buffer.ToArray(), writeBufferContext.Buffer.Count, 0);
+            var payload = new byte[BUFFER_SIZE];
+            _socket.Receive(payload, payload.Length, 0);
+        }
+
         public void Join(string url, int port)
         {
             var request = PackageRequestBuilder.Join(url, port);
@@ -54,6 +64,29 @@ namespace FaasNet.DHT.Chord.Client
             var readBufferContext = new ReadBufferContext(payload);
             var result = DHTPackage.Deserialize(readBufferContext) as FindSuccessorResult;
             return result;
+        }
+
+        public FindPredecessorResult FindPredecessor()
+        {
+            var request = PackageRequestBuilder.FindPredecessor();
+            var writeBufferContext = new WriteBufferContext();
+            request.Serialize(writeBufferContext);
+            _socket.Send(writeBufferContext.Buffer.ToArray(), writeBufferContext.Buffer.Count, 0);
+            var payload = new byte[BUFFER_SIZE];
+            _socket.Receive(payload, payload.Length, 0);
+            var readBufferContext = new ReadBufferContext(payload);
+            var result = DHTPackage.Deserialize(readBufferContext) as FindPredecessorResult;
+            return result;
+        }
+
+        public void Notify(string url, int port, long id)
+        {
+            var request = PackageRequestBuilder.Notify(url, port, id);
+            var writeBufferContext = new WriteBufferContext();
+            request.Serialize(writeBufferContext);
+            _socket.Send(writeBufferContext.Buffer.ToArray(), writeBufferContext.Buffer.Count, 0);
+            var payload = new byte[BUFFER_SIZE];
+            _socket.Receive(payload, payload.Length, 0);
         }
 
         public void Dispose()

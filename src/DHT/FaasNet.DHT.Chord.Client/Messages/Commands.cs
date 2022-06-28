@@ -23,6 +23,21 @@ namespace FaasNet.DHT.Chord.Client.Messages
         /// </summary>
         public static Commands FIND_SUCCESSOR_REQUEST = new Commands(4, "FIND_SUCCESSOR_REQUEST");
         public static Commands FIND_SUCCESSOR_RESULT = new Commands(5, "FIND_SUCCESSOR_RESULT");
+        /// <summary>
+        /// Create a new Chord ring.
+        /// </summary>
+        public static Commands CREATE_REQUEST = new Commands(6, "CREATE_REQUEST");
+        public static Commands CREATE_RESULT = new Commands(7, "CREATE_RESULT");
+        /// <summary>
+        /// Notify the existence of a node.
+        /// </summary>
+        public static Commands NOTIFY_REQUEST = new Commands(8, "NOTIFY_REQUEST");
+        public static Commands NOTIFY_RESULT = new Commands(9, "NOTIFY_RESULT");
+        /// <summary>
+        /// Find predecessor request.
+        /// </summary>
+        public static Commands FIND_PREDECESSOR_REQUEST = new Commands(10, "FIND_PREDECESSOR_REQUEST");
+        public static Commands FIND_PREDECESSOR_RESULT = new Commands(11, "FIND_PREDECESSOR_RESULT");
 
         private Commands(int code)
         {

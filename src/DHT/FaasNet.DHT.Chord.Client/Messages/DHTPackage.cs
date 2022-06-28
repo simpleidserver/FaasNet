@@ -52,6 +52,27 @@
                 return result;
             }
 
+            if(command == Commands.CREATE_REQUEST)
+            {
+                var result = new CreateRequest();
+                result.Extract(context);
+                return result;
+            }
+
+            if (command == Commands.NOTIFY_REQUEST)
+            {
+                var result = new NotifyRequest();
+                result.Extract(context);
+                return result;
+            }
+
+            if (command == Commands.FIND_PREDECESSOR_RESULT)
+            {
+                var result = new FindPredecessorResult();
+                result.Extract(context);
+                return result;
+            }
+
             return new DHTPackage(command);
         }
     }

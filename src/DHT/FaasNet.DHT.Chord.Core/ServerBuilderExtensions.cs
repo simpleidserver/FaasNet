@@ -15,6 +15,9 @@ namespace FaasNet.Common
             serverBuilder.Services.AddTransient<IRequestHandler, GetDimensionFingerTableRequestHandler>();
             serverBuilder.Services.AddTransient<IRequestHandler, JoinChordNetworkRequestHandler>();
             serverBuilder.Services.AddTransient<IRequestHandler, FindSuccessorRequestHandler>();
+            serverBuilder.Services.AddTransient<IRequestHandler, CreateRequestHandler>();
+            serverBuilder.Services.AddTransient<IRequestHandler, NotifyRequestHandler>();
+            serverBuilder.Services.AddTransient<IRequestHandler, FindPredecessorRequestHandler>();
             serverBuilder.Services.AddScoped<IDHTPeerInfoStore, DHTPeerInfoStore>();
             return serverBuilder;
         }

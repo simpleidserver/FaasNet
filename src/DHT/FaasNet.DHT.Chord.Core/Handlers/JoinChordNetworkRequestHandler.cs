@@ -20,15 +20,18 @@ namespace FaasNet.DHT.Chord.Core.Handlers
         public async Task<DHTPackage> Handle(DHTPackage request, CancellationToken token)
         {
             var joinChordNetwork = request as JoinChordNetworkRequest;
-            var peerInfo = _peerInfoStore.Get();
             using (var chordClient = new ChordClient(joinChordNetwork.Url, joinChordNetwork.Port))
             {
                 var dimFingerTable = chordClient.GetDimensionFingerTable();
-                var successorNode = chordClient.FindSuccessor(peerInfo.Id);
+                var peerInfo = _peerInfoStore.Get();
+                peerInfo.ComputeId(dimFingerTable);
+                var successorNode = chordClient.FindSuccessor(peerInfo.Peer.Id);
+                peerInfo.SuccessorPeer = new PeerInfo { Id = successorNode.Id, Port = successorNode.Port, Url = successorNode.Url };
                 _peerInfoStore.Update(peerInfo);
             }
 
-            throw new System.NotImplementedException();
+            var result = PackageResponseBuilder.Join();
+            return result;
         }
     }
 }

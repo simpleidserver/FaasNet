@@ -1,6 +1,6 @@
-﻿using FaasNet.DHT.Chord.Client.Messages;
+﻿using FaasNet.DHT.Chord.Client;
+using FaasNet.DHT.Chord.Client.Messages;
 using FaasNet.DHT.Chord.Core.Stores;
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,48 +22,38 @@ namespace FaasNet.DHT.Chord.Core.Handlers
         {
             var findSuccessorRequest = request as FindSuccessorRequest;
             var successor = FindSuccessor(findSuccessorRequest.NodeId);
-            DHTPackage result = PackageResponseBuilder.FindSuccessor(successor.Url, successor.Port, successor.Id);
+            var result = PackageResponseBuilder.FindSuccessor(successor.Url, successor.Port, successor.Id);
             return Task.FromResult(result);
         }
 
-        private PeerInfoSuccessor FindSuccessor(long id)
+        private PeerInfo FindSuccessor(long target)
         {
             var peerInfo = _peerInfoStore.Get();
-            foreach (var successor in peerInfo.Successors)
-            {
-                if (CheckIntervalEquivalence(peerInfo.Id, id, successor.Id, peerInfo.DimensionFingerTable)) return successor;
-            }
+            if(peerInfo.SuccessorPeer != null && IntervalHelper.CheckIntervalEquivalence(peerInfo.Peer.Id, target, peerInfo.SuccessorPeer.Id, peerInfo.DimensionFingerTable))
+                return peerInfo.SuccessorPeer;
 
-            return ClosestPrecedingPeer(id);
+            var precedingPeer = ClosestPrecedingPeer(target);
+            if (precedingPeer.Id == peerInfo.Peer.Id) return precedingPeer;
+            using (var client = new ChordClient(precedingPeer.Url, precedingPeer.Port))
+            {
+                var result = client.FindSuccessor(target);
+                return new PeerInfo { Id = result.Id, Port = result.Port, Url = result.Url };
+            }
         }
 
-        private PeerInfoSuccessor ClosestPrecedingPeer(long id)
+        private PeerInfo ClosestPrecedingPeer(long target)
         {
             var peerInfo = _peerInfoStore.Get();
-            for (int i = peerInfo.Successors.Count() - 1; i >= 0; i--)
+            for(var i = peerInfo.Fingers.Count() - 1; i >= 0; i--)
             {
-                var nodeIndex = peerInfo.Successors.ElementAt(i).Id;
-                if(CheckIntervalClosest(nodeIndex, id, peerInfo.Id, peerInfo.DimensionSuccessor))
+                var finger = peerInfo.Fingers.ElementAt(i);
+                if(IntervalHelper.CheckIntervalClosest(finger.Peer.Id, target, peerInfo.Peer.Id, peerInfo.DimensionFingerTable))
                 {
-                    return peerInfo.Successors.ElementAt(i);
+                    return finger.Peer;
                 }
             }
 
-            return null;
-        }
-
-        private bool CheckIntervalEquivalence(long pred, long index, long succ, int m)
-        {
-            if (pred == succ) return true;
-            if (pred > succ) return (index > pred && index < Math.Pow(m, 2)) || (index >= 0 && index <= succ);
-            else return index > pred && index <= succ;
-        }
-
-        private bool CheckIntervalClosest(long pred, long index, long succ, int dimensionSuccessor)
-        {
-            if (pred == succ) return false;
-            if (pred > succ) return (index > pred && index < Math.Pow(dimensionSuccessor, 2)) || (index >= 0 && index < succ);
-            else return index > pred && index < succ;
+            return peerInfo.Peer;
         }
     }
 }
