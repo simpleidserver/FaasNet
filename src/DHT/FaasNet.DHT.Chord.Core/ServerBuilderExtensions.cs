@@ -18,7 +18,10 @@ namespace FaasNet.Common
             serverBuilder.Services.AddTransient<IRequestHandler, CreateRequestHandler>();
             serverBuilder.Services.AddTransient<IRequestHandler, NotifyRequestHandler>();
             serverBuilder.Services.AddTransient<IRequestHandler, FindPredecessorRequestHandler>();
+            serverBuilder.Services.AddTransient<IRequestHandler, GetKeyRequestHandler>();
+            serverBuilder.Services.AddTransient<IRequestHandler, AddKeyRequestHandler>();
             serverBuilder.Services.AddScoped<IDHTPeerInfoStore, DHTPeerInfoStore>();
+            serverBuilder.Services.AddScoped<IPeerDataStore, PeerDataStore>();
             return serverBuilder;
         }
     }

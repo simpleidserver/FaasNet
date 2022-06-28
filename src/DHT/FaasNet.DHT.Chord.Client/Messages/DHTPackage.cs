@@ -73,6 +73,27 @@
                 return result;
             }
 
+            if (command == Commands.ADD_KEY_REQUEST)
+            {
+                var result = new AddKeyRequest();
+                result.Extract(context);
+                return result;
+            }
+
+            if (command == Commands.GET_KEY_REQUEST)
+            {
+                var result = new GetKeyRequest();
+                result.Extract(context);
+                return result;
+            }
+
+            if (command == Commands.GET_KEY_RESULT)
+            {
+                var result = new GetKeyResult();
+                result.Extract(context);
+                return result;
+            }
+
             return new DHTPackage(command);
         }
     }

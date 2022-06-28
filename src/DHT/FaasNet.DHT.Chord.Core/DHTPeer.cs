@@ -21,6 +21,7 @@ namespace FaasNet.DHT.Chord.Core
         void Start(string url, int port, CancellationToken token);
         bool IsRunning { get; }
         IDHTPeerInfoStore PeerInfoStore { get; }
+        IPeerDataStore PeerDataStore { get; }
         void Stop();
     }
 
@@ -30,22 +31,25 @@ namespace FaasNet.DHT.Chord.Core
         private readonly ILogger<DHTPeer> _logger;
         private readonly IEnumerable<IRequestHandler> _requestHandlers;
         private readonly IDHTPeerInfoStore _peerInfoStore;
+        private readonly IPeerDataStore _peerDataStore;
         private CancellationTokenSource _cancellationTokenSource;
         private Socket _server;
         private static ManualResetEvent _lock = new ManualResetEvent(false);
         private System.Timers.Timer _stabilizeTimer;
         private System.Timers.Timer _fixFingersTimer;
 
-        public DHTPeer(IOptions<DHTOptions> options, ILogger<DHTPeer> logger, IEnumerable<IRequestHandler> requestHandlers, IDHTPeerInfoStore peerInfoStore)
+        public DHTPeer(IOptions<DHTOptions> options, ILogger<DHTPeer> logger, IEnumerable<IRequestHandler> requestHandlers, IDHTPeerInfoStore peerInfoStore, IPeerDataStore peerDataStore)
         {
             _options = options.Value;
             _logger = logger;
             _requestHandlers = requestHandlers;
             _peerInfoStore = peerInfoStore;
+            _peerDataStore = peerDataStore;
         }
 
         public bool IsRunning { get; private set; }
         public IDHTPeerInfoStore PeerInfoStore => _peerInfoStore;
+        public IPeerDataStore PeerDataStore => _peerDataStore;
 
         public void Start(string url = Constants.DefaultUrl, int port = Constants.DefaultPort, CancellationToken token = default(CancellationToken))
         {
@@ -120,7 +124,6 @@ namespace FaasNet.DHT.Chord.Core
             try
             {
                 // CONTINUE
-                // https://github.com/edoardoramalli/Chord/blob/801e00d21fe9f09fd4c705fcf4d7a08b1b7171a8/src/main/java/node/Node.java
                 // https://resources.mpi-inf.mpg.de/d5/teaching/ws03_04/p2p-data/11-18-writeup1.pdf
                 // https://arxiv.org/pdf/2109.10787.pdf
                 var nbBytes = handler.EndReceive(ar);

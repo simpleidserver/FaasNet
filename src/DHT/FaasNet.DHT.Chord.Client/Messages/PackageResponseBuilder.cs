@@ -31,5 +31,15 @@
         {
             return new FindPredecessorResult { Id = id, Url = url, Port = port, HasPredecessor = true };
         }
+
+        public static DHTPackage GetKey(long id, string value)
+        {
+            return new GetKeyResult { Id = id, Value = value };
+        }
+
+        public static DHTPackage AddKey()
+        {
+            return new DHTPackage(Commands.ADD_KEY_RESULT);
+        }
     }
 }

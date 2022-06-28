@@ -38,6 +38,16 @@ namespace FaasNet.DHT.Chord.Client.Messages
         /// </summary>
         public static Commands FIND_PREDECESSOR_REQUEST = new Commands(10, "FIND_PREDECESSOR_REQUEST");
         public static Commands FIND_PREDECESSOR_RESULT = new Commands(11, "FIND_PREDECESSOR_RESULT");
+        /// <summary>
+        /// Add key.
+        /// </summary>
+        public static Commands ADD_KEY_REQUEST = new Commands(12, "ADD_KEY_REQUEST");
+        public static Commands ADD_KEY_RESULT = new Commands(13, "ADD_KEY_RESULT");
+        /// <summary>
+        /// Get key.
+        /// </summary>
+        public static Commands GET_KEY_REQUEST = new Commands(14, "GET_KEY_REQUEST");
+        public static Commands GET_KEY_RESULT = new Commands(15, "GET_KEY_RESULT");
 
         private Commands(int code)
         {

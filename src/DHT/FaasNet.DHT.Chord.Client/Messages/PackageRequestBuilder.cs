@@ -31,5 +31,15 @@
         {
             return new NotifyRequest { Url = url, Port = port, Id = id };
         }
+
+        public static DHTPackage GetKey(long key)
+        {
+            return new GetKeyRequest { Id = key };
+        }
+
+        public static DHTPackage AddKey(long key, string value)
+        {
+            return new AddKeyRequest { Id = key, Value = value };
+        }
     }
 }

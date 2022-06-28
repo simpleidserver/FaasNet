@@ -14,7 +14,6 @@ namespace FaasNet.DHT.Chord.Service
 
         public static int Main(string[] args)
         {
-            // FIX PROBLEM !!!
             _peers = new List<IDHTPeer>();
             _peerFactory = new ServerBuilder().AddDHTChord().ServiceProvider.GetService(typeof(IDHTPeerFactory)) as IDHTPeerFactory;
             var rootNode = _peerFactory.Build();
@@ -28,12 +27,16 @@ namespace FaasNet.DHT.Chord.Service
             var line = string.Empty;
             do
             {
-                Console.WriteLine("add: Add node");
+                Console.WriteLine("add-node: Add node");
+                Console.WriteLine("add-key: Add key");
                 Console.WriteLine("fingers: Display fingers");
+                Console.WriteLine("data: Display data");
                 Console.WriteLine("q: Exit");
                 line = Console.ReadLine();
-                if(line == "add") AddNode();
+                if(line == "add-node") AddNode();
+                if (line == "add-key") AddKey();
                 if (line == "fingers") DisplayFingers();
+                if (line == "data") DisplayData();
             }
             while (line != "q");
 
@@ -55,6 +58,18 @@ namespace FaasNet.DHT.Chord.Service
             CURRENT_NODE_PORT++;
         }
 
+        private static void AddKey()
+        {
+            Console.WriteLine("Enter a key");
+            var key = long.Parse(Console.ReadLine());
+            Console.WriteLine("Enter a value");
+            var value = Console.ReadLine();
+            using (var chordClient = new ChordClient("localhost", ROOT_NODE_PORT))
+            {
+                chordClient.AddKey(key, value);
+            }
+        }
+
         private static void DisplayFingers()
         {
             foreach(var peer in _peers)
@@ -65,6 +80,23 @@ namespace FaasNet.DHT.Chord.Service
                 foreach(var finger in peerInfo.Fingers)
                 {
                     Console.WriteLine($"Start {finger.Start}, End {finger.End}, Id {finger.Peer.Id}");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        private static void DisplayData()
+        {
+            foreach (var peer in _peers)
+            {
+                var peerInfo = peer.PeerInfoStore.Get();
+                var allData = peer.PeerDataStore.GetAll();
+                Console.WriteLine($"Peer Identifier {peerInfo.Peer.Id}, Predecessor {peerInfo.PredecessorPeer?.Id}, Successor {peerInfo.SuccessorPeer.Id}");
+                Console.WriteLine("Data");
+                foreach (var data in allData)
+                {
+                    Console.WriteLine($"Key {data.Id}, Value {data.Value}");
                 }
 
                 Console.WriteLine();

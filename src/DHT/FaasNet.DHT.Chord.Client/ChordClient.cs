@@ -89,6 +89,29 @@ namespace FaasNet.DHT.Chord.Client
             _socket.Receive(payload, payload.Length, 0);
         }
 
+        public string GetKey(long id)
+        {
+            var request = PackageRequestBuilder.GetKey(id);
+            var writeBufferContext = new WriteBufferContext();
+            request.Serialize(writeBufferContext);
+            _socket.Send(writeBufferContext.Buffer.ToArray(), writeBufferContext.Buffer.Count, 0);
+            var payload = new byte[BUFFER_SIZE];
+            _socket.Receive(payload, payload.Length, 0);
+            var readBufferContext = new ReadBufferContext(payload);
+            var result = DHTPackage.Deserialize(readBufferContext) as GetKeyResult;
+            return result.Value;
+        }
+
+        public void AddKey(long id, string value)
+        {
+            var request = PackageRequestBuilder.AddKey(id, value);
+            var writeBufferContext = new WriteBufferContext();
+            request.Serialize(writeBufferContext);
+            _socket.Send(writeBufferContext.Buffer.ToArray(), writeBufferContext.Buffer.Count, 0);
+            var payload = new byte[BUFFER_SIZE];
+            _socket.Receive(payload, payload.Length, 0);
+        }
+
         public void Dispose()
         {
             if(_socket != null)

@@ -12,7 +12,7 @@ namespace FaasNet.DHT.Chord.Core
             return ipNumber % numberNodes;
         }
 
-        private static long Resolve(string url)
+		private static long Resolve(string url)
         {
             return DnsHelper.ResolveIPV4(url).Address;
         }
