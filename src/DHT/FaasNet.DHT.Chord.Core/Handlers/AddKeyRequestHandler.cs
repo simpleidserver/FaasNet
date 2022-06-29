@@ -23,7 +23,7 @@ namespace FaasNet.DHT.Chord.Core.Handlers
         {
             var addKeyRequest = request as AddKeyRequest;
             var peerInfo = _peerInfoStore.Get();
-            if (IntervalHelper.CheckIntervalEquivalence(peerInfo.PredecessorPeer.Id, addKeyRequest.Id, peerInfo.Peer.Id, peerInfo.DimensionFingerTable))
+            if (IntervalHelper.CheckIntervalEquivalence(peerInfo.PredecessorPeer.Id, addKeyRequest.Id, peerInfo.Peer.Id, peerInfo.DimensionFingerTable) || addKeyRequest.Force)
             {
                 _peerDataStore.Add(addKeyRequest.Id, addKeyRequest.Value);
                 var result = PackageResponseBuilder.AddKey();

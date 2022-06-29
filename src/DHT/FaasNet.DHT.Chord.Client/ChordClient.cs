@@ -102,9 +102,9 @@ namespace FaasNet.DHT.Chord.Client
             return result.Value;
         }
 
-        public void AddKey(long id, string value)
+        public void AddKey(long id, string value, bool force = false)
         {
-            var request = PackageRequestBuilder.AddKey(id, value);
+            var request = PackageRequestBuilder.AddKey(id, value, force);
             var writeBufferContext = new WriteBufferContext();
             request.Serialize(writeBufferContext);
             _socket.Send(writeBufferContext.Buffer.ToArray(), writeBufferContext.Buffer.Count, 0);

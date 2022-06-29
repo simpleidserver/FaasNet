@@ -37,9 +37,9 @@
             return new GetKeyRequest { Id = key };
         }
 
-        public static DHTPackage AddKey(long key, string value)
+        public static DHTPackage AddKey(long key, string value, bool force = false)
         {
-            return new AddKeyRequest { Id = key, Value = value };
+            return new AddKeyRequest { Id = key, Value = value, Force = force };
         }
     }
 }

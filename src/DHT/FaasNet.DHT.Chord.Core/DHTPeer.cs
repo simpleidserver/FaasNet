@@ -37,6 +37,7 @@ namespace FaasNet.DHT.Chord.Core
         private static ManualResetEvent _lock = new ManualResetEvent(false);
         private System.Timers.Timer _stabilizeTimer;
         private System.Timers.Timer _fixFingersTimer;
+        private System.Timers.Timer _checkPredecessorAndSuccessorTimer;
 
         public DHTPeer(IOptions<DHTOptions> options, ILogger<DHTPeer> logger, IEnumerable<IRequestHandler> requestHandlers, IDHTPeerInfoStore peerInfoStore, IPeerDataStore peerDataStore)
         {
@@ -63,15 +64,20 @@ namespace FaasNet.DHT.Chord.Core
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
             Task.Run(() => Handle(_server));
             StartStabilizeTimer();
-            StartFixFingers();
+            StartFixFingersTimer();
+            StartCheckPredecessorAndSuccessorTimer();
             IsRunning = true;
         }
 
         public void Stop()
         {
+            ForceTransferData();
             _cancellationTokenSource.Cancel();
             _stabilizeTimer.Stop();
             _fixFingersTimer.Stop();
+            _checkPredecessorAndSuccessorTimer.Stop();
+            _server.Close();
+            IsRunning = false;
         }
 
         private void StartStabilizeTimer()
@@ -82,7 +88,7 @@ namespace FaasNet.DHT.Chord.Core
             _stabilizeTimer.Start();
         }
 
-        private void StartFixFingers()
+        private void StartFixFingersTimer()
         {
             _fixFingersTimer = new System.Timers.Timer(_options.FixFingersTimerMS);
             _fixFingersTimer.Elapsed += async (o, e) => await FixFingers(o, e);
@@ -90,14 +96,30 @@ namespace FaasNet.DHT.Chord.Core
             _fixFingersTimer.Start();
         }
 
+        private void StartCheckPredecessorAndSuccessorTimer()
+        {
+            _checkPredecessorAndSuccessorTimer = new System.Timers.Timer(_options.CheckPredecessorAndSuccessorTimerMS);
+            _checkPredecessorAndSuccessorTimer.Elapsed += async (o, e) => await CheckPredecessorAndSuccessor(o, e);
+            _checkPredecessorAndSuccessorTimer.AutoReset = false;
+            _checkPredecessorAndSuccessorTimer.Start();
+
+        }
+
         private void Handle(Socket server)
         {
-            while(true)
+            try
             {
-                _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-                _lock.Reset();
-                server.BeginAccept(new AsyncCallback(AcceptCallback), server);
-                _lock.WaitOne();
+                while (true)
+                {
+                    _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+                    _lock.Reset();
+                    server.BeginAccept(new AsyncCallback(AcceptCallback), server);
+                    _lock.WaitOne();
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
         }
 
@@ -161,22 +183,29 @@ namespace FaasNet.DHT.Chord.Core
                 return;
             }
 
-            using (var chordClient = new ChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+            try
             {
-                var predecessor = chordClient.FindPredecessor();
-                if(predecessor.HasPredecessor)
+                using (var chordClient = new ChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
                 {
-                    if (IntervalHelper.CheckInterval(peerInfo.Peer.Id, predecessor.Id, peerInfo.SuccessorPeer.Id, peerInfo.DimensionFingerTable))
+                    var predecessor = chordClient.FindPredecessor();
+                    if (predecessor.HasPredecessor)
                     {
-                        peerInfo.SuccessorPeer = new PeerInfo { Id = predecessor.Id, Port = predecessor.Port, Url = predecessor.Url };
-                        _peerInfoStore.Update(peerInfo);
+                        if (IntervalHelper.CheckInterval(peerInfo.Peer.Id, predecessor.Id, peerInfo.SuccessorPeer.Id, peerInfo.DimensionFingerTable))
+                        {
+                            peerInfo.SuccessorPeer = new PeerInfo { Id = predecessor.Id, Port = predecessor.Port, Url = predecessor.Url };
+                            _peerInfoStore.Update(peerInfo);
+                        }
                     }
                 }
-            }
 
-            using (var secondClient = new ChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                using (var secondClient = new ChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                {
+                    secondClient.Notify(peerInfo.Peer.Url, peerInfo.Peer.Port, peerInfo.Peer.Id);
+                }
+            }
+            catch(Exception ex)
             {
-                secondClient.Notify(peerInfo.Peer.Url, peerInfo.Peer.Port, peerInfo.Peer.Id);
+                _logger.LogError(ex.ToString());
             }
 
             StartStabilizeTimer();
@@ -185,35 +214,125 @@ namespace FaasNet.DHT.Chord.Core
         private async Task FixFingers(object source, ElapsedEventArgs e)
         {
             var peerInfo = _peerInfoStore.Get();
-            if(peerInfo.SuccessorPeer == null)
-            {
-                StartFixFingers();
-                return;
-            }
-
-            var fingers = new List<FingerTableRecord>();
             var start = peerInfo.Peer.Id;
-            var max = Math.Pow(2, peerInfo.DimensionFingerTable);
-            using (var chordClient = new ChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+            var fingers = new List<FingerTableRecord>();
+            if (peerInfo.SuccessorPeer == null)
             {
                 for (int i = 1; i <= peerInfo.DimensionFingerTable; i++)
                 {
                     var newId = peerInfo.Peer.Id + (long)Math.Pow(2, i - 1);
-                    if (newId >= max) break;
-                    var successor = chordClient.FindSuccessor(newId);
                     fingers.Add(new FingerTableRecord
                     {
                         Start = start,
                         End = newId,
-                        Peer = new PeerInfo { Id = successor.Id, Port = successor.Port, Url = successor.Url }
+                        Peer = new PeerInfo { Id = peerInfo.Peer.Id, Port = peerInfo.Peer.Port, Url = peerInfo.Peer.Url }
                     });
-                    start = newId;
+                }
+            }
+            else
+            {
+                var max = Math.Pow(2, peerInfo.DimensionFingerTable);
+                try
+                {
+                    using (var chordClient = new ChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                    {
+                        for (int i = 1; i <= peerInfo.DimensionFingerTable; i++)
+                        {
+                            var newId = peerInfo.Peer.Id + (long)Math.Pow(2, i - 1);
+                            if (newId >= max) break;
+                            var successor = chordClient.FindSuccessor(newId);
+                            fingers.Add(new FingerTableRecord
+                            {
+                                Start = start,
+                                End = newId,
+                                Peer = new PeerInfo { Id = successor.Id, Port = successor.Port, Url = successor.Url }
+                            });
+                            start = newId;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.ToString());
                 }
             }
 
             peerInfo.Fingers = fingers;
             _peerInfoStore.Update(peerInfo);
-            StartFixFingers();
+            TransferData(peerInfo);
+            StartFixFingersTimer();
+        }
+
+        private async Task CheckPredecessorAndSuccessor(object source, ElapsedEventArgs e)
+        {
+            var peerInfo = _peerInfoStore.Get();
+            if (peerInfo.PredecessorPeer != null)
+            {
+                try
+                {
+                    using (var chordClient = new ChordClient(peerInfo.PredecessorPeer.Url, peerInfo.PredecessorPeer.Port))
+                    {
+                        chordClient.GetDimensionFingerTable();
+                    }
+                }
+                catch
+                {
+                    peerInfo.PredecessorPeer = null;
+                }
+            }
+
+            if (peerInfo.SuccessorPeer != null)
+            {
+                try
+                {
+                    using (var chordClient = new ChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                    {
+                        chordClient.GetDimensionFingerTable();
+                    }
+                }
+                catch
+                {
+                    peerInfo.SuccessorPeer = null;
+                }
+            }
+
+            _peerInfoStore.Update(peerInfo);
+            StartCheckPredecessorAndSuccessorTimer();
+        }
+
+        private void ForceTransferData()
+        {
+            var allData = _peerDataStore.GetAll();
+            var peerInfo = _peerInfoStore.Get();
+            if (peerInfo.SuccessorPeer == null) return;
+            using(var chordClient = new ChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+            {
+                foreach (var data in allData) chordClient.AddKey(data.Id, data.Value, true);
+            }
+        }
+
+        private void TransferData(DHTPeerInfo peerInfo)
+        {
+            if (peerInfo.SuccessorPeer == null || peerInfo.PredecessorPeer == null) return;
+            var allData = _peerDataStore.GetAll();
+            try
+            {
+                using (var chordClient = new ChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                {
+                    foreach (var data in allData)
+                    {
+                        if (!IntervalHelper.CheckIntervalEquivalence(peerInfo.PredecessorPeer.Id, data.Id, peerInfo.Peer.Id, peerInfo.DimensionFingerTable))
+                        {
+                            chordClient.AddKey(data.Id, data.Value);
+                            _peerDataStore.Remove(data);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+            }
         }
     }
 }

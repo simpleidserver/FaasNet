@@ -8,6 +8,7 @@ namespace FaasNet.DHT.Chord.Core.Stores
         string Get(long id);
         void Add(long id, string value);
         ICollection<PeerDataRecord> GetAll();
+        void Remove(PeerDataRecord record);
     }
 
     public class PeerDataStore : IPeerDataStore
@@ -29,9 +30,14 @@ namespace FaasNet.DHT.Chord.Core.Stores
             _records.Add(new PeerDataRecord { Id = id, Value = value });
         }
 
+        public void Remove(PeerDataRecord record)
+        {
+            _records.Remove(_records.First(r => r.Id == r.Id));
+        }
+
         public ICollection<PeerDataRecord> GetAll()
         {
-            return _records;
+            return _records.Select(r => new PeerDataRecord { Id = r.Id, Value = r.Value }).ToList();
         }
     }
 
