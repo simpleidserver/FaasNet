@@ -34,7 +34,8 @@ namespace FaasNet.DHT.Chord.Core
         private readonly IPeerDataStore _peerDataStore;
         private CancellationTokenSource _cancellationTokenSource;
         private Socket _server;
-        private static ManualResetEvent _lock = new ManualResetEvent(false);
+        private ManualResetEvent _lock = new ManualResetEvent(false);
+        private SemaphoreSlim _lockTimer;
         private System.Timers.Timer _stabilizeTimer;
         private System.Timers.Timer _fixFingersTimer;
         private System.Timers.Timer _checkPredecessorAndSuccessorTimer;
@@ -55,6 +56,8 @@ namespace FaasNet.DHT.Chord.Core
         public void Start(string url = Constants.DefaultUrl, int port = Constants.DefaultPort, CancellationToken token = default(CancellationToken))
         {
             if (IsRunning) throw new InvalidOperationException("The peer is already running");
+            _lock = new ManualResetEvent(false);
+            _lockTimer = new SemaphoreSlim(1);
             var peerInfo = new DHTPeerInfo(url, port);
             _peerInfoStore.Update(peerInfo);
             var localEndpoint = new IPEndPoint(DnsHelper.ResolveIPV4(url), port);
@@ -145,9 +148,6 @@ namespace FaasNet.DHT.Chord.Core
             var handler = state.SessionSocket;
             try
             {
-                // CONTINUE
-                // https://resources.mpi-inf.mpg.de/d5/teaching/ws03_04/p2p-data/11-18-writeup1.pdf
-                // https://arxiv.org/pdf/2109.10787.pdf
                 var nbBytes = handler.EndReceive(ar);
                 var buffer = state.Buffer.Take(nbBytes).ToArray();
                 var readBufferContext = new ReadBufferContext(buffer);
@@ -176,9 +176,11 @@ namespace FaasNet.DHT.Chord.Core
 
         private async Task Stabilize(object source, ElapsedEventArgs e)
         {
+            _lockTimer.Wait();
             var peerInfo = _peerInfoStore.Get();
             if (peerInfo.SuccessorPeer == null)
             {
+                _lockTimer.Release();
                 StartStabilizeTimer();
                 return;
             }
@@ -208,11 +210,13 @@ namespace FaasNet.DHT.Chord.Core
                 _logger.LogError(ex.ToString());
             }
 
+            _lockTimer.Release();
             StartStabilizeTimer();
         }
 
         private async Task FixFingers(object source, ElapsedEventArgs e)
         {
+            _lockTimer.Wait();
             var peerInfo = _peerInfoStore.Get();
             var start = peerInfo.Peer.Id;
             var fingers = new List<FingerTableRecord>();
@@ -260,11 +264,13 @@ namespace FaasNet.DHT.Chord.Core
             peerInfo.Fingers = fingers;
             _peerInfoStore.Update(peerInfo);
             TransferData(peerInfo);
+            _lockTimer.Release();
             StartFixFingersTimer();
         }
 
         private async Task CheckPredecessorAndSuccessor(object source, ElapsedEventArgs e)
         {
+            _lockTimer.Wait();
             var peerInfo = _peerInfoStore.Get();
             if (peerInfo.PredecessorPeer != null)
             {
@@ -297,6 +303,7 @@ namespace FaasNet.DHT.Chord.Core
             }
 
             _peerInfoStore.Update(peerInfo);
+            _lockTimer.Release();
             StartCheckPredecessorAndSuccessorTimer();
         }
 

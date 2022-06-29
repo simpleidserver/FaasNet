@@ -13,7 +13,7 @@ properties {
 }
 
 # CI tasks
-task ci -depends compile, publishDockerEventMeshService, publishEventMeshCLI
+task ci -depends compile, publishDockerEventMeshService, publishEventMeshCLI, pack
 
 task clean {
 	rd "$source_dir\artifacts" -recurse -force  -ErrorAction SilentlyContinue | out-null
@@ -32,6 +32,7 @@ task compile -depends clean {
 	
     exec { dotnet build .\FaasNet.RaftConsensus.sln -c $config --version-suffix=$buildSuffix }
     exec { dotnet build .\FaasNet.EventMesh.sln -c $config --version-suffix=$buildSuffix }
+    exec { dotnet build .\FaasNet.DHT.sln -c $config --version-suffix=$buildSuffix }
 }
 
 # Publish EventMesh
@@ -49,6 +50,13 @@ task publishDockerEventMeshService {
 
 task publishEventMeshCLI {
 	exec { dotnet publish $source_dir\EventMesh\FaasNet.EventMeshCTL.CLI\FaasNet.EventMeshCTL.CLI.csproj -c $config -o $result_dir\eventMeshCLI }
+}
+
+# Publish Nuget package 
+task pack {
+	exec { dotnet pack $source_dir\Common\FaasNet.Common\FaasNet.Common.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\DHT\FaasNet.DHT.Chord.Client\FaasNet.DHT.Chord.Client.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\DHT\FaasNet.DHT.Chord.Core\FaasNet.DHT.Chord.Core.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
 }
 
 # Publish
