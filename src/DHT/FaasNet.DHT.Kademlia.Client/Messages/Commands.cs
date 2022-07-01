@@ -25,6 +25,11 @@ namespace FaasNet.DHT.Kademlia.Client.Messages
         /// </summary>
         public static Commands FIND_VALUE_REQUEST = new Commands(6, "FIND_VALUE_REQUEST");
         public static Commands FIND_VALUE_RESULT = new Commands(7, "FIND_VALUE_RESULT");
+        /// <summary>
+        /// Join the network.
+        /// </summary>
+        public static Commands JOIN_REQUEST = new Commands(8, "JOIN_REQUEST");
+        public static Commands JOIN_RESULT = new Commands(9, "JOIN_RESULT");
 
         private Commands(int code)
         {

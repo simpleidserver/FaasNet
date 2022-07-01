@@ -2,7 +2,7 @@
 {
     public class DHTPackage
     {
-        private const string MAGIC_CODE = "DHT";
+        private const string MAGIC_CODE = "CHORD";
         private const string PROTOCOL_VERSION = "0000";
 
         public DHTPackage(Commands command)
