@@ -34,19 +34,12 @@ namespace FaasNet.DHT.Kademlia.Core
 
         public bool TryAddPeer(string url, int port, long peerId)
         {
-            // https://kelseyc18.github.io/kademlia_vis/basics/3/
-            // https://docs.rs/kademlia_routing_table/latest/kademlia_routing_table/
             var distance = Id ^ peerId;
             distance = distance == 0 ? 1 : distance;
             var bucket = FindClosestKBucket(distance);
             if (bucket == null) return false;
             var record = bucket.Peers.FirstOrDefault(p => p.Url == url && p.Port == port);
-            if (record != null)
-            {
-                record.LastSeenDateTime = DateTime.UtcNow;
-                return false;
-            }
-
+            if (record != null) return false;
             bucket.Peers.Add(new KBucketPeer { PeerId = peerId, Url = url, Port = port, LastSeenDateTime = DateTime.UtcNow });
             return true;
         }
@@ -55,6 +48,7 @@ namespace FaasNet.DHT.Kademlia.Core
         {
             var peers = KBucketLst
                 .SelectMany(k => k.Peers)
+                .Where(k => !k.IsDisabled)
                 .OrderBy(p => p.ComputeDistance(key))
                 .Take(k);
             return peers;
@@ -100,10 +94,27 @@ namespace FaasNet.DHT.Kademlia.Core
 
     public class KBucketPeer
     {
+        public KBucketPeer()
+        {
+            IsDisabled = false;
+        }
+
         public string Url { get; set; }
         public int Port { get; set; }
         public long PeerId { get; set; }
         public DateTime LastSeenDateTime { get; set; }
+        public bool IsDisabled { get; set; }
+
+        public void Disable()
+        {
+            IsDisabled = true;
+        }
+
+        public void Enable()
+        {
+            IsDisabled = false;
+            LastSeenDateTime = DateTime.UtcNow;
+        }
 
         public long ComputeDistance(long id)
         {

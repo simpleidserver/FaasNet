@@ -2,9 +2,9 @@
 {
     public static class PackageRequestBuilder
     {
-        public static BasePackage Ping(long id, string url, int port, string nonce)
+        public static BasePackage Ping(string nonce)
         {
-            return new PingRequest { Id = id, Url = url, Port = port, Nonce = nonce};
+            return new PingRequest { Nonce = nonce};
         }
 
         public static BasePackage FindNode(long id, string url, int port, long targetId, string nonce)
@@ -19,12 +19,12 @@
 
         public static BasePackage StoreValue(long key, string value, string nonce)
         {
-            return new StoreRequest { Key = key, Value = value, Nonce = nonce };
+            return new StoreRequest { Key = key, Value = value, Nonce = nonce, Force = false };
         }
 
-        public static BasePackage Join(long id, string url, int port, string nonce)
+        public static BasePackage ForceStoreValue(long key, string value, string nonce, long excludedPeer)
         {
-            return new JoinRequest { Id = id, Url = url, Port = port, Nonce = nonce };
+            return new StoreRequest { Key = key, Value = value, Nonce = nonce, Force = true, ExcludedPeer = excludedPeer };
         }
     }
 }

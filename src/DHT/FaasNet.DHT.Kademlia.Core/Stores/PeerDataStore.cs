@@ -36,7 +36,7 @@ namespace FaasNet.DHT.Kademlia.Core.Stores
 
         public ICollection<PeerDataRecord> GetAll()
         {
-            return _peerDataRecords;
+            return _peerDataRecords.Select(p => new PeerDataRecord { Id = p.Id, Value = p.Value }).ToList();
         }
 
         public bool TryRemove(PeerDataRecord record)

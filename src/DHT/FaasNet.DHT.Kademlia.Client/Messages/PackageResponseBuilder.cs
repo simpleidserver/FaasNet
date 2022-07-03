@@ -23,10 +23,5 @@ namespace FaasNet.DHT.Kademlia.Client.Messages
         {
             return new StoreResult { Nonce = nonce };
         }
-
-        public static BasePackage Join(string nonce)
-        {
-            return new JoinResult { Nonce = nonce };
-        }
     }
 }

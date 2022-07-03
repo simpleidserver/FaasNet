@@ -41,8 +41,6 @@
             if(cmd == Commands.FIND_VALUE_RESULT) result = new FindValueResult().Extract(context);
             if(cmd == Commands.STORE_REQUEST) result = new StoreRequest().Extract(context);
             if(cmd == Commands.STORE_RESULT) result = new StoreResult();
-            if(cmd == Commands.JOIN_REQUEST) result = new JoinRequest().Extract(context);
-            if (cmd == Commands.JOIN_RESULT) result = new JoinResult();
             return result;
         }
     }

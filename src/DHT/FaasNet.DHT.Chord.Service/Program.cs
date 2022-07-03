@@ -29,6 +29,7 @@ namespace FaasNet.DHT.Chord.Service
             {
                 Console.WriteLine("add-peer: Add peer");
                 Console.WriteLine("add-key: Add key");
+                Console.WriteLine("get-key: Get key");
                 Console.WriteLine("stop-peer: Stop peer");
                 Console.WriteLine("fingers: Display fingers");
                 Console.WriteLine("data: Display data");
@@ -36,6 +37,7 @@ namespace FaasNet.DHT.Chord.Service
                 line = Console.ReadLine();
                 if(line == "add-peer") AddPeer();
                 if (line == "add-key") AddKey();
+                if (line == "get-key") GetKey();
                 if (line == "stop-peer") StopPeer();
                 if (line == "fingers") DisplayFingers();
                 if (line == "data") DisplayData();
@@ -69,6 +71,17 @@ namespace FaasNet.DHT.Chord.Service
             using (var chordClient = new ChordClient("localhost", ROOT_NODE_PORT))
             {
                 chordClient.AddKey(key, value);
+            }
+        }
+
+        private static void GetKey()
+        {
+            Console.WriteLine("Enter a key");
+            var key = long.Parse(Console.ReadLine());
+            using(var chordClient = new ChordClient("localhost", ROOT_NODE_PORT))
+            {
+                var value = chordClient.GetKey(key);
+                Console.WriteLine($"Key {key}, Value {value}");
             }
         }
 
