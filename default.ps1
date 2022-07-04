@@ -57,6 +57,8 @@ task pack {
 	exec { dotnet pack $source_dir\Common\FaasNet.Common\FaasNet.Common.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
 	exec { dotnet pack $source_dir\DHT\FaasNet.DHT.Chord.Client\FaasNet.DHT.Chord.Client.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
 	exec { dotnet pack $source_dir\DHT\FaasNet.DHT.Chord.Core\FaasNet.DHT.Chord.Core.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\DHT\FaasNet.DHT.Kademlia.Client\FaasNet.DHT.Kademlia.Client.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\DHT\FaasNet.DHT.Kademlia.Core\FaasNet.DHT.Kademlia.Core.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
 }
 
 # Publish

@@ -39,7 +39,7 @@ Install the Nuget package `FaasNet.DHT.Chord.Client` and `FaasNet.DHT.Chord.Core
 cd ChordServer
 
 dotnet add package FaasNet.DHT.Chord.Client
-FaasNet.DHT.Chord.Core
+dotnet add package FaasNet.DHT.Chord.Core
 ```
 
 Add the console application into the Visual Studio Solution.

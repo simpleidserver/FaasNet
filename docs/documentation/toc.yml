@@ -40,3 +40,5 @@
   items:
     - name: CHORD
       href: structured/chord.md
+    - name: Kademlia
+      href: structured/kademlia.md
