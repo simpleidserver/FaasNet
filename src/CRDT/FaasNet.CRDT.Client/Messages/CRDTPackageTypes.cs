@@ -2,6 +2,10 @@
 {
     public class CRDTPackageTypes
     {
+        public static CRDTPackageTypes DELETE = new CRDTPackageTypes("DELETE", "Delete Entity");
+        public static CRDTPackageTypes DELTA = new CRDTPackageTypes("DELTA", "Apply delta");
+        public static CRDTPackageTypes ERROR = new CRDTPackageTypes("ERROR", "Error");
+
         public CRDTPackageTypes(string name, string description)
         {
             Name = name;

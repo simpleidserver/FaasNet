@@ -2,6 +2,8 @@
 {
     public abstract class CRDTPackage
     {
-        public CRDTPackageTypes Type { get; set; }
+        public string EntityId { get; set; }
+        public string Nonce { get; set; }
+        public abstract CRDTPackageTypes Type { get; }
     }
 }
