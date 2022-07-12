@@ -1,4 +1,4 @@
-﻿using FaasNet.Peer.Helpers;
+﻿using FaasNet.Common.Helpers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;

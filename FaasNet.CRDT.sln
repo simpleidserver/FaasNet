@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Startup Layer", "02. St
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Peer", "src\Common\FaasNet.Peer\FaasNet.Peer.csproj", "{A1229845-962E-4C11-A2E7-612657F62B8A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Peer.Client", "src\Common\FaasNet.Peer.Client\FaasNet.Peer.Client.csproj", "{5A2F2F1D-A34E-422F-840A-5E96BC38B243}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{A1229845-962E-4C11-A2E7-612657F62B8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1229845-962E-4C11-A2E7-612657F62B8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1229845-962E-4C11-A2E7-612657F62B8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A2F2F1D-A34E-422F-840A-5E96BC38B243}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A2F2F1D-A34E-422F-840A-5E96BC38B243}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A2F2F1D-A34E-422F-840A-5E96BC38B243}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A2F2F1D-A34E-422F-840A-5E96BC38B243}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +61,7 @@ Global
 		{BBB60535-3D88-4743-AEAA-9677DA1D5AA3} = {AFBF0FF7-C4C9-4493-8370-EF48474D889A}
 		{149287CF-9FCB-4793-AC39-20D113764F46} = {0773ED24-54D1-4557-9DB7-3B2871183734}
 		{A1229845-962E-4C11-A2E7-612657F62B8A} = {903F77F3-A032-4DE1-BB20-2735211F4272}
+		{5A2F2F1D-A34E-422F-840A-5E96BC38B243} = {903F77F3-A032-4DE1-BB20-2735211F4272}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {019EE82A-3DE9-4091-AF7F-5FCE249185BB}

@@ -1,13 +1,12 @@
-﻿using FaasNet.CRDT.Client.Messages;
+﻿using FaasNet.CRDT.Client.Messages.Deltas;
 
 namespace FaasNet.CRDT.Core.Entities
 {
-    public abstract class CRDTEntity<T> where T : IEntityDelta
+    public abstract class CRDTEntity
     {
-        public string Id { get; set; }
         public abstract string Name { get; }
-        public abstract T ResetAndGetDelta();
+        public abstract BaseEntityDelta ResetAndGetDelta();
         public abstract bool HasDelta { get; }
-        public abstract void ApplyDelta(string replicationId, T delta);
+        public abstract void ApplyDelta(string replicationId, BaseEntityDelta delta);
     }
 }

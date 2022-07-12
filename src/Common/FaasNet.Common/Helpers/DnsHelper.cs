@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Net;
 
-namespace FaasNet.Peer.Helpers
+namespace FaasNet.Common.Helpers
 {
     public static class DnsHelper
     {

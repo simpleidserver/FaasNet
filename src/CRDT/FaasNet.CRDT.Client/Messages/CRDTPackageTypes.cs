@@ -1,18 +1,25 @@
-﻿namespace FaasNet.CRDT.Client.Messages
-{
-    public class CRDTPackageTypes
-    {
-        public static CRDTPackageTypes DELETE = new CRDTPackageTypes("DELETE", "Delete Entity");
-        public static CRDTPackageTypes DELTA = new CRDTPackageTypes("DELTA", "Apply delta");
-        public static CRDTPackageTypes ERROR = new CRDTPackageTypes("ERROR", "Error");
+﻿using FaasNet.Peer.Client;
 
-        public CRDTPackageTypes(string name, string description)
+namespace FaasNet.CRDT.Client.Messages
+{
+    public class CRDTPackageTypes : BaseEnumeration
+    {
+        public static CRDTPackageTypes DELETE = new CRDTPackageTypes(0, "DELETE");
+        public static CRDTPackageTypes DELTA = new CRDTPackageTypes(1, "APPLY_DETLA");
+        public static CRDTPackageTypes ERROR = new CRDTPackageTypes(2, "ERROR");
+
+        public CRDTPackageTypes(int code)
         {
-            Name = name;
-            Description = description;
+            Init<CRDTPackageTypes>(code);
         }
 
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public CRDTPackageTypes(int code, string description) : base(code, description)
+        {
+        }
+
+        public static CRDTPackageTypes Deserialize(ReadBufferContext context)
+        {
+            return new CRDTPackageTypes(context.NextInt());
+        }
     }
 }

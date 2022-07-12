@@ -5,6 +5,7 @@
         public PeerOptions()
         {
             PeerId = "peer";
+            Port = 5001;
         }
 
         /// <summary>

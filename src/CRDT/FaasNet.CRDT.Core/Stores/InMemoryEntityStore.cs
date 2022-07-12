@@ -19,6 +19,11 @@ namespace FaasNet.CRDT.Core.Stores
             _entities = new ConcurrentBag<SerializedEntity>();
         }
 
+        public InMemoryEntityStore(ConcurrentBag<SerializedEntity> entities)
+        {
+            _entities = entities;
+        }
+
         public Task<SerializedEntity> Get(string id, CancellationToken cancellationToken)
         {
             var result = _entities.FirstOrDefault(e => e.Id == id);
