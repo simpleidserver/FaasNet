@@ -43,7 +43,7 @@ namespace FaasNet.Peer
         {
             if (IsRunning) throw new InvalidOperationException("The Peer is already running");
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            await _clusterStore.SelfRegister(new ClusterNode(_options.Url, _options.Port), cancellationToken);
+            await _clusterStore.SelfRegister(new ClusterPeer(_options.Url, _options.Port), cancellationToken);
             _transport.Start(_cancellationTokenSource.Token);
 #pragma warning disable 4014
             Task.Run(async () => await Run(), cancellationToken);

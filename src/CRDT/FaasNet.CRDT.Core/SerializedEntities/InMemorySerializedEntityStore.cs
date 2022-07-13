@@ -43,8 +43,8 @@ namespace FaasNet.CRDT.Core.SerializedEntities
         public Task Update(SerializedEntity serializedEntity, CancellationToken cancellationToken)
         {
             var result = _entities.FirstOrDefault(e => e.Id == serializedEntity.Id);
-            if (result == null) _entities.Remove(result);
-            _entities.Add(result);
+            if (result != null) _entities.Remove(result);
+            _entities.Add(serializedEntity);
             return Task.CompletedTask;
         }
     }

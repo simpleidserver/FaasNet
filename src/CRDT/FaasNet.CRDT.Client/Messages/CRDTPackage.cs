@@ -10,10 +10,14 @@ namespace FaasNet.CRDT.Client.Messages
         public string Nonce { get; set; }
         public abstract CRDTPackageTypes Type { get; }
 
-        public static CRDTPackage Deserialize(ReadBufferContext context)
+        public static CRDTPackage Deserialize(ReadBufferContext context, bool ignoreEnvelope = false)
         {
-            var peerId = context.NextString();
-            var entityId = context.NextString();
+            if(ignoreEnvelope)
+            {
+                context.NextString();
+                context.NextString();
+            }
+
             var nonce = context.NextString();
             var type = CRDTPackageTypes.Deserialize(context);
             if(type == CRDTPackageTypes.DELTA)

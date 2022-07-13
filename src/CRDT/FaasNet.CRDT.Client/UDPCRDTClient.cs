@@ -1,5 +1,6 @@
 ﻿using FaasNet.Common.Extensions;
 using FaasNet.Common.Helpers;
+using FaasNet.CRDT.Client.Exceptions;
 using FaasNet.CRDT.Client.Messages;
 using FaasNet.Peer.Client;
 using System;
@@ -35,10 +36,11 @@ namespace FaasNet.CRDT.Client
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
             var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
             var readCtx = new ReadBufferContext(resultPayload.Buffer);
-            var packageResult = CRDTPackage.Deserialize(readCtx);
+            var packageResult = CRDTPackage.Deserialize(readCtx, true);
+            Assert(package, packageResult);
         }
 
-        public async Task Sync(string peerId, string entityId, ICollection<ClockValue> clockVector, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
+        public async Task<CRDTSyncResultPackage> Sync(string peerId, string entityId, ICollection<ClockValue> clockVector, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
         {
             var writeCtx = new WriteBufferContext();
             var nonce = Guid.NewGuid().ToString();
@@ -48,7 +50,16 @@ namespace FaasNet.CRDT.Client
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
             var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
             var readCtx = new ReadBufferContext(resultPayload.Buffer);
-            var packageResult = CRDTPackage.Deserialize(readCtx);
+            var packageResult = CRDTPackage.Deserialize(readCtx, true);
+            Assert(package, packageResult);
+            return packageResult as CRDTSyncResultPackage;
+        }
+
+        private void Assert(CRDTPackage request, CRDTPackage result)
+        {
+            var error = result as CRDTErrorPackage;
+            if (error != null) throw new CRDTClientException("Invalid request exception", error.Code);
+            if (request.Nonce != result.Nonce) throw new CRDTClientException("Nonce doesn't match");
         }
 
         public void Dispose()

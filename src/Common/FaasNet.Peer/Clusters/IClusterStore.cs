@@ -7,33 +7,33 @@ namespace FaasNet.Peer.Clusters
 {
     public interface IClusterStore
     {
-        Task SelfRegister(ClusterNode node, CancellationToken cancellationToken);
-        Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken);
+        Task SelfRegister(ClusterPeer node, CancellationToken cancellationToken);
+        Task<IEnumerable<ClusterPeer>> GetAllNodes(CancellationToken cancellationToken);
     }
 
     public class InMemoryClusterStore : IClusterStore
     {
-        private readonly ConcurrentBag<ClusterNode> _clusterNodes;
+        private readonly ConcurrentBag<ClusterPeer> _clusterPeers;
 
         public InMemoryClusterStore()
         {
-            _clusterNodes = new ConcurrentBag<ClusterNode>();
+            _clusterPeers = new ConcurrentBag<ClusterPeer>();
         }
 
-        public InMemoryClusterStore(ConcurrentBag<ClusterNode> clusterNodes)
+        public InMemoryClusterStore(ConcurrentBag<ClusterPeer> clusterNodes)
         {
-            _clusterNodes = clusterNodes;
+            _clusterPeers = clusterNodes;
         }
 
-        public Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken)
+        public Task<IEnumerable<ClusterPeer>> GetAllNodes(CancellationToken cancellationToken)
         {
-            IEnumerable<ClusterNode> nodes = _clusterNodes;
+            IEnumerable<ClusterPeer> nodes = _clusterPeers;
             return Task.FromResult(nodes);
         }
 
-        public Task SelfRegister(ClusterNode node, CancellationToken cancellationToken)
+        public Task SelfRegister(ClusterPeer node, CancellationToken cancellationToken)
         {
-            _clusterNodes.Add(node);
+            _clusterPeers.Add(node);
             return Task.CompletedTask;
         }
     }

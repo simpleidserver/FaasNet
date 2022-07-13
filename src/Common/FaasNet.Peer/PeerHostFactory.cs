@@ -11,21 +11,21 @@ namespace FaasNet.Peer
     {
         private readonly IServiceCollection _serviceCollection;
 
-        private PeerHostFactory(Action<PeerOptions> options, ConcurrentBag<ClusterNode> clusterNodes)
+        private PeerHostFactory(Action<PeerOptions> options, ConcurrentBag<ClusterPeer> clusterPeers)
         {
             _serviceCollection = new ServiceCollection();
             if (options == null) _serviceCollection.Configure<PeerOptions>(o => { });
             else _serviceCollection.Configure(options);
             _serviceCollection.AddTransient<IPeerHost, PeerHost>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
-            if (clusterNodes != null) _serviceCollection.AddSingleton<IClusterStore>(new InMemoryClusterStore(clusterNodes));
+            if (clusterPeers != null) _serviceCollection.AddSingleton<IClusterStore>(new InMemoryClusterStore(clusterPeers));
             else _serviceCollection.AddSingleton<IClusterStore, InMemoryClusterStore>();
             _serviceCollection.AddLogging();
         }
 
         public IServiceCollection Services => _serviceCollection;
 
-        public static PeerHostFactory New(Action<PeerOptions> options = null, ConcurrentBag<ClusterNode> clusterNodes = null)
+        public static PeerHostFactory New(Action<PeerOptions> options = null, ConcurrentBag<ClusterPeer> clusterNodes = null)
         {
             return new PeerHostFactory(options, clusterNodes);
         }

@@ -1,6 +1,4 @@
-﻿using FaasNet.CRDT.Client.Messages.Deltas;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace FaasNet.CRDT.Client.Messages
 {
@@ -11,9 +9,9 @@ namespace FaasNet.CRDT.Client.Messages
             return new CRDTResultPackage { Nonce = nonce };
         }
 
-        public static CRDTPackage Sync(string nonce, ICollection<BaseEntityDelta> deltaLst)
+        public static CRDTPackage Sync(string entityId, string nonce, ICollection<CRDTSyncDiffRecordPackage> diffLst)
         {
-            return new CRDTSyncResultPackage { Nonce = nonce, DiffLst = deltaLst.Select(d =>new CRDTDeltaPackage { Delta = d }).ToList() };
+            return new CRDTSyncResultPackage { EntityId = entityId, Nonce = nonce, DiffLst = diffLst };
         }
 
         public static CRDTPackage BuildError(CRDTPackage request, string errorCode)

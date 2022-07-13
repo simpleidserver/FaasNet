@@ -15,6 +15,7 @@ namespace FaasNet.Peer
             else peerHostFactory.Services.Configure(options);
             peerHostFactory.Services.AddTransient<IProtocolHandler, CRDTProtocolHandler>();
             peerHostFactory.Services.AddTransient<ICRDTEntityFactory, CRDTEntityFactory>();
+            peerHostFactory.Services.AddTransient<ITimer, SyncCRDTEntitiesTimer>();
             if (entities == null) peerHostFactory.Services.AddSingleton<ISerializedEntityStore, InMemorySerializedEntityStore>();
             else peerHostFactory.Services.AddSingleton<ISerializedEntityStore>(new InMemorySerializedEntityStore(entities));
             return peerHostFactory;

@@ -7,10 +7,19 @@ namespace FaasNet.CRDT.Core.Entities
 {
     public class GCounter : CRDTEntity
     {
+        private object _lock = new object();
         public static string NAME = "GCounter";
         private readonly string _replicatonId;
         private readonly ICollection<GCounterClockValue> _clockVector;
-        private long _delta;
+
+        public GCounter(string replicationId)
+        {
+            _replicatonId = replicationId;
+            _clockVector = new List<GCounterClockValue>
+            {
+                new GCounterClockValue { Increment = 0, Value = 0, ReplicationId = _replicatonId }
+            };
+        }
 
         public GCounter(string replicationId, ICollection<GCounterClockValue> clockVector)
         {
@@ -19,24 +28,26 @@ namespace FaasNet.CRDT.Core.Entities
         }
 
         public override string Name => NAME;
-        public override bool HasDelta => _delta != default(long);
         public long Value => _clockVector.GroupBy(c => c.ReplicationId).SelectMany(c => c).Sum(c => c.Value);
         public override ICollection<ClockValue> ClockVector => _clockVector.Cast<ClockValue>().ToList();
 
         public override void ApplyDelta(string replicationId, BaseEntityDelta delta)
         {
-            var counter = delta as GCounterDelta;
-            var clockValue = _clockVector.OrderByDescending(c => c.Increment).FirstOrDefault(c => c.ReplicationId == replicationId);
-            GCounterClockValue newClockValue = null;
-            if (clockValue == null)
+            lock(_lock)
             {
-                newClockValue = new GCounterClockValue { Increment = 0, ReplicationId = replicationId, Value = counter.Increment };
-                _clockVector.Add(newClockValue);
-                return;
-            }
+                var counter = delta as GCounterDelta;
+                var clockValue = _clockVector.OrderByDescending(c => c.Increment).FirstOrDefault(c => c.ReplicationId == replicationId);
+                GCounterClockValue newClockValue = null;
+                if (clockValue == null)
+                {
+                    newClockValue = new GCounterClockValue { Increment = 0, ReplicationId = replicationId, Value = counter.Increment };
+                    _clockVector.Add(newClockValue);
+                    return;
+                }
 
-            newClockValue = new GCounterClockValue { Increment = clockValue.Increment + 1, ReplicationId = replicationId, Value = counter.Increment };
-            _clockVector.Add(newClockValue);
+                newClockValue = new GCounterClockValue { Increment = clockValue.Increment + 1, ReplicationId = replicationId, Value = counter.Increment };
+                _clockVector.Add(newClockValue);
+            }
         }
 
         public GCounter Increment()

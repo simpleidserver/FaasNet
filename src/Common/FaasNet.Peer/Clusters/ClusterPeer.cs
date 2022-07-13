@@ -1,8 +1,8 @@
 ﻿namespace FaasNet.Peer.Clusters
 {
-    public class ClusterNode
+    public class ClusterPeer
     {
-        public ClusterNode(string url, int port)
+        public ClusterPeer(string url, int port)
         {
             Url = url;
             Port = port;

@@ -5,6 +5,7 @@ using FaasNet.CRDT.Core.SerializedEntities;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;
 using Microsoft.Extensions.Options;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -50,14 +51,8 @@ namespace FaasNet.CRDT.Core
             var entity = await _entityStore.Get(syncPackage.EntityId, cancellationToken);
             if (entity == null) return CRDTPackageResultBuilder.BuildError(syncPackage, ErrorCodes.UNKNOWN_ENTITY);
             var crdtEntity = _entityFactory.Build(entity);
-            var deltaLst = new CRDTEntityDiff().Diff(crdtEntity, syncPackage.ClockVector);
-            return CRDTPackageResultBuilder.Sync(syncPackage.Nonce, deltaLst);
-        }
-
-        private Task Handle()
-        {
-            // APPLY ALL DELTA.
-            return Task.CompletedTask;
+            var diff = new CRDTEntityDiff().Diff(crdtEntity, syncPackage.ClockVector);
+            return CRDTPackageResultBuilder.Sync(entity.Id, syncPackage.Nonce, diff);
         }
     }
 }
