@@ -1,6 +1,5 @@
 ﻿using FaasNet.CRDT.Client;
-using FaasNet.CRDT.Core.Entities;
-using FaasNet.CRDT.Core.Stores;
+using FaasNet.CRDT.Core.SerializedEntities;
 using FaasNet.Peer;
 using System.Collections.Concurrent;
 
@@ -10,13 +9,16 @@ namespace FaasNet.DHT.Chord.Service
     {
         public static int Main(string[] args)
         {
+            // Pour le clock il faut stocker.
+            // Quand on incrémente alors on récupère la dernière valeur.
+            // Quand on ajoute dans une liste alors on récupère les N dernières valeurs.
             // UseGCounter();
             var peerHost = LaunchCRDTPeer();
             Console.WriteLine("Increment counter");
             Console.ReadLine();
             using (var crdtClient = new UDPCRDTClient("localhost", 5001))
             {
-                crdtClient.IncrementGCounter("peerId", "id", 2).Wait();
+                crdtClient.IncrementGCounter("nb_customers", 2).Wait();
             }
 
             peerHost.Stop();
@@ -33,7 +35,7 @@ namespace FaasNet.DHT.Chord.Service
             {
                 new SerializedEntity
                 {
-                    Id = "id",
+                    Id = "nb_customers",
                     Type = "GCounter",
                     Value = null
                 }
@@ -44,22 +46,6 @@ namespace FaasNet.DHT.Chord.Service
                 .Build();
             peerHost.Start();
             return peerHost;
-        }
-
-        private static void UseGCounter()
-        {
-            var id1 = new GCounter("id1", new Dictionary<string, long>());
-            var id2 = new GCounter("id2", new Dictionary<string, long>());
-            var id1FirstDelta = id1.Increment().ResetAndGetDelta();
-            var id1SecondDelta = id1.Increment().ResetAndGetDelta();
-            var id2FirstDelta = id2.Increment().ResetAndGetDelta();
-            var id2SecondDelta=  id2.Increment().ResetAndGetDelta();
-            id2.ApplyDelta("id1", id1FirstDelta);
-            id2.ApplyDelta("id1", id1SecondDelta);
-            id1.ApplyDelta("id2", id2FirstDelta);
-            id1.ApplyDelta("id2", id2SecondDelta);
-            Console.WriteLine($"Node 1, Increment = {id1.Value}");
-            Console.WriteLine($"Node 2, Increment = {id2.Value}");
         }
     }
 }

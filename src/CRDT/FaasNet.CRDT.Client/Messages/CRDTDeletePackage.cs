@@ -6,6 +6,11 @@ namespace FaasNet.CRDT.Client.Messages
     {
         public override CRDTPackageTypes Type => CRDTPackageTypes.DELETE;
 
-        protected override void SerializeAction(WriteBufferContext context) { }
+        public string EntityId { get; set; }
+
+        public override void SerializeAction(WriteBufferContext context) 
+        { 
+            context.WriteString(EntityId);
+        }
     }
 }

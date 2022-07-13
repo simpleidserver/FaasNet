@@ -1,9 +1,10 @@
 ﻿using FaasNet.CRDT.Client;
 using FaasNet.CRDT.Client.Messages;
 using FaasNet.CRDT.Core.Entities;
-using FaasNet.CRDT.Core.Stores;
+using FaasNet.CRDT.Core.SerializedEntities;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;
+using Microsoft.Extensions.Options;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,13 +12,15 @@ namespace FaasNet.CRDT.Core
 {
     public class CRDTProtocolHandler : IProtocolHandler
     {
-        private readonly IEntityStore _entityStore;
-        private readonly IEntityFactory _entityFactory;
+        private readonly ISerializedEntityStore _entityStore;
+        private readonly ICRDTEntityFactory _entityFactory;
+        private readonly PeerOptions _peerOptions;
 
-        public CRDTProtocolHandler(IEntityStore entityStore, IEntityFactory entityFactory)
+        public CRDTProtocolHandler(ISerializedEntityStore entityStore, ICRDTEntityFactory entityFactory, IOptions<PeerOptions> peerOptions)
         {
             _entityStore = entityStore;
             _entityFactory = entityFactory;
+            _peerOptions = peerOptions.Value;
         }
 
         public string MagicCode => CRDTPackage.MAGIC_CODE;
@@ -26,15 +29,35 @@ namespace FaasNet.CRDT.Core
         {
             var context = new ReadBufferContext(payload);
             CRDTPackage crdtPackage = CRDTPackage.Deserialize(context);
-            var entity = await _entityStore.Get(crdtPackage.EntityId, cancellationToken);
-            if (entity == null) return CRDTPackageResultBuilder.BuildError(crdtPackage, ErrorCodes.UNKNOWN_ENTITY);
-            if (crdtPackage.Type == CRDTPackageTypes.DELTA) Handle(entity, crdtPackage as CRDTDeltaPackage, crdtPackage.PeerId);
-            return null;
+            if (crdtPackage.Type == CRDTPackageTypes.DELTA) return await Handle(crdtPackage as CRDTDeltaPackage, cancellationToken);
+            if (crdtPackage.Type == CRDTPackageTypes.SYNC) return await Handle(crdtPackage as CRDTSyncPackage, cancellationToken);
+            return CRDTPackageResultBuilder.Ok(crdtPackage.Nonce);
         }
 
-        private void Handle(SerializedEntity entity, CRDTDeltaPackage detlaPackage, string peerId)
+        private async Task<CRDTPackage> Handle(CRDTDeltaPackage deltaPackage, CancellationToken cancellationToken)
         {
-            _entityFactory.ApplyDelta(entity, detlaPackage.Delta, peerId);
+            var entity = await _entityStore.Get(deltaPackage.EntityId, cancellationToken);
+            if (entity == null) return CRDTPackageResultBuilder.BuildError(deltaPackage, ErrorCodes.UNKNOWN_ENTITY);
+            var crdtEntity = _entityFactory.Build(entity);
+            crdtEntity.ApplyDelta(_peerOptions.PeerId, deltaPackage.Delta);
+            var serializedEntity = new CRDTEntitySerializer().Serialize(entity.Id, crdtEntity);
+            await _entityStore.Update(serializedEntity, cancellationToken);
+            return CRDTPackageResultBuilder.Ok(deltaPackage.Nonce);
+        }
+
+        private async Task<CRDTPackage> Handle(CRDTSyncPackage syncPackage, CancellationToken cancellationToken)
+        {
+            var entity = await _entityStore.Get(syncPackage.EntityId, cancellationToken);
+            if (entity == null) return CRDTPackageResultBuilder.BuildError(syncPackage, ErrorCodes.UNKNOWN_ENTITY);
+            var crdtEntity = _entityFactory.Build(entity);
+            var deltaLst = new CRDTEntityDiff().Diff(crdtEntity, syncPackage.ClockVector);
+            return CRDTPackageResultBuilder.Sync(syncPackage.Nonce, deltaLst);
+        }
+
+        private Task Handle()
+        {
+            // APPLY ALL DELTA.
+            return Task.CompletedTask;
         }
     }
 }

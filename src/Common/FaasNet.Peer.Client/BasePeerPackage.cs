@@ -12,6 +12,6 @@
             SerializeBody(context);
         }
 
-        protected abstract void SerializeBody(WriteBufferContext context);
+        public abstract void SerializeBody(WriteBufferContext context);
     }
 }

@@ -7,17 +7,20 @@ namespace FaasNet.CRDT.Client.Messages
     {
         public override CRDTPackageTypes Type => CRDTPackageTypes.DELTA;
 
+        public string EntityId { get; set; }
         public BaseEntityDelta Delta { get; set; }
 
-        protected override void SerializeAction(WriteBufferContext context)
+        public override void SerializeAction(WriteBufferContext context)
         {
             Delta.DeltaType.Serialize(context);
+            context.WriteString(EntityId);
             Delta.Serialize(context);
         }
 
         public void Extract(ReadBufferContext context)
         {
             var deltaType = EntityDeltaTypes.Deserialize(context);
+            EntityId = context.NextString();
             if (deltaType == EntityDeltaTypes.GCounter)
             {
                 var result = new GCounterDelta();

@@ -1,5 +1,5 @@
-﻿using FaasNet.CRDT.Client.Messages.Deltas;
-using System;
+﻿using FaasNet.CRDT.Client.Messages;
+using FaasNet.CRDT.Client.Messages.Deltas;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,39 +9,55 @@ namespace FaasNet.CRDT.Core.Entities
     {
         public static string NAME = "GCounter";
         private readonly string _replicatonId;
-        private readonly Dictionary<string, long> _replicatedValues;
+        private readonly ICollection<GCounterClockValue> _clockVector;
         private long _delta;
 
-        public GCounter(string replicationId, Dictionary<string, long> replicatedValue)
+        public GCounter(string replicationId, ICollection<GCounterClockValue> clockVector)
         {
             _replicatonId = replicationId;
-            _replicatedValues = replicatedValue;
+            _clockVector = clockVector;
         }
 
         public override string Name => NAME;
         public override bool HasDelta => _delta != default(long);
-        public long Value => _replicatedValues.Sum(kvp => kvp.Value);
-
-        public override BaseEntityDelta ResetAndGetDelta()
-        {
-            var result = new GCounterDelta(_delta);
-            _delta = default(long);
-            return result;
-        }
+        public long Value => _clockVector.GroupBy(c => c.ReplicationId).SelectMany(c => c).Sum(c => c.Value);
+        public override ICollection<ClockValue> ClockVector => _clockVector.Cast<ClockValue>().ToList();
 
         public override void ApplyDelta(string replicationId, BaseEntityDelta delta)
         {
             var counter = delta as GCounterDelta;
-            if (!_replicatedValues.ContainsKey(replicationId)) _replicatedValues.Add(replicationId, 0);
-            _replicatedValues[replicationId] = Math.Max(_replicatedValues[replicationId] + counter.Increment, _replicatedValues[replicationId]);
+            var clockValue = _clockVector.OrderByDescending(c => c.Increment).FirstOrDefault(c => c.ReplicationId == replicationId);
+            GCounterClockValue newClockValue = null;
+            if (clockValue == null)
+            {
+                newClockValue = new GCounterClockValue { Increment = 0, ReplicationId = replicationId, Value = counter.Increment };
+                _clockVector.Add(newClockValue);
+                return;
+            }
+
+            newClockValue = new GCounterClockValue { Increment = clockValue.Increment + 1, ReplicationId = replicationId, Value = counter.Increment };
+            _clockVector.Add(newClockValue);
         }
 
         public GCounter Increment()
         {
-            if (!_replicatedValues.ContainsKey(_replicatonId)) _replicatedValues.Add(_replicatonId, 0);
-            _replicatedValues[_replicatonId] = _replicatedValues[_replicatonId] + 1;
-            _delta++;
+            var clockValue = _clockVector.OrderByDescending(c => c.Increment).FirstOrDefault(c => c.ReplicationId == _replicatonId);
+            GCounterClockValue newClockValue = null;
+            if (clockValue == null)
+            {
+                newClockValue = new GCounterClockValue { Increment = 0, ReplicationId = _replicatonId, Value = 1 };
+                _clockVector.Add(newClockValue);
+                return this;
+            }
+
+            newClockValue = new GCounterClockValue { Increment = clockValue.Increment + 1, ReplicationId = _replicatonId, Value = 1 };
+            _clockVector.Add(newClockValue);
             return this;
         }
+    }
+
+    public class GCounterClockValue : ClockValue
+    {
+        public long Value { get; set; }
     }
 }

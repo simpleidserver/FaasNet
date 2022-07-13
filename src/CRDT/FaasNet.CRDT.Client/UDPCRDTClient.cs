@@ -3,6 +3,7 @@ using FaasNet.Common.Helpers;
 using FaasNet.CRDT.Client.Messages;
 using FaasNet.Peer.Client;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -24,11 +25,24 @@ namespace FaasNet.CRDT.Client
             _udpClient = new UdpClient();
         }
 
-        public async Task IncrementGCounter(string peerId, string entityId, long increment, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
+        public async Task IncrementGCounter(string entityId, long increment, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
         {
             var writeCtx = new WriteBufferContext();
             var nonce = Guid.NewGuid().ToString();
-            var package = CRDTPackageRequestBuilder.IncrementGCounter(peerId, entityId, increment, nonce);
+            var package = CRDTPackageRequestBuilder.IncrementGCounter(entityId, increment, nonce);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
+            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            var packageResult = CRDTPackage.Deserialize(readCtx);
+        }
+
+        public async Task Sync(string peerId, string entityId, ICollection<ClockValue> clockVector, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
+        {
+            var writeCtx = new WriteBufferContext();
+            var nonce = Guid.NewGuid().ToString();
+            var package = CRDTPackageRequestBuilder.Sync(peerId, entityId, clockVector, nonce);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);

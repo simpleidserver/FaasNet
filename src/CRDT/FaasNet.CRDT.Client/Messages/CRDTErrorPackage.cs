@@ -8,7 +8,7 @@ namespace FaasNet.CRDT.Client.Messages
 
         public string Code { get; set; }
 
-        protected override void SerializeAction(WriteBufferContext context)
+        public override void SerializeAction(WriteBufferContext context)
         {
             context.WriteString(Code);
         }

@@ -7,8 +7,6 @@ namespace FaasNet.CRDT.Client.Messages
         public static string MAGIC_CODE = "DELTACRDT";
         public override string MagicCode => MAGIC_CODE;
         public override string VersionNumber => "0000";
-        public string PeerId { get; set; }
-        public string EntityId { get; set; }
         public string Nonce { get; set; }
         public abstract CRDTPackageTypes Type { get; }
 
@@ -20,15 +18,30 @@ namespace FaasNet.CRDT.Client.Messages
             var type = CRDTPackageTypes.Deserialize(context);
             if(type == CRDTPackageTypes.DELTA)
             {
-                var result = new CRDTDeltaPackage { PeerId = peerId, EntityId = entityId, Nonce = nonce };
+                var result = new CRDTDeltaPackage { Nonce = nonce };
                 result.Extract(context);
                 return result;
             }
 
-            if (type == CRDTPackageTypes.DELETE) return new CRDTDeletePackage { PeerId = peerId, EntityId = entityId, Nonce = nonce };
+            if (type == CRDTPackageTypes.DELETE) return new CRDTDeletePackage { Nonce = nonce };
+            if (type == CRDTPackageTypes.RESULT) return new CRDTResultPackage { Nonce = nonce };
             if (type == CRDTPackageTypes.ERROR)
             {
-                var result = new CRDTErrorPackage { PeerId = peerId, EntityId = entityId, Nonce = nonce };
+                var result = new CRDTErrorPackage { Nonce = nonce };
+                result.Extract(context);
+                return result;
+            }
+
+            if(type == CRDTPackageTypes.SYNC)
+            {
+                var result = new CRDTSyncPackage { Nonce = nonce };
+                result.Extract(context);
+                return result;
+            }
+
+            if (type == CRDTPackageTypes.SYNCRESULT)
+            {
+                var result = new CRDTSyncResultPackage { Nonce = nonce };
                 result.Extract(context);
                 return result;
             }
@@ -36,15 +49,13 @@ namespace FaasNet.CRDT.Client.Messages
             return null;
         }
 
-        protected override void SerializeBody(WriteBufferContext context)
+        public override void SerializeBody(WriteBufferContext context)
         {
-            context.WriteString(PeerId);
-            context.WriteString(EntityId);
             context.WriteString(Nonce);
             Type.Serialize(context);
             SerializeAction(context);
         }
 
-        protected abstract void SerializeAction(WriteBufferContext context);
+        public abstract void SerializeAction(WriteBufferContext context);
     }
 }

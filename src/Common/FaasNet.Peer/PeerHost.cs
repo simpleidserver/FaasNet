@@ -1,7 +1,10 @@
 ﻿using FaasNet.Peer.Client;
+using FaasNet.Peer.Clusters;
 using FaasNet.Peer.Transports;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,14 +21,20 @@ namespace FaasNet.Peer
     {
         private readonly ITransport _transport;
         private readonly IProtocolHandlerFactory _protocolHandlerFactory;
+        private readonly IClusterStore _clusterStore;
+        private readonly IEnumerable<ITimer> _timers;
         private readonly ILogger<PeerHost> _logger;
+        private readonly PeerOptions _options;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public PeerHost(ITransport transport, IProtocolHandlerFactory protocolHandlerFactory, ILogger<PeerHost> logger)
+        public PeerHost(ITransport transport, IProtocolHandlerFactory protocolHandlerFactory, IClusterStore clusterStore, IEnumerable<ITimer> timers, ILogger<PeerHost> logger, IOptions<PeerOptions> options)
         {
             _transport = transport;
             _protocolHandlerFactory = protocolHandlerFactory;
+            _clusterStore = clusterStore;
+            _timers = timers;
             _logger = logger;
+            _options = options.Value;
         }
 
         public bool IsRunning { get; private set; }
@@ -34,16 +43,19 @@ namespace FaasNet.Peer
         {
             if (IsRunning) throw new InvalidOperationException("The Peer is already running");
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            await _clusterStore.SelfRegister(new ClusterNode(_options.Url, _options.Port), cancellationToken);
             _transport.Start(_cancellationTokenSource.Token);
 #pragma warning disable 4014
             Task.Run(async () => await Run(), cancellationToken);
 #pragma warning restore 4014
             IsRunning = true;
+            foreach (var timer in _timers) timer.Start(_cancellationTokenSource.Token);
         }
 
         public Task Stop()
         {
             if (!IsRunning) throw new InvalidOperationException("The Peer is not running");
+            foreach (var timer in _timers) timer.Stop();
             _cancellationTokenSource.Cancel();
             _transport.Stop();
             return Task.CompletedTask;

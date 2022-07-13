@@ -1,6 +1,8 @@
-﻿using FaasNet.Peer.Transports;
+﻿using FaasNet.Peer.Clusters;
+using FaasNet.Peer.Transports;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 
 namespace FaasNet.Peer
@@ -9,21 +11,23 @@ namespace FaasNet.Peer
     {
         private readonly IServiceCollection _serviceCollection;
 
-        private PeerHostFactory(Action<PeerOptions> options)
+        private PeerHostFactory(Action<PeerOptions> options, ConcurrentBag<ClusterNode> clusterNodes)
         {
             _serviceCollection = new ServiceCollection();
             if (options == null) _serviceCollection.Configure<PeerOptions>(o => { });
             else _serviceCollection.Configure(options);
             _serviceCollection.AddTransient<IPeerHost, PeerHost>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
+            if (clusterNodes != null) _serviceCollection.AddSingleton<IClusterStore>(new InMemoryClusterStore(clusterNodes));
+            else _serviceCollection.AddSingleton<IClusterStore, InMemoryClusterStore>();
             _serviceCollection.AddLogging();
         }
 
         public IServiceCollection Services => _serviceCollection;
 
-        public static PeerHostFactory New(Action<PeerOptions> options = null)
+        public static PeerHostFactory New(Action<PeerOptions> options = null, ConcurrentBag<ClusterNode> clusterNodes = null)
         {
-            return new PeerHostFactory(options);
+            return new PeerHostFactory(options, clusterNodes);
         }
 
         public PeerHostFactory UseTCPTransport()

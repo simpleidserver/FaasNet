@@ -1,5 +1,5 @@
 ﻿using FaasNet.CRDT.Client.Messages.Deltas;
-using FaasNet.CRDT.Core.Stores;
+using FaasNet.CRDT.Core.SerializedEntities;
 using FaasNet.Peer;
 using Microsoft.Extensions.Options;
 using System;
@@ -8,12 +8,12 @@ using System.Text.Json;
 
 namespace FaasNet.CRDT.Core.Entities
 {
-    public interface IEntityFactory
+    public interface ICRDTEntityFactory
     {
-        void ApplyDelta<T>(SerializedEntity crdtEntity, T request, string peerId) where T : BaseEntityDelta;
+        CRDTEntity Build(SerializedEntity crdtEntity);
     }
 
-    public class EntityFactory : IEntityFactory
+    public class CRDTEntityFactory : ICRDTEntityFactory
     {
         private readonly PeerOptions _options;
         protected Dictionary<string, Func<SerializedEntity, string, CRDTEntity>> MappingCRDTEntityNameToFactory = new Dictionary<string, Func<SerializedEntity, string, CRDTEntity>>
@@ -21,21 +21,15 @@ namespace FaasNet.CRDT.Core.Entities
             { GCounter.NAME, BuildGCounter }
         };
 
-        public EntityFactory(IOptions<PeerOptions> options)
+        public CRDTEntityFactory(IOptions<PeerOptions> options)
         {
             _options = options.Value;
         }
 
-        public void ApplyDelta<T>(SerializedEntity serializedEntity, T request, string peerId) where T : BaseEntityDelta
+        public CRDTEntity Build(SerializedEntity serializedEntity)
         {
             var crdtEntity = BuildEntity(serializedEntity, _options.PeerId);
-            crdtEntity.ApplyDelta(peerId, request);
-            string s = "";
-            // Il faut incrémenter.
-            // Récupérer la dernière entité.Si l'entité n'existe pas alors on va la créer sur les autres noeuds.
-            // Si l'entité n'existe pas alors il faut la créer.
-            // Si l'entité existe alors le serveur cible retourne : la dernière version connue et envoie la suite.
-            // Si l'entité existe déjà 
+            return crdtEntity;
         }
 
         protected CRDTEntity BuildEntity(SerializedEntity serializedEntity, string peerId)
@@ -45,8 +39,8 @@ namespace FaasNet.CRDT.Core.Entities
 
         protected static CRDTEntity BuildGCounter(SerializedEntity serializedEntity, string peerId)
         {
-            var replicatedValues = new Dictionary<string, long>();
-            if (!string.IsNullOrWhiteSpace(serializedEntity.Value)) replicatedValues = JsonSerializer.Deserialize<Dictionary<string, long>>(serializedEntity.Value, new JsonSerializerOptions
+            ICollection<GCounterClockValue> replicatedValues = new List<GCounterClockValue>();
+            if (!string.IsNullOrWhiteSpace(serializedEntity.Value)) replicatedValues = JsonSerializer.Deserialize<ICollection<GCounterClockValue>>(serializedEntity.Value, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
