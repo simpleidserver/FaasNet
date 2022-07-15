@@ -65,6 +65,13 @@ namespace FaasNet.CRDT.Client.Messages
                 result.Extract(context);
                 Delta = result;
             }
+
+            if (deltaType == EntityDeltaTypes.GSet)
+            {
+                var result = new GSetDelta();
+                result.Extract(context);
+                Delta = result;
+            }
         }
     }
 }

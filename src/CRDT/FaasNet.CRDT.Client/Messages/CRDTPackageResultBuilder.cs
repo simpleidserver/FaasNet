@@ -14,6 +14,11 @@ namespace FaasNet.CRDT.Client.Messages
             return new CRDTSyncResultPackage { EntityId = entityId, Nonce = nonce, DiffLst = diffLst };
         }
 
+        public static CRDTPackage Get(string value, string nonce)
+        {
+            return new CRDTGetResultPackage { Nonce = nonce, Value = value };
+        }
+
         public static CRDTPackage BuildError(CRDTPackage request, string errorCode)
         {
             return new CRDTErrorPackage { Code = errorCode, Nonce = request.Nonce };

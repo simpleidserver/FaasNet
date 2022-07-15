@@ -9,5 +9,6 @@ namespace FaasNet.CRDT.Core.Entities
         public abstract string Name { get; }
         public abstract void ApplyDelta(string replicationId, BaseEntityDelta delta);
         public abstract ICollection<ClockValue> ClockVector { get; }
+        public abstract object Value { get; }
     }
 }

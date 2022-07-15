@@ -40,6 +40,35 @@ namespace FaasNet.CRDT.Client
             Assert(package, packageResult);
         }
 
+        public async Task AddGSet(string entityId, List<string> values, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
+        {
+            var writeCtx = new WriteBufferContext();
+            var nonce = Guid.NewGuid().ToString();
+            var package = CRDTPackageRequestBuilder.AddGSet(entityId, values, nonce);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
+            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            var packageResult = CRDTPackage.Deserialize(readCtx, true);
+            Assert(package, packageResult);
+        }
+
+        public async Task<string> Get(string entityId, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
+        {
+            var writeCtx = new WriteBufferContext();
+            var nonce = Guid.NewGuid().ToString();
+            var package = CRDTPackageRequestBuilder.Get(entityId, nonce);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
+            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            var packageResult = CRDTPackage.Deserialize(readCtx, true);
+            Assert(package, packageResult);
+            return (packageResult as CRDTGetResultPackage).Value;
+        }
+
         public async Task<CRDTSyncResultPackage> Sync(string peerId, string entityId, ICollection<ClockValue> clockVector, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
         {
             var writeCtx = new WriteBufferContext();

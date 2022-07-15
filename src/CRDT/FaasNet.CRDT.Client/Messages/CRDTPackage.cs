@@ -50,6 +50,20 @@ namespace FaasNet.CRDT.Client.Messages
                 return result;
             }
 
+            if (type == CRDTPackageTypes.GET)
+            {
+                var result = new CRDTGetPackage { Nonce = nonce };
+                result.Extract(context);
+                return result;
+            }
+
+            if (type == CRDTPackageTypes.GETRESULT)
+            {
+                var result = new CRDTGetResultPackage { Nonce = nonce };
+                result.Extract(context);
+                return result;
+            }
+
             return null;
         }
 

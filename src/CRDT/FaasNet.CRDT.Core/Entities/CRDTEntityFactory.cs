@@ -1,5 +1,4 @@
-﻿using FaasNet.CRDT.Client.Messages.Deltas;
-using FaasNet.CRDT.Core.SerializedEntities;
+﻿using FaasNet.CRDT.Core.SerializedEntities;
 using FaasNet.Peer;
 using Microsoft.Extensions.Options;
 using System;
@@ -18,7 +17,8 @@ namespace FaasNet.CRDT.Core.Entities
         private readonly PeerOptions _options;
         protected Dictionary<string, Func<SerializedEntity, string, CRDTEntity>> MappingCRDTEntityNameToFactory = new Dictionary<string, Func<SerializedEntity, string, CRDTEntity>>
         {
-            { GCounter.NAME, BuildGCounter }
+            { GCounter.NAME, BuildGCounter },
+            { GSet.NAME, BuildGSet }
         };
 
         public CRDTEntityFactory(IOptions<PeerOptions> options)
@@ -45,6 +45,17 @@ namespace FaasNet.CRDT.Core.Entities
                 PropertyNameCaseInsensitive = true
             });
             var gCounter = new GCounter(peerId, replicatedValues);
+            return gCounter;
+        }
+
+        protected static CRDTEntity BuildGSet(SerializedEntity serializedEntity, string peerId)
+        {
+            ICollection<GSetClockValue> replicatedValues = new List<GSetClockValue>();
+            if (!string.IsNullOrWhiteSpace(serializedEntity.Value)) replicatedValues = JsonSerializer.Deserialize<ICollection<GSetClockValue>>(serializedEntity.Value, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+            var gCounter = new GSet(peerId, replicatedValues);
             return gCounter;
         }
     }

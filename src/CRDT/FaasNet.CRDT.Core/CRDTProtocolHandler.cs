@@ -5,7 +5,7 @@ using FaasNet.CRDT.Core.SerializedEntities;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;
 using Microsoft.Extensions.Options;
-using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,6 +32,7 @@ namespace FaasNet.CRDT.Core
             CRDTPackage crdtPackage = CRDTPackage.Deserialize(context);
             if (crdtPackage.Type == CRDTPackageTypes.DELTA) return await Handle(crdtPackage as CRDTDeltaPackage, cancellationToken);
             if (crdtPackage.Type == CRDTPackageTypes.SYNC) return await Handle(crdtPackage as CRDTSyncPackage, cancellationToken);
+            if (crdtPackage.Type == CRDTPackageTypes.GET) return await Handle(crdtPackage as CRDTGetPackage, cancellationToken);
             return CRDTPackageResultBuilder.Ok(crdtPackage.Nonce);
         }
 
@@ -53,6 +54,18 @@ namespace FaasNet.CRDT.Core
             var crdtEntity = _entityFactory.Build(entity);
             var diff = new CRDTEntityDiff().Diff(crdtEntity, syncPackage.ClockVector);
             return CRDTPackageResultBuilder.Sync(entity.Id, syncPackage.Nonce, diff);
+        }
+
+        private async Task<CRDTPackage> Handle(CRDTGetPackage getPackage, CancellationToken cancellationToken)
+        {
+            var entity = await _entityStore.Get(getPackage.EntityId, cancellationToken);
+            if (entity == null) return CRDTPackageResultBuilder.BuildError(getPackage, ErrorCodes.UNKNOWN_ENTITY);
+            var crdtEntity = _entityFactory.Build(entity);
+            var serializedValue = JsonSerializer.Serialize(crdtEntity.Value, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+            return CRDTPackageResultBuilder.Get(serializedValue, getPackage.Nonce);
         }
     }
 }

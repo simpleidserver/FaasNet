@@ -1,5 +1,4 @@
 ﻿using FaasNet.Peer.Client;
-
 namespace FaasNet.CRDT.Client.Messages.Deltas
 {
     public class GCounterDelta : BaseEntityDelta

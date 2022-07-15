@@ -10,6 +10,8 @@ namespace FaasNet.CRDT.Client.Messages
         public static CRDTPackageTypes SYNCRESULT = new CRDTPackageTypes(3, "SYNCRESULTT");
         public static CRDTPackageTypes ERROR = new CRDTPackageTypes(4, "ERROR");
         public static CRDTPackageTypes RESULT = new CRDTPackageTypes(5, "RESULT");
+        public static CRDTPackageTypes GET = new CRDTPackageTypes(6, "GET");
+        public static CRDTPackageTypes GETRESULT = new CRDTPackageTypes(7, "GETRESULT");
 
         public CRDTPackageTypes(int code)
         {
