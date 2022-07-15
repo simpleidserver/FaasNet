@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Common\FaasNet.Peer\FaasNet.Peer.csproj" />
+	  <ProjectReference Include="..\FaasNet.Discovery.Gossip.Client\FaasNet.Discovery.Gossip.Client.csproj" />
+	</ItemGroup>
+</Project>

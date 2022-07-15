@@ -1,0 +1,69 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01. Common Layer", "01. Common Layer", "{A42AE4A7-6298-43C6-9428-20B3AE22B0B8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Peer", "src\Common\FaasNet.Peer\FaasNet.Peer.csproj", "{DF303F24-7F2C-46FA-A5A3-3BCB98FD2C40}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Peer.Client", "src\Common\FaasNet.Peer.Client\FaasNet.Peer.Client.csproj", "{4B7C4556-1F3A-40B8-8CD3-A3A8AA8FE017}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Common", "src\Common\FaasNet.Common\FaasNet.Common.csproj", "{F82DFC53-8D7B-4A06-852D-54676776D076}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Core Layer", "02. Core Layer", "{98931853-F401-4580-81AC-1441170AEC1D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Discovery.Gossip.Core", "src\Discoveries\FaasNet.Discovery.Gossip.Core\FaasNet.Discovery.Gossip.Core.csproj", "{61709E02-061A-459B-948F-100686DDFF7C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Discovery.Gossip.Client", "src\Discoveries\FaasNet.Discovery.Gossip.Client\FaasNet.Discovery.Gossip.Client.csproj", "{E87625FD-55BD-4794-A279-828040EAEB9C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03. Startup Layer", "03. Startup Layer", "{D3471B49-4615-4276-8A07-BAB04AACBF35}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Discovery.Gossip.Service", "src\Discoveries\FaasNet.Discovery.Gossip.Service\FaasNet.Discovery.Gossip.Service.csproj", "{DC9C68D1-986E-4678-A425-2005D89D1840}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF303F24-7F2C-46FA-A5A3-3BCB98FD2C40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF303F24-7F2C-46FA-A5A3-3BCB98FD2C40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF303F24-7F2C-46FA-A5A3-3BCB98FD2C40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF303F24-7F2C-46FA-A5A3-3BCB98FD2C40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B7C4556-1F3A-40B8-8CD3-A3A8AA8FE017}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B7C4556-1F3A-40B8-8CD3-A3A8AA8FE017}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B7C4556-1F3A-40B8-8CD3-A3A8AA8FE017}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B7C4556-1F3A-40B8-8CD3-A3A8AA8FE017}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F82DFC53-8D7B-4A06-852D-54676776D076}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F82DFC53-8D7B-4A06-852D-54676776D076}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F82DFC53-8D7B-4A06-852D-54676776D076}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F82DFC53-8D7B-4A06-852D-54676776D076}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61709E02-061A-459B-948F-100686DDFF7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61709E02-061A-459B-948F-100686DDFF7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61709E02-061A-459B-948F-100686DDFF7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61709E02-061A-459B-948F-100686DDFF7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E87625FD-55BD-4794-A279-828040EAEB9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E87625FD-55BD-4794-A279-828040EAEB9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E87625FD-55BD-4794-A279-828040EAEB9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E87625FD-55BD-4794-A279-828040EAEB9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC9C68D1-986E-4678-A425-2005D89D1840}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC9C68D1-986E-4678-A425-2005D89D1840}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC9C68D1-986E-4678-A425-2005D89D1840}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC9C68D1-986E-4678-A425-2005D89D1840}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DF303F24-7F2C-46FA-A5A3-3BCB98FD2C40} = {A42AE4A7-6298-43C6-9428-20B3AE22B0B8}
+		{4B7C4556-1F3A-40B8-8CD3-A3A8AA8FE017} = {A42AE4A7-6298-43C6-9428-20B3AE22B0B8}
+		{F82DFC53-8D7B-4A06-852D-54676776D076} = {A42AE4A7-6298-43C6-9428-20B3AE22B0B8}
+		{61709E02-061A-459B-948F-100686DDFF7C} = {98931853-F401-4580-81AC-1441170AEC1D}
+		{E87625FD-55BD-4794-A279-828040EAEB9C} = {98931853-F401-4580-81AC-1441170AEC1D}
+		{DC9C68D1-986E-4678-A425-2005D89D1840} = {D3471B49-4615-4276-8A07-BAB04AACBF35}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {47282404-F417-4CB0-B890-3DF60E6D8459}
+	EndGlobalSection
+EndGlobal

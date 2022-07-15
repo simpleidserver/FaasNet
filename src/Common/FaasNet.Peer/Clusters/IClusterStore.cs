@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,7 +34,8 @@ namespace FaasNet.Peer.Clusters
 
         public Task SelfRegister(ClusterPeer node, CancellationToken cancellationToken)
         {
-            _clusterPeers.Add(node);
+            var clusterPeer = _clusterPeers.FirstOrDefault(p => p.Url == node.Url && p.Port == node.Port);
+            if(clusterPeer == null) _clusterPeers.Add(node);
             return Task.CompletedTask;
         }
     }
