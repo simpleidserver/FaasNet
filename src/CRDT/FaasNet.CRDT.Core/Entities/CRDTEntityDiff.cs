@@ -11,6 +11,7 @@ namespace FaasNet.CRDT.Core.Entities
         {
             if (entity.Name == GCounter.NAME) return Diff(entity as GCounter, clockVector);
             if (entity.Name == GSet.NAME) return Diff(entity as GSet, clockVector);
+            if (entity.Name == PNCounter.NAME) return Diff(entity as PNCounter, clockVector);
             return null;
         }
 
@@ -36,6 +37,19 @@ namespace FaasNet.CRDT.Core.Entities
             {
                 PeerId = v.ReplicationId,
                 Delta = new GSetDelta(v.Elements)
+            }));
+            return result;
+        }
+
+        public ICollection<CRDTSyncDiffRecordPackage> Diff(PNCounter entity, ICollection<ClockValue> clockVector)
+        {
+            var result = new List<CRDTSyncDiffRecordPackage>();
+            var values = entity.ClockVector.Cast<PNCounterClockValue>().OrderBy(v => v.Increment);
+            var filteredValues = values.Where(v => !clockVector.Any(c => v.ReplicationId == c.ReplicationId && c.Increment >= v.Increment));
+            if (filteredValues.Any()) result.AddRange(filteredValues.Select(v => new CRDTSyncDiffRecordPackage
+            {
+                PeerId = v.ReplicationId,
+                Delta = new PNCounterDelta(v.PValue, v.NValue)
             }));
             return result;
         }

@@ -6,6 +6,7 @@ namespace FaasNet.CRDT.Client.Messages.Deltas
     {
         public static EntityDeltaTypes GCounter = new EntityDeltaTypes(0, "GCOUNTER");
         public static EntityDeltaTypes GSet = new EntityDeltaTypes(1, "GSET");
+        public static EntityDeltaTypes PNCounter = new EntityDeltaTypes(2, "PNCounter");
 
         public EntityDeltaTypes(int code)
         {

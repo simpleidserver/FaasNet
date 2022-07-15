@@ -18,6 +18,32 @@ namespace FaasNet.CRDT.Client.Messages
             };
         }
 
+        public static CRDTPackage IncrementPNCounter(string entityId, long increment, string nonce)
+        {
+            return new CRDTDeltaPackage
+            {
+                EntityId = entityId,
+                Nonce = nonce,
+                Delta = new PNCounterDelta
+                {
+                    PIncrement = increment
+                }
+            };
+        }
+
+        public static CRDTPackage DecrementPNCounter(string entityId, long increment, string nonce)
+        {
+            return new CRDTDeltaPackage
+            {
+                EntityId = entityId,
+                Nonce = nonce,
+                Delta = new PNCounterDelta
+                {
+                    NIncrement = increment
+                }
+            };
+        }
+
         public static CRDTPackage AddGSet(string entityId, List<string> elements, string nonce)
         {
             return new CRDTDeltaPackage

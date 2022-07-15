@@ -40,6 +40,34 @@ namespace FaasNet.CRDT.Client
             Assert(package, packageResult);
         }
 
+        public async Task IncrementPNCounter(string entityId, long increment, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
+        {
+            var writeCtx = new WriteBufferContext();
+            var nonce = Guid.NewGuid().ToString();
+            var package = CRDTPackageRequestBuilder.IncrementPNCounter(entityId, increment, nonce);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
+            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            var packageResult = CRDTPackage.Deserialize(readCtx, true);
+            Assert(package, packageResult);
+        }
+
+        public async Task DecrementPNCounter(string entityId, long increment, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
+        {
+            var writeCtx = new WriteBufferContext();
+            var nonce = Guid.NewGuid().ToString();
+            var package = CRDTPackageRequestBuilder.DecrementPNCounter(entityId, increment, nonce);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
+            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            var packageResult = CRDTPackage.Deserialize(readCtx, true);
+            Assert(package, packageResult);
+        }
+
         public async Task AddGSet(string entityId, List<string> values, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
         {
             var writeCtx = new WriteBufferContext();
