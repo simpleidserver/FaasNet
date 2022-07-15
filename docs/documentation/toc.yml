@@ -35,6 +35,11 @@
         href: eventmesh/plugindiscoveryconfig.md
       - name: Etcd Peer Discovery
         href: eventmesh/plugindiscoveryetcd.md
+- name: Unstructured P2P Network
+  href: unstructured/index.md
+  items:
+    - name: CRDT
+      href: unstructured/crdt.md
 - name: Structured P2P Network
   href: structured/index.md
   items:
