@@ -87,6 +87,14 @@ namespace FaasNet.Peer.Transports
             }
         }
 
+        public Task Send(byte[] payload, IPEndPoint edp, CancellationToken cancellationToken)
+        {
+            _tcpServer.Connect(edp);
+            _tcpServer.Send(payload, 0);
+            _tcpServer.Disconnect(false);
+            return Task.CompletedTask;
+        }
+
         private class TCPSession
         {
             private readonly SessionStateObject _sessionStateObject;

@@ -37,6 +37,12 @@ namespace FaasNet.Peer.Transports
             return new MessageResult(udpResult.Buffer, session.Send);
         }
 
+        public Task Send(byte[] payload, IPEndPoint edp, CancellationToken cancellationToken)
+        {
+            _udpServer.Send(payload, payload.Length, edp);
+            return Task.CompletedTask;
+        }
+
         private class UDPSession
         {
             private readonly UdpClient _udpServer;

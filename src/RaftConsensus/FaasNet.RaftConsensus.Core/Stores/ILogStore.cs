@@ -1,7 +1,8 @@
-﻿using FaasNet.RaftConsensus.Core.Models;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -96,5 +97,14 @@ namespace FaasNet.RaftConsensus.Core.Stores
         {
             return string.Format(_options.LogFilePath, TermId);
         }
+    }
+
+
+    [DebuggerDisplay("Value = {Value}, Index = {Index}")]
+    public class LogRecord
+    {
+        public long Index { get; set; }
+        public string Value { get; set; }
+        public DateTime InsertionDateTime { get; set; }
     }
 }

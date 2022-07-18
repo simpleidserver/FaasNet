@@ -2,11 +2,6 @@
 {
     public class FileLogStoreOptions
     {
-        public FileLogStoreOptions()
-        {
-
-        }
-
         public string LogFilePath { get; set; }
     }
 }

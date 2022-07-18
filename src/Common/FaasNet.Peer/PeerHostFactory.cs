@@ -16,7 +16,7 @@ namespace FaasNet.Peer
             _serviceCollection = new ServiceCollection();
             if (options == null) _serviceCollection.Configure<PeerOptions>(o => { });
             else _serviceCollection.Configure(options);
-            _serviceCollection.AddTransient<IPeerHost, PeerHost>();
+            _serviceCollection.AddScoped<IPeerHost, PeerHost>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
             if (clusterPeers != null) _serviceCollection.AddSingleton<IClusterStore>(new InMemoryClusterStore(clusterPeers));
             else _serviceCollection.AddSingleton<IClusterStore, InMemoryClusterStore>();
@@ -33,21 +33,22 @@ namespace FaasNet.Peer
         public PeerHostFactory UseTCPTransport()
         {
             RemoveTransport();
-            _serviceCollection.AddTransient<ITransport, TCPTransport>();
+            _serviceCollection.AddScoped<ITransport, TCPTransport>();
             return this;
         }
 
         public PeerHostFactory UseUDPTransport()
         {
             RemoveTransport();
-            _serviceCollection.AddTransient<ITransport, UDPTransport>();
+            _serviceCollection.AddScoped<ITransport, UDPTransport>();
             return this;
         }
 
         public IPeerHost Build()
         {
             var serviceProvider = _serviceCollection.BuildServiceProvider();
-            return serviceProvider.GetRequiredService<IPeerHost>();
+            var scope = serviceProvider.CreateScope();
+            return scope.ServiceProvider.GetRequiredService<IPeerHost>();
         }
 
         private void RemoveTransport()
