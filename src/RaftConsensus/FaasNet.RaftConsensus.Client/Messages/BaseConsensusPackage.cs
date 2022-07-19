@@ -35,6 +35,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
             if (header.Command == ConsensusCommands.VOTE_REQUEST) return new VoteRequest { Header = header };
             if (header.Command == ConsensusCommands.LEADER_HEARTBEAT_REQUEST) return new LeaderHeartbeatRequest { Header = header };
             if (header.Command == ConsensusCommands.LEADER_HEARTBEAT_RESULT) return new LeaderHeartbeatResult { Header = header };
+            if (header.Command == ConsensusCommands.GET_REQUEST) return new GetEntryRequest { Header = header };
             if (header.Command == ConsensusCommands.VOTE_RESULT)
             {
                 var result = new VoteResult
@@ -48,6 +49,13 @@ namespace FaasNet.RaftConsensus.Client.Messages
             if(header.Command == ConsensusCommands.APPEND_ENTRY_REQUEST)
             {
                 var result = new AppendEntryRequest { Header = header };
+                result.Extract(context);
+                return result;
+            }
+
+            if (header.Command == ConsensusCommands.GET_RESULT)
+            {
+                var result = new GetEntryResult { Header = header };
                 result.Extract(context);
                 return result;
             }

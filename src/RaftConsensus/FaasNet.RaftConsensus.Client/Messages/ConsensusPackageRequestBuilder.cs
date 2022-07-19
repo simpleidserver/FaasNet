@@ -27,5 +27,13 @@
                 IsProxified = isProxified
             };
         }
+
+        public static BaseConsensusPackage GetEntry(string termId)
+        {
+            return new GetEntryRequest
+            {
+                Header = new ConsensusHeader(ConsensusCommands.GET_REQUEST, termId, 0, string.Empty, 0)
+            };
+        }
     }
 }

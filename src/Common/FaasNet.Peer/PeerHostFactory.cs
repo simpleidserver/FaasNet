@@ -18,8 +18,8 @@ namespace FaasNet.Peer
             else _serviceCollection.Configure(options);
             _serviceCollection.AddScoped<IPeerHost, PeerHost>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
-            if (clusterPeers != null) _serviceCollection.AddSingleton<IClusterStore>(new InMemoryClusterStore(clusterPeers));
-            else _serviceCollection.AddSingleton<IClusterStore, InMemoryClusterStore>();
+            if (clusterPeers != null) _serviceCollection.AddScoped<IClusterStore>(s => new InMemoryClusterStore(clusterPeers));
+            else _serviceCollection.AddScoped<IClusterStore, InMemoryClusterStore>();
             _serviceCollection.AddLogging();
         }
 

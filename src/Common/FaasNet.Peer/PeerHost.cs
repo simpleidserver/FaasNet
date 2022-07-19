@@ -49,7 +49,7 @@ namespace FaasNet.Peer
             Task.Run(async () => await Run(), cancellationToken);
 #pragma warning restore 4014
             IsRunning = true;
-            foreach (var timer in _timers) timer.Start(_cancellationTokenSource.Token);
+            foreach (var timer in _timers) await timer.Start(_cancellationTokenSource.Token);
         }
 
         public Task Stop()

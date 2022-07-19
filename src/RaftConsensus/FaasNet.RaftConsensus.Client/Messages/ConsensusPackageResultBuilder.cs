@@ -26,5 +26,24 @@
                 Header = new ConsensusHeader(ConsensusCommands.EMPTY_RESULT, termId, termIndex, url, port)
             };
         }
+
+        public static BaseConsensusPackage OkGet(string url, int port, string termId, long termIndex, string value)
+        {
+            return new GetEntryResult
+            {
+                Header = new ConsensusHeader(ConsensusCommands.GET_RESULT, termId, termIndex, url, port),
+                Value = value,
+                IsNotFound = false
+            };
+        }
+
+        public static BaseConsensusPackage NotFoundGet(string url, int port, string termId, long termIndex)
+        {
+            return new GetEntryResult
+            {
+                Header = new ConsensusHeader(ConsensusCommands.GET_RESULT, termId, termIndex, url, port),
+                IsNotFound = true
+            };
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using FaasNet.Common.Extensions;
-using FaasNet.Common.Helpers;
+﻿using FaasNet.Common.Helpers;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Transports;
@@ -8,7 +7,6 @@ using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -24,20 +22,22 @@ namespace FaasNet.RaftConsensus.Core
         private readonly ILeaderPeerInfoStore _leaderPeerInfoStore;
         private readonly ILogStore _logStore;
         private readonly ITransport _transport;
+        private readonly IRaftConsensusPartitionTimerStore _partitionTimerStore;
+        private readonly IPendingRequestStore _pendingRequestStore;
         private readonly PeerOptions _peerOptions;
         private readonly RaftConsensusPeerOptions _raftConsensusPeerOptions;
-        private ConcurrentBag<AppendEntryRequest> _appendEntryRequestLst;
 
-        public RaftConsensusProtocolHandler(ILogger<RaftConsensusProtocolHandler> logger, IPartitionElectionStore partitionElectionStore, ILeaderPeerInfoStore leaderPeerInfoStore, ILogStore logStore, ITransport transport, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
+        public RaftConsensusProtocolHandler(ILogger<RaftConsensusProtocolHandler> logger, IPartitionElectionStore partitionElectionStore, ILeaderPeerInfoStore leaderPeerInfoStore, ILogStore logStore, ITransport transport, IRaftConsensusPartitionTimerStore partitionTimerStore, IPendingRequestStore pendingRequestStore, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
         {
             _logger = logger;
             _partitionElectionStore = partitionElectionStore;
             _leaderPeerInfoStore = leaderPeerInfoStore;
             _logStore = logStore;
             _transport = transport;
+            _partitionTimerStore = partitionTimerStore;
+            _pendingRequestStore = pendingRequestStore;
             _peerOptions = peerOptions.Value;
             _raftConsensusPeerOptions = raftConsensusPeerOptions.Value;
-            _appendEntryRequestLst = new ConcurrentBag<AppendEntryRequest>();
         }
 
         public string MagicCode => BaseConsensusPackage.MAGIC_CODE;
@@ -53,6 +53,7 @@ namespace FaasNet.RaftConsensus.Core
             if (consensusPackage.Header.Command == ConsensusCommands.APPEND_ENTRY_REQUEST) result = await Handle(consensusPackage as AppendEntryRequest, cancellationToken);
             if (consensusPackage.Header.Command == ConsensusCommands.LEADER_HEARTBEAT_RESULT) result = await Handle(consensusPackage as LeaderHeartbeatResult, cancellationToken);
             if (consensusPackage.Header.Command == ConsensusCommands.EMPTY_RESULT) result = await Handle(consensusPackage as EmptyConsensusPackage, cancellationToken);
+            if (consensusPackage.Header.Command == ConsensusCommands.GET_REQUEST) result = await Handle(consensusPackage as GetEntryRequest, cancellationToken);
             return result;
         }
 
@@ -63,21 +64,7 @@ namespace FaasNet.RaftConsensus.Core
             if(leader == null) leader = new LeaderPeerInfo(request.Header.TermId, request.Header.SourceUrl, request.Header.SourcePort);
             else leader.HeartbeatReceivedDateTime = DateTime.UtcNow;
             await _leaderPeerInfoStore.Update(leader, cancellationToken);
-            var tasks = new List<Task>();
-            for (var i = 0; i < _appendEntryRequestLst.Count(); i++)
-            {
-                tasks.Add(new Task(async () =>
-                {
-                    var appendEntry = _appendEntryRequestLst.ElementAt(i);
-                    var edp = new IPEndPoint(DnsHelper.ResolveIPV4(leader.Url), leader.Port);
-                    var writeCtx = new WriteBufferContext();
-                    appendEntry.SerializeEnvelope(writeCtx);
-                    await _transport.Send(writeCtx.Buffer.ToArray(), edp, cancellationToken);
-                    _appendEntryRequestLst.Remove(appendEntry);
-                }));
-            }
-
-            Task.WaitAll(tasks.ToArray());
+            await TransferPendingRequest(leader, cancellationToken);
             var partition = await _partitionElectionStore.Get(request.Header.TermId, cancellationToken);
             if (partition.PeerState == PeerStates.CANDIDATE) SetFollower(partition);
             return ConsensusPackageResultBuilder.LeaderHeartbeat(_peerOptions.Url, _peerOptions.Port, partition.PartitionId, partition.ConfirmedTermIndex);
@@ -96,7 +83,7 @@ namespace FaasNet.RaftConsensus.Core
                 }
                 else if (
                     (partition.PeerState == PeerStates.LEADER || partition.PeerState == PeerStates.CANDIDATE) ||
-                    (partition.ConfirmedTermIndex >= request.Header.TermIndex)
+                    (partition.ConfirmedTermIndex > request.Header.TermIndex)
                 )
                 {
                     isGranted = false;
@@ -132,7 +119,7 @@ namespace FaasNet.RaftConsensus.Core
                 await _transport.Send(writeBufferCtx.Buffer.ToArray(), edp, cancellationToken);
                 return ConsensusPackageResultBuilder.Empty(_peerOptions.Url, _peerOptions.Port, partition.PartitionId, partition.TermIndex);
             }
-            else _appendEntryRequestLst.Add(request);
+            else _pendingRequestStore.Add(request);
             return ConsensusPackageResultBuilder.Empty(_peerOptions.Url, _peerOptions.Port, partition.PartitionId, partition.TermIndex);
         }
 
@@ -143,7 +130,7 @@ namespace FaasNet.RaftConsensus.Core
             if (partition.PartitionId == request.Header.TermId && partition.ConfirmedTermIndex > request.Header.TermIndex)
             {
                 var index = request.Header.TermIndex + 1;
-                var log = await _logStore.Get(index, cancellationToken);
+                var log = await _logStore.Get(request.Header.TermId, index, cancellationToken);
                 if (log == null) return ConsensusPackageResultBuilder.Empty(_peerOptions.Url, _peerOptions.Port, partition.PartitionId, partition.TermIndex);
                 var writeBufferCtx = new WriteBufferContext();
                 var pkg = ConsensusPackageRequestBuilder.AppendEntry(partition.PartitionId, index, log.Value, true);
@@ -161,20 +148,41 @@ namespace FaasNet.RaftConsensus.Core
             return ConsensusPackageResultBuilder.Empty(_peerOptions.Url, _peerOptions.Port, partition.PartitionId, partition.TermIndex);
         }
 
+        private async Task<BaseConsensusPackage> Handle(GetEntryRequest request, CancellationToken cancellationToken)
+        {
+            var log = await _logStore.GetLatest(request.Header.TermId, cancellationToken);
+            if(log == null) return ConsensusPackageResultBuilder.NotFoundGet(_peerOptions.Url, _peerOptions.Port, request.Header.TermId, 0);
+            return ConsensusPackageResultBuilder.OkGet(_peerOptions.Url, _peerOptions.Port, log.ReplicationId, log.Index, log.Value);
+        }
+
         private async Task AppendEntry(AppendEntryRequest appendEntry, PartitionElectionRecord partition, CancellationToken cancellationToken)
         {
             if (appendEntry.IsProxified && appendEntry.Header.TermIndex <= partition.ConfirmedTermIndex) return;
-            var logRecord = new LogRecord { Value = appendEntry.Value, Index = partition.ConfirmedTermIndex + 1, InsertionDateTime = DateTime.UtcNow };
+            var logRecord = new LogRecord { ReplicationId = appendEntry.Header.TermId, Value = appendEntry.Value, Index = partition.ConfirmedTermIndex + 1, InsertionDateTime = DateTime.UtcNow };
             _logStore.Add(logRecord);
             partition.Upgrade();
             await _partitionElectionStore.Update(partition, cancellationToken);
         }
 
-        private static void SetFollower(PartitionElectionRecord partition)
+        private void SetFollower(PartitionElectionRecord partition)
         {
-            partition.PeerState = PeerStates.FOLLOWER;
-            partition.Reset();
-            // RESTART TIMER
+            var timer = _partitionTimerStore.Get(partition.PartitionId);
+            timer.SetFollower(partition);
+        }
+
+        private async Task TransferPendingRequest(LeaderPeerInfo leader, CancellationToken cancellationToken)
+        {
+            var pendingRequest = _pendingRequestStore.GetAll();
+            for (var i = 0; i < pendingRequest.Count(); i++)
+            {
+                var appendEntry = pendingRequest.ElementAt(i);
+                var edp = new IPEndPoint(DnsHelper.ResolveIPV4(leader.Url), leader.Port);
+                var writeCtx = new WriteBufferContext();
+                appendEntry.SerializeEnvelope(writeCtx);
+                await _transport.Send(writeCtx.Buffer.ToArray(), edp, cancellationToken);
+            }
+
+            _pendingRequestStore.Clean();
         }
 
         private class PartitionInfo

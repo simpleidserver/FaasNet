@@ -1,10 +1,11 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace FaasNet.Peer
 {
     public interface ITimer
     {
-        void Start(CancellationToken cancellationToken);
+        Task Start(CancellationToken cancellationToken);
         void Stop();
     }
 }

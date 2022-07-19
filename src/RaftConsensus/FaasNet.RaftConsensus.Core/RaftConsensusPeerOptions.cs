@@ -6,19 +6,19 @@ namespace FaasNet.RaftConsensus.Core
     {
         public RaftConsensusPeerOptions()
         {
-            CheckLeaderHeartbeatIntervalMS = new Interval { MinMS = 4000, MaxMS = 8000 };
+            ElectionIntervalMS = new Interval { MinMS = 1000, MaxMS = 10000 };
             LeaderHeartbeatExpirationDurationMS = 12000;
             ElectionCheckDurationMS = 1000;
-            CheckElectionTimerMS = 200;
-            CheckLeaderHeartbeatTimerMS = 200;
-            LeaderHeartbeatTimerMS = 1000;
+            CheckElectionTimerMS = 50;
+            CheckLeaderHeartbeatTimerMS = 50;
+            LeaderHeartbeatTimerMS = 50;
         }
 
 
         /// <summary>
-        /// Interval - Check heartbeat.
+        /// Election interval.
         /// </summary>
-        public Interval CheckLeaderHeartbeatIntervalMS { get; set; }
+        public Interval ElectionIntervalMS { get; set; }
         /// <summary>
         /// Expiration - Heartbeat.
         /// </summary>

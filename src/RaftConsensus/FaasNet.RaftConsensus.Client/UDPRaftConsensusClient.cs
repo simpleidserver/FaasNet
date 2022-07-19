@@ -44,6 +44,19 @@ namespace FaasNet.RaftConsensus.Client
             await UdpClient.ReceiveAsync().WithCancellation(cancellationToken);
         }
 
+        public async Task<GetEntryResult> GetEntry(string termId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = ConsensusPackageRequestBuilder.GetEntry(termId);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await UdpClient.SendAsync(payload, payload.Count(), _target).WithCancellation(cancellationToken);
+            var resultPayload = await UdpClient.ReceiveAsync().WithCancellation(cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            var result = BaseConsensusPackage.Deserialize(readCtx, false);
+            return result as GetEntryResult;
+        }
+
         public async Task Vote(string url, int port, string termId, long termIndex, CancellationToken cancellationToken)
         {
             var writeCtx = new WriteBufferContext();

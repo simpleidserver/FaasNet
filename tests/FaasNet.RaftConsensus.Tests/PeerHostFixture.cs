@@ -1,6 +1,7 @@
 ﻿using FaasNet.Peer;
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Client.Messages;
 using FaasNet.RaftConsensus.Core.Stores;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -17,58 +18,57 @@ namespace FaasNet.RaftConsensus.Tests
         public async Task When_AppendLogInOnePartition_Then_LogIsReplicated()
         {
             // ARRANGE
-            var firstPeer = BuildPeer(4001, new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 4002) }, new ConcurrentBag<PartitionElectionRecord> { PartitionElectionRecord.Build("partition") });
-            var secondPeer = BuildPeer(4002, new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 4001) }, new ConcurrentBag<PartitionElectionRecord> { PartitionElectionRecord.Build("partition") });
+            const string partitionName = "partition";
+            var firstPeer = BuildPeer(4001, new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 4002) }, new ConcurrentBag<PartitionElectionRecord> { PartitionElectionRecord.Build(partitionName) });
+            var secondPeer = BuildPeer(4002, new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 4001) }, new ConcurrentBag<PartitionElectionRecord> { PartitionElectionRecord.Build(partitionName) });
             await firstPeer.Start();
             await secondPeer.Start();
+
             // ACT
             using (var raftConsensusClient = new UDPRaftConsensusClient("localhost", 4002))
             {
-                await raftConsensusClient.AppendEntry("partition", "value", CancellationToken.None);
+                await raftConsensusClient.AppendEntry(partitionName, "value", CancellationToken.None);
             }
 
-            Thread.Sleep(3000000);
-            string ss = "";
+            var firstPeerEntry = WaitLogEntry("localhost", 4001, partitionName);
+            var secondPeerEntry = WaitLogEntry("localhost", 4002, partitionName);
+
+            // ASSERT
+            Assert.NotNull(firstPeerEntry);
+            Assert.NotNull(secondPeerEntry);
+            Assert.Equal("value", firstPeerEntry.Value);
+            Assert.Equal("value", secondPeerEntry.Value);
         }
 
-        /*
         [Fact]
         public async Task When_AppendLogInTwoPartitions_Then_LogIsReplicated()
         {
             // ARRANGE
-            const int expectedNumberOfNodes = 2;
-            var clusterStore = new InMemoryClusterStore();
-            var firstNodeResult = BuildNodeHost(new ConcurrentBag<PartitionInfo> { new PartitionInfo { TermId = "termId", TermIndex = 0 }, new PartitionInfo { TermId = "secondTermId", TermIndex = 0 } }, 4008, clusterStore);
-            var secondNodeResult = BuildNodeHost(new ConcurrentBag<PartitionInfo> { new PartitionInfo { TermId = "termId", TermIndex = 0 }, new PartitionInfo { TermId = "secondTermId", TermIndex = 0 } }, 4009, clusterStore);
-            await firstNodeResult.NodeHost.Start(CancellationToken.None);
-            await secondNodeResult.NodeHost.Start(CancellationToken.None);
-            WaitNodeIsStarted(firstNodeResult.NodeHost);
-            WaitNodeIsStarted(secondNodeResult.NodeHost);
-            while ((await clusterStore.GetAllNodes(CancellationToken.None)).Count() != expectedNumberOfNodes) Thread.Sleep(500);
-            var allNodes = new List<INodeHost> { firstNodeResult.NodeHost, secondNodeResult.NodeHost };
+            const string firstPartitionName = "firstPartition";
+            const string secondPartitionName = "secondPartition";
+            var firstPeer = BuildPeer(4003, new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 4004) }, new ConcurrentBag<PartitionElectionRecord> { PartitionElectionRecord.Build(firstPartitionName), PartitionElectionRecord.Build(secondPartitionName) });
+            var secondPeer = BuildPeer(4004, new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 4003) }, new ConcurrentBag<PartitionElectionRecord> { PartitionElectionRecord.Build(firstPartitionName), PartitionElectionRecord.Build(secondPartitionName) });
+            await firstPeer.Start();
+            await secondPeer.Start();
 
             // ACT
-            WaitOnlyOneLeader(allNodes, "termId");
-            WaitOnlyOneLeader(allNodes, "secondTermId");
-            var client = new RaftConsensusClient("localhost", 4008);
-            client.AppendEntry("termId", "value", CancellationToken.None).Wait();
-            client.AppendEntry("secondTermId", "value", CancellationToken.None).Wait();
-            await WaitLogs(allNodes, 1, p => p.Info.TermId == "termId", l => l.Value == "value" && l.Index == 1);
-            await WaitLogs(allNodes, 1, p => p.Info.TermId == "secondTermId", l => l.Value == "value" && l.Index == 1);
+            using (var raftConsensusClient = new UDPRaftConsensusClient("localhost", 4003))
+            {
+                await raftConsensusClient.AppendEntry(firstPartitionName, "firstValue", CancellationToken.None);
+                await raftConsensusClient.AppendEntry(secondPartitionName, "secondValue", CancellationToken.None);
+            }
+
+            var firstPeerFirstPartitionEntry = WaitLogEntry("localhost", 4003, firstPartitionName);
+            var secondPeerFirstPartitionEntry = WaitLogEntry("localhost", 4004, firstPartitionName);
+            var firstPeerSecondPartitionEntry = WaitLogEntry("localhost", 4003, secondPartitionName);
+            var secondPeerSecondPartitionEntry = WaitLogEntry("localhost", 4004, secondPartitionName);
 
             // ASSERT
-            var firstNodeTermLogRecord = await firstNodeResult.NodeHost.Peers.First(p => p.Info.TermId == "termId").ReadRecord(1, CancellationToken.None);
-            var firstNodeSecondTermLogRecord = await firstNodeResult.NodeHost.Peers.First(p => p.Info.TermId == "secondTermId").ReadRecord(1, CancellationToken.None);
-            var secondNodeTermLogRecord = await secondNodeResult.NodeHost.Peers.First(p => p.Info.TermId == "termId").ReadRecord(1, CancellationToken.None);
-            var secondNodeSecondTermLogRecord = await secondNodeResult.NodeHost.Peers.First(p => p.Info.TermId == "termId").ReadRecord(1, CancellationToken.None);
-            Assert.Equal("value", firstNodeTermLogRecord.Value);
-            Assert.Equal("value", firstNodeSecondTermLogRecord.Value);
-            Assert.Equal("value", secondNodeTermLogRecord.Value);
-            Assert.Equal("value", secondNodeSecondTermLogRecord.Value);
-            await firstNodeResult.NodeHost.Stop();
-            await secondNodeResult.NodeHost.Stop();
+            Assert.NotNull(firstPeerFirstPartitionEntry);
+            Assert.NotNull(secondPeerFirstPartitionEntry);
+            Assert.NotNull(firstPeerSecondPartitionEntry);
+            Assert.NotNull(secondPeerSecondPartitionEntry);
         }
-        */
 
         #endregion
 
@@ -83,6 +83,21 @@ namespace FaasNet.RaftConsensus.Tests
                 .UseUDPTransport()
                 .Build();
             return peerHost;
+        }
+
+        private static GetEntryResult WaitLogEntry(string url, int port, string replicationId)
+        {
+            using(var raftConsensusClient = new UDPRaftConsensusClient(url, port))
+            {
+                var entry = raftConsensusClient.GetEntry(replicationId).Result;
+                if(entry.IsNotFound)
+                {
+                    Thread.Sleep(100);
+                    return WaitLogEntry(url, port, replicationId);
+                }
+
+                return entry;
+            }
         }
     }
 }

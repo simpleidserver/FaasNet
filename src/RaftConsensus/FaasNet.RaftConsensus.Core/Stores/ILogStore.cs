@@ -12,8 +12,8 @@ namespace FaasNet.RaftConsensus.Core.Stores
 {
     public interface ILogStore
     {
-        string TermId { get; set; }
-        Task<LogRecord> Get(long index, CancellationToken cancellationToken);
+        Task<LogRecord> Get(string replicationId, long index, CancellationToken cancellationToken);
+        Task<LogRecord> GetLatest(string replicationId, CancellationToken cancellationToken);
         void Add(LogRecord logRecord);
     }
 
@@ -33,9 +33,14 @@ namespace FaasNet.RaftConsensus.Core.Stores
             _logRecords.Add(logRecord);
         }
 
-        public Task<LogRecord> Get(long index, CancellationToken cancellationToken)
+        public Task<LogRecord> Get(string replicationId, long index, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_logRecords.FirstOrDefault(lr => lr.Index == index));
+            return Task.FromResult(_logRecords.FirstOrDefault(lr => lr.ReplicationId == replicationId && lr.Index == index));
+        }
+
+        public Task<LogRecord> GetLatest(string replicationId, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_logRecords.OrderByDescending(l => l.Index).FirstOrDefault(lr => lr.ReplicationId == replicationId));
         }
     }
 
@@ -49,20 +54,18 @@ namespace FaasNet.RaftConsensus.Core.Stores
             _options = options.Value;
         }
 
-        public string TermId { get; set; }
-
         public void Add(LogRecord logRecord)
         {
-            lock(_obj) System.IO.File.AppendAllLines(GetLogPath(), new string[] { logRecord.Value });
+            lock(_obj) System.IO.File.AppendAllLines(GetLogFilePath(logRecord.ReplicationId), new string[] { logRecord.Value });
         }
 
-        public Task<LogRecord> Get(long index, CancellationToken cancellationToken)
+        public Task<LogRecord> Get(string replicationId, long index, CancellationToken cancellationToken)
         {
             lock(_obj)
             {
                 index = index - 1;
                 LogRecord result = null;
-                using (var streamReader = new StreamReader(GetLogPath()))
+                using (var streamReader = new StreamReader(GetLogFilePath(replicationId)))
                 {
                     string line;
                     int currentLine = 0;
@@ -81,10 +84,37 @@ namespace FaasNet.RaftConsensus.Core.Stores
         {
             lock(_obj)
             {
-                var lines = System.IO.File.ReadAllLines(GetLogPath());
                 var result = new List<LogRecord>();
-                for (var i = 0; i < lines.Length; i++) result.Add(new LogRecord { Index = i, Value = lines.ElementAt(i) });
+                var directoryInfo = new DirectoryInfo(GetLogPath());
+                var allFiles = directoryInfo.GetFiles();
+                foreach(var file in allFiles)
+                {
+                    var lines = File.ReadAllLines(file.FullName);
+                    var replicationId = file.Name.Replace(".txt", "");
+                    for (var i = 0; i < lines.Length; i++) result.Add(new LogRecord { ReplicationId = replicationId, Index = i, Value = lines.ElementAt(i) });
+                }
+
                 return Task.FromResult(result as IEnumerable<LogRecord>);
+            }
+        }
+
+        public Task<LogRecord> GetLatest(string replicationId, CancellationToken cancellationToken)
+        {
+            lock (_obj)
+            {
+                var result = new List<LogRecord>();
+                using (var streamReader = new StreamReader(GetLogFilePath(replicationId)))
+                {
+                    string line = null;
+                    int currentLine = 0;
+                    while (streamReader.EndOfStream == false)
+                    {
+                        line = streamReader.ReadLine();
+                        currentLine++;
+                    }
+
+                    return Task.FromResult(new LogRecord { Value = line, Index = currentLine });
+                }
             }
         }
 
@@ -93,16 +123,23 @@ namespace FaasNet.RaftConsensus.Core.Stores
             return Task.FromResult(1);
         }
 
+        private string GetLogFilePath(string replicationId)
+        {
+            return Path.Combine(GetLogPath(), $"{replicationId}.txt");
+        }
+
         private string GetLogPath()
         {
-            return string.Format(_options.LogFilePath, TermId);
+            if (string.IsNullOrWhiteSpace(_options.LogFilePath)) return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _options.LogFilePath);
         }
     }
 
 
-    [DebuggerDisplay("Value = {Value}, Index = {Index}")]
+    [DebuggerDisplay("Value = {Value}, Index = {Index}, ReplicationId = {ReplicationId}")]
     public class LogRecord
     {
+        public string ReplicationId { get; set; }
         public long Index { get; set; }
         public string Value { get; set; }
         public DateTime InsertionDateTime { get; set; }
