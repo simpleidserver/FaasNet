@@ -70,6 +70,7 @@ namespace FaasNet.Peer
                     _cancellationTokenSource.Token.ThrowIfCancellationRequested();
                     var sessionResult = await _transport.ReceiveMessage();
                     var payload = sessionResult.Payload.ToArray();
+                    if (payload.Length == 0) continue;
                     var readBufferContext = new ReadBufferContext(payload);
                     string magicCode = readBufferContext.NextString(), version = readBufferContext.NextString();
                     var protocolHandler = _protocolHandlerFactory.Build(magicCode);

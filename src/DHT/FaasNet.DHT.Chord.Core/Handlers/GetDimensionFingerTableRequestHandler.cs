@@ -14,12 +14,12 @@ namespace FaasNet.DHT.Chord.Core.Handlers
             _peerInfoStore = peerInfoStore;
         }
 
-        public Commands Command => Commands.GET_DIMENSION_FINGER_TABLE_REQUEST;
+        public ChordCommandTypes Command => ChordCommandTypes.GET_DIMENSION_FINGER_TABLE_REQUEST;
 
-        public Task<DHTPackage> Handle(DHTPackage request, CancellationToken token)
+        public Task<ChordPackage> Handle(ChordPackage request, CancellationToken token)
         {
             var peerInfo = _peerInfoStore.Get();
-            DHTPackage result = new GetDimensionFingerTableResult(peerInfo.DimensionFingerTable);
+            ChordPackage result = new GetDimensionFingerTableResult(peerInfo.DimensionFingerTable);
             return Task.FromResult(result);
         }
     }

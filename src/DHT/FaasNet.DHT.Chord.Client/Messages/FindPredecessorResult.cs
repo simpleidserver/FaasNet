@@ -1,19 +1,17 @@
-﻿namespace FaasNet.DHT.Chord.Client.Messages
-{
-    public class FindPredecessorResult : DHTPackage
-    {
-        public FindPredecessorResult() : base(Commands.FIND_PREDECESSOR_RESULT)
-        {
-        }
+﻿using FaasNet.Peer.Client;
 
+namespace FaasNet.DHT.Chord.Client.Messages
+{
+    public class FindPredecessorResult : ChordPackage
+    {
         public bool HasPredecessor { get; set; }
         public string Url { get; set; }
         public int Port { get; set; }
         public long Id { get; set; }
+        public override ChordCommandTypes Command => ChordCommandTypes.FIND_PREDECESSOR_RESULT;
 
-        public override void Serialize(WriteBufferContext context)
+        public override void SerializeAction(WriteBufferContext context)
         {
-            base.Serialize(context);
             context.WriteBoolean(HasPredecessor);
             if (!HasPredecessor) return;
             context.WriteString(Url);

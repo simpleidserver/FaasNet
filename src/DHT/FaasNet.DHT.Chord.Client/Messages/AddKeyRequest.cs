@@ -1,19 +1,16 @@
-﻿namespace FaasNet.DHT.Chord.Client.Messages
+﻿using FaasNet.Peer.Client;
+
+namespace FaasNet.DHT.Chord.Client.Messages
 {
-    public class AddKeyRequest : DHTPackage
+    public class AddKeyRequest : ChordPackage
     {
-        public AddKeyRequest() : base(Commands.ADD_KEY_REQUEST)
-        {
-
-        }
-
         public long Id { get; set; }
         public string Value { get; set; }
         public bool Force { get; set; }
+        public override ChordCommandTypes Command => ChordCommandTypes.ADD_KEY_REQUEST;
 
-        public override void Serialize(WriteBufferContext context)
+        public override void SerializeAction(WriteBufferContext context)
         {
-            base.Serialize(context);
             context.WriteLong(Id);
             context.WriteString(Value);
             context.WriteBoolean(Force);

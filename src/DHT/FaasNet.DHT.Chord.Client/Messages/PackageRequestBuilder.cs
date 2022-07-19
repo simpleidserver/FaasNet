@@ -2,42 +2,42 @@
 {
     public static class PackageRequestBuilder
     {
-        public static DHTPackage Create(int dimFingerTable)
+        public static ChordPackage Create(int dimFingerTable)
         {
             return new CreateRequest { DimFingerTable = dimFingerTable };
         }
 
-        public static DHTPackage GetDimensionFingerTable()
+        public static ChordPackage GetDimensionFingerTable()
         {
             return new GetDimensionFingerTableRequest();
         }
 
-        public static DHTPackage FindSuccessor(long nodeId)
+        public static ChordPackage FindSuccessor(long nodeId)
         {
             return new FindSuccessorRequest { NodeId = nodeId };
         }
 
-        public static DHTPackage FindPredecessor()
+        public static ChordPackage FindPredecessor()
         {
             return new FindPredecessorRequest();
         }
 
-        public static DHTPackage Join(string url, int port)
+        public static ChordPackage Join(string url, int port)
         {
             return new JoinChordNetworkRequest { Url = url, Port = port };
         }
 
-        public static DHTPackage Notify(string url, int port, long id)
+        public static ChordPackage Notify(string url, int port, long id)
         {
             return new NotifyRequest { Url = url, Port = port, Id = id };
         }
 
-        public static DHTPackage GetKey(long key)
+        public static ChordPackage GetKey(long key)
         {
             return new GetKeyRequest { Id = key };
         }
 
-        public static DHTPackage AddKey(long key, string value, bool force = false)
+        public static ChordPackage AddKey(long key, string value, bool force = false)
         {
             return new AddKeyRequest { Id = key, Value = value, Force = force };
         }

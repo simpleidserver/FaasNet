@@ -17,23 +17,22 @@ namespace FaasNet.DHT.Chord.Core.Handlers
             _peerDataStore = peerDataStore;
         }
 
-        public Commands Command => Commands.ADD_KEY_REQUEST;
+        public ChordCommandTypes Command => ChordCommandTypes.ADD_KEY_REQUEST;
 
-        public Task<DHTPackage> Handle(DHTPackage request, CancellationToken token)
+        public Task<ChordPackage> Handle(ChordPackage request, CancellationToken token)
         {
             var addKeyRequest = request as AddKeyRequest;
             var peerInfo = _peerInfoStore.Get();
             if (IntervalHelper.CheckIntervalEquivalence(peerInfo.PredecessorPeer.Id, addKeyRequest.Id, peerInfo.Peer.Id, peerInfo.DimensionFingerTable) || addKeyRequest.Force)
             {
                 _peerDataStore.Add(addKeyRequest.Id, addKeyRequest.Value);
-                var result = PackageResponseBuilder.AddKey();
-                return Task.FromResult(result);
+                return Task.FromResult(PackageResponseBuilder.AddKey());
             }
 
-            using (var chordClient = new ChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+            using (var chordClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
             {
                 var successor = chordClient.FindSuccessor(addKeyRequest.Id);
-                using (var successorChordClient = new ChordClient(successor.Url, successor.Port))
+                using (var successorChordClient = new TCPChordClient(successor.Url, successor.Port))
                 {
                     successorChordClient.AddKey(addKeyRequest.Id, addKeyRequest.Value);
                     var result = PackageResponseBuilder.AddKey();

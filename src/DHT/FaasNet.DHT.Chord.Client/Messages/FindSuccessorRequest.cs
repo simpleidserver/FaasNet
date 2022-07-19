@@ -1,16 +1,14 @@
-﻿namespace FaasNet.DHT.Chord.Client.Messages
+﻿using FaasNet.Peer.Client;
+
+namespace FaasNet.DHT.Chord.Client.Messages
 {
-    public class FindSuccessorRequest : DHTPackage
+    public class FindSuccessorRequest : ChordPackage
     {
-        public FindSuccessorRequest() : base(Commands.FIND_SUCCESSOR_REQUEST)
-        {
-        }
-
         public long NodeId { get; set; }
+        public override ChordCommandTypes Command => ChordCommandTypes.FIND_SUCCESSOR_REQUEST;
 
-        public override void Serialize(WriteBufferContext context)
+        public override void SerializeAction(WriteBufferContext context)
         {
-            base.Serialize(context);
             context.WriteLong(NodeId);
         }
 

@@ -1,17 +1,15 @@
-﻿namespace FaasNet.DHT.Chord.Client.Messages
-{
-    public class JoinChordNetworkRequest : DHTPackage
-    {
-        public JoinChordNetworkRequest() : base(Commands.JOIN_CHORD_NETWORK_REQUEST)
-        {
-        }
+﻿using FaasNet.Peer.Client;
 
+namespace FaasNet.DHT.Chord.Client.Messages
+{
+    public class JoinChordNetworkRequest : ChordPackage
+    {
         public string Url { get; set; }
         public int Port { get; set; }
+        public override ChordCommandTypes Command => ChordCommandTypes.JOIN_CHORD_NETWORK_REQUEST;
 
-        public override void Serialize(WriteBufferContext context)
+        public override void SerializeAction(WriteBufferContext context)
         {
-            base.Serialize(context);
             context.WriteString(Url);
             context.WriteInteger(Port);
         }

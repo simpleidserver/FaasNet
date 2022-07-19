@@ -1,8 +1,12 @@
-﻿namespace FaasNet.DHT.Chord.Client.Messages
+﻿using FaasNet.Peer.Client;
+
+namespace FaasNet.DHT.Chord.Client.Messages
 {
-    public class GetDimensionFingerTableRequest : DHTPackage
+    public class GetDimensionFingerTableRequest : ChordPackage
     {
-        public GetDimensionFingerTableRequest() : base(Commands.GET_DIMENSION_FINGER_TABLE_REQUEST)
+        public override ChordCommandTypes Command => ChordCommandTypes.GET_DIMENSION_FINGER_TABLE_REQUEST;
+
+        public override void SerializeAction(WriteBufferContext context)
         {
         }
     }

@@ -25,6 +25,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.DHT.Kademlia.Client
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.DHT.Kademlia.Service", "src\DHT\FaasNet.DHT.Kademlia.Service\FaasNet.DHT.Kademlia.Service.csproj", "{C3DC0E13-9E19-456C-97FA-6DA24AB757E6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Peer", "src\Common\FaasNet.Peer\FaasNet.Peer.csproj", "{599C28C7-E66D-42F8-8CA1-7FF328B7C06A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Peer.Client", "src\Common\FaasNet.Peer.Client\FaasNet.Peer.Client.csproj", "{FD6C1642-D953-4328-A815-D6B2B285FADF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +63,14 @@ Global
 		{C3DC0E13-9E19-456C-97FA-6DA24AB757E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3DC0E13-9E19-456C-97FA-6DA24AB757E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3DC0E13-9E19-456C-97FA-6DA24AB757E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{599C28C7-E66D-42F8-8CA1-7FF328B7C06A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{599C28C7-E66D-42F8-8CA1-7FF328B7C06A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{599C28C7-E66D-42F8-8CA1-7FF328B7C06A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{599C28C7-E66D-42F8-8CA1-7FF328B7C06A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD6C1642-D953-4328-A815-D6B2B285FADF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD6C1642-D953-4328-A815-D6B2B285FADF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD6C1642-D953-4328-A815-D6B2B285FADF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD6C1642-D953-4328-A815-D6B2B285FADF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,6 +83,8 @@ Global
 		{F5AAD96E-54F8-4D3E-9B10-1CFB2DDF4DE3} = {E43C29F9-CDB5-4B54-9B06-2E981F3F0692}
 		{20E83440-F46F-4396-BEAD-D4FE369D439B} = {E43C29F9-CDB5-4B54-9B06-2E981F3F0692}
 		{C3DC0E13-9E19-456C-97FA-6DA24AB757E6} = {274DD9AB-C600-4B80-B449-FD999F94AA11}
+		{599C28C7-E66D-42F8-8CA1-7FF328B7C06A} = {C2C3F206-38C2-4676-A882-E70E9CF18ECB}
+		{FD6C1642-D953-4328-A815-D6B2B285FADF} = {C2C3F206-38C2-4676-A882-E70E9CF18ECB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7CF61372-9F71-40E2-B983-7E41746883C0}

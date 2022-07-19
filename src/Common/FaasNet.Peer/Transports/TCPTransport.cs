@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -104,15 +105,15 @@ namespace FaasNet.Peer.Transports
             public TCPSession(SessionStateObject sessionStateObject, ManualResetEvent manualResetEvent)
             {
                 _sessionStateObject = sessionStateObject;
-                _sessionStateObject.SessionSocket.BeginReceive(_sessionStateObject.Buffer, 0, SessionStateObject.BufferSize, 0, new AsyncCallback(ReadCallback), _sessionStateObject);
                 _messageReceivedLock = manualResetEvent;
+                _sessionStateObject.SessionSocket.BeginReceive(_sessionStateObject.Buffer, 0, SessionStateObject.BufferSize, 0, new AsyncCallback(ReadCallback), _sessionStateObject);
             }
 
             public byte[] ReceivedMessage => _receivedMessage;
 
             public Task Send(byte[] payload)
             {
-                _sessionStateObject.SessionSocket.BeginSend(payload, 0, payload.Count(), 0, new AsyncCallback(SendCallback), _sessionStateObject);
+                _sessionStateObject.SessionSocket.Send(payload);
                 return Task.CompletedTask;
             }
 
@@ -123,14 +124,14 @@ namespace FaasNet.Peer.Transports
                 var nbBytes = handler.EndReceive(ar);
                 var buffer = state.Buffer.Take(nbBytes).ToArray();
                 _receivedMessage = buffer;
-                _messageReceivedLock.Set();
+                _messageReceivedLock?.Set();
             }
 
             private void SendCallback(IAsyncResult ar)
             {
-                var state = (SessionStateObject)ar.AsyncState;
-                var newState = new SessionStateObject(state.SessionSocket);
-                state.SessionSocket.BeginReceive(newState.Buffer, 0, SessionStateObject.BufferSize, 0, new AsyncCallback(ReadCallback), newState);
+                // var state = (SessionStateObject)ar.AsyncState;
+                // var newState = new SessionStateObject(state.SessionSocket);
+                // state.SessionSocket.BeginReceive(newState.Buffer, 0, SessionStateObject.BufferSize, 0, new AsyncCallback(ReadCallback), newState);
             }
         }
     }

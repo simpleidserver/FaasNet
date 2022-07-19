@@ -6,7 +6,7 @@ namespace FaasNet.DHT.Chord.Core.Handlers
 {
     public interface IRequestHandler
     {
-        Commands Command { get; }
-        Task<DHTPackage> Handle(DHTPackage request, CancellationToken token);
+        ChordCommandTypes Command { get; }
+        Task<ChordPackage> Handle(ChordPackage request, CancellationToken token);
     }
 }

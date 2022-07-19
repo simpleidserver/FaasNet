@@ -1,8 +1,8 @@
 ﻿namespace FaasNet.DHT.Chord.Core
 {
-    public class DHTOptions
+    public class ChordOptions
     {
-        public DHTOptions()
+        public ChordOptions()
         {
             StabilizeTimerMS = 500;
             FixFingersTimerMS = 500;

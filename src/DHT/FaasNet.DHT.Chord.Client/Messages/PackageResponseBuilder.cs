@@ -2,44 +2,44 @@
 {
     public class PackageResponseBuilder
     {
-        public static DHTPackage Create()
+        public static ChordPackage Create()
         {
-            return new DHTPackage(Commands.CREATE_RESULT);
+            return new EmptyChordPackage();
         }
 
-        public static DHTPackage FindSuccessor(string url, int port, long id)
+        public static ChordPackage FindSuccessor(string url, int port, long id)
         {
             return new FindSuccessorResult { Id = id, Url = url, Port = port };
         }
 
-        public static DHTPackage Join()
+        public static ChordPackage Join()
         {
-            return new DHTPackage(Commands.JOIN_CHORD_NETWORK_RESULT);
+            return new EmptyChordPackage();
         }
 
-        public static DHTPackage Notify()
+        public static ChordPackage Notify()
         {
-            return new DHTPackage(Commands.NOTIFY_RESULT);
+            return new NotifyResult();
         }
 
-        public static DHTPackage NotFoundPredecessor()
+        public static ChordPackage NotFoundPredecessor()
         {
             return new FindPredecessorResult { HasPredecessor = false };
         }
 
-        public static DHTPackage FindPredecessor(long id, string url, int port)
+        public static ChordPackage FindPredecessor(long id, string url, int port)
         {
             return new FindPredecessorResult { Id = id, Url = url, Port = port, HasPredecessor = true };
         }
 
-        public static DHTPackage GetKey(long id, string value)
+        public static ChordPackage GetKey(long id, string value)
         {
             return new GetKeyResult { Id = id, Value = value };
         }
 
-        public static DHTPackage AddKey()
+        public static ChordPackage AddKey()
         {
-            return new DHTPackage(Commands.ADD_KEY_RESULT);
+            return new AddKeyResult();
         }
     }
 }

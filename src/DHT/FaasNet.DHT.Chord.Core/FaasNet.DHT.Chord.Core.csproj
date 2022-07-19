@@ -4,6 +4,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Common\FaasNet.Common\FaasNet.Common.csproj" />
+	  <ProjectReference Include="..\..\Common\FaasNet.Peer\FaasNet.Peer.csproj" />
 	  <ProjectReference Include="..\FaasNet.DHT.Chord.Client\FaasNet.DHT.Chord.Client.csproj" />
 	</ItemGroup>
 	<ItemGroup>

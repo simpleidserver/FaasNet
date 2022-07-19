@@ -1,31 +1,37 @@
-﻿using FaasNet.DHT.Chord.Client.Extensions;
+﻿using FaasNet.Common.Helpers;
+using FaasNet.DHT.Chord.Client.Extensions;
 using FaasNet.DHT.Chord.Client.Messages;
-using FaasNet.DHT.Client;
+using FaasNet.Peer.Client;
 using System;
 using System.Net;
 using System.Net.Sockets;
 
 namespace FaasNet.DHT.Chord.Client
 {
-    public class ChordClient : IDisposable
+    public class TCPChordClient : IDisposable
     {
         private const int BUFFER_SIZE = 1024;
-        private readonly IPAddress _ipAddr;
+        private readonly string _url;
         private readonly int _port;
+        private readonly IPAddress _ipAddr;
         private Socket _socket;
 
-        public ChordClient(string url = Constants.DefaultUrl, int port = Constants.DefaultPort)
+        public TCPChordClient(string url = Constants.DefaultUrl, int port = Constants.DefaultPort)
         {
-            _ipAddr = DnsHelper.ResolveIPV4(url);
+            _url = url;
             _port = port;
+            _ipAddr = DnsHelper.ResolveIPV4(url);
             _socket = CreateSession();
         }
+
+        public string Url => _url;
+        public int Port => _port;
 
         public void Create(int dimFingerTable, int timeoutMS = 500)
         {
             var request = PackageRequestBuilder.Create(dimFingerTable);
             var writeBufferContext = new WriteBufferContext();
-            request.Serialize(writeBufferContext);
+            request.SerializeEnvelope(writeBufferContext);
             _socket.Send(writeBufferContext.Buffer.ToArray(), 0, timeoutMS);
             var payload = new byte[BUFFER_SIZE];
             _socket.Receive(payload, 0, timeoutMS);
@@ -35,7 +41,7 @@ namespace FaasNet.DHT.Chord.Client
         {
             var request = PackageRequestBuilder.Join(url, port);
             var writeBufferContext = new WriteBufferContext();
-            request.Serialize(writeBufferContext);
+            request.SerializeEnvelope(writeBufferContext);
             _socket.Send(writeBufferContext.Buffer.ToArray(), 0, timeoutMS);
             var payload = new byte[BUFFER_SIZE];
             _socket.Receive(payload, 0, timeoutMS);
@@ -45,12 +51,12 @@ namespace FaasNet.DHT.Chord.Client
         {
             var request = PackageRequestBuilder.GetDimensionFingerTable();
             var writeBufferContext = new WriteBufferContext();
-            request.Serialize(writeBufferContext);
+            request.SerializeEnvelope(writeBufferContext);
             _socket.Send(writeBufferContext.Buffer.ToArray(), 0, timeoutMS);
             var payload = new byte[BUFFER_SIZE];
             _socket.Receive(payload, 0, timeoutMS);
             var readBufferContext = new ReadBufferContext(payload);
-            var result = DHTPackage.Deserialize(readBufferContext) as GetDimensionFingerTableResult;
+            var result = ChordPackage.Deserialize(readBufferContext) as GetDimensionFingerTableResult;
             return result.Dimension;
         }
 
@@ -58,12 +64,12 @@ namespace FaasNet.DHT.Chord.Client
         {
             var request = PackageRequestBuilder.FindSuccessor(nodeId);
             var writeBufferContext = new WriteBufferContext();
-            request.Serialize(writeBufferContext);
+            request.SerializeEnvelope(writeBufferContext);
             _socket.Send(writeBufferContext.Buffer.ToArray(), 0, timeoutMS);
             var payload = new byte[BUFFER_SIZE];
             _socket.Receive(payload, 0, timeoutMS);
             var readBufferContext = new ReadBufferContext(payload);
-            var result = DHTPackage.Deserialize(readBufferContext) as FindSuccessorResult;
+            var result = ChordPackage.Deserialize(readBufferContext) as FindSuccessorResult;
             return result;
         }
 
@@ -71,12 +77,12 @@ namespace FaasNet.DHT.Chord.Client
         {
             var request = PackageRequestBuilder.FindPredecessor();
             var writeBufferContext = new WriteBufferContext();
-            request.Serialize(writeBufferContext);
+            request.SerializeEnvelope(writeBufferContext);
             _socket.Send(writeBufferContext.Buffer.ToArray(), 0, timeoutMS);
             var payload = new byte[BUFFER_SIZE];
             _socket.Receive(payload, 0, timeoutMS);
             var readBufferContext = new ReadBufferContext(payload);
-            var result = DHTPackage.Deserialize(readBufferContext) as FindPredecessorResult;
+            var result = ChordPackage.Deserialize(readBufferContext) as FindPredecessorResult;
             return result;
         }
 
@@ -84,7 +90,7 @@ namespace FaasNet.DHT.Chord.Client
         {
             var request = PackageRequestBuilder.Notify(url, port, id);
             var writeBufferContext = new WriteBufferContext();
-            request.Serialize(writeBufferContext);
+            request.SerializeEnvelope(writeBufferContext);
             _socket.Send(writeBufferContext.Buffer.ToArray(), 0, timeoutMS);
             var payload = new byte[BUFFER_SIZE];
             _socket.Receive(payload, 0, timeoutMS);
@@ -94,12 +100,12 @@ namespace FaasNet.DHT.Chord.Client
         {
             var request = PackageRequestBuilder.GetKey(id);
             var writeBufferContext = new WriteBufferContext();
-            request.Serialize(writeBufferContext);
+            request.SerializeEnvelope(writeBufferContext);
             _socket.Send(writeBufferContext.Buffer.ToArray(), 0, timeoutMS);
             var payload = new byte[BUFFER_SIZE];
             _socket.Receive(payload, 0, timeoutMS);
             var readBufferContext = new ReadBufferContext(payload);
-            var result = DHTPackage.Deserialize(readBufferContext) as GetKeyResult;
+            var result = ChordPackage.Deserialize(readBufferContext) as GetKeyResult;
             return result.Value;
         }
 
@@ -107,7 +113,7 @@ namespace FaasNet.DHT.Chord.Client
         {
             var request = PackageRequestBuilder.AddKey(id, value, force);
             var writeBufferContext = new WriteBufferContext();
-            request.Serialize(writeBufferContext);
+            request.SerializeEnvelope(writeBufferContext);
             _socket.Send(writeBufferContext.Buffer.ToArray(), 0, timeoutMS);
             var payload = new byte[BUFFER_SIZE];
             _socket.Receive(payload, 0, timeoutMS);

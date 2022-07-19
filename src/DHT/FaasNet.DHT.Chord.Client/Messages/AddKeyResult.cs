@@ -2,9 +2,9 @@
 
 namespace FaasNet.DHT.Chord.Client.Messages
 {
-    public class FindPredecessorRequest : ChordPackage
+    public class AddKeyResult : ChordPackage
     {
-        public override ChordCommandTypes Command => ChordCommandTypes.FIND_PREDECESSOR_REQUEST;
+        public override ChordCommandTypes Command => ChordCommandTypes.ADD_KEY_RESULT;
 
         public override void SerializeAction(WriteBufferContext context)
         {

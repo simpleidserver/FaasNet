@@ -17,23 +17,22 @@ namespace FaasNet.DHT.Chord.Core.Handlers
             _peerDataStore = peerDataStore;
         }
 
-        public Commands Command => Commands.GET_KEY_REQUEST;
+        public ChordCommandTypes Command => ChordCommandTypes.GET_KEY_REQUEST;
 
-        public Task<DHTPackage> Handle(DHTPackage request, CancellationToken token)
+        public Task<ChordPackage> Handle(ChordPackage request, CancellationToken token)
         {
             var getKeyRequest = request as GetKeyRequest;
             var peerInfo = _peerInfoStore.Get();
-            if(IntervalHelper.CheckIntervalEquivalence(peerInfo.PredecessorPeer.Id, getKeyRequest.Id, peerInfo.Peer.Id, peerInfo.DimensionFingerTable))
+            if (IntervalHelper.CheckIntervalEquivalence(peerInfo.PredecessorPeer.Id, getKeyRequest.Id, peerInfo.Peer.Id, peerInfo.DimensionFingerTable))
             {
                 var peerData = _peerDataStore.Get(getKeyRequest.Id);
-                var result = PackageResponseBuilder.GetKey(getKeyRequest.Id, peerData);
-                return Task.FromResult(result);
+                return Task.FromResult(PackageResponseBuilder.GetKey(getKeyRequest.Id, peerData));
             }
 
-            using (var chordClient = new ChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+            using (var chordClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
             {
                 var successor = chordClient.FindSuccessor(getKeyRequest.Id);
-                using(var successorChordClient = new ChordClient(successor.Url, successor.Port))
+                using (var successorChordClient = new TCPChordClient(successor.Url, successor.Port))
                 {
                     var str = successorChordClient.GetKey(getKeyRequest.Id);
                     var result = PackageResponseBuilder.GetKey(getKeyRequest.Id, str);

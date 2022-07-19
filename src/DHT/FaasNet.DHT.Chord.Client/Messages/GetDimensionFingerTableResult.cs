@@ -1,21 +1,24 @@
-﻿namespace FaasNet.DHT.Chord.Client.Messages
+﻿using FaasNet.Peer.Client;
+
+namespace FaasNet.DHT.Chord.Client.Messages
 {
-    public class GetDimensionFingerTableResult : DHTPackage
+    public class GetDimensionFingerTableResult : ChordPackage
     {
-        public GetDimensionFingerTableResult() : base(Commands.GET_DIMENSION_FINGER_TABLE_RESULT)
+        public GetDimensionFingerTableResult()
         {
+
         }
 
-        public GetDimensionFingerTableResult(int dimension) : base(Commands.GET_DIMENSION_FINGER_TABLE_RESULT)
+        public GetDimensionFingerTableResult(int dimension)
         {
             Dimension = dimension;
         }
 
         public int Dimension { get; set; }
+        public override ChordCommandTypes Command => ChordCommandTypes.GET_DIMENSION_FINGER_TABLE_RESULT;
 
-        public override void Serialize(WriteBufferContext context)
+        public override void SerializeAction(WriteBufferContext context)
         {
-            base.Serialize(context);
             context.WriteInteger(Dimension);
         }
 

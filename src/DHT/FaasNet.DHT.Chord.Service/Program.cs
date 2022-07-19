@@ -1,29 +1,21 @@
 ﻿using FaasNet.Common;
 using FaasNet.DHT.Chord.Client;
-using FaasNet.DHT.Chord.Core;
+using FaasNet.DHT.Chord.Core.Stores;
+using FaasNet.Peer;
 
 namespace FaasNet.DHT.Chord.Service
 {
     internal class Program
     {
-        private static IDHTPeerFactory _peerFactory;
-        private static ICollection<IDHTPeer> _peers;
+        private static ICollection<(IPeerHost, IServiceProvider)> _peers;
         private static int CURRENT_NODE_PORT = 57;
         private const int ROOT_NODE_PORT = 51;
         private const int DIM_FINGER_TABLE = 4;
 
         public static int Main(string[] args)
         {
-            _peers = new List<IDHTPeer>();
-            _peerFactory = new ServerBuilder().AddDHTChord().ServiceProvider.GetService(typeof(IDHTPeerFactory)) as IDHTPeerFactory;
-            var rootNode = _peerFactory.Build();
-            _peers.Add(rootNode);
-            rootNode.Start("localhost", ROOT_NODE_PORT, CancellationToken.None);
-            using (var firstClient = new ChordClient("localhost", ROOT_NODE_PORT))
-            {
-                firstClient.Create(DIM_FINGER_TABLE);
-            }
-
+            _peers = new List<(IPeerHost, IServiceProvider)>();
+            AddRootPeer();
             var line = string.Empty;
             do
             {
@@ -43,17 +35,35 @@ namespace FaasNet.DHT.Chord.Service
                 if (line == "data") DisplayData();
             }
             while (line != "q");
-
             Console.WriteLine("Press enter to quit the application");
             Console.ReadLine();
             return 1;
         }
 
-        private static void AddPeer()
+        private static async void AddRootPeer()
         {
-            var node = _peerFactory.Build();
-            node.Start("localhost", CURRENT_NODE_PORT, CancellationToken.None);
-            using (var secondClient = new ChordClient("localhost", CURRENT_NODE_PORT))
+            var rootNode = PeerHostFactory.New(o =>
+            {
+                o.Port = ROOT_NODE_PORT;
+                o.Url = "localhost";
+            }).UseTCPTransport().AddDHTChordProtocol().BuildWithDI();
+            _peers.Add(rootNode);
+            await rootNode.Item1.Start();
+            using (var firstClient = new TCPChordClient("localhost", ROOT_NODE_PORT))
+            {
+                firstClient.Create(DIM_FINGER_TABLE);
+            }
+        }
+
+        private static async void AddPeer()
+        {
+            var node = PeerHostFactory.New(o =>
+            {
+                o.Port = CURRENT_NODE_PORT;
+                o.Url = "localhost";
+            }).UseTCPTransport().AddDHTChordProtocol().BuildWithDI();
+            await node.Item1.Start();
+            using (var secondClient = new TCPChordClient("localhost", CURRENT_NODE_PORT))
             {
                 secondClient.Join("localhost", ROOT_NODE_PORT);
             }
@@ -68,7 +78,7 @@ namespace FaasNet.DHT.Chord.Service
             var key = long.Parse(Console.ReadLine());
             Console.WriteLine("Enter a value");
             var value = Console.ReadLine();
-            using (var chordClient = new ChordClient("localhost", ROOT_NODE_PORT))
+            using (var chordClient = new TCPChordClient("localhost", ROOT_NODE_PORT))
             {
                 chordClient.AddKey(key, value);
             }
@@ -78,7 +88,7 @@ namespace FaasNet.DHT.Chord.Service
         {
             Console.WriteLine("Enter a key");
             var key = long.Parse(Console.ReadLine());
-            using(var chordClient = new ChordClient("localhost", ROOT_NODE_PORT))
+            using(var chordClient = new TCPChordClient("localhost", ROOT_NODE_PORT))
             {
                 var value = chordClient.GetKey(key);
                 Console.WriteLine($"Key {key}, Value {value}");
@@ -87,12 +97,13 @@ namespace FaasNet.DHT.Chord.Service
 
         private static void DisplayFingers()
         {
-            foreach(var peer in _peers)
+            foreach (var rec in _peers)
             {
-                var peerInfo = peer.PeerInfoStore.Get();
+                var peerInfoStore = rec.Item2.GetService(typeof(IDHTPeerInfoStore)) as IDHTPeerInfoStore;
+                var peerInfo = peerInfoStore.Get();
                 Console.WriteLine($"Peer Identifier {peerInfo.Peer.Id}, Predecessor {peerInfo.PredecessorPeer?.Id}, Successor {peerInfo.SuccessorPeer?.Id}");
                 Console.WriteLine("Finger tables");
-                foreach(var finger in peerInfo.Fingers)
+                foreach (var finger in peerInfo.Fingers)
                 {
                     Console.WriteLine($"Start {finger.Start}, End {finger.End}, Id {finger.Peer.Id}");
                 }
@@ -103,10 +114,12 @@ namespace FaasNet.DHT.Chord.Service
 
         private static void DisplayData()
         {
-            foreach (var peer in _peers)
+            foreach (var rec in _peers)
             {
-                var peerInfo = peer.PeerInfoStore.Get();
-                var allData = peer.PeerDataStore.GetAll();
+                var peerInfoStore = rec.Item2.GetService(typeof(IDHTPeerInfoStore)) as IDHTPeerInfoStore;
+                var peerDataStore = rec.Item2.GetService(typeof(IPeerDataStore)) as IPeerDataStore;
+                var peerInfo = peerInfoStore.Get();
+                var allData = peerDataStore.GetAll();
                 Console.WriteLine($"Peer Identifier {peerInfo.Peer.Id}, Predecessor {peerInfo.PredecessorPeer?.Id}, Successor {peerInfo.SuccessorPeer?.Id}");
                 Console.WriteLine("Data");
                 foreach (var data in allData)
@@ -122,8 +135,12 @@ namespace FaasNet.DHT.Chord.Service
         {
             Console.WriteLine("Enter the peer identifier");
             var id = int.Parse(Console.ReadLine());
-            var peer = _peers.First(p => p.PeerInfoStore.Get().Peer.Id == id);
-            peer.Stop();
+            var peer = _peers.First(p =>
+            {
+                var peerInfo = p.Item2.GetService(typeof(IDHTPeerInfoStore)) as IDHTPeerInfoStore;
+                return peerInfo.Get().Peer.Id == id;
+            });
+            peer.Item1.Stop();
             _peers.Remove(peer);
         }
     }

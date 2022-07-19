@@ -16,34 +16,33 @@ namespace FaasNet.DHT.Chord.Core.Handlers
             _peerInfoStore = peerInfoStore;
         }
 
-        public Commands Command => Commands.FIND_SUCCESSOR_REQUEST;
+        public ChordCommandTypes Command => ChordCommandTypes.FIND_SUCCESSOR_REQUEST;
 
-        public Task<DHTPackage> Handle(DHTPackage request, CancellationToken token)
+        public Task<ChordPackage> Handle(ChordPackage request, CancellationToken token)
         {
             var findSuccessorRequest = request as FindSuccessorRequest;
-            var successor = FindSuccessor(findSuccessorRequest.NodeId);
+            var dhtPeerInfo = _peerInfoStore.Get();
+            var successor = FindSuccessor(findSuccessorRequest.NodeId, dhtPeerInfo);
             var result = PackageResponseBuilder.FindSuccessor(successor.Url, successor.Port, successor.Id);
             return Task.FromResult(result);
         }
 
-        private PeerInfo FindSuccessor(long target)
+        private PeerInfo FindSuccessor(long target, DHTPeerInfo peerInfo)
         {
-            var peerInfo = _peerInfoStore.Get();
             if(peerInfo.SuccessorPeer != null && IntervalHelper.CheckIntervalEquivalence(peerInfo.Peer.Id, target, peerInfo.SuccessorPeer.Id, peerInfo.DimensionFingerTable))
                 return peerInfo.SuccessorPeer;
 
-            var precedingPeer = ClosestPrecedingPeer(target);
+            var precedingPeer = ClosestPrecedingPeer(target, peerInfo);
             if (precedingPeer.Id == peerInfo.Peer.Id) return precedingPeer;
-            using (var client = new ChordClient(precedingPeer.Url, precedingPeer.Port))
+            using (var client = new TCPChordClient(precedingPeer.Url, precedingPeer.Port))
             {
                 var result = client.FindSuccessor(target);
                 return new PeerInfo { Id = result.Id, Port = result.Port, Url = result.Url };
             }
         }
 
-        private PeerInfo ClosestPrecedingPeer(long target)
+        private PeerInfo ClosestPrecedingPeer(long target, DHTPeerInfo peerInfo)
         {
-            var peerInfo = _peerInfoStore.Get();
             for(var i = peerInfo.Fingers.Count() - 1; i >= 0; i--)
             {
                 var finger = peerInfo.Fingers.ElementAt(i);

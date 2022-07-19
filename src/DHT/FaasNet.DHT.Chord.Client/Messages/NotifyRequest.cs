@@ -1,18 +1,16 @@
-﻿namespace FaasNet.DHT.Chord.Client.Messages
-{
-    public class NotifyRequest : DHTPackage
-    {
-        public NotifyRequest() : base(Commands.NOTIFY_REQUEST)
-        {
-        }
+﻿using FaasNet.Peer.Client;
 
+namespace FaasNet.DHT.Chord.Client.Messages
+{
+    public class NotifyRequest : ChordPackage
+    {
         public string Url { get; set; }
         public int Port { get; set; }
         public long Id { get; set; }
+        public override ChordCommandTypes Command => ChordCommandTypes.NOTIFY_REQUEST;
 
-        public override void Serialize(WriteBufferContext context)
+        public override void SerializeAction(WriteBufferContext context)
         {
-            base.Serialize(context);
             context.WriteString(Url);
             context.WriteInteger(Port);
             context.WriteLong(Id);

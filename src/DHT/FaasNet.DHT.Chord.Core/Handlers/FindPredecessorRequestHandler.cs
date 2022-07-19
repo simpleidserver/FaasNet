@@ -14,11 +14,12 @@ namespace FaasNet.DHT.Chord.Core.Handlers
             _peerInfoStore = peerInfoStore;
         }
 
-        public Commands Command => Commands.FIND_PREDECESSOR_REQUEST;
+        public ChordCommandTypes Command => ChordCommandTypes.FIND_PREDECESSOR_REQUEST;
 
-        public Task<DHTPackage> Handle(DHTPackage request, CancellationToken token)
+        public Task<ChordPackage> Handle(ChordPackage request, CancellationToken token)
         {
-            var predecessor = _peerInfoStore.Get().PredecessorPeer;
+            var peerInfo = _peerInfoStore.Get();
+            var predecessor = peerInfo.PredecessorPeer;
             var result = PackageResponseBuilder.NotFoundPredecessor();
             if (predecessor != null) result = PackageResponseBuilder.FindPredecessor(predecessor.Id, predecessor.Url, predecessor.Port);
             return Task.FromResult(result);

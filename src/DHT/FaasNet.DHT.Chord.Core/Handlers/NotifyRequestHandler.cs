@@ -14,9 +14,9 @@ namespace FaasNet.DHT.Chord.Core.Handlers
             _peerInfoStore = peerInfoStore;
         }
 
-        public Commands Command => Commands.NOTIFY_REQUEST;
+        public ChordCommandTypes Command => ChordCommandTypes.NOTIFY_REQUEST;
 
-        public Task<DHTPackage> Handle(DHTPackage request, CancellationToken token)
+        public Task<ChordPackage> Handle(ChordPackage request, CancellationToken token)
         {
             var notifyRequest = request as NotifyRequest;
             var peerInfo = _peerInfoStore.Get();
@@ -25,7 +25,7 @@ namespace FaasNet.DHT.Chord.Core.Handlers
                 peerInfo.PredecessorPeer = new PeerInfo { Id = notifyRequest.Id, Port = notifyRequest.Port, Url = notifyRequest.Url };
             }
 
-            if(peerInfo.SuccessorPeer == null)
+            if (peerInfo.SuccessorPeer == null)
             {
                 peerInfo.SuccessorPeer = new PeerInfo { Id = notifyRequest.Id, Port = notifyRequest.Port, Url = notifyRequest.Url };
             }

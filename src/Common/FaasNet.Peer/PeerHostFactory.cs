@@ -51,6 +51,13 @@ namespace FaasNet.Peer
             return scope.ServiceProvider.GetRequiredService<IPeerHost>();
         }
 
+        public (IPeerHost, IServiceProvider) BuildWithDI()
+        {
+            var serviceProvider = _serviceCollection.BuildServiceProvider();
+            var scope = serviceProvider.CreateScope();
+            return (scope.ServiceProvider.GetRequiredService<IPeerHost>(), scope.ServiceProvider);
+        }
+
         private void RemoveTransport()
         {
             var registeredType = _serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(ITransport));

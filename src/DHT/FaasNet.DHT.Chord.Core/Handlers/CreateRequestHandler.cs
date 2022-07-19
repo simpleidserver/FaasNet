@@ -14,9 +14,9 @@ namespace FaasNet.DHT.Chord.Core.Handlers
             _peerInfoStore = peerInfoStore;
         }
 
-        public Commands Command => Commands.CREATE_REQUEST;
+        public ChordCommandTypes Command => ChordCommandTypes.CREATE_REQUEST;
 
-        public Task<DHTPackage> Handle(DHTPackage request, CancellationToken token)
+        public Task<ChordPackage> Handle(ChordPackage request, CancellationToken token)
         {
             var createRequest = request as CreateRequest;
             var peerInfo = _peerInfoStore.Get();

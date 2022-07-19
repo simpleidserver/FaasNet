@@ -1,4 +1,4 @@
-﻿using FaasNet.DHT.Client;
+﻿using FaasNet.Common.Helpers;
 using System;
 
 namespace FaasNet.DHT.Chord.Core
