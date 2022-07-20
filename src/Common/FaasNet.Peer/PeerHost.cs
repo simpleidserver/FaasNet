@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -65,25 +64,32 @@ namespace FaasNet.Peer
         {
             try
             {
-                while(true)
+                while (true)
                 {
                     _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-                    var sessionResult = await _transport.ReceiveMessage();
-                    var payload = sessionResult.Payload.ToArray();
-                    if (payload.Length == 0) continue;
-                    var readBufferContext = new ReadBufferContext(payload);
-                    string magicCode = readBufferContext.NextString(), version = readBufferContext.NextString();
-                    var protocolHandler = _protocolHandlerFactory.Build(magicCode);
-                    var result = await protocolHandler.Handle(readBufferContext.Buffer.ToArray(), _cancellationTokenSource.Token);
-                    var ctx = new WriteBufferContext();
-                    result.SerializeEnvelope(ctx);
-                    await sessionResult.ResponseCallback(ctx.Buffer.ToArray());
+                    var sessionResult = await _transport.ReceiveSession();
+#pragma warning disable CS4014
+                    Task.Run(() => ReceiveMessage(sessionResult));
+#pragma warning restore CS4014 
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 _logger.LogError(ex.ToString());
             }
+        }
+
+        private async Task ReceiveMessage(BaseSessionResult session)
+        {
+            var payload = await session.ReceiveMessage();
+            if (payload.Length == 0) return;
+            var readBufferContext = new ReadBufferContext(payload);
+            string magicCode = readBufferContext.NextString(), version = readBufferContext.NextString();
+            var protocolHandler = _protocolHandlerFactory.Build(magicCode);
+            var result = await protocolHandler.Handle(readBufferContext.Buffer.ToArray(), _cancellationTokenSource.Token);
+            var ctx = new WriteBufferContext();
+            result.SerializeEnvelope(ctx);
+            await session.SendMessage(ctx.Buffer.ToArray());
         }
     }
 }

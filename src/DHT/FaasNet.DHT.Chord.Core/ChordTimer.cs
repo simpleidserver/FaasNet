@@ -48,7 +48,7 @@ namespace FaasNet.DHT.Chord.Core
             _checkPredecessorAndSuccessorTimer = new System.Timers.Timer(_options.CheckPredecessorAndSuccessorTimerMS);
             _checkPredecessorAndSuccessorTimer.Elapsed += async (o, e) => await CheckPredecessorAndSuccessor();
             _checkPredecessorAndSuccessorTimer.AutoReset = false;
-            // _checkPredecessorAndSuccessorTimer.Start();
+            _checkPredecessorAndSuccessorTimer.Start();
             return Task.CompletedTask;
         }
 
@@ -64,7 +64,6 @@ namespace FaasNet.DHT.Chord.Core
         {
             _lockTimer.Wait();
             var peerInfo = _peerInfoStore.Get();
-            Debug.WriteLine($"Start stabilize {peerInfo.Peer.Id}");
             if (peerInfo.SuccessorPeer == null)
             {
                 _lockTimer.Release();
@@ -99,7 +98,6 @@ namespace FaasNet.DHT.Chord.Core
 
             _stabilizeTimer.Start();
             _lockTimer.Release();
-            Debug.WriteLine($"Finish stabilize {peerInfo.Peer.Id}");
         }
 
         private async Task FixFingers()
@@ -126,15 +124,13 @@ namespace FaasNet.DHT.Chord.Core
                 var max = Math.Pow(2, peerInfo.DimensionFingerTable);
                 try
                 {
-                    using (var chordClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                    for (int i = 1; i <= peerInfo.DimensionFingerTable; i++)
                     {
-                        for (int i = 1; i <= peerInfo.DimensionFingerTable; i++)
+                        using (var chordClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
                         {
                             var newId = peerInfo.Peer.Id + (long)Math.Pow(2, i - 1);
                             if (newId >= max) break;
-                            Debug.WriteLine($"Start fix fingers {peerInfo.Peer.Id}, NodeId = {newId}");
-                            var successor = chordClient.FindSuccessor(newId, 2000);
-                            Debug.WriteLine($"Finish fix fingers {peerInfo.Peer.Id}, NodeId = {newId}");
+                            var successor = chordClient.FindSuccessor(newId);
                             fingers.Add(new FingerTableRecord
                             {
                                 Start = start,
@@ -162,7 +158,6 @@ namespace FaasNet.DHT.Chord.Core
         {
             _lockTimer.Wait();
             var peerInfo = _peerInfoStore.Get();
-            Debug.WriteLine($"Start check predecessor and successor {peerInfo.Peer.Id}");
             if (peerInfo.PredecessorPeer != null)
             {
                 try
@@ -196,7 +191,6 @@ namespace FaasNet.DHT.Chord.Core
             _peerInfoStore.Update(peerInfo);
             _checkPredecessorAndSuccessorTimer.Start();
             _lockTimer.Release();
-            Debug.WriteLine($"Finish check predecessor and successor {peerInfo.Peer.Id}");
         }
 
         private void ForceTransferData()

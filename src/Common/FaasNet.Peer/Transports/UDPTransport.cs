@@ -30,11 +30,10 @@ namespace FaasNet.Peer.Transports
             _udpServer.Close();
         }
 
-        public async Task<MessageResult> ReceiveMessage()
+        public async Task<BaseSessionResult> ReceiveSession()
         {
             var udpResult = await _udpServer.ReceiveAsync().WithCancellation(_cancellationTokenSource.Token);
-            var session = new UDPSession(_udpServer, udpResult, _cancellationTokenSource);
-            return new MessageResult(udpResult.Buffer, session.Send);
+            return new UDPSessionResult(udpResult, _udpServer, _cancellationTokenSource);
         }
 
         public Task Send(byte[] payload, IPEndPoint edp, CancellationToken cancellationToken)
@@ -43,20 +42,26 @@ namespace FaasNet.Peer.Transports
             return Task.CompletedTask;
         }
 
-        private class UDPSession
+        private class UDPSessionResult : BaseSessionResult
         {
-            private readonly UdpClient _udpServer;
             private readonly UdpReceiveResult _udpReceiveResult;
+            private readonly UdpClient _udpServer;
             private readonly CancellationTokenSource _cancellationTokenSource;
 
-            public UDPSession(UdpClient udpServer, UdpReceiveResult udpReceiveResult, CancellationTokenSource cancellationTokenSource)
+            public UDPSessionResult(UdpReceiveResult udpReceiveResult, UdpClient udpServer, CancellationTokenSource cancellationTokenSource)
             {
-                _udpServer = udpServer;
                 _udpReceiveResult = udpReceiveResult;
+                _udpServer = udpServer;
                 _cancellationTokenSource = cancellationTokenSource;
             }
 
-            public async Task Send(byte[] payload)
+            public override Task<byte[]> ReceiveMessage()
+            {
+                var result = _udpReceiveResult.Buffer;
+                return Task.FromResult(result);
+            }
+
+            public override async Task SendMessage(byte[] payload)
             {
                 await _udpServer.SendAsync(payload, payload.Count(), _udpReceiveResult.RemoteEndPoint).WithCancellation(_cancellationTokenSource.Token);
             }

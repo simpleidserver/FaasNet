@@ -29,15 +29,16 @@ namespace FaasNet.DHT.Chord.Core.Handlers
 
             var peerInfo = _peerInfoStore.Get();
             peerInfo.ComputeId(dimFingerTable);
+            FindSuccessorResult successorNode;
             using (var secondChordClient = new TCPChordClient(joinChordNetwork.Url, joinChordNetwork.Port))
             {
-                var successorNode = secondChordClient.FindSuccessor(peerInfo.Peer.Id);
-                peerInfo.SuccessorPeer = new PeerInfo { Id = successorNode.Id, Port = successorNode.Port, Url = successorNode.Url };
-                Debug.WriteLine($"Join {peerInfo.Peer.Id}");
-                _peerInfoStore.Update(peerInfo);
-                var result = PackageResponseBuilder.Join();
-                return result;
+                successorNode = secondChordClient.FindSuccessor(peerInfo.Peer.Id);
             }
+
+            peerInfo.SuccessorPeer = new PeerInfo { Id = successorNode.Id, Port = successorNode.Port, Url = successorNode.Url };
+            _peerInfoStore.Update(peerInfo);
+            var result = PackageResponseBuilder.Join();
+            return result;
         }
     }
 }

@@ -25,10 +25,8 @@ namespace FaasNet.DHT.Chord.Core
         {
             var ctx = new ReadBufferContext(payload);
             var package = ChordPackage.Deserialize(ctx, true);
-            Debug.WriteLine(package.Command.Name);
             var requestHandler = _requestHandlers.First(r => r.Command == package.Command);
             var response = await requestHandler.Handle(package, cancellationToken);
-            Debug.WriteLine(response.Command.Name);
             return response;
         }
     }

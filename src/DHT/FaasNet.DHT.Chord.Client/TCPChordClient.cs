@@ -3,6 +3,7 @@ using FaasNet.DHT.Chord.Client.Extensions;
 using FaasNet.DHT.Chord.Client.Messages;
 using FaasNet.Peer.Client;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
@@ -65,9 +66,20 @@ namespace FaasNet.DHT.Chord.Client
             var request = PackageRequestBuilder.FindSuccessor(nodeId);
             var writeBufferContext = new WriteBufferContext();
             request.SerializeEnvelope(writeBufferContext);
+            if(nodeId == 9)
+            {
+                string sss = "";
+            }
+
             _socket.Send(writeBufferContext.Buffer.ToArray(), 0, timeoutMS);
             var payload = new byte[BUFFER_SIZE];
             _socket.Receive(payload, 0, timeoutMS);
+
+            if (nodeId == 9)
+            {
+                string sss = "";
+            }
+
             var readBufferContext = new ReadBufferContext(payload);
             var result = ChordPackage.Deserialize(readBufferContext) as FindSuccessorResult;
             return result;

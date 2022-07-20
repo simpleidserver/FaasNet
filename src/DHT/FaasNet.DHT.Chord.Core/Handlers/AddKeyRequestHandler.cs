@@ -23,22 +23,26 @@ namespace FaasNet.DHT.Chord.Core.Handlers
         {
             var addKeyRequest = request as AddKeyRequest;
             var peerInfo = _peerInfoStore.Get();
+            if (peerInfo.PredecessorPeer == null || peerInfo.SuccessorPeer == null) return Task.FromResult(PackageResponseBuilder.AddKey());
             if (IntervalHelper.CheckIntervalEquivalence(peerInfo.PredecessorPeer.Id, addKeyRequest.Id, peerInfo.Peer.Id, peerInfo.DimensionFingerTable) || addKeyRequest.Force)
             {
                 _peerDataStore.Add(addKeyRequest.Id, addKeyRequest.Value);
                 return Task.FromResult(PackageResponseBuilder.AddKey());
             }
 
+            FindSuccessorResult successor;
             using (var chordClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
             {
-                var successor = chordClient.FindSuccessor(addKeyRequest.Id);
-                using (var successorChordClient = new TCPChordClient(successor.Url, successor.Port))
-                {
-                    successorChordClient.AddKey(addKeyRequest.Id, addKeyRequest.Value);
-                    var result = PackageResponseBuilder.AddKey();
-                    return Task.FromResult(result);
-                }
+                successor = chordClient.FindSuccessor(addKeyRequest.Id);
             }
+
+            using (var successorChordClient = new TCPChordClient(successor.Url, successor.Port))
+            {
+                successorChordClient.AddKey(addKeyRequest.Id, addKeyRequest.Value);
+            }
+
+            var result = PackageResponseBuilder.AddKey();
+            return Task.FromResult(result);
         }
     }
 }

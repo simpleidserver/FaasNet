@@ -1,8 +1,4 @@
-﻿using FaasNet.Common.Helpers;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.Diagnostics;
+﻿using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -14,124 +10,63 @@ namespace FaasNet.Peer.Transports
     public class TCPTransport : ITransport
     {
         private readonly PeerOptions _options;
-        private readonly ILogger<TCPTransport> _logger;
-        private ManualResetEvent _sessionLock = new ManualResetEvent(false);
-        private ManualResetEvent _messageReceivedLock = new ManualResetEvent(false);
-        private SemaphoreSlim _readLock = new SemaphoreSlim(1);
-        private Socket _tcpServer;
+        private TcpListener _tcpServer;
         private CancellationTokenSource _cancellationTokenSource;
-        private TCPSession _activeTCPSession;
 
-        public TCPTransport(IOptions<PeerOptions> options, ILogger<TCPTransport> logger)
+        public TCPTransport(IOptions<PeerOptions> options)
         {
             _options = options.Value;
-            _logger = logger;
         }
 
         public void Start(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var localEndpoint = new IPEndPoint(DnsHelper.ResolveIPV4(_options.Url), _options.Port);
-            _sessionLock = new ManualResetEvent(false);
-            _readLock = new SemaphoreSlim(1);
-            _tcpServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _tcpServer.Bind(localEndpoint);
-            _tcpServer.Listen();
-            Task.Run(() => Handle());
+            _tcpServer = new TcpListener(new IPEndPoint(IPAddress.Any, _options.Port));
+            _tcpServer.Start();
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         }
 
         public void Stop()
         {
-            _tcpServer.Close();
+            _tcpServer.Stop();
         }
 
-        public Task<MessageResult> ReceiveMessage()
+        public async Task<BaseSessionResult> ReceiveSession()
         {
-            _messageReceivedLock.WaitOne();
-            var result = new MessageResult(_activeTCPSession.ReceivedMessage, _activeTCPSession.Send);
-            _messageReceivedLock.Reset();
-            return Task.FromResult(result);
-        }
-
-        private void Handle()
-        {
-            try
-            {
-                while(true)
-                {
-                    _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-                    _sessionLock.Reset();
-                    _tcpServer.BeginAccept(new AsyncCallback(AcceptCallback), _tcpServer);
-                    _sessionLock.WaitOne();
-
-                }
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex.ToString());
-            }
-        }
-
-        private void AcceptCallback(IAsyncResult ar)
-        {
-            _sessionLock.Set();
-            try
-            {
-                var listener = (Socket)ar.AsyncState;
-                var handler = listener.EndAccept(ar);
-                var state = new SessionStateObject(handler);
-                _activeTCPSession = new TCPSession(state, _messageReceivedLock);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.ToString());
-            }
+            var tcpClient = await _tcpServer.AcceptTcpClientAsync(_cancellationTokenSource.Token);
+            BaseSessionResult result = new TCPSessionResult(tcpClient, _cancellationTokenSource);
+            return result;
         }
 
         public Task Send(byte[] payload, IPEndPoint edp, CancellationToken cancellationToken)
         {
-            _tcpServer.Connect(edp);
-            _tcpServer.Send(payload, 0);
-            _tcpServer.Disconnect(false);
             return Task.CompletedTask;
         }
 
-        private class TCPSession
+        private class TCPSessionResult : BaseSessionResult
         {
-            private readonly SessionStateObject _sessionStateObject;
-            private byte[] _receivedMessage;
-            private ManualResetEvent _messageReceivedLock;
+            private readonly TcpClient _tcpClient;
+            private readonly CancellationTokenSource _cancellationTokenSource;
+            private readonly NetworkStream _ns;
 
-            public TCPSession(SessionStateObject sessionStateObject, ManualResetEvent manualResetEvent)
+            public TCPSessionResult(TcpClient tcpClient, CancellationTokenSource cancellationTokenSource)
             {
-                _sessionStateObject = sessionStateObject;
-                _messageReceivedLock = manualResetEvent;
-                _sessionStateObject.SessionSocket.BeginReceive(_sessionStateObject.Buffer, 0, SessionStateObject.BufferSize, 0, new AsyncCallback(ReadCallback), _sessionStateObject);
+                _tcpClient = tcpClient;
+                _cancellationTokenSource = cancellationTokenSource;
+                _ns = tcpClient.GetStream();
             }
 
-            public byte[] ReceivedMessage => _receivedMessage;
-
-            public Task Send(byte[] payload)
+            public override async Task<byte[]> ReceiveMessage()
             {
-                _sessionStateObject.SessionSocket.Send(payload);
-                return Task.CompletedTask;
+                if(_tcpClient.ReceiveBufferSize == 0) return new byte[0];
+                var result = new byte[_tcpClient.ReceiveBufferSize];
+                await _ns.ReadAsync(result, 0, _tcpClient.ReceiveBufferSize, _cancellationTokenSource.Token);
+                if (result.All(r => r == 0)) return new byte[0];
+                return result;
             }
 
-            private void ReadCallback(IAsyncResult ar)
+            public override async Task SendMessage(byte[] payload)
             {
-                var state = (SessionStateObject)ar.AsyncState;
-                var handler = state.SessionSocket;
-                var nbBytes = handler.EndReceive(ar);
-                var buffer = state.Buffer.Take(nbBytes).ToArray();
-                _receivedMessage = buffer;
-                _messageReceivedLock?.Set();
-            }
-
-            private void SendCallback(IAsyncResult ar)
-            {
-                // var state = (SessionStateObject)ar.AsyncState;
-                // var newState = new SessionStateObject(state.SessionSocket);
-                // state.SessionSocket.BeginReceive(newState.Buffer, 0, SessionStateObject.BufferSize, 0, new AsyncCallback(ReadCallback), newState);
+                await _ns.WriteAsync(payload, 0, payload.Length, _cancellationTokenSource.Token);
             }
         }
     }

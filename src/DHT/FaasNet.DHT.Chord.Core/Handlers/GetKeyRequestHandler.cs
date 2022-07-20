@@ -29,16 +29,20 @@ namespace FaasNet.DHT.Chord.Core.Handlers
                 return Task.FromResult(PackageResponseBuilder.GetKey(getKeyRequest.Id, peerData));
             }
 
+            FindSuccessorResult successor;
             using (var chordClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
             {
-                var successor = chordClient.FindSuccessor(getKeyRequest.Id);
-                using (var successorChordClient = new TCPChordClient(successor.Url, successor.Port))
-                {
-                    var str = successorChordClient.GetKey(getKeyRequest.Id);
-                    var result = PackageResponseBuilder.GetKey(getKeyRequest.Id, str);
-                    return Task.FromResult(result);
-                }
+                successor = chordClient.FindSuccessor(getKeyRequest.Id);
             }
+
+            string str;
+            using (var successorChordClient = new TCPChordClient(successor.Url, successor.Port))
+            {
+                str = successorChordClient.GetKey(getKeyRequest.Id);
+            }
+
+            var result = PackageResponseBuilder.GetKey(getKeyRequest.Id, str);
+            return Task.FromResult(result);
         }
     }
 }

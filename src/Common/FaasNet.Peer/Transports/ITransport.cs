@@ -9,6 +9,6 @@ namespace FaasNet.Peer.Transports
         void Start(CancellationToken cancellationToken = default(CancellationToken));
         void Stop();
         Task Send(byte[] payload, IPEndPoint edp, CancellationToken cancellationToken);
-        Task<MessageResult> ReceiveMessage();
+        Task<BaseSessionResult> ReceiveSession();
     }
 }
