@@ -1,8 +1,12 @@
-﻿namespace FaasNet.DHT.Kademlia.Client.Messages
+﻿using FaasNet.Peer.Client;
+
+namespace FaasNet.DHT.Kademlia.Client.Messages
 {
-    public class PingRequest : BasePackage
+    public class PingRequest : KademliaPackage
     {
-        public PingRequest() : base(Commands.PING_REQUEST)
+        public override KademliaCommandTypes Command => KademliaCommandTypes.PING_REQUEST;
+
+        public override void SerializeAction(WriteBufferContext context)
         {
         }
     }

@@ -6,9 +6,9 @@ namespace FaasNet.DHT.Kademlia.Core.Handlers
 {
     public class PingRequestHandler : IRequestHandler
     {
-        public Commands Command => Commands.PING_REQUEST;
+        public KademliaCommandTypes Command => KademliaCommandTypes.PING_REQUEST;
 
-        public Task<BasePackage> Handle(BasePackage request, CancellationToken cancellationToken)
+        public Task<KademliaPackage> Handle(KademliaPackage request, CancellationToken cancellationToken)
         {
             return Task.FromResult(PackageResponseBuilder.Pong(request.Nonce));
         }

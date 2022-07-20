@@ -1,24 +1,20 @@
-﻿namespace FaasNet.DHT.Kademlia.Client.Messages
+﻿using FaasNet.Peer.Client;
+
+namespace FaasNet.DHT.Kademlia.Client.Messages
 {
-    public class FindValueRequest : BasePackage
+    public class FindValueRequest : KademliaPackage
     {
-        public FindValueRequest() : base(Commands.FIND_VALUE_REQUEST)
-        {
-        }
-
         public long Key { get; set; }
+        public override KademliaCommandTypes Command => KademliaCommandTypes.FIND_VALUE_REQUEST;
 
-        public override void Serialize(WriteBufferContext context)
+        public override void SerializeAction(WriteBufferContext context)
         {
-            base.Serialize(context);
             context.WriteLong(Key);
         }
 
-        public override BasePackage Extract(ReadBufferContext context)
+        public void Extract(ReadBufferContext context)
         {
-            base.Extract(context);
             Key = context.NextLong();
-            return this;
         }
     }
 }

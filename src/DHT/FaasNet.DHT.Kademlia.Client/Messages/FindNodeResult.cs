@@ -1,29 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using FaasNet.Peer.Client;
+using System.Collections.Generic;
 
 namespace FaasNet.DHT.Kademlia.Client.Messages
 {
-    public class FindNodeResult : BasePackage
+    public class FindNodeResult : KademliaPackage
     {
-        public FindNodeResult() : base(Commands.FIND_NODE_RESULT)
+        public FindNodeResult()
         {
-            Peers = new List<PeerResult>();
+            Peers = new List<PeerResult>();    
         }
 
+        public override KademliaCommandTypes Command => KademliaCommandTypes.FIND_NODE_RESULT;
         public ICollection<PeerResult> Peers { get; set; }
 
-        public override void Serialize(WriteBufferContext context)
+        public override void SerializeAction(WriteBufferContext context)
         {
-            base.Serialize(context);
             context.WriteInteger(Peers.Count);
             foreach (PeerResult peerResult in Peers) peerResult.Serialize(context);
         }
 
-        public override BasePackage Extract(ReadBufferContext context)
+        public void Extract(ReadBufferContext context)
         {
-            base.Extract(context);
             var length = context.NextInt();
             for (var i = 0; i < length; i++) Peers.Add(PeerResult.Deserialize(context));
-            return this;
         }
     }
 

@@ -18,9 +18,9 @@ namespace FaasNet.DHT.Kademlia.Core.Handlers
             _peerDataStore = peerDataStore;
         }
 
-        public Commands Command => Commands.FIND_VALUE_REQUEST;
+        public KademliaCommandTypes Command => KademliaCommandTypes.FIND_VALUE_REQUEST;
 
-        public async Task<BasePackage> Handle(BasePackage request, CancellationToken cancellationToken)
+        public async Task<KademliaPackage> Handle(KademliaPackage request, CancellationToken cancellationToken)
         {
             var findValueRequest = request as FindValueRequest;
             if (_peerDataStore.TryGet(findValueRequest.Key, out string value)) return PackageResponseBuilder.FindValue(findValueRequest.Key, value, findValueRequest.Nonce);
@@ -28,7 +28,7 @@ namespace FaasNet.DHT.Kademlia.Core.Handlers
             var result = peerInfo.FindClosestPeers(findValueRequest.Key, 1);
             if (!result.Any() || result.First().PeerId == peerInfo.Id) return PackageResponseBuilder.FindValue(findValueRequest.Key, string.Empty, findValueRequest.Nonce);
             var targetPeer = result.First();
-            using (var client = new KademliaClient(targetPeer.Url, targetPeer.Port))
+            using (var client = new UDPKademliaClient(targetPeer.Url, targetPeer.Port))
             {
                 return await client.FindValue(findValueRequest.Key, cancellationToken);
             }

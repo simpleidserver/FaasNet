@@ -7,6 +7,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Common\FaasNet.Common\FaasNet.Common.csproj" />
+	  <ProjectReference Include="..\..\Common\FaasNet.Peer\FaasNet.Peer.csproj" />
 	  <ProjectReference Include="..\FaasNet.DHT.Kademlia.Client\FaasNet.DHT.Kademlia.Client.csproj" />
 	</ItemGroup>
 </Project>

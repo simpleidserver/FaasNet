@@ -1,5 +1,7 @@
-﻿using FaasNet.DHT.Kademlia.Client.Extensions;
+﻿using FaasNet.Common.Extensions;
+using FaasNet.Common.Helpers;
 using FaasNet.DHT.Kademlia.Client.Messages;
+using FaasNet.Peer.Client;
 using System;
 using System.Linq;
 using System.Net;
@@ -9,13 +11,13 @@ using System.Threading.Tasks;
 
 namespace FaasNet.DHT.Kademlia.Client
 {
-    public class KademliaClient : IDisposable
+    public class UDPKademliaClient : IDisposable
     {
         private readonly IPAddress _ipAddress;
         private readonly int _port;
         private readonly UdpClient _udpClient;
 
-        public KademliaClient(string url, int port)
+        public UDPKademliaClient(string url, int port)
         {
             _ipAddress = DnsHelper.ResolveIPV4(url);
             _port = port;
@@ -27,12 +29,12 @@ namespace FaasNet.DHT.Kademlia.Client
             var writeCtx = new WriteBufferContext();
             var nonce = Guid.NewGuid().ToString();
             var package = PackageRequestBuilder.Ping(nonce);
-            package.Serialize(writeCtx);
+            package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
             var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
             var readCtx = new ReadBufferContext(resultPayload.Buffer);
-            var packageResult = BasePackage.Deserialize(readCtx);
+            var packageResult = KademliaPackage.Deserialize(readCtx);
             return packageResult as PingResult;
         }
 
@@ -41,12 +43,12 @@ namespace FaasNet.DHT.Kademlia.Client
             var writeCtx = new WriteBufferContext();
             var nonce = Guid.NewGuid().ToString();
             var package = PackageRequestBuilder.FindValue(key, nonce);
-            package.Serialize(writeCtx);
+            package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
             var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
             var readCtx = new ReadBufferContext(resultPayload.Buffer);
-            var packageResult = BasePackage.Deserialize(readCtx);
+            var packageResult = KademliaPackage.Deserialize(readCtx);
             return packageResult as FindValueResult;
         }
 
@@ -55,12 +57,12 @@ namespace FaasNet.DHT.Kademlia.Client
             var writeCtx = new WriteBufferContext();
             var nonce = Guid.NewGuid().ToString();
             var package = PackageRequestBuilder.FindNode(key, url, port, targetId, nonce);
-            package.Serialize(writeCtx);
+            package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
             var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
             var readCtx = new ReadBufferContext(resultPayload.Buffer);
-            var packageResult = BasePackage.Deserialize(readCtx);
+            var packageResult = KademliaPackage.Deserialize(readCtx);
             return packageResult as FindNodeResult;
         }
 
@@ -69,12 +71,12 @@ namespace FaasNet.DHT.Kademlia.Client
             var writeCtx = new WriteBufferContext();
             var nonce = Guid.NewGuid().ToString();
             var package = PackageRequestBuilder.StoreValue(key, value, nonce);
-            package.Serialize(writeCtx);
+            package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
             var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
             var readCtx = new ReadBufferContext(resultPayload.Buffer);
-            var packageResult = BasePackage.Deserialize(readCtx);
+            var packageResult = KademliaPackage.Deserialize(readCtx);
             return packageResult as StoreResult;
         }
 
@@ -83,12 +85,12 @@ namespace FaasNet.DHT.Kademlia.Client
             var writeCtx = new WriteBufferContext();
             var nonce = Guid.NewGuid().ToString();
             var package = PackageRequestBuilder.ForceStoreValue(key, value, nonce, excludedPeer);
-            package.Serialize(writeCtx);
+            package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await _udpClient.SendAsync(payload, payload.Count(), new IPEndPoint(_ipAddress, _port)).WithCancellation(cancellationToken, timeoutMS);
             var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
             var readCtx = new ReadBufferContext(resultPayload.Buffer);
-            var packageResult = BasePackage.Deserialize(readCtx);
+            var packageResult = KademliaPackage.Deserialize(readCtx);
             return packageResult as StoreResult;
         }
 

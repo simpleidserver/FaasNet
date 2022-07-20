@@ -4,17 +4,17 @@ using FaasNet.DHT.Kademlia.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace FaasNet.Common
+namespace FaasNet.Peer
 {
-    public static class ServerBuilderExtensions
+    public static class PeerHostFactoryExtensions
     {
-        public static ServerBuilder AddDHTKademlia(this ServerBuilder serverBuilder, Action<DHTOptions> callback = null)
+        public static PeerHostFactory AddDHTKademliaProtocol(this PeerHostFactory serverBuilder, Action<KademliaOptions> callback = null)
         {
             if (callback != null) serverBuilder.Services.Configure(callback);
-            else serverBuilder.Services.Configure<DHTOptions>(o => { });
+            else serverBuilder.Services.Configure<KademliaOptions>(o => { });
             serverBuilder.Services.AddLogging();
-            serverBuilder.Services.AddTransient<IDHTPeerFactory, DHTPeerFactory>();
-            serverBuilder.Services.AddTransient<IDHTPeer, DHTPeer>();
+            serverBuilder.Services.AddTransient<IProtocolHandler, KademliaProtocolHandler>();
+            serverBuilder.Services.AddTransient<ITimer, KademliaTimer>();
             serverBuilder.Services.AddTransient<IRequestHandler, FindNodeRequestHandler>();
             serverBuilder.Services.AddTransient<IRequestHandler, PingRequestHandler>();
             serverBuilder.Services.AddTransient<IRequestHandler, FindValueRequestHandler>();

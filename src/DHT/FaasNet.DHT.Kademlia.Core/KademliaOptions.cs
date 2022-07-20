@@ -1,8 +1,8 @@
 ﻿namespace FaasNet.DHT.Kademlia.Core
 {
-    public class DHTOptions
+    public class KademliaOptions
     {
-        public DHTOptions()
+        public KademliaOptions()
         {
             S = 6;
             K = 4;
@@ -26,5 +26,17 @@
         /// Interval in MS used to check the peers.
         /// </summary>
         public double HealthCheckTimerMS { get; set; }
+        /// <summary>
+        /// Is a Seed peer.
+        /// </summary>
+        public bool IsSeedPeer { get; set; }
+        /// <summary>
+        /// Url of the Seed peer.
+        /// </summary>
+        public string SeedUrl { get; set; }
+        /// <summary>
+        /// Port of the Seed peer.
+        /// </summary>
+        public int SeedPort { get; set; }
     }
 }

@@ -2,20 +2,20 @@
 {
     public interface IDHTPeerInfoStore
     {
-        DHTPeerInfo Get();
-        void Update(DHTPeerInfo peerInfo);
+        KademliaPeerInfo Get();
+        void Update(KademliaPeerInfo peerInfo);
     }
 
     public class DHTPeerInfoStore : IDHTPeerInfoStore
     {
-        private DHTPeerInfo _peerInfo;
+        private KademliaPeerInfo _peerInfo;
 
-        public DHTPeerInfo Get()
+        public KademliaPeerInfo Get()
         {
             return _peerInfo;
         }
 
-        public void Update(DHTPeerInfo peerInfo)
+        public void Update(KademliaPeerInfo peerInfo)
         {
             _peerInfo = peerInfo;
         }

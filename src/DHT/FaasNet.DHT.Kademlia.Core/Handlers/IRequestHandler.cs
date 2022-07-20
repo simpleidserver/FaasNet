@@ -6,7 +6,7 @@ namespace FaasNet.DHT.Kademlia.Core.Handlers
 {
     public interface IRequestHandler
     {
-        public Commands Command { get; }
-        Task<BasePackage> Handle(BasePackage request, CancellationToken cancellationToken);
+        public KademliaCommandTypes Command { get; }
+        Task<KademliaPackage> Handle(KademliaPackage request, CancellationToken cancellationToken);
     }
 }

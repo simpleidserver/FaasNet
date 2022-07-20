@@ -1,28 +1,25 @@
-﻿namespace FaasNet.DHT.Kademlia.Client.Messages
-{
-    public class StoreRequest : BasePackage
-    {
-        public StoreRequest() : base(Commands.STORE_REQUEST)
-        {
-        }
+﻿using FaasNet.Peer.Client;
 
+namespace FaasNet.DHT.Kademlia.Client.Messages
+{
+    public class StoreRequest : KademliaPackage
+    {
         public bool Force { get; set; }
         public long Key { get; set; }
         public string Value { get; set; }
         public long ExcludedPeer { get; set; }
+        public override KademliaCommandTypes Command => KademliaCommandTypes.STORE_REQUEST;
 
-        public override void Serialize(WriteBufferContext context)
+        public override void SerializeAction(WriteBufferContext context)
         {
-            base.Serialize(context);
             context.WriteBoolean(Force);
             context.WriteLong(Key);
             context.WriteString(Value);
             if (Force) context.WriteLong(ExcludedPeer);
         }
 
-        public override BasePackage Extract(ReadBufferContext context)
+        public KademliaPackage Extract(ReadBufferContext context)
         {
-            base.Extract(context);
             Force = context.NextBoolean();
             Key = context.NextLong();
             Value = context.NextString();

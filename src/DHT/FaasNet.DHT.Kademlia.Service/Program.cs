@@ -1,13 +1,12 @@
-﻿using FaasNet.Common;
-using FaasNet.DHT.Kademlia.Client;
-using FaasNet.DHT.Kademlia.Core;
+﻿using FaasNet.DHT.Kademlia.Client;
+using FaasNet.DHT.Kademlia.Core.Stores;
+using FaasNet.Peer;
 
 namespace FaasNet.DHT.Chord.Service
 {
     internal class Program
     {
-        private static IDHTPeerFactory _peerFactory;
-        private static ICollection<IDHTPeer> _peers;
+        private static ICollection<(IPeerHost, IServiceProvider)> _peers;
         private const long ROOT_PEER_ID = 1;
         private const int ROOT_NODE_PORT = 50;
         private static int CURRENT_NODE_PORT = 60;
@@ -16,11 +15,23 @@ namespace FaasNet.DHT.Chord.Service
         {
             // https://kelseyc18.github.io/kademlia_vis/basics/3/
             // https://docs.rs/kademlia_routing_table/latest/kademlia_routing_table/
-            _peers = new List<IDHTPeer>();
-            _peerFactory = new ServerBuilder().AddDHTKademlia().ServiceProvider.GetService(typeof(IDHTPeerFactory)) as IDHTPeerFactory;
-            var rootNode = _peerFactory.Build();
-            _peers.Add(rootNode);
-            rootNode.StartSeedPeer(ROOT_PEER_ID, "localhost", ROOT_NODE_PORT, CancellationToken.None);
+            _peers = new List<(IPeerHost, IServiceProvider)>();
+            var rootPeer = PeerHostFactory.New(o =>
+            {
+                o.Url = "localhost";
+                o.Port = ROOT_NODE_PORT;
+                o.PeerId = ROOT_PEER_ID.ToString();
+            })
+                .UseUDPTransport()
+                .AddDHTKademliaProtocol(o =>
+                {
+                    o.SeedPort = ROOT_NODE_PORT;
+                    o.SeedUrl = "localhost";
+                    o.IsSeedPeer = true;
+                })
+                .BuildWithDI();
+            _peers.Add(rootPeer);
+            rootPeer.Item1.Start().Wait();
             var line = string.Empty;
             do
             {
@@ -50,9 +61,22 @@ namespace FaasNet.DHT.Chord.Service
         {
             Console.WriteLine("Enter a peer identifier");
             var peerId = long.Parse(Console.ReadLine());
-            var node = _peerFactory.Build();
-            node.StartPeer(peerId, "localhost", CURRENT_NODE_PORT, "localhost", ROOT_NODE_PORT, CancellationToken.None);
-            _peers.Add(node);
+            var peer = PeerHostFactory.New(o =>
+            {
+                o.Url = "localhost";
+                o.Port = CURRENT_NODE_PORT;
+                o.PeerId = peerId.ToString();
+            })
+                .UseUDPTransport()
+                .AddDHTKademliaProtocol(o =>
+                {
+                    o.SeedPort = ROOT_NODE_PORT;
+                    o.SeedUrl = "localhost";
+                    o.IsSeedPeer = false;
+                })
+                .BuildWithDI();
+            await peer.Item1.Start();
+            _peers.Add(peer);
             CURRENT_NODE_PORT++;
         }
 
@@ -62,7 +86,7 @@ namespace FaasNet.DHT.Chord.Service
             var key = long.Parse(Console.ReadLine());
             Console.WriteLine("Enter a value");
             var value = Console.ReadLine();
-            using (var kademliaClient = new KademliaClient("localhost", ROOT_NODE_PORT))
+            using (var kademliaClient = new UDPKademliaClient("localhost", ROOT_NODE_PORT))
             {
                 await kademliaClient.StoreValue(key, value);
             }
@@ -72,8 +96,12 @@ namespace FaasNet.DHT.Chord.Service
         {
             Console.WriteLine("Enter the peer identifier");
             var id = int.Parse(Console.ReadLine());
-            var peer = _peers.First(p => p.PeerInfoStore.Get().Id == id);
-            await peer.Stop();
+            var peer = _peers.First(p =>
+            {
+                var peerInfo = p.Item2.GetService(typeof(IDHTPeerInfoStore)) as IDHTPeerInfoStore;
+                return peerInfo.Get().Id == id;
+            });
+            peer.Item1.Stop();
             _peers.Remove(peer);
         }
 
@@ -81,7 +109,7 @@ namespace FaasNet.DHT.Chord.Service
         {
             Console.WriteLine("Enter a key");
             var key = long.Parse(Console.ReadLine());
-            using (var kademliaClient = new KademliaClient("localhost", ROOT_NODE_PORT))
+            using (var kademliaClient = new UDPKademliaClient("localhost", ROOT_NODE_PORT))
             {
                 var value = await kademliaClient.FindValue(key);
                 Console.WriteLine($"Key {key}, Value {value.Value}");
@@ -90,9 +118,10 @@ namespace FaasNet.DHT.Chord.Service
 
         private static void DisplayKBucketLst()
         {
-            foreach(var peer in _peers)
+            foreach(var rec in _peers)
             {
-                var peerInfo = peer.PeerInfoStore.Get();
+                var peerInfoStore = rec.Item2.GetService(typeof(IDHTPeerInfoStore)) as IDHTPeerInfoStore;
+                var peerInfo = peerInfoStore.Get();
                 Console.WriteLine($"======= Peer identifier {peerInfo.Id}, Port {peerInfo.Port} =======");
                 for(var i = 0; i < peerInfo.KBucketLst.Count; i++)
                 {
@@ -107,11 +136,13 @@ namespace FaasNet.DHT.Chord.Service
 
         private static void DisplayData()
         {
-            foreach(var peer in _peers)
+            foreach(var rec in _peers)
             {
-                var peerInfo = peer.PeerInfoStore.Get();
+                var peerInfoStore = rec.Item2.GetService(typeof(IDHTPeerInfoStore)) as IDHTPeerInfoStore;
+                var peerDataStore = rec.Item2.GetService(typeof(IPeerDataStore)) as IPeerDataStore;
+                var peerInfo = peerInfoStore.Get();
                 Console.WriteLine($"======= Peer identifier {peerInfo.Id}, Port {peerInfo.Port} =======");
-                var allData = peer.PeerDataStore.GetAll();
+                var allData = peerDataStore.GetAll();
                 foreach(var data in allData)
                 {
                     Console.WriteLine($"Identifier {data.Id}, Value {data.Value}");

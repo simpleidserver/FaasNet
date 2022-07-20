@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace FaasNet.DHT.Kademlia.Core
 {
-    public class DHTPeerInfo
+    public class KademliaPeerInfo
     {
-        private DHTPeerInfo(long id, string url, int port, List<KBucket> kbucketLst)
+        private KademliaPeerInfo(long id, string url, int port, List<KBucket> kbucketLst)
         {
             Id = id;
             Url = url;
@@ -19,7 +19,7 @@ namespace FaasNet.DHT.Kademlia.Core
         public int Port { get; set; }
         public ICollection<KBucket> KBucketLst { get; private set; }
 
-        public static DHTPeerInfo Create(long id, string url, int port, int nbBits)
+        public static KademliaPeerInfo Create(long id, string url, int port, int nbBits)
         {
             var kbucketLst = new List<KBucket>();
             for (var i = 0; i < nbBits; i++)
@@ -29,7 +29,7 @@ namespace FaasNet.DHT.Kademlia.Core
                 kbucketLst.Add(new KBucket(start, end));
             }
 
-            return new DHTPeerInfo(id, url, port, kbucketLst);
+            return new KademliaPeerInfo(id, url, port, kbucketLst);
         }
 
         public bool TryAddPeer(string url, int port, long peerId)

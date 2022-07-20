@@ -1,8 +1,12 @@
-﻿namespace FaasNet.DHT.Kademlia.Client.Messages
+﻿using FaasNet.Peer.Client;
+
+namespace FaasNet.DHT.Kademlia.Client.Messages
 {
-    public class StoreResult : BasePackage
+    public class StoreResult : KademliaPackage
     {
-        public StoreResult() : base(Commands.STORE_RESULT)
+        public override KademliaCommandTypes Command => KademliaCommandTypes.STORE_RESULT;
+
+        public override void SerializeAction(WriteBufferContext context)
         {
         }
     }

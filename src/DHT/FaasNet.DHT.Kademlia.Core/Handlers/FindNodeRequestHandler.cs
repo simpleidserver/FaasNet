@@ -10,17 +10,17 @@ namespace FaasNet.DHT.Kademlia.Core.Handlers
     public class FindNodeRequestHandler : IRequestHandler
     {
         private readonly IDHTPeerInfoStore _peerInfoStore;
-        private readonly DHTOptions _options;
+        private readonly KademliaOptions _options;
 
-        public FindNodeRequestHandler(IDHTPeerInfoStore peerInfoStore, IOptions<DHTOptions> options)
+        public FindNodeRequestHandler(IDHTPeerInfoStore peerInfoStore, IOptions<KademliaOptions> options)
         {
             _peerInfoStore = peerInfoStore;
             _options = options.Value;
         }
 
-        public Commands Command => Commands.FIND_NODE_REQUEST;
+        public KademliaCommandTypes Command => KademliaCommandTypes.FIND_NODE_REQUEST;
 
-        public Task<BasePackage> Handle(BasePackage request, CancellationToken cancellationToken)
+        public Task<KademliaPackage> Handle(KademliaPackage request, CancellationToken cancellationToken)
         {
             var findNodeRequest = request as FindNodeRequest;
             var peerInfo = _peerInfoStore.Get();
