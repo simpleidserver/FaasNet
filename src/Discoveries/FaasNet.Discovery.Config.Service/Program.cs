@@ -1,31 +1,26 @@
-﻿using FaasNet.Discovery.Gossip.Client;
-using FaasNet.Peer;
+﻿using FaasNet.Peer;
 using FaasNet.Peer.Clusters;
 using System.Collections.Concurrent;
 
-namespace FaasNet.Discovery.Gossip.Service
+namespace FaasNet.Discovery.Config.Service
 {
     internal class Program
     {
         public static int Main(string[] args)
         {
-            var seedPeerHostpeerHost = LaunchGossipPeer(new ConcurrentBag<ClusterPeer>(), 5001, "seedId");
-            var secondPeerHostpeerHost = LaunchGossipPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, 5002, "peerId2");
-            var thirdPeerHostpeerHost = LaunchGossipPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, 5003, "peerId3");
+            var peerHost = LaunchPeer(new ConcurrentBag<ClusterPeer>(), 5001, "seedId");
             Console.WriteLine("Press any key to display all the Peers present in the network");
             Console.ReadLine();
             DisplayCluster();
             Console.WriteLine("Press any key to stop the servers");
             Console.ReadLine();
-            seedPeerHostpeerHost.Stop();
-            secondPeerHostpeerHost.Stop();
-            thirdPeerHostpeerHost.Stop();
+            peerHost.Stop();
             Console.WriteLine("Press any key to quit the application");
             Console.ReadLine();
             return 1;
         }
 
-        private static IPeerHost LaunchGossipPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001, string peerId = "peerId")
+        private static IPeerHost LaunchPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001, string peerId = "peerId")
         {
             var peerHost = PeerHostFactory.NewUnstructured(o => {
                 o.Url = "localhost";
@@ -33,7 +28,7 @@ namespace FaasNet.Discovery.Gossip.Service
                 o.PeerId = peerId;
             }, clusterPeers)
                 .UseUDPTransport()
-                .UseGossipDiscovery()
+                .UseDiscoveryConfig()
                 .Build();
             peerHost.Start();
             return peerHost;

@@ -74,7 +74,7 @@ namespace FaasNet.RaftConsensus.Tests
 
         private static IPeerHost BuildPeer(int port, ConcurrentBag<ClusterPeer> peers, ConcurrentBag<PartitionElectionRecord> partitionElectionRecords)
         {
-            var peerHost = PeerHostFactory.New(o =>
+            var peerHost = PeerHostFactory.NewUnstructured(o =>
             {
                 o.Port = port;
                 o.Url = "localhost";

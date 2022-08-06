@@ -4,8 +4,8 @@
 	  <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\EventMesh\FaasNet.EventMesh.Plugin\FaasNet.EventMesh.Plugin.csproj" />
-    <ProjectReference Include="..\FaasNet.RaftConsensus.Core\FaasNet.RaftConsensus.Core.csproj" />
+    <ProjectReference Include="..\..\Common\FaasNet.Peer\FaasNet.Peer.csproj" />
+    <ProjectReference Include="..\..\Common\FaasNet.Plugin\FaasNet.Plugin.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">

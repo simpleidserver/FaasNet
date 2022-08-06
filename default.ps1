@@ -55,10 +55,21 @@ task publishEventMeshCLI {
 # Publish Nuget package 
 task pack {
 	exec { dotnet pack $source_dir\Common\FaasNet.Common\FaasNet.Common.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\Common\FaasNet.Peer\FaasNet.Peer.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\Common\FaasNet.Peer.Client\FaasNet.Peer.Client.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\Common\FaasNet.Plugin\FaasNet.Plugin.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\Discoveries\FaasNet.Discovery.Config\FaasNet.Discovery.Config.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\Discoveries\FaasNet.Discovery.Etcd\FaasNet.Discovery.Etcd.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\Discoveries\FaasNet.Discovery.Gossip.Client\FaasNet.Discovery.Gossip.Client.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\Discoveries\FaasNet.Discovery.Gossip.Core\FaasNet.Discovery.Gossip.Core.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\CRDT\FaasNet.CRDT.Client\FaasNet.CRDT.Client.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\CRDT\FaasNet.CRDT.Core\FaasNet.CRDT.Core.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
 	exec { dotnet pack $source_dir\DHT\FaasNet.DHT.Chord.Client\FaasNet.DHT.Chord.Client.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
 	exec { dotnet pack $source_dir\DHT\FaasNet.DHT.Chord.Core\FaasNet.DHT.Chord.Core.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
 	exec { dotnet pack $source_dir\DHT\FaasNet.DHT.Kademlia.Client\FaasNet.DHT.Kademlia.Client.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
 	exec { dotnet pack $source_dir\DHT\FaasNet.DHT.Kademlia.Core\FaasNet.DHT.Kademlia.Core.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\RaftConsensus\FaasNet.RaftConsensus.Client\FaasNet.RaftConsensus.Client.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
+	exec { dotnet pack $source_dir\RaftConsensus\FaasNet.RaftConsensus.Core\FaasNet.RaftConsensus.Core.csproj -c $config --no-build $versionSuffix --output $result_dir\nugetPackages }
 }
 
 # Publish
@@ -80,15 +91,7 @@ task publishWebsite {
 }
 
 # Test
-task test {	
-    Push-Location -Path $base_dir\tests\FaasNet.EventMesh.Runtime.Tests
-
-    try {
-        exec { & dotnet test -c $config --no-build --no-restore }
-    } finally {
-        Pop-Location
-    }
-	
+task test {
     Push-Location -Path $base_dir\tests\FaasNet.RaftConsensus.Tests
 
     try {

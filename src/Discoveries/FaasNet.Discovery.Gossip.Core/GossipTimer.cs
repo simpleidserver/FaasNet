@@ -30,13 +30,14 @@ namespace FaasNet.Discovery.Gossip.Core
             _logger = logger;
         }
 
-        public void Start(CancellationToken cancellationToken)
+        public Task Start(CancellationToken cancellationToken)
         {
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             _timer = new System.Timers.Timer(_gossipOptions.BroadcastRumorToRandomNeighbourTimerMS);
             _timer.Elapsed += async(o, e) => await BroadcastRumor(o, e);
             _timer.AutoReset = false;
             StartBroadcastRumor();
+            return Task.CompletedTask;
         }
 
         public void Stop()

@@ -139,7 +139,7 @@ namespace FaasNet.DHT.Chord.Service
                 secondSerializedEntity,
                 thirdSerializedEntity
             };
-            var peerHost = PeerHostFactory.New(o => {
+            var peerHost = PeerHostFactory.NewUnstructured(o => {
                     o.Port = port;
                     o.PeerId = peerId;
                 }, clusterPeers)

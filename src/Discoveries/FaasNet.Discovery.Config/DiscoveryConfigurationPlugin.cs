@@ -1,7 +1,7 @@
-﻿using FaasNet.EventMesh.Plugin;
+﻿using FaasNet.Plugin;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FaasNet.RaftConsensus.Discovery.Config
+namespace FaasNet.Discovery.Config
 {
     public class DiscoveryConfigurationPlugin : IPlugin<DiscoveryConfigurationOptions>
     {

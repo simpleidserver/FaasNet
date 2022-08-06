@@ -42,7 +42,7 @@ namespace FaasNet.DHT.Chord.Service
 
         private static async void AddRootPeer()
         {
-            var rootNode = PeerHostFactory.New(o =>
+            var rootNode = PeerHostFactory.NewStructured(o =>
             {
                 o.Port = ROOT_NODE_PORT;
                 o.Url = "localhost";
@@ -57,7 +57,7 @@ namespace FaasNet.DHT.Chord.Service
 
         private static async void AddPeer()
         {
-            var node = PeerHostFactory.New(o =>
+            var node = PeerHostFactory.NewStructured(o =>
             {
                 o.Port = CURRENT_NODE_PORT;
                 o.Url = "localhost";

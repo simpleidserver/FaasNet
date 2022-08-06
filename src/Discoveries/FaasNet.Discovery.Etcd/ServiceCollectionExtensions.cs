@@ -1,5 +1,5 @@
-﻿using FaasNet.RaftConsensus.Core.Stores;
-using FaasNet.RaftConsensus.Discovery.Etcd;
+﻿using FaasNet.Discovery.Etcd;
+using FaasNet.Peer.Clusters;
 using System;
 using System.Linq;
 

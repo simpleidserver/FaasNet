@@ -1,11 +1,10 @@
-﻿using FaasNet.RaftConsensus.Core.Models;
-using FaasNet.RaftConsensus.Core.Stores;
+﻿using FaasNet.Peer.Clusters;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FaasNet.RaftConsensus.Discovery.Config
+namespace FaasNet.Discovery.Config
 {
     public class ConfigClusterStore : IClusterStore
     {
@@ -16,14 +15,14 @@ namespace FaasNet.RaftConsensus.Discovery.Config
             _options = options.Value;
         }
 
-        public Task SelfRegister(ClusterNode node, CancellationToken cancellationToken)
+        public Task SelfRegister(ClusterPeer node, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }
 
-        public Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken)
+        public Task<IEnumerable<ClusterPeer>> GetAllNodes(CancellationToken cancellationToken)
         {
-            IEnumerable<ClusterNode> result = _options.ClusterNodes;
+            IEnumerable<ClusterPeer> result = _options.ClusterNodes;
             return Task.FromResult(result);
         }
     }

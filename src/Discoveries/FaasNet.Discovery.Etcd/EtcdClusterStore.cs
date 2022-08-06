@@ -1,14 +1,14 @@
-﻿using FaasNet.RaftConsensus.Core.Models;
-using FaasNet.RaftConsensus.Core.Stores;
-using Microsoft.Extensions.Logging;
+﻿using FaasNet.Peer;
+using FaasNet.Peer.Clusters;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FaasNet.RaftConsensus.Discovery.Etcd
+namespace FaasNet.Discovery.Etcd
 {
     public class EtcdClusterStore : IClusterStore
     {
@@ -16,16 +16,18 @@ namespace FaasNet.RaftConsensus.Discovery.Etcd
         private readonly EtcdOptions _options;
         private readonly int MAX_NB_RETRY = 5;
         private readonly int RETRY_TIMER_MS = 500;
-        private readonly ILogger<EtcdClusterStore> _logger;
+        private readonly IEnumerable<IProtocolHandler> _protocols;
 
-        public EtcdClusterStore(IOptions<EtcdOptions> options, ILogger<EtcdClusterStore> logger)
+        public EtcdClusterStore(IOptions<EtcdOptions> options, IEnumerable<IProtocolHandler> protocols)
         {
             _options = options.Value;
-            _logger = logger;
+            _protocols = protocols;
         }
 
-        public Task SelfRegister(ClusterNode node, CancellationToken cancellationToken)
+        public Task SelfRegister(ClusterPeer peer, CancellationToken cancellationToken)
         {
+            var protocol = _protocols.SingleOrDefault(p => p.MagicCode == "GOSSIP");
+            if (protocol != null) throw new InvalidOperationException("ETCD Cluster cannot be used when GOSSIP protocol is enabled");
             return Retry(async () =>
             {
                 var connection = EtcdConnectionPool.Build(_options);
@@ -34,11 +36,14 @@ namespace FaasNet.RaftConsensus.Discovery.Etcd
                 {
                     new Grpc.Core.Metadata.Entry(TOKEN_NAME, connection.AuthResult.Token)
                 };
-                await connection.Client.PutAsync($"{_options.EventMeshPrefix}/{node.Url}", JsonSerializer.Serialize(node), headers, cancellationToken: cancellationToken);
+                await connection.Client.PutAsync($"{_options.EventMeshPrefix}/{peer.Url}", JsonSerializer.Serialize(peer, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }), headers, cancellationToken: cancellationToken);
             }, 0);
         }
 
-        public Task<IEnumerable<ClusterNode>> GetAllNodes(CancellationToken cancellationToken)
+        public Task<IEnumerable<ClusterPeer>> GetAllNodes(CancellationToken cancellationToken)
         {
             return Retry(async () =>
             {
@@ -49,10 +54,10 @@ namespace FaasNet.RaftConsensus.Discovery.Etcd
                     new Grpc.Core.Metadata.Entry(TOKEN_NAME, connection.AuthResult.Token)
                 };
                 var dic = await connection.Client.GetRangeValAsync($"{_options.EventMeshPrefix}/", headers);
-                var result = new List<ClusterNode>();
+                var result = new List<ClusterPeer>();
                 foreach (var kvs in dic)
                 {
-                    result.Add(JsonSerializer.Deserialize<ClusterNode>(kvs.Value, new JsonSerializerOptions
+                    result.Add(JsonSerializer.Deserialize<ClusterPeer>(kvs.Value, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     }));
@@ -77,7 +82,7 @@ namespace FaasNet.RaftConsensus.Discovery.Etcd
             }
         }
 
-        private async Task<IEnumerable<ClusterNode>> Retry(Func<Task<IEnumerable<ClusterNode>>> callback, int nbRetry)
+        private async Task<IEnumerable<ClusterPeer>> Retry(Func<Task<IEnumerable<ClusterPeer>>> callback, int nbRetry)
         {
             try
             {

@@ -1,6 +1,6 @@
-﻿using FaasNet.EventMesh.Plugin;
+﻿using FaasNet.Plugin;
 
-namespace FaasNet.RaftConsensus.Discovery.Etcd
+namespace FaasNet.Discovery.Etcd
 {
     public class EtcdOptions
     {

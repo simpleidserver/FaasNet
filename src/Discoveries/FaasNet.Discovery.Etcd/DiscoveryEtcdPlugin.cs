@@ -1,7 +1,7 @@
-﻿using FaasNet.EventMesh.Plugin;
+﻿using FaasNet.Plugin;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FaasNet.RaftConsensus.Discovery.Etcd
+namespace FaasNet.Discovery.Etcd
 {
     public class DiscoveryEtcdPlugin : IPlugin<EtcdOptions>
     {

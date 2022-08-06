@@ -16,7 +16,7 @@ namespace FaasNet.DHT.Chord.Service
             // https://kelseyc18.github.io/kademlia_vis/basics/3/
             // https://docs.rs/kademlia_routing_table/latest/kademlia_routing_table/
             _peers = new List<(IPeerHost, IServiceProvider)>();
-            var rootPeer = PeerHostFactory.New(o =>
+            var rootPeer = PeerHostFactory.NewStructured(o =>
             {
                 o.Url = "localhost";
                 o.Port = ROOT_NODE_PORT;
@@ -61,7 +61,7 @@ namespace FaasNet.DHT.Chord.Service
         {
             Console.WriteLine("Enter a peer identifier");
             var peerId = long.Parse(Console.ReadLine());
-            var peer = PeerHostFactory.New(o =>
+            var peer = PeerHostFactory.NewStructured(o =>
             {
                 o.Url = "localhost";
                 o.Port = CURRENT_NODE_PORT;

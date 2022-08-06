@@ -35,13 +35,14 @@ namespace FaasNet.CRDT.Core
             _logger = logger;
         }
 
-        public void Start(CancellationToken cancellationToken)
+        public Task Start(CancellationToken cancellationToken)
         {
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             _timer = new System.Timers.Timer(_options.SyncCRDTEntitiesTimerMS);
             _timer.Elapsed += async (o, e) => await SyncCRDTEntities(o, e);
             _timer.AutoReset = false;
             StartSyncCRDTEntities();
+            return Task.CompletedTask;
         }
 
         public void Stop()

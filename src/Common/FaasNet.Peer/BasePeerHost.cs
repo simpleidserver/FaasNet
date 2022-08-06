@@ -1,8 +1,6 @@
 ﻿using FaasNet.Peer.Client;
-using FaasNet.Peer.Clusters;
 using FaasNet.Peer.Transports;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -16,24 +14,20 @@ namespace FaasNet.Peer
         Task Stop();
     }
 
-    public class PeerHost : IPeerHost
+    public abstract class BasePeerHost : IPeerHost
     {
         private readonly ITransport _transport;
         private readonly IProtocolHandlerFactory _protocolHandlerFactory;
-        private readonly IClusterStore _clusterStore;
         private readonly IEnumerable<ITimer> _timers;
-        private readonly ILogger<PeerHost> _logger;
-        private readonly PeerOptions _options;
+        private readonly ILogger<BasePeerHost> _logger;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public PeerHost(ITransport transport, IProtocolHandlerFactory protocolHandlerFactory, IClusterStore clusterStore, IEnumerable<ITimer> timers, ILogger<PeerHost> logger, IOptions<PeerOptions> options)
+        public BasePeerHost(ITransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger)
         {
             _transport = transport;
             _protocolHandlerFactory = protocolHandlerFactory;
-            _clusterStore = clusterStore;
             _timers = timers;
             _logger = logger;
-            _options = options.Value;
         }
 
         public bool IsRunning { get; private set; }
@@ -42,7 +36,7 @@ namespace FaasNet.Peer
         {
             if (IsRunning) throw new InvalidOperationException("The Peer is already running");
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            await _clusterStore.SelfRegister(new ClusterPeer(_options.Url, _options.Port), cancellationToken);
+            await Init(cancellationToken);
             _transport.Start(_cancellationTokenSource.Token);
 #pragma warning disable 4014
             Task.Run(async () => await Run(), cancellationToken);
@@ -59,6 +53,8 @@ namespace FaasNet.Peer
             _transport.Stop();
             return Task.CompletedTask;
         }
+
+        protected abstract Task Init(CancellationToken cancellationToken = default(CancellationToken));
 
         protected async Task Run()
         {

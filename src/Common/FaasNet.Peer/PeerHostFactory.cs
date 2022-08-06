@@ -11,12 +11,22 @@ namespace FaasNet.Peer
     {
         private readonly IServiceCollection _serviceCollection;
 
+        private PeerHostFactory(Action<PeerOptions> options)
+        {
+            _serviceCollection = new ServiceCollection();
+            if (options == null) _serviceCollection.Configure<PeerOptions>(o => { });
+            else _serviceCollection.Configure(options);
+            _serviceCollection.AddScoped<IPeerHost, StructuredPeerHost>();
+            _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
+            _serviceCollection.AddLogging();
+        }
+
         private PeerHostFactory(Action<PeerOptions> options, ConcurrentBag<ClusterPeer> clusterPeers)
         {
             _serviceCollection = new ServiceCollection();
             if (options == null) _serviceCollection.Configure<PeerOptions>(o => { });
             else _serviceCollection.Configure(options);
-            _serviceCollection.AddScoped<IPeerHost, PeerHost>();
+            _serviceCollection.AddScoped<IPeerHost, UnstructuredPeerHost>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
             if (clusterPeers != null) _serviceCollection.AddScoped<IClusterStore>(s => new InMemoryClusterStore(clusterPeers));
             else _serviceCollection.AddScoped<IClusterStore, InMemoryClusterStore>();
@@ -25,9 +35,14 @@ namespace FaasNet.Peer
 
         public IServiceCollection Services => _serviceCollection;
 
-        public static PeerHostFactory New(Action<PeerOptions> options = null, ConcurrentBag<ClusterPeer> clusterNodes = null)
+        public static PeerHostFactory NewUnstructured(Action<PeerOptions> options = null, ConcurrentBag<ClusterPeer> clusterNodes = null)
         {
             return new PeerHostFactory(options, clusterNodes);
+        }
+
+        public static PeerHostFactory NewStructured(Action<PeerOptions> options = null)
+        {
+            return new PeerHostFactory(options);
         }
 
         public PeerHostFactory UseTCPTransport()

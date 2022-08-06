@@ -35,6 +35,15 @@
         href: eventmesh/plugindiscoveryconfig.md
       - name: Etcd Peer Discovery
         href: eventmesh/plugindiscoveryetcd.md
+- name: Discovery
+  href: discovery/index.md
+  items:
+    - name: Configuration file
+      href: discovery/config.md
+    - name: ETCD
+      href: discovery/etcd.md
+    - name: Gossip
+      href: discovery/gossip.md
 - name: Unstructured P2P Network
   href: unstructured/index.md
   items:

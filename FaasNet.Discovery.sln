@@ -21,6 +21,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03. Startup Layer", "03. St
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Discovery.Gossip.Service", "src\Discoveries\FaasNet.Discovery.Gossip.Service\FaasNet.Discovery.Gossip.Service.csproj", "{DC9C68D1-986E-4678-A425-2005D89D1840}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Discovery.Etcd", "src\Discoveries\FaasNet.Discovery.Etcd\FaasNet.Discovery.Etcd.csproj", "{668405E8-5F2D-4769-9C3B-44772A66FBA9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Discovery.Config", "src\Discoveries\FaasNet.Discovery.Config\FaasNet.Discovery.Config.csproj", "{22BC22F5-9450-41C6-B8D0-4A7C2B119A7F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Plugin", "src\Common\FaasNet.Plugin\FaasNet.Plugin.csproj", "{79A73995-C1A4-48DF-95E1-BE862BD56706}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Discovery", "Discovery", "{4705F18B-2E1A-486E-8D4D-B92C5F318AC1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +59,18 @@ Global
 		{DC9C68D1-986E-4678-A425-2005D89D1840}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC9C68D1-986E-4678-A425-2005D89D1840}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC9C68D1-986E-4678-A425-2005D89D1840}.Release|Any CPU.Build.0 = Release|Any CPU
+		{668405E8-5F2D-4769-9C3B-44772A66FBA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{668405E8-5F2D-4769-9C3B-44772A66FBA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{668405E8-5F2D-4769-9C3B-44772A66FBA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{668405E8-5F2D-4769-9C3B-44772A66FBA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22BC22F5-9450-41C6-B8D0-4A7C2B119A7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22BC22F5-9450-41C6-B8D0-4A7C2B119A7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22BC22F5-9450-41C6-B8D0-4A7C2B119A7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22BC22F5-9450-41C6-B8D0-4A7C2B119A7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79A73995-C1A4-48DF-95E1-BE862BD56706}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79A73995-C1A4-48DF-95E1-BE862BD56706}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79A73995-C1A4-48DF-95E1-BE862BD56706}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79A73995-C1A4-48DF-95E1-BE862BD56706}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +82,10 @@ Global
 		{61709E02-061A-459B-948F-100686DDFF7C} = {98931853-F401-4580-81AC-1441170AEC1D}
 		{E87625FD-55BD-4794-A279-828040EAEB9C} = {98931853-F401-4580-81AC-1441170AEC1D}
 		{DC9C68D1-986E-4678-A425-2005D89D1840} = {D3471B49-4615-4276-8A07-BAB04AACBF35}
+		{668405E8-5F2D-4769-9C3B-44772A66FBA9} = {4705F18B-2E1A-486E-8D4D-B92C5F318AC1}
+		{22BC22F5-9450-41C6-B8D0-4A7C2B119A7F} = {4705F18B-2E1A-486E-8D4D-B92C5F318AC1}
+		{79A73995-C1A4-48DF-95E1-BE862BD56706} = {A42AE4A7-6298-43C6-9428-20B3AE22B0B8}
+		{4705F18B-2E1A-486E-8D4D-B92C5F318AC1} = {98931853-F401-4580-81AC-1441170AEC1D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {47282404-F417-4CB0-B890-3DF60E6D8459}

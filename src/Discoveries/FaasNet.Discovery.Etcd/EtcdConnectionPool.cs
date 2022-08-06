@@ -1,7 +1,7 @@
 ﻿using dotnet_etcd;
 using Etcdserverpb;
 
-namespace FaasNet.RaftConsensus.Discovery.Etcd
+namespace FaasNet.Discovery.Etcd
 {
     public class EtcdConnectionPool
     {
