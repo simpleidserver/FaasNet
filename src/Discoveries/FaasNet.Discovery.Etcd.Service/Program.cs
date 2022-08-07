@@ -3,7 +3,7 @@ using FaasNet.Peer.Clusters;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
-namespace FaasNet.Discovery.Config.Service
+namespace FaasNet.Discovery.Etcd.Service
 {
     internal class Program
     {
@@ -30,7 +30,7 @@ namespace FaasNet.Discovery.Config.Service
                 o.PeerId = peerId;
             }, clusterPeers)
                 .UseUDPTransport()
-                .UseDiscoveryConfig();
+                .UseDiscoveryEtcd();
             var peerHost = peerHostFactory.BuildWithDI();
             peerHost.Item1.Start();
             return peerHost;

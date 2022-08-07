@@ -29,6 +29,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Plugin", "src\Commo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Discovery", "Discovery", "{4705F18B-2E1A-486E-8D4D-B92C5F318AC1}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Discovery.Config.Service", "src\Discoveries\FaasNet.Discovery.Config.Service\FaasNet.Discovery.Config.Service.csproj", "{FDB4F076-87E6-4BF3-9ECE-ABCC3A378C51}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Discovery.Etcd.Service", "src\Discoveries\FaasNet.Discovery.Etcd.Service\FaasNet.Discovery.Etcd.Service.csproj", "{023C163E-5532-4270-B576-6ECCD06B93AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +75,14 @@ Global
 		{79A73995-C1A4-48DF-95E1-BE862BD56706}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79A73995-C1A4-48DF-95E1-BE862BD56706}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79A73995-C1A4-48DF-95E1-BE862BD56706}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDB4F076-87E6-4BF3-9ECE-ABCC3A378C51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDB4F076-87E6-4BF3-9ECE-ABCC3A378C51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDB4F076-87E6-4BF3-9ECE-ABCC3A378C51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDB4F076-87E6-4BF3-9ECE-ABCC3A378C51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{023C163E-5532-4270-B576-6ECCD06B93AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{023C163E-5532-4270-B576-6ECCD06B93AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{023C163E-5532-4270-B576-6ECCD06B93AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{023C163E-5532-4270-B576-6ECCD06B93AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,6 +98,8 @@ Global
 		{22BC22F5-9450-41C6-B8D0-4A7C2B119A7F} = {4705F18B-2E1A-486E-8D4D-B92C5F318AC1}
 		{79A73995-C1A4-48DF-95E1-BE862BD56706} = {A42AE4A7-6298-43C6-9428-20B3AE22B0B8}
 		{4705F18B-2E1A-486E-8D4D-B92C5F318AC1} = {98931853-F401-4580-81AC-1441170AEC1D}
+		{FDB4F076-87E6-4BF3-9ECE-ABCC3A378C51} = {D3471B49-4615-4276-8A07-BAB04AACBF35}
+		{023C163E-5532-4270-B576-6ECCD06B93AB} = {D3471B49-4615-4276-8A07-BAB04AACBF35}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {47282404-F417-4CB0-B890-3DF60E6D8459}

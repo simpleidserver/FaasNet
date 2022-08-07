@@ -6,6 +6,6 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\FaasNet.Discovery.Config\FaasNet.Discovery.Config.csproj" />
+	  <ProjectReference Include="..\FaasNet.Discovery.Etcd\FaasNet.Discovery.Etcd.csproj" />
 	</ItemGroup>
 </Project>
