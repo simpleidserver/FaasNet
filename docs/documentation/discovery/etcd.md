@@ -1,6 +1,6 @@
 # ETCD
 
-ETCD is a distributed key-value store. It can be used by a P2P Network to store Peer Informations like Url, Port and Protocol.
+[ETCD](https://etcd.io/) is a distributed key-value store. It can be used by a P2P Network to store Peer Informations like Url, Port and Protocol.
 
 ## Quick start
 

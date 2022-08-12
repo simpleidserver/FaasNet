@@ -11,7 +11,7 @@ In general, Gossip protocol is used to exchange state messages between two or mo
 A state is overridden by the latest message received, so there is a possibility of losing state.
 The protocol must be used to exchange immutable information like metadata.
 
-Gossip protocol is already used in some popular software
+Gossip protocol is used in some popular software
 
 | Software    | Usage                                                                    |
 | ----------- | ------------------------------------------------------------------------ |

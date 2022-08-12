@@ -42,6 +42,12 @@ namespace FaasNet.Peer.Transports
             return Task.CompletedTask;
         }
 
+        public async Task<byte[]> Receive(CancellationToken cancellationToken)
+        {
+            var udpResult = await _udpServer.ReceiveAsync().WithCancellation(_cancellationTokenSource.Token);
+            return udpResult.Buffer;
+        }
+
         private class UDPSessionResult : BaseSessionResult
         {
             private readonly UdpReceiveResult _udpReceiveResult;

@@ -9,18 +9,17 @@ namespace FaasNet.RaftConsensus.Client.Messages
 
         protected BaseConsensusPackage() { }
 
-        public ConsensusHeader Header { get; set; }
-
         public override string MagicCode => MAGIC_CODE;
         public override string VersionNumber => PROTOCOL_VERSION;
+        public abstract ConsensusCommands Command { get; }
 
         public override void SerializeBody(WriteBufferContext context)
         {
-            Header.Serialize(context);
+            Command.Serialize(context);
             SerializeAction(context);
         }
 
-        public abstract void SerializeAction(WriteBufferContext context);
+        protected abstract void SerializeAction(WriteBufferContext context);
 
         public static BaseConsensusPackage Deserialize(ReadBufferContext context, bool ignoreEnvelope = false)
         {
@@ -30,32 +29,31 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 context.NextString();
             }
 
-            var header = ConsensusHeader.Deserialize(context);
-            if (header.Command == ConsensusCommands.EMPTY_RESULT) return new EmptyConsensusPackage { Header = header };
-            if (header.Command == ConsensusCommands.VOTE_REQUEST) return new VoteRequest { Header = header };
-            if (header.Command == ConsensusCommands.LEADER_HEARTBEAT_REQUEST) return new LeaderHeartbeatRequest { Header = header };
-            if (header.Command == ConsensusCommands.LEADER_HEARTBEAT_RESULT) return new LeaderHeartbeatResult { Header = header };
-            if (header.Command == ConsensusCommands.GET_REQUEST) return new GetEntryRequest { Header = header };
-            if (header.Command == ConsensusCommands.VOTE_RESULT)
+            var cmd = ConsensusCommands.Deserialize(context);
+            if (cmd == ConsensusCommands.VOTE_REQUEST)
             {
-                var result = new VoteResult
-                {
-                    Header = header
-                };
+                var result = new VoteRequest();
                 result.Extract(context);
                 return result;
             }
 
-            if(header.Command == ConsensusCommands.APPEND_ENTRY_REQUEST)
+            if (cmd == ConsensusCommands.VOTE_RESULT)
             {
-                var result = new AppendEntryRequest { Header = header };
+                var result = new VoteResult();
                 result.Extract(context);
                 return result;
             }
 
-            if (header.Command == ConsensusCommands.GET_RESULT)
+            if (cmd == ConsensusCommands.APPEND_ENTRIES_REQUEST)
             {
-                var result = new GetEntryResult { Header = header };
+                var result = new AppendEntriesRequest();
+                result.Extract(context);
+                return result;
+            }
+
+            if (cmd == ConsensusCommands.APPEND_ENTRIES_RESULT)
+            {
+                var result = new AppendEntriesResult();
                 result.Extract(context);
                 return result;
             }

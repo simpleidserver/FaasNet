@@ -6,45 +6,39 @@ namespace FaasNet.RaftConsensus.Core
     {
         public RaftConsensusPeerOptions()
         {
-            ElectionIntervalMS = new Interval { MinMS = 1000, MaxMS = 10000 };
+            ElectionTimer = new Interval(1000, 10000);
+            LeaderHeartbeatTimerMS = 2000;
             LeaderHeartbeatExpirationDurationMS = 12000;
-            ElectionCheckDurationMS = 1000;
-            CheckElectionTimerMS = 50;
-            CheckLeaderHeartbeatTimerMS = 50;
-            LeaderHeartbeatTimerMS = 50;
         }
 
-
         /// <summary>
-        /// Election interval.
+        /// Random election timer in MS.
         /// </summary>
-        public Interval ElectionIntervalMS { get; set; }
+        public Interval ElectionTimer { get; set; }
         /// <summary>
-        /// Expiration - Heartbeat.
+        /// Interval in MS used by the leader to send Heartbeat.
+        /// </summary>
+        public int LeaderHeartbeatTimerMS { get; set; }
+        /// <summary>s
+        /// Sliding expiration time of the heartbeat.
         /// </summary>
         public int LeaderHeartbeatExpirationDurationMS { get; set; }
         /// <summary>
-        /// Expiration time MS - election check.
+        /// Configuration's folder location.
         /// </summary>
-        public int ElectionCheckDurationMS { get; set; }
-        /// <summary>
-        /// Interval - Check election result.
-        /// </summary>
-        public int CheckElectionTimerMS { get; set; }
-        /// <summary>
-        /// Interval - Check hearbeat timer.
-        /// </summary>
-        public int CheckLeaderHeartbeatTimerMS { get; set; }
-        /// <summary>
-        /// Interval - Send heartbeat.
-        /// </summary>
-        public int LeaderHeartbeatTimerMS { get; set; }
+        public string ConfigurationDirectoryPath { get; set; }
     }
 
     public class Interval
     {
-        public int MinMS { get; set; }
-        public int MaxMS { get; set; }
+        public Interval(int minMS, int maxMS)
+        {
+            MinMS = minMS;
+            MaxMS = maxMS;
+        }
+
+        public int MinMS { get; private set; }
+        public int MaxMS { get; private set; }
 
         public int GetValue()
         {

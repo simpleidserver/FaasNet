@@ -10,5 +10,12 @@
 
         public string Url { get; private set; }
         public int Port { get; private set; }
+        public string Id
+        {
+            get
+            {
+                return PeerId.Build(Url, Port).Serialize();
+            }
+        }
     }
 }

@@ -12,15 +12,6 @@ There are three types of CRDTs
 | Operation-based   | Each Peer propagate only Update operations to other Peers                                                                     |
 | Delta             | During the synchronization process, two Peers are going to compare their local Data Structure and exchange the computed delta |
 
-Any Distributed system must be compliant with the CAP Theorem :
-* **Consistency** : Every Peers of the Netwrok has at any moment a (partial) replica of the same state of the data structure.
-* **Availability** : Access to this data is always possible in a very short Delay.
-* **Partition Tolerance** : Data structure should be resilient to communication channel failures that leads to temporary partition between Peers.
-
-In a CRDT architecture, sometimes the Data Structure can be different between the Peers for example when there is a merge conflict between two Data Structures.
-In this scenario, we are talking about `Eventual Consistency`.
-If you want `Strong Consistency` a better choice is to choose `Consensus algorithm`.
-
 ## Entity Types
 
 CRDT support different kinds of Entity 

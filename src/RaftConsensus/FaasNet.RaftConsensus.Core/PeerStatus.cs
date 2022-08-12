@@ -1,6 +1,6 @@
 ﻿namespace FaasNet.RaftConsensus.Core
 {
-    public enum PeerStates
+    public enum PeerStatus
     {
         /// <summary>
         /// A node issues no requests but passively wits for requests to come in from the leader or candidates.

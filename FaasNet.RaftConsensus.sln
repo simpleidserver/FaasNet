@@ -21,6 +21,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Peer", "src\Common\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Peer.Client", "src\Common\FaasNet.Peer.Client\FaasNet.Peer.Client.csproj", "{5C4E27C1-CA42-4CF7-9210-6B23F102B5F4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Startup Layer", "02. Startup Layer", "{2563A01E-68BC-4635-969A-6F97B401A355}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Service", "src\RaftConsensus\FaasNet.RaftConsensus.Service\FaasNet.RaftConsensus.Service.csproj", "{971DA155-57D3-4B23-AA43-5C2C14B7F121}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AD319093-D81D-4DCD-8F7D-C1CB084A2E00}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.RocksDB", "src\RaftConsensus\FaasNet.RaftConsensus.RocksDB\FaasNet.RaftConsensus.RocksDB.csproj", "{825BECCE-6764-43BF-82E5-247B525BCB60}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +59,14 @@ Global
 		{5C4E27C1-CA42-4CF7-9210-6B23F102B5F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C4E27C1-CA42-4CF7-9210-6B23F102B5F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C4E27C1-CA42-4CF7-9210-6B23F102B5F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{971DA155-57D3-4B23-AA43-5C2C14B7F121}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{971DA155-57D3-4B23-AA43-5C2C14B7F121}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{971DA155-57D3-4B23-AA43-5C2C14B7F121}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{971DA155-57D3-4B23-AA43-5C2C14B7F121}.Release|Any CPU.Build.0 = Release|Any CPU
+		{825BECCE-6764-43BF-82E5-247B525BCB60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{825BECCE-6764-43BF-82E5-247B525BCB60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{825BECCE-6764-43BF-82E5-247B525BCB60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{825BECCE-6764-43BF-82E5-247B525BCB60}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +78,8 @@ Global
 		{7FD1CA87-582E-4ABA-90EE-6DBC4AF208C9} = {519E0E93-8468-40B7-A65D-506A3FE7D0B4}
 		{CE916D4A-0C19-4E1B-BA95-0053944AD248} = {519E0E93-8468-40B7-A65D-506A3FE7D0B4}
 		{5C4E27C1-CA42-4CF7-9210-6B23F102B5F4} = {519E0E93-8468-40B7-A65D-506A3FE7D0B4}
+		{971DA155-57D3-4B23-AA43-5C2C14B7F121} = {2563A01E-68BC-4635-969A-6F97B401A355}
+		{825BECCE-6764-43BF-82E5-247B525BCB60} = {5C5A8E54-DE20-4284-9FC5-F051B296A57A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6A27C5EC-5C72-4BDD-908E-439CC843D258}

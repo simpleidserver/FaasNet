@@ -11,7 +11,7 @@ namespace FaasNet.Peer
     {
         private readonly IServiceCollection _serviceCollection;
 
-        private PeerHostFactory(Action<PeerOptions> options)
+        private PeerHostFactory(Action<PeerOptions> options, Action<IServiceCollection> callbackService = null)
         {
             _serviceCollection = new ServiceCollection();
             if (options == null) _serviceCollection.Configure<PeerOptions>(o => { });
@@ -19,9 +19,10 @@ namespace FaasNet.Peer
             _serviceCollection.AddScoped<IPeerHost, StructuredPeerHost>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
             _serviceCollection.AddLogging();
+            if (callbackService != null) callbackService(_serviceCollection);
         }
 
-        private PeerHostFactory(Action<PeerOptions> options, ConcurrentBag<ClusterPeer> clusterPeers)
+        private PeerHostFactory(Action<PeerOptions> options, ConcurrentBag<ClusterPeer> clusterPeers, Action<IServiceCollection> callbackService = null)
         {
             _serviceCollection = new ServiceCollection();
             if (options == null) _serviceCollection.Configure<PeerOptions>(o => { });
@@ -31,18 +32,19 @@ namespace FaasNet.Peer
             if (clusterPeers != null) _serviceCollection.AddScoped<IClusterStore>(s => new InMemoryClusterStore(clusterPeers));
             else _serviceCollection.AddScoped<IClusterStore, InMemoryClusterStore>();
             _serviceCollection.AddLogging();
+            if (callbackService != null) callbackService(_serviceCollection);
         }
 
         public IServiceCollection Services => _serviceCollection;
 
-        public static PeerHostFactory NewUnstructured(Action<PeerOptions> options = null, ConcurrentBag<ClusterPeer> clusterNodes = null)
+        public static PeerHostFactory NewUnstructured(Action<PeerOptions> options = null, ConcurrentBag<ClusterPeer> clusterNodes = null, Action<IServiceCollection> callbackService = null)
         {
-            return new PeerHostFactory(options, clusterNodes);
+            return new PeerHostFactory(options, clusterNodes, callbackService);
         }
 
-        public static PeerHostFactory NewStructured(Action<PeerOptions> options = null)
+        public static PeerHostFactory NewStructured(Action<PeerOptions> options = null, Action<IServiceCollection> callbackService = null)
         {
-            return new PeerHostFactory(options);
+            return new PeerHostFactory(options, callbackService);
         }
 
         public PeerHostFactory UseTCPTransport()

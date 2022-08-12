@@ -44,15 +44,20 @@
       href: discovery/etcd.md
     - name: Gossip
       href: discovery/gossip.md
-- name: Unstructured P2P Network
-  href: unstructured/index.md
+- name: P2P Network
+  href: p2p/index.md
   items:
-    - name: CRDT
-      href: unstructured/crdt.md
-- name: Structured P2P Network
-  href: structured/index.md
-  items:
-    - name: CHORD
-      href: structured/chord.md
-    - name: Kademlia
-      href: structured/kademlia.md
+    - name: Unstructured P2P Network
+      href: p2p/unstructured/index.md
+      items:
+        - name: CRDT
+          href: p2p/unstructured/crdt.md
+        - name: Raft Consensus
+          href: p2p/unstructured/raftconsensus.md
+    - name: Structured P2P Network
+      href: p2p/structured/index.md
+      items:
+        - name: CHORD
+          href: p2p/structured/chord.md
+        - name: Kademlia
+          href: p2p/structured/kademlia.md

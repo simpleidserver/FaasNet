@@ -4,14 +4,10 @@
     {
         public PeerOptions()
         {
-            PeerId = "peer";
+            Url = "localhost";
             Port = 5001;
         }
 
-        /// <summary>
-        /// Unique identifier of the peer.
-        /// </summary>
-        public string PeerId { get; set; }
         /// <summary>
         /// Url of the Peer.
         /// </summary>
@@ -20,5 +16,13 @@
         /// Port of the Peer.
         /// </summary>
         public int Port { get; set; }
+
+        public string Id
+        {
+            get
+            {
+                return PeerId.Build(Url, Port).Serialize();
+            }
+        }
     }
 }

@@ -42,6 +42,11 @@ namespace FaasNet.Peer.Transports
             return Task.CompletedTask;
         }
 
+        public Task<byte[]> Receive(CancellationToken cancellationToken)
+        {
+            return Task.FromResult((byte[])null);
+        }
+
         private class TCPSessionResult : BaseSessionResult
         {
             private readonly TcpClient _tcpClient;

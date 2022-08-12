@@ -1,38 +1,40 @@
-﻿namespace FaasNet.RaftConsensus.Client.Messages
+﻿using System.Collections.Generic;
+
+namespace FaasNet.RaftConsensus.Client.Messages
 {
     public class ConsensusPackageRequestBuilder
     {
-        public static BaseConsensusPackage LeaderHeartbeat(string url, int port, string termId, long termIndex)
-        {
-            return new LeaderHeartbeatRequest
-            {
-                Header = new ConsensusHeader(ConsensusCommands.LEADER_HEARTBEAT_REQUEST, termId, termIndex, url, port)
-            };
-        }
-
-        public static BaseConsensusPackage Vote(string url, int port, string termId, long termIndex)
+        public static BaseConsensusPackage Vote(string candidateId, long term, long lastLogIndex, long lastLogTerm)
         {
             return new VoteRequest
             {
-                Header = new ConsensusHeader(ConsensusCommands.VOTE_REQUEST, termId, termIndex, url, port)
+                CandidateId = candidateId,
+                LastLogIndex = lastLogIndex,
+                LastLogTerm = lastLogTerm,
+                Term = term
             };
         }
 
-        public static BaseConsensusPackage AppendEntry(string termId, long termIndex, string value, bool isProxified = false)
+        public static BaseConsensusPackage Heartbeat(long term, string leaderId, long leaderCommit)
         {
-            return new AppendEntryRequest
+            return new AppendEntriesRequest
             {
-                Header = new ConsensusHeader(ConsensusCommands.APPEND_ENTRY_REQUEST, termId, termIndex, string.Empty, 0),
-                Value = value,
-                IsProxified = isProxified
+                Term = term,
+                LeaderId = leaderId,
+                LeaderCommit = leaderCommit
             };
         }
 
-        public static BaseConsensusPackage GetEntry(string termId)
+        public static BaseConsensusPackage AppendEntries(long term, string leaderId, long prevLogIndex, long prevLogTerm, IEnumerable<LogEntry> entries, long leaderCommit)
         {
-            return new GetEntryRequest
+            return new AppendEntriesRequest
             {
-                Header = new ConsensusHeader(ConsensusCommands.GET_REQUEST, termId, 0, string.Empty, 0)
+                Term = term,
+                LeaderId = leaderId,
+                PrevLogIndex = prevLogIndex,
+                PreLogTerm = prevLogTerm,
+                Entries = entries,
+                LeaderCommit = leaderCommit
             };
         }
     }
