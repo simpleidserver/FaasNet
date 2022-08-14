@@ -9,19 +9,35 @@ namespace FaasNet.RaftConsensus.Core.Stores
 {
     public interface ILogStore
     {
+        Task<long> GetPreviousTerm(long term, CancellationToken cancellationToken);
+        Task<long> GetLastIndex(CancellationToken cancellationToken);
         Task<LogEntry> Get(long index, CancellationToken cancellationToken);
         Task<LogEntry> Get(long term, long index, CancellationToken cancellationToken);
         Task RemoveFrom(long startIndex, CancellationToken cancellation);
         Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken);
+        Task Append(LogEntry entry, CancellationToken cancellationToken);
     }
 
     public class InMemoryLogStore : ILogStore
     {
-        private readonly ConcurrentBag<LogEntry> _entries;
+        private ConcurrentBag<LogEntry> _entries;
 
         public InMemoryLogStore()
         {
             _entries = new ConcurrentBag<LogEntry>();
+        }
+
+        public Task<long> GetPreviousTerm(long term, CancellationToken cancellationToken)
+        {
+            var entries = _entries.Select(e => e.Term).Distinct().OrderBy(t => t).ToList();
+            var index = entries.IndexOf(term);
+            if (index == -1 || index == 0) return Task.FromResult(term);
+            return Task.FromResult(entries.ElementAt((int)term - 1));
+        }
+
+        public Task<long> GetLastIndex(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(!_entries.Any() ? 0 : _entries.Last().Index);
         }
 
         public Task<LogEntry> Get(long index, CancellationToken cancellationToken)
@@ -36,11 +52,19 @@ namespace FaasNet.RaftConsensus.Core.Stores
 
         public Task RemoveFrom(long startIndex, CancellationToken cancellation)
         {
+            _entries = new ConcurrentBag<LogEntry>(_entries.Skip((int)startIndex).Take(_entries.Count()));
             return Task.CompletedTask;
         }
 
         public Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken)
         {
+            foreach (var entry in entries) _entries.Add(entry);
+            return Task.CompletedTask;
+        }
+
+        public Task Append(LogEntry entry, CancellationToken cancellationToken)
+        {
+            _entries.Add(entry);
             return Task.CompletedTask;
         }
     }

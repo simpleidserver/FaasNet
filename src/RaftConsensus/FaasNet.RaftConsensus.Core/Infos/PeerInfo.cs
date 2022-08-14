@@ -16,10 +16,6 @@ namespace FaasNet.RaftConsensus.Core.Infos
         /// </summary>
         public PeerStatus Status { get; set; }
         /// <summary>
-        /// 
-        /// </summary>
-        public string VotedFor { get; set; }
-        /// <summary>
         /// Last time heartbeat has been received from a leader.
         /// </summary>
         public DateTime? LeaderHeartbeatReceptionDateTime { get; set; }
@@ -54,9 +50,12 @@ namespace FaasNet.RaftConsensus.Core.Infos
             if (LeaderStateStarted != null) LeaderStateStarted(this, null);
         }
 
-        public OtherPeerInfo GetOtherPeer(string id)
+        public OtherPeerInfo GetOtherPeer(string id) => OtherPeerInfos.SingleOrDefault(p => p.Id == id);
+        public OtherPeerInfo AddOtherPeer(string id)
         {
-            return OtherPeerInfos.SingleOrDefault(p => p.Id == id);
+            var record = new OtherPeerInfo { Id = id };
+            OtherPeerInfos.Add(record);
+            return record;
         }
     }
 
@@ -69,7 +68,7 @@ namespace FaasNet.RaftConsensus.Core.Infos
         /// <summary>
         /// Index of the next log entry to send to that server.
         /// </summary>
-        public long? NextIndex { get; set; }
+        public long? NextIndex => MatchIndex + 1;
         /// <summary>
         /// Index of highest log entry known to be replicated on server.
         /// </summary>

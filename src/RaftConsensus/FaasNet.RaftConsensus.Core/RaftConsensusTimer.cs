@@ -1,8 +1,8 @@
 ﻿using FaasNet.Peer;
 using FaasNet.Peer.Clusters;
-using FaasNet.Peer.Transports;
 using FaasNet.RaftConsensus.Core.Infos;
 using FaasNet.RaftConsensus.Core.Stores;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +12,7 @@ namespace FaasNet.RaftConsensus.Core
     public partial class RaftConsensusTimer : ITimer
     {
         private readonly IPeerInfoStore _peerInfoStore;
-        private readonly ITransport _transport;
+        private readonly ILogger<RaftConsensusTimer> _logger;
         private readonly IClusterStore _clusterStore;
         private readonly ILogStore _logStore;
         private readonly PeerOptions _peerOptions;
@@ -21,10 +21,10 @@ namespace FaasNet.RaftConsensus.Core
         private PeerState _peerState;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public RaftConsensusTimer(IPeerInfoStore peerInfoStore, ITransport transport, IClusterStore clusterStore, ILogStore logStore, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftOptions)
+        public RaftConsensusTimer(IPeerInfoStore peerInfoStore, ILogger<RaftConsensusTimer> logger, IClusterStore clusterStore, ILogStore logStore, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftOptions)
         {
             _peerInfoStore = peerInfoStore;
-            _transport = transport;
+            _logger = logger;
             _clusterStore = clusterStore;
             _logStore = logStore;
             _peerOptions = peerOptions.Value;
@@ -38,9 +38,21 @@ namespace FaasNet.RaftConsensus.Core
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             _peerInfo = _peerInfoStore.Get();
             _peerState = PeerState.New(_raftOptions.ConfigurationDirectoryPath);
-            _peerInfo.FollowerStateStarted += (sender, args) => StartFollower();
-            _peerInfo.CandidateStateStarted += async (sender, args) => await StartCandidate();
-            _peerInfo.LeaderStateStarted += (sender, args) => StartLeader();
+            _peerInfo.FollowerStateStarted += (sender, args) =>
+            {
+                _logger.LogInformation($"Peer {_peerOptions.Id} is a follower");
+                StartFollower();
+            };
+            _peerInfo.CandidateStateStarted += async (sender, args) =>
+            {
+                _logger.LogInformation($"Peer {_peerOptions.Id} is a candidate");
+                await StartCandidate();
+            };
+            _peerInfo.LeaderStateStarted += (sender, args) =>
+            {
+                _logger.LogInformation($"Peer {_peerOptions.Id} is a leader");
+                StartLeader();
+            };
             _peerInfo.MoveToFollower();
             return Task.CompletedTask;
         }

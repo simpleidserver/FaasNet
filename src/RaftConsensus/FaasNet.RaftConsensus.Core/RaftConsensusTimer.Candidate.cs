@@ -1,7 +1,8 @@
 ﻿using FaasNet.Common.Helpers;
-using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
+using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -13,6 +14,7 @@ namespace FaasNet.RaftConsensus.Core
     {
         private async Task StartCandidate()
         {
+            if (_peerInfo.Status != PeerStatus.CANDIDATE) return;
             var allPeers = (await _clusterStore.GetAllNodes(_cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
             var voteResultLst = await Vote(allPeers);
             var quorum = (allPeers.Count() / 2) + 1;
@@ -23,12 +25,15 @@ namespace FaasNet.RaftConsensus.Core
                 _peerInfo.MoveToFollower();
                 return;
             }
-            
-            StartLeader();
+
+            _peerInfo.MoveToLeader();
         }
 
         private async Task<IEnumerable<(VoteResult, bool)>> Vote(IEnumerable<ClusterPeer> peers)
         {
+            _peerState.VotedFor = _peerOptions.Id;
+            _peerState.IncreaseCurrentTerm();
+            _logger.LogInformation($"Peer {_peerOptions.Id} has current term {_peerState.CurrentTerm}");
             var tasks = new List<Task<(VoteResult, bool)>>();
             foreach (var peer in peers) tasks.Add(SendRequest(peer));
             return await Task.WhenAll(tasks);
@@ -37,14 +42,12 @@ namespace FaasNet.RaftConsensus.Core
             {
                 try
                 {
-                    var writeBufferCtx = new WriteBufferContext();
                     var edp = new IPEndPoint(DnsHelper.ResolveIPV4(peer.Url), peer.Port);
-                    var pkg = ConsensusPackageRequestBuilder.Vote(string.Empty, _peerState.CurrentTerm, _peerState.CommitIndex, _peerState.LastApplied);
-                    pkg.SerializeEnvelope(writeBufferCtx);
-                    await _transport.Send(writeBufferCtx.Buffer.ToArray(), edp, _cancellationTokenSource.Token);
-                    var receivedPayload = await _transport.Receive(_cancellationTokenSource.Token);
-                    var readBufferCtx = new ReadBufferContext(receivedPayload);
-                    return (BaseConsensusPackage.Deserialize(readBufferCtx) as VoteResult, true);
+                    using (var consensusClient = new UDPRaftConsensusClient(edp))
+                    {
+                        var voteResult = await consensusClient.Vote(_peerOptions.Id, _peerState.CurrentTerm, _peerState.CommitIndex, _peerState.LastApplied, _cancellationTokenSource.Token);
+                        return (voteResult, true);
+                    }
                 }
                 catch
                 {

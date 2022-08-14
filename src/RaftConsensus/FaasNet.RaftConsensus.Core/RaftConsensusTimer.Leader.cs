@@ -1,9 +1,11 @@
 ﻿using FaasNet.Common.Helpers;
-using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -22,6 +24,7 @@ namespace FaasNet.RaftConsensus.Core
 
         private void StartLeader()
         {
+            if (_peerInfo.Status != PeerStatus.LEADER) return;
             _leaderTimer.Interval = _raftOptions.LeaderHeartbeatTimerMS;
             _leaderTimer.Start();
         }
@@ -33,8 +36,9 @@ namespace FaasNet.RaftConsensus.Core
 
         private async void AppendEntries()
         {
-            var peers = await _clusterStore.GetAllNodes(_cancellationTokenSource.Token);
-            await AppendEntries(peers);
+            var allPeers = (await _clusterStore.GetAllNodes(_cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
+            await AppendEntries(allPeers);
+            StartLeader();
         }
 
         private async Task AppendEntries(IEnumerable<ClusterPeer> peers)
@@ -42,40 +46,52 @@ namespace FaasNet.RaftConsensus.Core
             var tasks = new List<Task>();
             foreach (var peer in peers) tasks.Add(AppendEntries(peer));
             await Task.WhenAll(tasks);
+            TryCommit();
 
             async Task AppendEntries(ClusterPeer peer)
             {
-                var result = await SendRequest(peer);
-                if (!result.Item2) return;
-                var otherPeer = _peerInfo.GetOtherPeer(peer.Id);
-                otherPeer.MatchIndex = result.Item1.MatchIndex;
-            }
-
-            async Task<(AppendEntriesResult, bool)> SendRequest(ClusterPeer peer)
-            {
                 try
                 {
-                    var writeBufferCtx = new WriteBufferContext();
                     var edp = new IPEndPoint(DnsHelper.ResolveIPV4(peer.Url), peer.Port);
-                    var pkg = await BuildAppendEntries(peer);
-                    pkg.SerializeEnvelope(writeBufferCtx);
-                    await _transport.Send(writeBufferCtx.Buffer.ToArray(), edp, _cancellationTokenSource.Token);
-                    var receivedPayload = await _transport.Receive(_cancellationTokenSource.Token);
-                    var readBufferCtx = new ReadBufferContext(receivedPayload);
-                    return (BaseConsensusPackage.Deserialize(readBufferCtx) as AppendEntriesResult, true);
+                    using (var consensusClient = new UDPRaftConsensusClient(edp))
+                    {
+                        var otherPeer = _peerInfo.GetOtherPeer(peer.Id);
+                        AppendEntriesResult result = null;
+                        if (otherPeer == null)
+                        {
+                            result = await consensusClient.Heartbeat(_peerState.CurrentTerm, _peerOptions.Id, _peerState.CommitIndex, _cancellationTokenSource.Token);
+                            otherPeer = _peerInfo.AddOtherPeer(peer.Id);
+                        }
+                        else
+                        {
+                            var previousTerm = await _logStore.GetPreviousTerm(_peerState.CurrentTerm, _cancellationTokenSource.Token);
+                            var logs = new List<LogEntry>();
+                            if (otherPeer.NextIndex != null)
+                            {
+                                var log = await _logStore.Get(otherPeer.NextIndex.Value, _cancellationTokenSource.Token);
+                                if (log != null) logs.Add(log);
+                            }
+
+                            result = await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, otherPeer.MatchIndex.Value, previousTerm, logs, _peerState.CommitIndex, _cancellationTokenSource.Token);
+                        }
+
+                        otherPeer.MatchIndex = result.MatchIndex;
+                    }
                 }
-                catch
+                catch(Exception ex)
                 {
-                    return (null, false);
+                    _logger.LogError(ex.ToString());
                 }
             }
 
-            async Task<BaseConsensusPackage> BuildAppendEntries(ClusterPeer peer)
+            void TryCommit()
             {
-                var otherPeer = _peerInfo.GetOtherPeer(peer.Id);
-                if(otherPeer == null) return ConsensusPackageRequestBuilder.Heartbeat(_peerState.CurrentTerm, _peerOptions.Id, _peerState.CommitIndex);
-                var log = await _logStore.Get(otherPeer.NextIndex.Value, _cancellationTokenSource.Token);
-                return ConsensusPackageRequestBuilder.AppendEntries(log.Term, _peerOptions.Id, otherPeer.MatchIndex.Value, 0, log == null ? new List<LogEntry>() : new List<LogEntry> { log }, _peerState.CommitIndex);
+                var otherPeers = _peerInfo.OtherPeerInfos;
+                var nextCommitIndex = _peerState.CommitIndex + 1;
+                var nbMatchIndexes = otherPeers.Count(p => p.MatchIndex == nextCommitIndex);
+                var quorum = (otherPeers.Count() / 2) + 1;
+                if (quorum > nbMatchIndexes) return;
+                _peerState.CommitIndex++;
             }
         }
     }

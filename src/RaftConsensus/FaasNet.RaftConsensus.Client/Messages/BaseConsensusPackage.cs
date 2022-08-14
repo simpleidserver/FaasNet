@@ -58,6 +58,20 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 return result;
             }
 
+            if (cmd == ConsensusCommands.APPEND_ENTRY_REQUEST)
+            {
+                var result = new AppendEntryRequest();
+                result.Extract(context);
+                return result;
+            }
+
+            if (cmd == ConsensusCommands.APPEND_ENTRY_RESULT)
+            {
+                var result = new AppendEntryResult();
+                result.Extract(context);
+                return result;
+            }
+
             return null;
         }
     }

@@ -8,6 +8,8 @@ namespace FaasNet.RaftConsensus.Client.Messages
         public static ConsensusCommands VOTE_RESULT = new ConsensusCommands(1, "VOTE_RESULT");
         public static ConsensusCommands APPEND_ENTRIES_REQUEST = new ConsensusCommands(2, "APPEND_ENTRIES_REQUEST");
         public static ConsensusCommands APPEND_ENTRIES_RESULT = new ConsensusCommands(3, "LEADER_HEARTBEAT_RESULT");
+        public static ConsensusCommands APPEND_ENTRY_REQUEST = new ConsensusCommands(4, "APPEND_ENTRY_REQUEST");
+        public static ConsensusCommands APPEND_ENTRY_RESULT = new ConsensusCommands(5, "APPEND_ENTRY_RESULT");
 
         protected ConsensusCommands(int code)
         {

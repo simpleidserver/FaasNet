@@ -1,4 +1,6 @@
-﻿namespace FaasNet.RaftConsensus.Core
+﻿using Microsoft.Extensions.Logging;
+
+namespace FaasNet.RaftConsensus.Core
 {
     public partial class RaftConsensusTimer
     {
@@ -13,6 +15,7 @@
 
         private void StartFollower()
         {
+            if (_peerInfo.Status != PeerStatus.FOLLOWER) return;
             _followerTimer.Interval = _raftOptions.ElectionTimer.GetValue();
             _followerTimer?.Start();
         }
@@ -26,7 +29,7 @@
         {
             if (_peerInfo.IsLeaderActive(_raftOptions.LeaderHeartbeatExpirationDurationMS))
             {
-                _peerInfo.MoveToFollower();
+                StartFollower();
                 return;
             }
 

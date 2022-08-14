@@ -20,5 +20,15 @@
                 MatchIndex = matchIndex
             };
         }
+
+        public static BaseConsensusPackage AppendEntry(long term, long matchIndex, bool success)
+        {
+            return new AppendEntriesResult
+            {
+                Term = term,
+                Success = success,
+                MatchIndex = matchIndex
+            };
+        }
     }
 }

@@ -14,7 +14,10 @@ namespace FaasNet.RaftConsensus.Core
         private const string _fileName = "peerstate.info";
         private static Dictionary<string, PeerState> _instances = new Dictionary<string, PeerState>();
 
-        public PeerState() { }
+        public PeerState() 
+        {
+            CurrentTerm = 1;
+        }
 
         private string Directory { get; set; }
 
@@ -77,6 +80,12 @@ namespace FaasNet.RaftConsensus.Core
                 _lastApplied = value;
                 Update();
             }
+        }
+
+
+        public void IncreaseCurrentTerm()
+        {
+            CurrentTerm++;
         }
 
         public static PeerState New(string path)

@@ -37,5 +37,13 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 LeaderCommit = leaderCommit
             };
         }
+
+        public static BaseConsensusPackage AppendEntry(byte[] payload)
+        {
+            return new AppendEntryRequest
+            {
+                Payload = payload
+            };
+        }
     }
 }

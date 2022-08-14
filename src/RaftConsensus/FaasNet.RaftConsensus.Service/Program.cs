@@ -1,9 +1,11 @@
 ﻿using FaasNet.Peer;
 using FaasNet.Peer.Clusters;
+using FaasNet.RaftConsensus.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Text;
 
 namespace FaasNet.RaftConsensus.Service
 {
@@ -11,27 +13,11 @@ namespace FaasNet.RaftConsensus.Service
     {
         public static int Main(string[] args)
         {
-            // Ajouter une nouvelle partition sur N noeuds.
-            // Stocker la clef de partition sur les N noeuds.
-            // Stocker les données
-            // Rediriger vers les N noeuds.
-            // Il faut développer un proxy qui va rediriger la requête.
-            // Dans notre situation il faut une gateway.
             var firstPeer = LaunchRaftConsensusPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5002) }, "node1", 5001);
             var secondPeer = LaunchRaftConsensusPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, "node2", 5002);
-            /*
             Console.WriteLine("Press any key to add an entry");
             Console.ReadLine();
             AddLogEntry(5002);
-            var firstPeerPartition = WaitLogEntry("localhost", 5001, "partition");
-            var secondPeerPartition = WaitLogEntry("localhost", 5002, "partition");
-            Console.WriteLine($"Peer 5001 has the log {firstPeerPartition.Value}");
-            Console.WriteLine($"Peer 5002 has the log {secondPeerPartition.Value}");
-            Console.WriteLine("Press any key to stop the servers");
-            Console.ReadLine();
-            firstPeer.Stop();
-            secondPeer.Stop();
-            */
             Console.WriteLine("Press any key to quit the application");
             Console.ReadLine();
             return 1;
@@ -54,6 +40,14 @@ namespace FaasNet.RaftConsensus.Service
                 .Build();
             peerHost.Start();
             return peerHost;
+        }
+
+        private static async void AddLogEntry(int port)
+        {
+            using (var raftConsensusClient = new UDPRaftConsensusClient("localhost", port))
+            {
+                await raftConsensusClient.AppendEntry(Encoding.UTF8.GetBytes("value"), CancellationToken.None);
+            }
         }
 
         /*
