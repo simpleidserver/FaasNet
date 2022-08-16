@@ -1,10 +1,11 @@
-﻿using FaasNet.RaftConsensus.Core.Models;
+﻿using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Options;
 using RocksDbSharp;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,63 +13,82 @@ namespace FaasNet.RaftConsensus.RocksDB
 {
     public class RocksDBLogStore : ILogStore
     {
-        private static SemaphoreSlim _lock = new SemaphoreSlim(1);
-        private readonly RaftConsensusRocksDBOptions _options;
+        private readonly RaftConsensusRocksDBOptions _rockDbOptions;
+        private readonly RaftConsensusPeerOptions _raftOptions;
         private readonly RocksDBConnectionPool _connectionPool;
 
-        public RocksDBLogStore(IOptions<RaftConsensusRocksDBOptions> options)
+        public RocksDBLogStore(IOptions<RaftConsensusRocksDBOptions> rockDbOptions, IOptions<RaftConsensusPeerOptions> raftOptions)
         {
-            _options = options.Value;
+            _rockDbOptions = rockDbOptions.Value;
+            _raftOptions = raftOptions.Value;
             _connectionPool = new RocksDBConnectionPool();
         }
 
-        public string TermId { get; set; }
-
-        public void Add(LogRecord logRecord)
+        public Task Append(LogEntry entry, CancellationToken cancellationToken)
         {
-            _lock.Wait();
-            var versionDb = _connectionPool.GetConnection(BuildOptions(), GetDirectoryLogLatestVersion());
-            var value = versionDb.Get(TermId);
-            var version = 1;
-            if (!string.IsNullOrWhiteSpace(value)) version = int.Parse(value) + 1;
-            var historyDb = _connectionPool.GetConnection(BuildOptions(), GetDirectoryLogHistory(TermId));
-            historyDb.Put(version.ToString(), JsonSerializer.Serialize(logRecord));
-            versionDb.Put(TermId, version.ToString());
-            _lock.Release();
+            var versionDb = _connectionPool.GetConnection(BuildOptions(), GetDirectoryPath());
+            versionDb.Put(BitConverter.GetBytes(entry.Index), entry.Serialize());
+            return Task.CompletedTask;
         }
 
-        public Task<LogRecord> Get(long index, CancellationToken cancellationToken)
+        public Task<LogEntry> Get(long index, CancellationToken cancellationToken)
         {
-            var historyDb = _connectionPool.GetConnection(BuildOptions(), GetDirectoryLogHistory(TermId));
-            var result = historyDb.Get(index.ToString());
-            if (string.IsNullOrWhiteSpace(result)) return Task.FromResult((LogRecord)null);
-            return Task.FromResult(JsonSerializer.Deserialize<LogRecord>(result, new JsonSerializerOptions {  PropertyNameCaseInsensitive = true }));
+            LogEntry result = null;
+            var versionDb = _connectionPool.GetConnection(BuildOptions(), GetDirectoryPath());
+            var payload = versionDb.Get(BitConverter.GetBytes(index));
+            if (payload != null) result = LogEntry.Deserialize(payload);
+            return Task.FromResult(result);
         }
 
-        private string GetDirectoryLogHistory(string termId)
+        public async Task<LogEntry> Get(long term, long index, CancellationToken cancellationToken)
         {
-            var result = Path.Combine(GetPath(), $"LogHistory{termId}");
-            if (!Directory.Exists(result)) Directory.CreateDirectory(result);
+            var result = await Get(index, cancellationToken);
+            if (result == null || result.Term != term) return null;
             return result;
         }
 
-        private string GetDirectoryLogLatestVersion()
+        public Task<IEnumerable<LogEntry>> GetFrom(long startIndex, CancellationToken cancellationToken)
         {
-            var result = Path.Combine(GetPath(), "LogLatestVersion");
-            if (!Directory.Exists(result)) Directory.CreateDirectory(result);
-            return result;
+            var result = new List<LogEntry>();
+            var versionDb = _connectionPool.GetConnection(BuildOptions(), GetDirectoryPath());
+            using (var iterator = versionDb.NewIterator())
+            {
+                iterator.Seek(BitConverter.GetBytes(startIndex));
+                while(iterator.Valid())
+                {
+                    var payload = iterator.Value();
+                    if(payload != null) result.Add(LogEntry.Deserialize(payload));
+                    iterator.Next();
+                }
+            }
+
+            return Task.FromResult((IEnumerable<LogEntry>)result);
         }
 
-        private string GetPath()
+        public async Task RemoveFrom(long startIndex, CancellationToken cancellation)
         {
-            if (string.IsNullOrWhiteSpace(_options.SubPath)) return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "storage");
-            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _options.SubPath, "storage");
+            var logEntries = await GetFrom(startIndex, cancellation);
+            var versionDb = _connectionPool.GetConnection(BuildOptions(), GetDirectoryPath());
+            foreach(var logEntry in logEntries) versionDb.Remove(BitConverter.GetBytes(logEntry.Index));
+        }
+
+        public async Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken)
+        {
+            foreach (var entry in entries) await Append(entry, cancellationToken);
         }
 
         private DbOptions BuildOptions()
         {
             var result = new DbOptions();
-            _options.OptionsCallback(result);
+            _rockDbOptions.OptionsCallback(result);
+            return result;
+        }
+
+        private string GetDirectoryPath()
+        {
+            if (!Directory.Exists(_raftOptions.ConfigurationDirectoryPath)) Directory.CreateDirectory(_raftOptions.ConfigurationDirectoryPath);
+            var result = Path.Combine(_raftOptions.ConfigurationDirectoryPath, "logs");
+            if (!Directory.Exists(result)) Directory.CreateDirectory(result);
             return result;
         }
     }

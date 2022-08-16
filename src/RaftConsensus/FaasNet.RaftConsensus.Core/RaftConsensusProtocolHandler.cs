@@ -78,16 +78,29 @@ namespace FaasNet.RaftConsensus.Core
             return ConsensusPackageResultBuilder.AppendEntries(_peerState.CurrentTerm, _peerState.LastApplied, success);
             async Task UpdateLogEntries(AppendEntriesRequest request, CancellationToken cancellationToken)
             {
-                var lastIndex = _peerState.LastApplied;
-                logEntry = await _logStore.Get(request.LeaderCommit, cancellationToken);
-                if (logEntry != null && (logEntry.Index == request.LeaderCommit && logEntry.Term != request.Term))
+                if (!request.Entries.Any()) return;
+                var conflictedLog = await GetFirstConflictedLog(request, cancellationToken);
+                if (conflictedLog.Item1 != null)
+                    await _logStore.RemoveFrom(conflictedLog.Item1.Value, cancellationToken);
+                await _logStore.UpdateRange(request.Entries, cancellationToken);
+                _peerState.LastApplied = conflictedLog.Item2.Value;
+            }
+
+            async Task<(long?, long?)> GetFirstConflictedLog(AppendEntriesRequest request, CancellationToken cancellationToken)
+            {
+                var dic = request.Entries.Select(x => (x, x.Index)).OrderBy(i => i.Index);
+                long? startFromIndex = null;
+                foreach (var kvp in dic)
                 {
-                    await _logStore.RemoveFrom(request.LeaderCommit, cancellationToken);
-                    lastIndex = request.LeaderCommit;
+                    var logEntry = await _logStore.Get(kvp.Index, cancellationToken);
+                    if (logEntry != null && logEntry.Term != kvp.x.Term)
+                    {
+                        startFromIndex = kvp.Index;
+                        break;
+                    }
                 }
 
-                await _logStore.UpdateRange(request.Entries, cancellationToken);
-                _peerState.LastApplied = lastIndex + request.Entries.Count();
+                return (startFromIndex, dic.Last().Index);
             }
 
             void UpdateCommitIndex(AppendEntriesRequest request, PeerState peerState)

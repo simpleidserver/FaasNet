@@ -9,7 +9,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
 {
     public interface ILogStore
     {
-        Task<long> GetPreviousTerm(long term, CancellationToken cancellationToken);
         Task<LogEntry> Get(long index, CancellationToken cancellationToken);
         Task<LogEntry> Get(long term, long index, CancellationToken cancellationToken);
         Task<IEnumerable<LogEntry>> GetFrom(long index, CancellationToken cancellationToken);
@@ -25,14 +24,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
         public InMemoryLogStore()
         {
             _entries = new ConcurrentBag<LogEntry>();
-        }
-
-        public Task<long> GetPreviousTerm(long term, CancellationToken cancellationToken)
-        {
-            var entries = _entries.Select(e => e.Term).Distinct().OrderBy(t => t).ToList();
-            var index = entries.IndexOf(term);
-            if (index == -1 || index == 0) return Task.FromResult(term);
-            return Task.FromResult(entries.ElementAt((int)term - 1));
         }
 
         public Task<LogEntry> Get(long index, CancellationToken cancellationToken)

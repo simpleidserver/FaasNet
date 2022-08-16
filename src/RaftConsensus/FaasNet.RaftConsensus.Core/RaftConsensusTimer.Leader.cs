@@ -64,7 +64,7 @@ namespace FaasNet.RaftConsensus.Core
                         }
                         else
                         {
-                            var previousTerm = await _logStore.GetPreviousTerm(_peerState.CurrentTerm, _cancellationTokenSource.Token);
+                            var previousTerm = _peerState.PreviousTerm;
                             var logs = new List<LogEntry>();
                             if (otherPeer.NextIndex != null)
                             {

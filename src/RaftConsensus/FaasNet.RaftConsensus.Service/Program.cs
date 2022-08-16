@@ -53,6 +53,7 @@ namespace FaasNet.RaftConsensus.Service
                         Console.WriteLine("There a is a leader");
                     };
                 })
+                .UseRocksDB()
                 .Build();
             peerHost.Start();
             return peerHost;
@@ -89,35 +90,5 @@ namespace FaasNet.RaftConsensus.Service
                 }
             }
         }
-
-        private static async void GetCommands()
-        {
-
-        }
-
-        /*
-        private static async void AddLogEntry(int port)
-        {
-            using (var raftConsensusClient = new UDPRaftConsensusClient("localhost", port))
-            {
-                await raftConsensusClient.AppendEntry("partition", "value", CancellationToken.None);
-            }
-        }
-
-        private static GetEntryResult WaitLogEntry(string url, int port, string replicationId)
-        {
-            using (var raftConsensusClient = new UDPRaftConsensusClient(url, port))
-            {
-                var entry = raftConsensusClient.GetEntry(replicationId).Result;
-                if (entry.IsNotFound)
-                {
-                    Thread.Sleep(100);
-                    return WaitLogEntry(url, port, replicationId);
-                }
-
-                return entry;
-            }
-        }
-        */
     }
 }

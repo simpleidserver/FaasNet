@@ -14,6 +14,13 @@ namespace FaasNet.RaftConsensus.Client
             return Deserialize(readBufferCtx);
         }
 
+        public byte[] Serialize()
+        {
+            var writeBufferCtx = new WriteBufferContext();
+            Serialize(writeBufferCtx);
+            return writeBufferCtx.Buffer.ToArray();
+        }
+
         static internal LogEntry Deserialize(ReadBufferContext bufferCtx)
         {
             return new LogEntry

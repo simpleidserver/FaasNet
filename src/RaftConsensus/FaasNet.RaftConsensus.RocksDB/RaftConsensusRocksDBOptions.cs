@@ -11,10 +11,11 @@ namespace FaasNet.RaftConsensus.RocksDB
             {
                 opt.SetCreateIfMissing(true);
             };
-            SubPath = string.Empty;
         }
 
+        /// <summary>
+        /// Configure RockDB.
+        /// </summary>
         public Action<DbOptions> OptionsCallback { get; set; }
-        public string SubPath { get; set; }
     }
 }

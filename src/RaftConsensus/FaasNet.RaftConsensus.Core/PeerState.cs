@@ -8,6 +8,7 @@ namespace FaasNet.RaftConsensus.Core
     {
         private static object _obj = new object();
         private long _currentTerm = 1;
+        private long _previousTerm = 1;
         private string _votedFor;
         private long _commitIndex;
         private long _lastApplied = 0;
@@ -17,6 +18,23 @@ namespace FaasNet.RaftConsensus.Core
         public PeerState()  { }
 
         private string Directory { get; set; }
+
+        /// <summary>
+        /// Previous term.
+        /// </summary>
+        public long PreviousTerm
+        {
+            get
+            {
+                return _previousTerm;
+            }
+            set
+            {
+                if (_previousTerm == value) return;
+                _previousTerm = value;
+                Update();
+            }
+        }
 
         /// <summary>
         /// Latest term server has seen (initialized to 0, increases monotonically).
@@ -30,6 +48,7 @@ namespace FaasNet.RaftConsensus.Core
             set
             {
                 if (_currentTerm == value) return;
+                _previousTerm = value;
                 _currentTerm = value;
                 Update();
             }
