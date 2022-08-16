@@ -4,6 +4,7 @@ using FaasNet.RaftConsensus.Core.Infos;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -48,10 +49,13 @@ namespace FaasNet.RaftConsensus.Core
                 _logger.LogInformation($"Peer {_peerOptions.Id} is a candidate");
                 await StartCandidate();
             };
-            _peerInfo.LeaderStateStarted += (sender, args) =>
+            _peerInfo.LeaderStateStarted += async (sender, args) =>
             {
                 _logger.LogInformation($"Peer {_peerOptions.Id} is a leader");
+                var allPeers = (await _clusterStore.GetAllNodes(_cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
+                await AppendEntries(allPeers);
                 StartLeader();
+                if (_raftOptions.LeaderCallback != null) _raftOptions.LeaderCallback();
             };
             _peerInfo.MoveToFollower();
             return Task.CompletedTask;

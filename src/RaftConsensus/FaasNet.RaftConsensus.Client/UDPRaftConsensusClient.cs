@@ -68,6 +68,28 @@ namespace FaasNet.RaftConsensus.Client
             return BaseConsensusPackage.Deserialize(readBufferCtx) as AppendEntryResult;
         }
 
+        public async Task<GetPeerStateResult> GetPeerState(CancellationToken cancellationToken)
+        {
+            var writeBufferCtx = new WriteBufferContext();
+            var pkg = ConsensusPackageRequestBuilder.GetPeerState();
+            pkg.SerializeEnvelope(writeBufferCtx);
+            await UdpClient.SendAsync(writeBufferCtx.Buffer.ToArray(), _target, cancellationToken);
+            var receivedResult = await UdpClient.ReceiveAsync(cancellationToken);
+            var readBufferCtx = new ReadBufferContext(receivedResult.Buffer);
+            return BaseConsensusPackage.Deserialize(readBufferCtx) as GetPeerStateResult;
+        }
+
+        public async Task<GetLogsResult> GetLogs(int index, CancellationToken cancellationToken)
+        {
+            var writeBufferCtx = new WriteBufferContext();
+            var pkg = ConsensusPackageRequestBuilder.GetLogs(index);
+            pkg.SerializeEnvelope(writeBufferCtx);
+            await UdpClient.SendAsync(writeBufferCtx.Buffer.ToArray(), _target, cancellationToken);
+            var receivedResult = await UdpClient.ReceiveAsync(cancellationToken);
+            var readBufferCtx = new ReadBufferContext(receivedResult.Buffer);
+            return BaseConsensusPackage.Deserialize(readBufferCtx) as GetLogsResult;
+        }
+
         public void Dispose()
         {
             UdpClient?.Dispose();

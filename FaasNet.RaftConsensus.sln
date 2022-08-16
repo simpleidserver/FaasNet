@@ -25,8 +25,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02. Startup Layer", "02. St
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Service", "src\RaftConsensus\FaasNet.RaftConsensus.Service\FaasNet.RaftConsensus.Service.csproj", "{971DA155-57D3-4B23-AA43-5C2C14B7F121}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AD319093-D81D-4DCD-8F7D-C1CB084A2E00}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.RocksDB", "src\RaftConsensus\FaasNet.RaftConsensus.RocksDB\FaasNet.RaftConsensus.RocksDB.csproj", "{825BECCE-6764-43BF-82E5-247B525BCB60}"
 EndProject
 Global

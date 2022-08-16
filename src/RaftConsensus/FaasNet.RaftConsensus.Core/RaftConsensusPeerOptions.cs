@@ -27,6 +27,10 @@ namespace FaasNet.RaftConsensus.Core
         /// Configuration's folder location.
         /// </summary>
         public string ConfigurationDirectoryPath { get; set; }
+        /// <summary>
+        /// Action is called when the Peer is a leader.
+        /// </summary>
+        public Action LeaderCallback { get; set; }
     }
 
     public class Interval

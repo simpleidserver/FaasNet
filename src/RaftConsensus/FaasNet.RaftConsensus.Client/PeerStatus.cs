@@ -1,4 +1,4 @@
-﻿namespace FaasNet.RaftConsensus.Core
+﻿namespace FaasNet.RaftConsensus.Client
 {
     public enum PeerStatus
     {

@@ -4,9 +4,9 @@ using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
 using FaasNet.RaftConsensus.Core.Infos;
 using FaasNet.RaftConsensus.Core.Stores;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,18 +20,14 @@ namespace FaasNet.RaftConsensus.Core
         private readonly PeerInfo _peerInfo;
         private readonly PeerState _peerState;
         private readonly ILogStore _logStore;
-        private readonly PeerOptions _peerOptions;
         private readonly RaftConsensusPeerOptions _raftConsensusPeerOptions;
-        private readonly ILogger<RaftConsensusProtocolHandler> _logger;
 
-        public RaftConsensusProtocolHandler(IPeerInfoStore peerInfoStore, ILogStore logStore, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions, ILogger<RaftConsensusProtocolHandler> logger)
+        public RaftConsensusProtocolHandler(IPeerInfoStore peerInfoStore, ILogStore logStore, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
         {
             _peerInfo = peerInfoStore.Get();
             _logStore = logStore;
-            _peerOptions = peerOptions.Value;
             _raftConsensusPeerOptions = raftConsensusPeerOptions.Value;
             _peerState = PeerState.New(raftConsensusPeerOptions.Value.ConfigurationDirectoryPath);
-            _logger = logger;
         }
 
         public string MagicCode => BaseConsensusPackage.MAGIC_CODE;
@@ -44,6 +40,8 @@ namespace FaasNet.RaftConsensus.Core
             if (consensusPackage.Command == ConsensusCommands.VOTE_REQUEST) result = await Handle(consensusPackage as VoteRequest, cancellationToken);
             if (consensusPackage.Command == ConsensusCommands.APPEND_ENTRIES_REQUEST) result = await Handle(consensusPackage as AppendEntriesRequest, cancellationToken);
             if (consensusPackage.Command == ConsensusCommands.APPEND_ENTRY_REQUEST) result = await Handle(consensusPackage as AppendEntryRequest, cancellationToken);
+            if (consensusPackage.Command == ConsensusCommands.GET_PEER_STATE_REQUEST) result = await Handle(consensusPackage as GetPeerStateRequest, cancellationToken);
+            if (consensusPackage.Command == ConsensusCommands.GET_LOGS_REQUEST) result = await Handle(consensusPackage as GetLogsRequest, cancellationToken);
             return result;
         }
 
@@ -77,13 +75,19 @@ namespace FaasNet.RaftConsensus.Core
             }
 
             UpdateLeader(_peerInfo);
-            var matchIndex = await _logStore.GetLastIndex(cancellationToken);
-            return ConsensusPackageResultBuilder.AppendEntries(_peerState.CurrentTerm, matchIndex, success);
+            return ConsensusPackageResultBuilder.AppendEntries(_peerState.CurrentTerm, _peerState.LastApplied, success);
             async Task UpdateLogEntries(AppendEntriesRequest request, CancellationToken cancellationToken)
             {
+                var lastIndex = _peerState.LastApplied;
                 logEntry = await _logStore.Get(request.LeaderCommit, cancellationToken);
-                if (logEntry != null && (logEntry.Index == request.LeaderCommit && logEntry.Term != request.Term)) await _logStore.RemoveFrom(request.LeaderCommit, cancellationToken);
-                await _logStore.UpdateRange(request.Entries, cancellationToken);           
+                if (logEntry != null && (logEntry.Index == request.LeaderCommit && logEntry.Term != request.Term))
+                {
+                    await _logStore.RemoveFrom(request.LeaderCommit, cancellationToken);
+                    lastIndex = request.LeaderCommit;
+                }
+
+                await _logStore.UpdateRange(request.Entries, cancellationToken);
+                _peerState.LastApplied = lastIndex + request.Entries.Count();
             }
 
             void UpdateCommitIndex(AppendEntriesRequest request, PeerState peerState)
@@ -112,16 +116,28 @@ namespace FaasNet.RaftConsensus.Core
 
             async Task<BaseConsensusPackage> Append(AppendEntryRequest request, CancellationToken cancellationToken)
             {
-                var lastIndex = await _logStore.GetLastIndex(cancellationToken);
+                var lastIndex = _peerState.LastApplied;
                 var logEntry = new LogEntry
                 {
                     Term = _peerState.CurrentTerm,
                     Command = request.Payload,
                     Index = lastIndex + 1
                 };
+                _peerState.IncreaseLastIndex();
                 await _logStore.Append(logEntry, cancellationToken);
                 return ConsensusPackageResultBuilder.AppendEntry(_peerState.CurrentTerm, _peerState.CommitIndex, true);
             }
+        }
+
+        private Task<BaseConsensusPackage> Handle(GetPeerStateRequest request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(ConsensusPackageResultBuilder.GetPeerState(_peerState.CurrentTerm, _peerState.VotedFor, _peerState.CommitIndex, _peerState.LastApplied, _peerInfo.Status));
+        }
+
+        private async Task<BaseConsensusPackage> Handle(GetLogsRequest request, CancellationToken cancellationToken)
+        {
+            var result = await _logStore.GetFrom(request.StartIndex, cancellationToken);
+            return ConsensusPackageResultBuilder.GetLogs(result);
         }
     }
 }

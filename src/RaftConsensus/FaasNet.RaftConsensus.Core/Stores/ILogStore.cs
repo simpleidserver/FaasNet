@@ -10,9 +10,9 @@ namespace FaasNet.RaftConsensus.Core.Stores
     public interface ILogStore
     {
         Task<long> GetPreviousTerm(long term, CancellationToken cancellationToken);
-        Task<long> GetLastIndex(CancellationToken cancellationToken);
         Task<LogEntry> Get(long index, CancellationToken cancellationToken);
         Task<LogEntry> Get(long term, long index, CancellationToken cancellationToken);
+        Task<IEnumerable<LogEntry>> GetFrom(long index, CancellationToken cancellationToken);
         Task RemoveFrom(long startIndex, CancellationToken cancellation);
         Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken);
         Task Append(LogEntry entry, CancellationToken cancellationToken);
@@ -33,11 +33,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
             var index = entries.IndexOf(term);
             if (index == -1 || index == 0) return Task.FromResult(term);
             return Task.FromResult(entries.ElementAt((int)term - 1));
-        }
-
-        public Task<long> GetLastIndex(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(!_entries.Any() ? 0 : _entries.Last().Index);
         }
 
         public Task<LogEntry> Get(long index, CancellationToken cancellationToken)
@@ -66,6 +61,12 @@ namespace FaasNet.RaftConsensus.Core.Stores
         {
             _entries.Add(entry);
             return Task.CompletedTask;
+        }
+
+        public Task<IEnumerable<LogEntry>> GetFrom(long index, CancellationToken cancellationToken)
+        {
+            var result = _entries.Where(e => e.Index >= index);
+            return Task.FromResult(result);
         }
     }
 }

@@ -38,6 +38,19 @@ namespace FaasNet.RaftConsensus.Client.Messages
             };
         }
 
+        public static BaseConsensusPackage GetPeerState()
+        {
+            return new GetPeerStateRequest();
+        }
+
+        public static BaseConsensusPackage GetLogs(int index)
+        {
+            return new GetLogsRequest
+            {
+                StartIndex = index
+            };
+        }
+
         public static BaseConsensusPackage AppendEntry(byte[] payload)
         {
             return new AppendEntryRequest

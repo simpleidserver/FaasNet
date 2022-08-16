@@ -7,17 +7,14 @@ namespace FaasNet.RaftConsensus.Core
     public record PeerState
     {
         private static object _obj = new object();
-        private long _currentTerm;
+        private long _currentTerm = 1;
         private string _votedFor;
         private long _commitIndex;
-        private long _lastApplied;
+        private long _lastApplied = 0;
         private const string _fileName = "peerstate.info";
         private static Dictionary<string, PeerState> _instances = new Dictionary<string, PeerState>();
 
-        public PeerState() 
-        {
-            CurrentTerm = 1;
-        }
+        public PeerState()  { }
 
         private string Directory { get; set; }
 
@@ -32,6 +29,7 @@ namespace FaasNet.RaftConsensus.Core
             }
             set
             {
+                if (_currentTerm == value) return;
                 _currentTerm = value;
                 Update();
             }
@@ -47,6 +45,7 @@ namespace FaasNet.RaftConsensus.Core
             }
             set
             {
+                if (_votedFor == value) return;
                 _votedFor = value;
                 Update();
             }
@@ -62,6 +61,7 @@ namespace FaasNet.RaftConsensus.Core
             }
             set
             {
+                if (value == _commitIndex) return;
                 _commitIndex = value;
                 Update();
             }
@@ -77,15 +77,20 @@ namespace FaasNet.RaftConsensus.Core
             }
             set
             {
+                if (value == _lastApplied) return;
                 _lastApplied = value;
                 Update();
             }
         }
 
-
         public void IncreaseCurrentTerm()
         {
             CurrentTerm++;
+        }
+
+        public void IncreaseLastIndex()
+        {
+            LastApplied++;
         }
 
         public static PeerState New(string path)

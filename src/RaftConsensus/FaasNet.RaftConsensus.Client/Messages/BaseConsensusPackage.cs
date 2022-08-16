@@ -72,6 +72,28 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 return result;
             }
 
+            if(cmd == ConsensusCommands.GET_PEER_STATE_REQUEST) return new GetPeerStateRequest();
+            if (cmd == ConsensusCommands.GET_PEER_STATE_RESULT)
+            {
+                var result = new GetPeerStateResult();
+                result.Extract(context);
+                return result;
+            }
+
+            if (cmd == ConsensusCommands.GET_LOGS_REQUEST)
+            {
+                var result = new GetLogsRequest();
+                result.Extract(context);
+                return result;
+            }
+
+            if (cmd == ConsensusCommands.GET_LOGS_RESULT)
+            {
+                var result = new GetLogsResult();
+                result.Extract(context);
+                return result;
+            }
+
             return null;
         }
     }

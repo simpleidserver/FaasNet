@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FaasNet.RaftConsensus.Client;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 

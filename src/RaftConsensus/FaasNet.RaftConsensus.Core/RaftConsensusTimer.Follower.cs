@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FaasNet.RaftConsensus.Client;
 
 namespace FaasNet.RaftConsensus.Core
 {
