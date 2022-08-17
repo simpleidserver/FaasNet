@@ -8,6 +8,7 @@
             K = 4;
             FixKBucketLstTimerMS = 500;
             HealthCheckTimerMS = 500;
+            KademliaPeerId = 1;
         }
 
         /// <summary>
@@ -38,5 +39,9 @@
         /// Port of the Seed peer.
         /// </summary>
         public int SeedPort { get; set; }
+        /// <summary>
+        /// Identifier of the Peer.
+        /// </summary>
+        public long KademliaPeerId { get; set; }
     }
 }

@@ -28,6 +28,7 @@ namespace FaasNet.DHT.Chord.Service
                     o.SeedPort = ROOT_NODE_PORT;
                     o.SeedUrl = "localhost";
                     o.IsSeedPeer = true;
+                    o.KademliaPeerId = ROOT_PEER_ID;
                 })
                 .BuildWithDI();
             _peers.Add(rootPeer);
@@ -72,6 +73,7 @@ namespace FaasNet.DHT.Chord.Service
                     o.SeedPort = ROOT_NODE_PORT;
                     o.SeedUrl = "localhost";
                     o.IsSeedPeer = false;
+                    o.KademliaPeerId = peerId;
                 })
                 .BuildWithDI();
             await peer.Item1.Start();
