@@ -9,7 +9,7 @@ namespace FaasNet.Discovery.Config.Service
     {
         public static int Main(string[] args)
         {
-            var peerHost = LaunchPeer(new ConcurrentBag<ClusterPeer>(), 5001, "seedId");
+            var peerHost = LaunchPeer(new ConcurrentBag<ClusterPeer>(), 5001);
             Console.WriteLine("Press any key to display all the Peers present in the network");
             Console.ReadLine();
             DisplayCluster(peerHost.Item2);
@@ -21,13 +21,12 @@ namespace FaasNet.Discovery.Config.Service
             return 1;
         }
 
-        private static (IPeerHost, IServiceProvider) LaunchPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001, string peerId = "peerId")
+        private static (IPeerHost, IServiceProvider) LaunchPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001)
         {
             var peerHostFactory = PeerHostFactory.NewUnstructured(o =>
             {
                 o.Url = "localhost";
                 o.Port = port;
-                o.PeerId = peerId;
             }, clusterPeers)
                 .UseUDPTransport()
                 .UseDiscoveryConfig();

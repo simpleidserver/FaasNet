@@ -15,12 +15,12 @@ namespace FaasNet.DHT.Chord.Service
         {
             // https://kelseyc18.github.io/kademlia_vis/basics/3/
             // https://docs.rs/kademlia_routing_table/latest/kademlia_routing_table/
+            var peerId = PeerId.Build("localhost", ROOT_NODE_PORT).Serialize();
             _peers = new List<(IPeerHost, IServiceProvider)>();
             var rootPeer = PeerHostFactory.NewStructured(o =>
             {
                 o.Url = "localhost";
                 o.Port = ROOT_NODE_PORT;
-                o.PeerId = ROOT_PEER_ID.ToString();
             })
                 .UseUDPTransport()
                 .AddDHTKademliaProtocol(o =>
@@ -65,7 +65,6 @@ namespace FaasNet.DHT.Chord.Service
             {
                 o.Url = "localhost";
                 o.Port = CURRENT_NODE_PORT;
-                o.PeerId = peerId.ToString();
             })
                 .UseUDPTransport()
                 .AddDHTKademliaProtocol(o =>

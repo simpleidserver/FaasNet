@@ -32,6 +32,7 @@ namespace FaasNet.DHT.Kademlia.Core
 
         public Task Start(CancellationToken cancellationToken)
         {
+            // Fix Kademlia
             var id = long.Parse(_peerOptions.PeerId);
             var peerInfoStore = KademliaPeerInfo.Create(id, _peerOptions.Url, _peerOptions.Port, _options.S);
             peerInfoStore.TryAddPeer(_peerOptions.Url, _peerOptions.Port, id);

@@ -63,8 +63,9 @@ Open the Visual Studio Solution and edit the `Program.cs` file.
 Add a procedure `LaunchCRDTPeer(ClusterPeers, Port, PeerId)`, it will be used to start one CRDT Peer.
 
 ```
-private static void LaunchCRDTPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001, string peerId = "peerId")
+private static void LaunchCRDTPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001)
 {
+    var peerId = PeerId.Build("localhost", port).Serialize();
     var gcounter = new GCounter(peerId);
     var firstSerializedEntity = new CRDTEntitySerializer().Serialize("nb_customers", gcounter);;
     var entities = new ConcurrentBag<SerializedEntity>
@@ -73,7 +74,6 @@ private static void LaunchCRDTPeer(ConcurrentBag<ClusterPeer> clusterPeers, int 
     };
     var peerHost = PeerHostFactory.New(o => {
             o.Port = port;
-            o.PeerId = peerId;
         }, clusterPeers)
         .UseUDPTransport()
         .AddCRDTProtocol(entities)

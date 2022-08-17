@@ -13,8 +13,8 @@ namespace FaasNet.DHT.Chord.Service
         {
             // https://github.com/cloudstateio/cloudstate/blob/16ea6f8f17c8f8b5959e626dc4e9808d9288dae6/node-support/src/crdts/pncounter.js
             // https://mwhittaker.github.io/consistency_in_distributed_systems/3_crdt.html
-            var firstPeerHostpeerHost = LaunchCRDTPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5002) }, 5001, "peerId");
-            var secondPeerHostpeerHost = LaunchCRDTPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, 5002, "peerId2");
+            var firstPeerHostpeerHost = LaunchCRDTPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5002) }, 5001);
+            var secondPeerHostpeerHost = LaunchCRDTPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, 5002);
             CheckGCounter();
             CheckGSet();
             CheckPNCounter();
@@ -125,8 +125,9 @@ namespace FaasNet.DHT.Chord.Service
             Console.WriteLine("=================");
         }
 
-        private static IPeerHost LaunchCRDTPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001, string peerId = "peerId")
+        private static IPeerHost LaunchCRDTPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001)
         {
+            var peerId = PeerId.Build("localhost", port).Serialize();
             var gcounter = new GCounter(peerId);
             var gset = new GSet(peerId);
             var pnCounter = new PNCounter(peerId);
@@ -141,7 +142,6 @@ namespace FaasNet.DHT.Chord.Service
             };
             var peerHost = PeerHostFactory.NewUnstructured(o => {
                     o.Port = port;
-                    o.PeerId = peerId;
                 }, clusterPeers)
                 .UseUDPTransport()
                 .AddCRDTProtocol(entities)

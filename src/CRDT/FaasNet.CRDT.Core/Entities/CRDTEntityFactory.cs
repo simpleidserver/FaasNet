@@ -29,7 +29,7 @@ namespace FaasNet.CRDT.Core.Entities
 
         public CRDTEntity Build(SerializedEntity serializedEntity)
         {
-            var crdtEntity = BuildEntity(serializedEntity, _options.PeerId);
+            var crdtEntity = BuildEntity(serializedEntity, _options.Id);
             return crdtEntity;
         }
 

@@ -41,7 +41,7 @@ namespace FaasNet.CRDT.Core
             var entity = await _entityStore.Get(deltaPackage.EntityId, cancellationToken);
             if (entity == null) return CRDTPackageResultBuilder.BuildError(deltaPackage, ErrorCodes.UNKNOWN_ENTITY);
             var crdtEntity = _entityFactory.Build(entity);
-            crdtEntity.ApplyDelta(_peerOptions.PeerId, deltaPackage.Delta);
+            crdtEntity.ApplyDelta(_peerOptions.Id, deltaPackage.Delta);
             var serializedEntity = new CRDTEntitySerializer().Serialize(entity.Id, crdtEntity);
             await _entityStore.Update(serializedEntity, cancellationToken);
             return CRDTPackageResultBuilder.Ok(deltaPackage.Nonce);

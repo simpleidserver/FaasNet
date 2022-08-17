@@ -9,9 +9,9 @@ namespace FaasNet.Discovery.Gossip.Service
     {
         public static int Main(string[] args)
         {
-            var seedPeerHostpeerHost = LaunchGossipPeer(new ConcurrentBag<ClusterPeer>(), 5001, "seedId");
-            var secondPeerHostpeerHost = LaunchGossipPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, 5002, "peerId2");
-            var thirdPeerHostpeerHost = LaunchGossipPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, 5003, "peerId3");
+            var seedPeerHostpeerHost = LaunchGossipPeer(new ConcurrentBag<ClusterPeer>(), 5001);
+            var secondPeerHostpeerHost = LaunchGossipPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, 5002);
+            var thirdPeerHostpeerHost = LaunchGossipPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, 5003);
             Console.WriteLine("Press any key to display all the Peers present in the network");
             Console.ReadLine();
             DisplayCluster();
@@ -25,12 +25,11 @@ namespace FaasNet.Discovery.Gossip.Service
             return 1;
         }
 
-        private static IPeerHost LaunchGossipPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001, string peerId = "peerId")
+        private static IPeerHost LaunchGossipPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001)
         {
             var peerHost = PeerHostFactory.NewUnstructured(o => {
                 o.Url = "localhost";
                 o.Port = port;
-                o.PeerId = peerId;
             }, clusterPeers)
                 .UseUDPTransport()
                 .UseGossipDiscovery()

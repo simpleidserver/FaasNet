@@ -56,12 +56,11 @@ Add a function `IPeerHost LaunchGossipPeer(clusterPeers, port, PeerId)`.
 It will be used to start one unstructured UDP Peer with Gossip protocol enabled.
 
 ```
-private static IPeerHost LaunchGossipPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001, string peerId = "peerId")
+private static IPeerHost LaunchGossipPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001)
 {
     var peerHost = PeerHostFactory.NewUnstructured(o => {
         o.Url = "localhost";
         o.Port = port;
-        o.PeerId = peerId;
     }, clusterPeers)
         .UseUDPTransport()
         .UseGossipDiscovery()

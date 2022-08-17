@@ -82,7 +82,7 @@ namespace FaasNet.CRDT.Core
                 {
                     foreach (var kvp in lst)
                     {
-                        var syncResultPackage = await crdtClient.Sync(_peerOptions.PeerId, kvp.Key, kvp.Value.ClockVector, _cancellationTokenSource.Token);
+                        var syncResultPackage = await crdtClient.Sync(_peerOptions.Id, kvp.Key, kvp.Value.ClockVector, _cancellationTokenSource.Token);
                         foreach (var diff in syncResultPackage.DiffLst) kvp.Value.ApplyDelta(diff.PeerId, diff.Delta);
                     }
                 }

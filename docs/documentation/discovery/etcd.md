@@ -50,13 +50,12 @@ Add a function `(IPeerHost, IServiceProvider) LaunchPeer(clusterPeers, port, Pee
 It will be used to start one unstructured UDP Peer and the Peer Informations will be stored in ETCD.
 
 ```
-private static (IPeerHost, IServiceProvider) LaunchPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001, string peerId = "peerId")
+private static (IPeerHost, IServiceProvider) LaunchPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001)
 {
 	var peerHostFactory = PeerHostFactory.NewUnstructured(o =>
 	{
 		o.Url = "localhost";
 		o.Port = port;
-		o.PeerId = peerId;
 	}, clusterPeers)
 		.UseUDPTransport()
 		.UseDiscoveryEtcd();

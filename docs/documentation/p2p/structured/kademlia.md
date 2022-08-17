@@ -15,7 +15,7 @@ For each Peer there is a routing table (List of KBucket), it manages a number of
 * ...
 * If 2 > x ^ y >= 1, then y is in bucket S - 1.
 
-[IMAGE]
+![Kademlia](images/kademlia.png)
 
 ## Library
 
