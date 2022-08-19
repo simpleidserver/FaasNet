@@ -75,7 +75,7 @@ Add a procedure `DisplayCluster()`. It will be used to display all the Peer info
 ```
 private static void DisplayCluster()
 {
-    using (var gossipClient = new UDPGossipClient("localhost", 5002))
+    using (var gossipClient = new UDPGossipClient("localhost", 5001))
     {
         var peerInfos = gossipClient.Get().Result;
         foreach(var peerInfo in peerInfos)
@@ -89,6 +89,6 @@ private static void DisplayCluster()
 Add the following code to start one Peer and display the Peer informations.
 
 ```
-LaunchGossipPeer(new ConcurrentBag<ClusterPeer>(), 5001, "seedId");
+LaunchGossipPeer(new ConcurrentBag<ClusterPeer>(), 5001);
 DisplayCluster();
 ```

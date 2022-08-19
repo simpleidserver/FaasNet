@@ -10,6 +10,7 @@
 
         public string Url { get; private set; }
         public int Port { get; private set; }
+        public string PartitionKey { get; set; }
         public string Id
         {
             get

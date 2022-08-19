@@ -6,6 +6,7 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\..\Common\FaasNet.Partition\FaasNet.Partition.csproj" />
 	  <ProjectReference Include="..\FaasNet.RaftConsensus.Core\FaasNet.RaftConsensus.Core.csproj" />
 	  <ProjectReference Include="..\FaasNet.RaftConsensus.RocksDB\FaasNet.RaftConsensus.RocksDB.csproj" />
 	</ItemGroup>

@@ -72,6 +72,6 @@ private static void DisplayCluster(IServiceProvider serviceProvider)
 Add the following code to start one Peer and display the Peer informations.
 
 ```
-var peerHost = LaunchPeer(new ConcurrentBag<ClusterPeer>(), 5001, "seedId");
+var peerHost = LaunchPeer(new ConcurrentBag<ClusterPeer>(), 5001);
 DisplayCluster(peerHost.Item2);
 ```

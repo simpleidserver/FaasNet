@@ -52,43 +52,50 @@ dotnet sln add ./src/ChordServer/ChordServer.csproj
 
 Open the Visual Studio Solution and edit the `Program.cs` file.
 
-Add a new procedure `StartChordRing`, it will be used to start the CHORD ring.
+Add a new procedure `AddRootPeer`, it will be used to start the CHORD ring.
 
 ```
-private static void StartChordRing()
+private static async void AddRootPeer()
 {
-    var peerFactory = new ServerBuilder().AddDHTChord().ServiceProvider.GetService(typeof(IDHTPeerFactory)) as IDHTPeerFactory;
-    var rootPeer = peerFactory.Build();
-    rootPeer.Start("localhost", 51, CancellationToken.None);
-    using (var client = new ChordClient("localhost", 51))
+    var rootNode = PeerHostFactory.NewStructured(o =>
     {
-        client.Create(4);
+        o.Port = 51;
+        o.Url = "localhost";
+    }).UseTCPTransport().AddDHTChordProtocol().BuildWithDI();
+    _peers.Add(rootNode);
+    await rootNode.Item1.Start();
+    using (var firstClient = new TCPChordClient("localhost", 51))
+    {
+        firstClient.Create(4);
     }
 }
 ```
 
-Add a new procedure `AddNode(int port)`, it will be used to add a node into the ring.
+Add a new procedure `AddPeer(int port)`, it will be used to add a node into the ring.
 
 ```
-private static void AddNode(int port)
+private static async void AddPeer(int port)
 {
-    var peerFactory = new ServerBuilder().AddDHTChord().ServiceProvider.GetService(typeof(IDHTPeerFactory)) as IDHTPeerFactory;
-    var peer = peerFactory.Build();
-    peer.Start("localhost", port, CancellationToken.None);
-    using (var client = new ChordClient("localhost", port))
+    var node = PeerHostFactory.NewStructured(o =>
     {
-        client.Join("localhost", 51);
+        o.Port = port;
+        o.Url = "localhost";
+    }).UseTCPTransport().AddDHTChordProtocol().BuildWithDI();
+    await node.Item1.Start();
+    using (var secondClient = new TCPChordClient("localhost", port))
+    {
+        secondClient.Join("localhost", 51);
     }
 }
 ```
 
 
-Add a new procedure `PersistKey(long key, string value)`, it will be used to persist a Key and its Value into the ring.
+Add a new procedure `AddKey(long key, string value)`, it will be used to persist a Key and its Value into the ring.
 
 ```
-private static void PersistKey(long key, string value)
+private static void AddKey(long key, string value)
 {
-    using (var chordClient = new ChordClient("localhost", 51))
+    using (var chordClient = new TCPChordClient("localhost", 51))
     {
         chordClient.AddKey(key, value);
     }
@@ -100,7 +107,7 @@ Add a new procedure `GetKey(long key)`, it will be used to get the value of the 
 ```
 private static string GetKey(long key)
 {
-    using (var chordClient = new ChordClient("localhost", 51))
+    using(var chordClient = new TCPChordClient("localhost", 51))
     {
         return chordClient.GetKey(key);
     }
@@ -110,9 +117,18 @@ private static string GetKey(long key)
 Add the following code to add two peers into the ring, publish a key with its value and finally display the value of the key.
 
 ```
-StartChordRing();
-AddNode(57);
-AddNode(58);
-PersistKey(8, "Hello");
-Console.WriteLine($"Key 8 is stored with the value {GetKey(8)}");
+AddRootPeer();
+Console.WriteLine("Press enter to add a Peer");
+Console.ReadLine();
+AddPeer(57);
+Console.WriteLine("Press enter to add a Peer");
+Console.ReadLine();
+AddPeer(58);
+Console.WriteLine("Press enter to add a key");
+Console.ReadLine();
+AddKey(8, "Hello");
+Console.WriteLine("Press enter to display the key");
+Console.ReadLine();
+var key = GetKey(8);
+Console.WriteLine($"Key 8 is stored with the value {key}");
 ```

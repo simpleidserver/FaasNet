@@ -8,6 +8,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Common\FaasNet.Common\FaasNet.Common.csproj" />
+	  <ProjectReference Include="..\..\Common\FaasNet.Partition\FaasNet.Partition.csproj" />
 	  <ProjectReference Include="..\..\Common\FaasNet.Peer\FaasNet.Peer.csproj" />
 	  <ProjectReference Include="..\FaasNet.RaftConsensus.Client\FaasNet.RaftConsensus.Client.csproj" />
 	</ItemGroup>

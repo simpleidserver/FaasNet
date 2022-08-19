@@ -1,70 +1,59 @@
-﻿using FaasNet.Peer.Clusters;
+﻿using FaasNet.Peer;
+using FaasNet.Peer.Clusters;
 using FaasNet.Peer.Transports;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
 
-namespace FaasNet.Peer
+namespace FaasNet.Partition
 {
-    public class PeerHostFactory
+    public class PartitionedNodeHostFactory
     {
         private readonly IServiceCollection _serviceCollection;
 
-        private PeerHostFactory(Action<PeerOptions> options, Action<IServiceCollection> callbackService = null)
+        private PartitionedNodeHostFactory(Action<PeerOptions> options,ConcurrentBag<ClusterPeer> clusterPeers, Action<IServiceCollection> callbackService = null)
         {
             _serviceCollection = new ServiceCollection();
             if (options == null) _serviceCollection.Configure<PeerOptions>(o => { });
             else _serviceCollection.Configure(options);
-            _serviceCollection.AddScoped<IPeerHost, StructuredPeerHost>();
+            _serviceCollection.AddScoped<IPeerHost, PartitionedNodeHost>();
+            if (clusterPeers != null) _serviceCollection.AddScoped<IClusterStore>(s => new InMemoryClusterStore(clusterPeers));
+            else _serviceCollection.AddScoped<IClusterStore, InMemoryClusterStore>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
             _serviceCollection.AddLogging();
             if (callbackService != null) callbackService(_serviceCollection);
         }
 
-        private PeerHostFactory(Action<PeerOptions> options, ConcurrentBag<ClusterPeer> clusterPeers, Action<IServiceCollection> callbackService = null)
+        public static PartitionedNodeHostFactory New(Action<PeerOptions> options = null, ConcurrentBag<ClusterPeer> clusterNodes = null, Action<IServiceCollection> callbackService = null)
         {
-            _serviceCollection = new ServiceCollection();
-            if (options == null) _serviceCollection.Configure<PeerOptions>(o => { });
-            else _serviceCollection.Configure(options);
-            _serviceCollection.AddScoped<IPeerHost, UnstructuredPeerHost>();
-            _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
-            if (clusterPeers != null) _serviceCollection.AddScoped<IClusterStore>(s => new InMemoryClusterStore(clusterPeers));
-            else _serviceCollection.AddScoped<IClusterStore, InMemoryClusterStore>();
-            _serviceCollection.AddLogging();
-            if (callbackService != null) callbackService(_serviceCollection);
+            return new PartitionedNodeHostFactory(options, clusterNodes, callbackService);
         }
 
         public IServiceCollection Services => _serviceCollection;
 
-        public static PeerHostFactory NewUnstructured(Action<PeerOptions> options = null, ConcurrentBag<ClusterPeer> clusterNodes = null, Action<IServiceCollection> callbackService = null)
-        {
-            return new PeerHostFactory(options, clusterNodes, callbackService);
-        }
-
-        public static PeerHostFactory NewStructured(Action<PeerOptions> options = null, Action<IServiceCollection> callbackService = null)
-        {
-            return new PeerHostFactory(options, callbackService);
-        }
-
-        public PeerHostFactory UseTCPTransport()
+        public PartitionedNodeHostFactory UseTCPTransport()
         {
             RemoveTransport();
             _serviceCollection.AddScoped<ITransport, TCPTransport>();
             return this;
         }
 
-        public PeerHostFactory UseUDPTransport()
+        public PartitionedNodeHostFactory UseUDPTransport()
         {
             RemoveTransport();
             _serviceCollection.AddScoped<ITransport, UDPTransport>();
             return this;
         }
 
-        public PeerHostFactory UseClusterStore(IClusterStore clusterStore)
+        /// <summary>
+        /// One partition per cluster.
+        /// </summary>
+        public PartitionedNodeHostFactory UseDirectPartitionKey(params DirectPartitionPeer[]  partitionPeers)
         {
-            RemoveClusterStore();
-            _serviceCollection.AddSingleton(clusterStore);
+            RemovePartitionPeerStore();
+            _serviceCollection.AddScoped<IPartitionCluster, DirectPartitionCluster>();
+            _serviceCollection.AddSingleton<IPartitionPeerStore>(new InMemoryPartitionPeerStore(partitionPeers));
             return this;
         }
 
@@ -88,9 +77,9 @@ namespace FaasNet.Peer
             if (registeredType != null) _serviceCollection.Remove(registeredType);
         }
 
-        private void RemoveClusterStore()
+        private void RemovePartitionPeerStore()
         {
-            var registeredType = _serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IClusterStore));
+            var registeredType = _serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IPartitionPeerStore));
             if (registeredType != null) _serviceCollection.Remove(registeredType);
         }
     }

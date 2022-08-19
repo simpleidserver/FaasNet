@@ -15,7 +15,7 @@ namespace FaasNet.RaftConsensus.Core
         private async Task StartCandidate()
         {
             if (_peerInfo.Status != PeerStatus.CANDIDATE) return;
-            var allPeers = (await _clusterStore.GetAllNodes(_cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
+            var allPeers = (await _clusterStore.GetAllNodes(_peerOptions.PartitionKey, _cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
             var voteResultLst = await Vote(allPeers);
             var quorum = (allPeers.Count() / 2) + 1;
             var nbReachablePeers = voteResultLst.Where(v => v.Item2).Count();

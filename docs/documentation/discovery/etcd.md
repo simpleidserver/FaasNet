@@ -52,16 +52,16 @@ It will be used to start one unstructured UDP Peer and the Peer Informations wil
 ```
 private static (IPeerHost, IServiceProvider) LaunchPeer(ConcurrentBag<ClusterPeer> clusterPeers, int port = 5001)
 {
-	var peerHostFactory = PeerHostFactory.NewUnstructured(o =>
-	{
-		o.Url = "localhost";
-		o.Port = port;
-	}, clusterPeers)
-		.UseUDPTransport()
-		.UseDiscoveryEtcd();
-	var peerHost = peerHostFactory.BuildWithDI();
-	peerHost.Item1.Start();
-	return peerHost;
+    var peerHostFactory = PeerHostFactory.NewUnstructured(o =>
+    {
+        o.Url = "localhost";
+        o.Port = port;
+    }, clusterPeers)
+        .UseUDPTransport()
+        .UseDiscoveryEtcd();
+    var peerHost = peerHostFactory.BuildWithDI();
+    peerHost.Item1.Start();
+    return peerHost;
 }
 ```
 
@@ -82,6 +82,6 @@ private static void DisplayCluster(IServiceProvider serviceProvider)
 Add the following code to start one Peer and display the Peer informations.
 
 ```
-var peerHost = LaunchPeer(new ConcurrentBag<ClusterPeer>(), 5001, "seedId");
+var peerHost = LaunchPeer(new ConcurrentBag<ClusterPeer>(), 5001);
 DisplayCluster(peerHost.Item2);
 ```

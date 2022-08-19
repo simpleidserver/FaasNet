@@ -9,7 +9,7 @@ namespace FaasNet.Peer.Clusters
     public interface IClusterStore
     {
         Task SelfRegister(ClusterPeer node, CancellationToken cancellationToken);
-        Task<IEnumerable<ClusterPeer>> GetAllNodes(CancellationToken cancellationToken);
+        Task<IEnumerable<ClusterPeer>> GetAllNodes(string partitionKey, CancellationToken cancellationToken);
     }
 
     public class InMemoryClusterStore : IClusterStore
@@ -26,9 +26,10 @@ namespace FaasNet.Peer.Clusters
             _clusterPeers = clusterNodes;
         }
 
-        public Task<IEnumerable<ClusterPeer>> GetAllNodes(CancellationToken cancellationToken)
+        public Task<IEnumerable<ClusterPeer>> GetAllNodes(string partitionKey, CancellationToken cancellationToken)
         {
             IEnumerable<ClusterPeer> nodes = _clusterPeers;
+            if (!string.IsNullOrEmpty(partitionKey)) nodes = nodes.Where(n => n.PartitionKey == partitionKey);
             return Task.FromResult(nodes);
         }
 

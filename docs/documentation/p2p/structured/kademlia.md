@@ -55,32 +55,55 @@ Open the Visual Studio Solution and edit the `Program.cs` file.
 Add a new procedure `StartKademlia`, it will be used to start the Kademlia.
 
 ```
-private static void StartKademlia()
+private static async void AddRootPeer()
 {
-    var peerFactory = new ServerBuilder().AddDHTKademlia().ServiceProvider.GetService(typeof(IDHTPeerFactory)) as IDHTPeerFactory;
-    var rootNode = peerFactory.Build();
-    rootNode.StartSeedPeer(1, "localhost", 50, CancellationToken.None);
+    await PeerHostFactory.NewStructured(o =>
+    {
+        o.Url = "localhost";
+        o.Port = 50;
+    })
+        .UseUDPTransport()
+        .AddDHTKademliaProtocol(o =>
+        {
+            o.SeedPort = 50;
+            o.SeedUrl = "localhost";
+            o.IsSeedPeer = true;
+            o.KademliaPeerId = 1;
+        })
+        .Build()
+        .Start();
 }
 ```
 
-Add a new procedure `AddNode(int port)`, it will be used to add and start a node.
+Add a new procedure `AddPeer(int port, int peerId)`, it will be used to add and start a node.
 
 ```
-private static void AddNode(long id, int port)
+private static async void AddPeer(int port, int peerId)
 {
-    var peerFactory = new ServerBuilder().AddDHTKademlia().ServiceProvider.GetService(typeof(IDHTPeerFactory)) as IDHTPeerFactory;
-    var peer = peerFactory.Build();
-    peer.StartPeer(id, "localhost", port, "localhost", 50, CancellationToken.None);
+    await PeerHostFactory.NewStructured(o =>
+    {
+        o.Url = "localhost";
+        o.Port = port;
+    })
+        .UseUDPTransport()
+        .AddDHTKademliaProtocol(o =>
+        {
+            o.SeedPort = 50;
+            o.SeedUrl = "localhost";
+            o.IsSeedPeer = false;
+            o.KademliaPeerId = peerId;
+        })
+        .Build()
+        .Start();
 }
 ```
-
 
 Add a new procedure `PersistKey(long key, string value)`, it will be used to persist a Key and its Value into the ring.
 
 ```
 private static async void PersistKey(long key, string value)
 {
-    using (var kademliaClient = new KademliaClient("localhost", 50))
+    using (var kademliaClient = new UDPKademliaClient("localhost", 50))
     {
         await kademliaClient.StoreValue(key, value);
     }
@@ -90,11 +113,12 @@ private static async void PersistKey(long key, string value)
 Add a new procedure `GetKey(long key)`, it will be used to get the value of the key from the ring.
 
 ```
-private static string GetKey(long key)
+private static async Task<string> GetKey(long key)
 {
-    using (var chordClient = new KademliaClient("localhost", 50))
+    using (var kademliaClient = new UDPKademliaClient("localhost", 50))
     {
-        return chordClient.FindValue(key).Result.Value;
+        var value = await kademliaClient.FindValue(key);
+        return value.Value;
     }
 }
 ```
@@ -102,9 +126,18 @@ private static string GetKey(long key)
 Add the following code to add two peers, publish a key with its value and finally display the value of the key.
 
 ```
-StartKademlia();
-AddNode(2, 57);
-AddNode(5, 58);
+AddRootPeer();
+Console.WriteLine("Press enter to add a Peer");
+Console.ReadLine();
+AddPeer(57, 2);
+Console.WriteLine("Press enter to add a Peer");
+Console.ReadLine();
+AddPeer(58, 5);
+Console.WriteLine("Press enter to add a key");
+Console.ReadLine();
 PersistKey(8, "Hello");
-Console.WriteLine($"Key 8 is stored with the value {GetKey(8)}");
+Console.WriteLine("Press enter to display the key");
+Console.ReadLine();
+var key = GetKey(8).Result;
+Console.WriteLine($"Key 8 is stored with the value {key}");
 ```

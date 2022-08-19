@@ -36,7 +36,7 @@ namespace FaasNet.RaftConsensus.Core
 
         private async void AppendEntries()
         {
-            var allPeers = (await _clusterStore.GetAllNodes(_cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
+            var allPeers = (await _clusterStore.GetAllNodes(_peerOptions.PartitionKey, _cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
             await AppendEntries(allPeers);
             StartLeader();
         }

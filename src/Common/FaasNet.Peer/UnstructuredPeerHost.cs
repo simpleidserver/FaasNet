@@ -21,7 +21,8 @@ namespace FaasNet.Peer
 
         protected override Task Init(CancellationToken cancellationToken = default)
         {
-            return _clusterStore.SelfRegister(new ClusterPeer(_options.Url, _options.Port), cancellationToken);
+            if (!_options.IsSelfRegistrationEnabled) return Task.CompletedTask;
+            return _clusterStore.SelfRegister(new ClusterPeer(_options.Url, _options.Port) { PartitionKey = _options.PartitionKey }, cancellationToken);
         }
     }
 }

@@ -52,7 +52,7 @@ namespace FaasNet.RaftConsensus.Core
             _peerInfo.LeaderStateStarted += async (sender, args) =>
             {
                 _logger.LogInformation($"Peer {_peerOptions.Id} is a leader");
-                var allPeers = (await _clusterStore.GetAllNodes(_cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
+                var allPeers = (await _clusterStore.GetAllNodes(_peerOptions.PartitionKey, _cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
                 await AppendEntries(allPeers);
                 StartLeader();
                 if (_raftOptions.LeaderCallback != null) _raftOptions.LeaderCallback();

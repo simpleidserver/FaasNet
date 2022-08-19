@@ -67,14 +67,14 @@ private static void LaunchCRDTPeer(ConcurrentBag<ClusterPeer> clusterPeers, int 
 {
     var peerId = PeerId.Build("localhost", port).Serialize();
     var gcounter = new GCounter(peerId);
-    var firstSerializedEntity = new CRDTEntitySerializer().Serialize("nb_customers", gcounter);;
+    var firstSerializedEntity = new CRDTEntitySerializer().Serialize("nb_customers", gcounter); ;
     var entities = new ConcurrentBag<SerializedEntity>
     {
         firstSerializedEntity
     };
-    var peerHost = PeerHostFactory.New(o => {
-            o.Port = port;
-        }, clusterPeers)
+    var peerHost = PeerHostFactory.NewUnstructured(o => {
+        o.Port = port;
+    }, clusterPeers)
         .UseUDPTransport()
         .AddCRDTProtocol(entities)
         .Build();
@@ -110,8 +110,8 @@ private static void Display()
 Add the following code to add two peers, increment the GCounter `nb_customers` and display its value.
 
 ```
-LaunchCRDTPeer("localhost", 5001, "peerId1");
-LaunchCRDTPeer("localhost", 5002, "peerId2");
+LaunchCRDTPeer("localhost", 5001);
+LaunchCRDTPeer("localhost", 5002);
 Increment();
 Display();
 ```

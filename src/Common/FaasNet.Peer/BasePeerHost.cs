@@ -45,6 +45,8 @@ namespace FaasNet.Peer
             foreach (var timer in _timers) await timer.Start(_cancellationTokenSource.Token);
         }
 
+        protected CancellationTokenSource TokenSource => _cancellationTokenSource;
+
         public Task Stop()
         {
             if (!IsRunning) throw new InvalidOperationException("The Peer is not running");
@@ -75,7 +77,7 @@ namespace FaasNet.Peer
             }
         }
 
-        private async Task ReceiveMessage(BaseSessionResult session)
+        protected virtual async Task ReceiveMessage(BaseSessionResult session)
         {
             var payload = await session.ReceiveMessage();
             if (payload.Length == 0) return;
