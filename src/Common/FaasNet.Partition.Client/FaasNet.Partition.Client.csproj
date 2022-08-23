@@ -3,6 +3,7 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FaasNet.Common\FaasNet.Common.csproj" />
     <ProjectReference Include="..\FaasNet.Peer.Client\FaasNet.Peer.Client.csproj" />
   </ItemGroup>
 </Project>

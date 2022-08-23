@@ -124,7 +124,7 @@ namespace FaasNet.RaftConsensus.Core
                 if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS)) return ConsensusPackageResultBuilder.AppendEntry(0, 0, false);
                 var leaderPeerId = PeerId.Deserialize(_peerState.VotedFor);
                 using (var consensusClient = new UDPRaftConsensusClient(leaderPeerId.IpEdp))
-                    return await consensusClient.AppendEntry(request.Payload, cancellationToken);
+                    return (await consensusClient.AppendEntry(request.Payload, cancellationToken)).First();
             }
 
             async Task<BaseConsensusPackage> Append(AppendEntryRequest request, CancellationToken cancellationToken)

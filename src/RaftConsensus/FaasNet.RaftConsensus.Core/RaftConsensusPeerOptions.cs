@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FaasNet.Peer;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace FaasNet.RaftConsensus.Core
 {
@@ -9,6 +11,7 @@ namespace FaasNet.RaftConsensus.Core
             ElectionTimer = new Interval(1000, 10000);
             LeaderHeartbeatTimerMS = 2000;
             LeaderHeartbeatExpirationDurationMS = 12000;
+            PeerCallbackService = null;
         }
 
         /// <summary>
@@ -31,6 +34,10 @@ namespace FaasNet.RaftConsensus.Core
         /// Action is called when the Peer is a leader.
         /// </summary>
         public Action LeaderCallback { get; set; }
+        /// <summary>
+        /// Update IServiceCollection of generated Peers.
+        /// </summary>
+        public Action<IServiceCollection> PeerCallbackService { get; set; }
     }
 
     public class Interval

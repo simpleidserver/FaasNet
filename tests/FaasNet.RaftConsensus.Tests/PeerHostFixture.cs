@@ -71,7 +71,7 @@ namespace FaasNet.RaftConsensus.Tests
         {
             using(var raftConsensusClient = new UDPRaftConsensusClient(url, port))
             {
-                var entry = await raftConsensusClient.GetLogs(startIndex, CancellationToken.None);
+                var entry = (await raftConsensusClient.GetLogs(startIndex, CancellationToken.None)).First();
                 if (entry.Entries.Any()) return entry;
             }
 

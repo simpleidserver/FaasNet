@@ -12,11 +12,13 @@ namespace FaasNet.Partition
     {
         private readonly IServiceCollection _serviceCollection;
 
-        private PartitionedNodeHostFactory(Action<PeerOptions> options,ConcurrentBag<ClusterPeer> clusterPeers, Action<IServiceCollection> callbackService = null)
+        private PartitionedNodeHostFactory(Action<PeerOptions> options, Action<PartitionedNodeOptions> nodeOptions, ConcurrentBag<ClusterPeer> clusterPeers, Action<IServiceCollection> callbackService = null)
         {
             _serviceCollection = new ServiceCollection();
             if (options == null) _serviceCollection.Configure<PeerOptions>(o => { });
             else _serviceCollection.Configure(options);
+            if (nodeOptions == null) _serviceCollection.Configure<PartitionedNodeOptions>(o => { });
+            else _serviceCollection.Configure(nodeOptions);
             _serviceCollection.AddScoped<IPeerHost, PartitionedNodeHost>();
             if (clusterPeers != null) _serviceCollection.AddScoped<IClusterStore>(s => new InMemoryClusterStore(clusterPeers));
             else _serviceCollection.AddScoped<IClusterStore, InMemoryClusterStore>();
@@ -25,9 +27,9 @@ namespace FaasNet.Partition
             if (callbackService != null) callbackService(_serviceCollection);
         }
 
-        public static PartitionedNodeHostFactory New(Action<PeerOptions> options = null, ConcurrentBag<ClusterPeer> clusterNodes = null, Action<IServiceCollection> callbackService = null)
+        public static PartitionedNodeHostFactory New(Action<PeerOptions> options = null, Action<PartitionedNodeOptions> nodeOptions = null, ConcurrentBag<ClusterPeer> clusterNodes = null, Action<IServiceCollection> callbackService = null)
         {
-            return new PartitionedNodeHostFactory(options, clusterNodes, callbackService);
+            return new PartitionedNodeHostFactory(options, nodeOptions, clusterNodes, callbackService);
         }
 
         public IServiceCollection Services => _serviceCollection;
@@ -53,7 +55,7 @@ namespace FaasNet.Partition
         {
             RemovePartitionPeerStore();
             _serviceCollection.AddScoped<IPartitionCluster, DirectPartitionCluster>();
-            _serviceCollection.AddSingleton<IPartitionPeerStore>(new InMemoryPartitionPeerStore(partitionPeers));
+            _serviceCollection.AddSingleton<IPartitionPeerStore>(new InMemoryPartitionPeerStore(new ConcurrentBag<DirectPartitionPeer>(partitionPeers.ToList())));
             return this;
         }
 

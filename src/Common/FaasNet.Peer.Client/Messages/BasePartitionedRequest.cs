@@ -1,6 +1,4 @@
-﻿using FaasNet.Peer.Client;
-
-namespace FaasNet.Partition.Client.Messages
+﻿namespace FaasNet.Peer.Client.Messages
 {
     public abstract class BasePartitionedRequest : BasePeerPackage
     {
@@ -31,6 +29,28 @@ namespace FaasNet.Partition.Client.Messages
             if (cmd == PartitionedCommands.TRANSFERED_REQUEST)
             {
                 var result = new TransferedRequest();
+                result.Extract(context);
+                return result;
+            }
+
+            if (cmd == PartitionedCommands.ADD_PARTITION_REQUEST)
+            {
+                var result = new AddDirectPartitionRequest();
+                result.Extract(context);
+                return result;
+            }
+
+            if (cmd == PartitionedCommands.ADD_PARTITION_RESULT) return new AddDirectPartitionResult();
+            if (cmd == PartitionedCommands.BROADCAST_REQUEST)
+            {
+                var result = new BroadcastRequest();
+                result.Extract(context);
+                return result;
+            }
+
+            if (cmd == PartitionedCommands.BROADCAST_RESULT)
+            {
+                var result = new BroadcastResult();
                 result.Extract(context);
                 return result;
             }

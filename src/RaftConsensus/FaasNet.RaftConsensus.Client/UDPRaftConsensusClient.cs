@@ -1,7 +1,6 @@
 ﻿using FaasNet.Common.Helpers;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client.Messages;
-using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -10,87 +9,69 @@ using System.Threading.Tasks;
 
 namespace FaasNet.RaftConsensus.Client
 {
-    public class UDPRaftConsensusClient: IDisposable
+    public class UDPRaftConsensusClient : BasePartitionedPeerClient, IRaftConsensusClient
     {
-        private readonly IPEndPoint _target;
-
-        public UDPRaftConsensusClient(IPEndPoint target)
+        public UDPRaftConsensusClient(IPEndPoint target) : base(target)
         {
-            _target = target;
             UdpClient = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
         }
 
-        public UDPRaftConsensusClient(string url, int port) : this(new IPEndPoint(DnsHelper.ResolveIPV4(url), port)) { }
+        public UDPRaftConsensusClient(string url, int port) : base(new IPEndPoint(DnsHelper.ResolveIPV4(url), port))
+        {
+            UdpClient = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
+        }
 
         public UdpClient UdpClient { get; private set; }
 
-        public async Task<VoteResult> Vote(string candidateId, long currentTerm, long commitIndex, long lastApplied, CancellationToken cancellationToken)
+        public async Task<IEnumerable<VoteResult>> Vote(string candidateId, long currentTerm, long commitIndex, long lastApplied, CancellationToken cancellationToken)
         {
-            var writeBufferCtx = new WriteBufferContext();
-            var pkg = ConsensusPackageRequestBuilder.Vote(candidateId, currentTerm, commitIndex, lastApplied);
-            pkg.SerializeEnvelope(writeBufferCtx);
-            await UdpClient.SendAsync(writeBufferCtx.Buffer.ToArray(), _target, cancellationToken);
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.Vote(candidateId, currentTerm, commitIndex, lastApplied));
+            await UdpClient.SendAsync(request, Target, cancellationToken);
             var receivedResult = await UdpClient.ReceiveAsync(cancellationToken);
-            var readBufferCtx = new ReadBufferContext(receivedResult.Buffer);
-            return BaseConsensusPackage.Deserialize(readBufferCtx) as VoteResult;
+            return DeserializeResult<BaseConsensusPackage, VoteResult>(receivedResult.Buffer);
         }
 
-        public async Task<AppendEntriesResult> Heartbeat(long currentTerm, string candidateId, long commitIndex, CancellationToken cancellationToken)
+        public async Task<IEnumerable<AppendEntriesResult>> Heartbeat(long currentTerm, string candidateId, long commitIndex, CancellationToken cancellationToken)
         {
-            var writeBufferCtx = new WriteBufferContext();
-            var pkg = ConsensusPackageRequestBuilder.Heartbeat(currentTerm, candidateId, commitIndex);
-            pkg.SerializeEnvelope(writeBufferCtx);
-            await UdpClient.SendAsync(writeBufferCtx.Buffer.ToArray(), _target, cancellationToken);
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.Heartbeat(currentTerm, candidateId, commitIndex));
+            await UdpClient.SendAsync(request, Target, cancellationToken);
             var receivedResult = await UdpClient.ReceiveAsync(cancellationToken);
-            var readBufferCtx = new ReadBufferContext(receivedResult.Buffer);
-            return BaseConsensusPackage.Deserialize(readBufferCtx) as AppendEntriesResult;
+            return DeserializeResult<BaseConsensusPackage, AppendEntriesResult>(receivedResult.Buffer);
         }
 
-        public async Task<AppendEntriesResult> AppendEntries(long term, string leaderId, long prevLogIndex, long prevLogTerm, IEnumerable<LogEntry> entries, long leaderCommit, CancellationToken cancellationToken)
+        public async Task<IEnumerable<AppendEntriesResult>> AppendEntries(long term, string leaderId, long prevLogIndex, long prevLogTerm, IEnumerable<LogEntry> entries, long leaderCommit, CancellationToken cancellationToken)
         {
-            var writeBufferCtx = new WriteBufferContext();
-            var pkg = ConsensusPackageRequestBuilder.AppendEntries(term, leaderId, prevLogIndex, prevLogTerm, entries, leaderCommit);
-            pkg.SerializeEnvelope(writeBufferCtx);
-            await UdpClient.SendAsync(writeBufferCtx.Buffer.ToArray(), _target, cancellationToken);
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.AppendEntries(term, leaderId, prevLogIndex, prevLogTerm, entries, leaderCommit));
+            await UdpClient.SendAsync(request, Target, cancellationToken);
             var receivedResult = await UdpClient.ReceiveAsync(cancellationToken);
-            var readBufferCtx = new ReadBufferContext(receivedResult.Buffer);
-            return BaseConsensusPackage.Deserialize(readBufferCtx) as AppendEntriesResult;
+            return DeserializeResult<BaseConsensusPackage, AppendEntriesResult>(receivedResult.Buffer);
         }
 
-        public async Task<AppendEntryResult> AppendEntry(byte[] payload, CancellationToken cancellationToken)
+        public async Task<IEnumerable<AppendEntryResult>> AppendEntry(byte[] payload, CancellationToken cancellationToken)
         {
-            var writeBufferCtx = new WriteBufferContext();
-            var pkg = ConsensusPackageRequestBuilder.AppendEntry(payload);
-            pkg.SerializeEnvelope(writeBufferCtx);
-            await UdpClient.SendAsync(writeBufferCtx.Buffer.ToArray(), _target, cancellationToken);
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.AppendEntry(payload));
+            await UdpClient.SendAsync(request, Target, cancellationToken);
             var receivedResult = await UdpClient.ReceiveAsync(cancellationToken);
-            var readBufferCtx = new ReadBufferContext(receivedResult.Buffer);
-            return BaseConsensusPackage.Deserialize(readBufferCtx) as AppendEntryResult;
+            return DeserializeResult<BaseConsensusPackage, AppendEntryResult>(receivedResult.Buffer);
         }
 
-        public async Task<GetPeerStateResult> GetPeerState(CancellationToken cancellationToken)
+        public async Task<IEnumerable<GetPeerStateResult>> GetPeerState(CancellationToken cancellationToken)
         {
-            var writeBufferCtx = new WriteBufferContext();
-            var pkg = ConsensusPackageRequestBuilder.GetPeerState();
-            pkg.SerializeEnvelope(writeBufferCtx);
-            await UdpClient.SendAsync(writeBufferCtx.Buffer.ToArray(), _target, cancellationToken);
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.GetPeerState());
+            await UdpClient.SendAsync(request, Target, cancellationToken);
             var receivedResult = await UdpClient.ReceiveAsync(cancellationToken);
-            var readBufferCtx = new ReadBufferContext(receivedResult.Buffer);
-            return BaseConsensusPackage.Deserialize(readBufferCtx) as GetPeerStateResult;
+            return DeserializeResult<BaseConsensusPackage, GetPeerStateResult>(receivedResult.Buffer);
         }
 
-        public async Task<GetLogsResult> GetLogs(int index, CancellationToken cancellationToken)
+        public async Task<IEnumerable<GetLogsResult>> GetLogs(int index, CancellationToken cancellationToken)
         {
-            var writeBufferCtx = new WriteBufferContext();
-            var pkg = ConsensusPackageRequestBuilder.GetLogs(index);
-            pkg.SerializeEnvelope(writeBufferCtx);
-            await UdpClient.SendAsync(writeBufferCtx.Buffer.ToArray(), _target, cancellationToken);
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.GetLogs(index));
+            await UdpClient.SendAsync(request, Target, cancellationToken);
             var receivedResult = await UdpClient.ReceiveAsync(cancellationToken);
-            var readBufferCtx = new ReadBufferContext(receivedResult.Buffer);
-            return BaseConsensusPackage.Deserialize(readBufferCtx) as GetLogsResult;
+            return DeserializeResult<BaseConsensusPackage, GetLogsResult>(receivedResult.Buffer);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             UdpClient?.Dispose();
         }

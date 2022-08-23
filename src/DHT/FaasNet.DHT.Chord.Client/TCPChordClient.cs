@@ -1,27 +1,27 @@
-﻿using FaasNet.Common.Helpers;
-using FaasNet.DHT.Chord.Client.Extensions;
+﻿using FaasNet.DHT.Chord.Client.Extensions;
 using FaasNet.DHT.Chord.Client.Messages;
 using FaasNet.Peer.Client;
-using System;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
 namespace FaasNet.DHT.Chord.Client
 {
-    public class TCPChordClient : IDisposable
+    public class TCPChordClient : BasePeerClient
     {
         private const int BUFFER_SIZE = 1024;
         private readonly string _url;
         private readonly int _port;
-        private readonly IPAddress _ipAddr;
         private Socket _socket;
 
-        public TCPChordClient(string url = Constants.DefaultUrl, int port = Constants.DefaultPort)
+        public TCPChordClient(IPEndPoint target) : base(target)
+        {
+            _socket = CreateSession();
+        }
+
+        public TCPChordClient(string url = Constants.DefaultUrl, int port = Constants.DefaultPort) : base(url, port)
         {
             _url = url;
             _port = port;
-            _ipAddr = DnsHelper.ResolveIPV4(url);
             _socket = CreateSession();
         }
 
@@ -66,20 +66,9 @@ namespace FaasNet.DHT.Chord.Client
             var request = PackageRequestBuilder.FindSuccessor(nodeId);
             var writeBufferContext = new WriteBufferContext();
             request.SerializeEnvelope(writeBufferContext);
-            if(nodeId == 9)
-            {
-                string sss = "";
-            }
-
             _socket.Send(writeBufferContext.Buffer.ToArray(), 0, timeoutMS);
             var payload = new byte[BUFFER_SIZE];
             _socket.Receive(payload, 0, timeoutMS);
-
-            if (nodeId == 9)
-            {
-                string sss = "";
-            }
-
             var readBufferContext = new ReadBufferContext(payload);
             var result = ChordPackage.Deserialize(readBufferContext) as FindSuccessorResult;
             return result;
@@ -131,7 +120,7 @@ namespace FaasNet.DHT.Chord.Client
             _socket.Receive(payload, 0, timeoutMS);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             if(_socket != null)
             {
@@ -142,8 +131,7 @@ namespace FaasNet.DHT.Chord.Client
         private Socket CreateSession()
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            var idp = new IPEndPoint(_ipAddr, _port);
-            socket.Connect(idp);
+            socket.Connect(Target);
             return socket;
         }
     }

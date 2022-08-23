@@ -6,8 +6,16 @@ namespace FaasNet.Discovery.Gossip.Client.Messages
     {
         public override GossipPackageTypes Type => GossipPackageTypes.GET;
 
+        public string PartitionKey { get; set; }
+
         public override void SerializeAction(WriteBufferContext context)
         {
+            context.WriteString(PartitionKey);
+        }
+
+        public void Extract(ReadBufferContext context)
+        {
+            PartitionKey = context.NextString();
         }
     }
 }

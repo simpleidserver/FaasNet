@@ -29,8 +29,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.RaftConsensus.Rocks
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Partition", "src\Common\FaasNet.Partition\FaasNet.Partition.csproj", "{02740DBC-77AF-4384-AF92-BCD5EBD9E371}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaasNet.Partition.Client", "src\Common\FaasNet.Partition.Client\FaasNet.Partition.Client.csproj", "{BC25C5A3-4FE1-4FE4-AEF2-615BB934D8DC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,10 +71,6 @@ Global
 		{02740DBC-77AF-4384-AF92-BCD5EBD9E371}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02740DBC-77AF-4384-AF92-BCD5EBD9E371}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02740DBC-77AF-4384-AF92-BCD5EBD9E371}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BC25C5A3-4FE1-4FE4-AEF2-615BB934D8DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC25C5A3-4FE1-4FE4-AEF2-615BB934D8DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BC25C5A3-4FE1-4FE4-AEF2-615BB934D8DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BC25C5A3-4FE1-4FE4-AEF2-615BB934D8DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,7 +85,6 @@ Global
 		{971DA155-57D3-4B23-AA43-5C2C14B7F121} = {2563A01E-68BC-4635-969A-6F97B401A355}
 		{825BECCE-6764-43BF-82E5-247B525BCB60} = {5C5A8E54-DE20-4284-9FC5-F051B296A57A}
 		{02740DBC-77AF-4384-AF92-BCD5EBD9E371} = {519E0E93-8468-40B7-A65D-506A3FE7D0B4}
-		{BC25C5A3-4FE1-4FE4-AEF2-615BB934D8DC} = {519E0E93-8468-40B7-A65D-506A3FE7D0B4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6A27C5EC-5C72-4BDD-908E-439CC843D258}

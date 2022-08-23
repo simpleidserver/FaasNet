@@ -36,7 +36,7 @@ namespace FaasNet.Discovery.Gossip.Core
 
         private async Task<BasePeerPackage> Handle(GossipGetPackage gossipGetPackage, CancellationToken cancellationToken)
         {
-            var allNodes = await _clusterStore.GetAllNodes(cancellationToken);
+            var allNodes = await _clusterStore.GetAllNodes(gossipGetPackage.PartitionKey, cancellationToken);
             return GossipPackageResultBuilder.Get(allNodes.Select(n => new PeerInfo { Port = n.Port, Url = n.Url }).ToList());
         }
     }

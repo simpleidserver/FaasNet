@@ -53,7 +53,7 @@ namespace FaasNet.Discovery.Gossip.Core
 
         private async Task BroadcastRumor(object o, ElapsedEventArgs e)
         {
-            var peers = (await _clusterStore.GetAllNodes(_cancellationTokenSource.Token)).Where(p => p.Url != _peerOptions.Url || p.Port != _peerOptions.Port);
+            var peers = (await _clusterStore.GetAllNodes(null, _cancellationTokenSource.Token)).Where(p => p.Url != _peerOptions.Url || p.Port != _peerOptions.Port);
             var filteredPeers = peers.OrderBy(c => Guid.NewGuid()).Take(_gossipOptions.MaxNbPeersToBroadcastMessage);
             var peerInfos = peers.Select(p => new PeerInfo { Port = p.Port, Url = p.Url }).ToList();
             peerInfos.Add(new PeerInfo { Url = _peerOptions.Url, Port = _peerOptions.Port });

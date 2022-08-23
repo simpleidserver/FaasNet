@@ -59,7 +59,7 @@ namespace FaasNet.RaftConsensus.Core
                         AppendEntriesResult result = null;
                         if (otherPeer == null)
                         {
-                            result = await consensusClient.Heartbeat(_peerState.CurrentTerm, _peerOptions.Id, _peerState.CommitIndex, _cancellationTokenSource.Token);
+                            result = (await consensusClient.Heartbeat(_peerState.CurrentTerm, _peerOptions.Id, _peerState.CommitIndex, _cancellationTokenSource.Token)).First();
                             otherPeer = _peerInfo.AddOtherPeer(peer.Id);
                         }
                         else
@@ -72,7 +72,7 @@ namespace FaasNet.RaftConsensus.Core
                                 if (log != null) logs.Add(log);
                             }
 
-                            result = await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, otherPeer.MatchIndex.Value, previousTerm, logs, _peerState.CommitIndex, _cancellationTokenSource.Token);
+                            result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, otherPeer.MatchIndex.Value, previousTerm, logs, _peerState.CommitIndex, _cancellationTokenSource.Token)).First();
                         }
 
                         otherPeer.MatchIndex = result.MatchIndex;

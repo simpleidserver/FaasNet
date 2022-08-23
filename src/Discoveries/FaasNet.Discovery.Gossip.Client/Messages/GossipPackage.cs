@@ -27,7 +27,13 @@ namespace FaasNet.Discovery.Gossip.Client.Messages
 
             var type = GossipPackageTypes.Deserialize(context);
             if (type == GossipPackageTypes.RESULT) return new GossipResultPackage();
-            if (type == GossipPackageTypes.GET) return new GossipGetPackage();
+            if (type == GossipPackageTypes.GET)
+            {
+                var result = new GossipGetPackage();
+                result.Extract(context);
+                return result;
+            }
+
             if (type == GossipPackageTypes.GETRESULT)
             {
                 var result = new GossipGetResultPackage();

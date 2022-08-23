@@ -43,7 +43,7 @@ namespace FaasNet.Discovery.Etcd
             }, 0);
         }
 
-        public Task<IEnumerable<ClusterPeer>> GetAllNodes(CancellationToken cancellationToken)
+        public Task<IEnumerable<ClusterPeer>> GetAllNodes(string partitionKey, CancellationToken cancellationToken)
         {
             return Retry(async () =>
             {
@@ -63,7 +63,8 @@ namespace FaasNet.Discovery.Etcd
                     }));
                 }
 
-                return result;
+                if (string.IsNullOrWhiteSpace(partitionKey)) return result;
+                return result.Where(r => partitionKey == r.PartitionKey);
             }, 0);
         }
 

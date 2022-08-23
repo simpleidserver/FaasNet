@@ -45,7 +45,7 @@ namespace FaasNet.RaftConsensus.Core
                     var edp = new IPEndPoint(DnsHelper.ResolveIPV4(peer.Url), peer.Port);
                     using (var consensusClient = new UDPRaftConsensusClient(edp))
                     {
-                        var voteResult = await consensusClient.Vote(_peerOptions.Id, _peerState.CurrentTerm, _peerState.CommitIndex, _peerState.LastApplied, _cancellationTokenSource.Token);
+                        var voteResult = (await consensusClient.Vote(_peerOptions.Id, _peerState.CurrentTerm, _peerState.CommitIndex, _peerState.LastApplied, _cancellationTokenSource.Token)).First();
                         return (voteResult, true);
                     }
                 }

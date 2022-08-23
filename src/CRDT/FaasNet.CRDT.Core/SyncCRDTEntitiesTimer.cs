@@ -59,7 +59,7 @@ namespace FaasNet.CRDT.Core
         private async Task SyncCRDTEntities(object o, ElapsedEventArgs e)
         {
             var entities = await _entityStore.GetAll(_cancellationTokenSource.Token);
-            var clusters = await _clusterStore.GetAllNodes(_cancellationTokenSource.Token);
+            var clusters = await _clusterStore.GetAllNodes(null, _cancellationTokenSource.Token);
             clusters = clusters.Where(c => c.Url != _peerOptions.Url || c.Port != _peerOptions.Port).OrderBy(x => Guid.NewGuid());
             var min = Math.Min(_options.MaxBroadcastedPeers, clusters.Count());
             var lst = entities.ToDictionary(e => e.Id, e => _entityFactory.Build(e));

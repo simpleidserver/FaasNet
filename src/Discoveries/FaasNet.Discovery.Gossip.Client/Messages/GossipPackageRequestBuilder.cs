@@ -12,9 +12,9 @@ namespace FaasNet.Discovery.Gossip.Client.Messages
             };
         }
 
-        public static GossipPackage Get()
+        public static GossipPackage Get(string partitionKey)
         {
-            return new GossipGetPackage();
+            return new GossipGetPackage { PartitionKey = partitionKey };
         }
     }
 }

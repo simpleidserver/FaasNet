@@ -38,7 +38,7 @@ namespace FaasNet.Discovery.Config.Service
         private static void DisplayCluster(IServiceProvider serviceProvider)
         {
             var clusterStore = serviceProvider.GetRequiredService<IClusterStore>();
-            var allNodes = clusterStore.GetAllNodes(CancellationToken.None).Result;
+            var allNodes = clusterStore.GetAllNodes(null, CancellationToken.None).Result;
             foreach (var node in allNodes)
             {
                 Console.WriteLine($"Url = {node.Url}, Port = {node.Port}");

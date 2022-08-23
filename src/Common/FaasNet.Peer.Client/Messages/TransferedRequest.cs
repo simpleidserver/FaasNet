@@ -1,6 +1,4 @@
-﻿using FaasNet.Peer.Client;
-
-namespace FaasNet.Partition.Client.Messages
+﻿namespace FaasNet.Peer.Client.Messages
 {
     public class TransferedRequest : BasePartitionedRequest
     {

@@ -1,6 +1,6 @@
-﻿using FaasNet.Partition.Client.Messages;
-using FaasNet.Peer;
+﻿using FaasNet.Peer;
 using FaasNet.Peer.Client;
+using FaasNet.Peer.Client.Messages;
 using FaasNet.Peer.Transports;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -31,12 +31,30 @@ namespace FaasNet.Partition
             var partitionedRequest = BasePartitionedRequest.Deserialize(readBufferContext);
             byte[] result = null;
             if (partitionedRequest.Command == PartitionedCommands.TRANSFERED_REQUEST) result = await Handle(partitionedRequest as TransferedRequest);
+            if (partitionedRequest.Command == PartitionedCommands.ADD_PARTITION_REQUEST) result = await Handle(partitionedRequest as AddDirectPartitionRequest);
+            if (partitionedRequest.Command == PartitionedCommands.BROADCAST_REQUEST) result = await Handle(partitionedRequest as BroadcastRequest);
             await session.SendMessage(result);
         }
 
         private Task<byte[]> Handle(TransferedRequest request)
         {
             return _partitionCluster.Transfer(request, TokenSource.Token);
+        }
+
+        private async Task<byte[]> Handle(AddDirectPartitionRequest request)
+        {
+            await _partitionCluster.AddAndStart(request.PartitionKey);
+            var result = new WriteBufferContext();
+            PartitionPackageResultBuilder.AddPartition().SerializeEnvelope(result);
+            return result.Buffer.ToArray();
+        }
+
+        private async Task<byte[]> Handle(BroadcastRequest request)
+        {
+            var broadcastResult = await _partitionCluster.Broadcast(request, TokenSource.Token);
+            var result = new WriteBufferContext();
+            PartitionPackageResultBuilder.Broadcast(broadcastResult).SerializeEnvelope(result);
+            return result.Buffer.ToArray();
         }
     }
 }

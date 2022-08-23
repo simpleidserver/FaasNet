@@ -42,7 +42,7 @@ namespace FaasNet.Discovery.Gossip.Service
         {
             using (var gossipClient = new UDPGossipClient("localhost", 5002))
             {
-                var peerInfos = gossipClient.Get().Result;
+                var peerInfos = gossipClient.Get(null).Result;
                 foreach(var peerInfo in peerInfos)
                 {
                     Console.WriteLine($"Url = {peerInfo.Url}, Port = {peerInfo.Port}");
