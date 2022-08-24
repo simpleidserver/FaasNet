@@ -1,6 +1,7 @@
 ﻿using FaasNet.DHT.Kademlia.Client;
 using FaasNet.DHT.Kademlia.Client.Messages;
 using FaasNet.DHT.Kademlia.Core.Stores;
+using FaasNet.Peer.Client;
 using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Threading;
@@ -12,12 +13,14 @@ namespace FaasNet.DHT.Kademlia.Core.Handlers
     {
         private readonly IDHTPeerInfoStore _peerInfoStore;
         private readonly IPeerDataStore _peerDataStore;
+        private readonly IPeerClientFactory _peerClientFactory;
         private readonly KademliaOptions _options;
 
-        public StoreRequestHandler(IDHTPeerInfoStore peerInfoStore, IPeerDataStore peerDataStore, IOptions<KademliaOptions> options)
+        public StoreRequestHandler(IDHTPeerInfoStore peerInfoStore, IPeerDataStore peerDataStore, IPeerClientFactory peerClientFactory, IOptions<KademliaOptions> options)
         {
             _peerInfoStore = peerInfoStore;
             _peerDataStore = peerDataStore;
+            _peerClientFactory = peerClientFactory;
             _options = options.Value;
         }
 
@@ -36,10 +39,8 @@ namespace FaasNet.DHT.Kademlia.Core.Handlers
             }
 
             var targetPeer = result.First();
-            using (var client = new UDPKademliaClient(targetPeer.Url, targetPeer.Port))
-            {
-                return await client.StoreValue(storeRequest.Key, storeRequest.Value, cancellationToken);
-            }
+            using (var client = _peerClientFactory.Build<KademliaClient>(targetPeer.Url, targetPeer.Port))
+                return await client.StoreValue(storeRequest.Key, storeRequest.Value, cancellationToken, _options.RequestTimeoutMS);
         }
     }
 }

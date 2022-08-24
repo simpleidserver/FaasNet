@@ -1,6 +1,7 @@
 ﻿using FaasNet.DHT.Kademlia.Client;
 using FaasNet.DHT.Kademlia.Core.Stores;
 using FaasNet.Peer;
+using FaasNet.Peer.Client;
 
 namespace FaasNet.DHT.Chord.Service
 {
@@ -87,9 +88,9 @@ namespace FaasNet.DHT.Chord.Service
             var key = long.Parse(Console.ReadLine());
             Console.WriteLine("Enter a value");
             var value = Console.ReadLine();
-            using (var kademliaClient = new UDPKademliaClient("localhost", ROOT_NODE_PORT))
+            using (var kademliaClient = PeerClientFactory.Build<KademliaClient>("localhost", ROOT_NODE_PORT, ClientTransportFactory.NewUDP()))
             {
-                await kademliaClient.StoreValue(key, value);
+                await kademliaClient.StoreValue(key, value, timeoutMS: 5000);
             }
         }
 
@@ -110,9 +111,9 @@ namespace FaasNet.DHT.Chord.Service
         {
             Console.WriteLine("Enter a key");
             var key = long.Parse(Console.ReadLine());
-            using (var kademliaClient = new UDPKademliaClient("localhost", ROOT_NODE_PORT))
+            using (var kademliaClient = PeerClientFactory.Build<KademliaClient>("localhost", ROOT_NODE_PORT, ClientTransportFactory.NewUDP()))
             {
-                var value = await kademliaClient.FindValue(key);
+                var value = await kademliaClient.FindValue(key, timeoutMS: 5000);
                 Console.WriteLine($"Key {key}, Value {value.Value}");
             }
         }

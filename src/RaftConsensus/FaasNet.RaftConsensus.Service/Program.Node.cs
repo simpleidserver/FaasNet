@@ -43,15 +43,19 @@ namespace FaasNet.RaftConsensus.Service
             DisplayLogs(5000, "Key2");
         }
 
-        private static IPeerHost LaunchOneNodeWithTwoPeers(int port, int startPeerPort, ConcurrentBag<ClusterPeer> clusterPeers)
+        private static IPeerHost LaunchOneNodeWithTwoPeers(int port, int startPeerPort, ConcurrentBag<ClusterPeer> clusterPeers, bool isTcp = false)
         {
-            var node = PartitionedNodeHostFactory.New(options: p =>
+            var nodeHostFactory = PartitionedNodeHostFactory.New(options: p =>
             {
                 p.Port = port;
             }, o =>
             {
                 o.StartPeerPort = startPeerPort;
-                o.PeerConfiguration = (s) =>
+                o.CallbackPeerConfiguration = (o) =>
+                {
+                    o.UseTCPTransport();
+                };
+                o.CallbackPeerDependencies = (s) =>
                 {
                     s.AddLogging(l =>
                     {
@@ -59,27 +63,29 @@ namespace FaasNet.RaftConsensus.Service
                     });
                 };
             }, clusterNodes: clusterPeers)
-                .UseUDPTransport()
                 .UseDirectPartitionKey(new DirectPartitionPeer { Port = startPeerPort, PartitionKey = "Key" }, new DirectPartitionPeer { Port = startPeerPort + 1, PartitionKey = "Key2" })
-                .UseRaftConsensusPeer()
-                .Build();
+                .UseRaftConsensusPeer();
+            if (isTcp) nodeHostFactory.UseTCPTransport();
+            else nodeHostFactory.UseUDPTransport();
+            var node = nodeHostFactory.Build();
             node.Start().Wait();
             return node;
         }
 
-        private static async void AddPartition(int port, string partitionKey)
+        private static async void AddPartition(int port, string partitionKey, bool isTcp = false)
         {
-            using (var partitionClient = new UDPPartitionClient("localhost", port))
+            using (var client = PeerClientFactory.Build<PartitionClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
             {
-                await partitionClient.AddPartition(partitionKey, CancellationToken.None);
+                await client.AddPartition(partitionKey, 5000);
             }
         }
 
-        private static async void DisplayPeersStatus(int port)
+        private static async void DisplayPeersStatus(int port, bool isTcp = false)
         {
-            using (var client = new UDPRaftConsensusClient("localhost", port) { ClientType = PartitionedPeerClientTypes.BROADCAST })
+            using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
             {
-                var result = await client.GetPeerState(CancellationToken.None);
+                client.Broadcast();
+                var result = await client.GetPeerState(5000);
                 foreach (var peerState in result)
                 {
                     Console.WriteLine($"Status {peerState.Status}");
@@ -92,19 +98,21 @@ namespace FaasNet.RaftConsensus.Service
             }
         }
 
-        private static async void AddLogEntry(int port, string partitionKey)
+        private static async void AddLogEntry(int port, string partitionKey, bool isTcp = false)
         {
-            using (var partitionClient = new UDPRaftConsensusClient("localhost", port) { ClientType = PartitionedPeerClientTypes.TRANSFERED, PartitionKey = partitionKey })
+            using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
             {
-                await partitionClient.AppendEntry(Encoding.UTF8.GetBytes("value"), CancellationToken.None);
+                client.Transfer(partitionKey);
+                await client.AppendEntry(Encoding.UTF8.GetBytes("value"), 5000);
             }
         }
 
-        private static async void DisplayLogs(int port, string partitionKey)
+        private static async void DisplayLogs(int port, string partitionKey, bool isTcp = false)
         {
-            using (var raftConsensusClient = new UDPRaftConsensusClient("localhost", port) { PartitionKey = partitionKey, ClientType = PartitionedPeerClientTypes.TRANSFERED })
+            using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
             {
-                var result = (await raftConsensusClient.GetLogs(1, CancellationToken.None)).First();
+                client.Transfer(partitionKey);
+                var result = (await client.GetLogs(1, 5000)).First();
                 foreach (var log in result.Entries)
                 {
                     Console.WriteLine($"Index {log.Index}");

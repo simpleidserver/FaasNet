@@ -1,11 +1,11 @@
 ﻿using FaasNet.Peer;
+using FaasNet.Peer.Client;
 using FaasNet.Peer.Client.Messages;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,15 +15,17 @@ namespace FaasNet.Partition
     {
         private readonly IPartitionPeerFactory _partitionPeerFactory;
         private readonly IPartitionPeerStore _partitionPeerStore;
+        private readonly IClientTransportFactory _clientTransportFactory;
         private readonly PartitionedNodeOptions _options;
         private readonly ICollection<(IPeerHost, DirectPartitionPeer)> _partitions;
 
-        public DirectPartitionCluster(IPartitionPeerFactory partitionPeerFactory, IPartitionPeerStore partitionPeerStore, IOptions<PartitionedNodeOptions> options)
+        public DirectPartitionCluster(IPartitionPeerFactory partitionPeerFactory, IPartitionPeerStore partitionPeerStore, IClientTransportFactory clientTransportFactory, IOptions<PartitionedNodeOptions> options)
         {
             _partitionPeerFactory = partitionPeerFactory;
             _partitionPeerStore = partitionPeerStore;
-            _partitions = new List<(IPeerHost, DirectPartitionPeer)>();
+            _clientTransportFactory = clientTransportFactory;
             _options = options.Value;
+            _partitions = new List<(IPeerHost, DirectPartitionPeer)>();
         }
 
         public async Task Start()
@@ -31,7 +33,7 @@ namespace FaasNet.Partition
             var partitions = await _partitionPeerStore.GetAll();
             foreach (var partition in partitions)
             {
-                var peerHost = _partitionPeerFactory.Build(partition.Port, partition.PartitionKey, _options.PeerConfiguration);
+                var peerHost = _partitionPeerFactory.Build(partition.Port, partition.PartitionKey, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
                 _partitions.Add((peerHost, partition));
                 await peerHost.Start();
             }
@@ -48,7 +50,7 @@ namespace FaasNet.Partition
             var port = !_partitions.Any() ? _options.StartPeerPort : _partitions.OrderByDescending(p => p.Item2.Port).First().Item2.Port + 1;
             var record = new DirectPartitionPeer { PartitionKey = partitionKey, Port = port };
             await _partitionPeerStore.Add(record);
-            var peerHost = _partitionPeerFactory.Build(port, partitionKey, _options.PeerConfiguration);
+            var peerHost = _partitionPeerFactory.Build(port, partitionKey, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
             await peerHost.Start();
             _partitions.Add((peerHost, record));
         }
@@ -56,12 +58,12 @@ namespace FaasNet.Partition
         public async Task<byte[]> Transfer(TransferedRequest request, CancellationToken cancellationToken)
         {
             var peer = _partitions.First(p => p.Item2.PartitionKey == request.PartitionKey);
-            using(var udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, 0))) // Move ??
+            using (var transport = _clientTransportFactory.Create())
             {
-                var target = new IPEndPoint(IPAddress.Loopback, peer.Item2.Port);
-                await udpClient.SendAsync(request.Content, target, cancellationToken);
-                var receivedResult = await udpClient.ReceiveAsync(cancellationToken);
-                return receivedResult.Buffer;
+                transport.Open(new IPEndPoint(IPAddress.Loopback, peer.Item2.Port));
+                await transport.Send(request.Content, cancellationToken: cancellationToken);
+                var receivedResult = await transport.Receive(cancellationToken: cancellationToken);
+                return receivedResult;
             }
         }
 
@@ -73,12 +75,12 @@ namespace FaasNet.Partition
                 MaxDegreeOfParallelism = _options.MaxConcurrentThreads
             }, async (peer, t) =>
             {
-                using (var udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, 0)))
+                using (var transport = _clientTransportFactory.Create())
                 {
-                    var target = new IPEndPoint(IPAddress.Loopback, peer.Item2.Port);
-                    await udpClient.SendAsync(request.Content, target, cancellationToken);
-                    var receivedResult = await udpClient.ReceiveAsync(cancellationToken);
-                    result.Add(receivedResult.Buffer);
+                    transport.Open(new IPEndPoint(IPAddress.Loopback, peer.Item2.Port));
+                    await transport.Send(request.Content, 10000, cancellationToken: cancellationToken);
+                    var receivedResult = await transport.Receive(10000, cancellationToken: cancellationToken);
+                    result.Add(receivedResult);
                 }
             });
 

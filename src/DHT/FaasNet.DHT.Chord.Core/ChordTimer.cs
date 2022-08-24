@@ -1,11 +1,11 @@
 ﻿using FaasNet.DHT.Chord.Client;
 using FaasNet.DHT.Chord.Core.Stores;
 using FaasNet.Peer;
+using FaasNet.Peer.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,23 +17,27 @@ namespace FaasNet.DHT.Chord.Core
         private readonly ChordOptions _options;
         private readonly IPeerDataStore _peerDataStore;
         private readonly IDHTPeerInfoStore _peerInfoStore;
+        private readonly IPeerClientFactory _peerClientFactory;
         private readonly ILogger<ChordTimer> _logger;
         private SemaphoreSlim _lockTimer;
         private System.Timers.Timer _stabilizeTimer;
         private System.Timers.Timer _fixFingersTimer;
         private System.Timers.Timer _checkPredecessorAndSuccessorTimer;
+        private CancellationTokenSource _cancellationTokenSource;
 
-        public ChordTimer(IOptions<PeerOptions> peerOptions, IOptions<ChordOptions> options, IPeerDataStore peerDataStore, IDHTPeerInfoStore peerInfoStore, ILogger<ChordTimer> logger)
+        public ChordTimer(IOptions<PeerOptions> peerOptions, IOptions<ChordOptions> options, IPeerDataStore peerDataStore, IDHTPeerInfoStore peerInfoStore, IPeerClientFactory peerClientFactory, ILogger<ChordTimer> logger)
         {
             _peerOptions = peerOptions.Value;
             _options = options.Value;
             _peerDataStore = peerDataStore;
             _peerInfoStore = peerInfoStore;
+            _peerClientFactory = peerClientFactory;
             _logger = logger;
         }
 
         public Task Start(CancellationToken cancellationToken)
         {
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var peerInfo = new DHTPeerInfo(_peerOptions.Url, _peerOptions.Port);
             _lockTimer = new SemaphoreSlim(1);
             _peerInfoStore.Update(peerInfo);
@@ -52,9 +56,10 @@ namespace FaasNet.DHT.Chord.Core
             return Task.CompletedTask;
         }
 
-        public void Stop()
+        public async void Stop()
         {
-            ForceTransferData();
+            _cancellationTokenSource?.Cancel();
+            await ForceTransferData();
             _stabilizeTimer.Stop();
             _fixFingersTimer.Stop();
             _checkPredecessorAndSuccessorTimer.Stop();
@@ -73,9 +78,9 @@ namespace FaasNet.DHT.Chord.Core
 
             try
             {
-                using (var chordClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                using (var chordClient = _peerClientFactory.Build<ChordClient>(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
                 {
-                    var predecessor = chordClient.FindPredecessor();
+                    var predecessor = await chordClient.FindPredecessor(_options.RequestExpirationTimeMS, _cancellationTokenSource.Token);
                     if (predecessor.HasPredecessor)
                     {
                         if (IntervalHelper.CheckInterval(peerInfo.Peer.Id, predecessor.Id, peerInfo.SuccessorPeer.Id, peerInfo.DimensionFingerTable))
@@ -86,10 +91,8 @@ namespace FaasNet.DHT.Chord.Core
                     }
                 }
 
-                using (var secondClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
-                {
-                    secondClient.Notify(peerInfo.Peer.Url, peerInfo.Peer.Port, peerInfo.Peer.Id);
-                }
+                using (var secondClient = _peerClientFactory.Build<ChordClient>(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                    await secondClient.Notify(peerInfo.Peer.Url, peerInfo.Peer.Port, peerInfo.Peer.Id, _options.RequestExpirationTimeMS, _cancellationTokenSource.Token);
             }
             catch (Exception ex)
             {
@@ -126,11 +129,11 @@ namespace FaasNet.DHT.Chord.Core
                 {
                     for (int i = 1; i <= peerInfo.DimensionFingerTable; i++)
                     {
-                        using (var chordClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                        using (var chordClient = _peerClientFactory.Build<ChordClient>(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
                         {
                             var newId = peerInfo.Peer.Id + (long)Math.Pow(2, i - 1);
                             if (newId >= max) break;
-                            var successor = chordClient.FindSuccessor(newId);
+                            var successor = await chordClient.FindSuccessor(newId, _options.RequestExpirationTimeMS, _cancellationTokenSource.Token);
                             fingers.Add(new FingerTableRecord
                             {
                                 Start = start,
@@ -149,7 +152,7 @@ namespace FaasNet.DHT.Chord.Core
 
             peerInfo.Fingers = fingers;
             _peerInfoStore.Update(peerInfo);
-            TransferData(peerInfo);
+            await TransferData(peerInfo);
             _fixFingersTimer.Start();
             _lockTimer.Release();
         }
@@ -162,10 +165,8 @@ namespace FaasNet.DHT.Chord.Core
             {
                 try
                 {
-                    using (var chordClient = new TCPChordClient(peerInfo.PredecessorPeer.Url, peerInfo.PredecessorPeer.Port))
-                    {
-                        chordClient.GetDimensionFingerTable();
-                    }
+                    using (var chordClient = _peerClientFactory.Build<ChordClient>(peerInfo.PredecessorPeer.Url, peerInfo.PredecessorPeer.Port))
+                        await chordClient.GetDimensionFingerTable(_options.RequestExpirationTimeMS, _cancellationTokenSource.Token);
                 }
                 catch
                 {
@@ -177,10 +178,8 @@ namespace FaasNet.DHT.Chord.Core
             {
                 try
                 {
-                    using (var chordClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
-                    {
-                        chordClient.GetDimensionFingerTable();
-                    }
+                    using (var chordClient = _peerClientFactory.Build<ChordClient>(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                        await chordClient.GetDimensionFingerTable(_options.RequestExpirationTimeMS, _cancellationTokenSource.Token);
                 }
                 catch
                 {
@@ -193,30 +192,28 @@ namespace FaasNet.DHT.Chord.Core
             _lockTimer.Release();
         }
 
-        private void ForceTransferData()
+        private async Task ForceTransferData()
         {
             var allData = _peerDataStore.GetAll();
             var peerInfo = _peerInfoStore.Get();
             if (peerInfo.SuccessorPeer == null) return;
-            using (var chordClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
-            {
-                foreach (var data in allData) chordClient.AddKey(data.Id, data.Value, true);
-            }
+            using (var chordClient = _peerClientFactory.Build<ChordClient>(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                foreach (var data in allData) await chordClient.AddKey(data.Id, data.Value, true, _options.RequestExpirationTimeMS, _cancellationTokenSource.Token);
         }
 
-        private void TransferData(DHTPeerInfo peerInfo)
+        private async Task TransferData(DHTPeerInfo peerInfo)
         {
             if (peerInfo.SuccessorPeer == null || peerInfo.PredecessorPeer == null) return;
             var allData = _peerDataStore.GetAll();
             try
             {
-                using (var chordClient = new TCPChordClient(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
+                foreach (var data in allData)
                 {
-                    foreach (var data in allData)
+                    if (!IntervalHelper.CheckIntervalEquivalence(peerInfo.PredecessorPeer.Id, data.Id, peerInfo.Peer.Id, peerInfo.DimensionFingerTable))
                     {
-                        if (!IntervalHelper.CheckIntervalEquivalence(peerInfo.PredecessorPeer.Id, data.Id, peerInfo.Peer.Id, peerInfo.DimensionFingerTable))
+                        using (var chordClient = _peerClientFactory.Build<ChordClient>(peerInfo.SuccessorPeer.Url, peerInfo.SuccessorPeer.Port))
                         {
-                            chordClient.AddKey(data.Id, data.Value);
+                            await chordClient.AddKey(data.Id, data.Value, timeoutMS: _options.RequestExpirationTimeMS, cancellationToken: _cancellationTokenSource.Token);
                             _peerDataStore.Remove(data);
                         }
                     }

@@ -53,13 +53,13 @@ namespace FaasNet.RaftConsensus.Core
                 try
                 {
                     var edp = new IPEndPoint(DnsHelper.ResolveIPV4(peer.Url), peer.Port);
-                    using (var consensusClient = new UDPRaftConsensusClient(edp))
+                    using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(edp))
                     {
                         var otherPeer = _peerInfo.GetOtherPeer(peer.Id);
                         AppendEntriesResult result = null;
                         if (otherPeer == null)
                         {
-                            result = (await consensusClient.Heartbeat(_peerState.CurrentTerm, _peerOptions.Id, _peerState.CommitIndex, _cancellationTokenSource.Token)).First();
+                            result = (await consensusClient.Heartbeat(_peerState.CurrentTerm, _peerOptions.Id, _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
                             otherPeer = _peerInfo.AddOtherPeer(peer.Id);
                         }
                         else
@@ -72,7 +72,7 @@ namespace FaasNet.RaftConsensus.Core
                                 if (log != null) logs.Add(log);
                             }
 
-                            result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, otherPeer.MatchIndex.Value, previousTerm, logs, _peerState.CommitIndex, _cancellationTokenSource.Token)).First();
+                            result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, otherPeer.MatchIndex.Value, previousTerm, logs, _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
                         }
 
                         otherPeer.MatchIndex = result.MatchIndex;

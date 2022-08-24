@@ -6,26 +6,18 @@ namespace FaasNet.RaftConsensus.Core
 {
     public class RaftConsensusPeerOptions
     {
-        public RaftConsensusPeerOptions()
-        {
-            ElectionTimer = new Interval(1000, 10000);
-            LeaderHeartbeatTimerMS = 2000;
-            LeaderHeartbeatExpirationDurationMS = 12000;
-            PeerCallbackService = null;
-        }
-
         /// <summary>
         /// Random election timer in MS.
         /// </summary>
-        public Interval ElectionTimer { get; set; }
+        public Interval ElectionTimer { get; set; } = new Interval(1000, 10000);
         /// <summary>
         /// Interval in MS used by the leader to send Heartbeat.
         /// </summary>
-        public int LeaderHeartbeatTimerMS { get; set; }
+        public int LeaderHeartbeatTimerMS { get; set; } = 2000;
         /// <summary>s
         /// Sliding expiration time of the heartbeat.
         /// </summary>
-        public int LeaderHeartbeatExpirationDurationMS { get; set; }
+        public int LeaderHeartbeatExpirationDurationMS { get; set; } = 12000;
         /// <summary>
         /// Configuration's folder location.
         /// </summary>
@@ -35,9 +27,9 @@ namespace FaasNet.RaftConsensus.Core
         /// </summary>
         public Action LeaderCallback { get; set; }
         /// <summary>
-        /// Update IServiceCollection of generated Peers.
+        /// Expiration time of a client request.
         /// </summary>
-        public Action<IServiceCollection> PeerCallbackService { get; set; }
+        public int RequestExpirationTimeMS { get; set; } = 5000;
     }
 
     public class Interval

@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Peer.Transports
 {
-    public class TCPTransport : ITransport
+    public class ServerTCPTransport : IServerTransport
     {
         private readonly PeerOptions _options;
         private TcpListener _tcpServer;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public TCPTransport(IOptions<PeerOptions> options)
+        public ServerTCPTransport(IOptions<PeerOptions> options)
         {
             _options = options.Value;
         }
@@ -72,6 +72,7 @@ namespace FaasNet.Peer.Transports
             public override async Task SendMessage(byte[] payload)
             {
                 await _ns.WriteAsync(payload, 0, payload.Length, _cancellationTokenSource.Token);
+                _ns.Close();
             }
         }
     }

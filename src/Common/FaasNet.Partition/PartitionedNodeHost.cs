@@ -13,7 +13,7 @@ namespace FaasNet.Partition
     {
         private readonly IPartitionCluster _partitionCluster;
 
-        public PartitionedNodeHost(IPartitionCluster partitionCluster, ITransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger) : base(transport, protocolHandlerFactory, timers, logger)
+        public PartitionedNodeHost(IPartitionCluster partitionCluster, IServerTransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger) : base(transport, protocolHandlerFactory, timers, logger)
         {
             _partitionCluster = partitionCluster;
         }

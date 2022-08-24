@@ -2,15 +2,9 @@
 {
     public class ChordOptions
     {
-        public ChordOptions()
-        {
-            StabilizeTimerMS = 500;
-            FixFingersTimerMS = 500;
-            CheckPredecessorAndSuccessorTimerMS = 500;
-        }
-
-        public double StabilizeTimerMS { get; set; }
-        public double FixFingersTimerMS { get; set; }
-        public double CheckPredecessorAndSuccessorTimerMS { get; set; }
+        public double StabilizeTimerMS { get; set; } = 500;
+        public double FixFingersTimerMS { get; set; } = 500;
+        public double CheckPredecessorAndSuccessorTimerMS { get; set; } = 500;
+        public int RequestExpirationTimeMS { get; set; } = 5000;
     }
 }

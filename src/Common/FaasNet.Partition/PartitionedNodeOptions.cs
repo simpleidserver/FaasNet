@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FaasNet.Peer;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace FaasNet.Partition
@@ -9,7 +10,6 @@ namespace FaasNet.Partition
         {
             StartPeerPort = 30000;
             MaxConcurrentThreads = 3;
-            PeerConfiguration = null;
         }
 
         /// <summary>
@@ -21,8 +21,12 @@ namespace FaasNet.Partition
         /// </summary>
         public int MaxConcurrentThreads { get; set; }
         /// <summary>
-        /// Can be used to configure peer.
+        /// Configure dependencies of the Peers.
         /// </summary>
-        public Action<IServiceCollection> PeerConfiguration { get; set; }
+        public Action<IServiceCollection> CallbackPeerDependencies { get; set; } = null;
+        /// <summary>
+        /// Update Peer configurations.
+        /// </summary>
+        public Action<PeerHostFactory> CallbackPeerConfiguration { get; set; } = null;
     }
 }

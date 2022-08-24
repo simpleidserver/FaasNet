@@ -1,30 +1,17 @@
-﻿using FaasNet.Common.Extensions;
-using FaasNet.CRDT.Client.Exceptions;
+﻿using FaasNet.CRDT.Client.Exceptions;
 using FaasNet.CRDT.Client.Messages;
 using FaasNet.Peer.Client;
+using FaasNet.Peer.Client.Transports;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaasNet.CRDT.Client
 {
-    public class UDPCRDTClient : BasePeerClient
+    public class CRDTClient : BasePeerClient
     {
-        private readonly UdpClient _udpClient;
-
-        public UDPCRDTClient(IPEndPoint target) : base(target)
-        {
-            _udpClient = new UdpClient();
-        }
-
-        public UDPCRDTClient(string url, int port) : base(url, port) 
-        {
-            _udpClient = new UdpClient();
-        }
+        public CRDTClient(IClientTransport clientTransport) : base(clientTransport) { }
 
         public async Task IncrementGCounter(string entityId, long increment, CancellationToken cancellationToken = default(CancellationToken), int timeoutMS = 500)
         {
@@ -33,9 +20,9 @@ namespace FaasNet.CRDT.Client
             var package = CRDTPackageRequestBuilder.IncrementGCounter(entityId, increment, nonce);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
-            await _udpClient.SendAsync(payload, payload.Count(), Target).WithCancellation(cancellationToken, timeoutMS);
-            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
-            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
             var packageResult = CRDTPackage.Deserialize(readCtx, true);
             Assert(package, packageResult);
         }
@@ -47,9 +34,9 @@ namespace FaasNet.CRDT.Client
             var package = CRDTPackageRequestBuilder.IncrementPNCounter(entityId, increment, nonce);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
-            await _udpClient.SendAsync(payload, payload.Count(), Target).WithCancellation(cancellationToken, timeoutMS);
-            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
-            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
             var packageResult = CRDTPackage.Deserialize(readCtx, true);
             Assert(package, packageResult);
         }
@@ -61,9 +48,9 @@ namespace FaasNet.CRDT.Client
             var package = CRDTPackageRequestBuilder.DecrementPNCounter(entityId, increment, nonce);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
-            await _udpClient.SendAsync(payload, payload.Count(), Target).WithCancellation(cancellationToken, timeoutMS);
-            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
-            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
             var packageResult = CRDTPackage.Deserialize(readCtx, true);
             Assert(package, packageResult);
         }
@@ -75,9 +62,9 @@ namespace FaasNet.CRDT.Client
             var package = CRDTPackageRequestBuilder.AddGSet(entityId, values, nonce);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
-            await _udpClient.SendAsync(payload, payload.Count(), Target).WithCancellation(cancellationToken, timeoutMS);
-            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
-            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
             var packageResult = CRDTPackage.Deserialize(readCtx, true);
             Assert(package, packageResult);
         }
@@ -89,9 +76,9 @@ namespace FaasNet.CRDT.Client
             var package = CRDTPackageRequestBuilder.Get(entityId, nonce);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
-            await _udpClient.SendAsync(payload, payload.Count(), Target).WithCancellation(cancellationToken, timeoutMS);
-            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
-            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
             var packageResult = CRDTPackage.Deserialize(readCtx, true);
             Assert(package, packageResult);
             return (packageResult as CRDTGetResultPackage).Value;
@@ -104,9 +91,9 @@ namespace FaasNet.CRDT.Client
             var package = CRDTPackageRequestBuilder.Sync(peerId, entityId, clockVector, nonce);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
-            await _udpClient.SendAsync(payload, payload.Count(), Target).WithCancellation(cancellationToken, timeoutMS);
-            var resultPayload = await _udpClient.ReceiveAsync().WithCancellation(cancellationToken);
-            var readCtx = new ReadBufferContext(resultPayload.Buffer);
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
             var packageResult = CRDTPackage.Deserialize(readCtx, true);
             Assert(package, packageResult);
             return packageResult as CRDTSyncResultPackage;
@@ -117,15 +104,6 @@ namespace FaasNet.CRDT.Client
             var error = result as CRDTErrorPackage;
             if (error != null) throw new CRDTClientException("Invalid request exception", error.Code);
             if (request.Nonce != result.Nonce) throw new CRDTClientException("Nonce doesn't match");
-        }
-
-        public override void Dispose()
-        {
-            if (_udpClient != null)
-            {
-                _udpClient.Close();
-                _udpClient.Dispose();
-            }
         }
     }
 }

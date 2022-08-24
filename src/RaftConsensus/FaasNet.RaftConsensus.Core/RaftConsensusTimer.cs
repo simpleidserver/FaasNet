@@ -1,4 +1,5 @@
 ﻿using FaasNet.Peer;
+using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Core.Infos;
 using FaasNet.RaftConsensus.Core.Stores;
@@ -16,18 +17,20 @@ namespace FaasNet.RaftConsensus.Core
         private readonly ILogger<RaftConsensusTimer> _logger;
         private readonly IClusterStore _clusterStore;
         private readonly ILogStore _logStore;
+        private readonly IPeerClientFactory _peerClientFactory;
         private readonly PeerOptions _peerOptions;
         private readonly RaftConsensusPeerOptions _raftOptions;
         private PeerInfo _peerInfo;
         private PeerState _peerState;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public RaftConsensusTimer(IPeerInfoStore peerInfoStore, ILogger<RaftConsensusTimer> logger, IClusterStore clusterStore, ILogStore logStore, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftOptions)
+        public RaftConsensusTimer(IPeerInfoStore peerInfoStore, ILogger<RaftConsensusTimer> logger, IClusterStore clusterStore, ILogStore logStore, IPeerClientFactory peerClientFactory, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftOptions)
         {
             _peerInfoStore = peerInfoStore;
             _logger = logger;
             _clusterStore = clusterStore;
             _logStore = logStore;
+            _peerClientFactory = peerClientFactory;
             _peerOptions = peerOptions.Value;
             _raftOptions = raftOptions.Value;
             CreateFollowerTimer();
@@ -41,7 +44,8 @@ namespace FaasNet.RaftConsensus.Core
             _peerState = PeerState.New(_raftOptions.ConfigurationDirectoryPath);
             _peerInfo.FollowerStateStarted += (sender, args) =>
             {
-                _logger.LogInformation($"Peer {_peerOptions.Id} is a follower");
+                var stateChanged = args as PeerInfoStateChanged;
+                if(stateChanged.IsDifferent) _logger.LogInformation($"Peer {_peerOptions.Id} is a follower");
                 StartFollower();
             };
             _peerInfo.CandidateStateStarted += async (sender, args) =>

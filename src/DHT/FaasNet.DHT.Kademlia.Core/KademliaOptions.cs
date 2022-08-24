@@ -2,31 +2,22 @@
 {
     public class KademliaOptions
     {
-        public KademliaOptions()
-        {
-            S = 6;
-            K = 4;
-            FixKBucketLstTimerMS = 500;
-            HealthCheckTimerMS = 500;
-            KademliaPeerId = 1;
-        }
-
         /// <summary>
         /// Identifier space.
         /// </summary>
-        public int S { get; set; }
+        public int S { get; set; } = 6;
         /// <summary>
         /// Maximum number of peers represented in a k-bucket.
         /// </summary>
-        public int K {  get; set; }
+        public int K { get; set; } = 4;
         /// <summary>
         /// Interval in MS used to refresh the KBUCKET list.
         /// </summary>
-        public double FixKBucketLstTimerMS { get; set; }
+        public double FixKBucketLstTimerMS { get; set; } = 500;
         /// <summary>
         /// Interval in MS used to check the peers.
         /// </summary>
-        public double HealthCheckTimerMS { get; set; }
+        public double HealthCheckTimerMS { get; set; } = 500;
         /// <summary>
         /// Is a Seed peer.
         /// </summary>
@@ -42,6 +33,10 @@
         /// <summary>
         /// Identifier of the Peer.
         /// </summary>
-        public long KademliaPeerId { get; set; }
+        public long KademliaPeerId { get; set; } = 1;
+        /// <summary>
+        /// Timeout of a request in MS
+        /// </summary>
+        public int RequestTimeoutMS { get; set; } = 5000;
     }
 }

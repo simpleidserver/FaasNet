@@ -2,6 +2,7 @@
 using FaasNet.CRDT.Core.Entities;
 using FaasNet.CRDT.Core.SerializedEntities;
 using FaasNet.Peer;
+using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,17 +22,19 @@ namespace FaasNet.CRDT.Core
         private readonly ISerializedEntityStore _entityStore;
         private readonly IClusterStore _clusterStore;
         private readonly ICRDTEntityFactory _entityFactory;
+        private readonly IPeerClientFactory _peerClientFactory;
         private readonly ILogger<SyncCRDTEntitiesTimer> _logger;
         private System.Timers.Timer _timer;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public SyncCRDTEntitiesTimer(IOptions<PeerOptions> peerOptions, IOptions<CRDTProtocolOptions> options, ISerializedEntityStore entityStore, IClusterStore clusterStore, ICRDTEntityFactory entityFactory, ILogger<SyncCRDTEntitiesTimer> logger)
+        public SyncCRDTEntitiesTimer(IOptions<PeerOptions> peerOptions, IOptions<CRDTProtocolOptions> options, ISerializedEntityStore entityStore, IClusterStore clusterStore, ICRDTEntityFactory entityFactory, IPeerClientFactory peerClientFactory, ILogger<SyncCRDTEntitiesTimer> logger)
         {
             _peerOptions = peerOptions.Value;
             _options = options.Value;
             _entityStore = entityStore;
             _clusterStore = clusterStore;
             _entityFactory = entityFactory;
+            _peerClientFactory = peerClientFactory;
             _logger = logger;
         }
 
@@ -76,20 +79,20 @@ namespace FaasNet.CRDT.Core
 
         private async Task SyncCRDTEntities(ClusterPeer clusterPeer, Dictionary<string, CRDTEntity> lst)
         {
-            using (var crdtClient = new UDPCRDTClient(clusterPeer.Url, clusterPeer.Port))
+            try
             {
-                try
+                foreach (var kvp in lst)
                 {
-                    foreach (var kvp in lst)
+                    using (var crdtClient = _peerClientFactory.Build<CRDTClient>(clusterPeer.Url, clusterPeer.Port))
                     {
-                        var syncResultPackage = await crdtClient.Sync(_peerOptions.Id, kvp.Key, kvp.Value.ClockVector, _cancellationTokenSource.Token);
+                        var syncResultPackage = await crdtClient.Sync(_peerOptions.Id, kvp.Key, kvp.Value.ClockVector, _cancellationTokenSource.Token, _options.RequestExpirationTimeMS);
                         foreach (var diff in syncResultPackage.DiffLst) kvp.Value.ApplyDelta(diff.PeerId, diff.Delta);
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex.ToString());
-                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
         }
     }

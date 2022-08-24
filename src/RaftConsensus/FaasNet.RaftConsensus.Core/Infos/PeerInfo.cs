@@ -33,22 +33,25 @@ namespace FaasNet.RaftConsensus.Core.Infos
 
         public void MoveToFollower()
         {
+            var previous = Status;
             Status = PeerStatus.FOLLOWER;
-            if(FollowerStateStarted != null) FollowerStateStarted(this, null);
+            if(FollowerStateStarted != null) FollowerStateStarted(this, new PeerInfoStateChanged(previous, Status));
         }
 
         public void MoveToCandidate()
         {
             if (Status != PeerStatus.FOLLOWER) return;
+            var previous = Status;
             Status = PeerStatus.CANDIDATE;
-            if (CandidateStateStarted != null) CandidateStateStarted(this, null);
+            if (CandidateStateStarted != null) CandidateStateStarted(this, new PeerInfoStateChanged(previous, Status));
         }
 
         public void MoveToLeader()
         {
             if (Status != PeerStatus.CANDIDATE) return;
+            var previous = Status;
             Status = PeerStatus.LEADER;
-            if (LeaderStateStarted != null) LeaderStateStarted(this, null);
+            if (LeaderStateStarted != null) LeaderStateStarted(this, new PeerInfoStateChanged(previous, Status));
         }
 
         public OtherPeerInfo GetOtherPeer(string id) => OtherPeerInfos.SingleOrDefault(p => p.Id == id);
@@ -74,5 +77,18 @@ namespace FaasNet.RaftConsensus.Core.Infos
         /// Index of highest log entry known to be replicated on server.
         /// </summary>
         public long? MatchIndex { get; set; }
+    }
+
+    public class PeerInfoStateChanged : EventArgs
+    {
+        public PeerInfoStateChanged(PeerStatus previousStatus, PeerStatus newStatus)
+        {
+            PreviousStatus = previousStatus;
+            NewStatus = newStatus;
+        }
+
+        public PeerStatus PreviousStatus { get; private set; }
+        public PeerStatus NewStatus { get; private set; }
+        public bool IsDifferent => PreviousStatus != NewStatus;
     }
 }

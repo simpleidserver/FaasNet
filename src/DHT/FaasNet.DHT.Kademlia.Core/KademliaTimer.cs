@@ -1,6 +1,7 @@
 ﻿using FaasNet.DHT.Kademlia.Client;
 using FaasNet.DHT.Kademlia.Core.Stores;
 using FaasNet.Peer;
+using FaasNet.Peer.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -15,17 +16,19 @@ namespace FaasNet.DHT.Kademlia.Core
         private readonly ILogger<KademliaTimer> _logger;
         private readonly IDHTPeerInfoStore _peerInfoStore;
         private readonly IPeerDataStore _peerDataStore;
+        private readonly IPeerClientFactory _peerClientFactory;
         private readonly PeerOptions _peerOptions;
         private readonly KademliaOptions _options;
         private CancellationTokenSource _cancellationTokenSource;
         private System.Timers.Timer _fixKBucketLstTimer;
         private System.Timers.Timer _healthCheckTimer;
 
-        public KademliaTimer(ILogger<KademliaTimer> logger, IDHTPeerInfoStore peerInfoStore, IPeerDataStore peerDataStore, IOptions<PeerOptions> peerOptions, IOptions<KademliaOptions> options)
+        public KademliaTimer(ILogger<KademliaTimer> logger, IDHTPeerInfoStore peerInfoStore, IPeerDataStore peerDataStore, IPeerClientFactory peerClientFactory, IOptions<PeerOptions> peerOptions, IOptions<KademliaOptions> options)
         {
             _logger = logger;
             _peerInfoStore = peerInfoStore;
             _peerDataStore = peerDataStore;
+            _peerClientFactory = peerClientFactory;
             _peerOptions = peerOptions.Value;
             _options = options.Value;
         }
@@ -62,9 +65,9 @@ namespace FaasNet.DHT.Kademlia.Core
                 if (!_options.IsSeedPeer)
                 {
                     var peerInfo = _peerInfoStore.Get();
-                    using (var client = new UDPKademliaClient(_options.SeedUrl, _options.SeedPort))
+                    using (var client = _peerClientFactory.Build<KademliaClient>(_options.SeedUrl, _options.SeedPort))
                     {
-                        var findResult = await client.FindNode(peerInfo.Id, peerInfo.Url, peerInfo.Port, peerInfo.Id, _cancellationTokenSource.Token);
+                        var findResult = await client.FindNode(peerInfo.Id, peerInfo.Url, peerInfo.Port, peerInfo.Id, _cancellationTokenSource.Token, _options.RequestTimeoutMS);
                         foreach (var peer in findResult.Peers) peerInfo.TryAddPeer(peer.Url, peer.Port, peer.Id);
                     }
 
@@ -89,9 +92,9 @@ namespace FaasNet.DHT.Kademlia.Core
             {
                 try
                 {
-                    using (var client = new UDPKademliaClient(peer.Url, peer.Port))
+                    using (var client = _peerClientFactory.Build<KademliaClient>(peer.Url, peer.Port))
                     {
-                        await client.Ping();
+                        await client.Ping(_cancellationTokenSource.Token, _options.RequestTimeoutMS);
                         peer.Enable();
                     }
                 }
@@ -115,8 +118,8 @@ namespace FaasNet.DHT.Kademlia.Core
                 var result = peerInfo.FindClosestPeers(data.Id, 1);
                 if (!result.Any() || result.First().PeerId == peerInfo.Id) continue;
                 var targetPeer = result.First();
-                using (var client = new UDPKademliaClient(targetPeer.Url, targetPeer.Port))
-                    await client.StoreValue(data.Id, data.Value, _cancellationTokenSource.Token);
+                using (var client = _peerClientFactory.Build<KademliaClient>(targetPeer.Url, targetPeer.Port))
+                    await client.StoreValue(data.Id, data.Value, _cancellationTokenSource.Token, _options.RequestTimeoutMS);
 
                 _peerDataStore.TryRemove(data);
             }
@@ -131,8 +134,8 @@ namespace FaasNet.DHT.Kademlia.Core
                 var result = peerInfo.FindClosestPeers(data.Id, _options.K).Where(p => p.PeerId != peerInfo.Id);
                 if (!result.Any()) continue;
                 var targetPeer = result.First();
-                using (var client = new UDPKademliaClient(targetPeer.Url, targetPeer.Port))
-                    await client.ForceStoreValue(data.Id, data.Value, peerInfo.Id, _cancellationTokenSource.Token);
+                using (var client = _peerClientFactory.Build<KademliaClient>(targetPeer.Url, targetPeer.Port))
+                    await client.ForceStoreValue(data.Id, data.Value, peerInfo.Id, _cancellationTokenSource.Token, _options.RequestTimeoutMS);
             }
         }
     }

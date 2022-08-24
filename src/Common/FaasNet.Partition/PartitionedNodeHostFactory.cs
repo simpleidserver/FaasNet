@@ -1,4 +1,6 @@
 ﻿using FaasNet.Peer;
+using FaasNet.Peer.Client;
+using FaasNet.Peer.Client.Transports;
 using FaasNet.Peer.Clusters;
 using FaasNet.Peer.Transports;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +25,7 @@ namespace FaasNet.Partition
             if (clusterPeers != null) _serviceCollection.AddScoped<IClusterStore>(s => new InMemoryClusterStore(clusterPeers));
             else _serviceCollection.AddScoped<IClusterStore, InMemoryClusterStore>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
+            _serviceCollection.AddTransient<IClientTransportFactory, ClientTransportFactory>();
             _serviceCollection.AddLogging();
             if (callbackService != null) callbackService(_serviceCollection);
         }
@@ -34,17 +37,45 @@ namespace FaasNet.Partition
 
         public IServiceCollection Services => _serviceCollection;
 
-        public PartitionedNodeHostFactory UseTCPTransport()
+        public PartitionedNodeHostFactory UseServerTCPTransport()
         {
-            RemoveTransport();
-            _serviceCollection.AddScoped<ITransport, TCPTransport>();
+            RemoveServerTransport();
+            _serviceCollection.AddScoped<IServerTransport, ServerTCPTransport>();
             return this;
         }
 
         public PartitionedNodeHostFactory UseUDPTransport()
         {
-            RemoveTransport();
-            _serviceCollection.AddScoped<ITransport, UDPTransport>();
+            UseServerUDPTransport();
+            UseClientUDPTransport();
+            return this;
+        }
+
+        public PartitionedNodeHostFactory UseTCPTransport()
+        {
+            UseServerTCPTransport();
+            UseClientTCPTransport();
+            return this;
+        }
+
+        public PartitionedNodeHostFactory UseServerUDPTransport()
+        {
+            RemoveServerTransport();
+            _serviceCollection.AddScoped<IServerTransport, ServerUDPTransport>();
+            return this;
+        }
+
+        public PartitionedNodeHostFactory UseClientTCPTransport()
+        {
+            RemoveClientTransport();
+            _serviceCollection.AddTransient<IClientTransport, ClientTCPTransport>();
+            return this;
+        }
+
+        public PartitionedNodeHostFactory UseClientUDPTransport()
+        {
+            RemoveClientTransport();
+            _serviceCollection.AddTransient<IClientTransport, ClientUDPTransport>();
             return this;
         }
 
@@ -73,15 +104,15 @@ namespace FaasNet.Partition
             return (scope.ServiceProvider.GetRequiredService<IPeerHost>(), scope.ServiceProvider);
         }
 
-        private void RemoveTransport()
-        {
-            var registeredType = _serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(ITransport));
-            if (registeredType != null) _serviceCollection.Remove(registeredType);
-        }
+        private void RemoveServerTransport() => RemoveDependency<IServerTransport>();
 
-        private void RemovePartitionPeerStore()
+        private void RemoveClientTransport() => RemoveDependency<IClientTransport>();
+
+        private void RemovePartitionPeerStore() => RemoveDependency<IPartitionPeerStore>();
+
+        private void RemoveDependency<T>()
         {
-            var registeredType = _serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IPartitionPeerStore));
+            var registeredType = _serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(T));
             if (registeredType != null) _serviceCollection.Remove(registeredType);
         }
     }

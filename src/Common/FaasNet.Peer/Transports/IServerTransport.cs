@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Peer.Transports
 {
-    public interface ITransport
+    public interface IServerTransport
     {
         void Start(CancellationToken cancellationToken = default(CancellationToken));
         void Stop();

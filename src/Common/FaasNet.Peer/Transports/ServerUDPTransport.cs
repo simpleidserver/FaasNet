@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace FaasNet.Peer.Transports
 {
-    public class UDPTransport : ITransport
+    public class ServerUDPTransport : IServerTransport
     {
         private readonly PeerOptions _options;
         private CancellationTokenSource _cancellationTokenSource;
         private UdpClient _udpServer;
 
-        public UDPTransport(IOptions<PeerOptions> options)
+        public ServerUDPTransport(IOptions<PeerOptions> options)
         {
             _options = options.Value;
         }

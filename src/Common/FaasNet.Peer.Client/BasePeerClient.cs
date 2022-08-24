@@ -1,19 +1,46 @@
 ﻿using FaasNet.Common.Helpers;
+using FaasNet.Peer.Client.Transports;
+using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FaasNet.Peer.Client
 {
-    public abstract class BasePeerClient : IPeerClient
+    public abstract class BasePeerClient : IDisposable
     {
-        public BasePeerClient(IPEndPoint target)
+        private IClientTransport _transport;
+
+        public BasePeerClient(IClientTransport transport)
         {
-            Target = target;
+            _transport = transport;
         }
 
-        public BasePeerClient(string url, int port) : this(new IPEndPoint(DnsHelper.ResolveIPV4(url), port)) { }
+        public IClientTransportFactory PeerClientFactory { get; }
 
-        protected IPEndPoint Target { get; set; }
+        public void Open(string url, int port)
+        {
+            Open(new IPEndPoint(DnsHelper.ResolveIPV4(url), port));
+        }
 
-        public abstract void Dispose();
+        public void Open(IPEndPoint edp)
+        {
+            _transport.Open(edp);
+        }
+
+        public Task Send(byte[] payload, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _transport.Send(payload, timeoutMS, cancellationToken);
+        }
+
+        public Task<byte[]> Receive(int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _transport.Receive(timeoutMS, cancellationToken);
+        }
+
+        public void Dispose()
+        {
+            _transport.Close();
+        }
     }
 }

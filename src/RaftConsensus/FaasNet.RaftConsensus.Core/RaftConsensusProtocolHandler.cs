@@ -20,13 +20,15 @@ namespace FaasNet.RaftConsensus.Core
         private readonly PeerInfo _peerInfo;
         private readonly PeerState _peerState;
         private readonly ILogStore _logStore;
+        private readonly IPeerClientFactory _peerClientFactory;
         private readonly RaftConsensusPeerOptions _raftConsensusPeerOptions;
 
-        public RaftConsensusProtocolHandler(IPeerInfoStore peerInfoStore, ILogStore logStore, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
+        public RaftConsensusProtocolHandler(IPeerInfoStore peerInfoStore, ILogStore logStore, IPeerClientFactory peerClientFactory, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
         {
             _peerInfo = peerInfoStore.Get();
             _logStore = logStore;
             _raftConsensusPeerOptions = raftConsensusPeerOptions.Value;
+            _peerClientFactory = peerClientFactory;
             _peerState = PeerState.New(raftConsensusPeerOptions.Value.ConfigurationDirectoryPath);
         }
 
@@ -123,8 +125,8 @@ namespace FaasNet.RaftConsensus.Core
             {
                 if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS)) return ConsensusPackageResultBuilder.AppendEntry(0, 0, false);
                 var leaderPeerId = PeerId.Deserialize(_peerState.VotedFor);
-                using (var consensusClient = new UDPRaftConsensusClient(leaderPeerId.IpEdp))
-                    return (await consensusClient.AppendEntry(request.Payload, cancellationToken)).First();
+                using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(leaderPeerId.IpEdp))
+                    return (await consensusClient.AppendEntry(request.Payload, _raftConsensusPeerOptions.RequestExpirationTimeMS, cancellationToken)).First();
             }
 
             async Task<BaseConsensusPackage> Append(AppendEntryRequest request, CancellationToken cancellationToken)

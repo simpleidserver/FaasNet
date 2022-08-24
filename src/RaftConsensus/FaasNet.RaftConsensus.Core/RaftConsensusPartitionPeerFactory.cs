@@ -17,24 +17,22 @@ namespace FaasNet.RaftConsensus.Core
             _clusterStore = clusterStore;
         }
 
-        public IPeerHost Build(int port, string partitionKey, Action<IServiceCollection> callback)
+        public IPeerHost Build(int port, string partitionKey, Action<IServiceCollection> callbackService = null, Action<PeerHostFactory> callbackHostFactory = null)
         {
             var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            return PeerHostFactory.NewUnstructured(o => {
+            var hostFactory = PeerHostFactory.NewUnstructured(o => {
                 o.Port = port;
                 o.PartitionKey = partitionKey;
-            }, null, callback)
-                .UseUDPTransport()
+            }, callbackService: callbackService)
+                .UseServerUDPTransport()
+                .UseClientUDPTransport()
                 .UseClusterStore(_clusterStore)
                 .AddRaftConsensus(o =>
                 {
                     o.ConfigurationDirectoryPath = Path.Combine(path, port.ToString());
-                    o.LeaderCallback = () =>
-                    {
-                        string ss = "";
-                    };
-                })
-                .Build();
+                });
+            if (callbackHostFactory != null) callbackHostFactory(hostFactory);
+            return hostFactory.Build();
         }
     }
 }

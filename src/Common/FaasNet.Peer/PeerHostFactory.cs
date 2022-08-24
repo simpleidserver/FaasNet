@@ -1,4 +1,6 @@
-﻿using FaasNet.Peer.Clusters;
+﻿using FaasNet.Peer.Client;
+using FaasNet.Peer.Client.Transports;
+using FaasNet.Peer.Clusters;
 using FaasNet.Peer.Transports;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -18,6 +20,8 @@ namespace FaasNet.Peer
             else _serviceCollection.Configure(options);
             _serviceCollection.AddScoped<IPeerHost, StructuredPeerHost>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
+            _serviceCollection.AddTransient<IPeerClientFactory, PeerClientFactory>();
+            _serviceCollection.AddTransient<IClientTransportFactory, ClientTransportFactory>();
             _serviceCollection.AddLogging();
             if (callbackService != null) callbackService(_serviceCollection);
         }
@@ -31,6 +35,8 @@ namespace FaasNet.Peer
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
             if (clusterPeers != null) _serviceCollection.AddScoped<IClusterStore>(s => new InMemoryClusterStore(clusterPeers));
             else _serviceCollection.AddScoped<IClusterStore, InMemoryClusterStore>();
+            _serviceCollection.AddTransient<IPeerClientFactory, PeerClientFactory>();
+            _serviceCollection.AddTransient<IClientTransportFactory, ClientTransportFactory>();
             _serviceCollection.AddLogging();
             if (callbackService != null) callbackService(_serviceCollection);
         }
@@ -49,15 +55,43 @@ namespace FaasNet.Peer
 
         public PeerHostFactory UseTCPTransport()
         {
-            RemoveTransport();
-            _serviceCollection.AddScoped<ITransport, TCPTransport>();
+            UseServerTCPTransport();
+            UseClientTCPTransport();
             return this;
         }
 
         public PeerHostFactory UseUDPTransport()
         {
-            RemoveTransport();
-            _serviceCollection.AddScoped<ITransport, UDPTransport>();
+            UseServerUDPTransport();
+            UseClientUDPTransport();
+            return this;
+        }
+
+        public PeerHostFactory UseServerTCPTransport()
+        {
+            RemoveServerTransport();
+            _serviceCollection.AddScoped<IServerTransport, ServerTCPTransport>();
+            return this;
+        }
+
+        public PeerHostFactory UseServerUDPTransport()
+        {
+            RemoveServerTransport();
+            _serviceCollection.AddScoped<IServerTransport, ServerUDPTransport>();
+            return this;
+        }
+
+        public PeerHostFactory UseClientTCPTransport()
+        {
+            RemoveClientTransport();
+            _serviceCollection.AddTransient<IClientTransport, ClientTCPTransport>();
+            return this;
+        }
+
+        public PeerHostFactory UseClientUDPTransport()
+        {
+            RemoveClientTransport();
+            _serviceCollection.AddTransient<IClientTransport, ClientUDPTransport>();
             return this;
         }
 
@@ -82,9 +116,15 @@ namespace FaasNet.Peer
             return (scope.ServiceProvider.GetRequiredService<IPeerHost>(), scope.ServiceProvider);
         }
 
-        private void RemoveTransport()
+        private void RemoveServerTransport()
         {
-            var registeredType = _serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(ITransport));
+            var registeredType = _serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IServerTransport));
+            if (registeredType != null) _serviceCollection.Remove(registeredType);
+        }
+
+        private void RemoveClientTransport()
+        {
+            var registeredType = _serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IClientTransport));
             if (registeredType != null) _serviceCollection.Remove(registeredType);
         }
 

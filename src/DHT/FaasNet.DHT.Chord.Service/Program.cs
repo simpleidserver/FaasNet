@@ -2,6 +2,7 @@
 using FaasNet.DHT.Chord.Client;
 using FaasNet.DHT.Chord.Core.Stores;
 using FaasNet.Peer;
+using FaasNet.Peer.Client;
 
 namespace FaasNet.DHT.Chord.Service
 {
@@ -49,9 +50,9 @@ namespace FaasNet.DHT.Chord.Service
             }).UseTCPTransport().AddDHTChordProtocol().BuildWithDI();
             _peers.Add(rootNode);
             await rootNode.Item1.Start();
-            using (var firstClient = new TCPChordClient("localhost", ROOT_NODE_PORT))
+            using (var firstClient = PeerClientFactory.Build<ChordClient>("localhost", ROOT_NODE_PORT, ClientTransportFactory.NewTCP()))
             {
-                firstClient.Create(DIM_FINGER_TABLE);
+                await firstClient.Create(DIM_FINGER_TABLE, timeoutMS: 5000);
             }
         }
 
@@ -63,34 +64,34 @@ namespace FaasNet.DHT.Chord.Service
                 o.Url = "localhost";
             }).UseTCPTransport().AddDHTChordProtocol().BuildWithDI();
             await node.Item1.Start();
-            using (var secondClient = new TCPChordClient("localhost", CURRENT_NODE_PORT))
+            using (var secondClient = PeerClientFactory.Build<ChordClient>("localhost", CURRENT_NODE_PORT, ClientTransportFactory.NewTCP()))
             {
-                secondClient.Join("localhost", ROOT_NODE_PORT);
+                await secondClient.Join("localhost", ROOT_NODE_PORT, 5000);
             }
 
             _peers.Add(node);
             CURRENT_NODE_PORT++;
         }
 
-        private static void AddKey()
+        private static async void AddKey()
         {
             Console.WriteLine("Enter a key");
             var key = long.Parse(Console.ReadLine());
             Console.WriteLine("Enter a value");
             var value = Console.ReadLine();
-            using (var chordClient = new TCPChordClient("localhost", ROOT_NODE_PORT))
+            using (var chordClient = PeerClientFactory.Build<ChordClient>("localhost", ROOT_NODE_PORT, ClientTransportFactory.NewTCP()))
             {
-                chordClient.AddKey(key, value);
+                await chordClient.AddKey(key, value, timeoutMS: 5000);
             }
         }
 
-        private static void GetKey()
+        private static async void GetKey()
         {
             Console.WriteLine("Enter a key");
             var key = long.Parse(Console.ReadLine());
-            using(var chordClient = new TCPChordClient("localhost", ROOT_NODE_PORT))
+            using(var chordClient = PeerClientFactory.Build<ChordClient>("localhost", ROOT_NODE_PORT, ClientTransportFactory.NewTCP()))
             {
-                var value = chordClient.GetKey(key);
+                var value = await chordClient.GetKey(key, timeoutMS: 5000);
                 Console.WriteLine($"Key {key}, Value {value}");
             }
         }

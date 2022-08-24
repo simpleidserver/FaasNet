@@ -16,13 +16,13 @@ namespace FaasNet.Peer
 
     public abstract class BasePeerHost : IPeerHost
     {
-        private readonly ITransport _transport;
+        private readonly IServerTransport _transport;
         private readonly IProtocolHandlerFactory _protocolHandlerFactory;
         private readonly IEnumerable<ITimer> _timers;
         private readonly ILogger<BasePeerHost> _logger;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public BasePeerHost(ITransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger)
+        public BasePeerHost(IServerTransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger)
         {
             _transport = transport;
             _protocolHandlerFactory = protocolHandlerFactory;

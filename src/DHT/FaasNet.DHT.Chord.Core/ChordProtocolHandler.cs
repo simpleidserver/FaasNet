@@ -3,7 +3,6 @@ using FaasNet.DHT.Chord.Core.Handlers;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;

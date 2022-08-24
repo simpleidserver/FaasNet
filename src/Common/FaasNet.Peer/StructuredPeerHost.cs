@@ -8,7 +8,7 @@ namespace FaasNet.Peer
 {
     public class StructuredPeerHost : BasePeerHost
     {
-        public StructuredPeerHost(ITransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger) : base(transport, protocolHandlerFactory, timers, logger)
+        public StructuredPeerHost(IServerTransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger) : base(transport, protocolHandlerFactory, timers, logger)
         {
         }
 

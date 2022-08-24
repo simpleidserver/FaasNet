@@ -1,17 +1,26 @@
 ﻿using FaasNet.Peer.Client.Messages;
+using FaasNet.Peer.Client.Transports;
 using System.Collections.Generic;
-using System.Net;
 
 namespace FaasNet.Peer.Client
 {
     public abstract class BasePartitionedPeerClient : BasePeerClient, IPartitionedPeerClient
     {
-        protected BasePartitionedPeerClient(IPEndPoint target) : base(target) { }
-
-        protected BasePartitionedPeerClient(string url, int port) : base(url, port) { }
+        public BasePartitionedPeerClient(IClientTransport transport) : base(transport) { }
 
         public PartitionedPeerClientTypes ClientType { get; set; } = PartitionedPeerClientTypes.DIRECT;
         public string PartitionKey { get; set; }
+
+        public void Transfer(string partitionKey)
+        {
+            ClientType = PartitionedPeerClientTypes.TRANSFERED;
+            PartitionKey = partitionKey;
+        }
+
+        public void Broadcast()
+        {
+            ClientType = PartitionedPeerClientTypes.BROADCAST;
+        }
 
         protected byte[] SerializeRequest(BasePeerPackage package)
         {

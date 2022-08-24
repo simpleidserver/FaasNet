@@ -13,7 +13,7 @@ namespace FaasNet.Peer
         private readonly IClusterStore _clusterStore;
         private readonly PeerOptions _options;
 
-        public UnstructuredPeerHost(IClusterStore clusterStore, IOptions<PeerOptions> options, ITransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger) : base(transport, protocolHandlerFactory, timers, logger)
+        public UnstructuredPeerHost(IClusterStore clusterStore, IOptions<PeerOptions> options, IServerTransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger) : base(transport, protocolHandlerFactory, timers, logger)
         {
             _clusterStore = clusterStore;
             _options = options.Value;

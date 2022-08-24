@@ -1,4 +1,5 @@
 ﻿using FaasNet.Peer;
+using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
@@ -29,9 +30,9 @@ namespace FaasNet.RaftConsensus.Tests
             var cmd = Encoding.UTF8.GetBytes("value");
 
             // ACT
-            using (var raftConsensusClient = new UDPRaftConsensusClient("localhost", 4002))
+            using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", 4002, ClientTransportFactory.NewUDP()))
             {
-                await raftConsensusClient.AppendEntry(cmd, CancellationToken.None);
+                await client.AppendEntry(cmd);
             }
 
             var firstPeerEntry = await WaitLogEntries("localhost", 4001, 1);
@@ -69,9 +70,9 @@ namespace FaasNet.RaftConsensus.Tests
 
         private static async Task<GetLogsResult> WaitLogEntries(string url, int port, int startIndex)
         {
-            using(var raftConsensusClient = new UDPRaftConsensusClient(url, port))
+            using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, ClientTransportFactory.NewUDP()))
             {
-                var entry = (await raftConsensusClient.GetLogs(startIndex, CancellationToken.None)).First();
+                var entry = (await client.GetLogs(startIndex)).First();
                 if (entry.Entries.Any()) return entry;
             }
 
