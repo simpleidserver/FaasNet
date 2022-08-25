@@ -21,8 +21,9 @@
         {
             if (!ignoreEnvelope)
             {
-                context.NextString();
-                context.NextString();
+                var magicCode = context.NextString();
+                var version = context.NextString();
+                if (magicCode != MAGIC_CODE || version != PROTOCOL_VERSION) return null;
             }
 
             var cmd = PartitionedCommands.Deserialize(context);

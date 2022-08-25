@@ -18,6 +18,8 @@ namespace FaasNet.Partition
             _partitionCluster = partitionCluster;
         }
 
+        protected IPartitionCluster PartitionCluster => _partitionCluster;
+
         protected override async Task Init(CancellationToken cancellationToken = default)
         {
             await _partitionCluster.Start();
@@ -27,13 +29,20 @@ namespace FaasNet.Partition
         {
             var payload = await session.ReceiveMessage();
             if (payload.Length == 0) return;
+            var result = await Handle(payload);
+            await session.SendMessage(result);
+        }
+
+        protected virtual async Task<byte[]> Handle(byte[] payload)
+        {
+            byte[] result = null;
             var readBufferContext = new ReadBufferContext(payload);
             var partitionedRequest = BasePartitionedRequest.Deserialize(readBufferContext);
-            byte[] result = null;
+            if (partitionedRequest == null) return null;
             if (partitionedRequest.Command == PartitionedCommands.TRANSFERED_REQUEST) result = await Handle(partitionedRequest as TransferedRequest);
             if (partitionedRequest.Command == PartitionedCommands.ADD_PARTITION_REQUEST) result = await Handle(partitionedRequest as AddDirectPartitionRequest);
             if (partitionedRequest.Command == PartitionedCommands.BROADCAST_REQUEST) result = await Handle(partitionedRequest as BroadcastRequest);
-            await session.SendMessage(result);
+            return result;
         }
 
         private Task<byte[]> Handle(TransferedRequest request)

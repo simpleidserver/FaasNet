@@ -45,6 +45,12 @@ namespace FaasNet.Partition
                 await partition.Item1.Stop();
         }
 
+        public async Task<bool> Contains(string partitionKey, CancellationToken cancellationToken)
+        {
+            var partitions = await _partitionPeerStore.GetAll();
+            return partitions.Any(p => p.PartitionKey == partitionKey);
+        }
+
         public async Task AddAndStart(string partitionKey)
         {
             var port = !_partitions.Any() ? _options.StartPeerPort : _partitions.OrderByDescending(p => p.Item2.Port).First().Item2.Port + 1;

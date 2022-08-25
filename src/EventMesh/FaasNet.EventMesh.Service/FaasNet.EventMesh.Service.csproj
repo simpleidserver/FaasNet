@@ -9,10 +9,6 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\..\RaftConsensus\FaasNet.RaftConsensus.RocksDB\FaasNet.RaftConsensus.RocksDB.csproj" />
-	  <ProjectReference Include="..\FaasNet.EventMesh.Protocols\FaasNet.EventMesh.Protocols.csproj" />
-	  <ProjectReference Include="..\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj" />
-	  <ProjectReference Include="..\FaasNet.EventMesh.Sink.RocksDB\FaasNet.EventMesh.Sink.RocksDB.csproj" />
-	  <ProjectReference Include="..\FaasNet.EventMesh.Sink\FaasNet.EventMesh.Sink.csproj" />
+	  <ProjectReference Include="..\FaasNet.EventMesh\FaasNet.EventMesh.csproj" />
 	</ItemGroup>
 </Project>

@@ -11,7 +11,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.11" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EventMesh\FaasNet.EventMesh.Runtime\FaasNet.EventMesh.Runtime.csproj" />
     <ProjectReference Include="..\..\src\EventMesh\FaasNet.EventMesh.Sink.VpnBridge\FaasNet.EventMesh.Sink.VpnBridge.csproj" />
   </ItemGroup>
 </Project>

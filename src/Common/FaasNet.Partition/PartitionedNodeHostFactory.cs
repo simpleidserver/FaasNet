@@ -26,6 +26,8 @@ namespace FaasNet.Partition
             else _serviceCollection.AddScoped<IClusterStore, InMemoryClusterStore>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
             _serviceCollection.AddTransient<IClientTransportFactory, ClientTransportFactory>();
+            _serviceCollection.AddScoped<IPartitionCluster, DirectPartitionCluster>();
+            _serviceCollection.AddSingleton<IPartitionPeerStore>(new InMemoryPartitionPeerStore(new ConcurrentBag<DirectPartitionPeer>()));
             _serviceCollection.AddLogging();
             if (callbackService != null) callbackService(_serviceCollection);
         }
@@ -84,6 +86,7 @@ namespace FaasNet.Partition
         /// </summary>
         public PartitionedNodeHostFactory UseDirectPartitionKey(params DirectPartitionPeer[]  partitionPeers)
         {
+            RemovePartitionCluster();
             RemovePartitionPeerStore();
             _serviceCollection.AddScoped<IPartitionCluster, DirectPartitionCluster>();
             _serviceCollection.AddSingleton<IPartitionPeerStore>(new InMemoryPartitionPeerStore(new ConcurrentBag<DirectPartitionPeer>(partitionPeers.ToList())));
@@ -103,6 +106,8 @@ namespace FaasNet.Partition
             var scope = serviceProvider.CreateScope();
             return (scope.ServiceProvider.GetRequiredService<IPeerHost>(), scope.ServiceProvider);
         }
+
+        private void RemovePartitionCluster() => RemoveDependency<IPartitionCluster>();
 
         private void RemoveServerTransport() => RemoveDependency<IServerTransport>();
 

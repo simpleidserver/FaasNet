@@ -31,6 +31,7 @@ namespace FaasNet.Peer
         }
 
         public bool IsRunning { get; private set; }
+        protected CancellationTokenSource TokenSource => _cancellationTokenSource;
 
         public async Task Start(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -44,8 +45,6 @@ namespace FaasNet.Peer
             IsRunning = true;
             foreach (var timer in _timers) await timer.Start(_cancellationTokenSource.Token);
         }
-
-        protected CancellationTokenSource TokenSource => _cancellationTokenSource;
 
         public Task Stop()
         {

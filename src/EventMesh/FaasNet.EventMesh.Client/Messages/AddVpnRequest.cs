@@ -1,20 +1,28 @@
-﻿using FaasNet.RaftConsensus.Client.Messages;
+﻿using FaasNet.Peer.Client;
 
 namespace FaasNet.EventMesh.Client.Messages
 {
-    public class AddVpnRequest : Package
+    public class AddVpnRequest : BaseEventMeshPackage
     {
-        public string Vpn { get; set; }
+        public AddVpnRequest(string seq) : base(seq) { }
 
-        public override void Serialize(WriteBufferContext context)
+        public AddVpnRequest(string seq, string vpn) : this(seq)
         {
-            base.Serialize(context);
+            Vpn = vpn;
+        }
+
+        public override EventMeshCommands Command => EventMeshCommands.ADD_VPN_REQUEST;
+        public string Vpn { get; private set; }
+
+        protected override void SerializeAction(WriteBufferContext context)
+        {
             context.WriteString(Vpn);
         }
 
-        public void Extract(ReadBufferContext context)
+        public AddVpnRequest Extract(ReadBufferContext context)
         {
             Vpn = context.NextString();
+            return this;
         }
     }
 }
