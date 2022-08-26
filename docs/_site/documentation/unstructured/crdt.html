@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Conflict-free Replicated Data Type (CRDT) </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Conflict-free Replicated Data Type (CRDT) ">
+    <meta name="generator" content="docfx 2.59.2.0">
+    
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../styles/docfx.css">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <meta property="docfx:navrel" content="../../toc.html">
+    <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="conflict-free-replicated-data-type-crdt">Conflict-free Replicated Data Type (CRDT)</h1>
+
+<h2 id="architecture">Architecture</h2>
+<p>CRDT is a data structure that is replicated across multiple Peers in a Network.</p>
+<p>There are three types of CRDTs</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>State-based</td>
+<td>Each Peer propagate their full local state to other Peers</td>
+</tr>
+<tr>
+<td>Operation-based</td>
+<td>Each Peer propagate only Update operations to other Peers</td>
+</tr>
+<tr>
+<td>Delta</td>
+<td>During the synchronization process, two Peers are going to compare their local Data Structure and exchange the computed delta</td>
+</tr>
+</tbody>
+</table>
+<p>Any Distributed system must be compliant with the CAP Theorem :</p>
+<ul>
+<li><strong>Consistency</strong> : Every Peers of the Netwrok has at any moment a (partial) replica of the same state of the data structure.</li>
+<li><strong>Availability</strong> : Access to this data is always possible in a very short Delay.</li>
+<li><strong>Partition Tolerance</strong> : Data structure should be resilient to communication channel failures that leads to temporary partition between Peers.</li>
+</ul>
+<p>In a CRDT architecture, sometimes the Data Structure can be different between the Peers for example when there is a merge conflict between two Data Structures.
+In this scenario, we are talking about <code>Eventual Consistency</code>.
+If you want <code>Strong Consistency</code> a better choice is to choose <code>Consensus algorithm</code>.</p>
+<h2 id="entity-types">Entity Types</h2>
+<p>CRDT support different kinds of Entity</p>
+<table>
+<thead>
+<tr>
+<th>Entity Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GCounter</td>
+<td>Grow only Counter</td>
+</tr>
+<tr>
+<td>PNCounter</td>
+<td>Positive-Negative Counter</td>
+</tr>
+<tr>
+<td>GSet</td>
+<td>Grow-only Set</td>
+</tr>
+<tr>
+<td>2PSet</td>
+<td>Two-Phase set</td>
+</tr>
+<tr>
+<td>LWWEltSet</td>
+<td>Last-Write-Wins element set</td>
+</tr>
+<tr>
+<td>ORSet</td>
+<td>Observed-Remove Set</td>
+</tr>
+<tr>
+<td>SEQ</td>
+<td>Sequence CRDTs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="library">Library</h2>
+<p>In this tutorial, we are going to explain how to use the C# library to have an up and running CRDT(Delta) server.</p>
+<p>Open a command prompt and create a console application.</p>
+<pre><code>mkdir QuickStart
+cd QuickStart
+
+mkdir src
+cd src
+
+dotnet new console -n CRDTServer
+</code></pre>
+<p>Install the Nuget package <code>FaasNet.CRDT.Core</code>.</p>
+<pre><code>cd CRDTServer
+
+dotnet add package FaasNet.CRDT.Core
+</code></pre>
+<p>Add the console application into the Visual Studio Solution.</p>
+<pre><code>cd ../..
+dotnet new sln -n QuickStart
+dotnet sln add ./src/CRDTServer/CRDTServer.csproj
+</code></pre>
+<p>Open the Visual Studio Solution and edit the <code>Program.cs</code> file.</p>
+<p>Add a procedure <code>LaunchCRDTPeer(ClusterPeers, Port, PeerId)</code>, it will be used to start one CRDT Peer.</p>
+<pre><code>private static void LaunchCRDTPeer(ConcurrentBag&lt;ClusterPeer&gt; clusterPeers, int port = 5001, string peerId = &quot;peerId&quot;)
+{
+    var gcounter = new GCounter(peerId);
+    var firstSerializedEntity = new CRDTEntitySerializer().Serialize(&quot;nb_customers&quot;, gcounter);;
+    var entities = new ConcurrentBag&lt;SerializedEntity&gt;
+    {
+        firstSerializedEntity
+    };
+    var peerHost = PeerHostFactory.New(o =&gt; {
+            o.Port = port;
+            o.PeerId = peerId;
+        }, clusterPeers)
+        .UseUDPTransport()
+        .AddCRDTProtocol(entities)
+        .Build();
+    peerHost.Start();
+}
+</code></pre>
+<p>Add a new procedure <code>Increment()</code>, it will be used to increment the entity <code>nb_customers</code>.</p>
+<pre><code>private static void Increment()
+{
+	using (var crdtClient = new UDPCRDTClient(&quot;localhost&quot;, 5001))
+	{
+		crdtClient.IncrementGCounter(&quot;nb_customers&quot;, 2).Wait();
+	}
+}
+</code></pre>
+<p>Add a procedure <code>Display()</code>, it will be used to display the value of the entity <code>nb_customers</code>.</p>
+<pre><code>private static void Display()
+{
+	using (var crdtClient = new UDPCRDTClient(&quot;localhost&quot;, 5001))
+	{
+		var result = crdtClient.Get(&quot;nb_customers&quot;).Result;
+		Console.WriteLine($&quot;nb_customers = {result}&quot;);
+	}
+}
+</code></pre>
+<p>Add the following code to add two peers, increment the GCounter <code>nb_customers</code> and display its value.</p>
+<pre><code>LaunchCRDTPeer(&quot;localhost&quot;, 5001, &quot;peerId1&quot;);
+LaunchCRDTPeer(&quot;localhost&quot;, 5002, &quot;peerId2&quot;);
+Increment();
+Display();
+</code></pre>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/unstructured/crdt.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

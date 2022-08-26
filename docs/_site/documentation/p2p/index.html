@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>P2P Network </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="P2P Network ">
+    <meta name="generator" content="docfx 2.59.2.0">
+    
+    <link rel="shortcut icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../styles/docfx.css">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <meta property="docfx:navrel" content="../../toc.html">
+    <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="p2p-network">P2P Network</h1>
+
+<p>The following chapters are talking about the different types of P2P Network.</p>
+<p>Each of them are evaluated based on the CAP theorem.</p>
+<ul>
+<li><strong>C</strong>onsistency :
+<ul>
+<li>Unstructured Network : Every Peers of the Network has at any moment a (partial) replica of the same state of the data structure.</li>
+<li>Structured Network : A data record is stored in one Peer based on its partition key.</li>
+</ul>
+</li>
+<li><strong>A</strong>vailability : Access to this data is always possible in a very short delay.</li>
+<li><strong>P</strong>artition tolerance :
+<ul>
+<li>Unstructured Network : Data structure should be resilient to communication channel failures that leads to temporary partition between Peers.</li>
+<li>Structured Network : The way partitions are formed is described by the algorithm.</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>P2P Network</th>
+<th>Type</th>
+<th>Consistency</th>
+<th>Availability</th>
+<th>Partition tolerance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CRDT</td>
+<td>Unstructured</td>
+<td>Eventual Consistency</td>
+<td>Good</td>
+<td>Temporary partition between Peers</td>
+</tr>
+<tr>
+<td>Raft consensus</td>
+<td>Unstructured</td>
+<td>Strong Consistency</td>
+<td>Good</td>
+<td>Strong partition tolerance</td>
+</tr>
+<tr>
+<td>Chord</td>
+<td>Structured</td>
+<td>Strong consistency</td>
+<td>Good</td>
+<td>Strong partition tolerance</td>
+</tr>
+<tr>
+<td>Kademlia</td>
+<td>Structured</td>
+<td>Strong consistency</td>
+<td>Good</td>
+<td>Strong partition tolerance</td>
+</tr>
+</tbody>
+</table>
+<p>Depending on the nature of the software, a P2P network could be chosen.</p>
+<p><img src="images/decision.png" alt="Decision workflow"></p>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/p2p/index.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>
