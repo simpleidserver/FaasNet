@@ -14,6 +14,10 @@ namespace FaasNet.RaftConsensus.Client.Messages
         public static ConsensusCommands GET_PEER_STATE_RESULT = new ConsensusCommands(7, "GET_PEER_STATE_RESULT");
         public static ConsensusCommands GET_LOGS_REQUEST = new ConsensusCommands(8, "GET_LOGS_REQUEST");
         public static ConsensusCommands GET_LOGS_RESULT = new ConsensusCommands(9, "GET_LOGS_RESULT");
+        public static ConsensusCommands INSTALL_SNAPSHOT_REQUEST = new ConsensusCommands(10, "INSTALL_SNAPSHOT_REQUEST");
+        public static ConsensusCommands INSTALL_SNAPSHOT_RESULT = new ConsensusCommands(11, "INSTALL_SNAPSHOT_RESULT");
+        public static ConsensusCommands GET_STATEMACHINE_REQUEST = new ConsensusCommands(12, "GET_STATEMACHINE_REQUEST");
+        public static ConsensusCommands GET_STATEMACHINE_RESULT = new ConsensusCommands(13, "GET_STATEMACHINE_RESULT");
 
         protected ConsensusCommands(int code)
         {

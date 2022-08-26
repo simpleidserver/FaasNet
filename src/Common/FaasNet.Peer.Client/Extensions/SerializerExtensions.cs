@@ -81,6 +81,7 @@ namespace FaasNet.Peer.Client.Extensions
         public static byte[] GetByteArray(this Queue<byte> queue)
         {
             var size = queue.Dequeue();
+            if (size == 0) return new byte[0];
             return queue.Dequeue(size).ToArray();
         }
 

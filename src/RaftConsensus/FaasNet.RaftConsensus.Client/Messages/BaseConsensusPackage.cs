@@ -94,6 +94,28 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 return result;
             }
 
+            if (cmd == ConsensusCommands.INSTALL_SNAPSHOT_REQUEST)
+            {
+                var result = new InstallSnapshotRequest();
+                result.Extract(context);
+                return result;
+            }
+
+            if (cmd == ConsensusCommands.INSTALL_SNAPSHOT_RESULT)
+            {
+                var result = new InstallSnapshotResult();
+                result.Extract(context);
+                return result;
+            }
+
+            if (cmd == ConsensusCommands.GET_STATEMACHINE_REQUEST) return new GetStateMachineRequest();
+            if (cmd == ConsensusCommands.GET_STATEMACHINE_RESULT)
+            {
+                var result = new GetStateMachineResult();
+                result.Extract(context);
+                return result;
+            }
+
             return null;
         }
     }

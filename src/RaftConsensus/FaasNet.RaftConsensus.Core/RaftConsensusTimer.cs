@@ -18,19 +18,21 @@ namespace FaasNet.RaftConsensus.Core
         private readonly IClusterStore _clusterStore;
         private readonly ILogStore _logStore;
         private readonly IPeerClientFactory _peerClientFactory;
+        private readonly ISnapshotStore _stateMachineStore;
         private readonly PeerOptions _peerOptions;
         private readonly RaftConsensusPeerOptions _raftOptions;
         private PeerInfo _peerInfo;
         private PeerState _peerState;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public RaftConsensusTimer(IPeerInfoStore peerInfoStore, ILogger<RaftConsensusTimer> logger, IClusterStore clusterStore, ILogStore logStore, IPeerClientFactory peerClientFactory, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftOptions)
+        public RaftConsensusTimer(IPeerInfoStore peerInfoStore, ILogger<RaftConsensusTimer> logger, IClusterStore clusterStore, ILogStore logStore, IPeerClientFactory peerClientFactory, ISnapshotStore stateMachineStore, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftOptions)
         {
             _peerInfoStore = peerInfoStore;
             _logger = logger;
             _clusterStore = clusterStore;
             _logStore = logStore;
             _peerClientFactory = peerClientFactory;
+            _stateMachineStore = stateMachineStore;
             _peerOptions = peerOptions.Value;
             _raftOptions = raftOptions.Value;
             CreateFollowerTimer();
@@ -41,7 +43,7 @@ namespace FaasNet.RaftConsensus.Core
         {
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             _peerInfo = _peerInfoStore.Get();
-            _peerState = PeerState.New(_raftOptions.ConfigurationDirectoryPath);
+            _peerState = PeerState.New(_raftOptions.ConfigurationDirectoryPath, _raftOptions.IsConfigurationStoredInMemory);
             _peerInfo.FollowerStateStarted += (sender, args) =>
             {
                 var stateChanged = args as PeerInfoStateChanged;

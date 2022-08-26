@@ -52,5 +52,25 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 Entries = entries
             };
         }
+
+        public static BaseConsensusPackage InstallSnapshot(bool success, long term, long matchIndex)
+        {
+            return new InstallSnapshotResult
+            {
+                Success = success,
+                Term = term,
+                MatchIndex = matchIndex
+            };
+        }
+
+        public static BaseConsensusPackage GetStateMachine(long index, long term, byte[] stateMachine)
+        {
+            return new GetStateMachineResult
+            {
+                Index = index,
+                Term = term,
+                StateMachine = stateMachine
+            };
+        }
     }
 }

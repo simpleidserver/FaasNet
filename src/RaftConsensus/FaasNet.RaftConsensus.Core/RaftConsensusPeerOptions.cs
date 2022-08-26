@@ -1,6 +1,7 @@
-﻿using FaasNet.Peer;
-using Microsoft.Extensions.DependencyInjection;
+﻿using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Core.StateMachines;
 using System;
+using System.Reflection;
 
 namespace FaasNet.RaftConsensus.Core
 {
@@ -23,6 +24,10 @@ namespace FaasNet.RaftConsensus.Core
         /// </summary>
         public string ConfigurationDirectoryPath { get; set; }
         /// <summary>
+        /// Configuration is store in memory.
+        /// </summary>
+        public bool IsConfigurationStoredInMemory { get; set; } = false;
+        /// <summary>
         /// Action is called when the Peer is a leader.
         /// </summary>
         public Action LeaderCallback { get; set; }
@@ -30,6 +35,18 @@ namespace FaasNet.RaftConsensus.Core
         /// Expiration time of a client request.
         /// </summary>
         public int RequestExpirationTimeMS { get; set; } = 5000;
+        /// <summary>
+        /// Every N logs take a snapshot.
+        /// </summary>
+        public int SnapshotFrequency { get; set; } = 1;
+        /// <summary>
+        /// Type of the state machine.
+        /// </summary>
+        public Type StateMachineType { get; set; } = typeof(GCounter);
+        /// <summary>
+        /// Assembly where commands are located.
+        /// </summary>
+        public Assembly AssemblyStateMachineCommands { get; set; } = typeof(LogEntry).Assembly;
     }
 
     public class Interval

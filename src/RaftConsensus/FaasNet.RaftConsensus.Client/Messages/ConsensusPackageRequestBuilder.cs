@@ -58,5 +58,23 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 Payload = payload
             };
         }
+
+        public static BaseConsensusPackage InstallSnapshot(long term, string leaderId, long commitIndex, long snapshotTerm, long snapshotIndex, byte[] data)
+        {
+            return new InstallSnapshotRequest
+            {
+                Term = term,
+                LeaderId = leaderId,
+                CommitIndex = commitIndex,
+                SnapshotTerm = snapshotTerm,
+                SnapshotIndex = snapshotIndex,
+                Data = data
+            };
+        }
+
+        public static BaseConsensusPackage GetStateMachine()
+        {
+            return new GetStateMachineRequest();
+        }
     }
 }

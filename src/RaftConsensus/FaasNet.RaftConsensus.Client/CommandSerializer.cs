@@ -30,21 +30,18 @@ namespace FaasNet.RaftConsensus.Client
             return context.Buffer.ToArray();
         }
 
-        public static IEnumerable<T> Deserialize<T>(byte[] payload, Assembly assm) where T : ICommand
+        public static ICommand Deserialize(byte[] payload, Assembly assembly)
         {
-            var result = new List<T>();
             var context = new ReadBufferContext(payload);
-            var length = context.NextInt();
-            for (var i = 0; i < length; i++) result.Add(Deserialize<T>(context, assm));
-            return result;
+            return Deserialize(context, assembly);
         }
 
-        public static T Deserialize<T>(ReadBufferContext context, Assembly assm) where T : ICommand
+        public static ICommand Deserialize(ReadBufferContext context, Assembly assembly) 
         {
             var name = context.NextString();
-            var type = assm.GetTypes().Single(a => a.Name == name);
+            var type = assembly.GetTypes().Single(a => a.Name == name);
             var instance = Activator.CreateInstance(type);
-            var result = (T)instance;
+            var result = (ICommand)instance;
             result.Deserialize(context);
             return result;
         }

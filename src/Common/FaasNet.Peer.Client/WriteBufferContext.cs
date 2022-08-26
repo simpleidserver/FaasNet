@@ -32,8 +32,9 @@ namespace FaasNet.Peer.Client
         public void WriteByteArray(byte[] b)
         {
             var result = new List<byte>();
-            result.Add((byte)b.Count());
-            result.AddRange(b);
+            var nb = b == null ? 0 : b.Length;
+            result.Add((byte)nb);
+            if (nb > 0) result.AddRange(b);
             Buffer.AddRange(result);
         }
 

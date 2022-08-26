@@ -65,11 +65,21 @@ namespace FaasNet.RaftConsensus.RocksDB
             return Task.FromResult((IEnumerable<LogEntry>)result);
         }
 
+        public Task<IEnumerable<LogEntry>> GetTo(long index, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task RemoveFrom(long startIndex, CancellationToken cancellation)
         {
             var logEntries = await GetFrom(startIndex, cancellation);
             var versionDb = _connectionPool.GetConnection(BuildOptions(), GetDirectoryPath());
             foreach(var logEntry in logEntries) versionDb.Remove(BitConverter.GetBytes(logEntry.Index));
+        }
+
+        public Task RemoveTo(long endIndex, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken)

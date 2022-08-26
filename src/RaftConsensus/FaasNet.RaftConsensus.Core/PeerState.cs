@@ -11,6 +11,8 @@ namespace FaasNet.RaftConsensus.Core
         private long _previousTerm = 1;
         private string _votedFor;
         private long _commitIndex;
+        private long _snapshotCommitIndex;
+        private long _snapshotLastApplied;
         private long _lastApplied = 0;
         private const string _fileName = "peerstate.info";
         private static Dictionary<string, PeerState> _instances = new Dictionary<string, PeerState>();
@@ -85,6 +87,7 @@ namespace FaasNet.RaftConsensus.Core
                 Update();
             }
         }
+
         /// <summary>
         /// Index of highest log entry applied to state machine (initialized to 0, increases monotonically).
         /// </summary>
@@ -102,6 +105,41 @@ namespace FaasNet.RaftConsensus.Core
             }
         }
 
+        /// <summary>
+        /// Index of highest snapshot known to be comitted (initialized to 0, increases monotonically)
+        /// </summary>
+        public long SnapshotCommitIndex
+        {
+            get
+            {
+                return _snapshotCommitIndex;
+            }
+            set
+            {
+                if (value == _snapshotCommitIndex) return;
+                _snapshotCommitIndex = value;
+                Update();
+            }
+        }
+
+
+        /// <summary>
+        /// Index of highest snapshot (initialized to 0, increases monotonically).
+        /// </summary>
+        public long SnapshotLastApplied
+        {
+            get
+            {
+                return _snapshotLastApplied;
+            }
+            set
+            {
+                if (value == _snapshotLastApplied) return;
+                _snapshotLastApplied = value;
+                Update();
+            }
+        }
+
         public void IncreaseCurrentTerm()
         {
             CurrentTerm++;
@@ -112,21 +150,35 @@ namespace FaasNet.RaftConsensus.Core
             LastApplied++;
         }
 
-        public static PeerState New(string path)
+        public static PeerState New(string path, bool isInMemory = false)
         {
-            if (!System.IO.Directory.Exists(path)) System.IO.Directory.CreateDirectory(path);
-            path = Path.Combine(path, _fileName);
-            if (_instances.ContainsKey(path)) return _instances[path];
-            var result = new PeerState();
-            result.Directory = path;
-            if (!File.Exists(path))
+            if (isInMemory) return NewInMemory(path);
+            return NewFile(path);
+
+            PeerState NewInMemory(string path)
             {
-                File.Create(path).Close();
-                result.Update();
+                if (_instances.ContainsKey(path)) return _instances[path];
+                var result = new PeerState { Directory = path };
+                _instances.Add(path, result);
+                return result;
             }
-            else result = JsonSerializer.Deserialize<PeerState>(File.ReadAllText(path));
-            _instances.Add(path, result);
-            return result;
+
+            PeerState NewFile(string path)
+            {
+                if (!System.IO.Directory.Exists(path)) System.IO.Directory.CreateDirectory(path);
+                path = Path.Combine(path, _fileName);
+                if (_instances.ContainsKey(path)) return _instances[path];
+                var result = new PeerState();
+                result.Directory = path;
+                if (!File.Exists(path))
+                {
+                    File.Create(path).Close();
+                    result.Update();
+                }
+                else result = JsonSerializer.Deserialize<PeerState>(File.ReadAllText(path));
+                _instances.Add(path, result);
+                return result;
+            }
         }
 
         private void Update()

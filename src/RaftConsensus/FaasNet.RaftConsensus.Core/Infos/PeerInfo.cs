@@ -77,6 +77,10 @@ namespace FaasNet.RaftConsensus.Core.Infos
         /// Index of highest log entry known to be replicated on server.
         /// </summary>
         public long? MatchIndex { get; set; }
+        /// <summary>
+        /// Index of the snapshot.
+        /// </summary>
+        public long? SnapshotIndex { get; set; }
     }
 
     public class PeerInfoStateChanged : EventArgs

@@ -2,6 +2,8 @@
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Client.Commands;
+using FaasNet.RaftConsensus.Core.StateMachines;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -17,6 +19,7 @@ namespace FaasNet.RaftConsensus.Service
             LaunchRaftConsensusPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5002) }, false, "node1", 5001);
             LaunchRaftConsensusPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, false, "node2", 5002);
 
+            /*
             Console.WriteLine("Press any key to add an entry");
             Console.ReadLine();
             AddLogEntry(5002, false);
@@ -24,6 +27,15 @@ namespace FaasNet.RaftConsensus.Service
             Console.WriteLine("Press any key to add an entry");
             Console.ReadLine();
             AddLogEntry(5002, false);
+            */
+
+            Console.WriteLine("Press any key to increment the counter by 2");
+            Console.ReadLine();
+            IncrementCounter(5001, 2, false);
+
+            Console.WriteLine("Press any key to display the state machine");
+            Console.ReadLine();
+            DisplayStateMachine(5001, false);
 
             Console.WriteLine("Press any key to display state of Peer 5001");
             Console.ReadLine();
@@ -45,7 +57,8 @@ namespace FaasNet.RaftConsensus.Service
         private static IPeerHost LaunchRaftConsensusPeer(ConcurrentBag<ClusterPeer> clusterPeers, bool isTcp = false, string nodeName = "node1", int port = 5001)
         {
             var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var peerHostFactory = PeerHostFactory.NewUnstructured(o => {
+            var peerHostFactory = PeerHostFactory.NewUnstructured(o =>
+            {
                 o.Port = port;
             }, clusterPeers, s =>
             {
@@ -56,13 +69,13 @@ namespace FaasNet.RaftConsensus.Service
             })
                 .AddRaftConsensus(o =>
                 {
+                    o.IsConfigurationStoredInMemory = true;
                     o.ConfigurationDirectoryPath = Path.Combine(path, nodeName);
                     o.LeaderCallback = () =>
                     {
                         Console.WriteLine("There a is a leader");
                     };
-                })
-                .UseRocksDB();
+                });
             if (isTcp) peerHostFactory.UseTCPTransport();
             else peerHostFactory.UseUDPTransport();
             var peerHost = peerHostFactory.Build();
@@ -73,7 +86,23 @@ namespace FaasNet.RaftConsensus.Service
         private static async void AddLogEntry(int port, bool isTcp = false)
         {
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
-                await client.AppendEntry(Encoding.UTF8.GetBytes("value"), 5000);
+                await client.AppendEntry(Encoding.UTF8.GetBytes("value"), 1000000);
+        }
+
+        private static async void IncrementCounter(int port, long value, bool isTcp = false)
+        {
+            using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
+                await client.SendCommand(new IncrementGCounterCommand { Value = value }, 1000000);
+        }
+
+        private static async void DisplayStateMachine(int port, bool isTcp = false)
+        {
+            using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
+            {
+                var stateMachine = (await client.GetStateMachine(1000000)).First();
+                var result = StateMachineSerializer.Deserialize<GCounter>(stateMachine.StateMachine);
+                Console.WriteLine($"Value  = {result.Value}");
+            }
         }
 
         private static async void DisplayPeerState(int port, bool isTcp = false)

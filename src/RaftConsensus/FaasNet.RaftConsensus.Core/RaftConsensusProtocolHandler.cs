@@ -21,15 +21,17 @@ namespace FaasNet.RaftConsensus.Core
         private readonly PeerState _peerState;
         private readonly ILogStore _logStore;
         private readonly IPeerClientFactory _peerClientFactory;
+        private readonly ISnapshotStore _snapshotStore;
         private readonly RaftConsensusPeerOptions _raftConsensusPeerOptions;
 
-        public RaftConsensusProtocolHandler(IPeerInfoStore peerInfoStore, ILogStore logStore, IPeerClientFactory peerClientFactory, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
+        public RaftConsensusProtocolHandler(IPeerInfoStore peerInfoStore, ILogStore logStore, IPeerClientFactory peerClientFactory, ISnapshotStore snapshotStore, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
         {
             _peerInfo = peerInfoStore.Get();
             _logStore = logStore;
             _raftConsensusPeerOptions = raftConsensusPeerOptions.Value;
             _peerClientFactory = peerClientFactory;
-            _peerState = PeerState.New(raftConsensusPeerOptions.Value.ConfigurationDirectoryPath);
+            _snapshotStore = snapshotStore;
+            _peerState = PeerState.New(raftConsensusPeerOptions.Value.ConfigurationDirectoryPath, raftConsensusPeerOptions.Value.IsConfigurationStoredInMemory);
         }
 
         public string MagicCode => BaseConsensusPackage.MAGIC_CODE;
@@ -44,6 +46,8 @@ namespace FaasNet.RaftConsensus.Core
             if (consensusPackage.Command == ConsensusCommands.APPEND_ENTRY_REQUEST) result = await Handle(consensusPackage as AppendEntryRequest, cancellationToken);
             if (consensusPackage.Command == ConsensusCommands.GET_PEER_STATE_REQUEST) result = await Handle(consensusPackage as GetPeerStateRequest, cancellationToken);
             if (consensusPackage.Command == ConsensusCommands.GET_LOGS_REQUEST) result = await Handle(consensusPackage as GetLogsRequest, cancellationToken);
+            if (consensusPackage.Command == ConsensusCommands.INSTALL_SNAPSHOT_REQUEST) result = await Handle(consensusPackage as InstallSnapshotRequest, cancellationToken);
+            if (consensusPackage.Command == ConsensusCommands.GET_STATEMACHINE_REQUEST) result = await Handle(consensusPackage as GetStateMachineRequest, cancellationToken);
             return result;
         }
 
@@ -153,6 +157,50 @@ namespace FaasNet.RaftConsensus.Core
         {
             var result = await _logStore.GetFrom(request.StartIndex, cancellationToken);
             return ConsensusPackageResultBuilder.GetLogs(result);
+        }
+
+        private Task<BaseConsensusPackage> Handle(InstallSnapshotRequest request, CancellationToken cancellationToken)
+        {
+            bool success = false;
+            if (request.Term < _peerState.CurrentTerm) success = false;
+            else
+            {
+                success = true;
+                UpdateSnapshot(request);
+                DiscardLogs();
+                UpdateCommitIndex(request, _peerState);
+            }
+
+            return Task.FromResult(ConsensusPackageResultBuilder.InstallSnapshot(success, _peerState.CurrentTerm, _peerState.SnapshotLastApplied));
+
+            void UpdateSnapshot(InstallSnapshotRequest request)
+            {
+                if (request.SnapshotIndex == _peerState.SnapshotLastApplied) return;
+                _snapshotStore.Update(new Snapshot
+                {
+                    Index = request.SnapshotIndex,
+                    StateMachine = request.Data,
+                    Term = request.Term
+                });
+                _peerState.SnapshotLastApplied = request.SnapshotIndex;
+            }
+
+            async void DiscardLogs()
+            {
+                await _logStore.RemoveTo(_peerState.SnapshotLastApplied, cancellationToken);
+            }
+
+
+            void UpdateCommitIndex(InstallSnapshotRequest request, PeerState peerState)
+            {
+                if (request.CommitIndex > peerState.SnapshotCommitIndex) peerState.SnapshotCommitIndex = request.CommitIndex;
+            }
+        }
+
+        private async Task<BaseConsensusPackage> Handle(GetStateMachineRequest request, CancellationToken cancellationToken)
+        {
+            var result = await _snapshotStore.GetLatestStateMachine(cancellationToken);
+            return ConsensusPackageResultBuilder.GetStateMachine(result.Item2.Index, result.Item2.Term, result.Item1.Serialize());
         }
     }
 }

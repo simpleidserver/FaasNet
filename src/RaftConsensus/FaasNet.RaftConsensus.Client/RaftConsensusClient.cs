@@ -30,6 +30,14 @@ namespace FaasNet.RaftConsensus.Client
             return DeserializeResult<BaseConsensusPackage, AppendEntriesResult>(receivedResult);
         }
 
+        public async Task<IEnumerable<InstallSnapshotResult>> InstallSnapshot(long term, string leaderId, long commitIndex, long snapshotTerm, long snapshotIndex, byte[] data, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.InstallSnapshot(term, leaderId, commitIndex, snapshotTerm, snapshotIndex, data));
+            await Send(request, timeoutMS, cancellationToken);
+            var receivedResult = await Receive(timeoutMS, cancellationToken);
+            return DeserializeResult<BaseConsensusPackage, InstallSnapshotResult>(receivedResult);
+        }
+
         public async Task<IEnumerable<AppendEntriesResult>> AppendEntries(long term, string leaderId, long prevLogIndex, long prevLogTerm, IEnumerable<LogEntry> entries, long leaderCommit, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var request = SerializeRequest(ConsensusPackageRequestBuilder.AppendEntries(term, leaderId, prevLogIndex, prevLogTerm, entries, leaderCommit));
@@ -60,6 +68,20 @@ namespace FaasNet.RaftConsensus.Client
             await Send(request, timeoutMS, cancellationToken);
             var receivedResult = await Receive(timeoutMS, cancellationToken);
             return DeserializeResult<BaseConsensusPackage, GetLogsResult>(receivedResult);
+        }
+
+        public Task<IEnumerable<AppendEntryResult>> SendCommand(ICommand command, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var payload = CommandSerializer.Serialize(command);
+            return AppendEntry(payload, timeoutMS, cancellationToken);
+        }
+
+        public async Task<IEnumerable<GetStateMachineResult>> GetStateMachine(int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.GetStateMachine());
+            await Send(request, timeoutMS, cancellationToken);
+            var receivedResult = await Receive(timeoutMS, cancellationToken);
+            return DeserializeResult<BaseConsensusPackage, GetStateMachineResult>(receivedResult);
         }
     }
 }

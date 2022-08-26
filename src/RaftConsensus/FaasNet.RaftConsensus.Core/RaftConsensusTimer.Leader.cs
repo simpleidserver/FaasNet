@@ -2,6 +2,7 @@
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
+using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,13 @@ namespace FaasNet.RaftConsensus.Core
         private void CreateLeaderTimer()
         {
             _leaderTimer = new System.Timers.Timer();
-            _leaderTimer.Elapsed += (o, e) => AppendEntries();
+            _leaderTimer.Elapsed += async (o, e) =>
+            {
+                var allPeers = (await _clusterStore.GetAllNodes(_peerOptions.PartitionKey, _cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
+                await AppendEntries(allPeers);
+                TakeSnapshot(allPeers);
+                StartLeader();
+            };
             _leaderTimer.AutoReset = false;
         }
 
@@ -32,13 +39,6 @@ namespace FaasNet.RaftConsensus.Core
         private void StopLeaderTimer()
         {
             _leaderTimer.Stop();
-        }
-
-        private async void AppendEntries()
-        {
-            var allPeers = (await _clusterStore.GetAllNodes(_peerOptions.PartitionKey, _cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
-            await AppendEntries(allPeers);
-            StartLeader();
         }
 
         private async Task AppendEntries(IEnumerable<ClusterPeer> peers)
@@ -78,7 +78,7 @@ namespace FaasNet.RaftConsensus.Core
                         otherPeer.MatchIndex = result.MatchIndex;
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex.ToString());
                 }
@@ -92,6 +92,63 @@ namespace FaasNet.RaftConsensus.Core
                 var quorum = (otherPeers.Count() / 2) + 1;
                 if (quorum > nbMatchIndexes) return;
                 _peerState.CommitIndex++;
+            }
+        }
+
+        private async void TakeSnapshot(IEnumerable<ClusterPeer> clusterPeers)
+        {
+            if (_peerState.CommitIndex - _peerState.SnapshotCommitIndex < _raftOptions.SnapshotFrequency) return;
+            var result = await InstallSnapshot(clusterPeers);
+            TryCommit(result.Item2, result.Item1);
+
+            async Task<(IEnumerable<InstallSnapshotResult>, Snapshot)> InstallSnapshot(IEnumerable<ClusterPeer> peers)
+            {
+                var logEntries = await _logStore.GetTo(_peerState.CommitIndex, _cancellationTokenSource.Token);
+                var stateMachine = _stateMachineStore.RestoreStateMachine(logEntries);
+                var snapshot = new Snapshot
+                {
+                    Index = _peerState.CommitIndex,
+                    StateMachine = stateMachine.Serialize(),
+                    Term = logEntries.OrderByDescending(e => e.Term).First().Term
+                };
+                var tasks = new List<Task<InstallSnapshotResult>>();
+                foreach (var peer in peers) tasks.Add(SendInstallSnapshot(snapshot, peer));
+                var result = await Task.WhenAll(tasks);
+                return (result, snapshot);
+            }
+
+            async Task<InstallSnapshotResult> SendInstallSnapshot(Snapshot snapshot, ClusterPeer peer)
+            {
+                try
+                {
+                    var edp = new IPEndPoint(DnsHelper.ResolveIPV4(peer.Url), peer.Port);
+                    using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(edp))
+                    {
+                        byte[] data = null;
+                        var otherPeer = _peerInfo.GetOtherPeer(peer.Id);
+                        if (otherPeer.SnapshotIndex != snapshot.Index) data = snapshot.StateMachine;
+                        var result = (await consensusClient.InstallSnapshot(_peerState.CurrentTerm, _peerOptions.Id, _peerState.SnapshotCommitIndex, snapshot.Term, snapshot.Index, data, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
+                        otherPeer.MatchIndex = result.MatchIndex;
+                        return result;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.ToString());
+                    return null;
+                }
+            }
+
+            async void TryCommit(Snapshot snapshot, IEnumerable<InstallSnapshotResult> installSnapshotResultLst)
+            {
+                var otherPeers = _peerInfo.OtherPeerInfos;
+                var quorum = (otherPeers.Count() / 2) + 1;
+                var nbMatchIndexes = installSnapshotResultLst.Where(s => s != null && s.Success).Count();
+                if (quorum > nbMatchIndexes) return;
+                _peerState.SnapshotCommitIndex = snapshot.Index;
+                _peerState.SnapshotLastApplied = snapshot.Index;
+                _stateMachineStore.Update(snapshot);
+                await _logStore.RemoveTo(snapshot.Index, _cancellationTokenSource.Token);
             }
         }
     }
