@@ -1,6 +1,6 @@
 {
   "homepages": [],
-  "source_base_path": "c:/Projects/FaasNet/docs",
+  "source_base_path": "C:/Projects/FaasNet/docs",
   "xrefmap": "xrefmap.yml",
   "files": [
     {
@@ -101,6 +101,54 @@
         ".html": {
           "relative_path": "documentation/cli/overview.html",
           "hash": "R6CvQ/kpnKiWfj8TlW2SBpHEXG740qRq8oDU47C0RZU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/discovery/config.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/discovery/config.html",
+          "hash": "TZr3BQ6dI6popHnI5Jv5wpP6YuAnny1gVYhdu7IhHyk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/discovery/etcd.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/discovery/etcd.html",
+          "hash": "g3XPEk0+3OoCHyXv7oe22/1049IawzAMRu51tlQW8Sg="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/discovery/gossip.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/discovery/gossip.html",
+          "hash": "WP6yP8ErtshesAa3t/CyeL/nO7/H1zj2CqVgs2J/pS4="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/discovery/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/discovery/index.html",
+          "hash": "Tit6mrl6oATGe2QseKPdGYVcrhqo/yywc87/9lRpyno="
         }
       },
       "is_incremental": false,
@@ -426,6 +474,134 @@
     },
     {
       "type": "Resource",
+      "source_relative_path": "documentation/p2p/images/decision.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/p2p/images/decision.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/p2p/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/p2p/index.html",
+          "hash": "EHtv6nQrJyqHQffIzeJ3vSBcK03eBxDv1TxeqJhly60="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/p2p/structured/chord.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/p2p/structured/chord.html",
+          "hash": "8bdXJi0+kaCvDAsLZQ+7BjK5vd9Mb2B2clXztJomprE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/p2p/structured/images/chord-ring.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/p2p/structured/images/chord-ring.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/p2p/structured/images/kademlia.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/p2p/structured/images/kademlia.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/p2p/structured/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/p2p/structured/index.html",
+          "hash": "6XorgURtXJMyIYH919SyOo7x1XyOucPUDN2YDj5pEUk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/p2p/structured/kademlia.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/p2p/structured/kademlia.html",
+          "hash": "1swfP0xHtkavpVppLIfryLKMoAYZSJz7y5+1CjI5UZI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/p2p/unstructured/crdt.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/p2p/unstructured/crdt.html",
+          "hash": "g/MTIT+JResuq7nQTEkQUuViww+ZASCDVWbydgylqjk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation/p2p/unstructured/images/raftconsensus.png",
+      "output": {
+        "resource": {
+          "relative_path": "documentation/p2p/unstructured/images/raftconsensus.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/p2p/unstructured/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/p2p/unstructured/index.html",
+          "hash": "p3BpmEUht7XpTMUJOsAQgkrvBl+B4VZblThooy/hVv4="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "documentation/p2p/unstructured/raftconsensus.md",
+      "output": {
+        ".html": {
+          "relative_path": "documentation/p2p/unstructured/raftconsensus.html",
+          "hash": "aCskjdK5PQaocMEEdolGQVZutWbie7nRPotWS7kzOkU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
       "source_relative_path": "documentation/portal/images/manage1.png",
       "output": {
         "resource": {
@@ -743,7 +919,7 @@
       "output": {
         ".html": {
           "relative_path": "documentation/toc.html",
-          "hash": "p+Ata2J46ZPNl33wWxeByXSgQu55gtpscyD+BWj6NyE="
+          "hash": "0tuU9Id0s4Y21ec5GhIbBAWFb08twn9+J+unH5jfRes="
         }
       },
       "is_incremental": false,
@@ -797,7 +973,7 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 31,
+          "total_file_count": 42,
           "skipped_file_count": 31
         },
         "ResourceDocumentProcessor": {

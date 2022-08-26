@@ -142,7 +142,7 @@ It will be used to start one unstructured UDP Peer with Gossip protocol enabled.
 <p>Add a procedure <code>DisplayCluster()</code>. It will be used to display all the Peer informations.</p>
 <pre><code>private static void DisplayCluster()
 {
-    using (var gossipClient = new UDPGossipClient(&quot;localhost&quot;, 5002))
+    using (var gossipClient = new UDPGossipClient(&quot;localhost&quot;, 5001))
     {
         var peerInfos = gossipClient.Get().Result;
         foreach(var peerInfo in peerInfos)
@@ -153,7 +153,7 @@ It will be used to start one unstructured UDP Peer with Gossip protocol enabled.
 }
 </code></pre>
 <p>Add the following code to start one Peer and display the Peer informations.</p>
-<pre><code>LaunchGossipPeer(new ConcurrentBag&lt;ClusterPeer&gt;(), 5001, &quot;seedId&quot;);
+<pre><code>LaunchGossipPeer(new ConcurrentBag&lt;ClusterPeer&gt;(), 5001);
 DisplayCluster();
 </code></pre>
 </article>

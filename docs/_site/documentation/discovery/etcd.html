@@ -101,16 +101,16 @@ dotnet sln add ./src/DiscoveryEtcd/DiscoveryEtcd.csproj
 It will be used to start one unstructured UDP Peer and the Peer Informations will be stored in ETCD.</p>
 <pre><code>private static (IPeerHost, IServiceProvider) LaunchPeer(ConcurrentBag&lt;ClusterPeer&gt; clusterPeers, int port = 5001)
 {
-	var peerHostFactory = PeerHostFactory.NewUnstructured(o =&gt;
-	{
-		o.Url = &quot;localhost&quot;;
-		o.Port = port;
-	}, clusterPeers)
-		.UseUDPTransport()
-		.UseDiscoveryEtcd();
-	var peerHost = peerHostFactory.BuildWithDI();
-	peerHost.Item1.Start();
-	return peerHost;
+    var peerHostFactory = PeerHostFactory.NewUnstructured(o =&gt;
+    {
+        o.Url = &quot;localhost&quot;;
+        o.Port = port;
+    }, clusterPeers)
+        .UseUDPTransport()
+        .UseDiscoveryEtcd();
+    var peerHost = peerHostFactory.BuildWithDI();
+    peerHost.Item1.Start();
+    return peerHost;
 }
 </code></pre>
 <p>Add a procedure <code>DisplayCluster(ServiceProvider)</code>. It will be used to display all the Peer informations coming form ETCD.</p>
@@ -125,7 +125,7 @@ It will be used to start one unstructured UDP Peer and the Peer Informations wil
 }
 </code></pre>
 <p>Add the following code to start one Peer and display the Peer informations.</p>
-<pre><code>var peerHost = LaunchPeer(new ConcurrentBag&lt;ClusterPeer&gt;(), 5001, &quot;seedId&quot;);
+<pre><code>var peerHost = LaunchPeer(new ConcurrentBag&lt;ClusterPeer&gt;(), 5001);
 DisplayCluster(peerHost.Item2);
 </code></pre>
 </article>

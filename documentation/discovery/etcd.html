@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Unstructured P2P Network </title>
+    <title>ETCD </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Unstructured P2P Network ">
+    <meta name="title" content="ETCD ">
     <meta name="generator" content="docfx 2.59.2.0">
     
     <link rel="shortcut icon" href="../../favicon.ico">
@@ -67,9 +67,67 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="unstructured-p2p-network">Unstructured P2P Network</h1>
+<h1 id="etcd">ETCD</h1>
 
-<p>In unstructured P2P network, every Peer on the Network can make an equal contribution with a random connection between various Peers.</p>
+<p><a href="https://etcd.io/">ETCD</a> is a distributed key-value store. It can be used by a P2P Network to store Peer Informations like Url, Port and Protocol.</p>
+<h2 id="quick-start">Quick start</h2>
+<p>In this tutorial we are going to explain how to have an up and running UDP Peer where Peer informations are stored in ETCD.</p>
+<h3 id="install-etcd">Install ETCD</h3>
+<p>Ensure Docker is installed on your local machine. Run an ETCD server instance by executing the following command.</p>
+<pre><code>docker run -d --name Etcd-server --publish 23790:2379 --env ALLOW_NONE_AUTHENTICATION=yes bitnami/etcd:latest
+</code></pre>
+<p>An ETCD server instance will be launched and will listen the port <code>23790/TCP</code>.</p>
+<h3 id="create-and-launch-a-peer">Create and Launch a Peer</h3>
+<p>Open a command prompt and create a console application</p>
+<pre><code>mkdir QuickStart
+cd QuickStart
+
+mkdir src
+cd src
+
+dotnet new console -n DiscoveryEtcd
+</code></pre>
+<p>Install the Nuget package <code>FaasNet.Discovery.Etcd</code></p>
+<pre><code>cd DiscoveryEtcd
+
+dotnet add package FaasNet.Discovery.Etcd
+</code></pre>
+<p>Add the console application into the Visual Studio Solution</p>
+<pre><code>cd ..\..
+dotnet new sln -n QuickStart
+dotnet sln add ./src/DiscoveryEtcd/DiscoveryEtcd.csproj
+</code></pre>
+<p>Add a function <code>(IPeerHost, IServiceProvider) LaunchPeer(clusterPeers, port, PeerId)</code>.
+It will be used to start one unstructured UDP Peer and the Peer Informations will be stored in ETCD.</p>
+<pre><code>private static (IPeerHost, IServiceProvider) LaunchPeer(ConcurrentBag&lt;ClusterPeer&gt; clusterPeers, int port = 5001)
+{
+    var peerHostFactory = PeerHostFactory.NewUnstructured(o =&gt;
+    {
+        o.Url = &quot;localhost&quot;;
+        o.Port = port;
+    }, clusterPeers)
+        .UseUDPTransport()
+        .UseDiscoveryEtcd();
+    var peerHost = peerHostFactory.BuildWithDI();
+    peerHost.Item1.Start();
+    return peerHost;
+}
+</code></pre>
+<p>Add a procedure <code>DisplayCluster(ServiceProvider)</code>. It will be used to display all the Peer informations coming form ETCD.</p>
+<pre><code>private static void DisplayCluster(IServiceProvider serviceProvider)
+{
+    var clusterStore = serviceProvider.GetRequiredService&lt;IClusterStore&gt;();
+    var allNodes = clusterStore.GetAllNodes(CancellationToken.None).Result;
+    foreach (var node in allNodes)
+    {
+        Console.WriteLine($&quot;Url = {node.Url}, Port = {node.Port}&quot;);
+    }
+}
+</code></pre>
+<p>Add the following code to start one Peer and display the Peer informations.</p>
+<pre><code>var peerHost = LaunchPeer(new ConcurrentBag&lt;ClusterPeer&gt;(), 5001);
+DisplayCluster(peerHost.Item2);
+</code></pre>
 </article>
           </div>
           
@@ -78,7 +136,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/unstructured/index.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/discovery/etcd.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

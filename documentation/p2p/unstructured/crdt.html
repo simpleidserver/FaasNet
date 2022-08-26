@@ -10,13 +10,13 @@
     <meta name="title" content="Conflict-free Replicated Data Type (CRDT) ">
     <meta name="generator" content="docfx 2.59.2.0">
     
-    <link rel="shortcut icon" href="../../favicon.ico">
-    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
-    <link rel="stylesheet" href="../../styles/docfx.css">
-    <link rel="stylesheet" href="../../styles/main.css">
+    <link rel="shortcut icon" href="../../../favicon.ico">
+    <link rel="stylesheet" href="../../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../../styles/docfx.css">
+    <link rel="stylesheet" href="../../../styles/main.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
-    <meta property="docfx:navrel" content="../../toc.html">
-    <meta property="docfx:tocrel" content="../toc.html">
+    <meta property="docfx:navrel" content="../../../toc.html">
+    <meta property="docfx:tocrel" content="../../toc.html">
     
     
     
@@ -34,8 +34,8 @@
                 <span class="icon-bar"></span>
               </button>
               
-              <a class="navbar-brand" href="../../index.html">
-                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              <a class="navbar-brand" href="../../../index.html">
+                <img id="logo" class="svg" src="../../../logo.svg" alt="">
               </a>
             </div>
             <div class="collapse navbar-collapse" id="navbar">
@@ -94,15 +94,6 @@
 </tr>
 </tbody>
 </table>
-<p>Any Distributed system must be compliant with the CAP Theorem :</p>
-<ul>
-<li><strong>Consistency</strong> : Every Peers of the Netwrok has at any moment a (partial) replica of the same state of the data structure.</li>
-<li><strong>Availability</strong> : Access to this data is always possible in a very short Delay.</li>
-<li><strong>Partition Tolerance</strong> : Data structure should be resilient to communication channel failures that leads to temporary partition between Peers.</li>
-</ul>
-<p>In a CRDT architecture, sometimes the Data Structure can be different between the Peers for example when there is a merge conflict between two Data Structures.
-In this scenario, we are talking about <code>Eventual Consistency</code>.
-If you want <code>Strong Consistency</code> a better choice is to choose <code>Consensus algorithm</code>.</p>
 <h2 id="entity-types">Entity Types</h2>
 <p>CRDT support different kinds of Entity</p>
 <table>
@@ -166,18 +157,18 @@ dotnet sln add ./src/CRDTServer/CRDTServer.csproj
 </code></pre>
 <p>Open the Visual Studio Solution and edit the <code>Program.cs</code> file.</p>
 <p>Add a procedure <code>LaunchCRDTPeer(ClusterPeers, Port, PeerId)</code>, it will be used to start one CRDT Peer.</p>
-<pre><code>private static void LaunchCRDTPeer(ConcurrentBag&lt;ClusterPeer&gt; clusterPeers, int port = 5001, string peerId = &quot;peerId&quot;)
+<pre><code>private static void LaunchCRDTPeer(ConcurrentBag&lt;ClusterPeer&gt; clusterPeers, int port = 5001)
 {
+    var peerId = PeerId.Build(&quot;localhost&quot;, port).Serialize();
     var gcounter = new GCounter(peerId);
-    var firstSerializedEntity = new CRDTEntitySerializer().Serialize(&quot;nb_customers&quot;, gcounter);;
+    var firstSerializedEntity = new CRDTEntitySerializer().Serialize(&quot;nb_customers&quot;, gcounter); ;
     var entities = new ConcurrentBag&lt;SerializedEntity&gt;
     {
         firstSerializedEntity
     };
-    var peerHost = PeerHostFactory.New(o =&gt; {
-            o.Port = port;
-            o.PeerId = peerId;
-        }, clusterPeers)
+    var peerHost = PeerHostFactory.NewUnstructured(o =&gt; {
+        o.Port = port;
+    }, clusterPeers)
         .UseUDPTransport()
         .AddCRDTProtocol(entities)
         .Build();
@@ -204,8 +195,8 @@ dotnet sln add ./src/CRDTServer/CRDTServer.csproj
 }
 </code></pre>
 <p>Add the following code to add two peers, increment the GCounter <code>nb_customers</code> and display its value.</p>
-<pre><code>LaunchCRDTPeer(&quot;localhost&quot;, 5001, &quot;peerId1&quot;);
-LaunchCRDTPeer(&quot;localhost&quot;, 5002, &quot;peerId2&quot;);
+<pre><code>LaunchCRDTPeer(&quot;localhost&quot;, 5001);
+LaunchCRDTPeer(&quot;localhost&quot;, 5002);
 Increment();
 Display();
 </code></pre>
@@ -217,7 +208,7 @@ Display();
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/unstructured/crdt.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/p2p/unstructured/crdt.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
@@ -244,8 +235,8 @@ Display();
       </footer>
     </div>
     
-    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
-    <script type="text/javascript" src="../../styles/docfx.js"></script>
-    <script type="text/javascript" src="../../styles/main.js"></script>
+    <script type="text/javascript" src="../../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../../styles/main.js"></script>
   </body>
 </html>

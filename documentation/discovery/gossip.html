@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>CHORD </title>
+    <title>Gossip </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="CHORD ">
+    <meta name="title" content="Gossip ">
     <meta name="generator" content="docfx 2.59.2.0">
     
     <link rel="shortcut icon" href="../../favicon.ico">
@@ -67,20 +67,44 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="chord">CHORD</h1>
+<h1 id="gossip">Gossip</h1>
 
-<h2 id="architecture">Architecture</h2>
-<p>The CHORD protocol uses SHA-1 as consistent hash function to assin a <code>m</code>-bit identifier to each node and each key.</p>
-<p>The <code>m</code> is an integer which should be chosen big enough to make the probability that two nodes or two keys receive the same identifier negligible.</p>
-<p>The Hash function calculates the key identifier by hashing the key, and the node identifier by hashing the IP Address of the node.</p>
-<p>The key and the node identifiers are arranged on an identifier circle of size <code>2^m</code> called the CHORD ring.
-The identifiers on the CHORD ring are numbered from 0 to 2^m-1. A key is assigned to a node whose identifier is equal to or greater than the identifier of the key.
-The node is called the successor node of k, and is the first node clockwise from k on the circle.</p>
-<p><img src="images/chord-ring.png" alt="CHORD Ring"></p>
-<p>This figure shows a CHORD ring with m = 6, 10 nodes and 5 keys.
-Sice the successor of K10 is N14, K10 is located at N14.</p>
-<h2 id="library">Library</h2>
-<p>In this tutorial, we are going to explain how to use the C# library to have an up and running CHORD server.</p>
+<p>Gossip or epidemic protocol is a process of P2P communication that is based on epidemics spread.</p>
+<p>Most of the time the protocol is used to propagate Peer Informations to all the other Peers, it helps Peers to discover other Peers present in the Network.</p>
+<p>When the protocol is enabled, Peer informations are stored in a local storage such as a configuration file or a database.
+Shared storage like ETCD are not used.</p>
+<p>In general, Gossip protocol is used to exchange state messages between two or more Peers.
+A state is overridden by the latest message received, so there is a possibility of losing state.
+The protocol must be used to exchange immutable information like metadata.</p>
+<p>Gossip protocol is used in some popular software</p>
+<table>
+<thead>
+<tr>
+<th>Software</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cassandra</td>
+<td>Uses Gossip protocol for the group membership and failure detection</td>
+</tr>
+<tr>
+<td>Consul</td>
+<td>Uses SWIM Gossip protocol for the group membership and failure detection</td>
+</tr>
+<tr>
+<td>CockroachDB</td>
+<td>Uses Gossip protocol to propagate Peer metadata</td>
+</tr>
+<tr>
+<td>Blockchain</td>
+<td>Uses Gossip protocol for group membership and sending ledger metadata</td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick start</h2>
+<p>In this tutorial, we are going to explain how to use the C# library to have an up and running UDP Peer where Gossip protocol is used for Peers discovery.</p>
 <p>Open a command prompt and create a console application.</p>
 <pre><code>mkdir QuickStart
 cd QuickStart
@@ -88,68 +112,49 @@ cd QuickStart
 mkdir src
 cd src
 
-dotnet new console -n ChordServer
+dotnet new console -n DiscoveryGossip
 </code></pre>
-<p>Install the Nuget package <code>FaasNet.DHT.Chord.Client</code> and <code>FaasNet.DHT.Chord.Core</code>.</p>
-<pre><code>cd ChordServer
+<p>Install the Nuget package <code>FaasNet.Discovery.Gossip.Core</code></p>
+<pre><code>cd DiscoveryGossip
 
-dotnet add package FaasNet.DHT.Chord.Client
-dotnet add package FaasNet.DHT.Chord.Core
+dotnet add package FaasNet.Discovery.Gossip.Core
 </code></pre>
-<p>Add the console application into the Visual Studio Solution.</p>
-<pre><code>cd ../..
+<p>Add the console application into the Visual Studio Solution</p>
+<pre><code>cd ..\..
 dotnet new sln -n QuickStart
-dotnet sln add ./src/ChordServer/ChordServer.csproj
+dotnet sln add ./src/DiscoveryGossip/DiscoveryGossip.csproj
 </code></pre>
-<p>Open the Visual Studio Solution and edit the <code>Program.cs</code> file.</p>
-<p>Add a new procedure <code>StartChordRing</code>, it will be used to start the CHORD ring.</p>
-<pre><code>private static void StartChordRing()
+<p>Add a function <code>IPeerHost LaunchGossipPeer(clusterPeers, port, PeerId)</code>.
+It will be used to start one unstructured UDP Peer with Gossip protocol enabled.</p>
+<pre><code>private static IPeerHost LaunchGossipPeer(ConcurrentBag&lt;ClusterPeer&gt; clusterPeers, int port = 5001)
 {
-    var peerFactory = new ServerBuilder().AddDHTChord().ServiceProvider.GetService(typeof(IDHTPeerFactory)) as IDHTPeerFactory;
-    var rootPeer = peerFactory.Build();
-    rootPeer.Start(&quot;localhost&quot;, 51, CancellationToken.None);
-    using (var client = new ChordClient(&quot;localhost&quot;, 51))
+    var peerHost = PeerHostFactory.NewUnstructured(o =&gt; {
+        o.Url = &quot;localhost&quot;;
+        o.Port = port;
+    }, clusterPeers)
+        .UseUDPTransport()
+        .UseGossipDiscovery()
+        .Build();
+    peerHost.Start();
+    return peerHost;
+}
+</code></pre>
+<p>Add a procedure <code>DisplayCluster()</code>. It will be used to display all the Peer informations.</p>
+<pre><code>private static void DisplayCluster()
+{
+    using (var gossipClient = new UDPGossipClient(&quot;localhost&quot;, 5001))
     {
-        client.Create(4);
+        var peerInfos = gossipClient.Get().Result;
+        foreach(var peerInfo in peerInfos)
+        {
+            Console.WriteLine($&quot;Url = {peerInfo.Url}, Port = {peerInfo.Port}&quot;);
+        }
     }
 }
 </code></pre>
-<p>Add a new procedure <code>AddNode(int port)</code>, it will be used to add a node into the ring.</p>
-<pre><code>private static void AddNode(int port)
-{
-    var peerFactory = new ServerBuilder().AddDHTChord().ServiceProvider.GetService(typeof(IDHTPeerFactory)) as IDHTPeerFactory;
-    var peer = peerFactory.Build();
-    peer.Start(&quot;localhost&quot;, port, CancellationToken.None);
-    using (var client = new ChordClient(&quot;localhost&quot;, port))
-    {
-        client.Join(&quot;localhost&quot;, 51);
-    }
-}
-</code></pre>
-<p>Add a new procedure <code>PersistKey(long key, string value)</code>, it will be used to persist a Key and its Value into the ring.</p>
-<pre><code>private static void PersistKey(long key, string value)
-{
-    using (var chordClient = new ChordClient(&quot;localhost&quot;, 51))
-    {
-        chordClient.AddKey(key, value);
-    }
-}
-</code></pre>
-<p>Add a new procedure <code>GetKey(long key)</code>, it will be used to get the value of the key from the ring.</p>
-<pre><code>private static string GetKey(long key)
-{
-    using (var chordClient = new ChordClient(&quot;localhost&quot;, 51))
-    {
-        return chordClient.GetKey(key);
-    }
-}
-</code></pre>
-<p>Add the following code to add two peers into the ring, publish a key with its value and finally display the value of the key.</p>
-<pre><code>StartChordRing();
-AddNode(57);
-AddNode(58);
-PersistKey(8, &quot;Hello&quot;);
-Console.WriteLine($&quot;Key 8 is stored with the value {GetKey(8)}&quot;);
+<p>Add the following code to start one Peer and display the Peer informations.</p>
+<pre><code>LaunchGossipPeer(new ConcurrentBag&lt;ClusterPeer&gt;(), 5001);
+DisplayCluster();
 </code></pre>
 </article>
           </div>
@@ -159,7 +164,7 @@ Console.WriteLine($&quot;Key 8 is stored with the value {GetKey(8)}&quot;);
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/structured/chord.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/discovery/gossip.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

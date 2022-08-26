@@ -10,13 +10,13 @@
     <meta name="title" content="Kademlia ">
     <meta name="generator" content="docfx 2.59.2.0">
     
-    <link rel="shortcut icon" href="../../favicon.ico">
-    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
-    <link rel="stylesheet" href="../../styles/docfx.css">
-    <link rel="stylesheet" href="../../styles/main.css">
+    <link rel="shortcut icon" href="../../../favicon.ico">
+    <link rel="stylesheet" href="../../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../../styles/docfx.css">
+    <link rel="stylesheet" href="../../../styles/main.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
-    <meta property="docfx:navrel" content="../../toc.html">
-    <meta property="docfx:tocrel" content="../toc.html">
+    <meta property="docfx:navrel" content="../../../toc.html">
+    <meta property="docfx:tocrel" content="../../toc.html">
     
     
     
@@ -34,8 +34,8 @@
                 <span class="icon-bar"></span>
               </button>
               
-              <a class="navbar-brand" href="../../index.html">
-                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              <a class="navbar-brand" href="../../../index.html">
+                <img id="logo" class="svg" src="../../../logo.svg" alt="">
               </a>
             </div>
             <div class="collapse navbar-collapse" id="navbar">
@@ -83,7 +83,7 @@
 <li>...</li>
 <li>If 2 &gt; x ^ y &gt;= 1, then y is in bucket S - 1.</li>
 </ul>
-<p>[IMAGE]</p>
+<p><img src="images/kademlia.png" alt="Kademlia"></p>
 <h2 id="library">Library</h2>
 <p>In this tutorial, we are going to explain how to use the C# library to have an up and running Kademlia server.</p>
 <p>Open a command prompt and create a console application.</p>
@@ -108,45 +108,79 @@ dotnet sln add ./src/KademliaServer/KademliaServer.csproj
 </code></pre>
 <p>Open the Visual Studio Solution and edit the <code>Program.cs</code> file.</p>
 <p>Add a new procedure <code>StartKademlia</code>, it will be used to start the Kademlia.</p>
-<pre><code>private static void StartKademlia()
+<pre><code>private static async void AddRootPeer()
 {
-    var peerFactory = new ServerBuilder().AddDHTKademlia().ServiceProvider.GetService(typeof(IDHTPeerFactory)) as IDHTPeerFactory;
-    var rootNode = peerFactory.Build();
-    rootNode.StartSeedPeer(1, &quot;localhost&quot;, 50, CancellationToken.None);
+    await PeerHostFactory.NewStructured(o =&gt;
+    {
+        o.Url = &quot;localhost&quot;;
+        o.Port = 50;
+    })
+        .UseUDPTransport()
+        .AddDHTKademliaProtocol(o =&gt;
+        {
+            o.SeedPort = 50;
+            o.SeedUrl = &quot;localhost&quot;;
+            o.IsSeedPeer = true;
+            o.KademliaPeerId = 1;
+        })
+        .Build()
+        .Start();
 }
 </code></pre>
-<p>Add a new procedure <code>AddNode(int port)</code>, it will be used to add and start a node.</p>
-<pre><code>private static void AddNode(long id, int port)
+<p>Add a new procedure <code>AddPeer(int port, int peerId)</code>, it will be used to add and start a node.</p>
+<pre><code>private static async void AddPeer(int port, int peerId)
 {
-    var peerFactory = new ServerBuilder().AddDHTKademlia().ServiceProvider.GetService(typeof(IDHTPeerFactory)) as IDHTPeerFactory;
-    var peer = peerFactory.Build();
-    peer.StartPeer(id, &quot;localhost&quot;, port, &quot;localhost&quot;, 50, CancellationToken.None);
+    await PeerHostFactory.NewStructured(o =&gt;
+    {
+        o.Url = &quot;localhost&quot;;
+        o.Port = port;
+    })
+        .UseUDPTransport()
+        .AddDHTKademliaProtocol(o =&gt;
+        {
+            o.SeedPort = 50;
+            o.SeedUrl = &quot;localhost&quot;;
+            o.IsSeedPeer = false;
+            o.KademliaPeerId = peerId;
+        })
+        .Build()
+        .Start();
 }
 </code></pre>
 <p>Add a new procedure <code>PersistKey(long key, string value)</code>, it will be used to persist a Key and its Value into the ring.</p>
 <pre><code>private static async void PersistKey(long key, string value)
 {
-    using (var kademliaClient = new KademliaClient(&quot;localhost&quot;, 50))
+    using (var kademliaClient = new UDPKademliaClient(&quot;localhost&quot;, 50))
     {
         await kademliaClient.StoreValue(key, value);
     }
 }
 </code></pre>
 <p>Add a new procedure <code>GetKey(long key)</code>, it will be used to get the value of the key from the ring.</p>
-<pre><code>private static string GetKey(long key)
+<pre><code>private static async Task&lt;string&gt; GetKey(long key)
 {
-    using (var chordClient = new KademliaClient(&quot;localhost&quot;, 50))
+    using (var kademliaClient = new UDPKademliaClient(&quot;localhost&quot;, 50))
     {
-        return chordClient.FindValue(key).Result.Value;
+        var value = await kademliaClient.FindValue(key);
+        return value.Value;
     }
 }
 </code></pre>
 <p>Add the following code to add two peers, publish a key with its value and finally display the value of the key.</p>
-<pre><code>StartKademlia();
-AddNode(2, 57);
-AddNode(5, 58);
+<pre><code>AddRootPeer();
+Console.WriteLine(&quot;Press enter to add a Peer&quot;);
+Console.ReadLine();
+AddPeer(57, 2);
+Console.WriteLine(&quot;Press enter to add a Peer&quot;);
+Console.ReadLine();
+AddPeer(58, 5);
+Console.WriteLine(&quot;Press enter to add a key&quot;);
+Console.ReadLine();
 PersistKey(8, &quot;Hello&quot;);
-Console.WriteLine($&quot;Key 8 is stored with the value {GetKey(8)}&quot;);
+Console.WriteLine(&quot;Press enter to display the key&quot;);
+Console.ReadLine();
+var key = GetKey(8).Result;
+Console.WriteLine($&quot;Key 8 is stored with the value {key}&quot;);
 </code></pre>
 </article>
           </div>
@@ -156,7 +190,7 @@ Console.WriteLine($&quot;Key 8 is stored with the value {GetKey(8)}&quot;);
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/structured/kademlia.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/p2p/structured/kademlia.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
@@ -183,8 +217,8 @@ Console.WriteLine($&quot;Key 8 is stored with the value {GetKey(8)}&quot;);
       </footer>
     </div>
     
-    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
-    <script type="text/javascript" src="../../styles/docfx.js"></script>
-    <script type="text/javascript" src="../../styles/main.js"></script>
+    <script type="text/javascript" src="../../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../../styles/main.js"></script>
   </body>
 </html>

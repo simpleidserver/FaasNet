@@ -5,18 +5,18 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Raft consensus </title>
+    <title>Unstructured P2P Network </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Raft consensus ">
+    <meta name="title" content="Unstructured P2P Network ">
     <meta name="generator" content="docfx 2.59.2.0">
     
-    <link rel="shortcut icon" href="../../favicon.ico">
-    <link rel="stylesheet" href="../../styles/docfx.vendor.css">
-    <link rel="stylesheet" href="../../styles/docfx.css">
-    <link rel="stylesheet" href="../../styles/main.css">
+    <link rel="shortcut icon" href="../../../favicon.ico">
+    <link rel="stylesheet" href="../../../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../../../styles/docfx.css">
+    <link rel="stylesheet" href="../../../styles/main.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
-    <meta property="docfx:navrel" content="../../toc.html">
-    <meta property="docfx:tocrel" content="../toc.html">
+    <meta property="docfx:navrel" content="../../../toc.html">
+    <meta property="docfx:tocrel" content="../../toc.html">
     
     
     
@@ -34,8 +34,8 @@
                 <span class="icon-bar"></span>
               </button>
               
-              <a class="navbar-brand" href="../../index.html">
-                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              <a class="navbar-brand" href="../../../index.html">
+                <img id="logo" class="svg" src="../../../logo.svg" alt="">
               </a>
             </div>
             <div class="collapse navbar-collapse" id="navbar">
@@ -67,24 +67,9 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="raft-consensus">Raft consensus</h1>
+<h1 id="unstructured-p2p-network">Unstructured P2P Network</h1>
 
-<p>Raft consensus algorithm is used to build resilient, fault-tolerant, strongly-consistent distributed systems.</p>
-<p>Applications like Apache Kafka are using Raft Consensus algorithm for both leader election and data replication.
-Instead of having all the data stored in one Peer, they are duplicated among two or more Peers.</p>
-<p>The algorithm is widely used :</p>
-<ul>
-<li>CockroachDB uses raft in the Replication layer.</li>
-<li>MongoDB uses a variant of Raft in the replication set.</li>
-</ul>
-<p>In the context of Raft Consensus, a Peer can have one of the following status :</p>
-<ul>
-<li>Follower : issue no requests but simply respond to request from leaders and candidates.</li>
-<li>Candidate : during the election process, ask to other Peers to become the leader. Candidate becomes the leader when it receives votes from majority of servers.</li>
-<li>Leader : handle all client requests.</li>
-</ul>
-<p><img src="images/raftconsensus.png" alt="Raft consensus"></p>
-<h2 id="quick-start">Quick start</h2>
+<p>In unstructured P2P network, every Peer on the Network can make an equal contribution with a random connection between various Peers.</p>
 </article>
           </div>
           
@@ -93,7 +78,7 @@ Instead of having all the data stored in one Peer, they are duplicated among two
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/unstructured/raftconsensus.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/simpleidserver/FaasNet/blob/release/0.0.7/docs/documentation/p2p/unstructured/index.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
@@ -120,8 +105,8 @@ Instead of having all the data stored in one Peer, they are duplicated among two
       </footer>
     </div>
     
-    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
-    <script type="text/javascript" src="../../styles/docfx.js"></script>
-    <script type="text/javascript" src="../../styles/main.js"></script>
+    <script type="text/javascript" src="../../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../../styles/main.js"></script>
   </body>
 </html>
