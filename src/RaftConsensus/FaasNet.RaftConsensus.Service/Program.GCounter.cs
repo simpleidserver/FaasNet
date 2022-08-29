@@ -8,26 +8,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Reflection;
-using System.Text;
 
 namespace FaasNet.RaftConsensus.Service
 {
     internal partial class Program
     {
-        public static void LaunchPeers()
+        public static void LaunchGCounter()
         {
-            LaunchRaftConsensusPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5002) }, false, "node1", 5001);
-            LaunchRaftConsensusPeer(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, false, "node2", 5002);
-
-            /*
-            Console.WriteLine("Press any key to add an entry");
-            Console.ReadLine();
-            AddLogEntry(5002, false);
-
-            Console.WriteLine("Press any key to add an entry");
-            Console.ReadLine();
-            AddLogEntry(5002, false);
-            */
+            LaunchRaftConsensusPeerGCounter(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5002) }, false, "node1", 5001);
+            LaunchRaftConsensusPeerGCounter(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, false, "node2", 5002);
 
             Console.WriteLine("Press any key to increment the counter by 2");
             Console.ReadLine();
@@ -35,7 +24,7 @@ namespace FaasNet.RaftConsensus.Service
 
             Console.WriteLine("Press any key to display the state machine");
             Console.ReadLine();
-            DisplayStateMachine(5001, false);
+            DisplayGCounterStateMachine(5001, false);
 
             Console.WriteLine("Press any key to display state of Peer 5001");
             Console.ReadLine();
@@ -44,17 +33,9 @@ namespace FaasNet.RaftConsensus.Service
             Console.WriteLine("Press any key to display state of Peer 5002");
             Console.ReadLine();
             DisplayPeerState(5002, false);
-
-            Console.WriteLine("Press any key to get logs of Peer 5001");
-            Console.ReadLine();
-            DisplayLogs(5001, false);
-
-            Console.WriteLine("Press any key to get logs of Peer 5002");
-            Console.ReadLine();
-            DisplayLogs(5002, false);
         }
 
-        private static IPeerHost LaunchRaftConsensusPeer(ConcurrentBag<ClusterPeer> clusterPeers, bool isTcp = false, string nodeName = "node1", int port = 5001)
+        private static IPeerHost LaunchRaftConsensusPeerGCounter(ConcurrentBag<ClusterPeer> clusterPeers, bool isTcp = false, string nodeName = "node1", int port = 5001)
         {
             var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var peerHostFactory = PeerHostFactory.NewUnstructured(o =>
@@ -69,6 +50,7 @@ namespace FaasNet.RaftConsensus.Service
             })
                 .AddRaftConsensus(o =>
                 {
+                    o.StateMachineType = typeof(GCounter);
                     o.IsConfigurationStoredInMemory = true;
                     o.ConfigurationDirectoryPath = Path.Combine(path, nodeName);
                     o.LeaderCallback = () =>
@@ -83,19 +65,13 @@ namespace FaasNet.RaftConsensus.Service
             return peerHost;
         }
 
-        private static async void AddLogEntry(int port, bool isTcp = false)
-        {
-            using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
-                await client.AppendEntry(Encoding.UTF8.GetBytes("value"), 1000000);
-        }
-
         private static async void IncrementCounter(int port, long value, bool isTcp = false)
         {
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
                 await client.SendCommand(new IncrementGCounterCommand { Value = value }, 1000000);
         }
 
-        private static async void DisplayStateMachine(int port, bool isTcp = false)
+        private static async void DisplayGCounterStateMachine(int port, bool isTcp = false)
         {
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
             {
@@ -115,21 +91,8 @@ namespace FaasNet.RaftConsensus.Service
                 Console.WriteLine($"CommitIndex {peerState.CommitIndex}");
                 Console.WriteLine($"LastApplied {peerState.LastApplied}");
                 Console.WriteLine($"VotedFor {peerState.VotedFor}");
-            }
-        }
-
-        private static async void DisplayLogs(int port, bool isTcp = false)
-        {
-            using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
-            {
-                var result = (await client.GetLogs(1, 5000)).First();
-                foreach (var log in result.Entries)
-                {
-                    Console.WriteLine($"Index {log.Index}");
-                    Console.WriteLine($"Term {log.Term}");
-                }
-
-                Console.WriteLine();
+                Console.WriteLine($"SnapshotLastApplied {peerState.SnapshotLastApplied}");
+                Console.WriteLine($"SnapshotCommitIndex {peerState.SnapshotCommitIndex}");
             }
         }
     }

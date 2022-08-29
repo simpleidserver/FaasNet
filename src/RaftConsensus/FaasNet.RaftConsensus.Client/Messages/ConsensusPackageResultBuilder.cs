@@ -33,7 +33,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
             };
         }
 
-        public static BaseConsensusPackage GetPeerState(long term, string votedFor, long commitIndex, long lastApplied, PeerStatus status)
+        public static BaseConsensusPackage GetPeerState(long term, string votedFor, long commitIndex, long lastApplied, PeerStatus status, long snapshotLastApplied, long snapshotCommitIndex)
         {
             return new GetPeerStateResult
             {
@@ -41,7 +41,9 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 VotedFor = votedFor,
                 CommitIndex = commitIndex,
                 LastApplied = lastApplied,
-                Status = status
+                Status = status,
+                SnapshotLastApplied = snapshotLastApplied,
+                SnapshotCommitIndex = snapshotCommitIndex
             };
         }
 

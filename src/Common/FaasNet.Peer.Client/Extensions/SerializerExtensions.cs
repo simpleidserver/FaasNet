@@ -74,15 +74,8 @@ namespace FaasNet.Peer.Client.Extensions
 
         public static string GetString(this Queue<byte> queue)
         {
-            var size = (uint)queue.GetInt();
+            var size = (int)queue.GetInt();
             return Encoding.ASCII.GetString(queue.Dequeue(size).ToArray());
-        }
-
-        public static byte[] GetByteArray(this Queue<byte> queue)
-        {
-            var size = queue.Dequeue();
-            if (size == 0) return new byte[0];
-            return queue.Dequeue(size).ToArray();
         }
 
         public static bool GetBoolean(this Queue<byte> queue)
@@ -91,7 +84,7 @@ namespace FaasNet.Peer.Client.Extensions
             return Convert.ToBoolean(payload.ElementAt(0));
         }
 
-        public static IEnumerable<byte> Dequeue(this Queue<byte> queue, uint number)
+        public static IEnumerable<byte> Dequeue(this Queue<byte> queue, int number)
         {
             var result = new List<byte>();
             for (var i = 0; i < number; i++)

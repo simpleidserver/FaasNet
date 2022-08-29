@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace FaasNet.RaftConsensus.Client
 {
@@ -18,28 +17,27 @@ namespace FaasNet.RaftConsensus.Client
 
         public static void Serialize<T>(T cmd, WriteBufferContext context) where T : ICommand
         {
-            context.WriteString(cmd.GetType().Name);
+            context.WriteString(cmd.GetType().AssemblyQualifiedName);
             cmd.Serialize(context);
         }
 
         public static byte[] Serialize<T>(T cmd) where T : ICommand
         {
             var context = new WriteBufferContext();
-            context.WriteString(cmd.GetType().Name);
+            context.WriteString(cmd.GetType().AssemblyQualifiedName);
             cmd.Serialize(context);
             return context.Buffer.ToArray();
         }
 
-        public static ICommand Deserialize(byte[] payload, Assembly assembly)
+        public static ICommand Deserialize(byte[] payload)
         {
             var context = new ReadBufferContext(payload);
-            return Deserialize(context, assembly);
+            return Deserialize(context);
         }
 
-        public static ICommand Deserialize(ReadBufferContext context, Assembly assembly) 
+        public static ICommand Deserialize(ReadBufferContext context) 
         {
-            var name = context.NextString();
-            var type = assembly.GetTypes().Single(a => a.Name == name);
+            var type = Type.GetType(context.NextString());
             var instance = Activator.CreateInstance(type);
             var result = (ICommand)instance;
             result.Deserialize(context);

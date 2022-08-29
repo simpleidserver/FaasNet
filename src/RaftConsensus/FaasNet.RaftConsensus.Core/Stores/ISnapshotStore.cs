@@ -37,7 +37,7 @@ namespace FaasNet.RaftConsensus.Core.Stores
                 stateMachine = (IStateMachine)Activator.CreateInstance(_options.StateMachineType);
             foreach(var logEntry in logEntries)
             {
-                var cmd = CommandSerializer.Deserialize(logEntry.Command, _options.AssemblyStateMachineCommands);
+                var cmd = CommandSerializer.Deserialize(logEntry.Command);
                 stateMachine.Apply(cmd);
             }
 
@@ -53,10 +53,10 @@ namespace FaasNet.RaftConsensus.Core.Stores
             else
                 stateMachine = (IStateMachine)Activator.CreateInstance(_options.StateMachineType);
 
-            var logEntries = await _logStore.GetFrom(index, cancellationToken);
+            var logEntries = await _logStore.GetFrom(index, false, cancellationToken);
             foreach(var logEntry in logEntries)
             {
-                var cmd = CommandSerializer.Deserialize(logEntry.Command, _options.AssemblyStateMachineCommands);
+                var cmd = CommandSerializer.Deserialize(logEntry.Command);
                 stateMachine.Apply(cmd);
             }
 

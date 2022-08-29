@@ -150,12 +150,12 @@ namespace FaasNet.RaftConsensus.Core
 
         private Task<BaseConsensusPackage> Handle(GetPeerStateRequest request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(ConsensusPackageResultBuilder.GetPeerState(_peerState.CurrentTerm, _peerState.VotedFor, _peerState.CommitIndex, _peerState.LastApplied, _peerInfo.Status));
+            return Task.FromResult(ConsensusPackageResultBuilder.GetPeerState(_peerState.CurrentTerm, _peerState.VotedFor, _peerState.CommitIndex, _peerState.LastApplied, _peerInfo.Status, _peerState.SnapshotLastApplied, _peerState.SnapshotCommitIndex));
         }
 
         private async Task<BaseConsensusPackage> Handle(GetLogsRequest request, CancellationToken cancellationToken)
         {
-            var result = await _logStore.GetFrom(request.StartIndex, cancellationToken);
+            var result = await _logStore.GetFrom(request.StartIndex, cancellationToken: cancellationToken);
             return ConsensusPackageResultBuilder.GetLogs(result);
         }
 
@@ -167,7 +167,6 @@ namespace FaasNet.RaftConsensus.Core
             {
                 success = true;
                 UpdateSnapshot(request);
-                DiscardLogs();
                 UpdateCommitIndex(request, _peerState);
             }
 
@@ -184,12 +183,6 @@ namespace FaasNet.RaftConsensus.Core
                 });
                 _peerState.SnapshotLastApplied = request.SnapshotIndex;
             }
-
-            async void DiscardLogs()
-            {
-                await _logStore.RemoveTo(_peerState.SnapshotLastApplied, cancellationToken);
-            }
-
 
             void UpdateCommitIndex(InstallSnapshotRequest request, PeerState peerState)
             {

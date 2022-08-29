@@ -15,7 +15,7 @@ namespace FaasNet.Peer.Client
         }
 
         public Queue<byte> Buffer { get; private set; }
-        public UInt16 CurrentOffset { get; private set; }
+        public int CurrentOffset { get; private set; }
 
         public int NextInt()
         {
@@ -41,10 +41,9 @@ namespace FaasNet.Peer.Client
 
         public byte[] NextByteArray()
         {
-            var size = Buffer.First();
-            CurrentOffset += size;
-            var result = Buffer.GetByteArray();
-            return result;
+            var size = NextInt();
+            var result = Buffer.Dequeue(size);
+            return result.ToArray();
         }
 
         public bool NextBoolean()

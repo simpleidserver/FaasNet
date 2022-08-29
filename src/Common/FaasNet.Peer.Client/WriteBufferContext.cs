@@ -33,7 +33,7 @@ namespace FaasNet.Peer.Client
         {
             var result = new List<byte>();
             var nb = b == null ? 0 : b.Length;
-            result.Add((byte)nb);
+            result.AddRange(nb.ToBytes());
             if (nb > 0) result.AddRange(b);
             Buffer.AddRange(result);
         }

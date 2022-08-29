@@ -2,6 +2,7 @@
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
+using FaasNet.RaftConsensus.Core.StateMachines;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
 using System;
@@ -97,24 +98,36 @@ namespace FaasNet.RaftConsensus.Core
 
         private async void TakeSnapshot(IEnumerable<ClusterPeer> clusterPeers)
         {
-            if (_peerState.CommitIndex - _peerState.SnapshotCommitIndex < _raftOptions.SnapshotFrequency) return;
-            var result = await InstallSnapshot(clusterPeers);
+            var takeSnapshot = _peerState.CommitIndex - _peerState.SnapshotCommitIndex >= _raftOptions.SnapshotFrequency;
+            var stateMachine = await GetStateMachine();
+            var result = await InstallSnapshot(clusterPeers, stateMachine.Value);
             TryCommit(result.Item2, result.Item1);
 
-            async Task<(IEnumerable<InstallSnapshotResult>, Snapshot)> InstallSnapshot(IEnumerable<ClusterPeer> peers)
+            async Task<(IStateMachine, Snapshot)?> GetStateMachine()
             {
-                var logEntries = await _logStore.GetTo(_peerState.CommitIndex, _cancellationTokenSource.Token);
-                var stateMachine = _stateMachineStore.RestoreStateMachine(logEntries);
-                var snapshot = new Snapshot
+                (IStateMachine, Snapshot)? result = null;
+                if (takeSnapshot)
                 {
-                    Index = _peerState.CommitIndex,
-                    StateMachine = stateMachine.Serialize(),
-                    Term = logEntries.OrderByDescending(e => e.Term).First().Term
-                };
+                    var logEntries = await _logStore.GetTo(_peerState.CommitIndex, _cancellationTokenSource.Token);
+                    var stateMachine = _stateMachineStore.RestoreStateMachine(logEntries);
+                    var snapshot = new Snapshot
+                    {
+                        Index = _peerState.CommitIndex,
+                        StateMachine = stateMachine.Serialize(),
+                        Term = logEntries.OrderByDescending(e => e.Term).First().Term
+                    };
+                    result = (stateMachine, snapshot);
+                }
+                else result = await _stateMachineStore.GetLatestStateMachine(_cancellationTokenSource.Token);
+                return result;
+            }
+
+            async Task<(IEnumerable<InstallSnapshotResult>, Snapshot)> InstallSnapshot(IEnumerable<ClusterPeer> peers, (IStateMachine, Snapshot) stateMachine)
+            {
                 var tasks = new List<Task<InstallSnapshotResult>>();
-                foreach (var peer in peers) tasks.Add(SendInstallSnapshot(snapshot, peer));
+                foreach (var peer in peers) tasks.Add(SendInstallSnapshot(stateMachine.Item2, peer));
                 var result = await Task.WhenAll(tasks);
-                return (result, snapshot);
+                return (result, stateMachine.Item2);
             }
 
             async Task<InstallSnapshotResult> SendInstallSnapshot(Snapshot snapshot, ClusterPeer peer)

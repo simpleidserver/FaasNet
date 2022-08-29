@@ -11,6 +11,8 @@ namespace FaasNet.RaftConsensus.Client.Messages
         public long CommitIndex { get; set; }
         public long LastApplied { get; set; }
         public PeerStatus Status { get; set; }
+        public long SnapshotLastApplied { get; set; }
+        public long SnapshotCommitIndex { get; set; }
 
         protected override void SerializeAction(WriteBufferContext context)
         {
@@ -19,6 +21,8 @@ namespace FaasNet.RaftConsensus.Client.Messages
             context.WriteLong(CommitIndex);
             context.WriteLong(LastApplied);
             context.WriteInteger((int)Status);
+            context.WriteLong(SnapshotLastApplied);
+            context.WriteLong(SnapshotCommitIndex);
         }
 
         public void Extract(ReadBufferContext context)
@@ -28,6 +32,8 @@ namespace FaasNet.RaftConsensus.Client.Messages
             CommitIndex = context.NextLong();
             LastApplied = context.NextLong();
             Status = (PeerStatus)context.NextInt();
+            SnapshotLastApplied = context.NextLong();
+            SnapshotCommitIndex = context.NextLong();
         }
     }
 }

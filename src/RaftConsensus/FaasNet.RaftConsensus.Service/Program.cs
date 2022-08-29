@@ -5,7 +5,9 @@
         public static int Main(string[] args)
         {
             // LaunchNodes();
-            LaunchPeers();
+            // LaunchGCounter();
+            // LaunchGCollectionStr();
+            LaunchMenu();
             Console.WriteLine("Press any key to quit the application");
             Console.ReadLine();
             return 1;

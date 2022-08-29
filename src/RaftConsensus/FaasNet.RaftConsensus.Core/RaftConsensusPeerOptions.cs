@@ -43,10 +43,6 @@ namespace FaasNet.RaftConsensus.Core
         /// Type of the state machine.
         /// </summary>
         public Type StateMachineType { get; set; } = typeof(GCounter);
-        /// <summary>
-        /// Assembly where commands are located.
-        /// </summary>
-        public Assembly AssemblyStateMachineCommands { get; set; } = typeof(LogEntry).Assembly;
     }
 
     public class Interval
