@@ -65,7 +65,7 @@ namespace FaasNet.RaftConsensus.RocksDB
             return Task.FromResult((IEnumerable<LogEntry>)result);
         }
 
-        public Task<IEnumerable<LogEntry>> GetTo(long index, CancellationToken cancellationToken)
+        public Task<IEnumerable<LogEntry>> GetFromTo(long fromIndex, long toIndex, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

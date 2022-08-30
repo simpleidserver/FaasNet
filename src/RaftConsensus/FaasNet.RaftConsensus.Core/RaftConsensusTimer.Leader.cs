@@ -7,6 +7,7 @@ using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -58,24 +59,17 @@ namespace FaasNet.RaftConsensus.Core
                     {
                         var otherPeer = _peerInfo.GetOtherPeer(peer.Id);
                         AppendEntriesResult result = null;
-                        if (otherPeer == null)
-                        {
-                            result = (await consensusClient.Heartbeat(_peerState.CurrentTerm, _peerOptions.Id, _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
+                        if (otherPeer == null) 
                             otherPeer = _peerInfo.AddOtherPeer(peer.Id);
-                        }
-                        else
+                        var previousTerm = _peerState.PreviousTerm;
+                        var logs = new List<LogEntry>();
+                        if (otherPeer.NextIndex != null)
                         {
-                            var previousTerm = _peerState.PreviousTerm;
-                            var logs = new List<LogEntry>();
-                            if (otherPeer.NextIndex != null)
-                            {
-                                var log = await _logStore.Get(otherPeer.NextIndex.Value, _cancellationTokenSource.Token);
-                                if (log != null) logs.Add(log);
-                            }
-
-                            result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, otherPeer.MatchIndex.Value, previousTerm, logs, _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
+                            var log = await _logStore.Get(otherPeer.NextIndex.Value, _cancellationTokenSource.Token);
+                            if (log != null) logs.Add(log);
                         }
 
+                        result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, otherPeer.MatchIndex, previousTerm, logs, _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
                         otherPeer.MatchIndex = result.MatchIndex;
                     }
                 }
@@ -108,7 +102,7 @@ namespace FaasNet.RaftConsensus.Core
                 (IStateMachine, Snapshot)? result = null;
                 if (takeSnapshot)
                 {
-                    var logEntries = await _logStore.GetTo(_peerState.CommitIndex, _cancellationTokenSource.Token);
+                    var logEntries = await _logStore.GetFromTo(_peerState.SnapshotCommitIndex, _peerState.CommitIndex, _cancellationTokenSource.Token);
                     var stateMachine = _stateMachineStore.RestoreStateMachine(logEntries);
                     var snapshot = new Snapshot
                     {
@@ -141,7 +135,7 @@ namespace FaasNet.RaftConsensus.Core
                         var otherPeer = _peerInfo.GetOtherPeer(peer.Id);
                         if (otherPeer.SnapshotIndex != snapshot.Index) data = snapshot.StateMachine;
                         var result = (await consensusClient.InstallSnapshot(_peerState.CurrentTerm, _peerOptions.Id, _peerState.SnapshotCommitIndex, snapshot.Term, snapshot.Index, data, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
-                        otherPeer.MatchIndex = result.MatchIndex;
+                        otherPeer.SnapshotIndex = result.MatchIndex;
                         return result;
                     }
                 }
@@ -161,7 +155,6 @@ namespace FaasNet.RaftConsensus.Core
                 _peerState.SnapshotCommitIndex = snapshot.Index;
                 _peerState.SnapshotLastApplied = snapshot.Index;
                 _stateMachineStore.Update(snapshot);
-                await _logStore.RemoveTo(snapshot.Index, _cancellationTokenSource.Token);
             }
         }
     }

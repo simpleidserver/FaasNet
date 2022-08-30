@@ -6,6 +6,7 @@ using FaasNet.RaftConsensus.Core.Infos;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Options;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -78,17 +79,20 @@ namespace FaasNet.RaftConsensus.Core
             {
                 await UpdateLogEntries(request, cancellationToken);
                 UpdateCommitIndex(request, _peerState);
+                UpdateTerm(request, _peerState);
             }
 
             UpdateLeader(_peerInfo);
             return ConsensusPackageResultBuilder.AppendEntries(_peerState.CurrentTerm, _peerState.LastApplied, success);
             async Task UpdateLogEntries(AppendEntriesRequest request, CancellationToken cancellationToken)
             {
+                Debug.WriteLine($"CurrentTerm : {_peerState.CurrentTerm}, LastApplied : {_peerState.LastApplied}, PreLogTerm = {request.PreLogTerm}, PreLogIndex = {request.PrevLogIndex}, NbEntries = {request.Entries.Count()}");
                 if (!request.Entries.Any()) return;
                 var conflictedLog = await GetFirstConflictedLog(request, cancellationToken);
                 if (conflictedLog.Item1 != null)
                     await _logStore.RemoveFrom(conflictedLog.Item1.Value, cancellationToken);
                 await _logStore.UpdateRange(request.Entries, cancellationToken);
+                Debug.WriteLine($"Last applied : {conflictedLog.Item2.Value}");
                 _peerState.LastApplied = conflictedLog.Item2.Value;
             }
 
@@ -112,6 +116,11 @@ namespace FaasNet.RaftConsensus.Core
             void UpdateCommitIndex(AppendEntriesRequest request, PeerState peerState)
             {
                 if (request.LeaderCommit > peerState.CommitIndex) peerState.CommitIndex = request.LeaderCommit;
+            }
+
+            void UpdateTerm(AppendEntriesRequest request, PeerState peerState)
+            {
+                if (request.Term > peerState.CurrentTerm) peerState.CurrentTerm = request.Term;
             }
 
             void UpdateLeader(PeerInfo peerInfo)

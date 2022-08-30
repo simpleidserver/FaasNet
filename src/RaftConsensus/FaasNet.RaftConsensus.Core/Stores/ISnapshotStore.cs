@@ -3,6 +3,7 @@ using FaasNet.RaftConsensus.Core.StateMachines;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,7 +36,7 @@ namespace FaasNet.RaftConsensus.Core.Stores
                 stateMachine = StateMachineSerializer.Deserialize(_options.StateMachineType, _snapshot.StateMachine);
             else
                 stateMachine = (IStateMachine)Activator.CreateInstance(_options.StateMachineType);
-            foreach(var logEntry in logEntries)
+            foreach(var logEntry in logEntries.OrderBy(l => l.Index))
             {
                 var cmd = CommandSerializer.Deserialize(logEntry.Command);
                 stateMachine.Apply(cmd);

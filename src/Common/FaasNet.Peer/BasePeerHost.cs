@@ -10,6 +10,7 @@ namespace FaasNet.Peer
 {
     public interface IPeerHost
     {
+        bool IsRunning { get; }
         Task Start(CancellationToken cancellationToken = default(CancellationToken));
         Task Stop();
     }

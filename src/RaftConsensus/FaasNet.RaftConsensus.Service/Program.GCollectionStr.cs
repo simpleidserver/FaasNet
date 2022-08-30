@@ -63,6 +63,7 @@ namespace FaasNet.RaftConsensus.Service
                 .AddRaftConsensus(o =>
                 {
                     o.StateMachineType = typeof(GCollection);
+                    o.SnapshotFrequency = 2;
                     o.IsConfigurationStoredInMemory = true;
                     o.ConfigurationDirectoryPath = Path.Combine(path, nodeName);
                     o.LeaderCallback = () =>
