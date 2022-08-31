@@ -6,5 +6,10 @@
         {
             return new PingResult(seq);
         }
+
+        public static BaseEventMeshPackage AddVpn(string seq)
+        {
+            return new AddVpnResult(seq);
+        }
     }
 }

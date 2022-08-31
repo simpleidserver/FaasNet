@@ -1,6 +1,7 @@
 ﻿using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Commands;
+using FaasNet.RaftConsensus.Client.StateMachines;
 using System;
 using System.Collections.Generic;
 using System.Linq;

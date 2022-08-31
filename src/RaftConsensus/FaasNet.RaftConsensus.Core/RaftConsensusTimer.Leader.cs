@@ -2,8 +2,8 @@
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
+using FaasNet.RaftConsensus.Client.StateMachines;
 using FaasNet.RaftConsensus.Core.Infos;
-using FaasNet.RaftConsensus.Core.StateMachines;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
 using System;

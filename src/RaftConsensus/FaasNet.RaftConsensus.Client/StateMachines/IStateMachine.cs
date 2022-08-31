@@ -1,7 +1,6 @@
 ﻿using FaasNet.Peer.Client;
-using FaasNet.RaftConsensus.Client;
 
-namespace FaasNet.RaftConsensus.Core.StateMachines
+namespace FaasNet.RaftConsensus.Client.StateMachines
 {
     public interface IStateMachine
     {

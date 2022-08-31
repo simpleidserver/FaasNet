@@ -1,4 +1,5 @@
 ﻿using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Client.StateMachines;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using Microsoft.Extensions.Options;
 using System;

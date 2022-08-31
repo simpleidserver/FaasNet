@@ -2,6 +2,7 @@
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Client.Messages;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace FaasNet.Partition
             var partitions = await _partitionPeerStore.GetAll();
             foreach (var partition in partitions)
             {
-                var peerHost = _partitionPeerFactory.Build(partition.Port, partition.PartitionKey, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
+                var peerHost = _partitionPeerFactory.Build(partition.Port, partition.PartitionKey, partition.StateMachineType, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
                 _partitions.Add((peerHost, partition));
                 await peerHost.Start();
             }
@@ -56,7 +57,7 @@ namespace FaasNet.Partition
             var port = !_partitions.Any() ? _options.StartPeerPort : _partitions.OrderByDescending(p => p.Item2.Port).First().Item2.Port + 1;
             var record = new DirectPartitionPeer { PartitionKey = partitionKey, Port = port };
             await _partitionPeerStore.Add(record);
-            var peerHost = _partitionPeerFactory.Build(port, partitionKey, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
+            var peerHost = _partitionPeerFactory.Build(port, partitionKey, null, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
             await peerHost.Start();
             _partitions.Add((peerHost, record));
         }
@@ -98,5 +99,6 @@ namespace FaasNet.Partition
     {
         public int Port { get; set; }
         public string PartitionKey { get; set; }
+        public Type StateMachineType { get; set; }
     }
 }

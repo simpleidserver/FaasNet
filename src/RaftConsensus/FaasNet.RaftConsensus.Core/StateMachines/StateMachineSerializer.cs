@@ -1,4 +1,5 @@
 ﻿using FaasNet.Peer.Client;
+using FaasNet.RaftConsensus.Client.StateMachines;
 using System;
 
 namespace FaasNet.RaftConsensus.Core.StateMachines

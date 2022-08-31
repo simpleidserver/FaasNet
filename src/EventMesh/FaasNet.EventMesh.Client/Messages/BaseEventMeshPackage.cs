@@ -39,6 +39,7 @@ namespace FaasNet.EventMesh.Client.Messages
             if (cmd == EventMeshCommands.HEARTBEAT_REQUEST) return new PingRequest(seq);
             if (cmd == EventMeshCommands.HEARTBEAT_RESPONSE) return new PingResult(seq);
             if (cmd == EventMeshCommands.ADD_VPN_REQUEST) return new AddVpnRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_VPN_RESPONSE) return new AddVpnResult(seq);
             return null;
         }
     }

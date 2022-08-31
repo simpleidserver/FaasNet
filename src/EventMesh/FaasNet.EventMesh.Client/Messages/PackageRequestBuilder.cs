@@ -9,6 +9,10 @@ namespace FaasNet.EventMesh.Client.Messages
         {
             return new PingRequest(GenerateRandomSeq());
         }
+        public static BaseEventMeshPackage AddVpn(string vpn)
+        {
+            return new AddVpnRequest(GenerateRandomSeq(), vpn);
+        }
 
         private static string GenerateRandomSeq()
         {

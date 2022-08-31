@@ -1,7 +1,5 @@
-﻿using FaasNet.RaftConsensus.Client;
-using FaasNet.RaftConsensus.Core.StateMachines;
+﻿using FaasNet.RaftConsensus.Core.StateMachines;
 using System;
-using System.Reflection;
 
 namespace FaasNet.RaftConsensus.Core
 {
