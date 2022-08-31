@@ -65,6 +65,7 @@ namespace FaasNet.RaftConsensus.Core.Infos
 
     public class OtherPeerInfo
     {
+        private long _currentIndex = 0;
         /// <summary>
         /// Unique Peer identifier.
         /// </summary>

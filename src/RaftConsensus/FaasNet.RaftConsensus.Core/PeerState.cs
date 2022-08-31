@@ -50,7 +50,7 @@ namespace FaasNet.RaftConsensus.Core
             set
             {
                 if (_currentTerm == value) return;
-                _previousTerm = value;
+                _previousTerm = _currentTerm;
                 _currentTerm = value;
                 Update();
             }

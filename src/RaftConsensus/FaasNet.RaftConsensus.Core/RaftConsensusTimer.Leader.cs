@@ -2,12 +2,12 @@
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
+using FaasNet.RaftConsensus.Core.Infos;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -58,24 +58,50 @@ namespace FaasNet.RaftConsensus.Core
                     using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(edp))
                     {
                         var otherPeer = _peerInfo.GetOtherPeer(peer.Id);
-                        AppendEntriesResult result = null;
-                        if (otherPeer == null) 
-                            otherPeer = _peerInfo.AddOtherPeer(peer.Id);
-                        var previousTerm = _peerState.PreviousTerm;
-                        var logs = new List<LogEntry>();
-                        if (otherPeer.NextIndex != null)
+                        if (otherPeer == null)
                         {
-                            var log = await _logStore.Get(otherPeer.NextIndex.Value, _cancellationTokenSource.Token);
-                            if (log != null) logs.Add(log);
+                            otherPeer = _peerInfo.AddOtherPeer(peer.Id);
+                            await Heartbeat(edp, otherPeer);
                         }
-
-                        result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, otherPeer.MatchIndex, previousTerm, logs, _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
-                        otherPeer.MatchIndex = result.MatchIndex;
+                        else await PropagateLogEntries(edp, otherPeer);
                     }
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.ToString());
+                }
+            }
+
+            async Task Heartbeat(IPEndPoint edp, OtherPeerInfo otherPeer)
+            {
+                using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(edp))
+                {
+                    var result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, 0, 0, new List<LogEntry>(), _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
+                    otherPeer.MatchIndex = result.MatchIndex;
+                }
+            }
+
+            async Task PropagateLogEntries(IPEndPoint edp, OtherPeerInfo otherPeer)
+            {
+                using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(edp))
+                {
+                    var logs = new List<LogEntry>();
+                    long previousIndex = 0, previousTerm = 0;
+                    var previousLog = await _logStore.Get(otherPeer.MatchIndex, _cancellationTokenSource.Token);
+                    if (previousLog != null)
+                    {
+                        previousIndex = previousLog.Index;
+                        previousTerm = previousLog.Term;
+                    }
+
+                    if (otherPeer.NextIndex != null)
+                    {
+                        var log = await _logStore.Get(otherPeer.NextIndex.Value, _cancellationTokenSource.Token);
+                        if (log != null) logs.Add(log);
+                    }
+
+                    var result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, previousIndex, previousTerm, logs, _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
+                    otherPeer.MatchIndex = result.MatchIndex;
                 }
             }
 
