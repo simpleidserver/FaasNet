@@ -39,7 +39,13 @@ namespace FaasNet.EventMesh.Client.Messages
             if (cmd == EventMeshCommands.HEARTBEAT_REQUEST) return new PingRequest(seq);
             if (cmd == EventMeshCommands.HEARTBEAT_RESPONSE) return new PingResult(seq);
             if (cmd == EventMeshCommands.ADD_VPN_REQUEST) return new AddVpnRequest(seq).Extract(context);
-            if (cmd == EventMeshCommands.ADD_VPN_RESPONSE) return new AddVpnResult(seq);
+            if (cmd == EventMeshCommands.ADD_VPN_RESPONSE) return new AddVpnResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.GET_ALL_VPN_REQUEST) return new GetAllVpnRequest(seq);
+            if (cmd == EventMeshCommands.GET_ALL_VPN_RESPONSE) return new GetAllVpnResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_CLIENT_REQUEST) return new AddClientRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_CLIENT_RESPONSE) return new AddClientResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.GET_ALL_CLIENT_REQUEST) return new GetAllClientRequest(seq);
+            if (cmd == EventMeshCommands.GET_ALL_CLIENT_RESPONSE) return new GetAllClientResult(seq).Extract(context);
             return null;
         }
     }

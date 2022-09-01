@@ -1,4 +1,5 @@
 ﻿using FaasNet.EventMesh.Client;
+using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.Partition;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;
@@ -18,7 +19,30 @@ using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, 
 Console.WriteLine("Press any key to add a VPN");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
-    await client.AddVpn("VPN");
+    await client.AddVpn("VPN", "description");
+
+Console.WriteLine("Press any key to get all the VPN");
+Console.ReadLine();
+using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
+{
+    var vpnResult = await client.GetAllVpn();
+    foreach(var vpn in vpnResult.Vpns)
+        Console.WriteLine($"Name '{vpn.Id}', Description '{vpn.Description}'");
+}
+
+Console.WriteLine("Press any key to add a client");
+Console.ReadLine();
+using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
+    await client.AddClient("publishClientId", "VPN", new List<ClientPurposeTypes> { ClientPurposeTypes.PUBLISH });
+
+Console.WriteLine("Press any key to display all the clients");
+Console.ReadLine();
+using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
+{
+    var clientResult = await client.GetAllClient();
+    foreach(var cl in clientResult.Clients)
+        Console.WriteLine($"ClientId '{cl.Id}', Vpn '{cl.Vpn}', Purposes '{string.Join(",", cl.Purposes.Select(p => p.ToString()))}'");
+}
 
 Console.WriteLine("Press any key to quit the application");
 Console.ReadLine();

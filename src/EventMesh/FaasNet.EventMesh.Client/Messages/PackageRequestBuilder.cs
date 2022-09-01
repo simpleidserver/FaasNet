@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FaasNet.EventMesh.Client.StateMachines;
+using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace FaasNet.EventMesh.Client.Messages
@@ -9,9 +11,24 @@ namespace FaasNet.EventMesh.Client.Messages
         {
             return new PingRequest(GenerateRandomSeq());
         }
-        public static BaseEventMeshPackage AddVpn(string vpn)
+        public static BaseEventMeshPackage AddVpn(string vpn, string description)
         {
-            return new AddVpnRequest(GenerateRandomSeq(), vpn);
+            return new AddVpnRequest(GenerateRandomSeq(), vpn, description);
+        }
+
+        public static BaseEventMeshPackage GetAllVpn()
+        {
+            return new GetAllVpnRequest(GenerateRandomSeq());
+        }
+
+        public static BaseEventMeshPackage AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposes)
+        {
+            return new AddClientRequest(GenerateRandomSeq(), clientId, vpn, purposes);
+        }
+
+        public static BaseEventMeshPackage GetAllClient()
+        {
+            return new GetAllClientRequest(GenerateRandomSeq());
         }
 
         private static string GenerateRandomSeq()
