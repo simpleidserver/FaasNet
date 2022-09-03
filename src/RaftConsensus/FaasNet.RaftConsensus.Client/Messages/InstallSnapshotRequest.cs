@@ -36,6 +36,11 @@ namespace FaasNet.RaftConsensus.Client.Messages
         /// </summary>
         public byte[] Data { get; set; }
 
+        /// <summary>
+        /// Unique identifier of the state machine.
+        /// </summary>
+        public string StateMachineId { get; set; }
+
         protected override void SerializeAction(WriteBufferContext context)
         {
             context.WriteLong(Term);
@@ -44,6 +49,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
             context.WriteLong(SnapshotTerm);
             context.WriteLong(SnapshotIndex);
             context.WriteByteArray(Data);
+            context.WriteString(StateMachineId);
         }
 
         public void Extract(ReadBufferContext context)
@@ -54,6 +60,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
             SnapshotTerm = context.NextLong();
             SnapshotIndex = context.NextLong();
             Data = context.NextByteArray();
+            StateMachineId = context.NextString();
         }
     }
 }

@@ -9,53 +9,56 @@ namespace FaasNet.Peer.Client
     {
         public List<byte> Buffer { get; } = new List<byte>();
 
-        public void WriteString(string str)
+        public WriteBufferContext WriteString(string str)
         {
             Buffer.AddRange(str.ToBytes());
+            return this;
         }
 
-        public void WriteInteger(int it)
+        public WriteBufferContext WriteInteger(int it)
         {
             Buffer.AddRange(it.ToBytes());
+            return this;
         }
 
-        public void WriteLong(long it)
+        public WriteBufferContext WriteLong(long it)
         {
             Buffer.AddRange(it.ToBytes());
+            return this;
         }
 
-        public void WriteBoolean(bool i)
+        public WriteBufferContext WriteBoolean(bool i)
         {
             Buffer.Add(Convert.ToByte(i));
+            return this;
         }
 
-        public void WriteByteArray(byte[] b)
+        public WriteBufferContext WriteByteArray(byte[] b)
         {
             var result = new List<byte>();
             var nb = b == null ? 0 : b.Length;
             result.AddRange(nb.ToBytes());
             if (nb > 0) result.AddRange(b);
             Buffer.AddRange(result);
+            return this;
         }
 
-        public void WriteStringArray(IEnumerable<string> lst)
+        public WriteBufferContext WriteStringArray(IEnumerable<string> lst)
         {
             WriteInteger(lst.Count());
-            foreach (var str in lst)
-            {
-                WriteString(str);
-            }
+            foreach (var str in lst) WriteString(str);
+            return this;
         }
 
-        public void WriteTimeSpan(TimeSpan? sp)
+        public WriteBufferContext WriteTimeSpan(TimeSpan? sp)
         {
             if (sp == null)
             {
                 WriteLong(0);
-                return;
             }
 
             WriteLong(sp.Value.Ticks);
+            return this;
         }
     }
 }

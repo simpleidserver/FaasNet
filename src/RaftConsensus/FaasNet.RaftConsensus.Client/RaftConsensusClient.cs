@@ -30,9 +30,9 @@ namespace FaasNet.RaftConsensus.Client
             return DeserializeResult<BaseConsensusPackage, AppendEntriesResult>(receivedResult);
         }
 
-        public async Task<IEnumerable<InstallSnapshotResult>> InstallSnapshot(long term, string leaderId, long commitIndex, long snapshotTerm, long snapshotIndex, byte[] data, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<InstallSnapshotResult>> InstallSnapshot(long term, string leaderId, long commitIndex, long snapshotTerm, long snapshotIndex, byte[] data, string stateMachineId, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var request = SerializeRequest(ConsensusPackageRequestBuilder.InstallSnapshot(term, leaderId, commitIndex, snapshotTerm, snapshotIndex, data));
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.InstallSnapshot(term, leaderId, commitIndex, snapshotTerm, snapshotIndex, data, stateMachineId));
             await Send(request, timeoutMS, cancellationToken);
             var receivedResult = await Receive(timeoutMS, cancellationToken);
             return DeserializeResult<BaseConsensusPackage, InstallSnapshotResult>(receivedResult);
@@ -46,9 +46,9 @@ namespace FaasNet.RaftConsensus.Client
             return DeserializeResult<BaseConsensusPackage, AppendEntriesResult>(receivedResult);
         }
 
-        public async Task<IEnumerable<AppendEntryResult>> AppendEntry(byte[] payload, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<AppendEntryResult>> AppendEntry(string stateMachineId, byte[] payload, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var request = SerializeRequest(ConsensusPackageRequestBuilder.AppendEntry(payload));
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.AppendEntry(stateMachineId, payload));
             await Send(request, timeoutMS, cancellationToken);
             var receivedResult = await Receive(timeoutMS, cancellationToken);
             return DeserializeResult<BaseConsensusPackage, AppendEntryResult>(receivedResult);
@@ -70,15 +70,15 @@ namespace FaasNet.RaftConsensus.Client
             return DeserializeResult<BaseConsensusPackage, GetLogsResult>(receivedResult);
         }
 
-        public Task<IEnumerable<AppendEntryResult>> SendCommand(ICommand command, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IEnumerable<AppendEntryResult>> SendCommand(string stateMachineId, ICommand command, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var payload = CommandSerializer.Serialize(command);
-            return AppendEntry(payload, timeoutMS, cancellationToken);
+            return AppendEntry(stateMachineId, payload, timeoutMS, cancellationToken);
         }
 
-        public async Task<IEnumerable<GetStateMachineResult>> GetStateMachine(int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<GetStateMachineResult>> GetStateMachine(string stateMachineId, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var request = SerializeRequest(ConsensusPackageRequestBuilder.GetStateMachine());
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.GetStateMachine(stateMachineId));
             await Send(request, timeoutMS, cancellationToken);
             var receivedResult = await Receive(timeoutMS, cancellationToken);
             return DeserializeResult<BaseConsensusPackage, GetStateMachineResult>(receivedResult);

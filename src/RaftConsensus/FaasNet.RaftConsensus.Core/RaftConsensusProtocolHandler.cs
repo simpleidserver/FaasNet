@@ -21,15 +21,17 @@ namespace FaasNet.RaftConsensus.Core
         private readonly PeerState _peerState;
         private readonly ILogStore _logStore;
         private readonly IPeerClientFactory _peerClientFactory;
+        private readonly ISnapshotHelper _snapshotHelper;
         private readonly ISnapshotStore _snapshotStore;
         private readonly RaftConsensusPeerOptions _raftConsensusPeerOptions;
 
-        public RaftConsensusProtocolHandler(IPeerInfoStore peerInfoStore, ILogStore logStore, IPeerClientFactory peerClientFactory, ISnapshotStore snapshotStore, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
+        public RaftConsensusProtocolHandler(IPeerInfoStore peerInfoStore, ILogStore logStore, IPeerClientFactory peerClientFactory, ISnapshotHelper snapshotHelper, ISnapshotStore snapshotStore, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
         {
             _peerInfo = peerInfoStore.Get();
             _logStore = logStore;
             _raftConsensusPeerOptions = raftConsensusPeerOptions.Value;
             _peerClientFactory = peerClientFactory;
+            _snapshotHelper = snapshotHelper;
             _snapshotStore = snapshotStore;
             _peerState = PeerState.New(raftConsensusPeerOptions.Value.ConfigurationDirectoryPath, raftConsensusPeerOptions.Value.IsConfigurationStoredInMemory);
         }
@@ -136,7 +138,7 @@ namespace FaasNet.RaftConsensus.Core
                 if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS)) return ConsensusPackageResultBuilder.AppendEntry(0, 0, false);
                 var leaderPeerId = PeerId.Deserialize(_peerState.VotedFor);
                 using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(leaderPeerId.IpEdp))
-                    return (await consensusClient.AppendEntry(request.Payload, _raftConsensusPeerOptions.RequestExpirationTimeMS, cancellationToken)).First();
+                    return (await consensusClient.AppendEntry(request.StateMachineId, request.Payload, _raftConsensusPeerOptions.RequestExpirationTimeMS, cancellationToken)).First();
             }
 
             async Task<BaseConsensusPackage> Append(AppendEntryRequest request, CancellationToken cancellationToken)
@@ -144,6 +146,7 @@ namespace FaasNet.RaftConsensus.Core
                 var lastIndex = _peerState.LastApplied;
                 var logEntry = new LogEntry
                 {
+                    StateMachineId = request.StateMachineId,
                     Term = _peerState.CurrentTerm,
                     Command = request.Payload,
                     Index = lastIndex + 1
@@ -183,6 +186,7 @@ namespace FaasNet.RaftConsensus.Core
                 if (request.SnapshotIndex == _peerState.SnapshotLastApplied) return;
                 _snapshotStore.Update(new Snapshot
                 {
+                    StateMachineId = request.StateMachineId,
                     Index = request.SnapshotIndex,
                     StateMachine = request.Data,
                     Term = request.Term
@@ -198,7 +202,7 @@ namespace FaasNet.RaftConsensus.Core
 
         private async Task<BaseConsensusPackage> Handle(GetStateMachineRequest request, CancellationToken cancellationToken)
         {
-            var result = await _snapshotStore.GetLatestStateMachine(cancellationToken);
+            var result = await _snapshotHelper.GetLatestStateMachine(request.StateMachineId, cancellationToken);
             return ConsensusPackageResultBuilder.GetStateMachine(result.Item2.Index, result.Item2.Term, result.Item1.Serialize());
         }
     }

@@ -51,15 +51,16 @@ namespace FaasNet.RaftConsensus.Client.Messages
             };
         }
 
-        public static BaseConsensusPackage AppendEntry(byte[] payload)
+        public static BaseConsensusPackage AppendEntry(string stateMachineId, byte[] payload)
         {
             return new AppendEntryRequest
             {
+                StateMachineId = stateMachineId,
                 Payload = payload
             };
         }
 
-        public static BaseConsensusPackage InstallSnapshot(long term, string leaderId, long commitIndex, long snapshotTerm, long snapshotIndex, byte[] data)
+        public static BaseConsensusPackage InstallSnapshot(long term, string leaderId, long commitIndex, long snapshotTerm, long snapshotIndex, byte[] data, string stateMachineId)
         {
             return new InstallSnapshotRequest
             {
@@ -68,13 +69,17 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 CommitIndex = commitIndex,
                 SnapshotTerm = snapshotTerm,
                 SnapshotIndex = snapshotIndex,
-                Data = data
+                Data = data,
+                StateMachineId = stateMachineId
             };
         }
 
-        public static BaseConsensusPackage GetStateMachine()
+        public static BaseConsensusPackage GetStateMachine(string stateMachineId)
         {
-            return new GetStateMachineRequest();
+            return new GetStateMachineRequest
+            {
+                StateMachineId = stateMachineId
+            };
         }
     }
 }

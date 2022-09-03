@@ -65,7 +65,6 @@ namespace FaasNet.RaftConsensus.Core.Infos
 
     public class OtherPeerInfo
     {
-        private long _currentIndex = 0;
         /// <summary>
         /// Unique Peer identifier.
         /// </summary>
@@ -81,7 +80,24 @@ namespace FaasNet.RaftConsensus.Core.Infos
         /// <summary>
         /// Index of the snapshot.
         /// </summary>
-        public long SnapshotIndex { get; set; } = 0;
+        public Dictionary<string, long> SnapshotIndexes { get; set; } = new Dictionary<string, long>();
+
+        public long GetSnapshotIndex(string id)
+        {
+            if (!SnapshotIndexes.ContainsKey(id)) return default(long);
+            return SnapshotIndexes[id];
+        }
+
+        public void UpdateSnapshotIndex(string id, long index)
+        {
+            if (!SnapshotIndexes.ContainsKey(id))
+            {
+                SnapshotIndexes.Add(id, index);
+                return;
+            }
+
+            SnapshotIndexes[id] = index;
+        }
     }
 
     public class PeerInfoStateChanged : EventArgs

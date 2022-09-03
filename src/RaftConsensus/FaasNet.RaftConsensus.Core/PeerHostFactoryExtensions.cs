@@ -13,8 +13,9 @@ namespace FaasNet.Peer
             if (options == null) peerHostFactory.Services.Configure<RaftConsensusPeerOptions>(o => { });
             else peerHostFactory.Services.Configure(options);
             peerHostFactory.Services.AddScoped<ILogStore, InMemoryLogStore>();
-            peerHostFactory.Services.AddScoped<IPeerInfoStore, PeerInfoStore>();
             peerHostFactory.Services.AddScoped<ISnapshotStore, InMemorySnapshotStore>();
+            peerHostFactory.Services.AddScoped<IPeerInfoStore, PeerInfoStore>();
+            peerHostFactory.Services.AddTransient<ISnapshotHelper, SnapshotHelper>();
             peerHostFactory.Services.AddTransient<ITimer, RaftConsensusTimer>();
             peerHostFactory.Services.AddTransient<IProtocolHandler, RaftConsensusProtocolHandler>();
             return peerHostFactory;

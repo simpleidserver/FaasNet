@@ -1,4 +1,4 @@
-﻿using FaasNet.RaftConsensus.Core.StateMachines;
+﻿using FaasNet.RaftConsensus.Client.StateMachines;
 using System;
 
 namespace FaasNet.RaftConsensus.Core
@@ -40,7 +40,11 @@ namespace FaasNet.RaftConsensus.Core
         /// <summary>
         /// Type of the state machine.
         /// </summary>
-        public Type StateMachineType { get; set; } = typeof(GCounter);
+        public Type StateMachineType { get; set; } = typeof(CounterStateMachine);
+        /// <summary>
+        /// Maximum number of threads.
+        /// </summary>
+        public int MaxNbThreads { get; set; } = 5;
     }
 
     public class Interval

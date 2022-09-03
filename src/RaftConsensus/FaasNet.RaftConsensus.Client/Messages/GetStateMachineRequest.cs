@@ -6,8 +6,17 @@ namespace FaasNet.RaftConsensus.Client.Messages
     {
         public override ConsensusCommands Command => ConsensusCommands.GET_STATEMACHINE_REQUEST;
 
-        protected override void SerializeAction(WriteBufferContext context) { }
+        public string StateMachineId { get; set; }
 
-        public void Extract(ReadBufferContext context) { }
+        protected override void SerializeAction(WriteBufferContext context) 
+        { 
+            context.WriteString(StateMachineId);
+        }
+
+        public GetStateMachineRequest Extract(ReadBufferContext context)
+        {
+            StateMachineId = context.NextString();
+            return this;
+        }
     }
 }

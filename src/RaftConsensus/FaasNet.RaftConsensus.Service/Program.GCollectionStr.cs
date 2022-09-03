@@ -2,7 +2,6 @@
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Client;
-using FaasNet.RaftConsensus.Client.Commands;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,6 +12,7 @@ namespace FaasNet.RaftConsensus.Service
 {
     internal partial class Program
     {
+        /*
         public static void LaunchGCollectionStr()
         {
             LaunchRaftConsensusPeerGCollectionStr(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5002) }, false, "node1", 5001);
@@ -81,7 +81,7 @@ namespace FaasNet.RaftConsensus.Service
         private static async void AddStr(int port, string value, bool isTcp = false)
         {
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
-                await client.SendCommand(new AddStringEntityCommand { Record = new StringRecord { Id = value } }, 1000000);
+                await client.SendCommand(new AddStringEntityCommand { Record = new StringStateMachine { Id = value } }, 1000000);
 
         }
 
@@ -102,5 +102,6 @@ namespace FaasNet.RaftConsensus.Service
                 Console.WriteLine();
             }
         }
+        */
     }
 }

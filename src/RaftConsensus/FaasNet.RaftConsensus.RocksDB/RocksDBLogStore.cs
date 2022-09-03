@@ -67,7 +67,22 @@ namespace FaasNet.RaftConsensus.RocksDB
 
         public Task<IEnumerable<LogEntry>> GetFromTo(long fromIndex, long toIndex, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var result = new List<LogEntry>();
+            var versionDb = _connectionPool.GetConnection(BuildOptions(), GetDirectoryPath());
+            using (var iterator = versionDb.NewIterator())
+            {
+                iterator.Seek(BitConverter.GetBytes(fromIndex));
+                while (iterator.Valid())
+                {
+                    var key = iterator.Key();
+                    var payload = iterator.Value();
+                    if (payload != null) result.Add(LogEntry.Deserialize(payload));
+                    iterator.Next();
+                    if (BitConverter.ToInt64(key) == toIndex) break; 
+                }
+            }
+
+            return Task.FromResult((IEnumerable<LogEntry>)result);
         }
 
         public async Task RemoveFrom(long startIndex, CancellationToken cancellation)
@@ -75,11 +90,6 @@ namespace FaasNet.RaftConsensus.RocksDB
             var logEntries = await GetFrom(startIndex, cancellationToken: cancellation);
             var versionDb = _connectionPool.GetConnection(BuildOptions(), GetDirectoryPath());
             foreach(var logEntry in logEntries) versionDb.Remove(BitConverter.GetBytes(logEntry.Index));
-        }
-
-        public Task RemoveTo(long endIndex, CancellationToken cancellation)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken)

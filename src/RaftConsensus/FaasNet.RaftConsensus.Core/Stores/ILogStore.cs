@@ -14,7 +14,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
         Task<IEnumerable<LogEntry>> GetFrom(long index, bool equal = true, CancellationToken cancellationToken = default(CancellationToken));
         Task<IEnumerable<LogEntry>> GetFromTo(long indexFrom, long indexTo, CancellationToken cancellationToken);
         Task RemoveFrom(long startIndex, CancellationToken cancellation);
-        Task RemoveTo(long endIndex, CancellationToken cancellation);
         Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken);
         Task Append(LogEntry entry, CancellationToken cancellationToken);
     }
@@ -41,12 +40,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
         public Task RemoveFrom(long startIndex, CancellationToken cancellation)
         {
             _entries = new ConcurrentBag<LogEntry>(_entries.Skip((int)startIndex).Take(_entries.Count()));
-            return Task.CompletedTask;
-        }
-
-        public Task RemoveTo(long endIndex, CancellationToken cancellation)
-        {
-            _entries = new ConcurrentBag<LogEntry>(_entries.Where(e => e.Index > endIndex));
             return Task.CompletedTask;
         }
 

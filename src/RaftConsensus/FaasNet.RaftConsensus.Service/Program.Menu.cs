@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 
 namespace FaasNet.RaftConsensus.Service
 {
+    /*
     internal partial class Program
     {
         private static ConcurrentBag<ClusterPeer> _clusterPeers = new ConcurrentBag<ClusterPeer>
@@ -120,4 +121,5 @@ namespace FaasNet.RaftConsensus.Service
             DisplayPeerState(port, false);
         }
     }
+    */
 }

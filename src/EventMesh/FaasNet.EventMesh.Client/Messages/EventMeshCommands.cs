@@ -44,6 +44,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Response received when all clients are returned.
         /// </summary>
         public static EventMeshCommands GET_ALL_CLIENT_RESPONSE = new EventMeshCommands(9, "GET_ALL_CLIENT_RESPONSE");
+        /// <summary>
+        /// Request send to publish a message.
+        /// </summary>
+        public static EventMeshCommands PUBLISH_MESSAGE_REQUEST = new EventMeshCommands(10, "PUBLISH_MESSAGE_REQUEST");
+        /// <summary>
+        /// Response received when a message is published.
+        /// </summary>
+        public static EventMeshCommands PUBLISH_MESSAGE_RESPONSE = new EventMeshCommands(11, "PUBLISH_MESSAGE_RESPONSE");
 
         protected EventMeshCommands(int code)
         {

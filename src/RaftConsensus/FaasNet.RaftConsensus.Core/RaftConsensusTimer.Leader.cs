@@ -119,26 +119,22 @@ namespace FaasNet.RaftConsensus.Core
         private async void TakeSnapshot(IEnumerable<ClusterPeer> clusterPeers)
         {
             var takeSnapshot = _peerState.CommitIndex - _peerState.SnapshotCommitIndex >= _raftOptions.SnapshotFrequency;
-            var stateMachine = await GetStateMachine();
-            var result = await InstallSnapshot(clusterPeers, stateMachine.Value);
-            TryCommit(result.Item2, result.Item1);
-
-            async Task<(IStateMachine, Snapshot)?> GetStateMachine()
+            var stateMachines = await GetStateMachines();
+            foreach(var stateMachine in stateMachines)
             {
-                (IStateMachine, Snapshot)? result = null;
+                var result = await InstallSnapshot(clusterPeers, stateMachine);
+                TryCommit(result.Item2, result.Item1);
+            }
+
+            async Task<IEnumerable<(IStateMachine, Snapshot)>> GetStateMachines()
+            {
+                IEnumerable<(IStateMachine, Snapshot)> result = null;
                 if (takeSnapshot)
                 {
                     var logEntries = await _logStore.GetFromTo(_peerState.SnapshotCommitIndex, _peerState.CommitIndex, _cancellationTokenSource.Token);
-                    var stateMachine = _stateMachineStore.RestoreStateMachine(logEntries);
-                    var snapshot = new Snapshot
-                    {
-                        Index = _peerState.CommitIndex,
-                        StateMachine = stateMachine.Serialize(),
-                        Term = logEntries.OrderByDescending(e => e.Term).First().Term
-                    };
-                    result = (stateMachine, snapshot);
+                    result =_snapshotHelper.RestoreAllStateMachines(logEntries);
                 }
-                else result = await _stateMachineStore.GetLatestStateMachine(_cancellationTokenSource.Token);
+                else result = _snapshotHelper.GetAllStateMachines();
                 return result;
             }
 
@@ -159,9 +155,9 @@ namespace FaasNet.RaftConsensus.Core
                     {
                         byte[] data = null;
                         var otherPeer = _peerInfo.GetOtherPeer(peer.Id);
-                        if (otherPeer.SnapshotIndex != snapshot.Index) data = snapshot.StateMachine;
-                        var result = (await consensusClient.InstallSnapshot(_peerState.CurrentTerm, _peerOptions.Id, _peerState.SnapshotCommitIndex, snapshot.Term, snapshot.Index, data, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
-                        otherPeer.SnapshotIndex = result.MatchIndex;
+                        if (otherPeer.GetSnapshotIndex(snapshot.StateMachineId) != snapshot.Index) data = snapshot.StateMachine;
+                        var result = (await consensusClient.InstallSnapshot(_peerState.CurrentTerm, _peerOptions.Id, _peerState.SnapshotCommitIndex, snapshot.Term, snapshot.Index, data, snapshot.StateMachineId, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
+                        otherPeer.UpdateSnapshotIndex(snapshot.StateMachineId, result.MatchIndex);
                         return result;
                     }
                 }
@@ -180,7 +176,7 @@ namespace FaasNet.RaftConsensus.Core
                 if (quorum > nbMatchIndexes) return;
                 _peerState.SnapshotCommitIndex = snapshot.Index;
                 _peerState.SnapshotLastApplied = snapshot.Index;
-                _stateMachineStore.Update(snapshot);
+                _snapshotStore.Update(snapshot);
             }
         }
     }

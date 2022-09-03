@@ -1,85 +1,67 @@
-﻿using FaasNet.RaftConsensus.Client;
-using FaasNet.RaftConsensus.Client.StateMachines;
-using FaasNet.RaftConsensus.Core.StateMachines;
-using Microsoft.Extensions.Options;
-using System;
+﻿using FaasNet.Peer.Client;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FaasNet.RaftConsensus.Core.Stores
 {
     public interface ISnapshotStore
     {
-        IStateMachine RestoreStateMachine(IEnumerable<LogEntry> logEntries);
-        Task<(IStateMachine, Snapshot)> GetLatestStateMachine(CancellationToken cancellationToken);
+        IEnumerable<Snapshot> GetAll();
+        Snapshot Get(string stateMachineId);
         void Update(Snapshot snapshot);
-        Task<Snapshot> Get(CancellationToken cancellationToken);
-    }
-
-    public class InMemorySnapshotStore : ISnapshotStore
-    {
-        private readonly ILogStore _logStore;
-        private readonly RaftConsensusPeerOptions _options;
-        private Snapshot _snapshot = null;
-
-        public InMemorySnapshotStore(ILogStore logStore, IOptions<RaftConsensusPeerOptions> options)
-        {
-            _logStore = logStore;
-            _options = options.Value;
-        }
-
-        public IStateMachine RestoreStateMachine(IEnumerable<LogEntry> logEntries)
-        {
-            IStateMachine stateMachine;
-            if (_snapshot != null)
-                stateMachine = StateMachineSerializer.Deserialize(_options.StateMachineType, _snapshot.StateMachine);
-            else
-                stateMachine = (IStateMachine)Activator.CreateInstance(_options.StateMachineType);
-            foreach(var logEntry in logEntries.OrderBy(l => l.Index))
-            {
-                var cmd = CommandSerializer.Deserialize(logEntry.Command);
-                stateMachine.Apply(cmd);
-            }
-
-            return stateMachine;
-        }
-
-        public async Task<(IStateMachine, Snapshot)> GetLatestStateMachine(CancellationToken cancellationToken)
-        {
-            IStateMachine stateMachine;
-            var index = _snapshot == null ? 0 : _snapshot.Index;
-            if (_snapshot != null)
-                stateMachine = StateMachineSerializer.Deserialize(_options.StateMachineType, _snapshot.StateMachine);
-            else
-                stateMachine = (IStateMachine)Activator.CreateInstance(_options.StateMachineType);
-
-            var logEntries = await _logStore.GetFrom(index, false, cancellationToken);
-            foreach(var logEntry in logEntries)
-            {
-                var cmd = CommandSerializer.Deserialize(logEntry.Command);
-                stateMachine.Apply(cmd);
-            }
-
-            return (stateMachine, _snapshot ?? new Snapshot());
-        }
-
-        public void Update(Snapshot snapshot)
-        {
-            _snapshot = snapshot;
-        }
-
-        public Task<Snapshot> Get(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(_snapshot);
-        }
     }
 
     public class Snapshot
     {
         public long Index { get; set; }
         public long Term { get; set; }
+        public string StateMachineId { get; set; }
         public byte[] StateMachine { get; set; }
+
+        public byte[] Serialize()
+        {
+            var context = new WriteBufferContext();
+            context.WriteLong(Index).WriteLong(Term).WriteString(StateMachineId).WriteByteArray(StateMachine);
+            return context.Buffer.ToArray();
+        }
+
+        public static Snapshot Deserialize(byte[] buffer)
+        {
+            var readBufferContext = new ReadBufferContext(buffer);
+            return new Snapshot
+            {
+                Index = readBufferContext.NextLong(),
+                Term = readBufferContext.NextLong(),
+                StateMachineId = readBufferContext.NextString(),
+                StateMachine = readBufferContext.NextByteArray()
+            };
+        }
+    }
+
+    public class InMemorySnapshotStore : ISnapshotStore
+    {
+        private readonly ICollection<Snapshot> _snapshots;
+
+        public InMemorySnapshotStore()
+        {
+            _snapshots = new List<Snapshot>();
+        }
+
+        public IEnumerable<Snapshot> GetAll()
+        {
+            return _snapshots;
+        }
+
+        public Snapshot Get(string stateMachineId)
+        {
+            return _snapshots.FirstOrDefault(s => s.StateMachineId == stateMachineId);
+        }
+
+        public void Update(Snapshot snapshot)
+        {
+            var result = _snapshots.FirstOrDefault(s => s.StateMachineId == snapshot.StateMachineId);
+            if (result != null) _snapshots.Remove(result);
+            _snapshots.Add(snapshot);
+        }
     }
 }

@@ -12,6 +12,7 @@ namespace FaasNet.Peer
             if (callback == null) hostFactory.Services.Configure<RaftConsensusRocksDBOptions>(o => { });
             else hostFactory.Services.Configure(callback);
             hostFactory.Services.AddScoped<ILogStore, RocksDBLogStore>();
+            hostFactory.Services.AddScoped<ISnapshotStore, RocksDBSnapshotStore>();
             return hostFactory;
         }
     }

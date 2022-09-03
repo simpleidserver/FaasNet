@@ -2,7 +2,7 @@
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Client;
-using FaasNet.RaftConsensus.Client.Commands;
+using FaasNet.RaftConsensus.Client.StateMachines;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,18 +13,26 @@ namespace FaasNet.RaftConsensus.Service
 {
     internal partial class Program
     {
-        public static void LaunchGCounter()
+        public static void LaunchCounter()
         {
             LaunchRaftConsensusPeerGCounter(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5002) }, false, "node1", 5001);
             LaunchRaftConsensusPeerGCounter(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, false, "node2", 5002);
 
-            Console.WriteLine("Press any key to increment the counter by 2");
+            Console.WriteLine("Press any key to increment the counter 'firstCounter' by 2");
             Console.ReadLine();
-            IncrementCounter(5001, 2, false);
+            IncrementCounter("firstCounter", 5001, 2, false);
 
-            Console.WriteLine("Press any key to display the state machine");
+            Console.WriteLine("Press any key to display the state machine 'firstCounter'");
             Console.ReadLine();
-            DisplayGCounterStateMachine(5001, false);
+            DisplayGCounterStateMachine("firstCounter", 5001, false);
+
+            Console.WriteLine("Press any key to increment the counter 'secondCounter' by 3");
+            Console.ReadLine();
+            IncrementCounter("secondCounter", 5001, 3, false);
+
+            Console.WriteLine("Press any key to display the state machine 'secondCounter'");
+            Console.ReadLine();
+            DisplayGCounterStateMachine("secondCounter", 5001, false);
 
             Console.WriteLine("Press any key to display state of Peer 5001");
             Console.ReadLine();
@@ -50,7 +58,7 @@ namespace FaasNet.RaftConsensus.Service
             })
                 .AddRaftConsensus(o =>
                 {
-                    o.StateMachineType = typeof(GCounter);
+                    o.StateMachineType = typeof(CounterStateMachine);
                     o.IsConfigurationStoredInMemory = true;
                     o.ConfigurationDirectoryPath = Path.Combine(path, nodeName);
                     o.LeaderCallback = () =>
@@ -65,18 +73,18 @@ namespace FaasNet.RaftConsensus.Service
             return peerHost;
         }
 
-        private static async void IncrementCounter(int port, long value, bool isTcp = false)
+        private static async void IncrementCounter(string id, int port, long value, bool isTcp = false)
         {
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
-                await client.SendCommand(new IncrementGCounterCommand { Value = value }, 1000000);
+                await client.SendCommand(id, new IncrementGCounterCommand { Value = value }, 1000000);
         }
 
-        private static async void DisplayGCounterStateMachine(int port, bool isTcp = false)
+        private static async void DisplayGCounterStateMachine(string id, int port, bool isTcp = false)
         {
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
             {
-                var stateMachine = (await client.GetStateMachine(1000000)).First();
-                var result = StateMachineSerializer.Deserialize<GCounter>(stateMachine.StateMachine);
+                var stateMachine = (await client.GetStateMachine(id, 1000000)).First();
+                var result = StateMachineSerializer.Deserialize<CounterStateMachine>(stateMachine.StateMachine);
                 Console.WriteLine($"Value  = {result.Value}");
             }
         }

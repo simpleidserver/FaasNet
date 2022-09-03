@@ -10,6 +10,7 @@ using System.Text;
 
 namespace FaasNet.RaftConsensus.Service
 {
+    /*
     internal partial class Program
     {
         public static void LaunchNodes()
@@ -121,4 +122,5 @@ namespace FaasNet.RaftConsensus.Service
             }
         }
     }
+    */
 }
