@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client.StateMachines;
+﻿using CloudNative.CloudEvents;
+using FaasNet.EventMesh.Client.StateMachines;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,6 +30,21 @@ namespace FaasNet.EventMesh.Client.Messages
         public static BaseEventMeshPackage GetAllClient()
         {
             return new GetAllClientRequest(GenerateRandomSeq());
+        }
+
+        public static BaseEventMeshPackage AddTopic(string topic, bool isBroadcasted)
+        {
+            return new AddTopicRequest(GenerateRandomSeq(), topic, isBroadcasted);
+        }
+
+        public static BaseEventMeshPackage PublishMessage(string topic, string sessionId, CloudEvent cloudEvt)
+        {
+            return new PublishMessageRequest(GenerateRandomSeq())
+            {
+                Topic = topic,
+                SessionId = sessionId,
+                CloudEvent = cloudEvt
+            };
         }
 
         private static string GenerateRandomSeq()

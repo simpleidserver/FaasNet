@@ -44,5 +44,18 @@ namespace FaasNet.EventMesh.Client.Messages
         {
             return new AddClientResult(seq, status);
         }
+
+        public static BaseEventMeshPackage AddTopic(string seq, AddTopicStatus status = AddTopicStatus.SUCCESS)
+        {
+            return new AddTopicResponse(seq)
+            {
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage PublishMessage(string seq, PublishMessageStatus status = PublishMessageStatus.SUCCESS)
+        {
+            return new PublishMessageResult(seq, status);
+        }
     }
 }

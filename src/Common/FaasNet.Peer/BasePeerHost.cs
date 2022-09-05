@@ -32,6 +32,7 @@ namespace FaasNet.Peer
         }
 
         public bool IsRunning { get; private set; }
+        protected ILogger<BasePeerHost> Logger => _logger;
         protected CancellationTokenSource TokenSource => _cancellationTokenSource;
 
         public async Task Start(CancellationToken cancellationToken = default(CancellationToken))

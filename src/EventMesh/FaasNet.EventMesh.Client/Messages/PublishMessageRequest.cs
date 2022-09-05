@@ -16,7 +16,17 @@ namespace FaasNet.EventMesh.Client.Messages
 
         protected override void SerializeAction(WriteBufferContext context)
         {
-            throw new System.NotImplementedException();
+            context.WriteString(SessionId);
+            context.WriteString(Topic);
+            CloudEvent.Serialize(context);
+        }
+
+        public PublishMessageRequest Extract(ReadBufferContext context)
+        {
+            SessionId = context.NextString();
+            Topic = context.NextString();
+            CloudEvent = context.NextCloudEvent();
+            return this;
         }
     }
 }

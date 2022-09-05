@@ -17,6 +17,7 @@ namespace FaasNet.RaftConsensus.Core
     {
         IEnumerable<(IStateMachine, Snapshot)> RestoreAllStateMachines(IEnumerable<LogEntry> logEntries);
         IEnumerable<(IStateMachine, Snapshot)> GetAllStateMachines();
+        Task<IEnumerable<(IStateMachine, Snapshot)>> GetAllLatestStateMachines(CancellationToken cancellationToken);
         Task<(IStateMachine, Snapshot)> GetLatestStateMachine(string stateMachine, CancellationToken cancellationToken);
     }
 
@@ -51,6 +52,7 @@ namespace FaasNet.RaftConsensus.Core
                 }, (s, t) =>
                 {
                     var stateMachine = StateMachineSerializer.Deserialize(_options.StateMachineType, s.StateMachine);
+                    stateMachine.Id = s.StateMachineId;
                     var filteredLogEntries = logEntries.Where(le => le.StateMachineId == s.StateMachineId && le.Index > s.Index).OrderBy(l => l.Index);
                     if (!filteredLogEntries.Any())
                     {
@@ -85,6 +87,7 @@ namespace FaasNet.RaftConsensus.Core
                 {
                     var filteredLogEntries = logEntries.Where(le => le.StateMachineId == s).OrderBy(l => l.Index);
                     var stateMachine = (IStateMachine)Activator.CreateInstance(_options.StateMachineType);
+                    stateMachine.Id = s;
                     foreach (var logEntry in filteredLogEntries.OrderBy(l => l.Index))
                     {
                         var cmd = CommandSerializer.Deserialize(logEntry.Command);
@@ -117,6 +120,36 @@ namespace FaasNet.RaftConsensus.Core
                 }, (s, t) =>
                 {
                     var stateMachine = StateMachineSerializer.Deserialize(_options.StateMachineType, s.StateMachine);
+                    stateMachine.Id = s.StateMachineId;
+                    result.Add((stateMachine, s));
+                });
+            }
+        }
+
+        public async Task<IEnumerable<(IStateMachine, Snapshot)>> GetAllLatestStateMachines(CancellationToken cancellationToken)
+        {
+            var result = new ConcurrentBag<(IStateMachine, Snapshot)>();
+            await Restore(result);
+            return result;
+
+
+            async Task Restore(ConcurrentBag<(IStateMachine, Snapshot)> result)
+            {
+                await Parallel.ForEachAsync(_snapshotStore.GetAll(), new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = _options.MaxNbThreads
+                }, async (s, t) =>
+                {
+                    var stateMachine = StateMachineSerializer.Deserialize(_options.StateMachineType, s.StateMachine);
+                    stateMachine.Id = s.StateMachineId;
+                    var index = s.Index;
+                    var logEntries = await _logStore.GetFrom(index, false, cancellationToken);
+                    foreach (var logEntry in logEntries)
+                    {
+                        var cmd = CommandSerializer.Deserialize(logEntry.Command);
+                        stateMachine.Apply(cmd);
+                    }
+
                     result.Add((stateMachine, s));
                 });
             }
@@ -128,13 +161,17 @@ namespace FaasNet.RaftConsensus.Core
             var index = snapshot == null ? 0 : snapshot.Index;
             IStateMachine stateMachine = null;
             if (snapshot != null)
+            {
                 stateMachine = StateMachineSerializer.Deserialize(_options.StateMachineType, snapshot.StateMachine);
+                stateMachine.Id = stateMachineId;
+            }
             else
                 stateMachine = (IStateMachine)Activator.CreateInstance(_options.StateMachineType);
 
             var logEntries = await _logStore.GetFrom(index, false, cancellationToken);
             foreach (var logEntry in logEntries)
             {
+                stateMachine.Id = stateMachineId;
                 var cmd = CommandSerializer.Deserialize(logEntry.Command);
                 stateMachine.Apply(cmd);
             }

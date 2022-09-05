@@ -81,5 +81,10 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 StateMachineId = stateMachineId
             };
         }
+
+        public static BaseConsensusPackage GetAllStateMachines()
+        {
+            return new GetAllStateMachinesRequest();
+        }
     }
 }

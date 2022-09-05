@@ -71,7 +71,24 @@ namespace FaasNet.RaftConsensus.Client.Messages
             {
                 Index = index,
                 Term = term,
-                StateMachine = stateMachine
+                StateMachine = stateMachine,
+                Success = true
+            };
+        }
+
+        public static BaseConsensusPackage NotFoundStateMachine()
+        {
+            return new GetStateMachineResult
+            {
+                Success = false
+            };
+        }
+
+        public static BaseConsensusPackage GetAllStateMachines(ICollection<StateMachineResult> stateMachines)
+        {
+            return new GetAllStateMachinesResult
+            {
+                States = stateMachines
             };
         }
     }

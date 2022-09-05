@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client;
+﻿using CloudNative.CloudEvents;
+using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.Partition;
 using FaasNet.Peer;
@@ -16,6 +17,7 @@ Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
     await client.Ping(5000);
 
+/*
 Console.WriteLine("Press any key to add a VPN");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
@@ -43,6 +45,28 @@ using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, 
     foreach(var cl in clientResult.Clients)
         Console.WriteLine($"ClientId '{cl.Id}', Vpn '{cl.Vpn}', Purposes '{string.Join(",", cl.Purposes.Select(p => p.ToString()))}'");
 }
+*/
+
+Console.WriteLine("Press any key to add a topic");
+Console.ReadLine();
+using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
+    await client.AddTopic("topic1");
+
+Console.WriteLine("Press any key to publish a message");
+Console.ReadLine();
+var cloudEvent = new CloudEvent
+{
+    Type = "com.github.pull.create",
+    Source = new Uri("https://github.com/cloudevents/spec/pull"),
+    Subject = "123",
+    Id = "A234-1234-1234",
+    Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+    DataContentType = "application/json",
+    Data = "testttt",
+    ["comexampleextension1"] = "value"
+};
+using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
+    await client.PublishMessage("topic1", "sessionId", cloudEvent);
 
 Console.WriteLine("Press any key to quit the application");
 Console.ReadLine();

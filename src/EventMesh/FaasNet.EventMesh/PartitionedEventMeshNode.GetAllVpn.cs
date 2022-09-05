@@ -10,8 +10,8 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(GetAllVpnRequest request, CancellationToken cancellationToken)
         {
-            var vpnCollection = await GetStateMachine<VpnCollection>(VPN_PARTITION_KEY, cancellationToken);
-            return PackageResponseBuilder.GetAllVpn(request.Seq, vpnCollection.Values.Select(v => new VpnResult
+            var vpns = await GetAllStateMachines<VpnStateMachine>(VPN_PARTITION_KEY, cancellationToken);
+            return PackageResponseBuilder.GetAllVpn(request.Seq, vpns.Select(v => new VpnResult
             {
                 Description = v.Description,
                 Id = v.Id

@@ -17,6 +17,7 @@ namespace FaasNet.RaftConsensus.Core.StateMachines
 
         public static T Deserialize<T>(byte[] payload) where T : IStateMachine
         {
+            if (payload == null) return (T)default(IStateMachine?);
             var readBufferContext = new ReadBufferContext(payload);
             var instance = (T)Activator.CreateInstance(typeof(T));
             instance.Deserialize(readBufferContext);

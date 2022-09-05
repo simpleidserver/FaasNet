@@ -28,6 +28,7 @@ namespace FaasNet.Partition
             _serviceCollection.AddTransient<IClientTransportFactory, ClientTransportFactory>();
             _serviceCollection.AddScoped<IPartitionCluster, DirectPartitionCluster>();
             _serviceCollection.AddSingleton<IPartitionPeerStore>(new InMemoryPartitionPeerStore(new ConcurrentBag<DirectPartitionPeer>()));
+            _serviceCollection.AddTransient<IPeerClientFactory, PeerClientFactory>();
             _serviceCollection.AddLogging();
             if (callbackService != null) callbackService(_serviceCollection);
         }

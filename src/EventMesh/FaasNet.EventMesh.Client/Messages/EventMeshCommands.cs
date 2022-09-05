@@ -52,6 +52,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Response received when a message is published.
         /// </summary>
         public static EventMeshCommands PUBLISH_MESSAGE_RESPONSE = new EventMeshCommands(11, "PUBLISH_MESSAGE_RESPONSE");
+        /// <summary>
+        /// Request sent to create a topic.
+        /// </summary>
+        public static EventMeshCommands ADD_TOPIC_REQUEST = new EventMeshCommands(12, "ADD_TOPIC_REQUEST");
+        /// <summary>
+        /// Response sent when a topic is added.
+        /// </summary>
+        public static EventMeshCommands ADD_TOPIC_RESPONSE = new EventMeshCommands(13, "ADD_TOPIC_RESPONSE");
 
         protected EventMeshCommands(int code)
         {

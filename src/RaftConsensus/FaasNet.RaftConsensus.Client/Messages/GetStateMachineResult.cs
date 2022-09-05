@@ -7,6 +7,10 @@ namespace FaasNet.RaftConsensus.Client.Messages
         public override ConsensusCommands Command => ConsensusCommands.GET_STATEMACHINE_RESULT;
 
         /// <summary>
+        /// Returns true when the state machine is returned.
+        /// </summary>
+        public bool Success { get; set; }
+        /// <summary>
         /// Index of the state machine.
         /// </summary>
         public long Index { get; set; }
@@ -21,6 +25,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
 
         protected override void SerializeAction(WriteBufferContext context)
         {
+            context.WriteBoolean(Success);
             context.WriteLong(Index);
             context.WriteLong(Term);
             context.WriteByteArray(StateMachine);
@@ -28,6 +33,8 @@ namespace FaasNet.RaftConsensus.Client.Messages
 
         public void Extract(ReadBufferContext context)
         {
+            Success = context.NextBoolean();
+            if (!Success) return;
             Index = context.NextLong();
             Term = context.NextLong();
             StateMachine = context.NextByteArray();

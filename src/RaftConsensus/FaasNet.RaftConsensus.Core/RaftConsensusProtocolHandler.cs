@@ -50,6 +50,7 @@ namespace FaasNet.RaftConsensus.Core
             if (consensusPackage.Command == ConsensusCommands.GET_LOGS_REQUEST) result = await Handle(consensusPackage as GetLogsRequest, cancellationToken);
             if (consensusPackage.Command == ConsensusCommands.INSTALL_SNAPSHOT_REQUEST) result = await Handle(consensusPackage as InstallSnapshotRequest, cancellationToken);
             if (consensusPackage.Command == ConsensusCommands.GET_STATEMACHINE_REQUEST) result = await Handle(consensusPackage as GetStateMachineRequest, cancellationToken);
+            if (consensusPackage.Command == ConsensusCommands.GET_ALL_STATEMACHINES_REQUEST) result = await Handle(consensusPackage as GetAllStateMachinesRequest, cancellationToken);
             return result;
         }
 
@@ -203,7 +204,19 @@ namespace FaasNet.RaftConsensus.Core
         private async Task<BaseConsensusPackage> Handle(GetStateMachineRequest request, CancellationToken cancellationToken)
         {
             var result = await _snapshotHelper.GetLatestStateMachine(request.StateMachineId, cancellationToken);
+            if (result.Item1 == null || result.Item2 == null || string.IsNullOrEmpty(result.Item1.Id)) return ConsensusPackageResultBuilder.NotFoundStateMachine();
             return ConsensusPackageResultBuilder.GetStateMachine(result.Item2.Index, result.Item2.Term, result.Item1.Serialize());
+        }
+
+        private async Task<BaseConsensusPackage> Handle(GetAllStateMachinesRequest request, CancellationToken cancellationToken)
+        {
+            var result = await _snapshotHelper.GetAllLatestStateMachines(cancellationToken);
+            return ConsensusPackageResultBuilder.GetAllStateMachines(result.Select(r => new StateMachineResult
+            {
+                Index = r.Item2.Index,
+                StateMachine = r.Item1.Serialize(),
+                Term = r.Item2.Term
+            }).ToList());
         }
     }
 }

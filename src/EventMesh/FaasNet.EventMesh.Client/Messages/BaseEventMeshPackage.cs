@@ -46,6 +46,10 @@ namespace FaasNet.EventMesh.Client.Messages
             if (cmd == EventMeshCommands.ADD_CLIENT_RESPONSE) return new AddClientResult(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_ALL_CLIENT_REQUEST) return new GetAllClientRequest(seq);
             if (cmd == EventMeshCommands.GET_ALL_CLIENT_RESPONSE) return new GetAllClientResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_TOPIC_REQUEST) return new AddTopicRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_TOPIC_RESPONSE) return new AddTopicResponse(seq).Extract(context);
+            if (cmd == EventMeshCommands.PUBLISH_MESSAGE_REQUEST) return new PublishMessageRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.PUBLISH_MESSAGE_RESPONSE) return new PublishMessageResult(seq).Extract(context);
             return null;
         }
     }

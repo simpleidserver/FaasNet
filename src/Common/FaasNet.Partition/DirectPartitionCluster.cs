@@ -52,14 +52,17 @@ namespace FaasNet.Partition
             return partitions.Any(p => p.PartitionKey == partitionKey);
         }
 
-        public async Task AddAndStart(string partitionKey)
+        public async Task<bool> TryAddAndStart(string partitionKey, Type stateMachineType = null)
         {
+            var partition = await _partitionPeerStore.Get(partitionKey);
+            if (partition != null) return false;
             var port = !_partitions.Any() ? _options.StartPeerPort : _partitions.OrderByDescending(p => p.Item2.Port).First().Item2.Port + 1;
-            var record = new DirectPartitionPeer { PartitionKey = partitionKey, Port = port };
+            var record = new DirectPartitionPeer { PartitionKey = partitionKey, Port = port, StateMachineType = stateMachineType };
             await _partitionPeerStore.Add(record);
-            var peerHost = _partitionPeerFactory.Build(port, partitionKey, null, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
+            var peerHost = _partitionPeerFactory.Build(port, partitionKey, stateMachineType, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
             await peerHost.Start();
             _partitions.Add((peerHost, record));
+            return true;
         }
 
         public async Task<byte[]> Transfer(TransferedRequest request, CancellationToken cancellationToken)

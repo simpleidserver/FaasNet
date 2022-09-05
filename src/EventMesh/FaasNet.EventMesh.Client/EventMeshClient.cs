@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client.Exceptions;
+﻿using CloudNative.CloudEvents;
+using FaasNet.EventMesh.Client.Exceptions;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.Peer.Client;
@@ -79,6 +80,34 @@ namespace FaasNet.EventMesh.Client
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
             return packageResult as GetAllClientResult;
+        }
+
+        public async Task<AddTopicResponse> AddTopic(string topic, bool isBroadcasted = false, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.AddTopic(topic, isBroadcasted);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as AddTopicResponse;
+        }
+
+        public async Task<PublishMessageResult> PublishMessage(string topic, string sessionId, CloudEvent cloudEvt, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.PublishMessage(topic, sessionId, cloudEvt);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as PublishMessageResult;
         }
 
         internal static void EnsureSuccessStatus(BaseEventMeshPackage packageRequest, BaseEventMeshPackage packageResponse)

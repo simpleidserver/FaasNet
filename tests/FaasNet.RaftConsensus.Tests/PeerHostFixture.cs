@@ -32,7 +32,7 @@ namespace FaasNet.RaftConsensus.Tests
             // ACT
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", 4002, ClientTransportFactory.NewUDP()))
             {
-                await client.AppendEntry(cmd);
+                await client.AppendEntry("stateMachineId", cmd);
             }
 
             var firstPeerEntry = await WaitLogEntries("localhost", 4001, 1);
