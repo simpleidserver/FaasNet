@@ -60,6 +60,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Response sent when a topic is added.
         /// </summary>
         public static EventMeshCommands ADD_TOPIC_RESPONSE = new EventMeshCommands(13, "ADD_TOPIC_RESPONSE");
+        /// <summary>
+        /// Request sent to create a session.
+        /// </summary>
+        public static EventMeshCommands HELLO_REQUEST = new EventMeshCommands(14, "HELLO_REQUEST");
+        /// <summary>
+        /// Response sent when a session is created
+        /// </summary>
+        public static EventMeshCommands HELLO_RESPONSE = new EventMeshCommands(15, "HELLO_RESPONSE");
 
         protected EventMeshCommands(int code)
         {

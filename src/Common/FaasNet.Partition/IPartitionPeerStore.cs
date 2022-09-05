@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using FaasNet.Common.Extensions;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace FaasNet.Partition
         Task<IEnumerable<DirectPartitionPeer>> GetAll();
         Task<DirectPartitionPeer> Get(string partitionId);
         Task Add(DirectPartitionPeer peer);
+        Task Remove(DirectPartitionPeer peer);
     }
 
     public class InMemoryPartitionPeerStore : IPartitionPeerStore
@@ -35,6 +37,12 @@ namespace FaasNet.Partition
         public Task Add(DirectPartitionPeer peer)
         {
             _partitions.Add(peer);
+            return Task.CompletedTask;
+        }
+
+        public Task Remove(DirectPartitionPeer peer)
+        {
+            _partitions.Remove(peer);
             return Task.CompletedTask;
         }
     }

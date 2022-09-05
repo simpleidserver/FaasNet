@@ -5,6 +5,7 @@ using FaasNet.Peer.Clusters;
 using FaasNet.Peer.Transports;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,16 +16,19 @@ namespace FaasNet.Partition
     {
         private readonly PeerOptions _peerOptions;
         private readonly IClusterStore _clusterStore;
+        private readonly IPartitionPeerStore _partitionPeerStore;
         private readonly IPartitionCluster _partitionCluster;
 
-        public PartitionedNodeHost(IOptions<PeerOptions> peerOptions, IClusterStore clusterStore, IPartitionCluster partitionCluster, IServerTransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger) : base(transport, protocolHandlerFactory, timers, logger)
+        public PartitionedNodeHost(IOptions<PeerOptions> peerOptions, IClusterStore clusterStore, IPartitionPeerStore partitionPeerStore, IPartitionCluster partitionCluster, IServerTransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger) : base(transport, protocolHandlerFactory, timers, logger)
         {
             _peerOptions = peerOptions.Value;
             _clusterStore = clusterStore;
+            _partitionPeerStore = partitionPeerStore;
             _partitionCluster = partitionCluster;
         }
 
         protected IPartitionCluster PartitionCluster => _partitionCluster;
+        protected IPartitionPeerStore PartitionPeerStore => _partitionPeerStore;
         protected IClusterStore ClusterStore => _clusterStore;
         protected PeerOptions PeerOptions => _peerOptions;
 
@@ -50,6 +54,7 @@ namespace FaasNet.Partition
             if (partitionedRequest == null) return null;
             if (partitionedRequest.Command == PartitionedCommands.TRANSFERED_REQUEST) result = await Handle(partitionedRequest as TransferedRequest);
             if (partitionedRequest.Command == PartitionedCommands.ADD_PARTITION_REQUEST) result = await Handle(partitionedRequest as AddDirectPartitionRequest);
+            if (partitionedRequest.Command == PartitionedCommands.REMOVE_PARTITION_REQUEST) result = await Handle(partitionedRequest as RemoveDirectPartitionRequest);
             if (partitionedRequest.Command == PartitionedCommands.BROADCAST_REQUEST) result = await Handle(partitionedRequest as BroadcastRequest);
             return result;
         }
@@ -61,9 +66,22 @@ namespace FaasNet.Partition
 
         private async Task<byte[]> Handle(AddDirectPartitionRequest request)
         {
-            await _partitionCluster.TryAddAndStart(request.PartitionKey);
+            var stateMachine = Type.GetType(request.StateMachineType);
+            var status = AddDirectPartitionStatus.SUCCESS;
+            if (!await _partitionCluster.TryAddAndStart(request.PartitionKey, stateMachine))
+                status = AddDirectPartitionStatus.ERROR;
             var result = new WriteBufferContext();
-            PartitionPackageResultBuilder.AddPartition().SerializeEnvelope(result);
+            PartitionPackageResultBuilder.AddPartition(status).SerializeEnvelope(result);
+            return result.Buffer.ToArray();
+        }
+
+        private async Task<byte[]> Handle(RemoveDirectPartitionRequest request)
+        {
+            var status = RemoveDirectPartitionStatus.SUCCESS;
+            if (!await _partitionCluster.TryRemove(request.PartitionKey, TokenSource.Token))
+                status = RemoveDirectPartitionStatus.UNKNOWN_PARTITION;
+            var result = new WriteBufferContext();
+            PartitionPackageResultBuilder.RemovePartition(status).SerializeEnvelope(result);
             return result.Buffer.ToArray();
         }
 

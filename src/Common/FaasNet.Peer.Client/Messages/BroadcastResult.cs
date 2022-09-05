@@ -20,12 +20,13 @@ namespace FaasNet.Peer.Client.Messages
             foreach(var content in ContentLst) context.WriteByteArray(content);
         }
 
-        public void Extract(ReadBufferContext context)
+        public BroadcastResult Extract(ReadBufferContext context)
         {
             var result = new List<byte[]>();
             var nb = context.NextInt();
             for (var i = 0; i < nb; i++) result.Add(context.NextByteArray());
             ContentLst = result;
+            return this;
         }
     }
 }

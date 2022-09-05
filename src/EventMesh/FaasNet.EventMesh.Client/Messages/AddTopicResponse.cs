@@ -34,6 +34,7 @@ namespace FaasNet.EventMesh.Client.Messages
     {
         SUCCESS = 0,
         EXISTING_TOPIC = 1,
-        NOT_ENOUGHT_ACTIVENODES = 2
+        NOT_ENOUGHT_ACTIVENODES = 2,
+        INTERNAL_ERROR = 3
     }
 }

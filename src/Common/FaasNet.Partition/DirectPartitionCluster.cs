@@ -65,6 +65,16 @@ namespace FaasNet.Partition
             return true;
         }
 
+        public async Task<bool> TryRemove(string partitionKey, CancellationToken cancellationToken)
+        {
+            var partition = await _partitionPeerStore.Get(partitionKey);
+            if (partition == null) return false;
+            var p = _partitions.Single(p => p.Item2.PartitionKey == partitionKey);
+            await p.Item1.Stop();
+            await _partitionPeerStore.Remove(partition);
+            return true;
+        }
+
         public async Task<byte[]> Transfer(TransferedRequest request, CancellationToken cancellationToken)
         {
             var peer = _partitions.First(p => p.Item2.PartitionKey == request.PartitionKey);

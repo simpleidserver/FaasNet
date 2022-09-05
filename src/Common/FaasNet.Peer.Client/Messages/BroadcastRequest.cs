@@ -13,9 +13,10 @@ namespace FaasNet.Peer.Client.Messages
             context.WriteByteArray(Content);
         }
 
-        public void Extract(ReadBufferContext context)
+        public BroadcastRequest Extract(ReadBufferContext context)
         {
             Content = context.NextByteArray();
+            return this;
         }
     }
 }

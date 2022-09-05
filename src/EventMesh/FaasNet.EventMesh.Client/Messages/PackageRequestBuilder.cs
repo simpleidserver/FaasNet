@@ -32,9 +32,9 @@ namespace FaasNet.EventMesh.Client.Messages
             return new GetAllClientRequest(GenerateRandomSeq());
         }
 
-        public static BaseEventMeshPackage AddTopic(string topic, bool isBroadcasted)
+        public static BaseEventMeshPackage AddTopic(string topic)
         {
-            return new AddTopicRequest(GenerateRandomSeq(), topic, isBroadcasted);
+            return new AddTopicRequest(GenerateRandomSeq(), topic);
         }
 
         public static BaseEventMeshPackage PublishMessage(string topic, string sessionId, CloudEvent cloudEvt)

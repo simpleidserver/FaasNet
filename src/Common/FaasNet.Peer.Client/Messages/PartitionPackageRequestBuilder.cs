@@ -3,9 +3,18 @@ namespace FaasNet.Peer.Client.Messages
 {
     public class PartitionPackageRequestBuilder
     {
-        public static BasePartitionedRequest AddPartition(string partitionKey)
+        public static BasePartitionedRequest AddPartition(string partitionKey, string partitionType)
         {
             return new AddDirectPartitionRequest
+            {
+                PartitionKey = partitionKey,
+                StateMachineType = partitionType
+            };
+        }
+
+        public static BasePartitionedRequest RemovePartition(string partitionKey)
+        {
+            return new RemoveDirectPartitionRequest
             {
                 PartitionKey = partitionKey
             };

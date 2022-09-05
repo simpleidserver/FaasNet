@@ -1,6 +1,5 @@
 ﻿using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client;
-using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.Partition;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;

@@ -82,10 +82,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as GetAllClientResult;
         }
 
-        public async Task<AddTopicResponse> AddTopic(string topic, bool isBroadcasted = false, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AddTopicResponse> AddTopic(string topic, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AddTopic(topic, isBroadcasted);
+            var package = PackageRequestBuilder.AddTopic(topic);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);

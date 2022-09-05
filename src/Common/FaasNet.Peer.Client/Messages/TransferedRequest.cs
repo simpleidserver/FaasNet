@@ -13,10 +13,11 @@
             context.WriteByteArray(Content);
         }
 
-        public void Extract(ReadBufferContext context)
+        public TransferedRequest Extract(ReadBufferContext context)
         {
             PartitionKey = context.NextString();
             Content = context.NextByteArray();
+            return this;
         }
     }
 }
