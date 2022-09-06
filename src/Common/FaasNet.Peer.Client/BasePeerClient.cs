@@ -17,6 +17,7 @@ namespace FaasNet.Peer.Client
         }
 
         public IClientTransportFactory PeerClientFactory { get; }
+        protected IClientTransport Transport => _transport;
 
         public void Open(string url, int port)
         {

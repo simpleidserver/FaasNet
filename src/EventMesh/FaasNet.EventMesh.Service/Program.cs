@@ -1,5 +1,7 @@
 ﻿using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client;
+using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.Partition;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;
@@ -12,11 +14,9 @@ await BuildAndStartNode(5001, clusterNodes, 40000);
 
 Console.WriteLine("Press any key to ping the application");
 Console.ReadLine();
-
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
     await client.Ping(5000);
 
-/*
 Console.WriteLine("Press any key to add a VPN");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
@@ -31,10 +31,11 @@ using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, 
         Console.WriteLine($"Name '{vpn.Id}', Description '{vpn.Description}'");
 }
 
+AddClientResult publishClient;
 Console.WriteLine("Press any key to add a client");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
-    await client.AddClient("publishClientId", "VPN", new List<ClientPurposeTypes> { ClientPurposeTypes.PUBLISH });
+    publishClient = await client.AddClient("publishClientId", "VPN", new List<ClientPurposeTypes> { ClientPurposeTypes.PUBLISH, ClientPurposeTypes.SUBSCRIBE });
 
 Console.WriteLine("Press any key to display all the clients");
 Console.ReadLine();
@@ -44,28 +45,32 @@ using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, 
     foreach(var cl in clientResult.Clients)
         Console.WriteLine($"ClientId '{cl.Id}', Vpn '{cl.Vpn}', Purposes '{string.Join(",", cl.Purposes.Select(p => p.ToString()))}'");
 }
-*/
 
-Console.WriteLine("Press any key to add a topic");
+Console.WriteLine("Press any key to add a queue");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
-    await client.AddTopic("topic1");
+    await client.AddQueue("queue", "topic1");
 
-Console.WriteLine("Press any key to publish a message");
+Console.WriteLine("Press any key to create a session used for publishing");
 Console.ReadLine();
-var cloudEvent = new CloudEvent
+using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
 {
-    Type = "com.github.pull.create",
-    Source = new Uri("https://github.com/cloudevents/spec/pull"),
-    Subject = "123",
-    Id = "A234-1234-1234",
-    Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
-    DataContentType = "application/json",
-    Data = "testttt",
-    ["comexampleextension1"] = "value"
-};
-using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
-    await client.PublishMessage("topic1", "sessionId", cloudEvent);
+    var pubSession = await client.CreatePubSession("publishClientId", publishClient.ClientSecret);
+    Console.WriteLine("Press any key to publish a message");
+    Console.ReadLine();
+    var cloudEvent = new CloudEvent
+    {
+        Type = "com.github.pull.create",
+        Source = new Uri("https://github.com/cloudevents/spec/pull"),
+        Subject = "123",
+        Id = "A234-1234-1234",
+        Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+        DataContentType = "application/json",
+        Data = "testttt",
+        ["comexampleextension1"] = "value"
+    };
+    await pubSession.PublishMessage("topic1", cloudEvent);
+}
 
 Console.WriteLine("Press any key to quit the application");
 Console.ReadLine();

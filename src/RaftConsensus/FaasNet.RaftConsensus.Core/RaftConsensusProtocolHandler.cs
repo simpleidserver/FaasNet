@@ -222,8 +222,8 @@ namespace FaasNet.RaftConsensus.Core
 
         private async Task<BaseConsensusPackage> Handle(ReadStateMachineRequest request, CancellationToken cancellationToken)
         {
-            var result = await _snapshotHelper.RestoreStateMachineFromOneLog(request.Offset, cancellationToken);
-            return ConsensusPackageResultBuilder.ReadStateMachine(result?.Serialize());
+            var result = await _snapshotHelper.GetStateMachine(request.Offset, cancellationToken);
+            return ConsensusPackageResultBuilder.ReadStateMachine(result.Item1?.Serialize());
         }
     }
 }

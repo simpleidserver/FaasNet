@@ -51,6 +51,17 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage Hello(string clientId, string clientSecret, string topicFilter, ClientPurposeTypes purpose)
+        {
+            return new HelloRequest(GenerateRandomSeq())
+            {
+                ClientId = clientId,
+                ClientSecret = clientSecret,
+                TopicFilter = topicFilter,
+                Purpose = purpose
+            };
+        }
+
         private static string GenerateRandomSeq()
         {
             var builder = new StringBuilder(10);

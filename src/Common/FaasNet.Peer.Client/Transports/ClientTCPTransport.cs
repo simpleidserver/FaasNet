@@ -11,6 +11,7 @@ namespace FaasNet.Peer.Client.Transports
     public class ClientTCPTransport : IClientTransport
     {
         private Socket _socket;
+        private IPEndPoint _edp;
 
         public void Open(string url, int port)
         {
@@ -19,6 +20,7 @@ namespace FaasNet.Peer.Client.Transports
 
         public void Open(IPEndPoint edp)
         {
+            _edp = edp;
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _socket.Connect(edp);
         }
@@ -47,6 +49,18 @@ namespace FaasNet.Peer.Client.Transports
         public void Dispose()
         {
             Close();
+        }
+
+        public object Clone()
+        {
+            return new ClientTCPTransport();
+        }
+
+        public IClientTransport CloneAndOpen()
+        {
+            var result = new ClientTCPTransport();
+            result.Open(_edp);
+            return result;
         }
     }
 }

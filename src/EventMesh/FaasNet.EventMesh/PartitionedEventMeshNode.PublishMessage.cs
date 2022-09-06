@@ -15,6 +15,7 @@ namespace FaasNet.EventMesh
             if (!session.IsValid) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.EXPIRED_SESSION);
             if (session.ClientPurpose != ClientPurposeTypes.PUBLISH) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.BAD_SESSION_USAGE);
             var allQueues = await GetAllStateMachines<QueueStateMachine>(QUEUE_PARTITION_KEY, cancellationToken);
+            // TODO : Redirect the message to the correct queue.
             var filteredQueues = allQueues;
             var id = Guid.NewGuid().ToString();
             await Parallel.ForEachAsync(filteredQueues, new ParallelOptions

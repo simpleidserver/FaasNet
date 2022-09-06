@@ -6,16 +6,16 @@ namespace FaasNet.RaftConsensus.Client.Messages
     {
         public override ConsensusCommands Command => ConsensusCommands.READ_STATEMACHINE_REQUEST;
 
-        public long Offset { get; set; }
+        public int Offset { get; set; }
 
         protected override void SerializeAction(WriteBufferContext context)
         {
-            context.WriteLong(Offset);
+            context.WriteInteger(Offset);
         }
 
         public ReadStateMachineRequest Extract(ReadBufferContext context)
         {
-            Offset = context.NextLong();
+            Offset = context.NextInt();
             return this;
         }
     }

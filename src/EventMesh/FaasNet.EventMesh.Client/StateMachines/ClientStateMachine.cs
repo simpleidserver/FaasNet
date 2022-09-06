@@ -48,6 +48,7 @@ namespace FaasNet.EventMesh.Client.StateMachines
             var writeBufferContext = new WriteBufferContext();
             writeBufferContext.WriteString(Id);
             writeBufferContext.WriteString(Vpn);
+            writeBufferContext.WriteInteger(SessionExpirationTimeMS);
             writeBufferContext.WriteInteger(Purposes.Count);
             foreach (var purpose in Purposes) writeBufferContext.WriteInteger((int)purpose);
             return writeBufferContext.Buffer.ToArray();

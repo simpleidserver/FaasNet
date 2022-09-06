@@ -9,20 +9,20 @@ namespace FaasNet.EventMesh.Client.Messages
         }
 
         public override EventMeshCommands Command => EventMeshCommands.READ_MESSAGE_REQUEST;
-        public long Offset { get; set; }
+        public int Offset { get; set; }
         public string QueueName { get; set; }
         public string SessionId { get; set; }
 
         protected override void SerializeAction(WriteBufferContext context)
         {
-            context.WriteLong(Offset);
+            context.WriteInteger(Offset);
             context.WriteString(QueueName);
             context.WriteString(SessionId);
         }
 
         public ReadMessageRequest Extract(ReadBufferContext context)
         {
-            Offset = context.NextLong();
+            Offset = context.NextInt();
             QueueName = context.NextString();
             SessionId = context.NextString();
             return this;

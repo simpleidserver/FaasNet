@@ -93,7 +93,7 @@ namespace FaasNet.EventMesh
             return StateMachineSerializer.Deserialize<T>(stateMachineResult.StateMachine);
         }
 
-        private async Task<T> ReadStateMachine<T>(string partitionKey, long offset, CancellationToken cancellationToken) where T : IStateMachine
+        private async Task<T> ReadStateMachine<T>(string partitionKey, int offset, CancellationToken cancellationToken) where T : IStateMachine
         {
             var writeBufferContext = new WriteBufferContext();
             ConsensusPackageRequestBuilder.ReadStateMachine(offset).SerializeEnvelope(writeBufferContext);

@@ -45,5 +45,12 @@ namespace FaasNet.Peer.Client.Transports
         {
             Close();
         }
+
+        public IClientTransport CloneAndOpen()
+        {
+            var result = new ClientUDPTransport();
+            result.Open(_target);
+            return result;
+        }
     }
 }

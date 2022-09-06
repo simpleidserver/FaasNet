@@ -96,10 +96,40 @@ namespace FaasNet.EventMesh.Client
             return packageResult as AddQueueResponse;
         }
 
-        public async Task<PublishMessageResult> PublishMessage(string topic, string sessionId, CloudEvent cloudEvt, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<EventMeshPublishSessionClient> CreatePubSession(string clientId, string clientSecret, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.PublishMessage(topic, sessionId, cloudEvt);
+            var package = PackageRequestBuilder.Hello(clientId, clientSecret, string.Empty, ClientPurposeTypes.PUBLISH);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            var result = new EventMeshPublishSessionClient(packageResult as HelloResult, Transport.CloneAndOpen());
+            return result;
+        }
+
+        internal static void EnsureSuccessStatus(BaseEventMeshPackage packageRequest, BaseEventMeshPackage packageResponse)
+        {
+            if (packageRequest.Seq != packageResponse.Seq) throw new EventMeshClientException("the seq in the request doesn't match the seq in the response");
+        }
+    }
+
+    public class EventMeshPublishSessionClient : BasePartitionedPeerClient
+    {
+        private readonly HelloResult _session;
+
+        public EventMeshPublishSessionClient(HelloResult session, IClientTransport transport) : base(transport)
+        {
+            _session = session;
+        }
+
+        public async Task<PublishMessageResult> PublishMessage(string topic, CloudEvent cloudEvt, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.PublishMessage(topic, _session.SessionId, cloudEvt);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);

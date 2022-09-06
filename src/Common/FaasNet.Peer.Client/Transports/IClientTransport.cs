@@ -12,5 +12,6 @@ namespace FaasNet.Peer.Client.Transports
         void Close();
         Task<int> Send(byte[] payload, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken));
         Task<byte[]> Receive(int timeousMS = 500, CancellationToken cancellationToken = default(CancellationToken));
+        IClientTransport CloneAndOpen();
     }
 }
