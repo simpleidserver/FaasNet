@@ -32,9 +32,13 @@ namespace FaasNet.EventMesh.Client.Messages
             return new GetAllClientRequest(GenerateRandomSeq());
         }
 
-        public static BaseEventMeshPackage AddTopic(string topic)
+        public static BaseEventMeshPackage AddQueue(string name, string topicFilter)
         {
-            return new AddTopicRequest(GenerateRandomSeq(), topic);
+            return new AddQueueRequest(GenerateRandomSeq())
+            {
+                QueueName = name,
+                TopicFilter = topicFilter
+            };
         }
 
         public static BaseEventMeshPackage PublishMessage(string topic, string sessionId, CloudEvent cloudEvt)

@@ -19,6 +19,7 @@ namespace FaasNet.RaftConsensus.Core
         IEnumerable<(IStateMachine, Snapshot)> GetAllStateMachines();
         Task<IEnumerable<(IStateMachine, Snapshot)>> GetAllLatestStateMachines(CancellationToken cancellationToken);
         Task<(IStateMachine, Snapshot)> GetLatestStateMachine(string stateMachine, CancellationToken cancellationToken);
+        Task<IStateMachine> RestoreStateMachineFromOneLog(long index, CancellationToken cancellationToken);
     }
 
     public class SnapshotHelper : ISnapshotHelper
@@ -177,6 +178,19 @@ namespace FaasNet.RaftConsensus.Core
             }
 
             return (stateMachine, snapshot ?? new Snapshot());
+        }
+
+        public async Task<IStateMachine> RestoreStateMachineFromOneLog(long index, CancellationToken cancellationToken)
+        {
+            var stateMachine = (IStateMachine)Activator.CreateInstance(_options.StateMachineType);
+            var log = await _logStore.Get(index, cancellationToken);
+            if (log != null)
+            {
+                var cmd = CommandSerializer.Deserialize(log.Command);
+                stateMachine.Apply(cmd);
+            }
+
+            return stateMachine;
         }
     }
 }

@@ -82,10 +82,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as GetAllClientResult;
         }
 
-        public async Task<AddTopicResponse> AddTopic(string topic, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AddQueueResponse> AddQueue(string name, string topicFilter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AddTopic(topic);
+            var package = PackageRequestBuilder.AddQueue(name, topicFilter);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);
@@ -93,7 +93,7 @@ namespace FaasNet.EventMesh.Client
             var readCtx = new ReadBufferContext(resultPayload);
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
-            return packageResult as AddTopicResponse;
+            return packageResult as AddQueueResponse;
         }
 
         public async Task<PublishMessageResult> PublishMessage(string topic, string sessionId, CloudEvent cloudEvt, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))

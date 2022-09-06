@@ -53,13 +53,13 @@ namespace FaasNet.EventMesh.Client.Messages
         /// </summary>
         public static EventMeshCommands PUBLISH_MESSAGE_RESPONSE = new EventMeshCommands(11, "PUBLISH_MESSAGE_RESPONSE");
         /// <summary>
-        /// Request sent to create a topic.
+        /// Request sent to create a queue.
         /// </summary>
-        public static EventMeshCommands ADD_TOPIC_REQUEST = new EventMeshCommands(12, "ADD_TOPIC_REQUEST");
+        public static EventMeshCommands ADD_QUEUE_REQUEST = new EventMeshCommands(12, "ADD_QUEUE_REQUEST");
         /// <summary>
-        /// Response sent when a topic is added.
+        /// Response sent when a queue is added.
         /// </summary>
-        public static EventMeshCommands ADD_TOPIC_RESPONSE = new EventMeshCommands(13, "ADD_TOPIC_RESPONSE");
+        public static EventMeshCommands ADD_QUEUE_RESPONSE = new EventMeshCommands(13, "ADD_QUEUE_RESPONSE");
         /// <summary>
         /// Request sent to create a session.
         /// </summary>
@@ -68,6 +68,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Response sent when a session is created
         /// </summary>
         public static EventMeshCommands HELLO_RESPONSE = new EventMeshCommands(15, "HELLO_RESPONSE");
+        /// <summary>
+        /// Request sent to read a message on a specific location.
+        /// </summary>
+        public static EventMeshCommands READ_MESSAGE_REQUEST = new EventMeshCommands(16, "READ_MESSAGE_REQUEST");
+        /// <summary>
+        /// Response sent when a message is received.
+        /// </summary>
+        public static EventMeshCommands READ_MESSAGE_RESPONSE = new EventMeshCommands(17, "READ_MESSAGE_RESPONSE");
 
         protected EventMeshCommands(int code)
         {

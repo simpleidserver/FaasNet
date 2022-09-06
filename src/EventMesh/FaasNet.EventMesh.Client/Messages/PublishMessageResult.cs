@@ -33,6 +33,9 @@ namespace FaasNet.EventMesh.Client.Messages
     public enum PublishMessageStatus
     {
         SUCCESS = 0,
-        UNKNOWN_TOPIC = 1
+        UNKNOWN_TOPIC = 1,
+        UNKNOWN_SESSION = 2,
+        EXPIRED_SESSION = 3,
+        BAD_SESSION_USAGE = 4
     }
 }

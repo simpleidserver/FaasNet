@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CloudNative.CloudEvents;
+using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.Messages
 {
@@ -35,9 +36,13 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage AddClient(string seq)
+        public static BaseEventMeshPackage AddClient(string seq, string clientId, string clientSecret)
         {
-            return new AddClientResult(seq);
+            return new AddClientResult(seq)
+            {
+                ClientId = clientId,
+                ClientSecret = clientSecret
+            };
         }
 
         public static BaseEventMeshPackage AddClient(string seq, AddClientErrorStatus status)
@@ -45,9 +50,9 @@ namespace FaasNet.EventMesh.Client.Messages
             return new AddClientResult(seq, status);
         }
 
-        public static BaseEventMeshPackage AddTopic(string seq, AddTopicStatus status = AddTopicStatus.SUCCESS)
+        public static BaseEventMeshPackage AddQueue(string seq, AddQueueStatus status = AddQueueStatus.SUCCESS)
         {
-            return new AddTopicResponse(seq)
+            return new AddQueueResponse(seq)
             {
                 Status = status
             };
@@ -56,6 +61,40 @@ namespace FaasNet.EventMesh.Client.Messages
         public static BaseEventMeshPackage PublishMessage(string seq, PublishMessageStatus status = PublishMessageStatus.SUCCESS)
         {
             return new PublishMessageResult(seq, status);
+        }
+
+        public static BaseEventMeshPackage ReadMessage(string seq, CloudEvent message)
+        {
+            return new ReadMessageResult(seq)
+            {
+                Status = ReadMessageStatus.SUCCESS,
+                Message = message
+            };
+        }
+
+        public static BaseEventMeshPackage ReadMessage(string seq, ReadMessageStatus status)
+        {
+            return new ReadMessageResult(seq)
+            {
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage Hello(string seq, HelloMessageStatus status)
+        {
+            return new HelloResult(seq)
+            {
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage Hello(string seq, string sessionId)
+        {
+            return new HelloResult(seq)
+            {
+                SessionId = sessionId,
+                Status = HelloMessageStatus.SUCCESS
+            };
         }
     }
 }

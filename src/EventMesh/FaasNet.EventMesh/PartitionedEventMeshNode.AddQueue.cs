@@ -17,20 +17,28 @@ namespace FaasNet.EventMesh
 {
     public partial class PartitionedEventMeshNode
     {
-        public async Task<BaseEventMeshPackage> Handle(AddTopicRequest addTopicRequest, CancellationToken cancellationToken)
+        public async Task<BaseEventMeshPackage> Handle(AddQueueRequest addQueueRequest, CancellationToken cancellationToken)
         {
-            var partition = await PartitionPeerStore.Get(addTopicRequest.Topic);
-            if (partition != null) return PackageResponseBuilder.AddTopic(addTopicRequest.Seq, AddTopicStatus.EXISTING_TOPIC);
-            return await Broadcast();
+            var queue = await GetStateMachine<QueueStateMachine>(QUEUE_PARTITION_KEY, addQueueRequest.QueueName, cancellationToken);
+            if (queue == null) return PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.EXISTING_QUEUE);
+            var broadcastResult = await BroadcastPartitions();
+            if (!broadcastResult.Item1)
+            {
+                await Rollback(broadcastResult.Item3);
+                return broadcastResult.Item2;
+            }
 
-            async Task<BaseEventMeshPackage> Broadcast()
+            await AddQueue();
+            return  PackageResponseBuilder.AddQueue(addQueueRequest.Seq);
+
+            async Task<(bool, BaseEventMeshPackage, IEnumerable<ClusterPeer>)> BroadcastPartitions()
             {
                 IEnumerable<ClusterPeer> filteredNodes = new List<ClusterPeer>();
                 try
                 {
                     var allNodes = (await ClusterStore.GetAllNodes("*", cancellationToken)).Where(c => c.Id != PeerOptions.Id);
                     var expectedNbActiveNodes = _eventMeshOptions.NbPartitionsTopic - 1;
-                    if (allNodes.Count() < expectedNbActiveNodes) return PackageResponseBuilder.AddTopic(addTopicRequest.Seq, AddTopicStatus.NOT_ENOUGHT_ACTIVENODES);
+                    if (allNodes.Count() < expectedNbActiveNodes) return (false, PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.NOT_ENOUGHT_ACTIVENODES), filteredNodes);
                     filteredNodes = allNodes.OrderBy(o => Guid.NewGuid()).Take(expectedNbActiveNodes);
                     var addTopicResultLst = new ConcurrentBag<bool>();
                     await Parallel.ForEachAsync(filteredNodes, new ParallelOptions
@@ -38,33 +46,34 @@ namespace FaasNet.EventMesh
                         MaxDegreeOfParallelism = _eventMeshOptions.MaxNbThreads
                     }, async (n, t) =>
                     {
-                        addTopicResultLst.Add(await AddTopic(addTopicRequest.Topic, n));
+                        addTopicResultLst.Add(await AddPartition(addQueueRequest.QueueName, n));
                     });
                     var nbSuccess = addTopicResultLst.Count(r => r);
-                    if (nbSuccess < expectedNbActiveNodes)
-                    {
-                        await Rollback(filteredNodes);
-                        return PackageResponseBuilder.AddTopic(addTopicRequest.Seq, AddTopicStatus.NOT_ENOUGHT_ACTIVENODES);
-                    }
-                    await PartitionCluster.TryAddAndStart(addTopicRequest.Topic, typeof(TopicMessageStateMachine));
-                    return PackageResponseBuilder.AddTopic(addTopicRequest.Seq);
+                    if (nbSuccess < expectedNbActiveNodes) return (false, PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.NOT_ENOUGHT_ACTIVENODES), filteredNodes);
+                    await PartitionCluster.TryAddAndStart(addQueueRequest.QueueName, typeof(QueueMessageStateMachine));
+                    return (true, PackageResponseBuilder.AddQueue(addQueueRequest.Seq), filteredNodes);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    await Rollback(filteredNodes);
                     Logger.LogError(ex.ToString());
-                    return PackageResponseBuilder.AddTopic(addTopicRequest.Seq, AddTopicStatus.INTERNAL_ERROR);
+                    return (false, PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.INTERNAL_ERROR), filteredNodes);
                 }
             }
 
-            async Task<bool> AddTopic(string topic, ClusterPeer peer)
+            async Task AddQueue()
+            {
+                var addQueueCommand = new AddQueueCommand { QueueName = addQueueRequest.QueueName, TopicFilter = addQueueRequest.TopicFilter };
+                await Send(QUEUE_PARTITION_KEY, addQueueCommand.QueueName, addQueueCommand, cancellationToken);
+            }
+
+            async Task<bool> AddPartition(string topic, ClusterPeer peer)
             {
                 try
                 {
                     var edp = new IPEndPoint(DnsHelper.ResolveIPV4(peer.Url), peer.Port);
                     using (var eventMeshClient = _peerClientFactory.Build<PartitionClient>(edp))
                     {
-                        var topicResult = await eventMeshClient.AddPartition(topic, typeof(TopicMessageStateMachine), _eventMeshOptions.RequestExpirationTimeMS, cancellationToken);
+                        var topicResult = await eventMeshClient.AddPartition(topic, typeof(QueueMessageStateMachine), _eventMeshOptions.RequestExpirationTimeMS, cancellationToken);
                         return topicResult.Status == AddDirectPartitionStatus.SUCCESS;
                     }
                 }
@@ -82,12 +91,12 @@ namespace FaasNet.EventMesh
                     MaxDegreeOfParallelism = _eventMeshOptions.MaxNbThreads
                 }, async (n, t) =>
                 {
-                    await RemoveTopic(addTopicRequest.Topic, n);
+                    await RemovePartition(addQueueRequest.QueueName, n);
                 });
-                await PartitionCluster.TryRemove(addTopicRequest.Topic, TokenSource.Token);
+                await PartitionCluster.TryRemove(addQueueRequest.QueueName, TokenSource.Token);
             }
 
-            async Task<bool> RemoveTopic(string topic, ClusterPeer peer)
+            async Task<bool> RemovePartition(string topic, ClusterPeer peer)
             {
                 try
                 {

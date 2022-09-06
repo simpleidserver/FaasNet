@@ -91,5 +91,13 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 States = stateMachines
             };
         }
+
+        public static BaseConsensusPackage ReadStateMachine(byte[] stateMachine)
+        {
+            return new ReadStateMachineResult
+            {
+                StateMachine = stateMachine
+            };
+        }
     }
 }

@@ -82,6 +82,14 @@ namespace FaasNet.RaftConsensus.Client.Messages
             };
         }
 
+        public static BaseConsensusPackage ReadStateMachine(long offset)
+        {
+            return new ReadStateMachineRequest
+            {
+                Offset = offset
+            };
+        }
+
         public static BaseConsensusPackage GetAllStateMachines()
         {
             return new GetAllStateMachinesRequest();

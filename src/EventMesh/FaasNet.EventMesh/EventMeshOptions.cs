@@ -14,5 +14,9 @@
         /// Expiration time of a client request.
         /// </summary>
         public int RequestExpirationTimeMS { get; set; } = 5000;
+        /// <summary>
+        /// Expiration time of a client session.
+        /// </summary>
+        public int ClientSessionExpirationTimeMS { get; set; } = 5 * 60000; // 5 minute.
     }
 }

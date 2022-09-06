@@ -51,6 +51,7 @@ namespace FaasNet.RaftConsensus.Core
             if (consensusPackage.Command == ConsensusCommands.INSTALL_SNAPSHOT_REQUEST) result = await Handle(consensusPackage as InstallSnapshotRequest, cancellationToken);
             if (consensusPackage.Command == ConsensusCommands.GET_STATEMACHINE_REQUEST) result = await Handle(consensusPackage as GetStateMachineRequest, cancellationToken);
             if (consensusPackage.Command == ConsensusCommands.GET_ALL_STATEMACHINES_REQUEST) result = await Handle(consensusPackage as GetAllStateMachinesRequest, cancellationToken);
+            if (consensusPackage.Command == ConsensusCommands.READ_STATEMACHINE_REQUEST) result = await Handle(consensusPackage as ReadStateMachineRequest, cancellationToken);
             return result;
         }
 
@@ -217,6 +218,12 @@ namespace FaasNet.RaftConsensus.Core
                 StateMachine = r.Item1.Serialize(),
                 Term = r.Item2.Term
             }).ToList());
+        }
+
+        private async Task<BaseConsensusPackage> Handle(ReadStateMachineRequest request, CancellationToken cancellationToken)
+        {
+            var result = await _snapshotHelper.RestoreStateMachineFromOneLog(request.Offset, cancellationToken);
+            return ConsensusPackageResultBuilder.ReadStateMachine(result?.Serialize());
         }
     }
 }

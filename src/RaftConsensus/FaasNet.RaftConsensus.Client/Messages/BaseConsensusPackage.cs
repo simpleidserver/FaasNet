@@ -124,6 +124,8 @@ namespace FaasNet.RaftConsensus.Client.Messages
 
             if (cmd == ConsensusCommands.GET_ALL_STATEMACHINES_REQUEST) return new GetAllStateMachinesRequest();
             if (cmd == ConsensusCommands.GET_ALL_STATEMACHINES_RESULT) return new GetAllStateMachinesResult().Extract(context);
+            if (cmd == ConsensusCommands.READ_STATEMACHINE_REQUEST) return new ReadStateMachineRequest().Extract(context);
+            if (cmd == ConsensusCommands.READ_STATEMACHINE_RESULT) return new ReadStateMachineResult().Extract(context);
             return null;
         }
     }

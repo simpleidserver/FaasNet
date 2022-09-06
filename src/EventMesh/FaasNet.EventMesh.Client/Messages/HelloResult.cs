@@ -9,17 +9,28 @@ namespace FaasNet.EventMesh.Client.Messages
         }
 
         public override EventMeshCommands Command => EventMeshCommands.HELLO_RESPONSE;
+        public HelloMessageStatus Status { get; set; }
         public string SessionId { get; set; }
 
         protected override void SerializeAction(WriteBufferContext context)
         {
-            context.WriteString(SessionId);
+            context.WriteInteger((int)Status);
+            if (Status == HelloMessageStatus.SUCCESS) context.WriteString(SessionId); 
         }
 
         public HelloResult Extract(ReadBufferContext context)
         {
-            SessionId = context.NextString();
+            Status = (HelloMessageStatus)context.NextInt();
+            if (Status == HelloMessageStatus.SUCCESS) SessionId = context.NextString();
             return this;
         }
+    }
+
+    public enum HelloMessageStatus
+    {
+        SUCCESS = 0,
+        UNKNOWN_CLIENT =  1,
+        BAD_CREDENTIALS = 2,
+        BAD_PURPOSE = 3
     }
 }
