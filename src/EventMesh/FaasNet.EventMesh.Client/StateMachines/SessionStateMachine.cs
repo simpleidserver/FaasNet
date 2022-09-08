@@ -11,8 +11,8 @@ namespace FaasNet.EventMesh.Client.StateMachines
         public string ClientId { get; set; }
         public ClientPurposeTypes ClientPurpose { get; set; }
         public TimeSpan ExpirationTime { get; set; }
-        public string TopicFilter { get; set; }
-        public bool IsValid => DateTime.UtcNow > new DateTime(ExpirationTime.Ticks);
+        public string QueueName { get; set; }
+        public bool IsValid => DateTime.UtcNow.Ticks < ExpirationTime.Ticks;
 
         public void Apply(ICommand cmd)
         {
@@ -22,7 +22,7 @@ namespace FaasNet.EventMesh.Client.StateMachines
                     ClientId = addSession.ClientId;
                     ClientPurpose = addSession.ClientPurpose;
                     ExpirationTime = addSession.ExpirationTime;
-                    TopicFilter = addSession.TopicFilter;
+                    QueueName = addSession.QueueName;
                     break;
             }
         }
@@ -33,7 +33,7 @@ namespace FaasNet.EventMesh.Client.StateMachines
             ClientId = context.NextString();
             ClientPurpose = (ClientPurposeTypes)context.NextInt();
             ExpirationTime = context.NextTimeSpan().Value;
-            TopicFilter = context.NextString();
+            QueueName = context.NextString();
         }
 
         public byte[] Serialize()
@@ -43,7 +43,7 @@ namespace FaasNet.EventMesh.Client.StateMachines
                 .WriteString(ClientId)
                 .WriteInteger((int)ClientPurpose)
                 .WriteTimeSpan(ExpirationTime)
-                .WriteString(TopicFilter);
+                .WriteString(QueueName);
             return result.Buffer.ToArray();
         }
     }
@@ -52,20 +52,20 @@ namespace FaasNet.EventMesh.Client.StateMachines
     {
         public string ClientId { get; set; }
         public ClientPurposeTypes ClientPurpose { get; set; }
-        public string TopicFilter { get; set; }
+        public string QueueName { get; set; }
         public TimeSpan ExpirationTime { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
             ClientId = context.NextString();
+            QueueName = context.NextString();
             ClientPurpose = (ClientPurposeTypes)context.NextInt();
-            TopicFilter = context.NextString();
             ExpirationTime = context.NextTimeSpan().Value;
         }
 
         public void Serialize(WriteBufferContext context)
         {
-            context.WriteString(ClientId).WriteString(TopicFilter).WriteInteger((int)ClientPurpose).WriteTimeSpan(ExpirationTime);
+            context.WriteString(ClientId).WriteString(QueueName).WriteInteger((int)ClientPurpose).WriteTimeSpan(ExpirationTime);
         }
     }
 }

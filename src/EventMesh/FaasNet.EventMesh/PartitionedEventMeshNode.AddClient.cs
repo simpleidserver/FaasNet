@@ -16,7 +16,8 @@ namespace FaasNet.EventMesh
             if (client != null) return PackageResponseBuilder.AddClient(addClientRequest.Seq, AddClientErrorStatus.EXISTING_CLIENT);
             var clientSecret = Guid.NewGuid().ToString();
             var addClientCommand = new AddClientCommand { Purposes = addClientRequest.Purposes, Vpn = addClientRequest.Vpn, Secret = ClientStateMachine.ComputePassword(clientSecret), SessionExpirationTimeMS = _eventMeshOptions.ClientSessionExpirationTimeMS };
-            await Send(CLIENT_PARTITION_KEY, addClientRequest.Id,addClientCommand, cancellationToken);
+            var result = await Send(CLIENT_PARTITION_KEY, addClientRequest.Id,addClientCommand, cancellationToken);
+            if (!result.Success) return PackageResponseBuilder.AddClient(addClientRequest.Seq, AddClientErrorStatus.NOLEADER);
             return PackageResponseBuilder.AddClient(addClientRequest.Seq, addClientRequest.Id, clientSecret);
         }
     }

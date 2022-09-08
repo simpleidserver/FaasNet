@@ -27,7 +27,7 @@ namespace FaasNet.EventMesh.Client
             EnsureSuccessStatus(package, packageResult);
         }
 
-        public async Task AddVpn(string vpn, string description = null, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AddVpnResult> AddVpn(string vpn, string description = null, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
             var package = PackageRequestBuilder.AddVpn(vpn, description);
@@ -38,6 +38,7 @@ namespace FaasNet.EventMesh.Client
             var readCtx = new ReadBufferContext(resultPayload);
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
+            return packageResult as AddVpnResult;
         }
 
         public async Task<GetAllVpnResult> GetAllVpn(int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
@@ -111,6 +112,21 @@ namespace FaasNet.EventMesh.Client
             return result;
         }
 
+        public async Task<EventMeshSubscribeSessionClient> CreateSubSession(string clientId, string clientSecret, string queueName, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.Hello(clientId, clientSecret, queueName, ClientPurposeTypes.SUBSCRIBE);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            var result = new EventMeshSubscribeSessionClient(packageResult as HelloResult, Transport.CloneAndOpen());
+            return result;
+        }
+
         internal static void EnsureSuccessStatus(BaseEventMeshPackage packageRequest, BaseEventMeshPackage packageResponse)
         {
             if (packageRequest.Seq != packageResponse.Seq) throw new EventMeshClientException("the seq in the request doesn't match the seq in the response");
@@ -138,6 +154,35 @@ namespace FaasNet.EventMesh.Client
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
             return packageResult as PublishMessageResult;
+        }
+
+        internal static void EnsureSuccessStatus(BaseEventMeshPackage packageRequest, BaseEventMeshPackage packageResponse)
+        {
+            if (packageRequest.Seq != packageResponse.Seq) throw new EventMeshClientException("the seq in the request doesn't match the seq in the response");
+        }
+    }
+
+    public class EventMeshSubscribeSessionClient : BasePartitionedPeerClient
+    {
+        private readonly HelloResult _session;
+
+        public EventMeshSubscribeSessionClient(HelloResult session, IClientTransport transport) : base(transport)
+        {
+            _session = session;
+        }
+
+        public async Task<ReadMessageResult> ReadMessage(int offset, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.ReadMessage(offset, _session.SessionId);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as ReadMessageResult;
         }
 
         internal static void EnsureSuccessStatus(BaseEventMeshPackage packageRequest, BaseEventMeshPackage packageResponse)

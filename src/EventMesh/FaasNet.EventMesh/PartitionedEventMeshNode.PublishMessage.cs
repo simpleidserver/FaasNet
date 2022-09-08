@@ -1,6 +1,7 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines;
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace FaasNet.EventMesh
             var allQueues = await GetAllStateMachines<QueueStateMachine>(QUEUE_PARTITION_KEY, cancellationToken);
             // TODO : Redirect the message to the correct queue.
             var filteredQueues = allQueues;
+            var publishedQueueNames = new ConcurrentBag<string>();
             var id = Guid.NewGuid().ToString();
             await Parallel.ForEachAsync(filteredQueues, new ParallelOptions
             {
@@ -24,10 +26,11 @@ namespace FaasNet.EventMesh
             }, async (q, t) =>
             {
                 var addMessageCommand = new AddQueueMessageCommand { Data = request.CloudEvent, Topic = request.Topic };
-                await Send(q.QueueName, id, addMessageCommand, cancellationToken);
+                var result = await Send(q.QueueName, id, addMessageCommand, cancellationToken);
+                if (result.Success) publishedQueueNames.Add(q.QueueName);
             });
 
-            return PackageResponseBuilder.PublishMessage(request.Seq);
+            return PackageResponseBuilder.PublishMessage(request.Seq, publishedQueueNames.ToArray());
         }
     }
 }

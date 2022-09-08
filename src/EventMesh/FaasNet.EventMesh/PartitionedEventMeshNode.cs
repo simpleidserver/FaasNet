@@ -66,16 +66,19 @@ namespace FaasNet.EventMesh
             await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = QUEUE_PARTITION_KEY, Port = _options.StartPeerPort + 3, StateMachineType = typeof(QueueStateMachine) });
         }
 
-        private async Task Send(string partitionKey, string stateMachineId, ICommand command, CancellationToken cancellationToken)
+        private async Task<AppendEntryResult> Send(string partitionKey, string stateMachineId, ICommand command, CancellationToken cancellationToken)
         {
             var writeBufferContext = new WriteBufferContext();
             ConsensusPackageRequestBuilder.AppendEntry(stateMachineId, CommandSerializer.Serialize(command)).SerializeEnvelope(writeBufferContext);
             var cmdBuffer = writeBufferContext.Buffer.ToArray();
-            await PartitionCluster.Transfer(new TransferedRequest
+            var transferedResult = await PartitionCluster.Transfer(new TransferedRequest
             {
                 Content = cmdBuffer,
                 PartitionKey = partitionKey
             }, cancellationToken);
+            var readBufferContext = new ReadBufferContext(transferedResult);
+            var result = BaseConsensusPackage.Deserialize(readBufferContext) as AppendEntryResult;
+            return result;
         }
 
         private async Task<T> GetStateMachine<T>(string partitionKey, string stateMachineId, CancellationToken cancellationToken) where T : IStateMachine

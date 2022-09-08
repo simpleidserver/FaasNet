@@ -12,7 +12,7 @@ namespace FaasNet.EventMesh.Client.Messages
 
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
-        public string TopicFilter { get; set; }
+        public string QueueName { get; set; }
         public ClientPurposeTypes Purpose { get; set; }
 
         public override EventMeshCommands Command => EventMeshCommands.HELLO_REQUEST;
@@ -21,7 +21,7 @@ namespace FaasNet.EventMesh.Client.Messages
         {
             context.WriteString(ClientId);
             context.WriteString(ClientSecret);
-            context.WriteString(TopicFilter);
+            context.WriteString(QueueName);
             context.WriteInteger((int)Purpose);
         }
 
@@ -29,7 +29,7 @@ namespace FaasNet.EventMesh.Client.Messages
         {
             ClientId = context.NextString();
             ClientSecret = context.NextString();
-            TopicFilter = context.NextString();
+            QueueName = context.NextString();
             Purpose = (ClientPurposeTypes)context.NextInt();
             return this;
         }

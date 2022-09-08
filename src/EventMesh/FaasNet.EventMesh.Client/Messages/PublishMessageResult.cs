@@ -1,5 +1,6 @@
 ﻿using FaasNet.Peer.Client;
-using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FaasNet.EventMesh.Client.Messages
 {
@@ -8,6 +9,7 @@ namespace FaasNet.EventMesh.Client.Messages
         public PublishMessageResult(string seq) : base(seq)
         {
             Status = PublishMessageStatus.SUCCESS;
+            QueueNames = new List<string>();
         }
 
         public PublishMessageResult(string seq, PublishMessageStatus status) : this(seq)
@@ -17,15 +19,22 @@ namespace FaasNet.EventMesh.Client.Messages
 
         public override EventMeshCommands Command => EventMeshCommands.PUBLISH_MESSAGE_RESPONSE;
         public PublishMessageStatus Status { get; set; }
+        public IEnumerable<string> QueueNames { get; set; }
 
         protected override void SerializeAction(WriteBufferContext context)
         {
             context.WriteInteger((int)Status);
+            context.WriteInteger(QueueNames.Count());
+            foreach(var queueName in QueueNames) context.WriteString(queueName);
         }
 
         public PublishMessageResult Extract(ReadBufferContext context)
         {
             Status = (PublishMessageStatus)context.NextInt();
+            var result = new List<string>();
+            var nb = context.NextInt();
+            for(var i = 0; i < nb; i++) result.Add(context.NextString());
+            QueueNames = result;
             return this;
         }
     }

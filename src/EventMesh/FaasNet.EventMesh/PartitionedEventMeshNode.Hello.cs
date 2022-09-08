@@ -16,8 +16,9 @@ namespace FaasNet.EventMesh
             if (!client.HasPurpose(helloRequest.Purpose)) return PackageResponseBuilder.Hello(helloRequest.Seq, HelloMessageStatus.BAD_PURPOSE);
             var sessionId = Guid.NewGuid().ToString();
             var expirationTime = TimeSpan.FromTicks(DateTime.UtcNow.AddMilliseconds(client.SessionExpirationTimeMS).Ticks);
-            var addSessionCommand = new AddSessionCommand { ClientId = helloRequest.ClientId, ClientPurpose = helloRequest.Purpose, ExpirationTime = expirationTime, TopicFilter = helloRequest.TopicFilter };
-            await Send(SESSION_PARTITION_KEY, sessionId, addSessionCommand, cancellationToken);
+            var addSessionCommand = new AddSessionCommand { ClientId = helloRequest.ClientId, ClientPurpose = helloRequest.Purpose, ExpirationTime = expirationTime, QueueName = helloRequest.QueueName };
+            var result = await Send(SESSION_PARTITION_KEY, sessionId, addSessionCommand, cancellationToken);
+            if (!result.Success) return PackageResponseBuilder.Hello(helloRequest.Seq, HelloMessageStatus.NOLEADER);
             return PackageResponseBuilder.Hello(helloRequest.Seq, sessionId);
         }
     }

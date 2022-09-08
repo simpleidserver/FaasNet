@@ -31,6 +31,7 @@ namespace FaasNet.EventMesh.Client.Messages
         SUCCESS = 0,
         UNKNOWN_CLIENT =  1,
         BAD_CREDENTIALS = 2,
-        BAD_PURPOSE = 3
+        BAD_PURPOSE = 3,
+        NOLEADER = 4
     }
 }

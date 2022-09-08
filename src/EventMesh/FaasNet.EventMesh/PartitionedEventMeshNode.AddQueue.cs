@@ -20,7 +20,7 @@ namespace FaasNet.EventMesh
         public async Task<BaseEventMeshPackage> Handle(AddQueueRequest addQueueRequest, CancellationToken cancellationToken)
         {
             var queue = await GetStateMachine<QueueStateMachine>(QUEUE_PARTITION_KEY, addQueueRequest.QueueName, cancellationToken);
-            if (queue == null) return PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.EXISTING_QUEUE);
+            if (queue != null) return PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.EXISTING_QUEUE);
             var broadcastResult = await BroadcastPartitions();
             if (!broadcastResult.Item1)
             {

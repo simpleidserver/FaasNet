@@ -9,6 +9,7 @@ namespace FaasNet.EventMesh.Client.StateMachines
     {
         public string Id { get; set; }
         public string Topic { get; set; }
+        public bool HasData { get; set; }
         public CloudEvent Data { get; set; }
 
         public void Apply(ICommand cmd)
@@ -26,7 +27,8 @@ namespace FaasNet.EventMesh.Client.StateMachines
         {
             Id = context.NextString();
             Topic = context.NextString();
-            Data = context.NextCloudEvent();
+            var hasData = context.NextBoolean();
+            if (hasData) Data = context.NextCloudEvent();
         }
 
         public byte[] Serialize()
@@ -34,7 +36,8 @@ namespace FaasNet.EventMesh.Client.StateMachines
             var context = new WriteBufferContext();
             context.WriteString(Id);
             context.WriteString(Topic);
-            Data.Serialize(context);
+            context.WriteBoolean(Data != null);
+            if (Data != null) Data.Serialize(context);
             return context.Buffer.ToArray();
         }
     }

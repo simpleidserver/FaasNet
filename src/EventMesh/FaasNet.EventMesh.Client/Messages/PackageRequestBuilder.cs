@@ -51,14 +51,23 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage Hello(string clientId, string clientSecret, string topicFilter, ClientPurposeTypes purpose)
+        public static BaseEventMeshPackage Hello(string clientId, string clientSecret, string queueName, ClientPurposeTypes purpose)
         {
             return new HelloRequest(GenerateRandomSeq())
             {
                 ClientId = clientId,
                 ClientSecret = clientSecret,
-                TopicFilter = topicFilter,
+                QueueName = queueName,
                 Purpose = purpose
+            };
+        }
+
+        public static BaseEventMeshPackage ReadMessage(int offset, string sessionId)
+        {
+            return new ReadMessageRequest(GenerateRandomSeq())
+            {
+                Offset = offset,
+                SessionId = sessionId
             };
         }
 

@@ -36,6 +36,7 @@ namespace FaasNet.EventMesh.Client.Messages
 
     public enum AddVpnErrorStatus
     {
-        EXISTINGVPN = 0
+        EXISTINGVPN = 0,
+        NOLEADER = 1
     }
 }

@@ -12,7 +12,8 @@ namespace FaasNet.EventMesh
             var vpn = await GetStateMachine<VpnStateMachine>(VPN_PARTITION_KEY, addVpnRequest.Vpn, cancellationToken);
             if (vpn != null) return PackageResponseBuilder.AddVpn(addVpnRequest.Seq, AddVpnErrorStatus.EXISTINGVPN);
             var addVpnCommand = new AddVpnCommand { Description = addVpnRequest.Description };
-            await Send(VPN_PARTITION_KEY, addVpnRequest.Vpn, addVpnCommand, cancellationToken);
+            var result = await Send(VPN_PARTITION_KEY, addVpnRequest.Vpn, addVpnCommand, cancellationToken);
+            if (!result.Success) return PackageResponseBuilder.AddVpn(addVpnRequest.Seq, AddVpnErrorStatus.NOLEADER);
             return PackageResponseBuilder.AddVpn(addVpnRequest.Seq);
         }
     }

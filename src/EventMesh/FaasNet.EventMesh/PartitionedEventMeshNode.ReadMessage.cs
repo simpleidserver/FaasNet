@@ -12,9 +12,9 @@ namespace FaasNet.EventMesh
             var session = await GetStateMachine<SessionStateMachine>(SESSION_PARTITION_KEY, readMessageRequest.SessionId, cancellationToken);
             if (session == null) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.UNKNOWN_SESSION);
             if (!session.IsValid) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.EXPIRED_SESSION);
-            if (session.ClientPurpose != ClientPurposeTypes.SUBSCRIBE) return PackageResponseBuilder.PublishMessage(readMessageRequest.Seq, PublishMessageStatus.BAD_SESSION_USAGE);
-            var stateMachine = await ReadStateMachine<QueueMessageStateMachine>(readMessageRequest.QueueName, readMessageRequest.Offset, cancellationToken);
-            if (stateMachine == null) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.NO_MESSAGE);
+            if (session.ClientPurpose != ClientPurposeTypes.SUBSCRIBE) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.BAD_SESSION_USAGE);
+            var stateMachine = await ReadStateMachine<QueueMessageStateMachine>(session.QueueName, readMessageRequest.Offset, cancellationToken);
+            if (stateMachine == null || stateMachine.Data == null) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.NO_MESSAGE);
             return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, stateMachine.Data);
         }
     }

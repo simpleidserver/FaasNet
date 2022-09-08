@@ -63,6 +63,14 @@ namespace FaasNet.EventMesh.Client.Messages
             return new PublishMessageResult(seq, status);
         }
 
+        public static BaseEventMeshPackage PublishMessage(string seq, IEnumerable<string> queueNames)
+        {
+            return new PublishMessageResult(seq, PublishMessageStatus.SUCCESS)
+            {
+                QueueNames = queueNames
+            };
+        }
+
         public static BaseEventMeshPackage ReadMessage(string seq, CloudEvent message)
         {
             return new ReadMessageResult(seq)

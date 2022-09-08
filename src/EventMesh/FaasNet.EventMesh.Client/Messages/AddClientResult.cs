@@ -49,6 +49,7 @@ namespace FaasNet.EventMesh.Client.Messages
     public enum AddClientErrorStatus
     {
         UNKNOWN_VPN = 0,
-        EXISTING_CLIENT = 1
+        EXISTING_CLIENT = 1,
+        NOLEADER = 2
     }
 }
