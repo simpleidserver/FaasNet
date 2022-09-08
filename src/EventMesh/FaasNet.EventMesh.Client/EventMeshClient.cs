@@ -14,7 +14,7 @@ namespace FaasNet.EventMesh.Client
     {
         public EventMeshClient(IClientTransport transport) : base(transport) { }
 
-        public async Task Ping(int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<PingResult> Ping(int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
             var package = PackageRequestBuilder.HeartBeat();
@@ -25,6 +25,7 @@ namespace FaasNet.EventMesh.Client
             var readCtx = new ReadBufferContext(resultPayload);
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
+            return packageResult as PingResult;
         }
 
         public async Task<AddVpnResult> AddVpn(string vpn, string description = null, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
