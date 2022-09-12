@@ -1,4 +1,5 @@
-﻿using FaasNet.DHT.Kademlia.Client;
+﻿using FaasNet.Common;
+using FaasNet.DHT.Kademlia.Client;
 using FaasNet.DHT.Kademlia.Core.Stores;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;

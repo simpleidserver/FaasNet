@@ -18,11 +18,19 @@ namespace FaasNet.Peer.Client.Messages
             };
         }
 
-        public static BasePartitionedRequest Broadcast(IEnumerable<byte[]> contentLst)
+        public static BasePartitionedRequest Broadcast(ICollection<BroadcastRecordResult> contentLst)
         {
             return new BroadcastResult
             {
                 ContentLst = contentLst
+            };
+        }
+
+        public static BasePartitionedRequest GetAllNodes(ICollection<NodeResult> nodes)
+        {
+            return new GetAllNodesResult
+            {
+                Nodes = nodes
             };
         }
     }

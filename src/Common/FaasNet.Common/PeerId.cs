@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
-namespace FaasNet.Peer
+namespace FaasNet.Common
 {
     public record PeerId
     {

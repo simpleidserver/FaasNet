@@ -9,8 +9,29 @@
 	<style>
 		html, body {
 			height: 100%;
+			font-family: "Roboto", sans-serif;
 		}
 		
+		/* Theme */		
+		.blue {			
+			--header-bg-color: #0d47a1;
+			--header-font-color: white;
+			--footer-bg-color: #f4f4f4;
+			--h2-border-color: #a2b4d1;
+			--main-space: 10px;
+		}
+		
+		.blue .navbar {
+			background-color: var(--header-bg-color) !important;
+			color: var(--header-font-color) !important;
+			box-shadow: 0 1px 2px 0 rgba(61, 65, 68, 0.06), 0 1px 3px 1px rgba(61, 65, 68, 0.16);
+		}
+		
+		.blue .navbar a {
+			color: var(--header-font-color) !important;
+		}
+		
+		/* Common */
 		.no-padding {
 			padding-left: 0px !important;
 			padding-right: 0px !important;
@@ -21,18 +42,40 @@
 			margin-right: 0px !important;
 		}
 		
-		#selectNode > div:first-child  {
-			padding: 5px 5px 0px 0px;
+		/* Global */		
+		h2 {
+			padding: 10px 0px 10px var(--main-space);
+			border-bottom: 1px solid var(--h2-border-color);
+			font-weight: 600px;
+			font-size: 24px;
 		}
 		
-		#websiteContent {
-			border-right: 1px solid gray;
-			border-left: 1px solid gray;
+		#selectNode > div:first-child  {
+			padding: 8px 5px 0px 0px;
+		}
+		
+		/* Website */		
+		#main {
+			margin: 0px 50px 0px 50px;
+			box-shadow: -1px 3px 12px 5px rgba(161,161,161,0.59);
+		}		
+		
+		#footer {
+			background-color: var(--footer-bg-color);
+			height: 35px;
+			padding-left: 20px;
+			font-size: 12px;
+			line-height: 35px;
+		}
+		
+		/* Shared components */
+		.section .content {
+			padding-left: var(--main-space);
 		}
 	</style>
 </head>
 <body>
-	<div class="container-fluid vh-100 d-flex flex-column no-padding no-margin">
+	<div class="container-fluid vh-100 d-flex flex-column no-padding no-margin blue">
 		<header>
 			<nav class="navbar navbar-expand-sm navbar-light flex-shrink-0 bg-light" id="navHeader">
 				<div class="container-fluid">
@@ -58,58 +101,55 @@
 				</div>
 			</nav>
 		</header>
-		<div class="row flex-grow-1 justify-content-md-center">
-			<main class="col-11">
-				<div class="card">
-					<div class="card-body">
-						<h5 class="card-title">Summary</h5>
-						<p class="card-text">			
-							<div>
-								EventMesh node is listening on <b>localhost:5000</b>
-							</div>
-							<div>							
-								Status is <b style="color: green">Active</b>
-							</div>
-							<div>
-								Last refresh time <b>08-09-2022 22:09</b>
-							</div>
-							<div>
-								<b>UDP</b> protocol is used
-							</div>
-						</p>
-					</div>
-				</div>				
-				<div class="card">
-					<div class="card-body">					
-						<h5 class="card-title">List of partitions</h5>
-						<p class="card-text">
-							<table class="table table-striped">
-								<thead>
-									<tr>
-										<th>Name</th>
-										<th>Status</th>
-										<th>Commit Index</th>
-										<th>Last applied</th>
-										<th>Commit snapshot index</th>
-										<th>Last snapshot index</th>
-									</tr>
-								<thead>
-								<tbody>
-									<tr>
-										<td>VPN</td>
-										<td>Leader</td>
-										<td>1</td>
-										<td>2</td>
-										<td>0</td>
-										<td>0</td>
-									</tr>
-								</tbody>
-							</table>
-						</p>
-					</div>
-				</div>	
-			</main>	
-		</div>
+		<main class="flex-grow-1" id="main">
+			<div class="section">
+				<h2>Summary</h2>
+				<div class="content">				
+					EventMesh node is listening on <b>localhost:5000</b><br/>
+					Status is <b style="color: green">Active</b><br/>
+					Last refresh time <b>08-09-2022 22:09</b><br />
+					<b>UDP</b> protocol is used
+				</div>
+			</div>
+			<div class="section">
+				<h2>List of partitions</h2>
+				<div class="content">				
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Status</th>
+								<th>Commit Index</th>
+								<th>Last applied</th>
+								<th>Commit snapshot index</th>
+								<th>Last snapshot index</th>
+							</tr>
+						<thead>
+						<tbody>
+							<tr>
+								<td>VPN</td>
+								<td>Leader</td>
+								<td>1</td>
+								<td>2</td>
+								<td>0</td>
+								<td>0</td>
+							</tr>
+							<tr>
+								<td>Client</td>
+								<td>Follower</td>
+								<td>1</td>
+								<td>2</td>
+								<td>0</td>
+								<td>0</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</main>
+		<footer id="footer">
+			Copyright 2022 SimpleIdServer
+		</footer>
 	</div>
 </body>
 </html>

@@ -31,5 +31,16 @@ namespace FaasNet.Peer.Client
             var readBuffer = new ReadBufferContext(receivedResult);
             return BasePartitionedRequest.Deserialize(readBuffer) as RemoveDirectPartitionResult;
         }
+
+        public async Task<GetAllNodesResult> GetAllNodes(int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeBuffer = new WriteBufferContext();
+            var pkg = PartitionPackageRequestBuilder.GetAllNodes();
+            pkg.SerializeEnvelope(writeBuffer);
+            await Send(writeBuffer.Buffer.ToArray(), timeoutMS, cancellationToken);
+            var receivedResult = await Receive(timeoutMS, cancellationToken);
+            var readBuffer = new ReadBufferContext(receivedResult);
+            return BasePartitionedRequest.Deserialize(readBuffer) as GetAllNodesResult;
+        }
     }
 }

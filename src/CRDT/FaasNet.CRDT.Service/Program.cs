@@ -1,4 +1,5 @@
-﻿using FaasNet.CRDT.Client;
+﻿using FaasNet.Common;
+using FaasNet.CRDT.Client;
 using FaasNet.CRDT.Core.Entities;
 using FaasNet.CRDT.Core.SerializedEntities;
 using FaasNet.Peer;

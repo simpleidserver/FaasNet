@@ -1,4 +1,6 @@
-﻿namespace FaasNet.Peer.Clusters
+﻿using FaasNet.Common;
+
+namespace FaasNet.Peer.Clusters
 {
     public class ClusterPeer
     {

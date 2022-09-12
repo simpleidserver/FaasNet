@@ -12,6 +12,7 @@ namespace FaasNet.Peer.Client.Transports
     {
         private Socket _socket;
         private IPEndPoint _edp;
+        public string Name => "TCP";
 
         public void Open(string url, int port)
         {

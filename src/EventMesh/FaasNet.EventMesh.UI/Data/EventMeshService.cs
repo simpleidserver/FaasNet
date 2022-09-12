@@ -1,17 +1,22 @@
 ﻿using FaasNet.EventMesh.Client;
 using FaasNet.Peer.Client;
+using FaasNet.Peer.Client.Messages;
+using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Client.Messages;
 using Microsoft.Extensions.Options;
 
 namespace FaasNet.EventMesh.UI.Data
 {
     public interface IEventMeshService
     {
-        Task<bool> Ping(CancellationToken cancellationToken);
+        Task<bool> Ping(string url, int port, CancellationToken cancellationToken);
+        Task<GetAllNodesResult> GetAllNodes(string url, int port, CancellationToken cancellationToken);
+        Task<IEnumerable<(GetPeerStateResult, string)>> GetAllPeerStates(string url, int port, CancellationToken cancellationToken);
     }
 
     public class EventMeshService : IEventMeshService
     {
-        private IPeerClientFactory _peerClientFactory;
+        private readonly IPeerClientFactory _peerClientFactory;
         private readonly EventMeshUIOptions _options;
 
         public EventMeshService(IPeerClientFactory peerClientFactory, IOptions<EventMeshUIOptions> options)
@@ -20,9 +25,9 @@ namespace FaasNet.EventMesh.UI.Data
             _options = options.Value;
         }
 
-        public async Task<bool> Ping(CancellationToken cancellationToken)
+        public async Task<bool> Ping(string url, int port, CancellationToken cancellationToken)
         {
-            using (var client = _peerClientFactory.Build<EventMeshClient>(_options.EventMeshUrl, _options.EventMeshPort))
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
                 try
                 {
@@ -33,6 +38,25 @@ namespace FaasNet.EventMesh.UI.Data
                 {
                     return false;
                 }
+            }
+        }
+
+        public async Task<GetAllNodesResult> GetAllNodes(string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<PartitionClient>(url, port))
+            {
+                var result = await client.GetAllNodes(_options.RequestTimeoutMS, cancellationToken);
+                return result;
+            }
+        }
+
+        public async Task<IEnumerable<(GetPeerStateResult, string)>> GetAllPeerStates(string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<RaftConsensusClient>(url, port))
+            {
+                client.ClientType = PartitionedPeerClientTypes.BROADCAST;
+                var result = await client.GetPeerState(_options.RequestTimeoutMS, cancellationToken);
+                return result;
             }
         }
     }

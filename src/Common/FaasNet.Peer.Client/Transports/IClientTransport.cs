@@ -7,6 +7,7 @@ namespace FaasNet.Peer.Client.Transports
 {
     public interface IClientTransport : IDisposable
     {
+        string Name { get; }
         void Open(string url, int port);
         void Open(IPEndPoint edp);
         void Close();

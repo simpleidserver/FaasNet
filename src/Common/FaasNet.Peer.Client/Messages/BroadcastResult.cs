@@ -7,26 +7,45 @@ namespace FaasNet.Peer.Client.Messages
     {
         public BroadcastResult()
         {
-            ContentLst = new List<byte[]>();
+            ContentLst = new List<BroadcastRecordResult>();
         }
 
         public override PartitionedCommands Command => PartitionedCommands.BROADCAST_RESULT;
 
-        public IEnumerable<byte[]> ContentLst { get; set; }
+        public ICollection<BroadcastRecordResult> ContentLst { get; set; }
 
         protected override void SerializeAction(WriteBufferContext context)
         {
             context.WriteInteger(ContentLst.Count());
-            foreach(var content in ContentLst) context.WriteByteArray(content);
+            foreach (var content in ContentLst) content.Serialize(context);
         }
 
         public BroadcastResult Extract(ReadBufferContext context)
         {
-            var result = new List<byte[]>();
             var nb = context.NextInt();
-            for (var i = 0; i < nb; i++) result.Add(context.NextByteArray());
-            ContentLst = result;
+            for (var i = 0; i < nb; i++) ContentLst.Add(BroadcastRecordResult.Deserialize(context));
             return this;
+        }
+    }
+
+    public class BroadcastRecordResult
+    {
+        public string PartitionKey { get; set; }
+        public byte[] Content { get; set; }
+
+        public void Serialize(WriteBufferContext context)
+        {
+            context.WriteString(PartitionKey);
+            context.WriteByteArray(Content);
+        }
+
+        public static BroadcastRecordResult Deserialize(ReadBufferContext context)
+        {
+            return new BroadcastRecordResult
+            {
+                PartitionKey = context.NextString(),
+                Content = context.NextByteArray()
+            };
         }
     }
 }

@@ -46,7 +46,7 @@ namespace FaasNet.RaftConsensus.Core
                     using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(edp))
                     {
                         var voteResult = (await consensusClient.Vote(_peerOptions.Id, _peerState.CurrentTerm, _peerState.CommitIndex, _peerState.LastApplied, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
-                        return (voteResult, true);
+                        return (voteResult.Item1, true);
                     }
                 }
                 catch

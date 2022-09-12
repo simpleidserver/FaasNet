@@ -44,7 +44,7 @@ namespace FaasNet.Peer.Client
             }
         }
 
-        protected IEnumerable<TResult> DeserializeResult<T, TResult>(byte[] result)
+        protected IEnumerable<(TResult, string)> DeserializeResult<T, TResult>(byte[] result)
         {
             var readBufferCtx = new ReadBufferContext(result);
             var deserializeTypeMethodInfo = typeof(T).GetMethod("Deserialize", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
@@ -52,18 +52,18 @@ namespace FaasNet.Peer.Client
             {
                 case PartitionedPeerClientTypes.BROADCAST:
                     var cmd = BasePartitionedRequest.Deserialize(readBufferCtx) as BroadcastResult;
-                    var res = new List<TResult>();
+                    var res = new List<(TResult, string)>();
                     foreach(var content in cmd.ContentLst)
                     {
-                        readBufferCtx = new ReadBufferContext(content);
-                        res.Add((TResult)deserializeTypeMethodInfo.Invoke(null, new object[] { readBufferCtx, false }));
+                        readBufferCtx = new ReadBufferContext(content.Content);
+                        res.Add(((TResult)deserializeTypeMethodInfo.Invoke(null, new object[] { readBufferCtx, false }), content.PartitionKey));
                     }
 
                     return res;
                 default:
-                    return new TResult[]
+                    return new (TResult, string)[]
                     { 
-                        (TResult)deserializeTypeMethodInfo.Invoke(null, new object[] { readBufferCtx, false }) 
+                        ((TResult)deserializeTypeMethodInfo.Invoke(null, new object[] { readBufferCtx, false }), null)
                     };
             }
         }

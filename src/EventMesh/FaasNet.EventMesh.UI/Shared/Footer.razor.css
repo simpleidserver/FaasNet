@@ -1,0 +1,7 @@
+#footer {
+    background-color: var(--footer-bg-color);
+    height: 35px;
+    padding-left: 20px;
+    font-size: 12px;
+    line-height: 35px;
+}

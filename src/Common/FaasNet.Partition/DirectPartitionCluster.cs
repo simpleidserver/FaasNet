@@ -87,9 +87,9 @@ namespace FaasNet.Partition
             }
         }
 
-        public async Task<IEnumerable<byte[]>> Broadcast(BroadcastRequest request, CancellationToken cancellationToken)
+        public async Task<ICollection<BroadcastRecordResult>> Broadcast(BroadcastRequest request, CancellationToken cancellationToken)
         {
-            var result = new ConcurrentBag<byte[]>();
+            var result = new ConcurrentBag<BroadcastRecordResult>();
             await Parallel.ForEachAsync(_partitions, new ParallelOptions
             {
                 MaxDegreeOfParallelism = _options.MaxConcurrentThreads
@@ -100,7 +100,11 @@ namespace FaasNet.Partition
                     transport.Open(new IPEndPoint(IPAddress.Loopback, peer.Item2.Port));
                     await transport.Send(request.Content, 10000, cancellationToken: cancellationToken);
                     var receivedResult = await transport.Receive(10000, cancellationToken: cancellationToken);
-                    result.Add(receivedResult);
+                    result.Add(new BroadcastRecordResult
+                    {
+                        PartitionKey = peer.Item2.PartitionKey,
+                        Content = receivedResult
+                    });
                 }
             });
 

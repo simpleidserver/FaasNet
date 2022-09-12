@@ -1,4 +1,6 @@
-﻿namespace FaasNet.Peer
+﻿using FaasNet.Common;
+
+namespace FaasNet.Peer
 {
     public class PeerOptions
     {

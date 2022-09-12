@@ -1,5 +1,6 @@
 ﻿using FaasNet.Discovery.Gossip.Client;
 using FaasNet.Peer;
+using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using System.Collections.Concurrent;
 
@@ -40,7 +41,7 @@ namespace FaasNet.Discovery.Gossip.Service
 
         private static void DisplayCluster()
         {
-            using (var gossipClient = new UDPGossipClient("localhost", 5002))
+            using (var gossipClient = PeerClientFactory.Build<GossipClient>("localhost", 5002, ClientTransportFactory.NewUDP()))
             {
                 var peerInfos = gossipClient.Get(null).Result;
                 foreach(var peerInfo in peerInfos)

@@ -1,6 +1,7 @@
 ﻿using FaasNet.Common.Helpers;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.Partition;
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Client.Messages;
 using FaasNet.Peer.Clusters;
@@ -36,7 +37,7 @@ namespace FaasNet.EventMesh
                 IEnumerable<ClusterPeer> filteredNodes = new List<ClusterPeer>();
                 try
                 {
-                    var allNodes = (await ClusterStore.GetAllNodes("*", cancellationToken)).Where(c => c.Id != PeerOptions.Id);
+                    var allNodes = (await ClusterStore.GetAllNodes(PartitionedNodeHost.PARTITION_KEY, cancellationToken)).Where(c => c.Id != PeerOptions.Id);
                     var expectedNbActiveNodes = _eventMeshOptions.NbPartitionsTopic - 1;
                     if (allNodes.Count() < expectedNbActiveNodes) return (false, PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.NOT_ENOUGHT_ACTIVENODES), filteredNodes);
                     filteredNodes = allNodes.OrderBy(o => Guid.NewGuid()).Take(expectedNbActiveNodes);

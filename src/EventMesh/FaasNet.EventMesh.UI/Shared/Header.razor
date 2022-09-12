@@ -1,8 +1,55 @@
-﻿<div style="">
+﻿@inject EventMeshNodeViewModel EventMeshNodeViewModel
 
-</div>
-<h3>Header</h3>
+<nav class="navbar navbar-expand-sm navbar-light flex-shrink-0 bg-light" id="navHeader">
+	<div class="container-fluid">
+		<a class="navbar-brand" href="#">EventMesh</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+		  <span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			  <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<li class="nav-item">
+				  <a class="nav-link active" href="#">Node overview</a>
+				</li>
+			  </ul>
+			  @if (EventMeshNodeViewModel.IsRunning && EventMeshNodeViewModel.PeerStates != null)
+			  {
+				  <div class="d-flex" id="selectNode">
+					<div class="col-auto">
+						<span>Active EventMesh node</span>
+					</div>
+					<select class="form-select" value="@EventMeshNodeViewModel.SelectedNode.Id" @onchange="ChangeSelectedNode">
+						@foreach (var node in EventMeshNodeViewModel.Nodes)
+						{
+							<option value="@node.Id">@node.DisplayName</option>
+						}
+					</select>
+				</div>
+			  }
+			  else
+			  {
+				<div class="d-flex">
+					<span>There is no running node</span>
+				</div>
+			  }
+		</div>
+	</div>
+</nav>
 
 @code {
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		await EventMeshNodeViewModel.ListenStatus();
+		EventMeshNodeViewModel.PropertyChanged += HandlePropertyChanged;
+	}
 
+	private void HandlePropertyChanged(object o, EventArgs e)
+	{
+		InvokeAsync(() => StateHasChanged());
+	}
+
+	private void ChangeSelectedNode(ChangeEventArgs e) {
+		EventMeshNodeViewModel.Select(e.Value.ToString());
+	}
 }

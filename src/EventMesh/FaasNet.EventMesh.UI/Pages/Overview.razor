@@ -1,0 +1,66 @@
+﻿@page "/"
+
+<PageTitle>Overview</PageTitle>
+
+@inject EventMeshNodeViewModel EventMeshNodeViewModel
+
+<Section Title="Summary">
+    <ChildContent>
+		EventMesh node is listening on <b>@EventMeshNodeViewModel.SelectedNode.DisplayName</b><br/>
+		Status is 
+		@if(EventMeshNodeViewModel.IsRunning)
+		{
+			<b style="color: green">Active</b>
+		}
+		else
+		{
+			<b style="color: red">Inactive</b>
+		}
+		Last refresh time <b>@EventMeshNodeViewModel.LastRefreshTime.GetValueOrDefault()</b><br />
+		<b>@EventMeshNodeViewModel.Protocol</b> protocol is used
+    </ChildContent>
+</Section>
+
+<Section Title="List of partitions">
+	<ChildContent>			
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Status</th>
+					<th>Commit Index</th>
+					<th>Last applied</th>
+					<th>Commit snapshot index</th>
+					<th>Last snapshot index</th>
+				</tr>
+			</thead>
+			<tbody>
+				@if (EventMeshNodeViewModel.PeerStates != null)
+					@foreach(var peerState in EventMeshNodeViewModel.PeerStates)
+					{
+						<tr>
+							<th>@peerState.Name</th>
+							<th>@peerState.Status</th>
+							<th>@peerState.CommitIndex</th>
+							<th>@peerState.LastApplied</th>
+							<th>@peerState.SnapshotCommitIndex</th>
+							<th>@peerState.SnapshotLastApplied</th>
+						</tr>
+					}
+			</tbody>
+		</table>
+	</ChildContent>
+</Section>
+
+@code {
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		EventMeshNodeViewModel.PropertyChanged += HandlePropertyChanged;
+	}
+
+	private void HandlePropertyChanged(object o, EventArgs e)
+	{
+		InvokeAsync(() => StateHasChanged());
+	}
+}

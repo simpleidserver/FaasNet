@@ -77,7 +77,7 @@ namespace FaasNet.RaftConsensus.Core
                 using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(edp))
                 {
                     var result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, 0, 0, new List<LogEntry>(), _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
-                    otherPeer.MatchIndex = result.MatchIndex;
+                    otherPeer.MatchIndex = result.Item1.MatchIndex;
                 }
             }
 
@@ -101,7 +101,7 @@ namespace FaasNet.RaftConsensus.Core
                     }
 
                     var result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, previousIndex, previousTerm, logs, _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
-                    otherPeer.MatchIndex = result.MatchIndex;
+                    otherPeer.MatchIndex = result.Item1.MatchIndex;
                 }
             }
 
@@ -157,8 +157,8 @@ namespace FaasNet.RaftConsensus.Core
                         var otherPeer = _peerInfo.GetOtherPeer(peer.Id);
                         if (otherPeer.GetSnapshotIndex(snapshot.StateMachineId) != snapshot.Index) data = snapshot.StateMachine;
                         var result = (await consensusClient.InstallSnapshot(_peerState.CurrentTerm, _peerOptions.Id, _peerState.SnapshotCommitIndex, snapshot.Term, snapshot.Index, data, snapshot.StateMachineId, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
-                        otherPeer.UpdateSnapshotIndex(snapshot.StateMachineId, result.MatchIndex);
-                        return result;
+                        otherPeer.UpdateSnapshotIndex(snapshot.StateMachineId, result.Item1.MatchIndex);
+                        return result.Item1;
                     }
                 }
                 catch (Exception ex)

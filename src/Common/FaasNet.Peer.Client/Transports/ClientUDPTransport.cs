@@ -13,6 +13,8 @@ namespace FaasNet.Peer.Client.Transports
         private IPEndPoint _target;
         private UdpClient _udpClient;
 
+        public string Name => "UDP";
+
         public void Open(string url, int port)
         {
             Open(new IPEndPoint(DnsHelper.ResolveIPV4(url), port));

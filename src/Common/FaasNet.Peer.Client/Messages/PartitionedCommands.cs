@@ -9,6 +9,8 @@
         public static PartitionedCommands BROADCAST_RESULT = new PartitionedCommands(4, "BROADCAST_RESULT");
         public static PartitionedCommands REMOVE_PARTITION_REQUEST = new PartitionedCommands(5, "REMOVE_PARTITION_REQUEST");
         public static PartitionedCommands REMOVE_PARTITION_RESULT = new PartitionedCommands(6, "REMOVE_PARTITION_RESULT");
+        public static PartitionedCommands GET_ALL_NODES_REQUEST = new PartitionedCommands(7, "GET_ALL_NODES_REQUEST");
+        public static PartitionedCommands GET_ALL_NODES_RESULT = new PartitionedCommands(8, "GET_ALL_NODES_RESULT");
 
         protected PartitionedCommands(int code)
         {

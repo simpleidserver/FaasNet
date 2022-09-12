@@ -34,6 +34,8 @@
             if (cmd == PartitionedCommands.BROADCAST_RESULT) return new BroadcastResult().Extract(context);
             if (cmd == PartitionedCommands.REMOVE_PARTITION_REQUEST) return new RemoveDirectPartitionRequest().Extract(context);
             if (cmd == PartitionedCommands.REMOVE_PARTITION_RESULT) return new RemoveDirectPartitionResult().Extract(context);
+            if (cmd == PartitionedCommands.GET_ALL_NODES_REQUEST) return new GetAllNodesRequest();
+            if (cmd == PartitionedCommands.GET_ALL_NODES_RESULT) return new GetAllNodesResult().Extract(context);
             return null;
         }
     }

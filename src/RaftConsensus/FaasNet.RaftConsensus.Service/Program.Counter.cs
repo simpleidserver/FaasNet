@@ -84,7 +84,7 @@ namespace FaasNet.RaftConsensus.Service
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
             {
                 var stateMachine = (await client.GetStateMachine(id, 1000000)).First();
-                var result = StateMachineSerializer.Deserialize<CounterStateMachine>(stateMachine.StateMachine);
+                var result = StateMachineSerializer.Deserialize<CounterStateMachine>(stateMachine.Item1.StateMachine);
                 Console.WriteLine($"Value  = {result.Value}");
             }
         }
@@ -93,7 +93,7 @@ namespace FaasNet.RaftConsensus.Service
         {
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
             {
-                var peerState = (await client.GetPeerState(5000)).First();
+                var peerState = (await client.GetPeerState(5000)).First().Item1;
                 Console.WriteLine($"Status {peerState.Status}");
                 Console.WriteLine($"Term {peerState.Term}");
                 Console.WriteLine($"CommitIndex {peerState.CommitIndex}");

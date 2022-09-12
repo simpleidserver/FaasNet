@@ -1,8 +1,9 @@
 ﻿@inherits LayoutComponentBase
 
-<PageTitle>FaasNet.EventMesh.UI</PageTitle>
-
-<div>
+<div class="container-fluid vh-100 d-flex flex-column no-padding no-margin blue">
     <Header />
-    @Body
+    <div class="flex-grow-1" id="main">
+        @Body
+    </div>
+    <Footer />
 </div>

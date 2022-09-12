@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,6 +15,7 @@ namespace FaasNet.Partition
 {
     public class PartitionedNodeHost : BasePeerHost
     {
+        public static string PARTITION_KEY = "*";
         private readonly PeerOptions _peerOptions;
         private readonly IClusterStore _clusterStore;
         private readonly IPartitionPeerStore _partitionPeerStore;
@@ -34,7 +36,7 @@ namespace FaasNet.Partition
 
         protected override async Task Init(CancellationToken cancellationToken = default)
         {   
-            await _clusterStore.SelfRegister(new ClusterPeer(_peerOptions.Url, _peerOptions.Port) { PartitionKey = "*" }, cancellationToken);
+            await _clusterStore.SelfRegister(new ClusterPeer(_peerOptions.Url, _peerOptions.Port) { PartitionKey = PARTITION_KEY }, cancellationToken);
             await _partitionCluster.Start();
         }
 
@@ -56,6 +58,7 @@ namespace FaasNet.Partition
             if (partitionedRequest.Command == PartitionedCommands.ADD_PARTITION_REQUEST) result = await Handle(partitionedRequest as AddDirectPartitionRequest);
             if (partitionedRequest.Command == PartitionedCommands.REMOVE_PARTITION_REQUEST) result = await Handle(partitionedRequest as RemoveDirectPartitionRequest);
             if (partitionedRequest.Command == PartitionedCommands.BROADCAST_REQUEST) result = await Handle(partitionedRequest as BroadcastRequest);
+            if (partitionedRequest.Command == PartitionedCommands.GET_ALL_NODES_REQUEST) result = await Handle(partitionedRequest as GetAllNodesRequest);
             return result;
         }
 
@@ -90,6 +93,19 @@ namespace FaasNet.Partition
             var broadcastResult = await _partitionCluster.Broadcast(request, TokenSource.Token);
             var result = new WriteBufferContext();
             PartitionPackageResultBuilder.Broadcast(broadcastResult).SerializeEnvelope(result);
+            return result.Buffer.ToArray();
+        }
+
+        private async Task<byte[]> Handle(GetAllNodesRequest request)
+        {
+            var nodes = await _clusterStore.GetAllNodes(PARTITION_KEY, TokenSource.Token);
+            var result = new WriteBufferContext();
+            PartitionPackageResultBuilder.GetAllNodes(nodes.Select(n => new NodeResult
+            {
+                Id = n.Id,
+                Port = n.Port,
+                Url = n.Url
+            }).ToList()).SerializeEnvelope(result);
             return result.Buffer.ToArray();
         }
     }

@@ -14,6 +14,6 @@ namespace FaasNet.Partition
         Task<bool> TryAddAndStart(string partitionKey, Type stateMachineType = null);
         Task<bool> TryRemove(string partitionKey, CancellationToken cancellationToken);
         Task<byte[]> Transfer(TransferedRequest request, CancellationToken cancellationToken);
-        Task<IEnumerable<byte[]>> Broadcast(BroadcastRequest request, CancellationToken cancellationToken);
+        Task<ICollection<BroadcastRecordResult>> Broadcast(BroadcastRequest request, CancellationToken cancellationToken);
     }
 }

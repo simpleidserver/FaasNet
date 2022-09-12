@@ -1,4 +1,5 @@
-﻿using FaasNet.Peer;
+﻿using FaasNet.Common;
+using FaasNet.Peer;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
@@ -140,7 +141,7 @@ namespace FaasNet.RaftConsensus.Core
                 if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS)) return ConsensusPackageResultBuilder.AppendEntry(0, 0, false);
                 var leaderPeerId = PeerId.Deserialize(_peerState.VotedFor);
                 using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(leaderPeerId.IpEdp))
-                    return (await consensusClient.AppendEntry(request.StateMachineId, request.Payload, _raftConsensusPeerOptions.RequestExpirationTimeMS, cancellationToken)).First();
+                    return (await consensusClient.AppendEntry(request.StateMachineId, request.Payload, _raftConsensusPeerOptions.RequestExpirationTimeMS, cancellationToken)).First().Item1;
             }
 
             async Task<BaseConsensusPackage> Append(AppendEntryRequest request, CancellationToken cancellationToken)

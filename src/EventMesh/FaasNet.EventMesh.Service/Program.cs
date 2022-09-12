@@ -19,6 +19,14 @@ using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, 
     await client.Ping(5000);
 }
 
+Console.WriteLine("Press any key to get all the nodes");
+Console.ReadLine();
+using (var client = PeerClientFactory.Build<PartitionClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
+{
+    var nodesResult = await client.GetAllNodes(5000);
+    foreach (var node in nodesResult.Nodes) Console.WriteLine($"{node.Url}:{node.Port}");
+}
+
 Console.WriteLine("Press any key to add a VPN");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))

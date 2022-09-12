@@ -36,5 +36,10 @@ namespace FaasNet.Peer.Client.Messages
                 Content = content
             };
         }
+
+        public static BasePartitionedRequest GetAllNodes()
+        {
+            return new GetAllNodesRequest();
+        }
     }
 }

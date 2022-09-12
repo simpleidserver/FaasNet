@@ -1,6 +1,7 @@
 ﻿using FaasNet.Discovery.Gossip.Client;
 using FaasNet.Discovery.Gossip.Client.Messages;
 using FaasNet.Peer;
+using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -15,6 +16,7 @@ namespace FaasNet.Discovery.Gossip.Core
 {
     public class GossipTimer : ITimer
     {
+        private readonly IPeerClientFactory _peerClientFactory;
         private readonly GossipOptions _gossipOptions;
         private readonly PeerOptions _peerOptions;
         private readonly IClusterStore _clusterStore;
@@ -22,8 +24,9 @@ namespace FaasNet.Discovery.Gossip.Core
         private CancellationTokenSource _cancellationTokenSource;
         private System.Timers.Timer _timer;
 
-        public GossipTimer(IOptions<GossipOptions> gossipOptions, IOptions<PeerOptions> peerOptions, IClusterStore clusterStore, ILogger<GossipTimer> logger)
+        public GossipTimer(IPeerClientFactory peerClientFactory, IOptions<GossipOptions> gossipOptions, IOptions<PeerOptions> peerOptions, IClusterStore clusterStore, ILogger<GossipTimer> logger)
         {
+            _peerClientFactory = peerClientFactory;
             _gossipOptions = gossipOptions.Value;
             _peerOptions = peerOptions.Value;
             _clusterStore = clusterStore;
@@ -66,7 +69,7 @@ namespace FaasNet.Discovery.Gossip.Core
         {
             try
             {
-                using (var gossipClient = new UDPGossipClient(clusterPeer.Url, clusterPeer.Port))
+                using (var gossipClient = _peerClientFactory.Build<GossipClient>(clusterPeer.Url, clusterPeer.Port))
                 {
                     await gossipClient.Sync(peers, _cancellationTokenSource.Token);
                 }

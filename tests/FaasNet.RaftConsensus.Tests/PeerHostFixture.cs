@@ -73,7 +73,7 @@ namespace FaasNet.RaftConsensus.Tests
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, ClientTransportFactory.NewUDP()))
             {
                 var entry = (await client.GetLogs(startIndex)).First();
-                if (entry.Entries.Any()) return entry;
+                if (entry.Item1.Entries.Any()) return entry.Item1;
             }
 
             Thread.Sleep(100);
