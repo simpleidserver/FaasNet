@@ -127,35 +127,6 @@ namespace FaasNet.RaftConsensus.Core
             }
         }
 
-        public async Task<IEnumerable<(IStateMachine, Snapshot)>> GetAllLatestStateMachines(CancellationToken cancellationToken)
-        {
-            var result = new ConcurrentBag<(IStateMachine, Snapshot)>();
-            await Restore(result);
-            return result;
-
-
-            async Task Restore(ConcurrentBag<(IStateMachine, Snapshot)> result)
-            {
-                await Parallel.ForEachAsync(_snapshotStore.GetAll(), new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = _options.MaxNbThreads
-                }, async (s, t) =>
-                {
-                    var stateMachine = StateMachineSerializer.Deserialize(_options.StateMachineType, s.StateMachine);
-                    stateMachine.Id = s.StateMachineId;
-                    var index = s.Index;
-                    var logEntries = await _logStore.GetFrom(index, false, cancellationToken);
-                    foreach (var logEntry in logEntries)
-                    {
-                        var cmd = CommandSerializer.Deserialize(logEntry.Command);
-                        stateMachine.Apply(cmd);
-                    }
-
-                    result.Add((stateMachine, s));
-                });
-            }
-        }
-
         public async Task<(IStateMachine, Snapshot)> GetLatestStateMachine(string stateMachineId, CancellationToken cancellationToken)
         {
             var snapshot = _snapshotStore.Get(stateMachineId);
@@ -170,7 +141,7 @@ namespace FaasNet.RaftConsensus.Core
                 stateMachine = (IStateMachine)Activator.CreateInstance(_options.StateMachineType);
 
             var logEntries = await _logStore.GetFrom(index, false, cancellationToken);
-            foreach (var logEntry in logEntries)
+            foreach (var logEntry in logEntries.Where(l => l.StateMachineId == stateMachineId))
             {
                 stateMachine.Id = stateMachineId;
                 var cmd = CommandSerializer.Deserialize(logEntry.Command);
@@ -178,6 +149,20 @@ namespace FaasNet.RaftConsensus.Core
             }
 
             return (stateMachine, snapshot ?? new Snapshot());
+        }
+
+        public async Task<IEnumerable<(IStateMachine, Snapshot)>> GetAllLatestStateMachines(CancellationToken cancellationToken)
+        {
+            var allStateMachineIds = await _logStore.GetAllStateMachineIds(cancellationToken);
+            var result = new ConcurrentBag<(IStateMachine, Snapshot)>();
+            await Parallel.ForEachAsync(allStateMachineIds, new ParallelOptions
+            {
+                MaxDegreeOfParallelism = _options.MaxNbThreads
+            }, async (s, t) =>
+            {
+                result.Add(await GetLatestStateMachine(s, cancellationToken));
+            });
+            return result.ToList();
         }
 
         public async Task<(IStateMachine, Snapshot)> GetStateMachine(int offset, CancellationToken cancellationToken)

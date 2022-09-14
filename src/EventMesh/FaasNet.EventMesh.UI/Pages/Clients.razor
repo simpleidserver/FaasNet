@@ -1,0 +1,41 @@
+﻿@page "/clients"
+@using FaasNet.EventMesh.Client.Messages
+@using FaasNet.EventMesh.Client.StateMachines
+
+@inject EventMeshNodeViewModel EventMeshNodeViewModel
+
+<PageTitle>Clients</PageTitle>
+
+<Section Title="Clients">
+    <ChildContent>
+		<Grid TRowData="ClientResult" Items="EventMeshNodeViewModel.Clients">
+            <GridColumn TRowData="ClientResult" Expression="c => c.Id" Title="Identifier" />
+            <GridColumn TRowData="ClientResult" Expression="c => c.Vpn" Title="VPN" />
+            <GridColumn TRowData="ClientResult" Expression="c => string.Join(',', c.Purposes.Select(p => Enum.GetName(typeof(ClientPurposeTypes), p)))" Title="Purpose" />
+        </Grid>
+    </ChildContent>
+</Section>
+
+
+@code {
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		if (EventMeshNodeViewModel.IsRunning) await RefreshClients();
+		EventMeshNodeViewModel.StatusChanged += async (o, e) => await RefreshClients();
+		EventMeshNodeViewModel.SelectedNodeChanged += async (o, e) => await HandleSelectedNodeChanged();
+	}
+
+	private async Task RefreshClients()
+	{
+		if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetClients();
+		else await EventMeshNodeViewModel.RefreshClients();
+		await InvokeAsync(() => StateHasChanged());
+	}
+
+	private async Task HandleSelectedNodeChanged()
+	{
+		EventMeshNodeViewModel.ResetStates();
+		await RefreshClients();
+	}
+}

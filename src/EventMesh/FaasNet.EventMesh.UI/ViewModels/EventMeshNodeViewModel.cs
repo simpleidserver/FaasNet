@@ -1,4 +1,5 @@
 ﻿using FaasNet.Common;
+using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.UI.Data;
 using FaasNet.Peer.Client.Transports;
 using Microsoft.Extensions.Options;
@@ -11,7 +12,6 @@ namespace FaasNet.EventMesh.UI.ViewModels
         private readonly IClientTransport _clientTransport;
         private readonly EventMeshUIOptions _options;
         private System.Timers.Timer _refreshStatusTimer;
-        private SemaphoreSlim _lockPeerStates = new SemaphoreSlim(1, 1);
 
         public EventMeshNodeViewModel(IEventMeshService eventMeshService, IClientTransport clientTransport, IOptions<EventMeshUIOptions> options)
         {
@@ -24,60 +24,36 @@ namespace FaasNet.EventMesh.UI.ViewModels
                 Port = options.Value.EventMeshPort, 
                 Url = options.Value.EventMeshUrl 
             };
-        }
-
-        public event EventHandler<EventArgs> PropertyChanged;
-        public bool IsRunning { get; set; }
-        public string Protocol => _clientTransport.Name;
-        public DateTime? LastRefreshTime { get; set; }
-        public NodeViewModel SelectedNode { get; set; }
-        public IEnumerable<NodeViewModel> Nodes { get; set; }
-        public IEnumerable<PeerStateViewModel> PeerStates { get; set; }
-
-        public async Task ListenStatus()
-        {
             _refreshStatusTimer = new System.Timers.Timer();
             _refreshStatusTimer.Elapsed += RefreshStatus;
             _refreshStatusTimer.Interval = 2000;
             _refreshStatusTimer.AutoReset = false;
+        }
+
+        public event EventHandler<EventArgs> StatusChanged;
+        public event EventHandler<EventArgs> NodesRefreshed;
+        public event EventHandler<EventArgs> SelectedNodeChanged;
+        public bool IsRunning { get; set; }
+        public string Protocol => _clientTransport.Name;
+        public DateTime? LastRefreshTime { get; set; }
+        public NodeViewModel SelectedNode { get; set; }
+        public IEnumerable<NodeViewModel> Nodes { get; set; } = new List<NodeViewModel>();
+        public IEnumerable<PeerStateViewModel> PeerStates { get; set; } = new List<PeerStateViewModel>();
+        public IEnumerable<ClientResult> Clients { get; set; } = new List<ClientResult>();
+
+        public void ListenStatus()
+        {
             _refreshStatusTimer.Start();
         }
 
-        public void Select(string nodeId)
+        public void ResetStates()
         {
-            SelectedNode = Nodes.Single(n => n.Id == nodeId);
-            _lockPeerStates.Wait();
             PeerStates = new List<PeerStateViewModel>();
-            _lockPeerStates.Release();
-            Notify();
         }
 
-        private async void RefreshStatus(object? sender, System.Timers.ElapsedEventArgs e)
-        {
-            LastRefreshTime = DateTime.UtcNow;
-            var pingResult = await _eventMeshService.Ping(_options.EventMeshUrl, _options.EventMeshPort, CancellationToken.None);
-            await RefreshNodes();
-            await RefreshStates();
-            IsRunning = pingResult;
-            Notify();
-            _refreshStatusTimer.Start();
-        }
-
-        private async Task RefreshNodes()
+        public async Task RefreshStates()
         {
             if (!IsRunning) return;
-            Nodes = (await _eventMeshService.GetAllNodes(_options.EventMeshUrl, _options.EventMeshPort, CancellationToken.None)).Nodes.Select(n => new NodeViewModel
-            {
-                Id = n.Id,
-                Url = n.Url,
-                Port = n.Port
-            }).OrderBy(n => n.DisplayName);
-        }
-
-        private async Task RefreshStates()
-        {
-            if (!IsRunning) return;
-            await _lockPeerStates.WaitAsync();
             PeerStates = (await _eventMeshService.GetAllPeerStates(SelectedNode.Url, SelectedNode.Port, CancellationToken.None)).Select((r) => new PeerStateViewModel
             {
                 Name = r.Item2,
@@ -87,12 +63,46 @@ namespace FaasNet.EventMesh.UI.ViewModels
                 SnapshotCommitIndex = r.Item1.SnapshotCommitIndex,
                 SnapshotLastApplied = r.Item1.SnapshotLastApplied,
             }).OrderBy(r => r.Name);
-            _lockPeerStates.Release();
         }
 
-        private void Notify()
+        public void ResetClients()
         {
-            if (PropertyChanged != null) PropertyChanged(this, EventArgs.Empty);
+            Clients = new List<ClientResult>();
+        }
+
+        public async Task RefreshClients()
+        {
+            if (!IsRunning) return;
+            Clients = await _eventMeshService.GetAllClients(SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
+        }
+
+        public void Select(string nodeId)
+        {
+            SelectedNode = Nodes.Single(n => n.Id == nodeId);
+            if (SelectedNodeChanged != null) SelectedNodeChanged(this, EventArgs.Empty);
+        }
+
+        private async void RefreshStatus(object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            LastRefreshTime = DateTime.UtcNow;
+            var pingResult = await _eventMeshService.Ping(_options.EventMeshUrl, _options.EventMeshPort, CancellationToken.None);
+            await RefreshNodes();
+            bool isChanged = pingResult != IsRunning && StatusChanged != null;
+            IsRunning = pingResult;
+            if (isChanged) StatusChanged(this, EventArgs.Empty);
+            _refreshStatusTimer.Start();
+
+            async Task RefreshNodes()
+            {
+                if (!IsRunning) return;
+                Nodes = (await _eventMeshService.GetAllNodes(_options.EventMeshUrl, _options.EventMeshPort, CancellationToken.None)).Nodes.Select(n => new NodeViewModel
+                {
+                    Id = n.Id,
+                    Url = n.Url,
+                    Port = n.Port
+                }).OrderBy(n => n.DisplayName);
+                if (NodesRefreshed != null) NodesRefreshed(this, EventArgs.Empty);
+            }
         }
     }
 }

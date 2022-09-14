@@ -159,6 +159,22 @@ namespace FaasNet.RaftConsensus.RocksDB
             return Task.FromResult((string)null);
         }
 
+        public Task<IEnumerable<string>> GetAllStateMachineIds(CancellationToken cancellationToken)
+        {
+            var result = new List<string>();
+            var stateMachineDb = _connectionPool.GetConnection(BuildOptions(), GetStateMachineIdDirectoryPath());
+            using (var iterator = stateMachineDb.NewIterator())
+            {
+                while (iterator.Valid())
+                {
+                    var key = iterator.Key();
+                    result.Add(Encoding.UTF8.GetString(key));
+                }
+            }
+
+            return Task.FromResult((IEnumerable<string>)result);
+        }
+
         private DbOptions BuildOptions()
         {
             var result = new DbOptions();

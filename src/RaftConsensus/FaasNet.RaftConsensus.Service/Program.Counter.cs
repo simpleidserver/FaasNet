@@ -41,6 +41,10 @@ namespace FaasNet.RaftConsensus.Service
             Console.WriteLine("Press any key to display state of Peer 5002");
             Console.ReadLine();
             DisplayPeerState(5002, false);
+
+            Console.WriteLine("Press any key to display all the state machine in Peer 5001");
+            Console.ReadLine();
+            DisplayAllStateMachines(5001, false);
         }
 
         private static IPeerHost LaunchRaftConsensusPeerGCounter(ConcurrentBag<ClusterPeer> clusterPeers, bool isTcp = false, string nodeName = "node1", int port = 5001)
@@ -60,6 +64,7 @@ namespace FaasNet.RaftConsensus.Service
                 {
                     o.StateMachineType = typeof(CounterStateMachine);
                     o.IsConfigurationStoredInMemory = true;
+                    o.SnapshotFrequency = 20;
                     o.ConfigurationDirectoryPath = Path.Combine(path, nodeName);
                     o.LeaderCallback = () =>
                     {
@@ -86,6 +91,19 @@ namespace FaasNet.RaftConsensus.Service
                 var stateMachine = (await client.GetStateMachine(id, 1000000)).First();
                 var result = StateMachineSerializer.Deserialize<CounterStateMachine>(stateMachine.Item1.StateMachine);
                 Console.WriteLine($"Value  = {result.Value}");
+            }
+        }
+
+        private static async void DisplayAllStateMachines(int port, bool isTcp = false)
+        {
+            using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
+            {
+                var stateMachine = (await client.GetAllStateMachines(1000000)).First();
+                foreach(var state in stateMachine.Item1.States)
+                {
+                    var result = StateMachineSerializer.Deserialize<CounterStateMachine>(state.StateMachine);
+                    Console.WriteLine($"Value  = {result.Value}");
+                }
             }
         }
 

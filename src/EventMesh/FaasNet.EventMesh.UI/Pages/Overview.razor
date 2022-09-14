@@ -1,4 +1,5 @@
 ﻿@page "/"
+@page "/overview"
 
 <PageTitle>Overview</PageTitle>
 
@@ -56,11 +57,21 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		EventMeshNodeViewModel.PropertyChanged += HandlePropertyChanged;
+		if (EventMeshNodeViewModel.IsRunning) await RefreshStates();
+		EventMeshNodeViewModel.StatusChanged += async (o, e) => await RefreshStates();
+		EventMeshNodeViewModel.SelectedNodeChanged += async (o, e) => await HandleSelectedNodeChanged();
 	}
 
-	private void HandlePropertyChanged(object o, EventArgs e)
+	private async Task RefreshStates()
 	{
-		InvokeAsync(() => StateHasChanged());
+		if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetStates();
+		else await EventMeshNodeViewModel.RefreshStates();
+		await InvokeAsync(() => StateHasChanged());
+	}
+
+	private async Task HandleSelectedNodeChanged() 
+	{
+		EventMeshNodeViewModel.ResetStates();
+		await RefreshStates();
 	}
 }

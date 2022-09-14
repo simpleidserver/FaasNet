@@ -17,6 +17,7 @@ namespace FaasNet.RaftConsensus.Core.Stores
         Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken);
         Task Append(LogEntry entry, CancellationToken cancellationToken);
         Task<string> GetStateMachineId(int index, CancellationToken cancellationToken);
+        Task<IEnumerable<string>> GetAllStateMachineIds(CancellationToken cancellationToken);
     }
 
     public class InMemoryLogStore : ILogStore
@@ -84,6 +85,11 @@ namespace FaasNet.RaftConsensus.Core.Stores
         {
             if (_stateMachineIds.Count() - 1 < index) return Task.FromResult((string)null);
             return Task.FromResult(_stateMachineIds.ElementAt(index).Item2);
+        }
+
+        public Task<IEnumerable<string>> GetAllStateMachineIds(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_stateMachineIds.Select(r => r.Item2));
         }
     }
 }

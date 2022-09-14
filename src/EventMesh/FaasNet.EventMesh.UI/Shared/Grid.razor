@@ -1,0 +1,43 @@
+﻿@typeparam TRowData
+
+<CascadingValue IsFixed="true" Value="this">@ChildContent</CascadingValue>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            @foreach (var column in Columns)
+            {
+                <th>@column.Title</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Items) 
+        {
+            <tr>
+                @foreach(var column in Columns)
+                {
+                    @column.CellTemplate(item)
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    public ICollection<GridColumn<TRowData>> Columns = new List<GridColumn<TRowData>>();
+    [Parameter]
+    public IEnumerable<TRowData> Items { get; set; } = new List<TRowData>();
+
+    internal void AddColumn(GridColumn<TRowData> column)
+    {
+        Columns.Add(column);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender) StateHasChanged();
+    }
+}

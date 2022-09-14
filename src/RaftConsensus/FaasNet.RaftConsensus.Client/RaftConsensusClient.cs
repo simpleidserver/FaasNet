@@ -83,5 +83,13 @@ namespace FaasNet.RaftConsensus.Client
             var receivedResult = await Receive(timeoutMS, cancellationToken);
             return DeserializeResult<BaseConsensusPackage, GetStateMachineResult>(receivedResult);
         }
+
+        public async Task<IEnumerable<(GetAllStateMachinesResult, string)>> GetAllStateMachines(int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.GetAllStateMachines());
+            await Send(request, timeoutMS, cancellationToken);
+            var receivedResult = await Receive(timeoutMS, cancellationToken);
+            return DeserializeResult<BaseConsensusPackage, GetAllStateMachinesResult>(receivedResult);
+        }
     }
 }

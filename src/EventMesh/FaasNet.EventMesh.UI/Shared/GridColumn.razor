@@ -1,0 +1,43 @@
+﻿@using System.Linq.Expressions
+@typeparam TRowData;
+
+@code {
+    [CascadingParameter]
+    public Grid<TRowData> OwnerGrid { get; set; }
+    private RenderFragment<TRowData> cellTemplate;
+    private Func<TRowData, object> compiledExpression;
+    private Expression lastCompiledExpression;
+    [Parameter]
+    public Expression<Func<TRowData, object>> Expression { get; set; }
+
+    [Parameter]
+    public string Title { get; set; }
+
+    protected override void OnInitialized()
+    {
+        OwnerGrid.AddColumn(this);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (lastCompiledExpression != Expression)
+        {
+            compiledExpression = Expression?.Compile();
+            lastCompiledExpression = Expression;
+        }
+    }
+
+    internal RenderFragment<TRowData> CellTemplate
+    {
+        get
+        {
+            return cellTemplate ??= (rowData => builder =>
+            {
+                builder.OpenElement(0, "td");
+                var value = compiledExpression(rowData);
+                builder.AddContent(1, value);
+                builder.CloseElement();
+            });
+        }
+    }
+}
