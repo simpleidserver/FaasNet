@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 
 namespace FaasNet.RaftConsensus.Service
 {
-    /*
     internal partial class Program
     {
         private static ConcurrentBag<ClusterPeer> _clusterPeers = new ConcurrentBag<ClusterPeer>
@@ -17,26 +16,28 @@ namespace FaasNet.RaftConsensus.Service
 
         public static void LaunchMenu()
         {
-            _peers.Add(5001, LaunchRaftConsensusPeerGCollectionStr(_clusterPeers, false, "node5001", 5001));
-            _peers.Add(5002, LaunchRaftConsensusPeerGCollectionStr(_clusterPeers, false, "node5002", 5002));
+            _peers.Add(5001, LaunchRaftConsensusPeerCounter(_clusterPeers, false, "node5001", 5001));
+            _peers.Add(5002, LaunchRaftConsensusPeerCounter(_clusterPeers, false, "node5002", 5002));
 
             bool exit = false;
             do
             {
                 Console.WriteLine("===== MENU =====");
-                Console.WriteLine("add: Add a string into the collection");
+                Console.WriteLine("increment: Increment a counter");
+                Console.WriteLine("display: Display a counter");
                 Console.WriteLine("addpeer: Add a peer");
                 Console.WriteLine("stoppeer: Remove one peer");
                 Console.WriteLine("peers: Display the peers");
-                Console.WriteLine("remove: Remove a string from the collection");
-                Console.WriteLine("statemachine: Display state machine");
                 Console.WriteLine("state: Display peer state");
                 Console.WriteLine("exit");
                 var menu = Console.ReadLine();
                 switch(menu)
                 {
-                    case "add":
-                        AddStr();
+                    case "increment":
+                        Increment();
+                        break;
+                    case "display":
+                        Display();
                         break;
                     case "addpeer":
                         AddPeer();
@@ -46,12 +47,6 @@ namespace FaasNet.RaftConsensus.Service
                         break;
                     case "peers":
                         DisplayPeers();
-                        break;
-                    case "remove":
-                        RemoveStr();
-                        break;
-                    case "statemachine":
-                        DisplayGCollectionStateMachine();
                         break;
                     case "state":
                         DisplayPeerState();
@@ -64,13 +59,24 @@ namespace FaasNet.RaftConsensus.Service
             while(!exit);
         }
 
-        private static void AddStr()
+        private static void Increment()
         {
             Console.WriteLine("Enter the port");
             int port = int.Parse(Console.ReadLine());
-            Console.WriteLine("Enter a string");
-            var str = Console.ReadLine();
-            AddStr(port, str, false);
+            Console.WriteLine("Enter a key");
+            var key = Console.ReadLine();
+            Console.WriteLine("Enter a value");
+            var value = long.Parse(Console.ReadLine());
+            IncrementCounter(key, port, value, false);
+        }
+
+        private static void Display()
+        {
+            Console.WriteLine("Enter the port");
+            int port = int.Parse(Console.ReadLine());
+            Console.WriteLine("Enter a key");
+            var key = Console.ReadLine();
+            DisplayCounter(key, port, false);
         }
 
         private static async void AddPeer()
@@ -78,7 +84,7 @@ namespace FaasNet.RaftConsensus.Service
             Console.WriteLine("Enter the port");
             int port = int.Parse(Console.ReadLine());
             _clusterPeers.Add(new ClusterPeer("localhost", port));
-            _peers.Add(port, LaunchRaftConsensusPeerGCollectionStr(_clusterPeers, false, $"node{port}", port));
+            _peers.Add(port, LaunchRaftConsensusPeerCounter(_clusterPeers, false, $"node{port}", port));
         }
 
         private static async void StopPeer()
@@ -98,22 +104,6 @@ namespace FaasNet.RaftConsensus.Service
             }
         }
 
-        private static void RemoveStr()
-        {
-            Console.WriteLine("Enter the port");
-            int port = int.Parse(Console.ReadLine());
-            Console.WriteLine("Remove a string");
-            var str = Console.ReadLine();
-            RemoveStr(port, str, false);
-        }
-
-        private static void DisplayGCollectionStateMachine()
-        {
-            Console.WriteLine("Enter the port");
-            int port = int.Parse(Console.ReadLine());
-            DisplayGCollectionStateMachine(port, false);
-        }
-
         private static void DisplayPeerState()
         {
             Console.WriteLine("Enter the port");
@@ -121,5 +111,4 @@ namespace FaasNet.RaftConsensus.Service
             DisplayPeerState(port, false);
         }
     }
-    */
 }

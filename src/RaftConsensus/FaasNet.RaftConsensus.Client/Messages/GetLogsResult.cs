@@ -21,12 +21,13 @@ namespace FaasNet.RaftConsensus.Client.Messages
             foreach (var entry in Entries) entry.Serialize(context);
         }
 
-        public void Extract(ReadBufferContext context)
+        public GetLogsResult Extract(ReadBufferContext context)
         {
             int nb = context.NextInt();
             var result = new List<LogEntry>();
             for (var i = 0; i < nb; i++) result.Add(LogEntry.Deserialize(context));
             Entries = result;
+            return this;
         }
     }
 }

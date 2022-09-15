@@ -55,48 +55,22 @@ namespace FaasNet.RaftConsensus.Client.Messages
             };
         }
 
-        public static BaseConsensusPackage InstallSnapshot(bool success, long term, long matchIndex)
+        public static BaseConsensusPackage InstallSnapshot(bool success, long term, long matchIndex, long commitIndex)
         {
             return new InstallSnapshotResult
             {
                 Success = success,
                 Term = term,
-                MatchIndex = matchIndex
+                MatchIndex = matchIndex,
+                CommitIndex = commitIndex
             };
         }
 
-        public static BaseConsensusPackage GetStateMachine(long index, long term, byte[] stateMachine)
+        public static BaseConsensusPackage Query(IQueryResult result)
         {
-            return new GetStateMachineResult
+            return new QueryResult
             {
-                Index = index,
-                Term = term,
-                StateMachine = stateMachine,
-                Success = true
-            };
-        }
-
-        public static BaseConsensusPackage NotFoundStateMachine()
-        {
-            return new GetStateMachineResult
-            {
-                Success = false
-            };
-        }
-
-        public static BaseConsensusPackage GetAllStateMachines(ICollection<StateMachineResult> stateMachines)
-        {
-            return new GetAllStateMachinesResult
-            {
-                States = stateMachines
-            };
-        }
-
-        public static BaseConsensusPackage ReadStateMachine(byte[] stateMachine)
-        {
-            return new ReadStateMachineResult
-            {
-                StateMachine = stateMachine
+                Result = result
             };
         }
     }

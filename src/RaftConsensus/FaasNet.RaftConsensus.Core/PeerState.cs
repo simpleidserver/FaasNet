@@ -7,12 +7,14 @@ namespace FaasNet.RaftConsensus.Core
     public record PeerState
     {
         private static object _obj = new object();
+        private bool _isInMemory = false;
         private long _currentTerm = 1;
         private long _previousTerm = 1;
         private string _votedFor;
         private long _commitIndex;
         private long _snapshotCommitIndex;
         private long _snapshotLastApplied;
+        private long _snapshotTerm;
         private long _lastApplied = 0;
         private const string _fileName = "peerstate.info";
         private static Dictionary<string, PeerState> _instances = new Dictionary<string, PeerState>();
@@ -106,6 +108,23 @@ namespace FaasNet.RaftConsensus.Core
         }
 
         /// <summary>
+        /// Term of the snapshot.
+        /// </summary>
+        public long SnapshotTerm
+        {
+            get
+            {
+                return _snapshotTerm;
+            }
+            set
+            {
+                if (_snapshotTerm == value) return;
+                _snapshotTerm = value;
+                Update();
+            }
+        }
+
+        /// <summary>
         /// Index of highest snapshot known to be comitted (initialized to 0, increases monotonically)
         /// </summary>
         public long SnapshotCommitIndex
@@ -158,7 +177,7 @@ namespace FaasNet.RaftConsensus.Core
             PeerState NewInMemory(string path)
             {
                 if (_instances.ContainsKey(path)) return _instances[path];
-                var result = new PeerState { Directory = path };
+                var result = new PeerState { Directory = path, _isInMemory = true };
                 _instances.Add(path, result);
                 return result;
             }
@@ -168,7 +187,7 @@ namespace FaasNet.RaftConsensus.Core
                 if (!System.IO.Directory.Exists(path)) System.IO.Directory.CreateDirectory(path);
                 path = Path.Combine(path, _fileName);
                 if (_instances.ContainsKey(path)) return _instances[path];
-                var result = new PeerState();
+                var result = new PeerState { _isInMemory = false };
                 result.Directory = path;
                 if (!File.Exists(path))
                 {
@@ -183,9 +202,10 @@ namespace FaasNet.RaftConsensus.Core
 
         private void Update()
         {
-            if (string.IsNullOrWhiteSpace(Directory)) return;
+            if (_isInMemory) return;
             lock(_obj)
             {
+                if (string.IsNullOrWhiteSpace(Directory)) return;
                 var json = JsonSerializer.Serialize(this);
                 File.WriteAllText(Directory, json);
             }

@@ -18,23 +18,23 @@ namespace FaasNet.RaftConsensus.Core
         private readonly IClusterStore _clusterStore;
         private readonly ILogStore _logStore;
         private readonly IPeerClientFactory _peerClientFactory;
+        private readonly ICommitHelper _commitHelper;
         private readonly ISnapshotHelper _snapshotHelper;
-        private readonly ISnapshotStore _snapshotStore;
         private readonly PeerOptions _peerOptions;
         private readonly RaftConsensusPeerOptions _raftOptions;
         private PeerInfo _peerInfo;
         private PeerState _peerState;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public RaftConsensusTimer(IPeerInfoStore peerInfoStore, ILogger<RaftConsensusTimer> logger, IClusterStore clusterStore, ILogStore logStore, IPeerClientFactory peerClientFactory, ISnapshotHelper snapshotHelper, ISnapshotStore snapshotStore, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftOptions)
+        public RaftConsensusTimer(IPeerInfoStore peerInfoStore, ILogger<RaftConsensusTimer> logger, IClusterStore clusterStore, ILogStore logStore, IPeerClientFactory peerClientFactory, ICommitHelper commitHelper, ISnapshotHelper snapshotHelper, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftOptions)
         {
             _peerInfoStore = peerInfoStore;
             _logger = logger;
             _clusterStore = clusterStore;
             _logStore = logStore;
             _peerClientFactory = peerClientFactory;
+            _commitHelper = commitHelper;
             _snapshotHelper = snapshotHelper;
-            _snapshotStore = snapshotStore;
             _peerOptions = peerOptions.Value;
             _raftOptions = raftOptions.Value;
             CreateFollowerTimer();

@@ -25,7 +25,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
             context.WriteLong(SnapshotCommitIndex);
         }
 
-        public void Extract(ReadBufferContext context)
+        public GetPeerStateResult Extract(ReadBufferContext context)
         {
             Term = context.NextLong();
             VotedFor = context.NextString();
@@ -34,6 +34,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
             Status = (PeerStatus)context.NextInt();
             SnapshotLastApplied = context.NextLong();
             SnapshotCommitIndex = context.NextLong();
+            return this;
         }
     }
 }

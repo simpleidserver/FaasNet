@@ -14,6 +14,10 @@ namespace FaasNet.RaftConsensus.Client.Messages
         /// </summary>
         public long MatchIndex { get; set; }
         /// <summary>
+        /// CommitIndex
+        /// </summary>
+        public long CommitIndex { get; set; }
+        /// <summary>
         /// True
         /// </summary>
         public bool Success { get; set; }
@@ -22,14 +26,17 @@ namespace FaasNet.RaftConsensus.Client.Messages
         {
             context.WriteLong(Term);
             context.WriteLong(MatchIndex);
+            context.WriteLong(CommitIndex);
             context.WriteBoolean(Success);
         }
 
-        public void Extract(ReadBufferContext context)
+        public InstallSnapshotResult Extract(ReadBufferContext context)
         {
             Term = context.NextLong();
             MatchIndex = context.NextLong();
+            CommitIndex = context.NextLong();
             Success = context.NextBoolean();
+            return this;
         }
     }
 }

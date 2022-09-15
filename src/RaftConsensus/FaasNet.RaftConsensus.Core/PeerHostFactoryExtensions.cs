@@ -1,5 +1,7 @@
 ﻿using FaasNet.RaftConsensus.Core;
 using FaasNet.RaftConsensus.Core.Infos;
+using FaasNet.RaftConsensus.Core.StateMachines;
+using FaasNet.RaftConsensus.Core.StateMachines.Counter;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -13,11 +15,12 @@ namespace FaasNet.Peer
             if (options == null) peerHostFactory.Services.Configure<RaftConsensusPeerOptions>(o => { });
             else peerHostFactory.Services.Configure(options);
             peerHostFactory.Services.AddScoped<ILogStore, InMemoryLogStore>();
-            peerHostFactory.Services.AddScoped<ISnapshotStore, InMemorySnapshotStore>();
             peerHostFactory.Services.AddScoped<IPeerInfoStore, PeerInfoStore>();
-            peerHostFactory.Services.AddTransient<ISnapshotHelper, SnapshotHelper>();
+            peerHostFactory.Services.AddScoped<IStateMachineRecordStore<CounterRecord>, CounterStateMachineStore>();
+            peerHostFactory.Services.AddTransient<ICommitHelper, CommitHelper>();
             peerHostFactory.Services.AddTransient<ITimer, RaftConsensusTimer>();
             peerHostFactory.Services.AddTransient<IProtocolHandler, RaftConsensusProtocolHandler>();
+            peerHostFactory.Services.AddTransient<ISnapshotHelper, SnapshotHelper>();
             return peerHostFactory;
         }
     }

@@ -7,8 +7,8 @@
             // LaunchNodes();
             // LaunchGCounter();
             // LaunchGCollectionStr();
-            // LaunchMenu();
-            LaunchCounter();
+            LaunchMenu();
+            // LaunchCounter();
             Console.WriteLine("Press any key to quit the application");
             Console.ReadLine();
             return 1;

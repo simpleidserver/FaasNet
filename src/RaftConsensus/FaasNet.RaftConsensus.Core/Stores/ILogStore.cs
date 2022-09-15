@@ -14,21 +14,18 @@ namespace FaasNet.RaftConsensus.Core.Stores
         Task<IEnumerable<LogEntry>> GetFrom(long index, bool equal = true, CancellationToken cancellationToken = default(CancellationToken));
         Task<IEnumerable<LogEntry>> GetFromTo(long indexFrom, long indexTo, CancellationToken cancellationToken);
         Task RemoveFrom(long startIndex, CancellationToken cancellation);
+        Task RemoveTo(long endIndex, CancellationToken cancellation);
         Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken);
         Task Append(LogEntry entry, CancellationToken cancellationToken);
-        Task<string> GetStateMachineId(int index, CancellationToken cancellationToken);
-        Task<IEnumerable<string>> GetAllStateMachineIds(CancellationToken cancellationToken);
     }
 
     public class InMemoryLogStore : ILogStore
     {
         private ConcurrentBag<LogEntry> _entries;
-        private ConcurrentBag<(long, string)> _stateMachineIds;
 
         public InMemoryLogStore()
         {
             _entries = new ConcurrentBag<LogEntry>();
-            _stateMachineIds = new ConcurrentBag<(long, string)>();
         }
 
         public Task<LogEntry> Get(long index, CancellationToken cancellationToken)
@@ -45,7 +42,12 @@ namespace FaasNet.RaftConsensus.Core.Stores
         {
             startIndex = startIndex <= 0 ? 0 : startIndex - 1;
             _entries = new ConcurrentBag<LogEntry>(_entries.Where(e => e.Index < startIndex));
-            _stateMachineIds = new ConcurrentBag<(long, string)>(_stateMachineIds.Where(r => r.Item1 < startIndex));
+            return Task.CompletedTask;
+        }
+
+        public Task RemoveTo(long endIndex, CancellationToken cancellation)
+        {
+            _entries = new ConcurrentBag<LogEntry>(_entries.Where(e => e.Index > endIndex));
             return Task.CompletedTask;
         }
 
@@ -54,8 +56,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
             foreach (var entry in entries)
             {
                 _entries.Add(entry);
-                if (!_stateMachineIds.Any(s => s.Item2 == entry.StateMachineId))
-                    _stateMachineIds.Add((entry.Index, entry.StateMachineId));
             }
 
             return Task.CompletedTask;
@@ -64,8 +64,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
         public Task Append(LogEntry entry, CancellationToken cancellationToken)
         {
             _entries.Add(entry);
-            if (!_stateMachineIds.Any(s => s.Item2 == entry.StateMachineId))
-                _stateMachineIds.Add((entry.Index, entry.StateMachineId));
             return Task.CompletedTask;
         }
 
@@ -79,17 +77,6 @@ namespace FaasNet.RaftConsensus.Core.Stores
         {
             var result = _entries.Where(e => e.Index > fromIndex && e.Index <= toIndex);
             return Task.FromResult(result);
-        }
-
-        public Task<string> GetStateMachineId(int index, CancellationToken cancellationToken)
-        {
-            if (_stateMachineIds.Count() - 1 < index) return Task.FromResult((string)null);
-            return Task.FromResult(_stateMachineIds.ElementAt(index).Item2);
-        }
-
-        public Task<IEnumerable<string>> GetAllStateMachineIds(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(_stateMachineIds.Select(r => r.Item2));
         }
     }
 }

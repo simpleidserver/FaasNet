@@ -51,16 +51,15 @@ namespace FaasNet.RaftConsensus.Client.Messages
             };
         }
 
-        public static BaseConsensusPackage AppendEntry(string stateMachineId, byte[] payload)
+        public static BaseConsensusPackage AppendEntry(byte[] payload)
         {
             return new AppendEntryRequest
             {
-                StateMachineId = stateMachineId,
                 Payload = payload
             };
         }
 
-        public static BaseConsensusPackage InstallSnapshot(long term, string leaderId, long commitIndex, long snapshotTerm, long snapshotIndex, byte[] data, string stateMachineId)
+        public static BaseConsensusPackage InstallSnapshot(long term, string leaderId, long commitIndex, long snapshotTerm, long snapshotIndex, int iteration, int total, IEnumerable<IEnumerable<byte>> data)
         {
             return new InstallSnapshotRequest
             {
@@ -69,30 +68,18 @@ namespace FaasNet.RaftConsensus.Client.Messages
                 CommitIndex = commitIndex,
                 SnapshotTerm = snapshotTerm,
                 SnapshotIndex = snapshotIndex,
-                Data = data,
-                StateMachineId = stateMachineId
+                Iteration = iteration,
+                Total = total,
+                Data = data
             };
         }
 
-        public static BaseConsensusPackage GetStateMachine(string stateMachineId)
+        public static BaseConsensusPackage Query(IQuery query)
         {
-            return new GetStateMachineRequest
+            return new QueryRequest
             {
-                StateMachineId = stateMachineId
+                Query = query
             };
-        }
-
-        public static BaseConsensusPackage ReadStateMachine(int offset)
-        {
-            return new ReadStateMachineRequest
-            {
-                Offset = offset
-            };
-        }
-
-        public static BaseConsensusPackage GetAllStateMachines()
-        {
-            return new GetAllStateMachinesRequest();
         }
     }
 }

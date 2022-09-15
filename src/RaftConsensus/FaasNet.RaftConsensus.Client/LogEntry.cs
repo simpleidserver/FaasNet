@@ -6,7 +6,6 @@ namespace FaasNet.RaftConsensus.Client
     {
         public long Index { get; set; }
         public long Term { get; set; }
-        public string StateMachineId { get; set; }
         public byte[] Command { get; set; }
 
         public static LogEntry Deserialize(byte[] payload)
@@ -28,7 +27,6 @@ namespace FaasNet.RaftConsensus.Client
             {
                 Index = bufferCtx.NextLong(),
                 Term = bufferCtx.NextLong(),
-                StateMachineId = bufferCtx.NextString(),
                 Command = bufferCtx.NextByteArray()
             };
         }
@@ -37,7 +35,6 @@ namespace FaasNet.RaftConsensus.Client
         {
             bufferCtx.WriteLong(Index);
             bufferCtx.WriteLong(Term);
-            bufferCtx.WriteString(StateMachineId);
             bufferCtx.WriteByteArray(Command);
         }
     }

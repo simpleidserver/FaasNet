@@ -49,7 +49,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
             context.WriteLong(LeaderCommit);
         }
 
-        public void Extract(ReadBufferContext context)
+        public AppendEntriesRequest Extract(ReadBufferContext context)
         {
             Term = context.NextLong();
             LeaderId = context.NextString();
@@ -60,6 +60,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
             for(var i = 0; i < nbEntries; i++) result.Add(LogEntry.Deserialize(context));
             Entries = result;
             LeaderCommit = context.NextLong();
+            return this;
         }
     }
 }

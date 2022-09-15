@@ -1,4 +1,4 @@
-﻿using FaasNet.RaftConsensus.Client.StateMachines;
+﻿using FaasNet.RaftConsensus.Core.StateMachines.Counter;
 using System;
 
 namespace FaasNet.RaftConsensus.Core
@@ -45,6 +45,10 @@ namespace FaasNet.RaftConsensus.Core
         /// Maximum number of threads.
         /// </summary>
         public int MaxNbThreads { get; set; } = 5;
+        /// <summary>
+        /// Number of records in each snapshot file.
+        /// </summary>
+        public int NbRecordsPerSnapshotFile { get; set; } = 500;
     }
 
     public class Interval

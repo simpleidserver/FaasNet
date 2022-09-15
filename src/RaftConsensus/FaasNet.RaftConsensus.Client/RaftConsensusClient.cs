@@ -30,9 +30,9 @@ namespace FaasNet.RaftConsensus.Client
             return DeserializeResult<BaseConsensusPackage, AppendEntriesResult>(receivedResult);
         }
 
-        public async Task<IEnumerable<(InstallSnapshotResult, string)>> InstallSnapshot(long term, string leaderId, long commitIndex, long snapshotTerm, long snapshotIndex, byte[] data, string stateMachineId, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<(InstallSnapshotResult, string)>> InstallSnapshot(long term, string leaderId, long commitIndex, long snapshotTerm, long snapshotIndex, int iteration, int total, IEnumerable<IEnumerable<byte>> data, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var request = SerializeRequest(ConsensusPackageRequestBuilder.InstallSnapshot(term, leaderId, commitIndex, snapshotTerm, snapshotIndex, data, stateMachineId));
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.InstallSnapshot(term, leaderId, commitIndex, snapshotTerm, snapshotIndex, iteration, total, data));
             await Send(request, timeoutMS, cancellationToken);
             var receivedResult = await Receive(timeoutMS, cancellationToken);
             return DeserializeResult<BaseConsensusPackage, InstallSnapshotResult>(receivedResult);
@@ -46,9 +46,9 @@ namespace FaasNet.RaftConsensus.Client
             return DeserializeResult<BaseConsensusPackage, AppendEntriesResult>(receivedResult);
         }
 
-        public async Task<IEnumerable<(AppendEntryResult, string)>> AppendEntry(string stateMachineId, byte[] payload, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<(AppendEntryResult, string)>> AppendEntry(byte[] payload, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var request = SerializeRequest(ConsensusPackageRequestBuilder.AppendEntry(stateMachineId, payload));
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.AppendEntry(payload));
             await Send(request, timeoutMS, cancellationToken);
             var receivedResult = await Receive(timeoutMS, cancellationToken);
             return DeserializeResult<BaseConsensusPackage, AppendEntryResult>(receivedResult);
@@ -70,26 +70,18 @@ namespace FaasNet.RaftConsensus.Client
             return DeserializeResult<BaseConsensusPackage, GetLogsResult>(receivedResult);
         }
 
-        public Task<IEnumerable<(AppendEntryResult, string)>> SendCommand(string stateMachineId, ICommand command, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IEnumerable<(AppendEntryResult, string)>> SendCommand(ICommand command, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var payload = CommandSerializer.Serialize(command);
-            return AppendEntry(stateMachineId, payload, timeoutMS, cancellationToken);
+            return AppendEntry(payload, timeoutMS, cancellationToken);
         }
 
-        public async Task<IEnumerable<(GetStateMachineResult, string)>> GetStateMachine(string stateMachineId, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<(QueryResult, string)>> ExecuteQuery(IQuery query, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var request = SerializeRequest(ConsensusPackageRequestBuilder.GetStateMachine(stateMachineId));
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.Query(query));
             await Send(request, timeoutMS, cancellationToken);
             var receivedResult = await Receive(timeoutMS, cancellationToken);
-            return DeserializeResult<BaseConsensusPackage, GetStateMachineResult>(receivedResult);
-        }
-
-        public async Task<IEnumerable<(GetAllStateMachinesResult, string)>> GetAllStateMachines(int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var request = SerializeRequest(ConsensusPackageRequestBuilder.GetAllStateMachines());
-            await Send(request, timeoutMS, cancellationToken);
-            var receivedResult = await Receive(timeoutMS, cancellationToken);
-            return DeserializeResult<BaseConsensusPackage, GetAllStateMachinesResult>(receivedResult);
+            return DeserializeResult<BaseConsensusPackage, QueryResult>(receivedResult);
         }
     }
 }

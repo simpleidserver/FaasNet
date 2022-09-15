@@ -1,174 +1,92 @@
-﻿using FaasNet.Common.Extensions;
-using FaasNet.RaftConsensus.Client;
-using FaasNet.RaftConsensus.Client.StateMachines;
-using FaasNet.RaftConsensus.Core.StateMachines;
-using FaasNet.RaftConsensus.Core.Stores;
+﻿using FaasNet.RaftConsensus.Core.StateMachines;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaasNet.RaftConsensus.Core
 {
     public interface ISnapshotHelper
     {
-        IEnumerable<(IStateMachine, Snapshot)> RestoreAllStateMachines(IEnumerable<LogEntry> logEntries);
-        IEnumerable<(IStateMachine, Snapshot)> GetAllStateMachines();
-        Task<IEnumerable<(IStateMachine, Snapshot)>> GetAllLatestStateMachines(CancellationToken cancellationToken);
-        Task<(IStateMachine, Snapshot)> GetLatestStateMachine(string stateMachine, CancellationToken cancellationToken);
-        Task<(IStateMachine, Snapshot)> GetStateMachine(int offset, CancellationToken cancellationToken);
+        Task TakeSnapshot(long index);
+        void EraseSnapshot(long index);
+        void WriteSnapshot(long index, int iteration, IEnumerable<IEnumerable<byte>> buffer);
+        IEnumerable<(IEnumerable<IEnumerable<byte>>, int, int)> ReadSnapshot(long index);
     }
 
     public class SnapshotHelper : ISnapshotHelper
     {
-        private readonly ILogStore _logStore;
-        private readonly ISnapshotStore _snapshotStore;
-        private readonly RaftConsensusPeerOptions _options;
+        private readonly RaftConsensusPeerOptions _raftOptions;
+        private readonly IServiceProvider _serviceProvider;
         private PeerState _peerState;
 
-        public SnapshotHelper(ILogStore logStore, ISnapshotStore snapshotStore, IOptions<RaftConsensusPeerOptions> options)
+        public SnapshotHelper(IOptions<RaftConsensusPeerOptions> raftOptions, IServiceProvider serviceProvider)
         {
-            _logStore = logStore;
-            _snapshotStore = snapshotStore;
-            _options = options.Value;
-            _peerState = PeerState.New(_options.ConfigurationDirectoryPath, _options.IsConfigurationStoredInMemory);
+            _raftOptions = raftOptions.Value;
+            _serviceProvider = serviceProvider;
+            _peerState = PeerState.New(_raftOptions.ConfigurationDirectoryPath, _raftOptions.IsConfigurationStoredInMemory);
         }
 
-        public IEnumerable<(IStateMachine, Snapshot)> RestoreAllStateMachines(IEnumerable<LogEntry> logEntries)
+        public async Task TakeSnapshot(long index)
         {
-            var result = new ConcurrentBag<(IStateMachine, Snapshot)>();
-            var missingStateMachineIds = new ConcurrentBag<string>(logEntries.Select(e => e.StateMachineId).Distinct());
-            Restore(result, missingStateMachineIds);
-            BuildNew(result, missingStateMachineIds);
-            return result.ToList();
-
-            void Restore(ConcurrentBag<(IStateMachine, Snapshot)> result, ConcurrentBag<string> missingStateMachineIds)
+            var snapshotDirectory = GetSnapshotDirectoryPath(index);
+            Directory.CreateDirectory(snapshotDirectory);
+            var stateMachine = (IStateMachine)ActivatorUtilities.CreateInstance(_serviceProvider, _raftOptions.StateMachineType);
+            await Parallel.ForEachAsync(stateMachine.Snapshot(_raftOptions.NbRecordsPerSnapshotFile), new ParallelOptions
             {
-                Parallel.ForEach(_snapshotStore.GetAll(), new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = _options.MaxNbThreads
-                }, (s, t) =>
-                {
-                    var stateMachine = StateMachineSerializer.Deserialize(_options.StateMachineType, s.StateMachine);
-                    stateMachine.Id = s.StateMachineId;
-                    var filteredLogEntries = logEntries.Where(le => le.StateMachineId == s.StateMachineId && le.Index > s.Index).OrderBy(l => l.Index);
-                    if (!filteredLogEntries.Any())
-                    {
-                        result.Add((stateMachine, s));
-                        return;
-                    }
-
-                    foreach (var logEntry in filteredLogEntries.OrderBy(l => l.Index))
-                    {
-                        missingStateMachineIds.Remove(stateMachine.Id);
-                        var cmd = CommandSerializer.Deserialize(logEntry.Command);
-                        stateMachine.Apply(cmd);
-                    }
-
-                    var snapshot = new Snapshot
-                    {
-                        Index = _peerState.CommitIndex,
-                        StateMachine = stateMachine.Serialize(),
-                        StateMachineId = s.StateMachineId,
-                        Term = filteredLogEntries.OrderByDescending(l => l.Term).First().Term
-                    };
-                    result.Add((stateMachine, snapshot));
-                });
-            }
-
-            void BuildNew(ConcurrentBag<(IStateMachine, Snapshot)> result, ConcurrentBag<string> missingStateMachineIds)
+                MaxDegreeOfParallelism = _raftOptions.MaxNbThreads
+            }, async (e, t) =>
             {
-                Parallel.ForEach(missingStateMachineIds, new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = _options.MaxNbThreads
-                }, (s, t) =>
-                {
-                    var filteredLogEntries = logEntries.Where(le => le.StateMachineId == s).OrderBy(l => l.Index);
-                    var stateMachine = (IStateMachine)Activator.CreateInstance(_options.StateMachineType);
-                    stateMachine.Id = s;
-                    foreach (var logEntry in filteredLogEntries.OrderBy(l => l.Index))
-                    {
-                        var cmd = CommandSerializer.Deserialize(logEntry.Command);
-                        stateMachine.Apply(cmd);
-                    }
-
-                    var snapshot = new Snapshot
-                    {
-                        Index = _peerState.CommitIndex,
-                        StateMachineId = s,
-                        StateMachine = stateMachine.Serialize(),
-                        Term = filteredLogEntries.OrderByDescending(l => l.Term).First().Term
-                    };
-                    result.Add((stateMachine, snapshot));
-                });
-            }
+                using (var file = new StreamWriter(Path.Combine(snapshotDirectory, $"statemachines-{e.Item2}.txt")))
+                    foreach (var payload in e.Item1)
+                        file.WriteLine(Convert.ToBase64String(payload.ToArray()));
+            });
+            _peerState.SnapshotTerm = _peerState.CurrentTerm;
+            _peerState.SnapshotLastApplied = _peerState.CommitIndex;
         }
 
-        public IEnumerable<(IStateMachine, Snapshot)> GetAllStateMachines()
+        public void EraseSnapshot(long index)
         {
-            var result = new ConcurrentBag<(IStateMachine, Snapshot)>();
-            Restore(result);
-            return result;
-
-            void Restore(ConcurrentBag<(IStateMachine, Snapshot)> result)
-            {
-                Parallel.ForEach(_snapshotStore.GetAll(), new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = _options.MaxNbThreads
-                }, (s, t) =>
-                {
-                    var stateMachine = StateMachineSerializer.Deserialize(_options.StateMachineType, s.StateMachine);
-                    stateMachine.Id = s.StateMachineId;
-                    result.Add((stateMachine, s));
-                });
-            }
+            var directoryPath = GetSnapshotDirectoryPath(index);
+            if (Directory.Exists(directoryPath)) Directory.Delete(directoryPath, true);
         }
 
-        public async Task<(IStateMachine, Snapshot)> GetLatestStateMachine(string stateMachineId, CancellationToken cancellationToken)
+        public void WriteSnapshot(long index, int iteration, IEnumerable<IEnumerable<byte>> buffer)
         {
-            var snapshot = _snapshotStore.Get(stateMachineId);
-            var index = snapshot == null ? 0 : snapshot.Index;
-            IStateMachine stateMachine = null;
-            if (snapshot != null)
+            var directoryPath = GetSnapshotDirectoryPath(index);
+            if (Directory.Exists(directoryPath)) Directory.Delete(directoryPath);
+            Directory.CreateDirectory(directoryPath);
+            using (var file = new StreamWriter(Path.Combine(directoryPath, $"statemachines-{iteration}.txt")))
+                foreach (var payload in buffer)
+                    file.WriteLine(Convert.ToBase64String(payload.ToArray()));
+            
+        }
+
+        public IEnumerable<(IEnumerable<IEnumerable<byte>>, int, int)> ReadSnapshot(long index)
+        {
+            var snapshotDirectory = GetSnapshotDirectoryPath(index);
+            if (!Directory.Exists(snapshotDirectory))
             {
-                stateMachine = StateMachineSerializer.Deserialize(_options.StateMachineType, snapshot.StateMachine);
-                stateMachine.Id = stateMachineId;
+                yield return new(null, 0, 0);
             }
             else
-                stateMachine = (IStateMachine)Activator.CreateInstance(_options.StateMachineType);
-
-            var logEntries = await _logStore.GetFrom(index, false, cancellationToken);
-            foreach (var logEntry in logEntries.Where(l => l.StateMachineId == stateMachineId))
             {
-                stateMachine.Id = stateMachineId;
-                var cmd = CommandSerializer.Deserialize(logEntry.Command);
-                stateMachine.Apply(cmd);
+                var files = Directory.GetFiles(snapshotDirectory, "*.txt");
+                foreach (var file in files.OrderBy(f => f))
+                {
+                    var number = int.Parse(Path.GetFileName(file).Replace(".txt", string.Empty).Split('-').Last());
+                    yield return (File.ReadAllLines(file).Select(l => (IEnumerable<byte>)Convert.FromBase64String(l)), number, files.Count());
+                }
             }
-
-            return (stateMachine, snapshot ?? new Snapshot());
         }
 
-        public async Task<IEnumerable<(IStateMachine, Snapshot)>> GetAllLatestStateMachines(CancellationToken cancellationToken)
+        private string GetSnapshotDirectoryPath(long index)
         {
-            var allStateMachineIds = await _logStore.GetAllStateMachineIds(cancellationToken);
-            var result = new ConcurrentBag<(IStateMachine, Snapshot)>();
-            await Parallel.ForEachAsync(allStateMachineIds, new ParallelOptions
-            {
-                MaxDegreeOfParallelism = _options.MaxNbThreads
-            }, async (s, t) =>
-            {
-                result.Add(await GetLatestStateMachine(s, cancellationToken));
-            });
-            return result.ToList();
-        }
-
-        public async Task<(IStateMachine, Snapshot)> GetStateMachine(int offset, CancellationToken cancellationToken)
-        {
-            var stateMachineId = await _logStore.GetStateMachineId(offset, cancellationToken);
-            return await GetLatestStateMachine(stateMachineId, cancellationToken);
+            if (!Directory.Exists(_raftOptions.ConfigurationDirectoryPath)) Directory.CreateDirectory(_raftOptions.ConfigurationDirectoryPath);
+            return Path.Combine(_raftOptions.ConfigurationDirectoryPath, $"snapshot-{index}");
         }
     }
 }

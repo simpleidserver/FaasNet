@@ -7,7 +7,6 @@ using RocksDbSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,16 +29,7 @@ namespace FaasNet.RaftConsensus.RocksDB
         {
             var versionDb = _connectionPool.GetConnection(BuildOptions(), GetLogsDirectoryPath());
             versionDb.Put(BitConverter.GetBytes(entry.Index), entry.Serialize());
-            StoreStateMachineId();
             return Task.CompletedTask;
-
-            void StoreStateMachineId()
-            {
-                var stateMachineIdDb = _connectionPool.GetConnection(BuildOptions(), GetStateMachineIdDirectoryPath());
-                var stateMachineIdPayload = Encoding.UTF8.GetBytes(entry.StateMachineId);
-                if (stateMachineIdDb.Get(stateMachineIdPayload) == null)
-                    stateMachineIdDb.Put(stateMachineIdPayload, BitConverter.GetBytes(entry.Index));
-            }
         }
 
         public Task<LogEntry> Get(long index, CancellationToken cancellationToken)
@@ -101,78 +91,16 @@ namespace FaasNet.RaftConsensus.RocksDB
             var logEntries = await GetFrom(startIndex, cancellationToken: cancellation);
             var versionDb = _connectionPool.GetConnection(BuildOptions(), GetLogsDirectoryPath());
             foreach(var logEntry in logEntries) versionDb.Remove(BitConverter.GetBytes(logEntry.Index));
-            var unusedStateMachineIds = GetUnusedStateMachineIds();
-            RemoveUnusedStateMachineIds(unusedStateMachineIds);
+        }
 
-            IEnumerable<string> GetUnusedStateMachineIds()
-            {
-                var result = new List<string>();
-                var stateMachineDb = _connectionPool.GetConnection(BuildOptions(), GetStateMachineIdDirectoryPath());
-                using (var iterator = stateMachineDb.NewIterator())
-                {
-                    while (iterator.Valid())
-                    {
-                        var value = iterator.Value();
-                        if (value != null)
-                        {
-                            var key = iterator.Key();
-                            var index = BitConverter.ToInt64(value);
-                            if (index >= startIndex) result.Add(Encoding.UTF8.GetString(key));
-                        }
-                    }
-                }
-
-                return result;
-            }
-
-            void RemoveUnusedStateMachineIds(IEnumerable<string> stateMachineIds)
-            {
-                var stateMachineDb = _connectionPool.GetConnection(BuildOptions(), GetStateMachineIdDirectoryPath());
-                foreach (var stateMachineId in stateMachineIds) stateMachineDb.Remove(stateMachineId);
-            }
+        public Task RemoveTo(long endIndex, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
 
         public async Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken)
         {
             foreach (var entry in entries) await Append(entry, cancellationToken);
-        }
-
-        public Task<string> GetStateMachineId(int index, CancellationToken cancellationToken)
-        {
-            int currentIndex = 0;
-            var stateMachineDb = _connectionPool.GetConnection(BuildOptions(), GetStateMachineIdDirectoryPath());
-            using (var iterator = stateMachineDb.NewIterator())
-            {
-                while (iterator.Valid())
-                {
-                    var key = iterator.Key();
-                    if (currentIndex == index)
-                    {
-                        if(key == null) return Task.FromResult((string)null);
-                        return Task.FromResult(Encoding.UTF8.GetString(key));
-                    }
-
-                    currentIndex++;
-                }
-            }
-
-            return Task.FromResult((string)null);
-        }
-
-        public Task<IEnumerable<string>> GetAllStateMachineIds(CancellationToken cancellationToken)
-        {
-            var result = new List<string>();
-            var stateMachineDb = _connectionPool.GetConnection(BuildOptions(), GetStateMachineIdDirectoryPath());
-            using (var iterator = stateMachineDb.NewIterator())
-            {
-                while (iterator.Valid())
-                {
-                    var key = iterator.Key();
-                    result.Add(Encoding.UTF8.GetString(key));
-                }
-            }
-
-            return Task.FromResult((IEnumerable<string>)result);
         }
 
         private DbOptions BuildOptions()
@@ -186,14 +114,6 @@ namespace FaasNet.RaftConsensus.RocksDB
         {
             if (!Directory.Exists(_raftOptions.ConfigurationDirectoryPath)) Directory.CreateDirectory(_raftOptions.ConfigurationDirectoryPath);
             var result = Path.Combine(_raftOptions.ConfigurationDirectoryPath, "logs");
-            if (!Directory.Exists(result)) Directory.CreateDirectory(result);
-            return result;
-        }
-
-        private string GetStateMachineIdDirectoryPath()
-        {
-            if (!Directory.Exists(_raftOptions.ConfigurationDirectoryPath)) Directory.CreateDirectory(_raftOptions.ConfigurationDirectoryPath);
-            var result = Path.Combine(_raftOptions.ConfigurationDirectoryPath, "statemachinesid");
             if (!Directory.Exists(result)) Directory.CreateDirectory(result);
             return result;
         }

@@ -31,12 +31,13 @@ namespace FaasNet.RaftConsensus.Client.Messages
             context.WriteLong(LastLogTerm);
         }
 
-        public void Extract(ReadBufferContext context)
+        public VoteRequest Extract(ReadBufferContext context)
         {
             Term = context.NextLong();
             CandidateId = context.NextString();
             LastLogIndex = context.NextLong();
             LastLogTerm = context.NextLong();
+            return this;
         }
     }
 }

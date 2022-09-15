@@ -2,8 +2,8 @@
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Client;
-using FaasNet.RaftConsensus.Client.StateMachines;
-using FaasNet.RaftConsensus.Core.StateMachines;
+using FaasNet.RaftConsensus.Client.StateMachines.Counter;
+using FaasNet.RaftConsensus.Core.StateMachines.Counter;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -15,39 +15,35 @@ namespace FaasNet.RaftConsensus.Service
     {
         public static void LaunchCounter()
         {
-            LaunchRaftConsensusPeerGCounter(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5002) }, false, "node1", 5001);
-            LaunchRaftConsensusPeerGCounter(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, false, "node2", 5002);
+            LaunchRaftConsensusPeerCounter(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5002) }, false, "node1", 5001);
+            LaunchRaftConsensusPeerCounter(new ConcurrentBag<ClusterPeer> { new ClusterPeer("localhost", 5001) }, false, "node2", 5002);
 
             Console.WriteLine("Press any key to increment the counter 'firstCounter' by 2");
             Console.ReadLine();
             IncrementCounter("firstCounter", 5001, 2, false);
 
-            Console.WriteLine("Press any key to display the state machine 'firstCounter'");
+            Console.WriteLine("Press any key to increment the counter 'firstCounter' by 3");
             Console.ReadLine();
-            DisplayGCounterStateMachine("firstCounter", 5001, false);
+            IncrementCounter("firstCounter", 5001, 3, false);
 
-            Console.WriteLine("Press any key to increment the counter 'secondCounter' by 3");
+            Console.WriteLine("Press any key to increment the counter 'firstCounter' by 5");
             Console.ReadLine();
-            IncrementCounter("secondCounter", 5001, 3, false);
+            IncrementCounter("firstCounter", 5001, 5, false);
 
-            Console.WriteLine("Press any key to display the state machine 'secondCounter'");
+            Console.WriteLine("Press any key to increment the counter 'secondCounter' by 1");
             Console.ReadLine();
-            DisplayGCounterStateMachine("secondCounter", 5001, false);
+            IncrementCounter("secondCounter", 5001, 1, false);
 
-            Console.WriteLine("Press any key to display state of Peer 5001");
+            Console.WriteLine("Press any key to display the counter 'firstCounter'");
             Console.ReadLine();
-            DisplayPeerState(5001, false);
+            DisplayCounter("firstCounter", 5001, false);
 
-            Console.WriteLine("Press any key to display state of Peer 5002");
+            Console.WriteLine("Press any key to display the counter 'secondCounter'");
             Console.ReadLine();
-            DisplayPeerState(5002, false);
-
-            Console.WriteLine("Press any key to display all the state machine in Peer 5001");
-            Console.ReadLine();
-            DisplayAllStateMachines(5001, false);
+            DisplayCounter("secondCounter", 5001, false);
         }
 
-        private static IPeerHost LaunchRaftConsensusPeerGCounter(ConcurrentBag<ClusterPeer> clusterPeers, bool isTcp = false, string nodeName = "node1", int port = 5001)
+        private static IPeerHost LaunchRaftConsensusPeerCounter(ConcurrentBag<ClusterPeer> clusterPeers, bool isTcp = false, string nodeName = "node1", int port = 5001)
         {
             var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var peerHostFactory = PeerHostFactory.NewUnstructured(o =>
@@ -63,8 +59,8 @@ namespace FaasNet.RaftConsensus.Service
                 .AddRaftConsensus(o =>
                 {
                     o.StateMachineType = typeof(CounterStateMachine);
-                    o.IsConfigurationStoredInMemory = true;
-                    o.SnapshotFrequency = 20;
+                    o.IsConfigurationStoredInMemory = false;
+                    o.SnapshotFrequency = 1;
                     o.ConfigurationDirectoryPath = Path.Combine(path, nodeName);
                     o.LeaderCallback = () =>
                     {
@@ -81,29 +77,16 @@ namespace FaasNet.RaftConsensus.Service
         private static async void IncrementCounter(string id, int port, long value, bool isTcp = false)
         {
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
-                await client.SendCommand(id, new IncrementGCounterCommand { Value = value }, 1000000);
+                await client.SendCommand(new IncrementCounter { Id = id, Value = value }, 1000000);
         }
 
-        private static async void DisplayGCounterStateMachine(string id, int port, bool isTcp = false)
+        private static async void DisplayCounter(string id, int port, bool isTcp = false)
         {
             using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
             {
-                var stateMachine = (await client.GetStateMachine(id, 1000000)).First();
-                var result = StateMachineSerializer.Deserialize<CounterStateMachine>(stateMachine.Item1.StateMachine);
-                Console.WriteLine($"Value  = {result.Value}");
-            }
-        }
-
-        private static async void DisplayAllStateMachines(int port, bool isTcp = false)
-        {
-            using (var client = PeerClientFactory.Build<RaftConsensusClient>("localhost", port, isTcp ? ClientTransportFactory.NewTCP() : ClientTransportFactory.NewUDP()))
-            {
-                var stateMachine = (await client.GetAllStateMachines(1000000)).First();
-                foreach(var state in stateMachine.Item1.States)
-                {
-                    var result = StateMachineSerializer.Deserialize<CounterStateMachine>(state.StateMachine);
-                    Console.WriteLine($"Value  = {result.Value}");
-                }
+                var result = (await client.ExecuteQuery(new GetCounterQuery { Id = id }, 1000000)).First();
+                var counterQueryResult = result.Item1.Result as GetCounterQueryResult;
+                Console.WriteLine($"{id} = {counterQueryResult.Value}");
             }
         }
 

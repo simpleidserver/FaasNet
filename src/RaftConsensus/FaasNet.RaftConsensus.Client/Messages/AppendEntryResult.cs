@@ -17,11 +17,12 @@ namespace FaasNet.RaftConsensus.Client.Messages
             context.WriteBoolean(Success);
         }
 
-        public void Extract(ReadBufferContext context)
+        public AppendEntryResult Extract(ReadBufferContext context)
         {
             Term = context.NextLong();
             MatchIndex = context.NextLong();
             Success = context.NextBoolean();
+            return this;
         }
     }
 }

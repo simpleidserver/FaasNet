@@ -22,10 +22,11 @@ namespace FaasNet.RaftConsensus.Client.Messages
             context.WriteBoolean(VoteGranted);
         }
 
-        public void Extract(ReadBufferContext context)
+        public VoteResult Extract(ReadBufferContext context)
         {
             Term = context.NextLong();
             VoteGranted = context.NextBoolean();
+            return this;
         }
     }
 }

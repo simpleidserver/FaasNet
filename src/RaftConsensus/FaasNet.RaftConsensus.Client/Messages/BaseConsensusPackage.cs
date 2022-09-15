@@ -30,102 +30,20 @@ namespace FaasNet.RaftConsensus.Client.Messages
             }
 
             var cmd = ConsensusCommands.Deserialize(context);
-            if (cmd == ConsensusCommands.VOTE_REQUEST)
-            {
-                var result = new VoteRequest();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.VOTE_RESULT)
-            {
-                var result = new VoteResult();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.APPEND_ENTRIES_REQUEST)
-            {
-                var result = new AppendEntriesRequest();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.APPEND_ENTRIES_RESULT)
-            {
-                var result = new AppendEntriesResult();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.APPEND_ENTRY_REQUEST)
-            {
-                var result = new AppendEntryRequest();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.APPEND_ENTRY_RESULT)
-            {
-                var result = new AppendEntryResult();
-                result.Extract(context);
-                return result;
-            }
-
+            if (cmd == ConsensusCommands.VOTE_REQUEST) return new VoteRequest().Extract(context);
+            if (cmd == ConsensusCommands.VOTE_RESULT) return new VoteResult().Extract(context);
+            if (cmd == ConsensusCommands.APPEND_ENTRIES_REQUEST) return new AppendEntriesRequest().Extract(context);
+            if (cmd == ConsensusCommands.APPEND_ENTRIES_RESULT) return new AppendEntriesResult().Extract(context);
+            if (cmd == ConsensusCommands.APPEND_ENTRY_REQUEST) return new AppendEntryRequest().Extract(context);
+            if (cmd == ConsensusCommands.APPEND_ENTRY_RESULT) return new AppendEntryResult().Extract(context);
             if(cmd == ConsensusCommands.GET_PEER_STATE_REQUEST) return new GetPeerStateRequest();
-            if (cmd == ConsensusCommands.GET_PEER_STATE_RESULT)
-            {
-                var result = new GetPeerStateResult();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.GET_LOGS_REQUEST)
-            {
-                var result = new GetLogsRequest();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.GET_LOGS_RESULT)
-            {
-                var result = new GetLogsResult();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.INSTALL_SNAPSHOT_REQUEST)
-            {
-                var result = new InstallSnapshotRequest();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.INSTALL_SNAPSHOT_RESULT)
-            {
-                var result = new InstallSnapshotResult();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.GET_STATEMACHINE_REQUEST)
-            {
-                var result = new GetStateMachineRequest();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.GET_STATEMACHINE_RESULT)
-            {
-                var result = new GetStateMachineResult();
-                result.Extract(context);
-                return result;
-            }
-
-            if (cmd == ConsensusCommands.GET_ALL_STATEMACHINES_REQUEST) return new GetAllStateMachinesRequest();
-            if (cmd == ConsensusCommands.GET_ALL_STATEMACHINES_RESULT) return new GetAllStateMachinesResult().Extract(context);
-            if (cmd == ConsensusCommands.READ_STATEMACHINE_REQUEST) return new ReadStateMachineRequest().Extract(context);
-            if (cmd == ConsensusCommands.READ_STATEMACHINE_RESULT) return new ReadStateMachineResult().Extract(context);
+            if (cmd == ConsensusCommands.GET_PEER_STATE_RESULT)return new GetPeerStateResult().Extract(context);
+            if (cmd == ConsensusCommands.GET_LOGS_REQUEST) return new GetLogsRequest().Extract(context);
+            if (cmd == ConsensusCommands.GET_LOGS_RESULT) return new GetLogsResult().Extract(context);
+            if (cmd == ConsensusCommands.INSTALL_SNAPSHOT_REQUEST) return new InstallSnapshotRequest().Extract(context);
+            if (cmd == ConsensusCommands.INSTALL_SNAPSHOT_RESULT) return new InstallSnapshotResult().Extract(context);
+            if (cmd == ConsensusCommands.QUERY_REQUEST) return new QueryRequest().Extract(context);
+            if (cmd == ConsensusCommands.QUERY_RESULT) return new QueryResult().Extract(context);
             return null;
         }
     }

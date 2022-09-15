@@ -13,9 +13,10 @@ namespace FaasNet.RaftConsensus.Client.Messages
             context.WriteLong(StartIndex);
         }
 
-        public void Extract(ReadBufferContext context)
+        public GetLogsRequest Extract(ReadBufferContext context)
         {
             StartIndex = context.NextLong();
+            return this;
         }
     }
 }

@@ -80,23 +80,20 @@ namespace FaasNet.RaftConsensus.Core.Infos
         /// <summary>
         /// Index of the snapshot.
         /// </summary>
-        public Dictionary<string, long> SnapshotIndexes { get; set; } = new Dictionary<string, long>();
+        public long SnapshotIndex { get; set; } = 0;
+        /// <summary>
+        /// Committed index of the snapshot.
+        /// </summary>
+        public long SnapshotCommitIndex { get; set; } = 0;
 
-        public long GetSnapshotIndex(string id)
+        public void UpdateSnapshotIndex(long index)
         {
-            if (!SnapshotIndexes.ContainsKey(id)) return default(long);
-            return SnapshotIndexes[id];
+            SnapshotIndex = index;
         }
 
-        public void UpdateSnapshotIndex(string id, long index)
+        public void UpdateSnapshotCommitIndex(long index)
         {
-            if (!SnapshotIndexes.ContainsKey(id))
-            {
-                SnapshotIndexes.Add(id, index);
-                return;
-            }
-
-            SnapshotIndexes[id] = index;
+            SnapshotCommitIndex = index;
         }
     }
 
