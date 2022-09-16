@@ -1,5 +1,6 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
-using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Client;
+using FaasNet.EventMesh.Client.StateMachines.Session;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -11,7 +12,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(PublishMessageRequest request, CancellationToken cancellationToken)
         {
-            var session = await GetStateMachine<SessionStateMachine>(SESSION_PARTITION_KEY, request.SessionId, cancellationToken);
+            var session = await Query<GetSessionQueryResult>(SESSION_PARTITION_KEY, new GetSessionQuery { Id = request.SessionId }, cancellationToken);
             if (session == null) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.UNKNOWN_SESSION);
             if (!session.IsValid) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.EXPIRED_SESSION);
             if (session.ClientPurpose != ClientPurposeTypes.PUBLISH) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.BAD_SESSION_USAGE);

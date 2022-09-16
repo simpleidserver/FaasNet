@@ -8,6 +8,22 @@ using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using System.Collections.Concurrent;
 
+/*
+        public bool CheckPassword(string pwd)
+        {
+            return ComputePassword(pwd) == ClientSecret;
+        }
+
+        public static string ComputePassword(string pwd)
+        {
+            var payload = ASCIIEncoding.ASCII.GetBytes(pwd);
+            using (var sha = SHA256.Create())
+            {
+                return ASCIIEncoding.ASCII.GetString(sha.ComputeHash(payload));
+            }
+        }
+*/
+
 var clusterNodes = new ConcurrentBag<ClusterPeer>();
 await BuildAndStartNode(5000, clusterNodes, 30000);
 await BuildAndStartNode(5001, clusterNodes, 40000);

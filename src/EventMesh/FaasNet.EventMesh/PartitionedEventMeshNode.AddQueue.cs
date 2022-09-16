@@ -1,6 +1,8 @@
 ﻿using FaasNet.Common.Helpers;
 using FaasNet.EventMesh.Client.Messages;
-using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Queue;
+using FaasNet.EventMesh.Client.StateMachines.Vpn;
+using FaasNet.EventMesh.StateMachines.QueueMessage;
 using FaasNet.Partition;
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Client.Messages;
@@ -20,7 +22,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(AddQueueRequest addQueueRequest, CancellationToken cancellationToken)
         {
-            var queue = await GetStateMachine<QueueStateMachine>(QUEUE_PARTITION_KEY, addQueueRequest.QueueName, cancellationToken);
+            var queue = await Query<VpnQueryResult>(QUEUE_PARTITION_KEY, new GetQueueQuery { QueueName = addQueueRequest.QueueName }, cancellationToken);
             if (queue != null) return PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.EXISTING_QUEUE);
             var broadcastResult = await BroadcastPartitions();
             if (!broadcastResult.Item1)
@@ -64,7 +66,7 @@ namespace FaasNet.EventMesh
             async Task AddQueue()
             {
                 var addQueueCommand = new AddQueueCommand { QueueName = addQueueRequest.QueueName, TopicFilter = addQueueRequest.TopicFilter };
-                await Send(QUEUE_PARTITION_KEY, addQueueCommand.QueueName, addQueueCommand, cancellationToken);
+                await Send(QUEUE_PARTITION_KEY, addQueueCommand, cancellationToken);
             }
 
             async Task<bool> AddPartition(string topic, ClusterPeer peer)

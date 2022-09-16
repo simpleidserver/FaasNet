@@ -1,5 +1,8 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
-using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.StateMachines.Client;
+using FaasNet.EventMesh.StateMachines.Queue;
+using FaasNet.EventMesh.StateMachines.Session;
+using FaasNet.EventMesh.StateMachines.Vpn;
 using FaasNet.Partition;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;
@@ -8,12 +11,9 @@ using FaasNet.Peer.Clusters;
 using FaasNet.Peer.Transports;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
-using FaasNet.RaftConsensus.Client.StateMachines;
-using FaasNet.RaftConsensus.Core.StateMachines;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -66,10 +66,10 @@ namespace FaasNet.EventMesh
             await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = QUEUE_PARTITION_KEY, Port = _options.StartPeerPort + 3, StateMachineType = typeof(QueueStateMachine) });
         }
 
-        private async Task<AppendEntryResult> Send(string partitionKey, string stateMachineId, ICommand command, CancellationToken cancellationToken)
+        private async Task<AppendEntryResult> Send(string partitionKey, ICommand command, CancellationToken cancellationToken)
         {
             var writeBufferContext = new WriteBufferContext();
-            ConsensusPackageRequestBuilder.AppendEntry(stateMachineId, CommandSerializer.Serialize(command)).SerializeEnvelope(writeBufferContext);
+            ConsensusPackageRequestBuilder.AppendEntry(CommandSerializer.Serialize(command)).SerializeEnvelope(writeBufferContext);
             var cmdBuffer = writeBufferContext.Buffer.ToArray();
             var transferedResult = await PartitionCluster.Transfer(new TransferedRequest
             {
@@ -81,10 +81,10 @@ namespace FaasNet.EventMesh
             return result;
         }
 
-        private async Task<T> GetStateMachine<T>(string partitionKey, string stateMachineId, CancellationToken cancellationToken) where T : IStateMachine
+        private async Task<T> Query<T>(string partitionKey, IQuery query, CancellationToken cancellationToken) where T : IQueryResult
         {
             var writeBufferContext = new WriteBufferContext();
-            ConsensusPackageRequestBuilder.GetStateMachine(stateMachineId).SerializeEnvelope(writeBufferContext);
+            ConsensusPackageRequestBuilder.Query(query).SerializeEnvelope(writeBufferContext);
             var content = writeBufferContext.Buffer.ToArray();
             var transferedResult = await PartitionCluster.Transfer(new TransferedRequest
             {
@@ -92,38 +92,8 @@ namespace FaasNet.EventMesh
                 Content = content
             }, cancellationToken);
             var readBufferContext = new ReadBufferContext(transferedResult);
-            var stateMachineResult = BaseConsensusPackage.Deserialize(readBufferContext) as GetStateMachineResult;
-            return StateMachineSerializer.Deserialize<T>(stateMachineResult.StateMachine);
-        }
-
-        private async Task<T> ReadStateMachine<T>(string partitionKey, int offset, CancellationToken cancellationToken) where T : IStateMachine
-        {
-            var writeBufferContext = new WriteBufferContext();
-            ConsensusPackageRequestBuilder.ReadStateMachine(offset).SerializeEnvelope(writeBufferContext);
-            var content = writeBufferContext.Buffer.ToArray();
-            var transferedResult = await PartitionCluster.Transfer(new TransferedRequest
-            {
-                PartitionKey = partitionKey,
-                Content = content
-            }, cancellationToken);
-            var readBufferContext = new ReadBufferContext(transferedResult);
-            var stateMachineResult = BaseConsensusPackage.Deserialize(readBufferContext) as ReadStateMachineResult;
-            return StateMachineSerializer.Deserialize<T>(stateMachineResult.StateMachine);
-        }
-
-        private async Task<IEnumerable<T>> GetAllStateMachines<T>(string partitionKey, CancellationToken cancellationToken) where T : IStateMachine
-        {
-            var writeBufferContext = new WriteBufferContext();
-            ConsensusPackageRequestBuilder.GetAllStateMachines().SerializeEnvelope(writeBufferContext);
-            var content = writeBufferContext.Buffer.ToArray();
-            var transferedResult = await PartitionCluster.Transfer(new TransferedRequest
-            {
-                PartitionKey = partitionKey,
-                Content = content
-            }, cancellationToken);
-            var readBufferContext = new ReadBufferContext(transferedResult);
-            var stateMachineResult = BaseConsensusPackage.Deserialize(readBufferContext) as GetAllStateMachinesResult;
-            return stateMachineResult.States.Select(s => StateMachineSerializer.Deserialize<T>(s.StateMachine));
+            var stateMachineResult = BaseConsensusPackage.Deserialize(readBufferContext) as QueryResult;
+            return (T)stateMachineResult.Result;
         }
     }
 }
