@@ -1,5 +1,6 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.Peer.Client;
+using System;
 using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.Messages
@@ -39,6 +40,7 @@ namespace FaasNet.EventMesh.Client.Messages
         public string Id { get; set; }
         public string Vpn { get; set; }
         public ICollection<ClientPurposeTypes> Purposes { get; set; }
+        public DateTime CreateDateTime { get; set; }
 
         public void Serialize(WriteBufferContext context)
         {
@@ -46,6 +48,7 @@ namespace FaasNet.EventMesh.Client.Messages
             context.WriteString(Vpn);
             context.WriteInteger(Purposes.Count);
             foreach (var purpose in Purposes) context.WriteInteger((int)purpose);
+            context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
         }
 
         public static ClientResult Extract(ReadBufferContext context)
@@ -57,6 +60,7 @@ namespace FaasNet.EventMesh.Client.Messages
             };
             var nbPurposes = context.NextInt();
             for (var i = 0; i < nbPurposes; i++) result.Purposes.Add((ClientPurposeTypes)context.NextInt());
+            result.CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
             return result;
         }
     }

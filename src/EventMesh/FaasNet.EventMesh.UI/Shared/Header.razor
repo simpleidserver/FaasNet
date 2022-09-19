@@ -12,8 +12,14 @@
 				<li class="nav-item @GetActive("/overview", NavLinkMatch.All)">
 				  <NavLink class="nav-link" href="/overview">Node overview</NavLink>
 				</li>
+				<li class="nav-item @GetActive("/vpns", NavLinkMatch.All)">
+					<NavLink class="nav-link" href="/vpns">Vpns</NavLink>
+				</li>
 				<li class="nav-item @GetActive("/clients", NavLinkMatch.All)">
 					<NavLink class="nav-link" href="/clients">Clients</NavLink>
+				</li>
+				<li class="nav-item @GetActive("/queues", NavLinkMatch.All)">
+					<NavLink class="nav-link" href="/queues">Queues</NavLink>
 				</li>
 			  </ul>
 			  @if (EventMeshNodeViewModel.IsRunning && EventMeshNodeViewModel.PeerStates != null)

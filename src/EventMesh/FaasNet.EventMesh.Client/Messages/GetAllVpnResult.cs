@@ -1,4 +1,5 @@
 ﻿using FaasNet.Peer.Client;
+using System;
 using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.Messages
@@ -32,11 +33,15 @@ namespace FaasNet.EventMesh.Client.Messages
     {
         public string Id { get; set; }
         public string Description { get; set; }
+        public DateTime CreateDateTime { get; set; }
+        public DateTime UpdateDateTime { get; set; }
 
         public void Serialize(WriteBufferContext context)
         {
             context.WriteString(Id);
             context.WriteString(Description);
+            context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
+            context.WriteTimeSpan(TimeSpan.FromTicks(UpdateDateTime.Ticks));
         }
 
         public static VpnResult Extract(ReadBufferContext context)
@@ -44,7 +49,9 @@ namespace FaasNet.EventMesh.Client.Messages
             return new VpnResult
             {
                 Id = context.NextString(),
-                Description = context.NextString()
+                Description = context.NextString(),
+                CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks),
+                UpdateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks)
             };
         }
     }

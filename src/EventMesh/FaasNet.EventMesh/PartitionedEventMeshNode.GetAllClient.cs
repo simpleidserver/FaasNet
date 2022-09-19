@@ -15,7 +15,8 @@ namespace FaasNet.EventMesh
             {
                 Id = v.Id,
                 Vpn = v.Vpn,
-                Purposes = v.Purposes
+                Purposes = v.Purposes,
+                CreateDateTime = v.CreateDateTime
             }).ToList());
         }
     }

@@ -47,7 +47,7 @@ namespace FaasNet.EventMesh.StateMachines.Client
 
         public Task<IEnumerable<ClientRecord>> GetAll(CancellationToken cancellationToken)
         {
-            return Task.FromResult((IEnumerable<ClientRecord>)_clients);
+            return Task.FromResult((IEnumerable<ClientRecord>)_clients.OrderByDescending(c => c.CreateDateTime));
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)

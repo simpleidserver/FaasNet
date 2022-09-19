@@ -14,6 +14,7 @@ namespace FaasNet.EventMesh.UI.Data
         Task<GetAllNodesResult> GetAllNodes(string url, int port, CancellationToken cancellationToken);
         Task<IEnumerable<(GetPeerStateResult, string)>> GetAllPeerStates(string url, int port, CancellationToken cancellationToken);
         Task<IEnumerable<ClientResult>> GetAllClients(string url, int port, CancellationToken cancellationToken);
+        Task<IEnumerable<VpnResult>> GetAllVpns(string url, int port, CancellationToken cancellationToken);
     }
 
     public class EventMeshService : IEventMeshService
@@ -68,6 +69,15 @@ namespace FaasNet.EventMesh.UI.Data
             {
                 var clientResult = await client.GetAllClient(_options.RequestTimeoutMS, cancellationToken);
                 return clientResult.Clients;
+            }
+        }
+
+        public async Task<IEnumerable<VpnResult>> GetAllVpns(string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var vpnResult = await client.GetAllVpn(_options.RequestTimeoutMS, cancellationToken);
+                return vpnResult.Vpns;
             }
         }
     }

@@ -39,6 +39,7 @@ namespace FaasNet.EventMesh.UI.ViewModels
         public NodeViewModel SelectedNode { get; set; }
         public IEnumerable<NodeViewModel> Nodes { get; set; } = new List<NodeViewModel>();
         public IEnumerable<PeerStateViewModel> PeerStates { get; set; } = new List<PeerStateViewModel>();
+        public IEnumerable<VpnResult> Vpns { get; set; } = new List<VpnResult>();
         public IEnumerable<ClientResult> Clients { get; set; } = new List<ClientResult>();
 
         public void ListenStatus()
@@ -74,6 +75,17 @@ namespace FaasNet.EventMesh.UI.ViewModels
         {
             if (!IsRunning) return;
             Clients = await _eventMeshService.GetAllClients(SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
+        }
+
+        public void ResetVpns()
+        {
+            Vpns = new List<VpnResult>();
+        }
+
+        public async Task RefreshVpns()
+        {
+            if (!IsRunning) return;
+            Vpns = await _eventMeshService.GetAllVpns(SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
         }
 
         public void Select(string nodeId)

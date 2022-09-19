@@ -1,3 +1,4 @@
 .section .content {
     padding-left: var(--main-space);
+    padding-right: var(--main-space);
 }

@@ -14,7 +14,9 @@ namespace FaasNet.EventMesh
             return PackageResponseBuilder.GetAllVpn(request.Seq, result.Vpns.Select(v => new VpnResult
             {
                 Description = v.Description,
-                Id = v.Name
+                Id = v.Name,
+                CreateDateTime = v.CreateDateTime,
+                UpdateDateTime = v.UpdateDateTime
             }).ToList());
         }
     }

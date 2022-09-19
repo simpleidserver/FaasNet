@@ -2,8 +2,8 @@
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +26,15 @@ namespace FaasNet.EventMesh.StateMachines.Client
                 case AddClientCommand addClient:
                     var client = await _store.Get(addClient.Id, cancellationToken);
                     if (client != null) return;
-                    _store.Add(new ClientRecord { ClientSecret = addClient.ClientSecret, Id = addClient.Id, Purposes = addClient.Purposes, SessionExpirationTimeMS = addClient.SessionExpirationTimeMS, Vpn = addClient.Vpn });
+                    _store.Add(new ClientRecord 
+                    { 
+                        ClientSecret = addClient.ClientSecret, 
+                        Id = addClient.Id, 
+                        Purposes = addClient.Purposes, 
+                        SessionExpirationTimeMS = addClient.SessionExpirationTimeMS, 
+                        Vpn = addClient.Vpn,
+                        CreateDateTime = DateTime.UtcNow
+                    });
                     break;
             }
         }
@@ -48,7 +56,15 @@ namespace FaasNet.EventMesh.StateMachines.Client
                 case GetClientQuery getClient:
                     var result = await _store.Get(getClient.Id, cancellationToken);
                     if (result == null) return new GetClientQueryResult();
-                    return new GetClientQueryResult(new ClientQueryResult { Id = result.Id, ClientSecret = result.ClientSecret, Purposes = result.Purposes, SessionExpirationTimeMS = result.SessionExpirationTimeMS, Vpn = result.Vpn });
+                    return new GetClientQueryResult(new ClientQueryResult 
+                    { 
+                        Id = result.Id, 
+                        ClientSecret = result.ClientSecret, 
+                        Purposes = result.Purposes, 
+                        SessionExpirationTimeMS = result.SessionExpirationTimeMS, 
+                        Vpn = result.Vpn,
+                        CreateDateTime = result.CreateDateTime
+                    });
                 case GetAllClientsQuery getClients:
                     var clients = await _store.GetAll(cancellationToken);
                     return new GetAllClientsQueryResult { Clients = clients.Select(c => new ClientQueryResult
@@ -57,7 +73,8 @@ namespace FaasNet.EventMesh.StateMachines.Client
                         ClientSecret = c.ClientSecret,
                         Purposes = c.Purposes,
                         SessionExpirationTimeMS = c.SessionExpirationTimeMS,
-                        Vpn = c.Vpn
+                        Vpn = c.Vpn,
+                        CreateDateTime = c.CreateDateTime
                     }).ToList() };
             }
 
@@ -92,7 +109,7 @@ namespace FaasNet.EventMesh.StateMachines.Client
         public string Vpn { get; set; }
         public int SessionExpirationTimeMS { get; set; }
         public ICollection<ClientPurposeTypes> Purposes { get; set; } = new List<ClientPurposeTypes>();
-
+        public DateTime CreateDateTime { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
@@ -102,6 +119,7 @@ namespace FaasNet.EventMesh.StateMachines.Client
             SessionExpirationTimeMS = context.NextInt();
             var nb = context.NextInt();
             for (var i = 0; i < nb; i++) Purposes.Add((ClientPurposeTypes)context.NextInt());
+            CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
         }
 
         public void Serialize(WriteBufferContext context)
@@ -112,6 +130,7 @@ namespace FaasNet.EventMesh.StateMachines.Client
             context.WriteInteger(SessionExpirationTimeMS);
             context.WriteInteger(Purposes.Count);
             foreach (var purpose in Purposes) context.WriteInteger((int)purpose);
+            context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
         }
     }
 

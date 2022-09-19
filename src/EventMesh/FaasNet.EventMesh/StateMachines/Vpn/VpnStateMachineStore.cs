@@ -47,7 +47,7 @@ namespace FaasNet.EventMesh.StateMachines.Vpn
 
         public Task<IEnumerable<VpnRecord>> GetAll(CancellationToken cancellationToken)
         {
-            return Task.FromResult((IEnumerable<VpnRecord>)_vpns);
+            return Task.FromResult((IEnumerable<VpnRecord>)_vpns.OrderByDescending(v => v.UpdateDateTime));
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)

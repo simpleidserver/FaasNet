@@ -1,0 +1,31 @@
+.table thead .sorting {
+    position: relative;
+}
+
+.table thead .sorting:before {
+    right: 1em;
+    content: "\f0dc";
+}
+
+.table thead .sorting:after {
+    right: 16px;
+    content: "\f0dd";
+}
+
+.table thead .sorting:before,
+.table thead .sorting:after {
+    position: absolute;
+    bottom: 0.5em;
+    display: block;
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 1rem;
+}
+
+.table thead .sorting_asc:after {
+    color: gray;
+}
+
+.table thead .sorting_desc:before {
+    color: gray;
+}

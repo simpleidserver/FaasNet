@@ -1,6 +1,7 @@
 ﻿@page "/clients"
 @using FaasNet.EventMesh.Client.Messages
 @using FaasNet.EventMesh.Client.StateMachines
+@using FaasNet.EventMesh.Client.StateMachines.Client
 
 @inject EventMeshNodeViewModel EventMeshNodeViewModel
 
@@ -12,6 +13,7 @@
             <GridColumn TRowData="ClientResult" Expression="c => c.Id" Title="Identifier" />
             <GridColumn TRowData="ClientResult" Expression="c => c.Vpn" Title="VPN" />
             <GridColumn TRowData="ClientResult" Expression="c => string.Join(',', c.Purposes.Select(p => Enum.GetName(typeof(ClientPurposeTypes), p)))" Title="Purpose" />
+			<GridColumn TRowData="ClientResult" Expression="c => c.CreateDateTime.ToString()" Title="Creation Datetime" />
         </Grid>
     </ChildContent>
 </Section>

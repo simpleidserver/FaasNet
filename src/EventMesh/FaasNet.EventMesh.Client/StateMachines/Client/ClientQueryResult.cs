@@ -1,4 +1,5 @@
 ﻿using FaasNet.Peer.Client;
+using System;
 using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.StateMachines.Client
@@ -10,6 +11,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
         public string Vpn { get; set; }
         public int SessionExpirationTimeMS { get; set; }
         public ICollection<ClientPurposeTypes> Purposes { get; set; } = new List<ClientPurposeTypes>();
+        public DateTime CreateDateTime { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
@@ -19,6 +21,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             SessionExpirationTimeMS = context.NextInt();
             var nb = context.NextInt();
             for (var i = 0; i < nb; i++) Purposes.Add((ClientPurposeTypes)context.NextInt());
+            CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
         }
 
         public void Serialize(WriteBufferContext context)
@@ -29,6 +32,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             context.WriteInteger(SessionExpirationTimeMS);
             context.WriteInteger(Purposes.Count);
             foreach (var purpose in Purposes) context.WriteInteger((int)purpose);
+            context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
         }
     }
 }

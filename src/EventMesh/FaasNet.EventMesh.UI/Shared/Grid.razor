@@ -2,12 +2,12 @@
 
 <CascadingValue IsFixed="true" Value="this">@ChildContent</CascadingValue>
 
-<table class="table table-striped">
+<table class="table table-striped table-bordered">
     <thead>
         <tr>
             @foreach (var column in Columns)
             {
-                <th>@column.Title</th>
+                <th class="sorting sorting_asc">@column.Title</th>
             }
         </tr>
     </thead>
