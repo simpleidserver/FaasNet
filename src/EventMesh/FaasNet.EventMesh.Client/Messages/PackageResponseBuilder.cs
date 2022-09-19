@@ -63,10 +63,11 @@ namespace FaasNet.EventMesh.Client.Messages
             return new PublishMessageResult(seq, status);
         }
 
-        public static BaseEventMeshPackage PublishMessage(string seq, IEnumerable<string> queueNames)
+        public static BaseEventMeshPackage PublishMessage(string seq, string id, IEnumerable<string> queueNames)
         {
             return new PublishMessageResult(seq, PublishMessageStatus.SUCCESS)
             {
+                Id = id,
                 QueueNames = queueNames
             };
         }

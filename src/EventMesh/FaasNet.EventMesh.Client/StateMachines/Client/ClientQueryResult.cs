@@ -1,10 +1,9 @@
 ﻿using FaasNet.Peer.Client;
-using FaasNet.RaftConsensus.Client;
 using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.StateMachines.Client
 {
-    public class ClientQueryResult : IQueryResult
+    public class ClientQueryResult
     {
         public string Id { get; set; }
         public string ClientSecret { get; set; }

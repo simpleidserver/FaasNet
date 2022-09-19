@@ -19,11 +19,13 @@ namespace FaasNet.EventMesh.Client.Messages
 
         public override EventMeshCommands Command => EventMeshCommands.PUBLISH_MESSAGE_RESPONSE;
         public PublishMessageStatus Status { get; set; }
+        public string Id { get; set; }
         public IEnumerable<string> QueueNames { get; set; }
 
         protected override void SerializeAction(WriteBufferContext context)
         {
             context.WriteInteger((int)Status);
+            context.WriteString(Id);
             context.WriteInteger(QueueNames.Count());
             foreach(var queueName in QueueNames) context.WriteString(queueName);
         }
@@ -31,6 +33,7 @@ namespace FaasNet.EventMesh.Client.Messages
         public PublishMessageResult Extract(ReadBufferContext context)
         {
             Status = (PublishMessageStatus)context.NextInt();
+            Id = context.NextString();
             var result = new List<string>();
             var nb = context.NextInt();
             for(var i = 0; i < nb; i++) result.Add(context.NextString());

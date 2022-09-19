@@ -3,7 +3,6 @@ using FaasNet.EventMesh.Client.StateMachines.QueueMessage;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -42,9 +41,22 @@ namespace FaasNet.EventMesh.StateMachines.QueueMessage
             await _store.SaveChanges(cancellationToken);
         }
 
-        public Task<IQueryResult> Query(IQuery query, CancellationToken cancellationToken)
+        public async Task<IQueryResult> Query(IQuery query, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            switch(query)
+            {
+                case GetQueueMessageQuery getQueueMessage:
+                    var result = await _store.Get(getQueueMessage.Offset, cancellationToken);
+                    if (result == null) return new GetQueueMessageQueryResult();
+                    return new GetQueueMessageQueryResult(new QueueMessageQueryResult
+                    {
+                        Id = result.Id,
+                        Data = result.Data,
+                        Topic = result.Topic
+                    });
+            }
+
+            return null;
         }
 
         public IEnumerable<(IEnumerable<IEnumerable<byte>>, int)> Snapshot(int nbRecords)

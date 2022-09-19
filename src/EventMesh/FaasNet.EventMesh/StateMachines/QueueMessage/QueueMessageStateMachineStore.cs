@@ -1,4 +1,5 @@
 ﻿using FaasNet.RaftConsensus.Core.StateMachines;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace FaasNet.EventMesh.StateMachines.QueueMessage
 {
     public interface IQueueMessageStateMachineStore : IStateMachineRecordStore<QueueMessageRecord>
     {
-
+        Task<QueueMessageRecord> Get(int offset, CancellationToken cancellationToken);
     }
 
     public class QueueMessageStateMachineStore : IQueueMessageStateMachineStore
@@ -29,27 +30,34 @@ namespace FaasNet.EventMesh.StateMachines.QueueMessage
 
         public Task<QueueMessageRecord> Get(string key, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_records.FirstOrDefault());
+            return Task.FromResult(_records.FirstOrDefault(r => r.Id == key));
+        }
+
+        public Task<QueueMessageRecord> Get(int offset, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_records.ElementAtOrDefault(offset));
         }
 
         public IEnumerable<(IEnumerable<QueueMessageRecord>, int)> GetAll(int nbRecords)
         {
-            throw new System.NotImplementedException();
+            int nbPages = (int)Math.Ceiling((double)_records.Count / nbRecords);
+            for (var currentPage = 0; currentPage < nbPages; currentPage++)
+                yield return (_records.Skip(currentPage * nbRecords).Take(nbRecords), currentPage);
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            return Task.FromResult(1);
         }
 
         public Task Truncate(CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            _records = new ConcurrentBag<QueueMessageRecord>();
+            return Task.CompletedTask;
         }
 
         public void Update(QueueMessageRecord record)
         {
-            throw new System.NotImplementedException();
         }
     }
 }

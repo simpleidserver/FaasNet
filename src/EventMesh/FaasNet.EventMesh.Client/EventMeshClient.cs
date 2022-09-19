@@ -2,6 +2,7 @@
 using FaasNet.EventMesh.Client.Exceptions;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Client.Transports;
 using System.Collections.Generic;

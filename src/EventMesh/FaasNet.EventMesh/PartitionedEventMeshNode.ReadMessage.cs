@@ -1,5 +1,7 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
-using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Client;
+using FaasNet.EventMesh.Client.StateMachines.QueueMessage;
+using FaasNet.EventMesh.Client.StateMachines.Session;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,13 +11,13 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(ReadMessageRequest readMessageRequest, CancellationToken cancellationToken)
         {
-            var session = await GetStateMachine<SessionStateMachine>(SESSION_PARTITION_KEY, readMessageRequest.SessionId, cancellationToken);
-            if (session == null) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.UNKNOWN_SESSION);
-            if (!session.IsValid) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.EXPIRED_SESSION);
-            if (session.ClientPurpose != ClientPurposeTypes.SUBSCRIBE) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.BAD_SESSION_USAGE);
-            var stateMachine = await ReadStateMachine<QueueMessageStateMachine>(session.QueueName, readMessageRequest.Offset, cancellationToken);
-            if (stateMachine == null || stateMachine.Data == null) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.NO_MESSAGE);
-            return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, stateMachine.Data);
+            var session = await Query<GetSessionQueryResult>(SESSION_PARTITION_KEY, new GetSessionQuery { Id = readMessageRequest.SessionId }, cancellationToken);
+            if (!session.Success) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.UNKNOWN_SESSION);
+            if (!session.Session.IsValid) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.EXPIRED_SESSION);
+            if (session.Session.ClientPurpose != ClientPurposeTypes.SUBSCRIBE) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.BAD_SESSION_USAGE);
+            var stateMachine = await Query<GetQueueMessageQueryResult>(session.Session.QueueName, new GetQueueMessageQuery { Offset = readMessageRequest.Offset, QueueName = session.Session.QueueName }, cancellationToken);
+            if (!stateMachine.Success) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.NO_MESSAGE);
+            return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, stateMachine.Message.Data);
         }
     }
 }

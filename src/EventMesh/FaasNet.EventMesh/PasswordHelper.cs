@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace FaasNet.EventMesh
@@ -15,7 +16,7 @@ namespace FaasNet.EventMesh
             var payload = ASCIIEncoding.ASCII.GetBytes(pwd);
             using (var sha = SHA256.Create())
             {
-                return ASCIIEncoding.ASCII.GetString(sha.ComputeHash(payload));
+                return Convert.ToBase64String(sha.ComputeHash(payload));
             }
         }
     }

@@ -11,9 +11,9 @@ namespace FaasNet.EventMesh.StateMachines.Queue
 {
     public class QueueStateMachine : IStateMachine
     {
-        private readonly IStateMachineRecordStore<QueueRecord> _store;
+        private readonly IQueueStateMachineStore _store;
 
-        public QueueStateMachine(IStateMachineRecordStore<QueueRecord> store)
+        public QueueStateMachine(IQueueStateMachineStore store)
         {
             _store = store;
         }
@@ -46,8 +46,15 @@ namespace FaasNet.EventMesh.StateMachines.Queue
             {
                 case GetQueueQuery getQueue:
                     var result = await _store.Get(getQueue.QueueName, cancellationToken);
-                    if (result == null) return null;
-                    return new GetQueueQueryResult { QueueName = result.QueueName, TopicFilter = result.TopicFilter };
+                    if (result == null) return new GetQueueQueryResult();
+                    return new GetQueueQueryResult(new QueueQueryResult { QueueName = result.QueueName, TopicFilter = result.TopicFilter });
+                case SearchQueuesQuery searchQueuesQuery:
+                    var queues = await _store.Search(searchQueuesQuery.TopicMessage, cancellationToken);
+                    return new SearchQueuesQueryResult { Queues = queues.Select(q => new QueueQueryResult
+                    {
+                        QueueName = q.QueueName,
+                        TopicFilter = q.TopicFilter
+                    }).ToList()};
             }
 
             return null;

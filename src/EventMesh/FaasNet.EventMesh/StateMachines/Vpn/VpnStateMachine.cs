@@ -26,7 +26,12 @@ namespace FaasNet.EventMesh.StateMachines.Vpn
                 case AddVpnCommand addVpn:
                     var existingVpn = await _store.Get(addVpn.Id, cancellationToken);
                     if (existingVpn != null) return;
-                    _store.Add(new VpnRecord { CreateDateTime = DateTime.UtcNow, UpdateDateTime = DateTime.UtcNow, Description = addVpn.Description, Name = addVpn.Description });
+                    _store.Add(new VpnRecord 
+                    {   CreateDateTime = DateTime.UtcNow, 
+                        UpdateDateTime = DateTime.UtcNow, 
+                        Description = addVpn.Description, 
+                        Name = addVpn.Id 
+                    });
                     break;
             }
         }
@@ -47,11 +52,11 @@ namespace FaasNet.EventMesh.StateMachines.Vpn
             {
                 case GetVpnQuery getVpn:
                     var existingVpn = await _store.Get(getVpn.Id, cancellationToken);
-                    if (existingVpn == null) return null;
-                    return new VpnQueryResult { Name = existingVpn.Name, Description = existingVpn.Description };
+                    if (existingVpn == null) return new GetVpnQueryResult();
+                    return new GetVpnQueryResult(new VpnQueryResult { Name = existingVpn.Name, Description = existingVpn.Description, CreateDateTime = existingVpn.CreateDateTime, UpdateDateTime = existingVpn.UpdateDateTime });
                 case GetAllVpnQuery getAllVpnQuery:
                     var allVpns = await _store.GetAll(cancellationToken);
-                    return new GetAllVpnQueryResult { Vpns = allVpns.Select(v => new VpnQueryResult { Name = v.Name, Description = v.Description }).ToList() };
+                    return new GetAllVpnQueryResult { Vpns = allVpns.Select(v => new VpnQueryResult { Name = v.Name, Description = v.Description, CreateDateTime = v.CreateDateTime, UpdateDateTime = v.UpdateDateTime }).ToList() };
             }
 
             return null;

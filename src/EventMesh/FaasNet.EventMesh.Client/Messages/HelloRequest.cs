@@ -1,4 +1,5 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.Peer.Client;
 
 namespace FaasNet.EventMesh.Client.Messages

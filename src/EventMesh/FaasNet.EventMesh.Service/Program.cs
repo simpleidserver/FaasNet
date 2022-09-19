@@ -1,28 +1,12 @@
 ﻿using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.Messages;
-using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.Partition;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Clusters;
 using System.Collections.Concurrent;
-
-/*
-        public bool CheckPassword(string pwd)
-        {
-            return ComputePassword(pwd) == ClientSecret;
-        }
-
-        public static string ComputePassword(string pwd)
-        {
-            var payload = ASCIIEncoding.ASCII.GetBytes(pwd);
-            using (var sha = SHA256.Create())
-            {
-                return ASCIIEncoding.ASCII.GetString(sha.ComputeHash(payload));
-            }
-        }
-*/
 
 var clusterNodes = new ConcurrentBag<ClusterPeer>();
 await BuildAndStartNode(5000, clusterNodes, 30000);
@@ -139,7 +123,7 @@ using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, 
     var subSession = await client.CreateSubSession("clientId", publishClient.ClientSecret, "queue");
     Console.WriteLine("Press any key to read a message");
     Console.ReadLine();
-    var readMessage = await Retry(() => subSession.ReadMessage(1, timeoutMS: 2000000), (r) =>
+    var readMessage = await Retry(() => subSession.ReadMessage(0, timeoutMS: 2000000), (r) =>
     {
         if (r == null) return false;
         if (r.Status == ReadMessageStatus.SUCCESS) return true;

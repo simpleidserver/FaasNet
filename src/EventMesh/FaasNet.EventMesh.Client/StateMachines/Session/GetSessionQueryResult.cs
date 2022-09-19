@@ -1,34 +1,38 @@
-﻿using FaasNet.EventMesh.Client.StateMachines.Client;
-using FaasNet.Peer.Client;
+﻿using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
-using System;
 
 namespace FaasNet.EventMesh.Client.StateMachines.Session
 {
     public class GetSessionQueryResult : IQueryResult
     {
-        public string Id { get; set; }
-        public string ClientId { get; set; }
-        public ClientPurposeTypes ClientPurpose { get; set; }
-        public TimeSpan ExpirationTime { get; set; }
-        public string QueueName { get; set; }
+        public GetSessionQueryResult()
+        {
+            Success = false;
+        }
+
+        public GetSessionQueryResult(SessionQueryResult session)
+        {
+            Success = true;
+            Session = session;
+        }
+
+        public bool Success { get; set; }
+        public SessionQueryResult Session { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
-            Id = context.NextString();
-            ClientId = context.NextString();
-            ClientPurpose = (ClientPurposeTypes)context.NextInt();
-            ExpirationTime = context.NextTimeSpan().Value;
-            QueueName = context.NextString();
+            Success = context.NextBoolean();
+            if(Success)
+            {
+                Session = new SessionQueryResult();
+                Session.Deserialize(context);
+            }
         }
 
         public void Serialize(WriteBufferContext context)
         {
-            context.WriteString(Id);
-            context.WriteString(ClientId);
-            context.WriteInteger((int)ClientPurpose);
-            context.WriteTimeSpan(ExpirationTime);
-            context.WriteString(QueueName);
+            context.WriteBoolean(Success);
+            if(Success) Session.Serialize(context);
         }
     }
 }

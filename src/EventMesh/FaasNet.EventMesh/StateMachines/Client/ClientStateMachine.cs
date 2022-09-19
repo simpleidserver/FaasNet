@@ -3,6 +3,7 @@ using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,8 +47,8 @@ namespace FaasNet.EventMesh.StateMachines.Client
             {
                 case GetClientQuery getClient:
                     var result = await _store.Get(getClient.Id, cancellationToken);
-                    if (result == null) return null;
-                    return new ClientQueryResult { Id = result.Id, ClientSecret = result.ClientSecret, Purposes = result.Purposes, SessionExpirationTimeMS = result.SessionExpirationTimeMS, Vpn = result.Vpn };
+                    if (result == null) return new GetClientQueryResult();
+                    return new GetClientQueryResult(new ClientQueryResult { Id = result.Id, ClientSecret = result.ClientSecret, Purposes = result.Purposes, SessionExpirationTimeMS = result.SessionExpirationTimeMS, Vpn = result.Vpn });
                 case GetAllClientsQuery getClients:
                     var clients = await _store.GetAll(cancellationToken);
                     return new GetAllClientsQueryResult { Clients = clients.Select(c => new ClientQueryResult

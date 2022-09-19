@@ -22,8 +22,8 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(AddQueueRequest addQueueRequest, CancellationToken cancellationToken)
         {
-            var queue = await Query<VpnQueryResult>(QUEUE_PARTITION_KEY, new GetQueueQuery { QueueName = addQueueRequest.QueueName }, cancellationToken);
-            if (queue != null) return PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.EXISTING_QUEUE);
+            var queue = await Query<GetQueueQueryResult>(QUEUE_PARTITION_KEY, new GetQueueQuery { QueueName = addQueueRequest.QueueName }, cancellationToken);
+            if (queue.Success) return PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.EXISTING_QUEUE);
             var broadcastResult = await BroadcastPartitions();
             if (!broadcastResult.Item1)
             {

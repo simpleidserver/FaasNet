@@ -1,38 +1,38 @@
 ﻿using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 
-namespace FaasNet.EventMesh.Client.StateMachines.Queue
+namespace FaasNet.EventMesh.Client.StateMachines.Vpn
 {
-    public class GetQueueQueryResult : IQueryResult
+    public class GetVpnQueryResult : IQueryResult
     {
-        public GetQueueQueryResult()
+        public GetVpnQueryResult()
         {
             Success = false;
         }
 
-        public GetQueueQueryResult(QueueQueryResult queue)
+        public GetVpnQueryResult(VpnQueryResult vpn)
         {
             Success = true;
-            Queue = queue;
+            Vpn = vpn;
         }
 
         public bool Success { get; set; }
-        public QueueQueryResult Queue { get; set; }
+        public VpnQueryResult Vpn { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
             Success = context.NextBoolean();
-            if(Success)
+            if (Success)
             {
-                Queue = new QueueQueryResult();
-                Queue.Deserialize(context);
+                Vpn = new VpnQueryResult();
+                Vpn.Deserialize(context);
             }
         }
 
         public void Serialize(WriteBufferContext context)
         {
             context.WriteBoolean(Success);
-            if (Success) Queue.Serialize(context);
+            if (Success) Vpn.Serialize(context);
         }
     }
 }

@@ -48,8 +48,8 @@ namespace FaasNet.EventMesh.StateMachines.Session
             {
                 case GetSessionQuery getSession:
                     var result = await _store.Get(getSession.Id, cancellationToken);
-                    if (result == null) return null;
-                    return new GetSessionQueryResult { ClientId = result.ClientId, ClientPurpose = result.ClientPurpose, ExpirationTime = result.ExpirationTime, Id = result.Id, QueueName = result.QueueName };
+                    if (result == null) return new GetSessionQueryResult();
+                    return new GetSessionQueryResult(new SessionQueryResult { ClientId = result.ClientId, ClientPurpose = result.ClientPurpose, ExpirationTime = result.ExpirationTime, Id = result.Id, QueueName = result.QueueName });
             }
 
             return null;

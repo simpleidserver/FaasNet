@@ -1,38 +1,38 @@
 ﻿using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 
-namespace FaasNet.EventMesh.Client.StateMachines.Queue
+namespace FaasNet.EventMesh.Client.StateMachines.Client
 {
-    public class GetQueueQueryResult : IQueryResult
+    public class GetClientQueryResult : IQueryResult
     {
-        public GetQueueQueryResult()
+        public GetClientQueryResult()
         {
             Success = false;
         }
 
-        public GetQueueQueryResult(QueueQueryResult queue)
+        public GetClientQueryResult(ClientQueryResult message)
         {
             Success = true;
-            Queue = queue;
+            Client = message;
         }
 
         public bool Success { get; set; }
-        public QueueQueryResult Queue { get; set; }
+        public ClientQueryResult Client { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
             Success = context.NextBoolean();
-            if(Success)
+            if (Success)
             {
-                Queue = new QueueQueryResult();
-                Queue.Deserialize(context);
+                Client = new ClientQueryResult();
+                Client.Deserialize(context);
             }
         }
 
         public void Serialize(WriteBufferContext context)
         {
             context.WriteBoolean(Success);
-            if (Success) Queue.Serialize(context);
+            if (Success) Client.Serialize(context);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using FaasNet.EventMesh;
 using FaasNet.Peer;
-using FaasNet.RaftConsensus.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
@@ -13,7 +12,7 @@ namespace FaasNet.Partition
         {
             RemovePartitionPeerFactory(partitionedNodeHostFactory);
             RemovePeerHost(partitionedNodeHostFactory);
-            partitionedNodeHostFactory.Services.AddTransient<IPartitionPeerFactory, RaftConsensusPartitionPeerFactory>();
+            partitionedNodeHostFactory.Services.AddTransient<IPartitionPeerFactory, EventMeshPartitionPeerFactory>();
             partitionedNodeHostFactory.Services.AddScoped<IPeerHost, PartitionedEventMeshNode>();
             if (callbackOpts != null) partitionedNodeHostFactory.Services.Configure(callbackOpts);
             else partitionedNodeHostFactory.Services.Configure<EventMeshOptions>(o => { });
