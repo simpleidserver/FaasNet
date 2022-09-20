@@ -6,24 +6,22 @@
 @inject EventMeshNodeViewModel EventMeshNodeViewModel
 
 <Section Title="Summary">
-    <ChildContent>
-		EventMesh node is listening on <b>@EventMeshNodeViewModel.SelectedNode.DisplayName</b><br/>
-		Status is 
-		@if(EventMeshNodeViewModel.IsRunning)
-		{
-			<b style="color: green">Active</b>
-		}
-		else
-		{
-			<b style="color: red">Inactive</b>
-		}
-		Last refresh time <b>@EventMeshNodeViewModel.LastRefreshTime.GetValueOrDefault()</b><br />
-		<b>@EventMeshNodeViewModel.Protocol</b> protocol is used
-    </ChildContent>
+	EventMesh node is listening on <b>@EventMeshNodeViewModel.SelectedNode.DisplayName</b><br/>
+	Status is 
+	@if(EventMeshNodeViewModel.IsRunning)
+	{
+		<b style="color: green">Active</b>
+	}
+	else
+	{
+		<b style="color: red">Inactive</b>
+	}
+	Last refresh time <b>@EventMeshNodeViewModel.LastRefreshTime.GetValueOrDefault()</b><br />
+	<b>@EventMeshNodeViewModel.Protocol</b> protocol is used
 </Section>
 
-<Section Title="List of partitions">
-	<ChildContent>			
+<Section Title="List of partitions">	
+	<Loader IsDisplayed="IsLoading">		
 		<table class="table table-striped table-bordered">
 			<thead>
 				<tr>
@@ -50,10 +48,11 @@
 					}
 			</tbody>
 		</table>
-	</ChildContent>
+	</Loader>
 </Section>
 
 @code {
+	public bool IsLoading { get; set; } = true;
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
@@ -65,7 +64,13 @@
 	private async Task RefreshStates()
 	{
 		if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetStates();
-		else await EventMeshNodeViewModel.RefreshStates();
+		else 
+		{
+			IsLoading = true;
+			await EventMeshNodeViewModel.RefreshStates();
+			IsLoading = false;
+		}
+
 		await InvokeAsync(() => StateHasChanged());
 	}
 

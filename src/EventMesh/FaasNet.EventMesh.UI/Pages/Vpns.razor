@@ -2,20 +2,21 @@
 @using FaasNet.EventMesh.Client.Messages
 @using FaasNet.EventMesh.Client.StateMachines
 @using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.Client.StateMachines.Vpn
 
 @inject EventMeshNodeViewModel EventMeshNodeViewModel
 
 <PageTitle>Vpns</PageTitle>
 
 <Section Title="Vpns">
-    <ChildContent>
+	<Loader IsDisplayed="IsLoading">		
 		<button class="btn btn-primary mb-2" @onclick="AddVpn">Add VPN</button>
-		<Grid TRowData="VpnResult" Items="EventMeshNodeViewModel.Vpns">
-            <GridColumn TRowData="VpnResult" Expression="c => c.Id" Title="Identifier" />
-            <GridColumn TRowData="VpnResult" Expression="c => c.Description" Title="Description" />
-			<GridColumn TRowData="VpnResult" Expression="c => c.CreateDateTime.ToString()" Title="Creation Datetime" />
-        </Grid>
-    </ChildContent>
+		<Grid TRowData="VpnQueryResult" Result="EventMeshNodeViewModel.Vpns" @bind-Query="Filter">
+			<GridColumn TRowData="VpnQueryResult" Expression="c => c.Name" Title="Identifier" Name="Name" />
+			<GridColumn TRowData="VpnQueryResult" Expression="c => c.Description" Title="Description" Name="Description" />
+			<GridColumn TRowData="VpnQueryResult" Expression="c => c.CreateDateTime.ToString()" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true" />
+		</Grid>
+	</Loader>
 </Section>
 
 <Modal Title="Add VPN" @ref=addVpnModal>
@@ -37,6 +38,24 @@
 </Modal>
 
 @code {
+	private FilterQuery _filter = new FilterQuery
+	{
+		SortOrder = SortOrders.DESC,
+		SortBy = "CreateDateTime"
+	};
+	public FilterQuery Filter
+	{
+		get
+		{
+			return _filter;
+		}
+		set
+		{
+			_filter = value;
+			this.RefreshVpns();
+		}
+	}
+	public bool IsLoading { get; set; } = true;
 	private Modal addVpnModal { get; set; }
 
 	protected override async Task OnInitializedAsync()
@@ -50,7 +69,13 @@
 	private async Task RefreshVpns()
 	{
 		if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetVpns();
-		else await EventMeshNodeViewModel.RefreshVpns();
+		else 
+		{
+			IsLoading = true;
+			await EventMeshNodeViewModel.RefreshVpns(Filter);
+			IsLoading = false;
+		}
+
 		await InvokeAsync(() => StateHasChanged());
 	}
 

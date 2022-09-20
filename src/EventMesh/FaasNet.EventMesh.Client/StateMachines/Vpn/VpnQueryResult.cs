@@ -1,9 +1,10 @@
 ﻿using FaasNet.Peer.Client;
+using FaasNet.RaftConsensus.Client;
 using System;
 
 namespace FaasNet.EventMesh.Client.StateMachines.Vpn
 {
-    public class VpnQueryResult
+    public class VpnQueryResult : ISerializable
     {
         public string Name { get; set; }
         public string Description { get; set; }

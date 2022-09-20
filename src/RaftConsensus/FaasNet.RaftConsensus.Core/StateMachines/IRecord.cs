@@ -1,10 +1,9 @@
 ﻿using FaasNet.Peer.Client;
+using FaasNet.RaftConsensus.Client;
 
 namespace FaasNet.RaftConsensus.Core.StateMachines
 {
-    public interface IRecord
+    public interface IRecord : ISerializable
     {
-        void Serialize(WriteBufferContext context);
-        void Deserialize(ReadBufferContext context);
     }
 }

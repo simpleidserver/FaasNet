@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client.StateMachines.Vpn;
+﻿using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Vpn;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
@@ -53,22 +54,15 @@ namespace FaasNet.EventMesh.StateMachines.Vpn
                 case GetVpnQuery getVpn:
                     var existingVpn = await _store.Get(getVpn.Id, cancellationToken);
                     if (existingVpn == null) return new GetVpnQueryResult();
-                    return new GetVpnQueryResult(new VpnQueryResult 
-                    { 
-                        Name = existingVpn.Name, 
-                        Description = existingVpn.Description, 
-                        CreateDateTime = existingVpn.CreateDateTime, 
-                        UpdateDateTime = existingVpn.UpdateDateTime 
-                    });
+                    return new GetVpnQueryResult(Transform(existingVpn));
                 case GetAllVpnQuery getAllVpnQuery:
-                    var allVpns = await _store.GetAll(cancellationToken);
-                    return new GetAllVpnQueryResult { Vpns = allVpns.Select(v => new VpnQueryResult 
-                    { 
-                        Name = v.Name, 
-                        Description = v.Description, 
-                        CreateDateTime = v.CreateDateTime, 
-                        UpdateDateTime = v.UpdateDateTime 
-                    }).ToList() };
+                    var res = await _store.Find(getAllVpnQuery.Filter, cancellationToken);
+                    return new GenericSearchQueryResult<VpnQueryResult>
+                    {
+                        TotalPages = res.TotalPages,
+                        TotalRecords = res.TotalRecords,
+                        Records = res.Records.Select(r => Transform(r))
+                    };
             }
 
             return null;
@@ -92,6 +86,17 @@ namespace FaasNet.EventMesh.StateMachines.Vpn
         public Task Truncate(CancellationToken cancellationToken)
         {
             return _store.Truncate(cancellationToken);
+        }
+
+        private static VpnQueryResult Transform(VpnRecord vpn)
+        {
+            return new VpnQueryResult
+            {
+                Name = vpn.Name,
+                Description = vpn.Description,
+                CreateDateTime = vpn.CreateDateTime,
+                UpdateDateTime = vpn.UpdateDateTime
+            };
         }
     }
 

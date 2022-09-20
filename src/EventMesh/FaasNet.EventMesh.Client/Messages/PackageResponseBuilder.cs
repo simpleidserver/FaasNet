@@ -1,4 +1,7 @@
 ﻿using CloudNative.CloudEvents;
+using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Client;
+using FaasNet.EventMesh.Client.StateMachines.Vpn;
 using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.Messages
@@ -20,19 +23,19 @@ namespace FaasNet.EventMesh.Client.Messages
             return new AddVpnResult(seq, status);
         }
 
-        public static BaseEventMeshPackage GetAllVpn(string seq, ICollection<VpnResult> vpns)
+        public static BaseEventMeshPackage GetAllVpn(string seq, GenericSearchQueryResult<VpnQueryResult> vpns)
         {
             return new GetAllVpnResult(seq)
             {
-                Vpns = vpns
+                Content = vpns
             };
         }
 
-        public static BaseEventMeshPackage GetAllClient(string seq, ICollection<ClientResult> clients)
+        public static BaseEventMeshPackage GetAllClient(string seq, GenericSearchQueryResult<ClientQueryResult> clients)
         {
             return new GetAllClientResult(seq)
             {
-                Clients = clients
+                Content = clients
             };
         }
 

@@ -1,36 +1,25 @@
 ﻿using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
-using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.StateMachines.Client
 {
     public class GetAllClientsQuery : IQuery
     {
-        public void Deserialize(ReadBufferContext context) { }
-
-        public void Serialize(WriteBufferContext context) { }
-    }
-
-    public class GetAllClientsQueryResult : IQueryResult
-    {
-        public ICollection<ClientQueryResult> Clients { get; set; } = new List<ClientQueryResult>();
+        public FilterQuery Filter { get; set; } = new FilterQuery
+        {
+            SortBy = nameof(ClientQueryResult.CreateDateTime),
+            SortOrder = SortOrders.DESC
+        };
 
         public void Deserialize(ReadBufferContext context)
         {
-            var nb = context.NextInt();
-            for (var i = 0; i < nb; i++)
-            {
-                var record = new ClientQueryResult();
-                record.Deserialize(context);
-                Clients.Add(record);
-            }
+            Filter = new FilterQuery();
+            Filter.Deserialize(context);
         }
 
         public void Serialize(WriteBufferContext context)
         {
-            context.WriteInteger(Clients.Count);
-            foreach(var client in Clients)
-                client.Serialize(context);
+            Filter.Serialize(context);
         }
     }
 }

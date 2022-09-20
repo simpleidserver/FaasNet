@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client.StateMachines.Client;
+﻿using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
@@ -56,26 +57,15 @@ namespace FaasNet.EventMesh.StateMachines.Client
                 case GetClientQuery getClient:
                     var result = await _store.Get(getClient.Id, cancellationToken);
                     if (result == null) return new GetClientQueryResult();
-                    return new GetClientQueryResult(new ClientQueryResult 
-                    { 
-                        Id = result.Id, 
-                        ClientSecret = result.ClientSecret, 
-                        Purposes = result.Purposes, 
-                        SessionExpirationTimeMS = result.SessionExpirationTimeMS, 
-                        Vpn = result.Vpn,
-                        CreateDateTime = result.CreateDateTime
-                    });
+                    return new GetClientQueryResult(Transform(result));
                 case GetAllClientsQuery getClients:
-                    var clients = await _store.GetAll(cancellationToken);
-                    return new GetAllClientsQueryResult { Clients = clients.Select(c => new ClientQueryResult
+                    var res = await _store.Find(getClients.Filter, cancellationToken);
+                    return new GenericSearchQueryResult<ClientQueryResult>
                     {
-                        Id = c.Id,
-                        ClientSecret = c.ClientSecret,
-                        Purposes = c.Purposes,
-                        SessionExpirationTimeMS = c.SessionExpirationTimeMS,
-                        Vpn = c.Vpn,
-                        CreateDateTime = c.CreateDateTime
-                    }).ToList() };
+                        TotalPages = res.TotalPages,
+                        TotalRecords = res.TotalRecords,
+                        Records = res.Records.Select(r => Transform(r))
+                    };
             }
 
             return null;
@@ -99,6 +89,19 @@ namespace FaasNet.EventMesh.StateMachines.Client
         public Task Truncate(CancellationToken cancellationToken)
         {
             return _store.Truncate(cancellationToken);
+        }
+
+        private static ClientQueryResult Transform(ClientRecord client)
+        {
+            return new ClientQueryResult
+            {
+                Id = client.Id,
+                ClientSecret = client.ClientSecret,
+                Purposes = client.Purposes,
+                SessionExpirationTimeMS = client.SessionExpirationTimeMS,
+                Vpn = client.Vpn,
+                CreateDateTime = client.CreateDateTime
+            };
         }
     }
 

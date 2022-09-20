@@ -8,18 +8,41 @@
 <PageTitle>Clients</PageTitle>
 
 <Section Title="Clients">
-    <ChildContent>
-		<Grid TRowData="ClientResult" Items="EventMeshNodeViewModel.Clients">
-            <GridColumn TRowData="ClientResult" Expression="c => c.Id" Title="Identifier" />
-            <GridColumn TRowData="ClientResult" Expression="c => c.Vpn" Title="VPN" />
-            <GridColumn TRowData="ClientResult" Expression="c => string.Join(',', c.Purposes.Select(p => Enum.GetName(typeof(ClientPurposeTypes), p)))" Title="Purpose" />
-			<GridColumn TRowData="ClientResult" Expression="c => c.CreateDateTime.ToString()" Title="Creation Datetime" />
-        </Grid>
-    </ChildContent>
+	<Loader IsDisplayed="IsLoading">		
+		<Grid TRowData="ClientQueryResult" Result="EventMeshNodeViewModel.Clients" @bind-Query="Filter">
+			<GridColumn TRowData="ClientQueryResult" Expression="c => c.Id" Title="Identifier" Name="Id" IsSortEnabled="true" />
+			<GridColumn TRowData="ClientQueryResult" Expression="c => c.Vpn" Name="Vpn" Title="VPN" />
+			<GridColumn TRowData="ClientQueryResult" Name="Purposes" Title="Purpose">
+				@foreach(var purposeType in context.Purposes) {
+					<span class="badge text-bg-primary purposeType">@Enum.GetName(typeof(ClientPurposeTypes), purposeType)</span>
+				}
+			</GridColumn>
+			<GridColumn TRowData="ClientQueryResult" Expression="c => c.CreateDateTime.ToString()" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true" />
+		</Grid>
+	</Loader>
 </Section>
 
 
 @code {
+	private FilterQuery _filter = new FilterQuery
+	{
+		SortOrder = SortOrders.DESC,
+		SortBy = "CreateDateTime"
+	};
+	public FilterQuery Filter
+	{
+		get
+		{
+			return _filter;
+		}
+		set
+		{
+			_filter = value;
+			this.RefreshClients();
+		}
+	}
+	public bool IsLoading { get; set; } = true;
+
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
@@ -31,7 +54,13 @@
 	private async Task RefreshClients()
 	{
 		if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetClients();
-		else await EventMeshNodeViewModel.RefreshClients();
+		else 
+		{
+			IsLoading = true;
+			await EventMeshNodeViewModel.RefreshClients(_filter);
+			IsLoading = false;
+		}
+
 		await InvokeAsync(() => StateHasChanged());
 	}
 

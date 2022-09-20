@@ -1,6 +1,6 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Vpn;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,14 +10,8 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(GetAllVpnRequest request, CancellationToken cancellationToken)
         {
-            var result = await Query<GetAllVpnQueryResult>(VPN_PARTITION_KEY, new GetAllVpnQuery(), cancellationToken);
-            return PackageResponseBuilder.GetAllVpn(request.Seq, result.Vpns.Select(v => new VpnResult
-            {
-                Description = v.Description,
-                Id = v.Name,
-                CreateDateTime = v.CreateDateTime,
-                UpdateDateTime = v.UpdateDateTime
-            }).ToList());
+            var res = await Query<GenericSearchQueryResult<VpnQueryResult>>(VPN_PARTITION_KEY, new GetAllVpnQuery { Filter = request.Filter }, cancellationToken);
+            return PackageResponseBuilder.GetAllVpn(request.Seq, res);
         }
     }
 }

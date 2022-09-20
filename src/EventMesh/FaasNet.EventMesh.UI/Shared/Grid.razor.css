@@ -1,5 +1,6 @@
 .table thead .sorting {
     position: relative;
+    cursor: pointer;
 }
 
 .table thead .sorting:before {
@@ -28,4 +29,9 @@
 
 .table thead .sorting_desc:before {
     color: gray;
+}
+
+#nbentries {
+    width: auto !important;
+    display: inline-block !important;
 }

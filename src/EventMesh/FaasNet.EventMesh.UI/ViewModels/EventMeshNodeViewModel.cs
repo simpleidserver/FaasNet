@@ -1,5 +1,7 @@
 ﻿using FaasNet.Common;
-using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Client;
+using FaasNet.EventMesh.Client.StateMachines.Vpn;
 using FaasNet.EventMesh.UI.Data;
 using FaasNet.Peer.Client.Transports;
 using Microsoft.Extensions.Options;
@@ -39,8 +41,8 @@ namespace FaasNet.EventMesh.UI.ViewModels
         public NodeViewModel SelectedNode { get; set; }
         public IEnumerable<NodeViewModel> Nodes { get; set; } = new List<NodeViewModel>();
         public IEnumerable<PeerStateViewModel> PeerStates { get; set; } = new List<PeerStateViewModel>();
-        public IEnumerable<VpnResult> Vpns { get; set; } = new List<VpnResult>();
-        public IEnumerable<ClientResult> Clients { get; set; } = new List<ClientResult>();
+        public GenericSearchQueryResult<VpnQueryResult> Vpns { get; set; } = new GenericSearchQueryResult<VpnQueryResult>();
+        public GenericSearchQueryResult<ClientQueryResult> Clients { get; set; } = new GenericSearchQueryResult<ClientQueryResult>();
 
         public void ListenStatus()
         {
@@ -68,24 +70,24 @@ namespace FaasNet.EventMesh.UI.ViewModels
 
         public void ResetClients()
         {
-            Clients = new List<ClientResult>();
+            Clients = new GenericSearchQueryResult<ClientQueryResult>();
         }
 
-        public async Task RefreshClients()
+        public async Task RefreshClients(FilterQuery filter)
         {
             if (!IsRunning) return;
-            Clients = await _eventMeshService.GetAllClients(SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
+            Clients = await _eventMeshService.GetAllClients(filter, SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
         }
 
         public void ResetVpns()
         {
-            Vpns = new List<VpnResult>();
+            Vpns = new GenericSearchQueryResult<VpnQueryResult>();
         }
 
-        public async Task RefreshVpns()
+        public async Task RefreshVpns(FilterQuery filter)
         {
             if (!IsRunning) return;
-            Vpns = await _eventMeshService.GetAllVpns(SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
+            Vpns = await _eventMeshService.GetAllVpns(filter, SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
         }
 
         public void Select(string nodeId)

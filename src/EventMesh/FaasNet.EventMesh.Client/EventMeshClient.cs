@@ -43,10 +43,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as AddVpnResult;
         }
 
-        public async Task<GetAllVpnResult> GetAllVpn(int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<GetAllVpnResult> GetAllVpn(FilterQuery filter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.GetAllVpn();
+            var package = PackageRequestBuilder.GetAllVpn(filter);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);
@@ -71,10 +71,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as AddClientResult;
         }
 
-        public async Task<GetAllClientResult> GetAllClient(int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<GetAllClientResult> GetAllClient(FilterQuery filter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.GetAllClient();
+            var package = PackageRequestBuilder.GetAllClient(filter);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);

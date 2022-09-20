@@ -1,6 +1,7 @@
-﻿using FaasNet.Peer.Client;
+﻿using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Vpn;
+using FaasNet.Peer.Client;
 using System;
-using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.Messages
 {
@@ -8,23 +9,20 @@ namespace FaasNet.EventMesh.Client.Messages
     {
         public GetAllVpnResult(string seq) : base(seq)
         {
-            Vpns = new List<VpnResult>();
         }
 
-        public ICollection<VpnResult> Vpns { get; set; }
+        public GenericSearchQueryResult<VpnQueryResult> Content { get; set; } = new GenericSearchQueryResult<VpnQueryResult>();
 
         public override EventMeshCommands Command => EventMeshCommands.GET_ALL_VPN_RESPONSE;
 
         protected override void SerializeAction(WriteBufferContext context)
         {
-            context.WriteInteger(Vpns.Count);
-            foreach (var vpn in Vpns) vpn.Serialize(context);
+            Content.Serialize(context);
         }
 
         public GetAllVpnResult Extract(ReadBufferContext context)
         {
-            int nb = context.NextInt();
-            for (var i = 0; i < nb; i++) Vpns.Add(VpnResult.Extract(context));
+            Content.Deserialize(context);
             return this;
         }
     }

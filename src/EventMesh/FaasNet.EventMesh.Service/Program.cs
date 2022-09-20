@@ -1,7 +1,9 @@
 ﻿using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
+using FaasNet.EventMesh.Client.StateMachines.Vpn;
 using FaasNet.Partition;
 using FaasNet.Peer;
 using FaasNet.Peer.Client;
@@ -43,10 +45,14 @@ Console.WriteLine("Press any key to get all the VPN");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
 {
-    var vpnResult = await client.GetAllVpn();
-    foreach(var vpn in vpnResult.Vpns)
+    var vpnResult = await client.GetAllVpn(new FilterQuery()
     {
-        Console.WriteLine($"Name '{vpn.Id}', Description '{vpn.Description}'");
+        SortOrder = SortOrders.DESC,
+        SortBy = nameof(VpnQueryResult.CreateDateTime)
+    });
+    foreach(var vpn in vpnResult.Content.Records)
+    {
+        Console.WriteLine($"Name '{vpn.Name}', Description '{vpn.Description}'");
     }
 }
 
@@ -63,12 +69,28 @@ using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, 
     });
 }
 
+Console.WriteLine("Press any key to add a client");
+Console.ReadLine();
+using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
+{
+    await Retry(async () => await client.AddClient("clientId2", "VPN", new List<ClientPurposeTypes> { ClientPurposeTypes.PUBLISH, ClientPurposeTypes.SUBSCRIBE }), (r) =>
+    {
+        if (r.Success) return true;
+        DisplayError(Enum.GetName(typeof(AddClientErrorStatus), r.Status.Value));
+        return false;
+    });
+}
+
 Console.WriteLine("Press any key to display all the clients");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
 {
-    var clientResult = await client.GetAllClient();
-    foreach(var cl in clientResult.Clients)
+    var clientResult = await client.GetAllClient(new FilterQuery()
+    {
+        SortOrder = SortOrders.DESC,
+        SortBy = nameof(ClientResult.CreateDateTime)
+    });
+    foreach(var cl in clientResult.Content.Records)
     {
         Console.WriteLine($"ClientId '{cl.Id}', Vpn '{cl.Vpn}', Purposes '{string.Join(",", cl.Purposes.Select(p => p.ToString()))}'");
     }

@@ -1,35 +1,86 @@
-﻿@typeparam TRowData
+﻿@using FaasNet.EventMesh.Client.StateMachines
+@using FaasNet.RaftConsensus.Client
+@typeparam TRowData where TRowData : ISerializable
 
 <CascadingValue IsFixed="true" Value="this">@ChildContent</CascadingValue>
 
-<table class="table table-striped table-bordered">
-    <thead>
-        <tr>
-            @foreach (var column in Columns)
-            {
-                <th class="sorting sorting_asc">@column.Title</th>
-            }
-        </tr>
-    </thead>
-    <tbody>
-        @foreach(var item in Items) 
-        {
+<div>
+    <div class="mb-2">
+        <span>Show</span>
+        <select class="form-select" id="nbentries" @bind="NbRecords">
+            <option value="1">1</option>
+            <option value="10">10</option>
+        </select>
+        <span>Entries</span>
+    </div>
+    <table class="table table-striped table-bordered">
+        <thead>
             <tr>
-                @foreach(var column in Columns)
+                @foreach (var column in Columns)
                 {
-                    @column.CellTemplate(item)
+                    <th class="@column.ClassName" @onclick="() => ToggleSort(column)">@column.Title</th>
                 }
             </tr>
-        }
-    </tbody>
-</table>
-
+        </thead>
+        <tbody>
+            @foreach(var item in Result.Records) 
+            {
+                <tr>
+                    @foreach(var column in Columns)
+                    {
+                        @column.CellTemplate(item)
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    <nav>
+        <ul class="pagination">
+            @if (Result != null && Result.TotalPages > 0 && Query != null)
+            {
+                <li class="@(Query.Page == 0 ? "page-item disabled" : "page-item")">
+                    <a href="#" class="page-link" @onclick="Previous" @onclick:preventDefault>Previous</a>
+                </li>
+                @for (var i = 1; i <= Result.TotalPages; i++)
+                {
+                    var iteration = i - 1;
+                    <li class="@(Query.Page == (i - 1) ? "page-item active" : "page-item")">
+                        <a href="#" class="page-link" @onclick="() => Navigate(iteration)" @onclick:preventDefault>@i</a>
+                    </li>
+                }
+                <li class="@(Query.Page == (Result.TotalPages - 1) ? "page-item disabled" : "page-item")">
+                    <a href="#" class="page-link" @onclick="Next" @onclick:preventDefault>Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
 @code {
+    private int _nbRecords;
+    private int NbRecords 
+    {
+        get
+        {
+            return _nbRecords;
+        }
+        set
+        {
+            if (_nbRecords == value) return;
+            _nbRecords = value;
+            Query.NbRecords = value;
+            Notify();
+        }
+    }
+    private FilterQuery _query;
     [Parameter]
     public RenderFragment ChildContent { get; set; }
     public ICollection<GridColumn<TRowData>> Columns = new List<GridColumn<TRowData>>();
     [Parameter]
-    public IEnumerable<TRowData> Items { get; set; } = new List<TRowData>();
+    public GenericSearchQueryResult<TRowData> Result { get; set; } = new GenericSearchQueryResult<TRowData>();
+    [Parameter]
+    public EventCallback<FilterQuery> QueryChanged { get; set; }
+    [Parameter]
+    public FilterQuery Query { get; set; }
 
     internal void AddColumn(GridColumn<TRowData> column)
     {
@@ -38,6 +89,51 @@
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if (firstRender) StateHasChanged();
+        if (firstRender)
+        {
+            StateHasChanged();
+            var column = Columns.Single(c => c.Name == Query.SortBy);
+            column.Sort = Query.SortOrder;
+            NbRecords = Query.NbRecords;
+        }
+    }
+
+    private void ToggleSort(GridColumn<TRowData> column)
+    {
+        if(column.Name != Query.SortBy) 
+        {
+            var selectedColumn = Columns.Single(c => c.Name == Query.SortBy);
+            selectedColumn.ResetSort();
+        }
+
+        column.ToggleSort();
+        Query.SortBy = column.Name;
+        Query.SortOrder = column.Sort.Value;
+        Notify();
+    }
+
+    private void Previous()
+    {
+        if (Query.Page == 0) return;
+        Query.Page--;
+        Notify();
+    }
+
+    private void Navigate(int page)
+    {
+        Query.Page = page;
+        Notify();
+    }
+
+    private void Next()
+    {
+        if (Query.Page == (Result.TotalPages - 1)) return;
+        Query.Page++;
+        Notify();
+    }
+
+    private async void Notify()
+    {
+        await QueryChanged.InvokeAsync(Query);
     }
 }

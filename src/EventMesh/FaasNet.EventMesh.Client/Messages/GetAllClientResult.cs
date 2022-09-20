@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client.StateMachines.Client;
+﻿using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.Peer.Client;
 using System;
 using System.Collections.Generic;
@@ -7,25 +8,20 @@ namespace FaasNet.EventMesh.Client.Messages
 {
     public class GetAllClientResult : BaseEventMeshPackage
     {
-        public GetAllClientResult(string seq) : base(seq)
-        {
-            Clients = new List<ClientResult>();
-        }
+        public GetAllClientResult(string seq) : base(seq) { }
 
-        public ICollection<ClientResult> Clients { get; set; }
+        public GenericSearchQueryResult<ClientQueryResult> Content { get; set; } = new GenericSearchQueryResult<ClientQueryResult>();
 
         public override EventMeshCommands Command => EventMeshCommands.GET_ALL_CLIENT_RESPONSE;
 
         protected override void SerializeAction(WriteBufferContext context)
         {
-            context.WriteInteger(Clients.Count);
-            foreach (var client in Clients) client.Serialize(context);
+            Content.Serialize(context);
         }
 
         public GetAllClientResult Extract(ReadBufferContext context)
         {
-            int nb = context.NextInt();
-            for (var i = 0; i < nb; i++) Clients.Add(ClientResult.Extract(context));
+            Content.Deserialize(context);
             return this;
         }
     }

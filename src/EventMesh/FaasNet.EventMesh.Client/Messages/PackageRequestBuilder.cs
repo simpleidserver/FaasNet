@@ -1,4 +1,5 @@
 ﻿using CloudNative.CloudEvents;
+using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using System;
 using System.Collections.Generic;
@@ -17,9 +18,12 @@ namespace FaasNet.EventMesh.Client.Messages
             return new AddVpnRequest(GenerateRandomSeq(), vpn, description);
         }
 
-        public static BaseEventMeshPackage GetAllVpn()
+        public static BaseEventMeshPackage GetAllVpn(FilterQuery filter)
         {
-            return new GetAllVpnRequest(GenerateRandomSeq());
+            return new GetAllVpnRequest(GenerateRandomSeq())
+            {
+                Filter = filter
+            };
         }
 
         public static BaseEventMeshPackage AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposes)
@@ -27,9 +31,12 @@ namespace FaasNet.EventMesh.Client.Messages
             return new AddClientRequest(GenerateRandomSeq(), clientId, vpn, purposes);
         }
 
-        public static BaseEventMeshPackage GetAllClient()
+        public static BaseEventMeshPackage GetAllClient(FilterQuery filter)
         {
-            return new GetAllClientRequest(GenerateRandomSeq());
+            return new GetAllClientRequest(GenerateRandomSeq())
+            {
+                Filter = filter
+            };
         }
 
         public static BaseEventMeshPackage AddQueue(string name, string topicFilter)
