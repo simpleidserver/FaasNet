@@ -1,0 +1,25 @@
+﻿html, body {
+    height: 100%;
+    font-family: "Roboto", sans-serif;
+}
+
+.blue {
+    --header-bg-color: #0d47a1;
+    --header-font-color: white;
+    --footer-bg-color: #f4f4f4;
+    --h2-border-color: #a2b4d1;
+    --main-space: 10px;
+    --active-link-fg-color: white;
+    --loader-bg-color: #39393933;
+}
+
+h2 {
+    padding: 10px 0px 10px var(--main-space);
+    border-bottom: 1px solid var(--h2-border-color);
+    font-weight: 600px;
+    font-size: 24px;
+}
+
+.active {
+    color: var(--active-link-fg-color) !important;
+}
