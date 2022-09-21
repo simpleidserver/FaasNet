@@ -1,4 +1,8 @@
-﻿namespace FaasNet.EventMesh.Client.StateMachines.Client
+﻿using System;
+using System.ComponentModel;
+using System.Globalization;
+
+namespace FaasNet.EventMesh.Client.StateMachines.Client
 {
     public enum ClientPurposeTypes
     {

@@ -26,7 +26,7 @@ namespace FaasNet.EventMesh.UI.Data
 				Message	 = message,
 				ReceivedDateTime = DateTime.UtcNow,
 				Verbosity = ToastVerbosities.INFO,
-				ExpirationDateTime = DateTime.UtcNow.AddSeconds(60)
+				ExpirationDateTime = DateTime.UtcNow.AddSeconds(20)
 			});
 			if (ToastsChanged != null) ToastsChanged(ToastsChanged, EventArgs.Empty);
         }
@@ -39,7 +39,7 @@ namespace FaasNet.EventMesh.UI.Data
                 Message = message,
                 ReceivedDateTime = DateTime.UtcNow,
                 Verbosity = ToastVerbosities.ERROR,
-                ExpirationDateTime = DateTime.UtcNow.AddSeconds(60)
+                ExpirationDateTime = DateTime.UtcNow.AddSeconds(20)
             });
             if (ToastsChanged != null) ToastsChanged(ToastsChanged, EventArgs.Empty);
         }

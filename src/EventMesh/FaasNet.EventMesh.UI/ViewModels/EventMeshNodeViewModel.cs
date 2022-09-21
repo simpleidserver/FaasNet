@@ -103,6 +103,12 @@ namespace FaasNet.EventMesh.UI.ViewModels
             return result;
         }
 
+        public async Task<AddClientResult> AddClient(AddClientViewModel addClient)
+        {
+            var result = await _eventMeshService.AddClient(addClient.ClientId, addClient.Vpn, addClient.PurposeTypes.Select(p =>(ClientPurposeTypes)p).ToList(), SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
+            return result;
+        }
+
         private async void RefreshStatus(object? sender, System.Timers.ElapsedEventArgs e)
         {
             LastRefreshTime = DateTime.UtcNow;

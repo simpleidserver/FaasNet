@@ -4,23 +4,91 @@
 @using FaasNet.EventMesh.Client.StateMachines.Client
 
 @inject EventMeshNodeViewModel EventMeshNodeViewModel
+@inject ToastService ToastService
 
 <PageTitle>Clients</PageTitle>
 
 <Section Title="Clients">
-	<Loader IsDisplayed="IsLoading">		
+	<Loader IsDisplayed="IsLoading">
+		<button class="btn btn-primary mb-2" @onclick="AddClient">Add Client</button>
+		@if (newClient != null)
+		{
+			<div class="alert alert-success">
+				Client <b>@newClient.ClientId</b> has been created with the secret <b>@newClient.ClientSecret</b>. Please copy it !
+			</div>
+		}
 		<Grid TRowData="ClientQueryResult" Result="EventMeshNodeViewModel.Clients" @bind-Query="Filter">
-			<GridColumn TRowData="ClientQueryResult" Expression="c => c.Id" Title="Identifier" Name="Id" IsSortEnabled="true" />
-			<GridColumn TRowData="ClientQueryResult" Expression="c => c.Vpn" Name="Vpn" Title="VPN" />
+			<GridColumn TRowData="ClientQueryResult" Title="Identifier" Name="Id" IsSortEnabled="true">
+				@if (context.CreateDateTime == null)
+				{
+					<span class="newRecord"><b>NEW</b> @context.Id</span>
+				}
+				else
+				{
+					<span>@context.Id</span>
+				}
+			</GridColumn>
+			<GridColumn TRowData="ClientQueryResult" Name="Vpn" Title="VPN">
+				@if (context.CreateDateTime == null)
+				{
+					<span class="newRecord">@context.Vpn</span>
+				}
+				else
+				{
+					<span>@context.Vpn</span>
+				}
+			</GridColumn>
 			<GridColumn TRowData="ClientQueryResult" Name="Purposes" Title="Purpose">
 				@foreach(var purposeType in context.Purposes) {
 					<span class="badge text-bg-primary purposeType">@Enum.GetName(typeof(ClientPurposeTypes), purposeType)</span>
 				}
 			</GridColumn>
-			<GridColumn TRowData="ClientQueryResult" Expression="c => c.CreateDateTime.ToString()" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true" />
+			<GridColumn TRowData="ClientQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
+				@if (context.CreateDateTime == null)
+				{
+					<span class="newRecord">-</span>
+				}
+				else
+				{
+					<span>@context.CreateDateTime.ToString()</span>
+				}
+			</GridColumn>
 		</Grid>
 	</Loader>
 </Section>
+
+<Modal Title="Add Client" @ref=addClientModal>
+	<EditForm OnValidSubmit="@HandleValidSubmit" Model="addClient">
+		<DataAnnotationsValidator />
+		<div class="modal-body">
+			<!-- ClientId -->
+			<div class="mb-3">
+				<label class="form-label">Client Identifier</label>
+				<InputText class="form-control" @bind-Value="addClient.ClientId" />
+				<ValidationMessage For="() => addClient.ClientId" />
+			</div>
+			<!-- VPN -->
+			<div class="mb-3">
+				<label class="form-label">VPN</label>
+				<InputText class="form-control" @bind-Value="addClient.Vpn" />
+				<ValidationMessage For="() => addClient.Vpn" />
+			</div>
+			<!-- Purpose Types -->
+			<div class="mb-3">
+				<label class="form-label">Types of purpose</label>
+				<select class="form-select" @bind="addClient.PurposeTypes" multiple>
+					<option value="0">Publish</option>
+					<option value="1">Subscribe</option>
+				</select>
+				<ValidationMessage For="() => addClient.PurposeTypes" />
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+			<button type="submit" class="btn btn-primary">Add</button>
+		</div>
+	</EditForm>
+</Modal>
 
 
 @code {
@@ -42,6 +110,9 @@
 		}
 	}
 	public bool IsLoading { get; set; } = true;
+	private Modal addClientModal;
+	private AddClientResult newClient { get; set; } = null;
+	private AddClientViewModel addClient = new();
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -68,5 +139,36 @@
 	{
 		EventMeshNodeViewModel.ResetStates();
 		await RefreshClients();
+	}
+
+	private void AddClient() 
+	{
+		addClient.Reset();
+		addClientModal.Open();
+	}
+
+	private void Close()
+	{
+		addClientModal.Close();
+	}
+
+	private async void HandleValidSubmit() 
+	{
+		var result = await this.EventMeshNodeViewModel.AddClient(addClient);
+		addClientModal.Close();
+		if (!result.Success)
+		{
+			newClient = null;
+			ToastService.AddError("Client", $"An error occured while trying to add the Client, Error: {Enum.GetName(typeof(AddClientErrorStatus), result.Status.Value)}");
+			await InvokeAsync(() => StateHasChanged());
+			return;
+		}
+
+		ToastService.AddInfo("Client", "Client has been added");
+		var records = EventMeshNodeViewModel.Clients.Records.ToList();
+		records.Insert(0, new ClientQueryResult { Id = addClient.ClientId, Purposes = addClient.PurposeTypes.Select(p => (ClientPurposeTypes)p).ToList(), Vpn = addClient.Vpn });
+		EventMeshNodeViewModel.Clients.Records = records;
+		newClient = result;
+		await InvokeAsync(() => StateHasChanged());
 	}
 }

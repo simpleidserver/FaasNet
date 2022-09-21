@@ -19,6 +19,7 @@ namespace FaasNet.EventMesh.UI.Data
         Task<GenericSearchQueryResult<ClientQueryResult>> GetAllClients(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
         Task<GenericSearchQueryResult<VpnQueryResult>> GetAllVpns(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
         Task<AddVpnResult> AddVpn(string vpn, string description, string url, int port, CancellationToken cancellationToken);
+        Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken);
     }
 
     public class EventMeshService : IEventMeshService
@@ -91,6 +92,15 @@ namespace FaasNet.EventMesh.UI.Data
             {
                 var vpnResult = await client.AddVpn(vpn, description, _options.RequestTimeoutMS, cancellationToken);
                 return vpnResult;
+            }
+        }
+
+        public async Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var clientResult = await client.AddClient(clientId, vpn, purposeTypes, _options.RequestTimeoutMS, cancellationToken);
+                return clientResult;
             }
         }
     }

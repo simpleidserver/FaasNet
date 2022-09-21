@@ -134,7 +134,7 @@
 		var result = await this.EventMeshNodeViewModel.AddVpn(addVpn);
 		addVpnModal.Close();
 		if(!result.Success) {
-			ToastService.AddError("VPN", "An error occured while trying to add the VPN");
+			ToastService.AddError("VPN", $"An error occured while trying to add the VPN, Error: {Enum.GetName(typeof(AddVpnErrorStatus), result.Status.Value)}");
 			await InvokeAsync(() => StateHasChanged());
 			return;
 		}
