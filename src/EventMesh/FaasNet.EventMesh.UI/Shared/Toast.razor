@@ -1,0 +1,34 @@
+﻿
+@inject ToastService toastService
+
+<div id="toastContainer">
+    @foreach (var toast in toastService.Toasts)
+    {
+        <div class="toast show">
+            <div class="toast-header">
+                <svg class="bd-placeholder-img rounded mr-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img">
+                    <rect width="100%" height="100%" fill="@(toast.Verbosity == ToastVerbosities.ERROR ? "red" :"green")"></rect>
+                </svg>
+                <strong class="me-auto">@toast.Title</strong>
+                <small>@toast.ReceivedDateTime</small>
+                <button type="button" class="btn-close" @onclick="() => toastService.Close(toast)"></button>
+            </div>
+            <div class="toast-body">
+                @toast.Message
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+        toastService.ToastsChanged += (o, e) => Notify();
+	}
+
+    private async void Notify()
+    {
+        await InvokeAsync(() => StateHasChanged());
+    }
+}

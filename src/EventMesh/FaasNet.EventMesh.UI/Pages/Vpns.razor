@@ -5,6 +5,7 @@
 @using FaasNet.EventMesh.Client.StateMachines.Vpn
 
 @inject EventMeshNodeViewModel EventMeshNodeViewModel
+@inject ToastService ToastService
 
 <PageTitle>Vpns</PageTitle>
 
@@ -12,29 +13,62 @@
 	<Loader IsDisplayed="IsLoading">		
 		<button class="btn btn-primary mb-2" @onclick="AddVpn">Add VPN</button>
 		<Grid TRowData="VpnQueryResult" Result="EventMeshNodeViewModel.Vpns" @bind-Query="Filter">
-			<GridColumn TRowData="VpnQueryResult" Expression="c => c.Name" Title="Identifier" Name="Name" />
-			<GridColumn TRowData="VpnQueryResult" Expression="c => c.Description" Title="Description" Name="Description" />
-			<GridColumn TRowData="VpnQueryResult" Expression="c => c.CreateDateTime.ToString()" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true" />
+			<GridColumn TRowData="VpnQueryResult" Title="Identifier" Name="Name">
+				@if(context.CreateDateTime == null)
+				{
+					<span class="newRecord"><b>NEW</b> @context.Name</span>
+				}
+				else
+				{
+					<span>@context.Name</span>
+				}
+			</GridColumn>
+			<GridColumn TRowData="VpnQueryResult" Title="Description" Name="Description">
+				@if (context.CreateDateTime == null)
+				{
+					<span class="newRecord">@context.Description</span>
+				}
+				else
+				{
+					<span>@context.Description</span>
+				}
+			</GridColumn>
+			<GridColumn TRowData="VpnQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
+				@if(context.CreateDateTime == null) 
+				{
+					<span class="newRecord">-</span>
+				}
+				else 
+				{
+					<span>@context.CreateDateTime.ToString()</span>
+				}
+			</GridColumn>
 		</Grid>
 	</Loader>
 </Section>
 
 <Modal Title="Add VPN" @ref=addVpnModal>
-	<Body>
-		<form>
+	<EditForm OnValidSubmit="@HandleValidSubmit" Model="addVpn">
+		<DataAnnotationsValidator />
+		<div class="modal-body">
 			<!-- Name -->
 			<div class="mb-3">
 				<label class="form-label">Name</label>
-				<input type="text" class="form-control" />
+				<InputText class="form-control" @bind-Value="addVpn.Name" />
+				<ValidationMessage For="() => addVpn.Name"/>
 			</div>
 			<!-- Description -->
 			<div class="mb-3">
 				<label class="form-label">Description</label>
-				<textarea class="form-control"></textarea>
+				<InputTextArea class="form-control" @bind-Value="addVpn.Description" />
+				<ValidationMessage For="() => addVpn.Description" />
 			</div>
-		</form>
-	</Body>
-	<Footer></Footer>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+			<button type="submit" class="btn btn-primary">Add</button>
+		</div>
+	</EditForm>
 </Modal>
 
 @code {
@@ -43,6 +77,7 @@
 		SortOrder = SortOrders.DESC,
 		SortBy = "CreateDateTime"
 	};
+	private AddVpnViewModel addVpn = new();
 	public FilterQuery Filter
 	{
 		get
@@ -86,6 +121,28 @@
 	}
 
 	private void AddVpn() {
+		addVpn.Reset();
 		addVpnModal.Open();
+	}
+
+	private void Close()
+	{
+		addVpnModal.Close();
+	}
+
+	private async void HandleValidSubmit() {
+		var result = await this.EventMeshNodeViewModel.AddVpn(addVpn);
+		addVpnModal.Close();
+		if(!result.Success) {
+			ToastService.AddError("VPN", "An error occured while trying to add the VPN");
+			await InvokeAsync(() => StateHasChanged());
+			return;
+		}
+
+		ToastService.AddInfo("VPN", "VPN has been added");
+		var records = EventMeshNodeViewModel.Vpns.Records.ToList();
+		records.Insert(0, new VpnQueryResult { Description = addVpn.Description, Name = addVpn.Name });
+		EventMeshNodeViewModel.Vpns.Records = records;
+		await InvokeAsync(() => StateHasChanged());
 	}
 }

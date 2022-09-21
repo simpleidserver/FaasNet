@@ -1,4 +1,5 @@
 ﻿using FaasNet.Common;
+using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.EventMesh.Client.StateMachines.Vpn;
@@ -94,6 +95,12 @@ namespace FaasNet.EventMesh.UI.ViewModels
         {
             SelectedNode = Nodes.Single(n => n.Id == nodeId);
             if (SelectedNodeChanged != null) SelectedNodeChanged(this, EventArgs.Empty);
+        }
+
+        public async Task<AddVpnResult> AddVpn(AddVpnViewModel addVpn)
+        {
+            var result = await _eventMeshService.AddVpn(addVpn.Name, addVpn.Description, SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
+            return result;
         }
 
         private async void RefreshStatus(object? sender, System.Timers.ElapsedEventArgs e)

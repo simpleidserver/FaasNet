@@ -68,6 +68,7 @@
             if (_nbRecords == value) return;
             _nbRecords = value;
             Query.NbRecords = value;
+            Query.Page = 0;
             Notify();
         }
     }

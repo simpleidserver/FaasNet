@@ -9,6 +9,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.Configure<EventMeshUIOptions>((o) => { });
 builder.Services.AddScoped<EventMeshNodeViewModel, EventMeshNodeViewModel>();
+builder.Services.AddScoped<ToastService, ToastService>();
 builder.Services.AddSingleton<IEventMeshService, EventMeshService>();
 builder.Services.AddTransient<IPeerClientFactory, PeerClientFactory>();
 builder.Services.AddTransient<IClientTransportFactory, ClientTransportFactory>();

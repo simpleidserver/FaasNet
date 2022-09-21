@@ -8,8 +8,8 @@ namespace FaasNet.EventMesh.Client.StateMachines.Vpn
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public DateTime CreateDateTime { get; set; }
-        public DateTime UpdateDateTime { get; set; }
+        public DateTime? CreateDateTime { get; set; }
+        public DateTime? UpdateDateTime { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
@@ -23,8 +23,8 @@ namespace FaasNet.EventMesh.Client.StateMachines.Vpn
         {
             context.WriteString(Name);
             context.WriteString(Description);
-            context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
-            context.WriteTimeSpan(TimeSpan.FromTicks(UpdateDateTime.Ticks));
+            context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.GetValueOrDefault().Ticks));
+            context.WriteTimeSpan(TimeSpan.FromTicks(UpdateDateTime.GetValueOrDefault().Ticks));
         }
     }
 }
