@@ -100,7 +100,7 @@ Console.WriteLine("Press any key to add a queue");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
 {
-    await Retry(async() => await client.AddQueue("queue", "topic1"), (c) =>
+    await Retry(async() => await client.AddQueue("VPN", "queue", "topic1"), (c) =>
     {
         if (c.Status == AddQueueStatus.SUCCESS) return true;
         DisplayError(Enum.GetName(typeof(AddQueueStatus), c.Status));
@@ -112,7 +112,7 @@ Console.WriteLine("Press any key to create a session used for publishing");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
 {
-    var pubSession = await client.CreatePubSession("clientId", publishClient.ClientSecret);
+    var pubSession = await client.CreatePubSession("clientId", "VPN", publishClient.ClientSecret);
     Console.WriteLine("Press any key to publish a message");
     Console.ReadLine();
     var cloudEvent = new CloudEvent
@@ -142,7 +142,7 @@ Console.WriteLine("Press any key to create a session used for subscription");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
 {
-    var subSession = await client.CreateSubSession("clientId", publishClient.ClientSecret, "queue");
+    var subSession = await client.CreateSubSession("clientId", "VPN", publishClient.ClientSecret, "queue");
     Console.WriteLine("Press any key to read a message");
     Console.ReadLine();
     var readMessage = await Retry(() => subSession.ReadMessage(0, timeoutMS: 2000000), (r) =>

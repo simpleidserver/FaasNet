@@ -39,10 +39,11 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage AddQueue(string name, string topicFilter)
+        public static BaseEventMeshPackage AddQueue(string vpn, string name, string topicFilter)
         {
             return new AddQueueRequest(GenerateRandomSeq())
             {
+                Vpn = vpn,
                 QueueName = name,
                 TopicFilter = topicFilter
             };
@@ -58,11 +59,12 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage Hello(string clientId, string clientSecret, string queueName, ClientPurposeTypes purpose)
+        public static BaseEventMeshPackage Hello(string clientId, string vpn, string clientSecret, string queueName, ClientPurposeTypes purpose)
         {
             return new HelloRequest(GenerateRandomSeq())
             {
                 ClientId = clientId,
+                Vpn = vpn,
                 ClientSecret = clientSecret,
                 QueueName = queueName,
                 Purpose = purpose
@@ -78,8 +80,31 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage GetClient(string clientId)
+        public static BaseEventMeshPackage GetClient(string clientId, string vpn)
         {
+            return new GetClientRequest(GenerateRandomSeq())
+            {
+                ClientId = clientId,
+                Vpn = vpn
+            };
+        }
+
+        public static BaseEventMeshPackage SearchSessions(string clientId, string vpn, FilterQuery filter)
+        {
+            return new SearchSessionsRequest(GenerateRandomSeq())
+            {
+                ClientId = clientId,
+                Vpn = vpn,
+                Filter = filter
+            };
+        }
+
+        public static BaseEventMeshPackage SearchQueues(FilterQuery filter)
+        {
+            return new SearchQueuesRequest(GenerateRandomSeq())
+            {
+                Filter = filter
+            };
         }
 
         private static string GenerateRandomSeq()

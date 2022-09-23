@@ -84,6 +84,22 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Response sent when a client is received.
         /// </summary>
         public static EventMeshCommands GET_CLIENT_RESPONSE = new EventMeshCommands(19, "GET_CLIENT_RESPONSE");
+        /// <summary>
+        /// Request sent to search sessions.
+        /// </summary>
+        public static EventMeshCommands SEARCH_SESSIONS_REQUEST = new EventMeshCommands(20, "SEARCH_SESSIONS_REQUEST");
+        /// <summary>
+        /// Reponse sent when sessions are received.
+        /// </summary>
+        public static EventMeshCommands SEARCH_SESSIONS_RESPONSE = new EventMeshCommands(21, "SEARCH_SESSIONS_RESPONSE");
+        /// <summary>
+        /// Request sent to search queues.
+        /// </summary>
+        public static EventMeshCommands SEARCH_QUEUES_REQUEST = new EventMeshCommands(22, "SEARCH_QUEUES_REQUEST");
+        /// <summary>
+        /// Reponse sent when queues are received.
+        /// </summary>
+        public static EventMeshCommands SEARCH_QUEUES_RESPONSE = new EventMeshCommands(23, "SEARCH_QUEUES_RESPONSE");
 
         protected EventMeshCommands(int code)
         {

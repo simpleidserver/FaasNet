@@ -1,6 +1,8 @@
 ﻿using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
+using FaasNet.EventMesh.Client.StateMachines.Queue;
+using FaasNet.EventMesh.Client.StateMachines.Session;
 using FaasNet.EventMesh.Client.StateMachines.Vpn;
 using System.Collections.Generic;
 
@@ -106,6 +108,31 @@ namespace FaasNet.EventMesh.Client.Messages
             {
                 SessionId = sessionId,
                 Status = HelloMessageStatus.SUCCESS
+            };
+        }
+
+        public static BaseEventMeshPackage GetClient(string seq, bool success, ClientQueryResult content)
+        {
+            return new GetClientResult(seq)
+            {
+                Success = success,
+                Content = content
+            };
+        }
+
+        public static BaseEventMeshPackage SearchSessions(string seq, GenericSearchQueryResult<SessionQueryResult> content)
+        {
+            return new SearchSessionsResult(seq)
+            {
+                Content = content
+            };
+        }
+
+        public static BaseEventMeshPackage SearchQueues(string seq, GenericSearchQueryResult<QueueQueryResult> content)
+        {
+            return new SearchQueuesResult(seq)
+            {
+                Content = content
             };
         }
     }

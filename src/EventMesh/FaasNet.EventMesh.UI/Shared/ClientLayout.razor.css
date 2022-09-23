@@ -1,0 +1,16 @@
+#client {
+    margin: 10px;
+}
+
+#client .breadcrumb {
+    background-color: var(--breadcrumb-bg-color);
+    border-radius: 2px;
+    padding: 10px 0px 10px 5px;
+}
+
+#clientContent {
+    padding: 10px;
+    border-right: 1px solid #dee2e6;
+    border-left: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+}

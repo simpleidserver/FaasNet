@@ -1,0 +1,84 @@
+﻿@page "/vpns/{vpn}/clients/{clientId}/sessions"
+@using FaasNet.EventMesh.Client.StateMachines
+@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.Client.StateMachines.Session
+@layout ClientLayout
+@inject EventMeshNodeViewModel EventMeshNodeViewModel
+
+<div>
+    <Loader IsDisplayed="IsLoading">
+        <Grid TRowData="SessionQueryResult" Result="EventMeshNodeViewModel.Sessions" @bind-Query="Filter">
+            <GridColumn TRowData="SessionQueryResult" Title="Purpose" Name="ClientPurpose" IsSortEnabled="true">
+                @Enum.GetName(typeof(ClientPurposeTypes), context.ClientPurpose)
+            </GridColumn>
+            <GridColumn TRowData="SessionQueryResult" Title="Queue" Name="QueueName" IsSortEnabled="true">
+                @context.QueueName
+            </GridColumn>
+            <GridColumn TRowData="SessionQueryResult" Title="Expiration Datetime" Name="ExpirationTime" IsSortEnabled="true">
+                @((new DateTime(context.ExpirationTime.Ticks)).ToLocalTime())
+            </GridColumn>
+            <GridColumn TRowData="SessionQueryResult" Title="Active" Name="IsActive">
+                @if(context.IsValid)
+                {
+                    <b class="success">Valid</b>
+                }
+                else
+                {
+                    <b class="error">Expired</b>                
+                }
+            </GridColumn>
+        </Grid>
+    </Loader>
+</div>
+
+
+@code {
+	private FilterQuery _filter = new FilterQuery
+	{
+		SortOrder = SortOrders.DESC,
+		SortBy = "ExpirationTime"
+	};
+	public FilterQuery Filter
+	{
+		get
+		{
+			return _filter;
+		}
+		set
+		{
+			_filter = value;
+			this.RefreshClientSessions();
+		}
+	}
+    [Parameter]
+    public string clientId { get; set; }
+    [Parameter]
+    public string vpn { get; set; }
+    private bool IsLoading { get; set; } = true;
+
+    protected override async Task OnInitializedAsync() {
+        await base.OnInitializedAsync();
+        if (EventMeshNodeViewModel.IsRunning) await RefreshClientSessions();
+        EventMeshNodeViewModel.StatusChanged += async (o, e) => await RefreshClientSessions();
+        EventMeshNodeViewModel.SelectedNodeChanged += async (o, e) => await HandleSelectedNodeChanged();
+    }  
+
+    private async Task RefreshClientSessions() 
+    {
+        if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetSessions();
+        else
+        {
+            IsLoading = true;
+            await EventMeshNodeViewModel.RefreshSessions(clientId, vpn, _filter);
+            IsLoading = false;
+        }
+
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    private async Task HandleSelectedNodeChanged()
+    {
+        EventMeshNodeViewModel.ResetSessions();
+        await RefreshClientSessions();
+    }
+}

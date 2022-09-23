@@ -15,7 +15,8 @@ namespace FaasNet.EventMesh
             if (!session.Success) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.UNKNOWN_SESSION);
             if (!session.Session.IsValid) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.EXPIRED_SESSION);
             if (session.Session.ClientPurpose != ClientPurposeTypes.SUBSCRIBE) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.BAD_SESSION_USAGE);
-            var stateMachine = await Query<GetQueueMessageQueryResult>(session.Session.QueueName, new GetQueueMessageQuery { Offset = readMessageRequest.Offset, QueueName = session.Session.QueueName }, cancellationToken);
+            var partitionKey = $"{session.Session.Vpn}_{session.Session.QueueName}";
+            var stateMachine = await Query<GetQueueMessageQueryResult>(partitionKey, new GetQueueMessageQuery { Offset = readMessageRequest.Offset, QueueName = session.Session.QueueName }, cancellationToken);
             if (!stateMachine.Success) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.NO_MESSAGE);
             return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, stateMachine.Message.Data);
         }

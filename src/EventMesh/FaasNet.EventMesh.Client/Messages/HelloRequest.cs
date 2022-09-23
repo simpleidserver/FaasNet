@@ -12,6 +12,7 @@ namespace FaasNet.EventMesh.Client.Messages
 
 
         public string ClientId { get; set; }
+        public string Vpn { get; set; }
         public string ClientSecret { get; set; }
         public string QueueName { get; set; }
         public ClientPurposeTypes Purpose { get; set; }
@@ -21,6 +22,7 @@ namespace FaasNet.EventMesh.Client.Messages
         protected override void SerializeAction(WriteBufferContext context)
         {
             context.WriteString(ClientId);
+            context.WriteString(Vpn);
             context.WriteString(ClientSecret);
             context.WriteString(QueueName);
             context.WriteInteger((int)Purpose);
@@ -29,6 +31,7 @@ namespace FaasNet.EventMesh.Client.Messages
         public HelloRequest Extract(ReadBufferContext context)
         {
             ClientId = context.NextString();
+            Vpn = context.NextString();
             ClientSecret = context.NextString();
             QueueName = context.NextString();
             Purpose = (ClientPurposeTypes)context.NextInt();

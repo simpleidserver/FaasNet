@@ -57,6 +57,20 @@ namespace FaasNet.EventMesh.Client
             return packageResult as GetAllVpnResult;
         }
 
+        public async Task<SearchSessionsResult> SearchSessions(string clientId, string vpn, FilterQuery filter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.SearchSessions(clientId, vpn, filter);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as SearchSessionsResult;
+        }
+
         public async Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposes, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
@@ -71,10 +85,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as AddClientResult;
         }
 
-        public async Task<GetClientQueryResult> GetClient(string clientId, int timeoutMS = 500, CancellationToken cancellationToken)
+        public async Task<GetClientResult> GetClient(string clientId, string vpn, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.GetClient(filter);
+            var package = PackageRequestBuilder.GetClient(clientId, vpn);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);
@@ -82,7 +96,7 @@ namespace FaasNet.EventMesh.Client
             var readCtx = new ReadBufferContext(resultPayload);
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
-            return packageResult as GetAllClientResult;
+            return packageResult as GetClientResult;
         }
 
         public async Task<GetAllClientResult> GetAllClient(FilterQuery filter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
@@ -99,10 +113,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as GetAllClientResult;
         }
 
-        public async Task<AddQueueResponse> AddQueue(string name, string topicFilter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AddQueueResponse> AddQueue(string topic, string name, string topicFilter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AddQueue(name, topicFilter);
+            var package = PackageRequestBuilder.AddQueue(topic, name, topicFilter);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);
@@ -113,10 +127,24 @@ namespace FaasNet.EventMesh.Client
             return packageResult as AddQueueResponse;
         }
 
-        public async Task<EventMeshPublishSessionClient> CreatePubSession(string clientId, string clientSecret, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<SearchQueuesResult> SearchQueues(FilterQuery filter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.Hello(clientId, clientSecret, string.Empty, ClientPurposeTypes.PUBLISH);
+            var package = PackageRequestBuilder.SearchQueues(filter);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as SearchQueuesResult;
+        }
+
+        public async Task<EventMeshPublishSessionClient> CreatePubSession(string clientId, string vpn, string clientSecret, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.Hello(clientId, vpn, clientSecret, string.Empty, ClientPurposeTypes.PUBLISH);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);
@@ -128,10 +156,10 @@ namespace FaasNet.EventMesh.Client
             return result;
         }
 
-        public async Task<EventMeshSubscribeSessionClient> CreateSubSession(string clientId, string clientSecret, string queueName, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<EventMeshSubscribeSessionClient> CreateSubSession(string clientId, string vpn, string clientSecret, string queueName, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.Hello(clientId, clientSecret, queueName, ClientPurposeTypes.SUBSCRIBE);
+            var package = PackageRequestBuilder.Hello(clientId, vpn, clientSecret, queueName, ClientPurposeTypes.SUBSCRIBE);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);

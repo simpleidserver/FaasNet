@@ -1,15 +1,38 @@
-﻿@page "/clients/{clientId}"
-@page "/clients/{clientId}/info"
+﻿@page "/vpns/{vpn}/clients/{clientId}"
+@page "/vpns/{vpn}/clients/{clientId}/info"
+@using FaasNet.EventMesh.Client.StateMachines.Client
 @layout ClientLayout
 @inject EventMeshNodeViewModel EventMeshNodeViewModel
 
 <div>
     <Loader IsDisplayed="IsLoading">
-        <!-- Identifier -->
-        <div class="mb-3">
-            <label>Identifier</label>
-            <input type="text" disabled value="@clientId" />
-        </div>
+        @if(EventMeshNodeViewModel.ClientInfo.Success)
+        {           
+            <!-- Identifier -->
+            <div class="mb-3">
+                <label class="form-label">Identifier</label>
+                <input type="text" class="form-control" disabled value="@EventMeshNodeViewModel.ClientInfo.Content.Id" />
+            </div>
+            <!-- VPN -->
+            <div class="mb-3">
+                <label class="form-label">VPN</label>
+                <input type="text" class="form-control" disabled value="@EventMeshNodeViewModel.ClientInfo.Content.Vpn" />
+            </div>
+            <!-- CreateDateTime -->
+            <div class="mb-3">
+                <label class="form-label">Creation Datetime</label>
+                <input type="text" class="form-control" disabled value="@(EventMeshNodeViewModel.ClientInfo.Content.CreateDateTime.GetValueOrDefault().ToLocalTime())" />
+            </div>
+            <!-- Purpose types -->
+            <div class="mb-3">
+                <label class="form-label">Purpose Types</label>
+                <div>
+		            @foreach(var purposeType in EventMeshNodeViewModel.ClientInfo.Content.Purposes) {
+		    	        <span class="badge text-bg-primary purposeType">@Enum.GetName(typeof(ClientPurposeTypes), purposeType)</span>
+		            }
+                </div>
+            </div>
+        }
     </Loader>
 </div>
 
@@ -17,16 +40,33 @@
 @code {
     [Parameter]
     public string clientId { get; set; }
-    private bool IsLoading { get; set; }
+    [Parameter]
+    public string vpn { get; set; }
+    private bool IsLoading { get; set; } = true;
 
     protected override async Task OnInitializedAsync() {
         await base.OnInitializedAsync();
-        if (EventMeshNodeViewModel.IsRunning) await RefreshVpns();
-        EventMeshNodeViewModel.StatusChanged += async (o, e) => await RefreshVpns();
+        if (EventMeshNodeViewModel.IsRunning) await RefreshClientInfo();
+        EventMeshNodeViewModel.StatusChanged += async (o, e) => await RefreshClientInfo();
         EventMeshNodeViewModel.SelectedNodeChanged += async (o, e) => await HandleSelectedNodeChanged();
     }  
 
-    private async Task RefreshClientInfo() {
-        await EventMeshNodeViewModel.GetClient(clientId);
+    private async Task RefreshClientInfo() 
+    {
+        if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetClientInfo();
+        else
+        {
+            IsLoading = true;
+            await EventMeshNodeViewModel.RefreshClientInfo(clientId, vpn);
+            IsLoading = false;
+        }
+
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    private async Task HandleSelectedNodeChanged()
+    {
+        EventMeshNodeViewModel.ResetClientInfo();
+        await RefreshClientInfo();
     }
 }

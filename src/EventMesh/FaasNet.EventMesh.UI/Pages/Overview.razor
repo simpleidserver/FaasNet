@@ -10,11 +10,11 @@
 	Status is 
 	@if(EventMeshNodeViewModel.IsRunning)
 	{
-		<b style="color: green">Active</b>
+		<b class="success">Active</b>
 	}
 	else
 	{
-		<b style="color: red">Inactive</b>
+		<b class="error">Inactive</b>
 	}
 	Last refresh time <b>@EventMeshNodeViewModel.LastRefreshTime.GetValueOrDefault()</b><br />
 	<b>@EventMeshNodeViewModel.Protocol</b> protocol is used

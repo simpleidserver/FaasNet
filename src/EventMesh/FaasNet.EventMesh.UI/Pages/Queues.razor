@@ -2,7 +2,67 @@
 @using FaasNet.EventMesh.Client.Messages
 @using FaasNet.EventMesh.Client.StateMachines
 @using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.Client.StateMachines.Queue
 
 @inject EventMeshNodeViewModel EventMeshNodeViewModel
 
 <PageTitle>Queues</PageTitle>
+
+<Section Title="Queues">
+	<Loader IsDisplayed="IsLoading">		
+		<Grid TRowData="QueueQueryResult" Result="EventMeshNodeViewModel.Queues" @bind-Query="Filter">
+			<GridColumn TRowData="QueueQueryResult" Expression="c => c.Vpn" Title="Vpn" Name="Vpn" IsSortEnabled="true" />
+			<GridColumn TRowData="QueueQueryResult" Expression="c => c.QueueName" Title="Name" Name="QueueName" IsSortEnabled="true" />
+			<GridColumn TRowData="QueueQueryResult" Expression="c => c.TopicFilter" Title="Topic Filter" Name="TopicFilter" IsSortEnabled="true" />
+		</Grid>
+	</Loader>
+</Section>
+
+@code {
+	private FilterQuery _filter = new FilterQuery
+	{
+		SortOrder = SortOrders.ASC,
+		SortBy = "QueueName"
+	};
+	private AddVpnViewModel addVpn = new();
+	public FilterQuery Filter
+	{
+		get
+		{
+			return _filter;
+		}
+		set
+		{
+			_filter = value;
+			this.RefreshQueues();
+		}
+	}
+	public bool IsLoading { get; set; } = true;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		if (EventMeshNodeViewModel.IsRunning) await RefreshQueues();
+		EventMeshNodeViewModel.StatusChanged += async (o, e) => await RefreshQueues();
+		EventMeshNodeViewModel.SelectedNodeChanged += async (o, e) => await HandleSelectedNodeChanged();
+	}
+
+	private async Task RefreshQueues()
+	{
+		if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetQueues();
+		else 
+		{
+			IsLoading = true;
+			await EventMeshNodeViewModel.RefreshQueues(Filter);
+			IsLoading = false;
+		}
+
+		await InvokeAsync(() => StateHasChanged());
+	}
+
+	private async Task HandleSelectedNodeChanged()
+	{
+		EventMeshNodeViewModel.ResetVpns();
+		await RefreshQueues();
+	}
+}

@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client.StateMachines.Client;
+﻿using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.EventMesh.Client.StateMachines.Session;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
@@ -13,9 +14,9 @@ namespace FaasNet.EventMesh.StateMachines.Session
 {
     public class SessionStateMachine : IStateMachine
     {
-        private readonly IStateMachineRecordStore<SessionRecord> _store;
+        private readonly ISessionStateMachineStore _store;
 
-        public SessionStateMachine(IStateMachineRecordStore<SessionRecord> store)
+        public SessionStateMachine(ISessionStateMachineStore store)
         {
             _store = store;
         }
@@ -27,7 +28,15 @@ namespace FaasNet.EventMesh.StateMachines.Session
                 case AddSessionCommand addSession:
                     var session = await _store.Get(addSession.Id, cancellationToken);
                     if (session != null) return;
-                    _store.Add(new SessionRecord { ClientId = addSession.ClientId, ClientPurpose = addSession.ClientPurpose, ExpirationTime = addSession.ExpirationTime, Id = addSession.Id, QueueName = addSession.QueueName });
+                    _store.Add(new SessionRecord 
+                    { 
+                        ClientId = addSession.ClientId, 
+                        Vpn = addSession.Vpn,
+                        ClientPurpose = addSession.ClientPurpose, 
+                        ExpirationTime = addSession.ExpirationTime, 
+                        Id = addSession.Id, 
+                        QueueName = addSession.QueueName
+                    });
                     break;
             }
         }
@@ -49,7 +58,15 @@ namespace FaasNet.EventMesh.StateMachines.Session
                 case GetSessionQuery getSession:
                     var result = await _store.Get(getSession.Id, cancellationToken);
                     if (result == null) return new GetSessionQueryResult();
-                    return new GetSessionQueryResult(new SessionQueryResult { ClientId = result.ClientId, ClientPurpose = result.ClientPurpose, ExpirationTime = result.ExpirationTime, Id = result.Id, QueueName = result.QueueName });
+                    return new GetSessionQueryResult(Transform(result));
+                case SearchSessionsQuery searchSessions:
+                    var res = await _store.Find(searchSessions.ClientId, searchSessions.Vpn, searchSessions.Filter, cancellationToken);
+                    return new GenericSearchQueryResult<SessionQueryResult>
+                    {
+                        TotalPages = res.TotalPages,
+                        TotalRecords = res.TotalRecords,
+                        Records = res.Records.Select(res => Transform(res))
+                    };
             }
 
             return null;
@@ -74,12 +91,25 @@ namespace FaasNet.EventMesh.StateMachines.Session
         {
             return _store.Truncate(cancellationToken);
         }
+
+        private static SessionQueryResult Transform(SessionRecord session)
+        {
+            return new SessionQueryResult 
+            { 
+                ClientId = session.ClientId, 
+                ClientPurpose = session.ClientPurpose, 
+                ExpirationTime = session.ExpirationTime, 
+                Id = session.Id, 
+                QueueName = session.QueueName 
+            };
+        }
     }
 
     public class SessionRecord : IRecord
     {
         public string Id { get; set; }
         public string ClientId { get; set; }
+        public string Vpn { get; set; }
         public ClientPurposeTypes ClientPurpose { get; set; }
         public TimeSpan ExpirationTime { get; set; }
         public string QueueName { get; set; }
@@ -89,6 +119,7 @@ namespace FaasNet.EventMesh.StateMachines.Session
         {
             Id = context.NextString();
             ClientId = context.NextString();
+            Vpn = context.NextString();
             ClientPurpose = (ClientPurposeTypes)context.NextInt();
             ExpirationTime = context.NextTimeSpan().Value;
             QueueName = context.NextString();
@@ -98,6 +129,7 @@ namespace FaasNet.EventMesh.StateMachines.Session
         {
             context.WriteString(Id);
             context.WriteString(ClientId);
+            context.WriteString(Vpn);
             context.WriteInteger((int)ClientPurpose);
             context.WriteTimeSpan(ExpirationTime);
             context.WriteString(QueueName);

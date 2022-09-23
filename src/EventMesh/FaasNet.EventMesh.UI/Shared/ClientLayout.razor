@@ -1,11 +1,17 @@
 ﻿@inherits LayoutComponentBase
 @layout MainLayout
 
-<div>    
+<div id="client">    
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <NavLink href="/clients">Clients</NavLink>
+                <NavLink href="/vpns">Vpns</NavLink>
+            </li>
+            <li class="breadcrumb-item">
+                @Vpn
+            </li>
+            <li class="breadcrumb-item">
+                Clients
             </li>
             <li class="breadcrumb-item active">
                 @ClientId
@@ -14,21 +20,27 @@
     </nav>
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <NavLink class="nav-link" href="@("/clients/"+ ClientId + "/info")">Information</NavLink>
+            <NavLink class="nav-link" href="@($"/vpns/{Vpn}/clients/{ClientId}/info")">Information</NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink class="nav-link" href="@($"/vpns/{Vpn}/clients/{ClientId}/sessions")">Sessions</NavLink>
         </li>
     </ul>
-    @Body
+    <div id="clientContent">
+        @Body
+    </div>
 </div>
 
 @code {
     public string ClientId { get; set; }
+    public string Vpn { get; set; }
 
     protected override void OnParametersSet()
     {
-        object clientId;
+        object clientId, vpn;
         if((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("clientId", out clientId) == true)
-        {
             ClientId = clientId?.ToString();
-        }
+        if((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("vpn", out vpn) == true)
+            Vpn = vpn?.ToString();
     }
 }

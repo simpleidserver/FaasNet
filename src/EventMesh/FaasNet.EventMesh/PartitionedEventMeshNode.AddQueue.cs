@@ -22,7 +22,11 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(AddQueueRequest addQueueRequest, CancellationToken cancellationToken)
         {
-            var queue = await Query<GetQueueQueryResult>(QUEUE_PARTITION_KEY, new GetQueueQuery { QueueName = addQueueRequest.QueueName }, cancellationToken);
+            var queue = await Query<GetQueueQueryResult>(QUEUE_PARTITION_KEY, new GetQueueQuery 
+            { 
+                QueueName = addQueueRequest.QueueName,
+                Vpn = addQueueRequest.Vpn
+            }, cancellationToken);
             if (queue.Success) return PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.EXISTING_QUEUE);
             var broadcastResult = await BroadcastPartitions();
             if (!broadcastResult.Item1)
@@ -49,11 +53,11 @@ namespace FaasNet.EventMesh
                         MaxDegreeOfParallelism = _eventMeshOptions.MaxNbThreads
                     }, async (n, t) =>
                     {
-                        addTopicResultLst.Add(await AddPartition(addQueueRequest.QueueName, n));
+                        addTopicResultLst.Add(await AddPartition($"{addQueueRequest.Vpn}_{addQueueRequest.QueueName}", n));
                     });
                     var nbSuccess = addTopicResultLst.Count(r => r);
                     if (nbSuccess < expectedNbActiveNodes) return (false, PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.NOT_ENOUGHT_ACTIVENODES), filteredNodes);
-                    await PartitionCluster.TryAddAndStart(addQueueRequest.QueueName, typeof(QueueMessageStateMachine));
+                    await PartitionCluster.TryAddAndStart($"{addQueueRequest.Vpn}_{addQueueRequest.QueueName}", typeof(QueueMessageStateMachine));
                     return (true, PackageResponseBuilder.AddQueue(addQueueRequest.Seq), filteredNodes);
                 }
                 catch (Exception ex)
@@ -65,7 +69,7 @@ namespace FaasNet.EventMesh
 
             async Task AddQueue()
             {
-                var addQueueCommand = new AddQueueCommand { QueueName = addQueueRequest.QueueName, TopicFilter = addQueueRequest.TopicFilter };
+                var addQueueCommand = new AddQueueCommand { QueueName = addQueueRequest.QueueName, Vpn = addQueueRequest.Vpn, TopicFilter = addQueueRequest.TopicFilter };
                 await Send(QUEUE_PARTITION_KEY, addQueueCommand, cancellationToken);
             }
 
@@ -94,9 +98,9 @@ namespace FaasNet.EventMesh
                     MaxDegreeOfParallelism = _eventMeshOptions.MaxNbThreads
                 }, async (n, t) =>
                 {
-                    await RemovePartition(addQueueRequest.QueueName, n);
+                    await RemovePartition($"{addQueueRequest.Vpn}_{addQueueRequest.QueueName}", n);
                 });
-                await PartitionCluster.TryRemove(addQueueRequest.QueueName, TokenSource.Token);
+                await PartitionCluster.TryRemove($"{addQueueRequest.Vpn}_{addQueueRequest.QueueName}", TokenSource.Token);
             }
 
             async Task<bool> RemovePartition(string topic, ClusterPeer peer)

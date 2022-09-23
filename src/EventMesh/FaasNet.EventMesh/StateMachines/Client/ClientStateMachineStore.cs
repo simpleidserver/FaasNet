@@ -12,6 +12,7 @@ namespace FaasNet.EventMesh.StateMachines.Client
 {
     public interface IClientStateMachineStore : IStateMachineRecordStore<ClientRecord>
     {
+        Task<ClientRecord> Get(string id, string vpn, CancellationToken cancellationToken);
         Task<IEnumerable<ClientRecord>> GetAll(CancellationToken cancellationToken);
         Task<GenericSearchResult<ClientRecord>> Find(FilterQuery filter, CancellationToken cancellationToken);
     }
@@ -39,6 +40,11 @@ namespace FaasNet.EventMesh.StateMachines.Client
         public Task<ClientRecord> Get(string key, CancellationToken cancellationToken)
         {
             return Task.FromResult(_clients.FirstOrDefault(c => c.Id == key));
+        }
+
+        public Task<ClientRecord> Get(string id, string vpn, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_clients.FirstOrDefault(c => c.Id == id && c.Vpn == vpn));
         }
 
         public IEnumerable<(IEnumerable<ClientRecord>, int)> GetAll(int nbRecords)

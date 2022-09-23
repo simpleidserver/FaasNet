@@ -1,4 +1,6 @@
-﻿using FaasNet.RaftConsensus.Core.StateMachines;
+﻿using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Extensions;
+using FaasNet.RaftConsensus.Core.StateMachines;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,7 +10,12 @@ using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.StateMachines.Session
 {
-    public class SessionStateMachineStore : IStateMachineRecordStore<SessionRecord>
+    public interface ISessionStateMachineStore : IStateMachineRecordStore<SessionRecord>
+    {
+        Task<GenericSearchResult<SessionRecord>> Find(string clientId, string vpn, FilterQuery filter, CancellationToken cancellationToken);
+    }
+
+    public class SessionStateMachineStore : ISessionStateMachineStore
     {
         private ConcurrentBag<SessionRecord> _sessions = new ConcurrentBag<SessionRecord>();
 
@@ -21,6 +28,21 @@ namespace FaasNet.EventMesh.StateMachines.Session
         {
             _sessions = new ConcurrentBag<SessionRecord>(records);
             return Task.CompletedTask;
+        }
+
+        public Task<GenericSearchResult<SessionRecord>> Find(string clientId, string vpn, FilterQuery filter, CancellationToken cancellationToken)
+        {
+            var filteredSessions = _sessions.Where(s => s.ClientId == clientId && s.Vpn == vpn);
+            IEnumerable<SessionRecord> filtered = filteredSessions.AsQueryable().InvokeOrderBy(filter.SortBy, filter.SortOrder).ToList();
+            var totalRecords = filtered.Count();
+            filtered = filtered.Skip(filter.NbRecords * filter.Page).Take(filter.NbRecords);
+            var nbPages = (int)Math.Ceiling((decimal)totalRecords / filter.NbRecords);
+            return Task.FromResult(new GenericSearchResult<SessionRecord>
+            {
+                Records = filtered,
+                TotalPages = nbPages,
+                TotalRecords = totalRecords
+            });
         }
 
         public Task<SessionRecord> Get(string key, CancellationToken cancellationToken)

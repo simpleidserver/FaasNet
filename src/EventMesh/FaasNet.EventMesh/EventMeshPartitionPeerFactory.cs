@@ -39,7 +39,7 @@ namespace FaasNet.EventMesh
                 s.AddScoped<IClientStateMachineStore, ClientStateMachineStore>();
                 s.AddScoped<IQueueStateMachineStore, QueueStateMachineStore>();
                 s.AddScoped<IQueueMessageStateMachineStore, QueueMessageStateMachineStore>();
-                s.AddScoped<IStateMachineRecordStore<SessionRecord>, SessionStateMachineStore>();
+                s.AddScoped<ISessionStateMachineStore, SessionStateMachineStore>();
                 s.AddScoped<IVpnStateMachineStore, VpnStateMachineStore>();
                 if (callbackService != null) callbackService(s);
             })

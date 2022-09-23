@@ -55,7 +55,7 @@ namespace FaasNet.EventMesh.StateMachines.Client
             switch(query)
             {
                 case GetClientQuery getClient:
-                    var result = await _store.Get(getClient.Id, cancellationToken);
+                    var result = await _store.Get(getClient.Id, getClient.Vpn, cancellationToken);
                     if (result == null) return new GetClientQueryResult();
                     return new GetClientQueryResult(Transform(result));
                 case GetAllClientsQuery getClients:

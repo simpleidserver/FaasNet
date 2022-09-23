@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client.StateMachines.Queue;
+﻿using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Queue;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
@@ -23,9 +24,9 @@ namespace FaasNet.EventMesh.StateMachines.Queue
             switch (cmd)
             {
                 case AddQueueCommand addQueue:
-                    var client = await _store.Get(addQueue.QueueName, cancellationToken);
+                    var client = await _store.Get(addQueue.QueueName, addQueue.Vpn, cancellationToken);
                     if (client != null) return;
-                    _store.Add(new QueueRecord { QueueName = addQueue.QueueName, TopicFilter = addQueue.TopicFilter });
+                    _store.Add(new QueueRecord { QueueName = addQueue.QueueName, Vpn = addQueue.Vpn, TopicFilter = addQueue.TopicFilter });
                     break;
             }
         }
@@ -45,16 +46,20 @@ namespace FaasNet.EventMesh.StateMachines.Queue
             switch (query)
             {
                 case GetQueueQuery getQueue:
-                    var result = await _store.Get(getQueue.QueueName, cancellationToken);
+                    var result = await _store.Get(getQueue.QueueName, getQueue.Vpn, cancellationToken);
                     if (result == null) return new GetQueueQueryResult();
-                    return new GetQueueQueryResult(new QueueQueryResult { QueueName = result.QueueName, TopicFilter = result.TopicFilter });
+                    return new GetQueueQueryResult(new QueueQueryResult { QueueName = result.QueueName, Vpn = result.Vpn, TopicFilter = result.TopicFilter });
                 case SearchQueuesQuery searchQueuesQuery:
-                    var queues = await _store.Search(searchQueuesQuery.TopicMessage, cancellationToken);
-                    return new SearchQueuesQueryResult { Queues = queues.Select(q => new QueueQueryResult
+                    var queues = await _store.Search(searchQueuesQuery.Vpn, searchQueuesQuery.TopicMessage, cancellationToken);
+                    return new SearchQueuesQueryResult { Queues = queues.Select(q => Transform(q)).ToList()};
+                case FindQueuesQuery findQueuesQuery:
+                    var findResult = await _store.Find(findQueuesQuery.Filter, cancellationToken);
+                    return new GenericSearchQueryResult<QueueQueryResult>
                     {
-                        QueueName = q.QueueName,
-                        TopicFilter = q.TopicFilter
-                    }).ToList()};
+                        TotalPages = findResult.TotalPages,
+                        TotalRecords = findResult.TotalRecords,
+                        Records = findResult.Records.Select(r => Transform(r))
+                    };
             }
 
             return null;
@@ -79,21 +84,34 @@ namespace FaasNet.EventMesh.StateMachines.Queue
         {
             return _store.Truncate(cancellationToken);
         }
+
+        private static QueueQueryResult Transform(QueueRecord record)
+        {
+            return new QueueQueryResult
+            {
+                Vpn = record.Vpn,
+                QueueName = record.QueueName,
+                TopicFilter = record.TopicFilter
+            };
+        }
     }
 
     public class QueueRecord : IRecord
     {
+        public string Vpn { get; set; }
         public string QueueName { get; set; }
         public string TopicFilter { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
+            Vpn = context.NextString();
             QueueName = context.NextString();
             TopicFilter = context.NextString();
         }
 
         public void Serialize(WriteBufferContext context)
         {
+            context.WriteString(Vpn);
             context.WriteString(QueueName);
             context.WriteString(TopicFilter);
         }

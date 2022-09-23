@@ -25,7 +25,7 @@
 				}
 				else
 				{
-					<span>@context.Id</span>
+					<NavLink href="@($"/vpns/{context.Vpn}/clients/{context.Id}/info")">@context.Id</NavLink>
 				}
 			</GridColumn>
 			<GridColumn TRowData="ClientQueryResult" Name="Vpn" Title="VPN">

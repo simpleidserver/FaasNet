@@ -2,6 +2,8 @@
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
+using FaasNet.EventMesh.Client.StateMachines.Queue;
+using FaasNet.EventMesh.Client.StateMachines.Session;
 using FaasNet.EventMesh.Client.StateMachines.Vpn;
 using FaasNet.EventMesh.UI.Data;
 using FaasNet.Peer.Client.Transports;
@@ -44,6 +46,9 @@ namespace FaasNet.EventMesh.UI.ViewModels
         public IEnumerable<PeerStateViewModel> PeerStates { get; set; } = new List<PeerStateViewModel>();
         public GenericSearchQueryResult<VpnQueryResult> Vpns { get; set; } = new GenericSearchQueryResult<VpnQueryResult>();
         public GenericSearchQueryResult<ClientQueryResult> Clients { get; set; } = new GenericSearchQueryResult<ClientQueryResult>();
+        public GenericSearchQueryResult<SessionQueryResult> Sessions { get; set; } = new GenericSearchQueryResult<SessionQueryResult>();
+        public GenericSearchQueryResult<QueueQueryResult> Queues { get; set; } = new GenericSearchQueryResult<QueueQueryResult>();
+        public GetClientResult ClientInfo { get; set; } = new GetClientResult(String.Empty);
 
         public void ListenStatus()
         {
@@ -91,6 +96,39 @@ namespace FaasNet.EventMesh.UI.ViewModels
             Vpns = await _eventMeshService.GetAllVpns(filter, SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
         }
 
+        public void ResetClientInfo()
+        {
+            ClientInfo = new GetClientResult(String.Empty);
+        }
+
+        public async Task RefreshClientInfo(string clientId, string vpn)
+        {
+            if (!IsRunning) return;
+            ClientInfo = await _eventMeshService.GetClient(clientId, vpn, SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
+        }
+
+        public void ResetSessions()
+        {
+            Sessions = new GenericSearchQueryResult<SessionQueryResult>();
+        }
+
+        public async Task RefreshSessions(string clientId, string vpn, FilterQuery filter)
+        {
+            if (!IsRunning) return;
+            Sessions = await _eventMeshService.SearchSessions(clientId, vpn, filter, SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
+        }
+
+        public void ResetQueues()
+        {
+            Queues = new GenericSearchQueryResult<QueueQueryResult>();
+        }
+
+        public async Task RefreshQueues(FilterQuery filter)
+        {
+            if (!IsRunning) return;
+            Queues = await _eventMeshService.SearchQueues(filter, SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
+        }
+
         public void Select(string nodeId)
         {
             SelectedNode = Nodes.Single(n => n.Id == nodeId);
@@ -107,11 +145,6 @@ namespace FaasNet.EventMesh.UI.ViewModels
         {
             var result = await _eventMeshService.AddClient(addClient.ClientId, addClient.Vpn, addClient.PurposeTypes.Select(p =>(ClientPurposeTypes)p).ToList(), SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
             return result;
-        }
-
-        public async Task<ClientQueryResult> GetClient(string clientId)
-        {
-            var result = await 
         }
 
         private async void RefreshStatus(object? sender, System.Timers.ElapsedEventArgs e)

@@ -2,6 +2,8 @@
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
+using FaasNet.EventMesh.Client.StateMachines.Queue;
+using FaasNet.EventMesh.Client.StateMachines.Session;
 using FaasNet.EventMesh.Client.StateMachines.Vpn;
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Client.Messages;
@@ -18,9 +20,11 @@ namespace FaasNet.EventMesh.UI.Data
         Task<IEnumerable<(GetPeerStateResult, string)>> GetAllPeerStates(string url, int port, CancellationToken cancellationToken);
         Task<GenericSearchQueryResult<ClientQueryResult>> GetAllClients(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
         Task<GenericSearchQueryResult<VpnQueryResult>> GetAllVpns(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
+        Task<GenericSearchQueryResult<SessionQueryResult>> SearchSessions(string clientId, string vpn, FilterQuery filter, string url, int port, CancellationToken cancellationToken);
+        Task<GenericSearchQueryResult<QueueQueryResult>> SearchQueues(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
         Task<AddVpnResult> AddVpn(string vpn, string description, string url, int port, CancellationToken cancellationToken);
         Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken);
-        Task<ClientQueryResult> GetClient(string clientId, string url, int port, CancellationToken cancellationToken);
+        Task<GetClientResult> GetClient(string clientId, string vpn, string url, int port, CancellationToken cancellationToken);
     }
 
     public class EventMeshService : IEventMeshService
@@ -87,6 +91,24 @@ namespace FaasNet.EventMesh.UI.Data
             }
         }
 
+        public async Task<GenericSearchQueryResult<SessionQueryResult>> SearchSessions(string clientId, string vpn, FilterQuery filter, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var sessionsResult = await client.SearchSessions(clientId, vpn, filter, _options.RequestTimeoutMS, cancellationToken);
+                return sessionsResult.Content;
+            }
+        }
+
+        public async Task<GenericSearchQueryResult<QueueQueryResult>> SearchQueues(FilterQuery filter, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var queuesResult = await client.SearchQueues(filter, _options.RequestTimeoutMS, cancellationToken);
+                return queuesResult.Content;
+            }
+        }
+
         public async Task<AddVpnResult> AddVpn(string vpn, string description, string url, int port, CancellationToken cancellationToken)
         {
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
@@ -105,13 +127,13 @@ namespace FaasNet.EventMesh.UI.Data
             }
         }
 
-        public async Task<ClientQueryResult> GetClient(string clientId, string url, int port, CancellationToken cancellationToken)
+        public async Task<GetClientResult> GetClient(string clientId, string vpn, string url, int port, CancellationToken cancellationToken)
         {
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
-                var clientResult = await client.Get
+                var clientResult = await client.GetClient(clientId, vpn, _options.RequestTimeoutMS, cancellationToken);
+                return clientResult;
             }
-                throw new NotImplementedException();
         }
     }
 }

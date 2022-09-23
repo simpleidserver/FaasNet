@@ -13,7 +13,7 @@ namespace FaasNet.EventMesh
         {
             var vpn = await Query<GetVpnQueryResult>(VPN_PARTITION_KEY, new GetVpnQuery { Id = addClientRequest.Vpn }, cancellationToken);
             if (!vpn.Success) return PackageResponseBuilder.AddClient(addClientRequest.Seq, AddClientErrorStatus.UNKNOWN_VPN);
-            var client = await Query<GetClientQueryResult>(CLIENT_PARTITION_KEY, new GetClientQuery { Id = addClientRequest.Id }, cancellationToken);
+            var client = await Query<GetClientQueryResult>(CLIENT_PARTITION_KEY, new GetClientQuery { Id = addClientRequest.Id, Vpn = addClientRequest.Vpn }, cancellationToken);
             if (client.Success) return PackageResponseBuilder.AddClient(addClientRequest.Seq, AddClientErrorStatus.EXISTING_CLIENT);
             var clientSecret = Guid.NewGuid().ToString();
             var addClientCommand = new AddClientCommand { Id = addClientRequest.Id, Purposes = addClientRequest.Purposes, Vpn = addClientRequest.Vpn, ClientSecret = PasswordHelper.ComputePassword(clientSecret), SessionExpirationTimeMS = _eventMeshOptions.ClientSessionExpirationTimeMS };
