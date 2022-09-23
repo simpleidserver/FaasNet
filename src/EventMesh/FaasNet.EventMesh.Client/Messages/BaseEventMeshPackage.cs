@@ -54,6 +54,8 @@ namespace FaasNet.EventMesh.Client.Messages
             if (cmd == EventMeshCommands.HELLO_RESPONSE) return new HelloResult(seq).Extract(context);
             if (cmd == EventMeshCommands.READ_MESSAGE_REQUEST) return new ReadMessageRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.READ_MESSAGE_RESPONSE) return new ReadMessageResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.GET_CLIENT_REQUEST) return new GetClientRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.GET_CLIENT_RESPONSE) return new GetClientResult(seq).Extract(context);
             return null;
         }
     }

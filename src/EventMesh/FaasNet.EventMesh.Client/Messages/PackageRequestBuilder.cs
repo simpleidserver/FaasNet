@@ -78,6 +78,10 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage GetClient(string clientId)
+        {
+        }
+
         private static string GenerateRandomSeq()
         {
             var builder = new StringBuilder(10);

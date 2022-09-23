@@ -20,6 +20,6 @@ h2 {
     font-size: 24px;
 }
 
-.active {
+#navHeader .active {
     color: var(--active-link-fg-color) !important;
 }

@@ -1,0 +1,34 @@
+﻿@inherits LayoutComponentBase
+@layout MainLayout
+
+<div>    
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <NavLink href="/clients">Clients</NavLink>
+            </li>
+            <li class="breadcrumb-item active">
+                @ClientId
+            </li>
+        </ol>
+    </nav>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <NavLink class="nav-link" href="@("/clients/"+ ClientId + "/info")">Information</NavLink>
+        </li>
+    </ul>
+    @Body
+</div>
+
+@code {
+    public string ClientId { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        object clientId;
+        if((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("clientId", out clientId) == true)
+        {
+            ClientId = clientId?.ToString();
+        }
+    }
+}

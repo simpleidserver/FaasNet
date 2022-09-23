@@ -71,6 +71,20 @@ namespace FaasNet.EventMesh.Client
             return packageResult as AddClientResult;
         }
 
+        public async Task<GetClientQueryResult> GetClient(string clientId, int timeoutMS = 500, CancellationToken cancellationToken)
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.GetClient(filter);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as GetAllClientResult;
+        }
+
         public async Task<GetAllClientResult> GetAllClient(FilterQuery filter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();

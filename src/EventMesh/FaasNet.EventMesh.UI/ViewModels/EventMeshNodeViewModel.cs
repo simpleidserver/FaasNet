@@ -109,6 +109,11 @@ namespace FaasNet.EventMesh.UI.ViewModels
             return result;
         }
 
+        public async Task<ClientQueryResult> GetClient(string clientId)
+        {
+            var result = await 
+        }
+
         private async void RefreshStatus(object? sender, System.Timers.ElapsedEventArgs e)
         {
             LastRefreshTime = DateTime.UtcNow;

@@ -76,6 +76,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Response sent when a message is received.
         /// </summary>
         public static EventMeshCommands READ_MESSAGE_RESPONSE = new EventMeshCommands(17, "READ_MESSAGE_RESPONSE");
+        /// <summary>
+        /// Request sent to get a client.
+        /// </summary>
+        public static EventMeshCommands GET_CLIENT_REQUEST = new EventMeshCommands(18, "GET_CLIENT_REQUEST");
+        /// <summary>
+        /// Response sent when a client is received.
+        /// </summary>
+        public static EventMeshCommands GET_CLIENT_RESPONSE = new EventMeshCommands(19, "GET_CLIENT_RESPONSE");
 
         protected EventMeshCommands(int code)
         {

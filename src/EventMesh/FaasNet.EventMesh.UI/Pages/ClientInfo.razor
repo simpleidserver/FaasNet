@@ -1,0 +1,32 @@
+﻿@page "/clients/{clientId}"
+@page "/clients/{clientId}/info"
+@layout ClientLayout
+@inject EventMeshNodeViewModel EventMeshNodeViewModel
+
+<div>
+    <Loader IsDisplayed="IsLoading">
+        <!-- Identifier -->
+        <div class="mb-3">
+            <label>Identifier</label>
+            <input type="text" disabled value="@clientId" />
+        </div>
+    </Loader>
+</div>
+
+
+@code {
+    [Parameter]
+    public string clientId { get; set; }
+    private bool IsLoading { get; set; }
+
+    protected override async Task OnInitializedAsync() {
+        await base.OnInitializedAsync();
+        if (EventMeshNodeViewModel.IsRunning) await RefreshVpns();
+        EventMeshNodeViewModel.StatusChanged += async (o, e) => await RefreshVpns();
+        EventMeshNodeViewModel.SelectedNodeChanged += async (o, e) => await HandleSelectedNodeChanged();
+    }  
+
+    private async Task RefreshClientInfo() {
+        await EventMeshNodeViewModel.GetClient(clientId);
+    }
+}
