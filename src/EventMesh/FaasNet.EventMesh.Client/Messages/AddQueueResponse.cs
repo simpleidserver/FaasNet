@@ -35,6 +35,7 @@ namespace FaasNet.EventMesh.Client.Messages
         SUCCESS = 0,
         NOT_ENOUGHT_ACTIVENODES = 1,
         INTERNAL_ERROR = 2,
-        EXISTING_QUEUE = 3
+        EXISTING_QUEUE = 3,
+        UNKNOWN_VPN = 4
     }
 }

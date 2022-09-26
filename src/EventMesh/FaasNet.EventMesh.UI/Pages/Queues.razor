@@ -5,24 +5,93 @@
 @using FaasNet.EventMesh.Client.StateMachines.Queue
 
 @inject EventMeshNodeViewModel EventMeshNodeViewModel
+@inject ToastService ToastService
 
 <PageTitle>Queues</PageTitle>
 
 <Section Title="Queues">
-	<Loader IsDisplayed="IsLoading">		
+	<Loader IsDisplayed="IsLoading">
+		<button class="btn btn-primary mb-2" @onclick="AddQueue">Add Queue</button>
 		<Grid TRowData="QueueQueryResult" Result="EventMeshNodeViewModel.Queues" @bind-Query="Filter">
-			<GridColumn TRowData="QueueQueryResult" Expression="c => c.Vpn" Title="Vpn" Name="Vpn" IsSortEnabled="true" />
-			<GridColumn TRowData="QueueQueryResult" Expression="c => c.QueueName" Title="Name" Name="QueueName" IsSortEnabled="true" />
-			<GridColumn TRowData="QueueQueryResult" Expression="c => c.TopicFilter" Title="Topic Filter" Name="TopicFilter" IsSortEnabled="true" />
+			<GridColumn TRowData="QueueQueryResult" Title="Name" Name="QueueName" IsSortEnabled="true">
+				@if (context.CreateDateTime == null)
+				{
+					<span class="newRecord"><b>NEW</b> @context.QueueName</span>
+				}
+				else
+				{
+					<span>@context.QueueName</span>
+				}
+			</GridColumn>
+			<GridColumn TRowData="QueueQueryResult" Title="Vpn" Name="Vpn" IsSortEnabled="true">
+				@if (context.CreateDateTime == null)
+				{
+					<span class="newRecord">@context.Vpn</span>
+				}
+				else
+				{
+					<span>@context.Vpn</span>
+				}
+			</GridColumn>
+			<GridColumn TRowData="QueueQueryResult" Title="Topic Filter" Name="TopicFilter" IsSortEnabled="true">
+				@if (context.CreateDateTime == null)
+				{
+					<span class="newRecord">@context.TopicFilter</span>
+				}
+				else
+				{
+					<span>@context.TopicFilter</span>
+				}
+			</GridColumn>
+			<GridColumn TRowData="QueueQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
+				@if (context.CreateDateTime == null)
+				{
+					<span class="newRecord">-</span>
+				}
+				else
+				{
+					<span>@context.CreateDateTime.Value.ToLocalTime()</span>
+				}
+			</GridColumn>
 		</Grid>
 	</Loader>
 </Section>
 
+<Modal Title="Add Queue" @ref=addQueueModal>
+	<EditForm OnValidSubmit="@HandleValidSubmit" Model="addQueue">
+		<DataAnnotationsValidator />
+		<div class="modal-body">
+			<!-- Name -->
+			<div class="mb-3">
+				<label class="form-label">Name</label>
+				<InputText class="form-control" @bind-Value="addQueue.Name" />
+				<ValidationMessage For="() => addQueue.Name" />
+			</div>
+			<!-- VPN -->
+			<div class="mb-3">
+				<label class="form-label">VPN</label>
+				<InputText class="form-control" @bind-Value="addQueue.Vpn" />
+				<ValidationMessage For="() => addQueue.Vpn" />
+			</div>
+			<!-- Topic -->
+			<div class="mb-3">
+				<label class="form-label">Topic filter</label>
+				<InputText class="form-control" @bind-Value="addQueue.TopicFilter" />
+				<ValidationMessage For="() => addQueue.TopicFilter" />
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+			<button type="submit" class="btn btn-primary">Add</button>
+		</div>
+	</EditForm>
+</Modal>
+
 @code {
 	private FilterQuery _filter = new FilterQuery
 	{
-		SortOrder = SortOrders.ASC,
-		SortBy = "QueueName"
+		SortOrder = SortOrders.DESC,
+		SortBy = "CreateDateTime"
 	};
 	private AddVpnViewModel addVpn = new();
 	public FilterQuery Filter
@@ -38,6 +107,8 @@
 		}
 	}
 	public bool IsLoading { get; set; } = true;
+	private AddQueueViewModel addQueue = new();
+	private Modal addQueueModal;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -64,5 +135,34 @@
 	{
 		EventMeshNodeViewModel.ResetVpns();
 		await RefreshQueues();
+	}
+
+	private void AddQueue()
+	{
+		addQueue.Reset();
+		addQueueModal.Open();
+	}
+
+	private void Close()
+	{
+		addQueueModal.Close();
+	}
+
+	private async void HandleValidSubmit() 
+	{
+		var result = await this.EventMeshNodeViewModel.AddQueue(addQueue);
+		addQueueModal.Close();
+		if (result.Status != AddQueueStatus.SUCCESS)
+		{
+			ToastService.AddError("Queue", $"An error occured while trying to add the Queue, Error: {Enum.GetName(typeof(AddQueueStatus), result.Status)}");
+			await InvokeAsync(() => StateHasChanged());
+			return;
+		}
+
+		ToastService.AddInfo("Queue", "Queue has been added");
+		var records = EventMeshNodeViewModel.Queues.Records.ToList();
+		records.Insert(0, new QueueQueryResult { QueueName = addQueue.Name, TopicFilter = addQueue.TopicFilter, Vpn = addQueue.Vpn});
+		EventMeshNodeViewModel.Queues.Records = records;
+		await InvokeAsync(() => StateHasChanged());
 	}
 }

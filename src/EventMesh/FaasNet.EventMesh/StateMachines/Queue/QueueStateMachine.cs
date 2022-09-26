@@ -3,6 +3,7 @@ using FaasNet.EventMesh.Client.StateMachines.Queue;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -26,7 +27,7 @@ namespace FaasNet.EventMesh.StateMachines.Queue
                 case AddQueueCommand addQueue:
                     var client = await _store.Get(addQueue.QueueName, addQueue.Vpn, cancellationToken);
                     if (client != null) return;
-                    _store.Add(new QueueRecord { QueueName = addQueue.QueueName, Vpn = addQueue.Vpn, TopicFilter = addQueue.TopicFilter });
+                    _store.Add(new QueueRecord { QueueName = addQueue.QueueName, Vpn = addQueue.Vpn, TopicFilter = addQueue.TopicFilter, CreateDateTime = DateTime.UtcNow });
                     break;
             }
         }
@@ -48,7 +49,7 @@ namespace FaasNet.EventMesh.StateMachines.Queue
                 case GetQueueQuery getQueue:
                     var result = await _store.Get(getQueue.QueueName, getQueue.Vpn, cancellationToken);
                     if (result == null) return new GetQueueQueryResult();
-                    return new GetQueueQueryResult(new QueueQueryResult { QueueName = result.QueueName, Vpn = result.Vpn, TopicFilter = result.TopicFilter });
+                    return new GetQueueQueryResult(Transform(result));
                 case SearchQueuesQuery searchQueuesQuery:
                     var queues = await _store.Search(searchQueuesQuery.Vpn, searchQueuesQuery.TopicMessage, cancellationToken);
                     return new SearchQueuesQueryResult { Queues = queues.Select(q => Transform(q)).ToList()};
@@ -91,7 +92,8 @@ namespace FaasNet.EventMesh.StateMachines.Queue
             {
                 Vpn = record.Vpn,
                 QueueName = record.QueueName,
-                TopicFilter = record.TopicFilter
+                TopicFilter = record.TopicFilter,
+                CreateDateTime = record.CreateDateTime
             };
         }
     }
@@ -101,12 +103,14 @@ namespace FaasNet.EventMesh.StateMachines.Queue
         public string Vpn { get; set; }
         public string QueueName { get; set; }
         public string TopicFilter { get; set; }
+        public DateTime? CreateDateTime { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
             Vpn = context.NextString();
             QueueName = context.NextString();
             TopicFilter = context.NextString();
+            CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
         }
 
         public void Serialize(WriteBufferContext context)
@@ -114,6 +118,7 @@ namespace FaasNet.EventMesh.StateMachines.Queue
             context.WriteString(Vpn);
             context.WriteString(QueueName);
             context.WriteString(TopicFilter);
+            context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.GetValueOrDefault().Ticks));
         }
     }
 }

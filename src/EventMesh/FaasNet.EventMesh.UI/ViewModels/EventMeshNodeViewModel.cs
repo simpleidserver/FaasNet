@@ -147,6 +147,12 @@ namespace FaasNet.EventMesh.UI.ViewModels
             return result;
         }
 
+        public async Task<AddQueueResponse> AddQueue(AddQueueViewModel addQueue)
+        {
+            var result = await _eventMeshService.AddQueue(addQueue.Vpn, addQueue.Name, addQueue.TopicFilter, SelectedNode.Url, SelectedNode.Port, CancellationToken.None);
+            return result;
+        }
+
         private async void RefreshStatus(object? sender, System.Timers.ElapsedEventArgs e)
         {
             LastRefreshTime = DateTime.UtcNow;
