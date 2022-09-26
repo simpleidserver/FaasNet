@@ -85,6 +85,7 @@ namespace FaasNet.EventMesh.StateMachines.QueueMessage
         public string Id { get; set; }
         public string Topic { get; set; }
         public CloudEvent Data { get; set; }
+        public int Index { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {

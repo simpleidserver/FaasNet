@@ -1,14 +1,19 @@
 ﻿@page "/"
 @page "/overview"
+@inherits FluxorComponent
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using FaasNet.EventMesh.UI.Stores.PeerStates
+@using FaasNet.Peer.Client.Transports
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
 
 <PageTitle>Overview</PageTitle>
 
-@inject EventMeshNodeViewModel EventMeshNodeViewModel
-
 <Section Title="Summary">
-	EventMesh node is listening on <b>@EventMeshNodeViewModel.SelectedNode.DisplayName</b><br/>
+	EventMesh node is listening on <b>@AppState.Value.SelectedNode?.DisplayName</b><br />
 	Status is 
-	@if(EventMeshNodeViewModel.IsRunning)
+	@if (AppState.Value.IsActive)
 	{
 		<b class="success">Active</b>
 	}
@@ -16,12 +21,12 @@
 	{
 		<b class="error">Inactive</b>
 	}
-	Last refresh time <b>@EventMeshNodeViewModel.LastRefreshTime.GetValueOrDefault()</b><br />
-	<b>@EventMeshNodeViewModel.Protocol</b> protocol is used
+	Last refresh time <b>@AppState.Value.LastRefreshTime.GetValueOrDefault().ToLocalTime()</b><br />
+	<b>@ClientTransport.Name</b> protocol is used
 </Section>
 
 <Section Title="List of partitions">	
-	<Loader IsDisplayed="IsLoading">		
+	<Loader IsDisplayed="PeerStatesState.Value.IsLoading">
 		<table class="table table-striped table-bordered">
 			<thead>
 				<tr>
@@ -34,8 +39,8 @@
 				</tr>
 			</thead>
 			<tbody>
-				@if (EventMeshNodeViewModel.PeerStates != null)
-					@foreach(var peerState in EventMeshNodeViewModel.PeerStates)
+				@if (PeerStatesState.Value.PeerStates != null)
+					@foreach (var peerState in PeerStatesState.Value.PeerStates)
 					{
 						<tr>
 							<th>@peerState.Name</th>
@@ -52,31 +57,22 @@
 </Section>
 
 @code {
-	public bool IsLoading { get; set; } = true;
-	protected override async Task OnInitializedAsync()
-	{
-		await base.OnInitializedAsync();
-		if (EventMeshNodeViewModel.IsRunning) await RefreshStates();
-		EventMeshNodeViewModel.StatusChanged += async (o, e) => await RefreshStates();
-		EventMeshNodeViewModel.SelectedNodeChanged += async (o, e) => await HandleSelectedNodeChanged();
-	}
+	[Inject] private IState<PeerStatesState> PeerStatesState { get; set; } = null!;
+	[Inject] private IState<AppState> AppState { get; set; } = null!;
+	[Inject] private IDispatcher Dispatcher { get; set; } = null!;
+	[Inject] private IClientTransport ClientTransport { get; set; } = null!;
 
-	private async Task RefreshStates()
+	protected override void OnInitialized()
 	{
-		if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetStates();
-		else 
+		base.OnInitialized();
+		SubscribeToAction<SelectActiveNodeAction>((act) =>
 		{
-			IsLoading = true;
-			await EventMeshNodeViewModel.RefreshStates();
-			IsLoading = false;
-		}
-
-		await InvokeAsync(() => StateHasChanged());
+			RefreshStates();
+		});
 	}
 
-	private async Task HandleSelectedNodeChanged() 
+	private void RefreshStates()
 	{
-		EventMeshNodeViewModel.ResetStates();
-		await RefreshStates();
+		Dispatcher.Dispatch(new GetPeerStatesAction { Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
 	}
 }

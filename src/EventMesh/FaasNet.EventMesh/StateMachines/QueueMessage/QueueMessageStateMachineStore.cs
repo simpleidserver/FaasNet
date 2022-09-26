@@ -19,6 +19,7 @@ namespace FaasNet.EventMesh.StateMachines.QueueMessage
 
         public void Add(QueueMessageRecord record)
         {
+            record.Index = _records.Count + 1;
             _records.Add(record);
         }
 
@@ -35,7 +36,8 @@ namespace FaasNet.EventMesh.StateMachines.QueueMessage
 
         public Task<QueueMessageRecord> Get(int offset, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_records.ElementAtOrDefault(offset));
+            var reversed = _records.OrderBy(r => r.Index);
+            return Task.FromResult(reversed.ElementAtOrDefault(offset));
         }
 
         public IEnumerable<(IEnumerable<QueueMessageRecord>, int)> GetAll(int nbRecords)

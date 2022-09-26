@@ -1,15 +1,17 @@
 ﻿@page "/clients"
+@inherits FluxorComponent
 @using FaasNet.EventMesh.Client.Messages
 @using FaasNet.EventMesh.Client.StateMachines
 @using FaasNet.EventMesh.Client.StateMachines.Client
-
-@inject EventMeshNodeViewModel EventMeshNodeViewModel
-@inject ToastService ToastService
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
 
 <PageTitle>Clients</PageTitle>
 
 <Section Title="Clients">
-	<Loader IsDisplayed="IsLoading">
+	<Loader IsDisplayed="ClientState.Value.IsLoading">
 		<button class="btn btn-primary mb-2" @onclick="AddClient">Add Client</button>
 		@if (newClient != null)
 		{
@@ -17,7 +19,7 @@
 				Client <b>@newClient.ClientId</b> has been created with the secret <b>@newClient.ClientSecret</b>. Please copy it !
 			</div>
 		}
-		<Grid TRowData="ClientQueryResult" Result="EventMeshNodeViewModel.Clients" @bind-Query="Filter">
+		<Grid TRowData="ClientQueryResult" Result="ClientState.Value.Clients" @bind-Query="Filter">
 			<GridColumn TRowData="ClientQueryResult" Title="Identifier" Name="Id" IsSortEnabled="true">
 				@if (context.CreateDateTime == null)
 				{
@@ -92,6 +94,10 @@
 
 
 @code {
+	[Inject] private IDispatcher Dispatcher { get; set; } = null!;
+	[Inject] private IState<ClientState> ClientState { get; set; } = null!;
+	[Inject] private IState<AppState> AppState { get; set; } = null!;
+	[Inject] private ToastService ToastService { get; set; } = null!;
 	private FilterQuery _filter = new FilterQuery
 	{
 		SortOrder = SortOrders.DESC,
@@ -109,36 +115,35 @@
 			this.RefreshClients();
 		}
 	}
-	public bool IsLoading { get; set; } = true;
 	private Modal addClientModal;
+	private AddClientAction addClient { get; set; } = new AddClientAction();
 	private AddClientResult newClient { get; set; } = null;
-	private AddClientViewModel addClient = new();
 
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		if (EventMeshNodeViewModel.IsRunning) await RefreshClients();
-		EventMeshNodeViewModel.StatusChanged += async (o, e) => await RefreshClients();
-		EventMeshNodeViewModel.SelectedNodeChanged += async (o, e) => await HandleSelectedNodeChanged();
-	}
-
-	private async Task RefreshClients()
-	{
-		if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetClients();
-		else 
+		SubscribeToAction<SelectActiveNodeAction>((act) =>
 		{
-			IsLoading = true;
-			await EventMeshNodeViewModel.RefreshClients(_filter);
-			IsLoading = false;
-		}
-
-		await InvokeAsync(() => StateHasChanged());
+			RefreshClients();
+		});
+		SubscribeToAction<AddClientResultAction>((act) =>
+		{
+			addClientModal.Close();
+			newClient = act.ClientResult;
+			ToastService.AddInfo("Client", "Client has been added");
+			StateHasChanged();
+		});
+		SubscribeToAction<AddClientFailureAction>((act) =>
+		{
+			addClientModal.Close();
+			ToastService.AddError("Client", act.Message);
+			StateHasChanged();
+		});
 	}
 
-	private async Task HandleSelectedNodeChanged()
+	private void RefreshClients()
 	{
-		EventMeshNodeViewModel.ResetStates();
-		await RefreshClients();
+		Dispatcher.Dispatch(new SearchClientsAction { Filter = _filter, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
 	}
 
 	private void AddClient() 
@@ -152,23 +157,10 @@
 		addClientModal.Close();
 	}
 
-	private async void HandleValidSubmit() 
+	private void HandleValidSubmit() 
 	{
-		var result = await this.EventMeshNodeViewModel.AddClient(addClient);
-		addClientModal.Close();
-		if (!result.Success)
-		{
-			newClient = null;
-			ToastService.AddError("Client", $"An error occured while trying to add the Client, Error: {Enum.GetName(typeof(AddClientErrorStatus), result.Status.Value)}");
-			await InvokeAsync(() => StateHasChanged());
-			return;
-		}
-
-		ToastService.AddInfo("Client", "Client has been added");
-		var records = EventMeshNodeViewModel.Clients.Records.ToList();
-		records.Insert(0, new ClientQueryResult { Id = addClient.ClientId, Purposes = addClient.PurposeTypes.Select(p => (ClientPurposeTypes)p).ToList(), Vpn = addClient.Vpn });
-		EventMeshNodeViewModel.Clients.Records = records;
-		newClient = result;
-		await InvokeAsync(() => StateHasChanged());
+		addClient.Url = AppState.Value.SelectedNode.Url;
+		addClient.Port = AppState.Value.SelectedNode.Port;
+		Dispatcher.Dispatch(addClient);
 	}
 }

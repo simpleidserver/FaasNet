@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client;
+﻿using CloudNative.CloudEvents;
+using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
@@ -26,6 +27,8 @@ namespace FaasNet.EventMesh.UI.Data
         Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken);
         Task<GetClientResult> GetClient(string clientId, string vpn, string url, int port, CancellationToken cancellationToken);
         Task<AddQueueResponse> AddQueue(string vpn, string name, string topicFilter, string url, int port, CancellationToken cancellationToken);
+        Task<PublishMessageResult> PublishMessage(string clientId, string vpn, string clientSecret, string topicMessage, string content, string url, int port, CancellationToken cancellationToken);
+        Task<SubscriptionResult> Subscribe(string clientId, string vpn, string clientSecret, string queueName, string url, int port, CancellationToken cancellationToken);
     }
 
     public class EventMeshService : IEventMeshService
@@ -144,6 +147,79 @@ namespace FaasNet.EventMesh.UI.Data
                 var result = await client.AddQueue(vpn, name, topicFilter, _options.RequestTimeoutMS, cancellationToken);
                 return result;
             }
+        }
+
+        public async Task<PublishMessageResult> PublishMessage(string clientId, string vpn, string clientSecret, string topicMessage, string content, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var pubSession = await client.CreatePubSession(clientId, vpn, clientSecret, _options.RequestTimeoutMS, cancellationToken);
+                var cloudEvent = new CloudEvent
+                {
+                    Type = "com.github.pull.create",
+                    Source = new Uri("https://github.com/cloudevents/spec/pull"),
+                    Subject = "123",
+                    Id = "A234-1234-1234",
+                    Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
+                    DataContentType = "application/json",
+                    Data = content,
+                    ["comexampleextension1"] = "value"
+                };
+                return await Retry(async () =>
+                {
+                    var result = await pubSession.PublishMessage(topicMessage, cloudEvent, _options.RequestTimeoutMS, cancellationToken);
+                    return (result, result.Status == PublishMessageStatus.SUCCESS);
+                });
+            }
+        }
+
+        public async Task<SubscriptionResult> Subscribe(string clientId, string vpn, string clientSecret, string queueName, string url, int port, CancellationToken cancellationToken)
+        {
+            var result = new SubscriptionResult(_peerClientFactory, url, port, _options.RequestTimeoutMS);
+            await result.Init(clientId, vpn, clientSecret, queueName, cancellationToken);
+            return result;
+        }
+
+        private async Task<T> Retry<T>(Func<Task<(T, bool)>> callback, int nbRetry = 0)
+        {
+            var result = await callback();
+            if (!result.Item2)
+            {
+                if (nbRetry >= 5) return result.Item1;
+                Thread.Sleep(500);
+                nbRetry++;
+                return await Retry(callback, nbRetry);
+            }
+
+            return result.Item1;
+        }
+    }
+
+    public class SubscriptionResult : IDisposable
+    {
+        private readonly EventMeshClient _client;
+        private readonly int _timeoutMS;
+        private EventMeshSubscribeSessionClient _pubSession;
+
+        public SubscriptionResult(IPeerClientFactory peerClientFactory, string url, int port, int timeoutMS)
+        {
+            _timeoutMS = timeoutMS;
+            _client = peerClientFactory.Build<EventMeshClient>(url, port);
+        }
+
+        public async Task Init(string clientId, string vpn, string clientSecret, string queueName, CancellationToken cancellationToken)
+        {
+            _pubSession = await _client.CreateSubSession(clientId, vpn, clientSecret, queueName, _timeoutMS, cancellationToken);
+        }
+
+        public void Dispose()
+        {
+            _client.Dispose();
+        }
+
+        public Task<ReadMessageResult> ReadMessage(int offset)
+        {
+            return _pubSession.ReadMessage(offset, _timeoutMS, CancellationToken.None);
         }
     }
 }

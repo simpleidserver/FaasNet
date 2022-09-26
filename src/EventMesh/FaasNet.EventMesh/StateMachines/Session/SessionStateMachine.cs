@@ -100,7 +100,8 @@ namespace FaasNet.EventMesh.StateMachines.Session
                 ClientPurpose = session.ClientPurpose, 
                 ExpirationTime = session.ExpirationTime, 
                 Id = session.Id, 
-                QueueName = session.QueueName 
+                QueueName = session.QueueName,
+                Vpn = session.Vpn
             };
         }
     }

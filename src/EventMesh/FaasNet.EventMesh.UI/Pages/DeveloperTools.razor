@@ -1,0 +1,172 @@
+﻿@page "/developertools"
+@inherits FluxorComponent
+@using FaasNet.EventMesh.Client.Messages
+@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.UI.Stores.App
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@inject ToastService ToastService
+
+<div class="row">
+    <div class="col-sm">
+        <Section Title="Publish message">
+            <EditForm OnValidSubmit="@PublishMessage" Model="publishMessage">
+                <!-- ClientId  -->
+                <div class="mb-3">
+                    <label class="form-label">Client identifier</label>
+                    <InputText class="form-control" @bind-Value="publishMessage.ClientId" />
+                    <ValidationMessage For="() => publishMessage.ClientId" />
+                </div>
+                <!-- ClientSecret -->
+                <div class="mb-3">
+                    <label class="form-label">Client secret</label>
+                    <InputText type="password"  class="form-control" @bind-Value="publishMessage.ClientSecret" />
+                    <ValidationMessage For="() => publishMessage.ClientSecret" />
+                </div>
+                <!-- Vpn -->
+                <div class="mb-3">
+                    <label class="form-label">Vpn</label>
+                    <InputText class="form-control" @bind-Value="publishMessage.Vpn" />
+                    <ValidationMessage For="() => publishMessage.Vpn" />
+                </div>
+                <!-- Topic -->
+                <div class="mb-3">
+                    <label class="form-label">Message topic</label>
+                    <InputText class="form-control" @bind-Value="publishMessage.Topic" />
+                    <ValidationMessage For="() => publishMessage.Topic" />
+                </div>
+                <!-- Message -->
+                <div class="mb-3">
+                    <label class="form-label">Message content</label>
+                    <InputTextArea class="form-control" @bind-Value="publishMessage.Content" />
+                    <ValidationMessage For="() => publishMessage.Content" />
+                </div>
+                <button type="submit" class="btn btn-primary">Publish</button>
+            </EditForm>
+        </Section>
+    </div>
+    <div class="col-sm">
+        <Section Title="Subscribe to one topic">
+            <EditForm OnValidSubmit="@ToggleSubscription" Model="receiveMessage">
+                <!-- ClientId  -->
+                <div class="mb-3">
+                    <label class="form-label">Client identifier</label>
+                    <InputText class="form-control" @bind-Value="receiveMessage.ClientId" />
+                    <ValidationMessage For="() => receiveMessage.ClientId" />
+                </div>
+                <!-- ClientSecret -->
+                <div class="mb-3">
+                    <label class="form-label">Client secret</label>
+                    <InputText type="password" class="form-control" @bind-Value="receiveMessage.ClientSecret" />
+                    <ValidationMessage For="() => receiveMessage.ClientSecret" />
+                </div>
+                <!-- Vpn -->
+                <div class="mb-3">
+                    <label class="form-label">Vpn</label>
+                    <InputText class="form-control" @bind-Value="receiveMessage.Vpn" />
+                    <ValidationMessage For="() => receiveMessage.Vpn" />
+                </div>
+                <!-- Queue -->
+                <div class="mb-3">
+                    <label class="form-label">Queue</label>
+                    <InputText class="form-control" @bind-Value="receiveMessage.QueueName" />
+                    <ValidationMessage For="() => receiveMessage.QueueName" />
+                </div>
+                @if(IsSubscriptionActive)
+                {
+                    <button type="submit" class="btn btn-danger">Stop session</button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success">Start session</button>
+                }
+            </EditForm>
+            <div>                
+                <h5>Received messages</h5>
+                <ul class="list-group">
+                    @foreach(var message in ReceivedMessages)
+                    {
+                        <li class="list-group-item">@message</li>
+                    }
+                </ul>
+            </div>
+        </Section>
+    </div>
+</div>
+
+
+@code {
+    [Inject] private IState<AppState> AppState { get; set; } = null!;
+    [Inject] private IEventMeshService EventMeshService { get; set; } = null!;
+    public ICollection<string> ReceivedMessages { get; set; } = new List<string>();
+    public bool IsSubscriptionActive { get; set; } = false;
+    private PublishMessageViewModel publishMessage  { get; set; } = new PublishMessageViewModel();
+    private ReceiveMessageViewModel receiveMessage { get; set; } = new ReceiveMessageViewModel();
+    private int _offset = 0;
+    private SubscriptionResult _subscriptionResult;
+    private System.Timers.Timer _refreshSubscriptionTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _refreshSubscriptionTimer = new System.Timers.Timer();
+        _refreshSubscriptionTimer.Elapsed += RefreshMessages;
+        _refreshSubscriptionTimer.Interval = 2000;
+        _refreshSubscriptionTimer.AutoReset = false;
+
+    }
+
+    private async void PublishMessage() 
+    {
+        var result = await EventMeshService.PublishMessage(publishMessage.ClientId, publishMessage.Vpn, publishMessage.ClientSecret, publishMessage.Topic, publishMessage.Content, AppState.Value.SelectedNode.Url, AppState.Value.SelectedNode.Port, CancellationToken.None);
+        if (result.Status != PublishMessageStatus.SUCCESS)
+        {
+            ToastService.AddError("Message", $"An error occured while trying to publish a message, Error: {Enum.GetName(typeof(PublishMessageStatus), result.Status)}");
+            Refresh();
+            return;
+        }
+
+        ToastService.AddInfo("Message", "Message has been published");
+        Refresh();
+    }
+
+    private async void ToggleSubscription()
+    {
+        if (!IsSubscriptionActive)
+        {
+            _subscriptionResult = await EventMeshService.Subscribe(receiveMessage.ClientId, receiveMessage.Vpn, receiveMessage.ClientSecret, receiveMessage.QueueName, AppState.Value.SelectedNode.Url, AppState.Value.SelectedNode.Port, CancellationToken.None);
+            _refreshSubscriptionTimer.Start();
+            IsSubscriptionActive = true;
+        }
+        else ResetSubscription();
+    }
+
+    private void ResetSubscription()
+    {
+        IsSubscriptionActive = false;
+        ReceivedMessages = new List<string>();
+        _offset = 0;
+        if (_subscriptionResult != null) _subscriptionResult.Dispose();
+        _refreshSubscriptionTimer.Stop();
+        Refresh();
+    }
+
+    private async void RefreshMessages(object? sender, System.Timers.ElapsedEventArgs e)
+    {
+        var messageResult = await _subscriptionResult.ReadMessage(_offset);
+        if (messageResult.Status == ReadMessageStatus.SUCCESS)
+        {
+            var msg = messageResult.Message.Data.ToString();
+            ReceivedMessages.Add(msg);
+            _offset++;
+            Refresh();
+        }
+
+        _refreshSubscriptionTimer.Start();
+    }
+
+    private async void Refresh()
+    {
+        await InvokeAsync(() => StateHasChanged());
+    }
+}

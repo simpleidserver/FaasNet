@@ -1,33 +1,39 @@
 ﻿@page "/vpns/{vpn}/clients/{clientId}"
 @page "/vpns/{vpn}/clients/{clientId}/info"
-@using FaasNet.EventMesh.Client.StateMachines.Client
+@inherits FluxorComponent
 @layout ClientLayout
-@inject EventMeshNodeViewModel EventMeshNodeViewModel
+@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using FaasNet.EventMesh.UI.Stores.ClientInfo
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
 
 <div>
-    <Loader IsDisplayed="IsLoading">
-        @if(EventMeshNodeViewModel.ClientInfo.Success)
+    <Loader IsDisplayed="ClientInfoState.Value.IsLoading">
+        @if (ClientInfoState.Value.ClientInfo.Success)
         {           
             <!-- Identifier -->
             <div class="mb-3">
                 <label class="form-label">Identifier</label>
-                <input type="text" class="form-control" disabled value="@EventMeshNodeViewModel.ClientInfo.Content.Id" />
+                <input type="text" class="form-control" disabled value="@ClientInfoState.Value.ClientInfo.Content.Id" />
             </div>
             <!-- VPN -->
             <div class="mb-3">
                 <label class="form-label">VPN</label>
-                <input type="text" class="form-control" disabled value="@EventMeshNodeViewModel.ClientInfo.Content.Vpn" />
+                <input type="text" class="form-control" disabled value="@ClientInfoState.Value.ClientInfo.Content.Vpn" />
             </div>
             <!-- CreateDateTime -->
             <div class="mb-3">
                 <label class="form-label">Creation Datetime</label>
-                <input type="text" class="form-control" disabled value="@(EventMeshNodeViewModel.ClientInfo.Content.CreateDateTime.GetValueOrDefault().ToLocalTime())" />
+                <input type="text" class="form-control" disabled value="@(ClientInfoState.Value.ClientInfo.Content.CreateDateTime.GetValueOrDefault().ToLocalTime())" />
             </div>
             <!-- Purpose types -->
             <div class="mb-3">
                 <label class="form-label">Purpose Types</label>
                 <div>
-		            @foreach(var purposeType in EventMeshNodeViewModel.ClientInfo.Content.Purposes) {
+                    @foreach (var purposeType in ClientInfoState.Value.ClientInfo.Content.Purposes)
+                    {
 		    	        <span class="badge text-bg-primary purposeType">@Enum.GetName(typeof(ClientPurposeTypes), purposeType)</span>
 		            }
                 </div>
@@ -42,31 +48,20 @@
     public string clientId { get; set; }
     [Parameter]
     public string vpn { get; set; }
-    private bool IsLoading { get; set; } = true;
+    [Inject] private IState<ClientInfoState> ClientInfoState { get; set; } = null!;
+    [Inject] private IState<AppState> AppState { get; set; } = null!;
+    [Inject] private IDispatcher Dispatcher { get; set; } = null!;
 
     protected override async Task OnInitializedAsync() {
         await base.OnInitializedAsync();
-        if (EventMeshNodeViewModel.IsRunning) await RefreshClientInfo();
-        EventMeshNodeViewModel.StatusChanged += async (o, e) => await RefreshClientInfo();
-        EventMeshNodeViewModel.SelectedNodeChanged += async (o, e) => await HandleSelectedNodeChanged();
-    }  
-
-    private async Task RefreshClientInfo() 
-    {
-        if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetClientInfo();
-        else
+        SubscribeToAction<SelectActiveNodeAction>((act) =>
         {
-            IsLoading = true;
-            await EventMeshNodeViewModel.RefreshClientInfo(clientId, vpn);
-            IsLoading = false;
-        }
-
-        await InvokeAsync(() => StateHasChanged());
+            RefreshClientInfo();
+        });
     }
 
-    private async Task HandleSelectedNodeChanged()
+    private void RefreshClientInfo()
     {
-        EventMeshNodeViewModel.ResetClientInfo();
-        await RefreshClientInfo();
+        Dispatcher.Dispatch(new GetClientInfoAction { ClientId = clientId, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url, Vpn = vpn});
     }
 }

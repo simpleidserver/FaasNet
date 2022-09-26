@@ -1,18 +1,21 @@
 ﻿@page "/vpns"
+@inherits FluxorComponent
 @using FaasNet.EventMesh.Client.Messages
 @using FaasNet.EventMesh.Client.StateMachines
 @using FaasNet.EventMesh.Client.StateMachines.Client
 @using FaasNet.EventMesh.Client.StateMachines.Vpn
-
-@inject EventMeshNodeViewModel EventMeshNodeViewModel
-@inject ToastService ToastService
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using FaasNet.EventMesh.UI.Stores.Vpns
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
 
 <PageTitle>Vpns</PageTitle>
 
 <Section Title="Vpns">
-	<Loader IsDisplayed="IsLoading">		
+	<Loader IsDisplayed="VpnsState.Value.IsLoading">
 		<button class="btn btn-primary mb-2" @onclick="AddVpn">Add VPN</button>
-		<Grid TRowData="VpnQueryResult" Result="EventMeshNodeViewModel.Vpns" @bind-Query="Filter">
+		<Grid TRowData="VpnQueryResult" Result="VpnsState.Value.Vpns" @bind-Query="Filter">
 			<GridColumn TRowData="VpnQueryResult" Title="Identifier" Name="Name">
 				@if(context.CreateDateTime == null)
 				{
@@ -72,12 +75,16 @@
 </Modal>
 
 @code {
+	[Inject] private IDispatcher Dispatcher { get; set; } = null!;
+	[Inject] private IState<VpnsState> VpnsState { get; set; } = null!;
+	[Inject] private IState<AppState> AppState { get; set; } = null!;
+	[Inject] private ToastService ToastService { get; set; } = null!;
 	private FilterQuery _filter = new FilterQuery
 	{
 		SortOrder = SortOrders.DESC,
 		SortBy = "CreateDateTime"
 	};
-	private AddVpnViewModel addVpn = new();
+	private AddVpnAction addVpn = new();
 	public FilterQuery Filter
 	{
 		get
@@ -90,37 +97,36 @@
 			this.RefreshVpns();
 		}
 	}
-	public bool IsLoading { get; set; } = true;
 	private Modal addVpnModal { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		if (EventMeshNodeViewModel.IsRunning) await RefreshVpns();
-		EventMeshNodeViewModel.StatusChanged += async (o, e) => await RefreshVpns();
-		EventMeshNodeViewModel.SelectedNodeChanged += async (o, e) => await HandleSelectedNodeChanged();
-	}
-
-	private async Task RefreshVpns()
-	{
-		if (!EventMeshNodeViewModel.IsRunning) EventMeshNodeViewModel.ResetVpns();
-		else 
+		SubscribeToAction<SelectActiveNodeAction>((act) =>
 		{
-			IsLoading = true;
-			await EventMeshNodeViewModel.RefreshVpns(Filter);
-			IsLoading = false;
-		}
-
-		await InvokeAsync(() => StateHasChanged());
+			RefreshVpns();
+		});
+		SubscribeToAction<AddVpnResultAction>((act) =>
+		{
+			addVpnModal.Close();
+			ToastService.AddInfo("Vpn", "Client has been added");
+			StateHasChanged();
+		});
+		SubscribeToAction<AddVpnFailureAction>((act) =>
+		{
+			addVpnModal.Close();
+			ToastService.AddError("Vpn", act.Message);
+			StateHasChanged();
+		});
 	}
 
-	private async Task HandleSelectedNodeChanged()
+	private void RefreshVpns()
 	{
-		EventMeshNodeViewModel.ResetVpns();
-		await RefreshVpns();
+		Dispatcher.Dispatch(new SearchVpnsAction { Filter = _filter, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
 	}
 
-	private void AddVpn() {
+	private void AddVpn() 
+	{
 		addVpn.Reset();
 		addVpnModal.Open();
 	}
@@ -130,19 +136,10 @@
 		addVpnModal.Close();
 	}
 
-	private async void HandleValidSubmit() {
-		var result = await this.EventMeshNodeViewModel.AddVpn(addVpn);
-		addVpnModal.Close();
-		if(!result.Success) {
-			ToastService.AddError("VPN", $"An error occured while trying to add the VPN, Error: {Enum.GetName(typeof(AddVpnErrorStatus), result.Status.Value)}");
-			await InvokeAsync(() => StateHasChanged());
-			return;
-		}
-
-		ToastService.AddInfo("VPN", "VPN has been added");
-		var records = EventMeshNodeViewModel.Vpns.Records.ToList();
-		records.Insert(0, new VpnQueryResult { Description = addVpn.Description, Name = addVpn.Name });
-		EventMeshNodeViewModel.Vpns.Records = records;
-		await InvokeAsync(() => StateHasChanged());
+	private async void HandleValidSubmit()
+	{
+		addVpn.Url = AppState.Value.SelectedNode.Url;
+		addVpn.Port = AppState.Value.SelectedNode.Port;
+		Dispatcher.Dispatch(addVpn);
 	}
 }

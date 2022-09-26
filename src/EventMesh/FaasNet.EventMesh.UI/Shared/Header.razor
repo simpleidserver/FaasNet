@@ -1,5 +1,10 @@
-﻿@inject EventMeshNodeViewModel EventMeshNodeViewModel
+﻿@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@using System.Timers
 @inject NavigationManager navigationManager
+@inherits FluxorComponent
 
 <nav class="navbar navbar-expand-sm navbar-light flex-shrink-0 bg-light" id="navHeader">
 	<div class="container-fluid">
@@ -21,15 +26,18 @@
 				<li class="nav-item @GetActive("/queues", NavLinkMatch.All)">
 					<NavLink class="nav-link" href="/queues">Queues</NavLink>
 				</li>
+				<li class="nav-item @GetActive("/developertools", NavLinkMatch.All)">
+					<NavLink class="nav-link" href="/developertools">Developer tools</NavLink>
+				</li>
 			  </ul>
-			  @if (EventMeshNodeViewModel.IsRunning && EventMeshNodeViewModel.PeerStates != null)
+			  @if (State.Value.IsActive && State.Value.Nodes != null)
 			  {
 				  <div class="d-flex" id="selectNode">
 					<div class="col-auto">
 						<span>Active EventMesh node</span>
 					</div>
-					<select class="form-select" value="@EventMeshNodeViewModel.SelectedNode.Id" @onchange="ChangeSelectedNode">
-						@foreach (var node in EventMeshNodeViewModel.Nodes)
+					<select class="form-select" value="@State.Value.SelectedNode.Id" @onchange="ChangeSelectedNode">
+						@foreach (var node in State.Value.Nodes)
 						{
 							<option value="@node.Id">@node.DisplayName</option>
 						}
@@ -47,26 +55,38 @@
 </nav>
 
 @code {
-	protected override async Task OnInitializedAsync()
+	[Inject] private IDispatcher Dispatcher { get; set; } = null!;
+	[Inject] private IState<AppState> State { get; set; } = null!;
+	private System.Timers.Timer _timer;
+
+	protected override void OnInitialized()
 	{
-		await base.OnInitializedAsync();
-		EventMeshNodeViewModel.ListenStatus();
-		EventMeshNodeViewModel.StatusChanged += UpdateState;
-		EventMeshNodeViewModel.NodesRefreshed += UpdateState;
+		base.OnInitialized();
+		navigationManager.LocationChanged += (s, e) => StateHasChanged();
+        _timer = new System.Timers.Timer();
+        _timer.Elapsed += RefreshStatus;
+        _timer.Interval = 2000;
+        _timer.AutoReset = false;
+        _timer.Start();
 	}
 
-	private void UpdateState(object o, EventArgs e)
+	private void RefreshStatus(object? sender, ElapsedEventArgs e)
 	{
-		InvokeAsync(() => StateHasChanged());
+		Dispatcher.Dispatch(new RefreshStatusAction());
+		_timer.Start();
+	}
+
+	public void Dispose()
+	{
+		_timer.Stop();
+		_timer.Dispose();
 	}
 
 	private void ChangeSelectedNode(ChangeEventArgs e) {
-		EventMeshNodeViewModel.Select(e.Value.ToString());
+		Dispatcher.Dispatch(new SelectActiveNodeAction { Id = e.Value.ToString() });
 	}
 
 	string GetActive(string href, NavLinkMatch navLinkMatch = NavLinkMatch.Prefix) => IsActive(href, navLinkMatch) ? "active" : "";
-
-	protected override void OnInitialized() => navigationManager.LocationChanged += (s, e) => StateHasChanged();
 
     bool IsActive(string href, NavLinkMatch navLinkMatch = NavLinkMatch.Prefix)
     {
