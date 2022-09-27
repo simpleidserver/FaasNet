@@ -109,7 +109,7 @@
 		SubscribeToAction<AddVpnResultAction>((act) =>
 		{
 			addVpnModal.Close();
-			ToastService.AddInfo("Vpn", "Client has been added");
+			ToastService.AddInfo("Vpn", "Vpn has been added");
 			StateHasChanged();
 		});
 		SubscribeToAction<AddVpnFailureAction>((act) =>

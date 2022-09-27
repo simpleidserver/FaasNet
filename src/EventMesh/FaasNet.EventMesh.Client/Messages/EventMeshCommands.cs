@@ -108,6 +108,22 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Response sent when VPNS are found.
         /// </summary>
         public static EventMeshCommands FIND_VPNS_BY_NAME_RESPONSE = new EventMeshCommands(25, "FIND_VPNS_BY_NAME_RESPONSE");
+        /// <summary>
+        /// Request sent to find clients by name.
+        /// </summary>
+        public static EventMeshCommands FIND_CLIENTS_BY_NAME_REQUEST = new EventMeshCommands(26, "FIND_CLIENTS_BY_NAME_REQUEST");
+        /// <summary>
+        /// Response returned when clients are found.
+        /// </summary>
+        public static EventMeshCommands FIND_CLIENTS_BY_NAME_RESPONSE = new EventMeshCommands(27, "FIND_CLIENTS_BY_NAME_RESPONSE");
+        /// <summary>
+        /// Request sent to find queues by name.
+        /// </summary>
+        public static EventMeshCommands FIND_QUEUES_BY_NAME_REQUEST = new EventMeshCommands(28, "FIND_QUEUES_BY_NAME_REQUEST");
+        /// <summary>
+        /// Response returned when queues are found.
+        /// </summary>
+        public static EventMeshCommands FIND_QUEUES_BY_NAME_RESPONSE = new EventMeshCommands(29, "FIND_QUEUES_BY_NAME_RESPONSE");
 
         protected EventMeshCommands(int code)
         {

@@ -61,6 +61,12 @@ namespace FaasNet.EventMesh.StateMachines.Queue
                         TotalRecords = findResult.TotalRecords,
                         Records = findResult.Records.Select(r => Transform(r))
                     };
+                case FindQueuesByNameQuery findQueuesByName:
+                    var findNamesResult = await _store.Find(findQueuesByName.Name, cancellationToken);
+                    return new FindQueuesByNameQueryResult
+                    {
+                        Content = findNamesResult
+                    };
             }
 
             return null;

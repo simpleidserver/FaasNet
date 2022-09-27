@@ -62,6 +62,10 @@ namespace FaasNet.EventMesh.Client.Messages
             if (cmd == EventMeshCommands.SEARCH_QUEUES_RESPONSE) return new SearchQueuesResult(seq).Extract(context);
             if (cmd == EventMeshCommands.FIND_VPNS_BY_NAME_REQUEST) return new FindVpnsByNameRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.FIND_VPNS_BY_NAME_RESPONSE) return new FindVpnsByNameResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.FIND_CLIENTS_BY_NAME_REQUEST) return new FindClientsByNameRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.FIND_CLIENTS_BY_NAME_RESPONSE) return new FindClientsByNameResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.FIND_QUEUES_BY_NAME_REQUEST) return new FindQueuesByNameRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.FIND_QUEUES_BY_NAME_RESPONSE) return new FindQueuesByNameResult(seq).Extract(context);
             return null;
         }
     }

@@ -9,6 +9,7 @@ datalist {
     background-color: white;
     position: absolute;
     width: 100%;
+    z-index: 30;
 }
 
 datalist.displayed {

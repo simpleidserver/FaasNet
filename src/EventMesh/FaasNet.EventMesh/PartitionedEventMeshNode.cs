@@ -57,6 +57,8 @@ namespace FaasNet.EventMesh
             if (packageRequest.Command == EventMeshCommands.SEARCH_SESSIONS_REQUEST) packageResult = await Handle(packageRequest as SearchSessionsRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.SEARCH_QUEUES_REQUEST) packageResult = await Handle(packageRequest as SearchQueuesRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.FIND_VPNS_BY_NAME_REQUEST) packageResult = await Handle(packageRequest as FindVpnsByNameRequest, TokenSource.Token);
+            if (packageRequest.Command == EventMeshCommands.FIND_QUEUES_BY_NAME_REQUEST) packageResult = await Handle(packageRequest as FindQueuesByNameRequest, TokenSource.Token);
+            if (packageRequest.Command == EventMeshCommands.FIND_CLIENTS_BY_NAME_REQUEST) packageResult = await Handle(packageRequest as FindClientsByNameRequest, TokenSource.Token);
             var writeBufferContext = new WriteBufferContext();
             packageResult.SerializeEnvelope(writeBufferContext);
             return writeBufferContext.Buffer.ToArray();

@@ -1,9 +1,9 @@
-﻿<div class="autocomplete">    
-    <input class="form-control" name="@Name" autocomplete="off" value="@Content" @oninput="HandleContentChanged" disabled="@Disabled" @onclick="() => RefreshContent()" />
+﻿<div class="autocomplete" @onfocusout="() => ResetContent()">
+    <input class="form-control" name="@Name" autocomplete="off" value="@Content" @oninput="HandleContentChanged" disabled="@Disabled" @onclick="() => RefreshContent()" @onfocusin="() => RefreshContent()" />
     <datalist id="@Name" class="@((Values == null || !Values.Any()) ? string.Empty : "displayed")">
         @foreach(var value in Values)
         {
-            <option value="@value" @onclick="() => ChooseValue(value)">@value</option>
+            <option value="@value" @onmousedown="() => ChooseValue(value)">@value</option>
         }
     </datalist>
 </div>
@@ -34,8 +34,12 @@
 
     private void RefreshContent() 
     {
-        if (!string.IsNullOrWhiteSpace(Content)) return;
         RefreshContent(Content);
+    }
+
+    private void ResetContent()
+    {
+        Values = new List<string>();
     }
 
     private async void RefreshContent(string name)
@@ -47,7 +51,7 @@
     }
 
     private void ChooseValue(string value) 
-    {
+    {        
         Values = new List<string>();
         Content = value;
         ContentChanged.InvokeAsync(Content);

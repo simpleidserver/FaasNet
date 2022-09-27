@@ -66,6 +66,12 @@ namespace FaasNet.EventMesh.StateMachines.Client
                         TotalRecords = res.TotalRecords,
                         Records = res.Records.Select(r => Transform(r))
                     };
+                case FindClientsByNameQuery findClientsByName:
+                    var findResult = await _store.Find(findClientsByName.Name, cancellationToken);
+                    return new FindClientsByNameQueryResult
+                    {
+                        Content = findResult
+                    };
             }
 
             return null;

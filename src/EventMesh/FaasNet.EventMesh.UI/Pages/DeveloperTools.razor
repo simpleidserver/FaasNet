@@ -11,10 +11,11 @@
     <div class="col-sm">
         <Section Title="Publish message">
             <EditForm OnValidSubmit="@PublishMessage" Model="publishMessage">
+		        <DataAnnotationsValidator />
                 <!-- ClientId  -->
                 <div class="mb-3">
                     <label class="form-label">Client identifier</label>
-                    <InputText class="form-control" @bind-Value="publishMessage.ClientId" />
+				    <Autocomplete @bind-Content="@publishMessage.ClientId" Name="selectClientIdPublish" Callback="GetClientsByName" />
                     <ValidationMessage For="() => publishMessage.ClientId" />
                 </div>
                 <!-- ClientSecret -->
@@ -48,10 +49,11 @@
     <div class="col-sm">
         <Section Title="Subscribe to one topic">
             <EditForm OnValidSubmit="@ToggleSubscription" Model="receiveMessage">
+		        <DataAnnotationsValidator />
                 <!-- ClientId  -->
                 <div class="mb-3">
                     <label class="form-label">Client identifier</label>
-                    <InputText class="form-control" @bind-Value="receiveMessage.ClientId" disabled="@IsSubscriptionActive" />
+				    <Autocomplete @bind-Content="@receiveMessage.ClientId" Name="selectClientIdSubscribe" Callback="GetClientsByName" Disabled="@IsSubscriptionActive" />
                     <ValidationMessage For="() => receiveMessage.ClientId" />
                 </div>
                 <!-- ClientSecret -->
@@ -69,7 +71,7 @@
                 <!-- Queue -->
                 <div class="mb-3">
                     <label class="form-label">Queue</label>
-                    <InputText class="form-control" @bind-Value="receiveMessage.QueueName" disabled="@IsSubscriptionActive" />
+				    <Autocomplete @bind-Content="@receiveMessage.QueueName" Name="selectQueueNameSubscribe" Callback="GetQueuesByName" Disabled="@IsSubscriptionActive" />
                     <ValidationMessage For="() => receiveMessage.QueueName" />
                 </div>
                 @if(IsSubscriptionActive)
@@ -171,11 +173,27 @@
         await InvokeAsync(() => StateHasChanged());
     }
 
+	private async Task<IEnumerable<string>> GetClientsByName(string name)
+	{
+		IEnumerable<string> result = new List<string>();
+		if (AppState.Value.SelectedNode == null) return result;
+		result = await EventMeshService.FindClientsByName(name, AppState.Value.SelectedNode.Url, AppState.Value.SelectedNode.Port, CancellationToken.None);
+		return result;
+	}
+
 	private async Task<IEnumerable<string>> GetVpnsByName(string name)
 	{
 		IEnumerable<string> result = new List<string>();
 		if (AppState.Value.SelectedNode == null) return result;
 		result = await EventMeshService.FindVpnsByName(name, AppState.Value.SelectedNode.Url, AppState.Value.SelectedNode.Port, CancellationToken.None);
+		return result;
+	}
+
+	private async Task<IEnumerable<string>> GetQueuesByName(string name)
+	{
+		IEnumerable<string> result = new List<string>();
+		if (AppState.Value.SelectedNode == null) return result;
+		result = await EventMeshService.FindQueuesByName(name, AppState.Value.SelectedNode.Url, AppState.Value.SelectedNode.Port, CancellationToken.None);
 		return result;
 	}
 }

@@ -115,6 +115,22 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage FindClientsByName(string name)
+        {
+            return new FindClientsByNameRequest(GenerateRandomSeq())
+            {
+                Name = name
+            };
+        }
+
+        public static BaseEventMeshPackage FindQueuesByName(string name)
+        {
+            return new FindQueuesByNameRequest(GenerateRandomSeq())
+            {
+                Name = name
+            };
+        }
+
         private static string GenerateRandomSeq()
         {
             var builder = new StringBuilder(10);

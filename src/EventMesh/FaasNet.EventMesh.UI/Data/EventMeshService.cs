@@ -30,6 +30,8 @@ namespace FaasNet.EventMesh.UI.Data
         Task<PublishMessageResult> PublishMessage(string clientId, string vpn, string clientSecret, string topicMessage, string content, string url, int port, CancellationToken cancellationToken);
         Task<SubscriptionResult> Subscribe(string clientId, string vpn, string clientSecret, string queueName, string url, int port, CancellationToken cancellationToken);
         Task<IEnumerable<string>> FindVpnsByName(string name, string url, int port, CancellationToken cancellationToken);
+        Task<IEnumerable<string>> FindClientsByName(string name, string url, int port, CancellationToken cancellationToken);
+        Task<IEnumerable<string>> FindQueuesByName(string name, string url, int port, CancellationToken cancellationToken);
     }
 
     public class EventMeshService : IEventMeshService
@@ -179,6 +181,24 @@ namespace FaasNet.EventMesh.UI.Data
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
                 var findResult = await client.FindVpnsByName(name, _options.RequestTimeoutMS, cancellationToken);
+                return findResult.Content;
+            }
+        }
+
+        public async Task<IEnumerable<string>> FindClientsByName(string name, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var findResult = await client.FindClientsByName(name, _options.RequestTimeoutMS, cancellationToken);
+                return findResult.Content;
+            }
+        }
+
+        public async Task<IEnumerable<string>> FindQueuesByName(string name, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var findResult = await client.FindQueuesByNames(name, _options.RequestTimeoutMS, cancellationToken);
                 return findResult.Content;
             }
         }

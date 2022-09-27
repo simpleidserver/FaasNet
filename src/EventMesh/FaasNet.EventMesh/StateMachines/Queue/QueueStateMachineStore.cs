@@ -16,6 +16,7 @@ namespace FaasNet.EventMesh.StateMachines.Queue
         Task<QueueRecord> Get(string key, string vpn, CancellationToken cancellationToken);
         Task<IEnumerable<QueueRecord>> Search(string vpn, string topic, CancellationToken cancellationToken);
         Task<GenericSearchResult<QueueRecord>> Find(FilterQuery filter, CancellationToken cancellationToken);
+        Task<IEnumerable<string>> Find(string name, CancellationToken cancellationToken);
     }
 
     public class QueueStateMachineStore : IQueueStateMachineStore
@@ -76,6 +77,11 @@ namespace FaasNet.EventMesh.StateMachines.Queue
                 TotalPages = nbPages,
                 TotalRecords = totalRecords
             });
+        }
+
+        public Task<IEnumerable<string>> Find(string name, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_records.OrderBy(r => r.QueueName).Where(r => string.IsNullOrWhiteSpace(name) || r.QueueName.StartsWith(name, StringComparison.InvariantCultureIgnoreCase)).Take(10).Select(r => r.QueueName));
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)
