@@ -13,13 +13,6 @@
     --loader-bg-color: #39393933;
 }
 
-h2 {
-    padding: 10px 0px 10px var(--main-space);
-    border-bottom: 1px solid var(--h2-border-color);
-    font-weight: 600px;
-    font-size: 24px;
-}
-
 #navHeader .active {
     color: var(--active-link-fg-color) !important;
 }

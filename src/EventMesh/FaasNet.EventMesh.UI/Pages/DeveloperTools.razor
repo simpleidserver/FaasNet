@@ -9,89 +9,95 @@
 
 <div class="row">
     <div class="col-sm">
-        <Section Title="Publish message">
-            <EditForm OnValidSubmit="@PublishMessage" Model="publishMessage">
-		        <DataAnnotationsValidator />
-                <!-- ClientId  -->
-                <div class="mb-3">
-                    <label class="form-label">Client identifier</label>
-				    <Autocomplete @bind-Content="@publishMessage.ClientId" Name="selectClientIdPublish" Callback="GetClientsByName" />
-                    <ValidationMessage For="() => publishMessage.ClientId" />
-                </div>
-                <!-- ClientSecret -->
-                <div class="mb-3">
-                    <label class="form-label">Client secret</label>
-                    <InputText type="password"  class="form-control" @bind-Value="publishMessage.ClientSecret" />
-                    <ValidationMessage For="() => publishMessage.ClientSecret" />
-                </div>
-                <!-- Vpn -->
-                <div class="mb-3">
-                    <label class="form-label">Vpn</label>
-				    <Autocomplete @bind-Content="@publishMessage.Vpn" Name="selectVpnPublish" Callback="GetVpnsByName" />
-                    <ValidationMessage For="() => publishMessage.Vpn" />
-                </div>
-                <!-- Topic -->
-                <div class="mb-3">
-                    <label class="form-label">Message topic</label>
-                    <InputText class="form-control" @bind-Value="publishMessage.Topic" />
-                    <ValidationMessage For="() => publishMessage.Topic" />
-                </div>
-                <!-- Message -->
-                <div class="mb-3">
-                    <label class="form-label">Message content</label>
-                    <InputTextArea class="form-control" @bind-Value="publishMessage.Content" />
-                    <ValidationMessage For="() => publishMessage.Content" />
-                </div>
-                <button type="submit" class="btn btn-primary">Publish</button>
-            </EditForm>
+        <Section>
+            <Title><span>Publish message</span></Title>
+            <ChildContent>
+                <EditForm OnValidSubmit="@PublishMessage" Model="publishMessage">
+		            <DataAnnotationsValidator />
+                    <!-- ClientId  -->
+                    <div class="mb-3">
+                        <label class="form-label">Client identifier</label>
+				        <Autocomplete @bind-Content="@publishMessage.ClientId" Name="selectClientIdPublish" Callback="GetClientsByName" />
+                        <ValidationMessage For="() => publishMessage.ClientId" />
+                    </div>
+                    <!-- ClientSecret -->
+                    <div class="mb-3">
+                        <label class="form-label">Client secret</label>
+                        <InputText type="password"  class="form-control" @bind-Value="publishMessage.ClientSecret" />
+                        <ValidationMessage For="() => publishMessage.ClientSecret" />
+                    </div>
+                    <!-- Vpn -->
+                    <div class="mb-3">
+                        <label class="form-label">Vpn</label>
+				        <Autocomplete @bind-Content="@publishMessage.Vpn" Name="selectVpnPublish" Callback="GetVpnsByName" />
+                        <ValidationMessage For="() => publishMessage.Vpn" />
+                    </div>
+                    <!-- Topic -->
+                    <div class="mb-3">
+                        <label class="form-label">Message topic</label>
+                        <InputText class="form-control" @bind-Value="publishMessage.Topic" />
+                        <ValidationMessage For="() => publishMessage.Topic" />
+                    </div>
+                    <!-- Message -->
+                    <div class="mb-3">
+                        <label class="form-label">Message content</label>
+                        <InputTextArea class="form-control" @bind-Value="publishMessage.Content" />
+                        <ValidationMessage For="() => publishMessage.Content" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Publish</button>
+                </EditForm>
+            </ChildContent>
         </Section>
     </div>
     <div class="col-sm">
-        <Section Title="Subscribe to one topic">
-            <EditForm OnValidSubmit="@ToggleSubscription" Model="receiveMessage">
-		        <DataAnnotationsValidator />
-                <!-- ClientId  -->
-                <div class="mb-3">
-                    <label class="form-label">Client identifier</label>
-				    <Autocomplete @bind-Content="@receiveMessage.ClientId" Name="selectClientIdSubscribe" Callback="GetClientsByName" Disabled="@IsSubscriptionActive" />
-                    <ValidationMessage For="() => receiveMessage.ClientId" />
-                </div>
-                <!-- ClientSecret -->
-                <div class="mb-3">
-                    <label class="form-label">Client secret</label>
-                    <InputText type="password" class="form-control" @bind-Value="receiveMessage.ClientSecret" disabled="@IsSubscriptionActive" />
-                    <ValidationMessage For="() => receiveMessage.ClientSecret" />
-                </div>
-                <!-- Vpn -->
-                <div class="mb-3">
-                    <label class="form-label">Vpn</label
-				    <Autocomplete @bind-Content="@receiveMessage.Vpn" Name="selectVpnSubscribe" Callback="GetVpnsByName" Disabled="@IsSubscriptionActive" />
-                    <ValidationMessage For="() => receiveMessage.Vpn" />
-                </div>
-                <!-- Queue -->
-                <div class="mb-3">
-                    <label class="form-label">Queue</label>
-				    <Autocomplete @bind-Content="@receiveMessage.QueueName" Name="selectQueueNameSubscribe" Callback="GetQueuesByName" Disabled="@IsSubscriptionActive" />
-                    <ValidationMessage For="() => receiveMessage.QueueName" />
-                </div>
-                @if(IsSubscriptionActive)
-                {
-                    <button type="submit" class="btn btn-danger">Stop session</button>
-                }
-                else
-                {
-                    <button type="submit" class="btn btn-success">Start session</button>
-                }
-            </EditForm>
-            <div>                
-                <h5>Received messages</h5>
-                <ul class="list-group">
-                    @foreach(var message in ReceivedMessages)
+        <Section>
+            <Title><span>Subscribe to one topic</span></Title>
+            <ChildContent>
+                <EditForm OnValidSubmit="@ToggleSubscription" Model="receiveMessage">
+		            <DataAnnotationsValidator />
+                    <!-- ClientId  -->
+                    <div class="mb-3">
+                        <label class="form-label">Client identifier</label>
+				        <Autocomplete @bind-Content="@receiveMessage.ClientId" Name="selectClientIdSubscribe" Callback="GetClientsByName" Disabled="@IsSubscriptionActive" />
+                        <ValidationMessage For="() => receiveMessage.ClientId" />
+                    </div>
+                    <!-- ClientSecret -->
+                    <div class="mb-3">
+                        <label class="form-label">Client secret</label>
+                        <InputText type="password" class="form-control" @bind-Value="receiveMessage.ClientSecret" disabled="@IsSubscriptionActive" />
+                        <ValidationMessage For="() => receiveMessage.ClientSecret" />
+                    </div>
+                    <!-- Vpn -->
+                    <div class="mb-3">
+                        <label class="form-label">Vpn</label
+				        <Autocomplete @bind-Content="@receiveMessage.Vpn" Name="selectVpnSubscribe" Callback="GetVpnsByName" Disabled="@IsSubscriptionActive" />
+                        <ValidationMessage For="() => receiveMessage.Vpn" />
+                    </div>
+                    <!-- Queue -->
+                    <div class="mb-3">
+                        <label class="form-label">Queue</label>
+				        <Autocomplete @bind-Content="@receiveMessage.QueueName" Name="selectQueueNameSubscribe" Callback="GetQueuesByName" Disabled="@IsSubscriptionActive" />
+                        <ValidationMessage For="() => receiveMessage.QueueName" />
+                    </div>
+                    @if(IsSubscriptionActive)
                     {
-                        <li class="list-group-item">@message</li>
+                        <button type="submit" class="btn btn-danger">Stop session</button>
                     }
-                </ul>
-            </div>
+                    else
+                    {
+                        <button type="submit" class="btn btn-success">Start session</button>
+                    }
+                </EditForm>
+                <div>                
+                    <h5>Received messages</h5>
+                    <ul class="list-group">
+                        @foreach(var message in ReceivedMessages)
+                        {
+                            <li class="list-group-item">@message</li>
+                        }
+                    </ul>
+                </div>
+            </ChildContent>
         </Section>
     </div>
 </div>

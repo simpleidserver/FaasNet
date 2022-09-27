@@ -10,50 +10,56 @@
 
 <PageTitle>Overview</PageTitle>
 
-<Section Title="Summary">
-	EventMesh node is listening on <b>@AppState.Value.SelectedNode?.DisplayName</b><br />
-	Status is 
-	@if (AppState.Value.IsActive)
-	{
-		<b class="success">Active</b>
-	}
-	else
-	{
-		<b class="error">Inactive</b>
-	}
-	<br />
-	<b>@ClientTransport.Name</b> protocol is used
+<Section>
+	<Title><span>Summary</span></Title>
+	<ChildContent>
+		EventMesh node is listening on <b>@AppState.Value.SelectedNode?.DisplayName</b><br />
+		Status is 
+		@if (AppState.Value.IsActive)
+		{
+			<b class="success">Active</b>
+		}
+		else
+		{
+			<b class="error">Inactive</b>
+		}
+		<br />
+		<b>@ClientTransport.Name</b> protocol is used
+	</ChildContent>
 </Section>
 
-<Section Title="List of partitions">	
-	<Loader IsDisplayed="PeerStatesState.Value.IsLoading">
-		<table class="table table-striped table-bordered">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Status</th>
-					<th>Commit Index</th>
-					<th>Last applied</th>
-					<th>Commit snapshot index</th>
-					<th>Last snapshot index</th>
-				</tr>
-			</thead>
-			<tbody>
-				@if (PeerStatesState.Value.PeerStates != null)
-					@foreach (var peerState in PeerStatesState.Value.PeerStates)
-					{
-						<tr>
-							<th>@peerState.Name</th>
-							<th>@peerState.Status</th>
-							<th>@peerState.CommitIndex</th>
-							<th>@peerState.LastApplied</th>
-							<th>@peerState.SnapshotCommitIndex</th>
-							<th>@peerState.SnapshotLastApplied</th>
-						</tr>
-					}
-			</tbody>
-		</table>
-	</Loader>
+<Section>	
+	<Title><span>List of partitions</span></Title>
+	<ChildContent>
+		<Loader IsDisplayed="PeerStatesState.Value.IsLoading">
+			<table class="table table-striped table-bordered">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Status</th>
+						<th>Commit Index</th>
+						<th>Last applied</th>
+						<th>Commit snapshot index</th>
+						<th>Last snapshot index</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (PeerStatesState.Value.PeerStates != null)
+						@foreach (var peerState in PeerStatesState.Value.PeerStates)
+						{
+							<tr>
+								<th>@peerState.Name</th>
+								<th>@peerState.Status</th>
+								<th>@peerState.CommitIndex</th>
+								<th>@peerState.LastApplied</th>
+								<th>@peerState.SnapshotCommitIndex</th>
+								<th>@peerState.SnapshotLastApplied</th>
+							</tr>
+						}
+				</tbody>
+			</table>
+		</Loader>
+	</ChildContent>
 </Section>
 
 @code {

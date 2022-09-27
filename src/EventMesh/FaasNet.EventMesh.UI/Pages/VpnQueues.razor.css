@@ -1,6 +1,10 @@
-#clientContent {
+#clientInfo {
     padding: 10px;
     border-right: 1px solid #dee2e6;
     border-left: 1px solid #dee2e6;
     border-bottom: 1px solid #dee2e6;
+}
+
+.purposeType {
+    margin-right: 5px;
 }

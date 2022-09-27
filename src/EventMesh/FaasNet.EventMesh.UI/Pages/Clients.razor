@@ -10,53 +10,56 @@
 
 <PageTitle>Clients</PageTitle>
 
-<Section Title="Clients">
-	<Loader IsDisplayed="ClientState.Value.IsLoading">
-		<button class="btn btn-primary mb-2" @onclick="AddClient">Add Client</button>
-		@if (newClient != null)
-		{
-			<div class="alert alert-success">
-				Client <b>@newClient.ClientId</b> has been created with the secret <b>@newClient.ClientSecret</b>. Please copy it !
-			</div>
-		}
-		<Grid TRowData="ClientQueryResult" Result="ClientState.Value.Clients" @bind-Query="Filter">
-			<GridColumn TRowData="ClientQueryResult" Title="Identifier" Name="Id" IsSortEnabled="true">
-				@if (context.CreateDateTime == null)
-				{
-					<span class="newRecord"><b>NEW</b> @context.Id</span>
-				}
-				else
-				{
-					<NavLink href="@($"/vpns/{context.Vpn}/clients/{context.Id}/info")">@context.Id</NavLink>
-				}
-			</GridColumn>
-			<GridColumn TRowData="ClientQueryResult" Name="Vpn" Title="VPN">
-				@if (context.CreateDateTime == null)
-				{
-					<span class="newRecord">@context.Vpn</span>
-				}
-				else
-				{
-					<span>@context.Vpn</span>
-				}
-			</GridColumn>
-			<GridColumn TRowData="ClientQueryResult" Name="Purposes" Title="Purpose">
-				@foreach(var purposeType in context.Purposes) {
-					<span class="badge text-bg-primary purposeType">@Enum.GetName(typeof(ClientPurposeTypes), purposeType)</span>
-				}
-			</GridColumn>
-			<GridColumn TRowData="ClientQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
-				@if (context.CreateDateTime == null)
-				{
-					<span class="newRecord">-</span>
-				}
-				else
-				{
-					<span>@context.CreateDateTime.Value.ToLocalTime()</span>
-				}
-			</GridColumn>
-		</Grid>
-	</Loader>
+<Section>
+	<Title><span>Clients</span></Title>
+	<ChildContent>
+		<Loader IsDisplayed="ClientState.Value.IsLoading">
+			<button class="btn btn-primary mb-2" @onclick="AddClient">Add Client</button>
+			@if (newClient != null)
+			{
+				<div class="alert alert-success">
+					Client <b>@newClient.ClientId</b> has been created with the secret <b>@newClient.ClientSecret</b>. Please copy it !
+				</div>
+			}
+			<Grid TRowData="ClientQueryResult" Result="ClientState.Value.Clients" @bind-Query="Filter">
+				<GridColumn TRowData="ClientQueryResult" Title="Identifier" Name="Id" IsSortEnabled="true">
+					@if (context.CreateDateTime == null)
+					{
+						<span class="newRecord"><b>NEW</b> @context.Id</span>
+					}
+					else
+					{
+						<NavLink href="@($"/vpns/{context.Vpn}/clients/{context.Id}/info")">@context.Id</NavLink>
+					}
+				</GridColumn>
+				<GridColumn TRowData="ClientQueryResult" Name="Vpn" Title="VPN">
+					@if (context.CreateDateTime == null)
+					{
+						<span class="newRecord">@context.Vpn</span>
+					}
+					else
+					{
+						<span>@context.Vpn</span>
+					}
+				</GridColumn>
+				<GridColumn TRowData="ClientQueryResult" Name="Purposes" Title="Purpose">
+					@foreach(var purposeType in context.Purposes) {
+						<span class="badge text-bg-primary purposeType">@Enum.GetName(typeof(ClientPurposeTypes), purposeType)</span>
+					}
+				</GridColumn>
+				<GridColumn TRowData="ClientQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
+					@if (context.CreateDateTime == null)
+					{
+						<span class="newRecord">-</span>
+					}
+					else
+					{
+						<span>@context.CreateDateTime.Value.ToLocalTime()</span>
+					}
+				</GridColumn>
+			</Grid>
+		</Loader>
+	</ChildContent>
 </Section>
 
 <Modal Title="Add Client" @ref=addClientModal>

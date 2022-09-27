@@ -20,5 +20,18 @@ namespace FaasNet.EventMesh.Extensions
                 lambdaExpr)
                 .Method.Invoke(null, new object[] { source, lambdaExpr });
         }
+
+        public static IQueryable<T> Filter<T>(this IQueryable<T> source, ComparisonExpression comparison)
+        {
+            var piParametr = Expression.Parameter(typeof(T), "r");
+            var property = Expression.Property(piParametr, comparison.Key);
+            var comparisonExpr = Expression.Equal(property, Expression.Constant(comparison.Value));
+            var lambdaExpr = Expression.Lambda(comparisonExpr, piParametr);
+            var whereMethod = typeof(Queryable).GetMethods()
+                 .Where(m => m.Name == "Where" && m.IsGenericMethodDefinition)
+                 .Where(m => m.GetParameters().Count() == 2).First().MakeGenericMethod(typeof(T));
+            return (IQueryable<T>)Expression.Call(whereMethod, source.Expression, lambdaExpr)
+                .Method.Invoke(null, new object[] { source, lambdaExpr });
+        }
     }
 }

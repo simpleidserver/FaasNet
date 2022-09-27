@@ -1,5 +1,5 @@
 ﻿<div class="section">
-    <h2>@Title</h2>
+    <div class="title">@Title</div>
     <div class="content">
         @ChildContent
     </div>
@@ -7,7 +7,7 @@
 
 @code {
     [Parameter]
-    public string Title { get; set; }
+    public RenderFragment Title { get; set; }
     [Parameter]
     public RenderFragment ChildContent { get; set; }
 }

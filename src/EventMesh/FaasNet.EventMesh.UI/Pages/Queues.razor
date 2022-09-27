@@ -12,52 +12,55 @@
 
 <PageTitle>Queues</PageTitle>
 
-<Section Title="Queues">
-	<Loader IsDisplayed="QueuesState.Value.IsLoading">
-		<button class="btn btn-primary mb-2" @onclick="AddQueue">Add Queue</button>
-		<Grid TRowData="QueueQueryResult" Result="QueuesState.Value.Queues" @bind-Query="Filter">
-			<GridColumn TRowData="QueueQueryResult" Title="Name" Name="QueueName" IsSortEnabled="true">
-				@if (context.CreateDateTime == null)
-				{
-					<span class="newRecord"><b>NEW</b> @context.QueueName</span>
-				}
-				else
-				{
-					<span>@context.QueueName</span>
-				}
-			</GridColumn>
-			<GridColumn TRowData="QueueQueryResult" Title="Vpn" Name="Vpn" IsSortEnabled="true">
-				@if (context.CreateDateTime == null)
-				{
-					<span class="newRecord">@context.Vpn</span>
-				}
-				else
-				{
-					<span>@context.Vpn</span>
-				}
-			</GridColumn>
-			<GridColumn TRowData="QueueQueryResult" Title="Topic Filter" Name="TopicFilter" IsSortEnabled="true">
-				@if (context.CreateDateTime == null)
-				{
-					<span class="newRecord">@context.TopicFilter</span>
-				}
-				else
-				{
-					<span>@context.TopicFilter</span>
-				}
-			</GridColumn>
-			<GridColumn TRowData="QueueQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
-				@if (context.CreateDateTime == null)
-				{
-					<span class="newRecord">-</span>
-				}
-				else
-				{
-					<span>@context.CreateDateTime.Value.ToLocalTime()</span>
-				}
-			</GridColumn>
-		</Grid>
-	</Loader>
+<Section>
+	<Title><span>Queues</span></Title>
+	<ChildContent>
+		<Loader IsDisplayed="QueuesState.Value.IsLoading">
+			<button class="btn btn-primary mb-2" @onclick="AddQueue">Add Queue</button>
+			<Grid TRowData="QueueQueryResult" Result="QueuesState.Value.Queues" @bind-Query="Filter">
+				<GridColumn TRowData="QueueQueryResult" Title="Name" Name="QueueName" IsSortEnabled="true">
+					@if (context.CreateDateTime == null)
+					{
+						<span class="newRecord"><b>NEW</b> @context.QueueName</span>
+					}
+					else
+					{
+						<span>@context.QueueName</span>
+					}
+				</GridColumn>
+				<GridColumn TRowData="QueueQueryResult" Title="Vpn" Name="Vpn" IsSortEnabled="true">
+					@if (context.CreateDateTime == null)
+					{
+						<span class="newRecord">@context.Vpn</span>
+					}
+					else
+					{
+						<span>@context.Vpn</span>
+					}
+				</GridColumn>
+				<GridColumn TRowData="QueueQueryResult" Title="Topic Filter" Name="TopicFilter" IsSortEnabled="true">
+					@if (context.CreateDateTime == null)
+					{
+						<span class="newRecord">@context.TopicFilter</span>
+					}
+					else
+					{
+						<span>@context.TopicFilter</span>
+					}
+				</GridColumn>
+				<GridColumn TRowData="QueueQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
+					@if (context.CreateDateTime == null)
+					{
+						<span class="newRecord">-</span>
+					}
+					else
+					{
+						<span>@context.CreateDateTime.Value.ToLocalTime()</span>
+					}
+				</GridColumn>
+			</Grid>
+		</Loader>
+	</ChildContent>
 </Section>
 
 <Modal Title="Add Queue" @ref=addQueueModal>

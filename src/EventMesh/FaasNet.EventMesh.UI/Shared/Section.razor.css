@@ -2,3 +2,11 @@
     padding-left: var(--main-space);
     padding-right: var(--main-space);
 }
+
+.section .title {
+    padding: 10px 0px 10px var(--main-space);
+    border-bottom: 1px solid var(--h2-border-color);
+    font-weight: 600px;
+    font-size: 24px;
+    margin-bottom: 10px;
+}

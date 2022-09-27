@@ -12,42 +12,45 @@
 
 <PageTitle>Vpns</PageTitle>
 
-<Section Title="Vpns">
-	<Loader IsDisplayed="VpnsState.Value.IsLoading">
-		<button class="btn btn-primary mb-2" @onclick="AddVpn">Add VPN</button>
-		<Grid TRowData="VpnQueryResult" Result="VpnsState.Value.Vpns" @bind-Query="Filter">
-			<GridColumn TRowData="VpnQueryResult" Title="Identifier" Name="Name">
-				@if(context.CreateDateTime == null)
-				{
-					<span class="newRecord"><b>NEW</b> @context.Name</span>
-				}
-				else
-				{
-					<span>@context.Name</span>
-				}
-			</GridColumn>
-			<GridColumn TRowData="VpnQueryResult" Title="Description" Name="Description">
-				@if (context.CreateDateTime == null)
-				{
-					<span class="newRecord">@context.Description</span>
-				}
-				else
-				{
-					<span>@context.Description</span>
-				}
-			</GridColumn>
-			<GridColumn TRowData="VpnQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
-				@if(context.CreateDateTime == null) 
-				{
-					<span class="newRecord">-</span>
-				}
-				else 
-				{
-					<span>@context.CreateDateTime.Value.ToLocalTime()</span>
-				}
-			</GridColumn>
-		</Grid>
-	</Loader>
+<Section>
+	<Title><span>Vpns</span></Title>
+	<ChildContent>
+		<Loader IsDisplayed="VpnsState.Value.IsLoading">
+			<button class="btn btn-primary mb-2" @onclick="AddVpn">Add VPN</button>
+			<Grid TRowData="VpnQueryResult" Result="VpnsState.Value.Vpns" @bind-Query="Filter">
+				<GridColumn TRowData="VpnQueryResult" Title="Identifier" Name="Name">
+					@if(context.CreateDateTime == null)
+					{
+						<span class="newRecord"><b>NEW</b> @context.Name</span>
+					}
+					else
+					{
+						<NavLink href="@($"/vpns/{context.Name}")">@context.Name</NavLink>
+					}
+				</GridColumn>
+				<GridColumn TRowData="VpnQueryResult" Title="Description" Name="Description">
+					@if (context.CreateDateTime == null)
+					{
+						<span class="newRecord">@context.Description</span>
+					}
+					else
+					{
+						<span>@context.Description</span>
+					}
+				</GridColumn>
+				<GridColumn TRowData="VpnQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
+					@if(context.CreateDateTime == null) 
+					{
+						<span class="newRecord">-</span>
+					}
+					else 
+					{
+						<span>@context.CreateDateTime.Value.ToLocalTime()</span>
+					}
+				</GridColumn>
+			</Grid>
+		</Loader>
+	</ChildContent>
 </Section>
 
 <Modal Title="Add VPN" @ref=addVpnModal>

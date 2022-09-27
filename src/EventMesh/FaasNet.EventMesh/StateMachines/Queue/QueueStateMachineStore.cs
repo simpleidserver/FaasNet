@@ -67,13 +67,15 @@ namespace FaasNet.EventMesh.StateMachines.Queue
 
         public Task<GenericSearchResult<QueueRecord>> Find(FilterQuery filter, CancellationToken cancellationToken)
         {
-            IEnumerable<QueueRecord> filtered = _records.AsQueryable().InvokeOrderBy(filter.SortBy, filter.SortOrder).ToList();
-            var totalRecords = filtered.Count();
-            filtered = filtered.Skip(filter.NbRecords * filter.Page).Take(filter.NbRecords);
+            IQueryable<QueueRecord> filtered = _records.AsQueryable();
+            if(filter.Comparison != null) filtered = filtered.Filter(filter.Comparison);
+            IEnumerable<QueueRecord> res = filtered.InvokeOrderBy(filter.SortBy, filter.SortOrder).ToList();
+            var totalRecords = res.Count();
+            res = res.Skip(filter.NbRecords * filter.Page).Take(filter.NbRecords);
             var nbPages = (int)Math.Ceiling((decimal)totalRecords / filter.NbRecords);
             return Task.FromResult(new GenericSearchResult<QueueRecord>
             {
-                Records = filtered,
+                Records = res,
                 TotalPages = nbPages,
                 TotalRecords = totalRecords
             });
