@@ -107,6 +107,14 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage FindVpnsByName(string name)
+        {
+            return new FindVpnsByNameRequest(GenerateRandomSeq())
+            {
+                Name = name
+            };
+        }
+
         private static string GenerateRandomSeq()
         {
             var builder = new StringBuilder(10);

@@ -74,6 +74,7 @@
 
     private void RefreshClientSessions() 
     {
+		if(AppState.Value.SelectedNode == null) return;
         Dispatcher.Dispatch(new GetClientSessionsAction { ClientId = clientId, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url, Vpn = vpn, Filter = _filter });
     }
 }

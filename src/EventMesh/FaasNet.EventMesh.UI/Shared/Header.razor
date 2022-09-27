@@ -29,27 +29,26 @@
 				<li class="nav-item @GetActive("/developertools", NavLinkMatch.All)">
 					<NavLink class="nav-link" href="/developertools">Developer tools</NavLink>
 				</li>
-			  </ul>
-			  @if (State.Value.IsActive && State.Value.Nodes != null)
-			  {
-				  <div class="d-flex" id="selectNode">
-					<div class="col-auto">
-						<span>Active EventMesh node</span>
-					</div>
-					<select class="form-select" value="@State.Value.SelectedNode.Id" @onchange="ChangeSelectedNode">
-						@foreach (var node in State.Value.Nodes)
-						{
-							<option value="@node.Id">@node.DisplayName</option>
-						}
-					</select>
-				</div>
-			  }
-			  else
-			  {
-				<div class="d-flex">
-					<span>There is no running node</span>
-				</div>
-			  }
+			</ul>
+			  <div class="d-flex" id="selectNode">
+				  <button class="btn btn-primary" @onclick="RefreshStatus">Refresh</button>
+				  @if (State.Value.IsActive && State.Value.Nodes != null)
+				  {
+						<div class="col-auto title">
+							<span>Active EventMesh node</span>
+						</div>
+						<select class="form-select" value="@State.Value.SelectedNode?.Id" @onchange="ChangeSelectedNode">
+							@foreach (var node in State.Value.Nodes)
+							{
+								<option value="@node.Id">@node.DisplayName</option>
+							}
+						</select>
+				  }
+				  else
+				  {
+					  <span class="title">There is no running node</span>
+				  }
+			  </div>
 		</div>
 	</div>
 </nav>
@@ -57,32 +56,33 @@
 @code {
 	[Inject] private IDispatcher Dispatcher { get; set; } = null!;
 	[Inject] private IState<AppState> State { get; set; } = null!;
-	private System.Timers.Timer _timer;
+	[Inject] private Store _store { get; set; } = null;
 
 	protected override void OnInitialized()
 	{
 		base.OnInitialized();
 		navigationManager.LocationChanged += (s, e) => StateHasChanged();
-        _timer = new System.Timers.Timer();
-        _timer.Elapsed += RefreshStatus;
-        _timer.Interval = 2000;
-        _timer.AutoReset = false;
-        _timer.Start();
+		RefreshStatus();
+		SubscribeToAction<RefreshStatusResultAction>((act) =>
+		{
+			if (State.Value.SelectedNode == null && act.Nodes.Any())
+				Dispatcher.Dispatch(new SelectActiveNodeAction { Id = act.Nodes.First().Id });
+		});
 	}
 
-	private void RefreshStatus(object? sender, ElapsedEventArgs e)
+	protected override void OnAfterRender(bool firstRender)
+	{
+		base.OnAfterRender(firstRender);
+		_store.InitializeAsync().Wait();
+	}
+
+	private void RefreshStatus()
 	{
 		Dispatcher.Dispatch(new RefreshStatusAction());
-		_timer.Start();
 	}
 
-	public void Dispose()
+	private void ChangeSelectedNode(ChangeEventArgs e) 
 	{
-		_timer.Stop();
-		_timer.Dispose();
-	}
-
-	private void ChangeSelectedNode(ChangeEventArgs e) {
 		Dispatcher.Dispatch(new SelectActiveNodeAction { Id = e.Value.ToString() });
 	}
 

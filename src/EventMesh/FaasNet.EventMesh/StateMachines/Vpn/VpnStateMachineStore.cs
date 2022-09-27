@@ -14,6 +14,7 @@ namespace FaasNet.EventMesh.StateMachines.Vpn
     {
         Task<IEnumerable<VpnRecord>> GetAll(CancellationToken cancellationToken);
         Task<GenericSearchResult<VpnRecord>> Find(FilterQuery filter, CancellationToken cancellationToken);
+        Task<IEnumerable<string>> Find(string name, CancellationToken cancellationToken);
     }
 
     public class VpnStateMachineStore : IVpnStateMachineStore
@@ -65,6 +66,11 @@ namespace FaasNet.EventMesh.StateMachines.Vpn
                 TotalPages = nbPages,
                 TotalRecords = totalRecords
             });
+        }
+
+        public Task<IEnumerable<string>> Find(string name, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_vpns.OrderBy(v => v.Name).Where(v => string.IsNullOrWhiteSpace(name) || v.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase)).Take(10).Select(v => v.Name));
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)

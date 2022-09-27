@@ -1,0 +1,28 @@
+datalist {
+    border: 1px solid #ced4da;
+    border-radius: 0 0 5px 5px;
+    border-top: none;
+    font-family: sans-serif;
+    padding: 5px;
+    max-height: 10rem;
+    overflow-y: auto;
+    background-color: white;
+    position: absolute;
+    width: 100%;
+}
+
+datalist.displayed {
+    display: block;
+}
+
+.autocomplete {
+    position: relative;
+}
+
+.autocomplete option{
+    cursor: pointer;
+}
+
+.autocomplete option:hover {
+    background-color: #ced4da;
+}

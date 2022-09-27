@@ -11,7 +11,7 @@
 
 <div>
     <Loader IsDisplayed="ClientInfoState.Value.IsLoading">
-        @if (ClientInfoState.Value.ClientInfo.Success)
+        @if (ClientInfoState.Value.ClientInfo != null && ClientInfoState.Value.ClientInfo.Success)
         {           
             <!-- Identifier -->
             <div class="mb-3">
@@ -58,10 +58,12 @@
         {
             RefreshClientInfo();
         });
+        RefreshClientInfo();
     }
 
     private void RefreshClientInfo()
     {
+        if (AppState.Value.SelectedNode == null) return;
         Dispatcher.Dispatch(new GetClientInfoAction { ClientId = clientId, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url, Vpn = vpn});
     }
 }

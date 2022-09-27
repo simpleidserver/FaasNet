@@ -22,8 +22,6 @@ builder.Services.AddTransient<IClientTransport, ClientUDPTransport>();
 builder.Services.AddFluxor(o =>
 {
     o.ScanAssemblies(Assembly.GetExecutingAssembly());
-    o.UseRouting();
-    o.UseReduxDevTools();
 });
 var app = builder.Build();
 

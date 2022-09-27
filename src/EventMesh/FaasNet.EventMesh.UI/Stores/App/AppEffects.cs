@@ -2,6 +2,7 @@
 using FaasNet.EventMesh.UI.Stores.App;
 using Fluxor;
 using Microsoft.Extensions.Options;
+using System.Xml.Linq;
 
 namespace FaasNet.EventMesh.UI.Stores.Client
 {
@@ -19,11 +20,10 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         [EffectMethod]
         public async Task Handle(RefreshStatusAction action, IDispatcher dispatcher)
         {
-            var lastRefreshTime = DateTime.UtcNow;
             var pingResult = await _eventMeshService.Ping(_options.EventMeshUrl, _options.EventMeshPort, CancellationToken.None);
             if (!pingResult)
             {
-                dispatcher.Dispatch(new RefreshStatusResultAction(lastRefreshTime));
+                dispatcher.Dispatch(new RefreshStatusResultAction());
                 return;
             }
 
@@ -33,7 +33,8 @@ namespace FaasNet.EventMesh.UI.Stores.Client
                 Port = n.Port,
                 Url = n.Url
             });
-            dispatcher.Dispatch(new RefreshStatusResultAction(result, lastRefreshTime));
+            result = result.OrderBy(n => n.DisplayName);
+            dispatcher.Dispatch(new RefreshStatusResultAction(result));
         }
     }
 
@@ -46,19 +47,16 @@ namespace FaasNet.EventMesh.UI.Stores.Client
     {
         public bool IsActive { get; }
         public IEnumerable<EventMeshNode> Nodes { get; } = new List<EventMeshNode>();
-        public DateTime LastRefreshTime { get; }
 
-        public RefreshStatusResultAction(DateTime lastRefreshTime)
+        public RefreshStatusResultAction()
         {
             IsActive = false;
-            LastRefreshTime = lastRefreshTime;
         }
 
-        public RefreshStatusResultAction(IEnumerable<EventMeshNode> nodes, DateTime lastRefreshTime)
+        public RefreshStatusResultAction(IEnumerable<EventMeshNode> nodes)
         {
             IsActive = true;
             Nodes = nodes;
-            LastRefreshTime = lastRefreshTime;
         }
     }
 

@@ -1,0 +1,60 @@
+﻿<div class="autocomplete">    
+    <input class="form-control" name="@Name" autocomplete="off" value="@Content" @oninput="HandleContentChanged" disabled="@Disabled" @onclick="() => RefreshContent()" />
+    <datalist id="@Name" class="@((Values == null || !Values.Any()) ? string.Empty : "displayed")">
+        @foreach(var value in Values)
+        {
+            <option value="@value" @onclick="() => ChooseValue(value)">@value</option>
+        }
+    </datalist>
+</div>
+
+@code {
+    private IEnumerable<string> Values { get; set; } = new List<string>();
+    [Parameter]
+    public string Name { get; set; }
+    [Parameter]
+    public string Content { get; set; }
+    [Parameter]
+    public EventCallback<string> ContentChanged { get; set; }
+    [Parameter]
+    public Func<string, Task<IEnumerable<string>>> Callback { get; set; }
+    [Parameter]
+    public bool Disabled { get; set; }
+    private bool IsLoading { get; set; } = false;
+
+    private async void HandleContentChanged(ChangeEventArgs evt)
+    {
+        if (Content == evt.Value.ToString() || IsLoading) return;
+        var content = evt.Value.ToString();
+        Content = content;
+        if (Callback == null) return;
+        ContentChanged.InvokeAsync(Content);
+        RefreshContent(content);
+    }
+
+    private void RefreshContent() 
+    {
+        if (!string.IsNullOrWhiteSpace(Content)) return;
+        RefreshContent(Content);
+    }
+
+    private async void RefreshContent(string name)
+    {
+        IsLoading = true;
+        Values = await Callback(name);
+        IsLoading = false;
+        Refresh();
+    }
+
+    private void ChooseValue(string value) 
+    {
+        Values = new List<string>();
+        Content = value;
+        ContentChanged.InvokeAsync(Content);
+    }
+
+    private async void Refresh()
+    {
+        await InvokeAsync(() => StateHasChanged());
+    }
+}

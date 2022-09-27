@@ -122,6 +122,7 @@
 
 	private void RefreshVpns()
 	{
+		if (AppState.Value.SelectedNode == null) return;
 		Dispatcher.Dispatch(new SearchVpnsAction { Filter = _filter, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
 	}
 

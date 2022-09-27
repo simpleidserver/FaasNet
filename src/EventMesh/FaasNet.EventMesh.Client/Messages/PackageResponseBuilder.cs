@@ -135,5 +135,13 @@ namespace FaasNet.EventMesh.Client.Messages
                 Content = content
             };
         }
+
+        public static BaseEventMeshPackage FindVpnsByName(string seq, IEnumerable<string> content)
+        {
+            return new FindVpnsByNameResult(seq)
+            {
+                Content = content
+            };
+        }
     }
 }

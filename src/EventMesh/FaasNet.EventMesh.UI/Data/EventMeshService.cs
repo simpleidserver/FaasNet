@@ -29,6 +29,7 @@ namespace FaasNet.EventMesh.UI.Data
         Task<AddQueueResponse> AddQueue(string vpn, string name, string topicFilter, string url, int port, CancellationToken cancellationToken);
         Task<PublishMessageResult> PublishMessage(string clientId, string vpn, string clientSecret, string topicMessage, string content, string url, int port, CancellationToken cancellationToken);
         Task<SubscriptionResult> Subscribe(string clientId, string vpn, string clientSecret, string queueName, string url, int port, CancellationToken cancellationToken);
+        Task<IEnumerable<string>> FindVpnsByName(string name, string url, int port, CancellationToken cancellationToken);
     }
 
     public class EventMeshService : IEventMeshService
@@ -170,6 +171,15 @@ namespace FaasNet.EventMesh.UI.Data
                     var result = await pubSession.PublishMessage(topicMessage, cloudEvent, _options.RequestTimeoutMS, cancellationToken);
                     return (result, result.Status == PublishMessageStatus.SUCCESS);
                 });
+            }
+        }
+
+        public async Task<IEnumerable<string>> FindVpnsByName(string name, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var findResult = await client.FindVpnsByName(name, _options.RequestTimeoutMS, cancellationToken);
+                return findResult.Content;
             }
         }
 

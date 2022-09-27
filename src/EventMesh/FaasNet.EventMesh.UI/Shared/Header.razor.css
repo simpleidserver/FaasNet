@@ -8,6 +8,8 @@
     color: var(--header-font-color) !important;
 }
 
-#selectNode > div:first-child {
-    padding: 8px 5px 0px 0px;
+#selectNode .title {
+    line-height: 40px;
+    padding-left: 5px;
+    padding-right: 5px;
 }

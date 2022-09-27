@@ -73,7 +73,7 @@
 			<!-- VPN -->
 			<div class="mb-3">
 				<label class="form-label">VPN</label>
-				<InputText class="form-control" @bind-Value="addQueue.Vpn" />
+				<Autocomplete @bind-Content="@addQueue.Vpn" Name="selectVpn" Callback="GetVpnsByName" />
 				<ValidationMessage For="() => addQueue.Vpn" />
 			</div>
 			<!-- Topic -->
@@ -95,6 +95,7 @@
 	[Inject] private IState<QueuesState> QueuesState { get; set; } = null!;
 	[Inject] private IState<AppState> AppState { get; set; } = null!;
 	[Inject] private ToastService ToastService { get; set; } = null!;
+	[Inject] private IEventMeshService EventMeshService { get; set; } = null!;
 	private FilterQuery _filter = new FilterQuery
 	{
 		SortOrder = SortOrders.DESC,
@@ -138,6 +139,7 @@
 
 	private void RefreshQueues()
 	{
+		if(AppState.Value.SelectedNode == null) return;
 		Dispatcher.Dispatch(new SearchQueuesAction { Filter = _filter, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
 	}
 
@@ -157,5 +159,13 @@
 		addQueue.Url = AppState.Value.SelectedNode.Url;
 		addQueue.Port = AppState.Value.SelectedNode.Port;
 		Dispatcher.Dispatch(addQueue);
+	}
+
+	private async Task<IEnumerable<string>> GetVpnsByName(string name)
+	{
+		IEnumerable<string> result = new List<string>();
+		if (AppState.Value.SelectedNode == null) return result;
+		result = await EventMeshService.FindVpnsByName(name, AppState.Value.SelectedNode.Url, AppState.Value.SelectedNode.Port, CancellationToken.None);
+		return result;
 	}
 }

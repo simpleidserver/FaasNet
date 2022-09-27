@@ -23,14 +23,17 @@
             </tr>
         </thead>
         <tbody>
-            @foreach(var item in Result.Records) 
+            @if(Result != null && Result.Records != null)
             {
-                <tr>
-                    @foreach(var column in Columns)
-                    {
-                        @column.CellTemplate(item)
-                    }
-                </tr>
+                foreach (var item in Result.Records)
+                {
+                    <tr>
+                        @foreach (var column in Columns)
+                        {
+                            @column.CellTemplate(item)
+                        }
+                    </tr>
+                }
             }
         </tbody>
     </table>

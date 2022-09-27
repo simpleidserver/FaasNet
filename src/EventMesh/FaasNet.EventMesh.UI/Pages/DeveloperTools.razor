@@ -26,7 +26,7 @@
                 <!-- Vpn -->
                 <div class="mb-3">
                     <label class="form-label">Vpn</label>
-                    <InputText class="form-control" @bind-Value="publishMessage.Vpn" />
+				    <Autocomplete @bind-Content="@publishMessage.Vpn" Name="selectVpnPublish" Callback="GetVpnsByName" />
                     <ValidationMessage For="() => publishMessage.Vpn" />
                 </div>
                 <!-- Topic -->
@@ -51,25 +51,25 @@
                 <!-- ClientId  -->
                 <div class="mb-3">
                     <label class="form-label">Client identifier</label>
-                    <InputText class="form-control" @bind-Value="receiveMessage.ClientId" />
+                    <InputText class="form-control" @bind-Value="receiveMessage.ClientId" disabled="@IsSubscriptionActive" />
                     <ValidationMessage For="() => receiveMessage.ClientId" />
                 </div>
                 <!-- ClientSecret -->
                 <div class="mb-3">
                     <label class="form-label">Client secret</label>
-                    <InputText type="password" class="form-control" @bind-Value="receiveMessage.ClientSecret" />
+                    <InputText type="password" class="form-control" @bind-Value="receiveMessage.ClientSecret" disabled="@IsSubscriptionActive" />
                     <ValidationMessage For="() => receiveMessage.ClientSecret" />
                 </div>
                 <!-- Vpn -->
                 <div class="mb-3">
-                    <label class="form-label">Vpn</label>
-                    <InputText class="form-control" @bind-Value="receiveMessage.Vpn" />
+                    <label class="form-label">Vpn</label
+				    <Autocomplete @bind-Content="@receiveMessage.Vpn" Name="selectVpnSubscribe" Callback="GetVpnsByName" Disabled="@IsSubscriptionActive" />
                     <ValidationMessage For="() => receiveMessage.Vpn" />
                 </div>
                 <!-- Queue -->
                 <div class="mb-3">
                     <label class="form-label">Queue</label>
-                    <InputText class="form-control" @bind-Value="receiveMessage.QueueName" />
+                    <InputText class="form-control" @bind-Value="receiveMessage.QueueName" disabled="@IsSubscriptionActive" />
                     <ValidationMessage For="() => receiveMessage.QueueName" />
                 </div>
                 @if(IsSubscriptionActive)
@@ -137,6 +137,7 @@
             _subscriptionResult = await EventMeshService.Subscribe(receiveMessage.ClientId, receiveMessage.Vpn, receiveMessage.ClientSecret, receiveMessage.QueueName, AppState.Value.SelectedNode.Url, AppState.Value.SelectedNode.Port, CancellationToken.None);
             _refreshSubscriptionTimer.Start();
             IsSubscriptionActive = true;
+            Refresh();
         }
         else ResetSubscription();
     }
@@ -169,4 +170,12 @@
     {
         await InvokeAsync(() => StateHasChanged());
     }
+
+	private async Task<IEnumerable<string>> GetVpnsByName(string name)
+	{
+		IEnumerable<string> result = new List<string>();
+		if (AppState.Value.SelectedNode == null) return result;
+		result = await EventMeshService.FindVpnsByName(name, AppState.Value.SelectedNode.Url, AppState.Value.SelectedNode.Port, CancellationToken.None);
+		return result;
+	}
 }

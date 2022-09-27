@@ -63,6 +63,12 @@ namespace FaasNet.EventMesh.StateMachines.Vpn
                         TotalRecords = res.TotalRecords,
                         Records = res.Records.Select(r => Transform(r))
                     };
+                case FindVpnsByNameQuery findVpnsByName:
+                    var names = await _store.Find(findVpnsByName.Name, cancellationToken);
+                    return new FindVpnsByNameQueryResult
+                    {
+                        Content = names
+                    };
             }
 
             return null;

@@ -21,7 +21,7 @@
 	{
 		<b class="error">Inactive</b>
 	}
-	Last refresh time <b>@AppState.Value.LastRefreshTime.GetValueOrDefault().ToLocalTime()</b><br />
+	<br />
 	<b>@ClientTransport.Name</b> protocol is used
 </Section>
 
@@ -69,10 +69,12 @@
 		{
 			RefreshStates();
 		});
+		RefreshStates();
 	}
 
 	private void RefreshStates()
 	{
+		if (AppState.Value.SelectedNode == null) return;
 		Dispatcher.Dispatch(new GetPeerStatesAction { Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
 	}
 }

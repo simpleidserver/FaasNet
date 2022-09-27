@@ -6,10 +6,21 @@ namespace FaasNet.EventMesh.UI.Stores.Client
     public static class AppReducers
     {
         [ReducerMethod]
-        public static AppState Reduce(AppState state, RefreshStatusAction action) => new() { IsLoading = true };
+        public static AppState Reduce(AppState state, RefreshStatusAction action)
+        {
+            state.IsLoading = true;
+            return state;
+        }
 
         [ReducerMethod]
-        public static AppState ReduceSearchClientsResultAction(AppState state, RefreshStatusResultAction action) => new() { IsLoading = false, LastRefreshTime = action.LastRefreshTime, Nodes = action.Nodes, IsActive = action.IsActive };
+        public static AppState ReduceRefreshStatusResultAction(AppState state, RefreshStatusResultAction action)
+        {
+            state.IsLoading = false;
+            state.LastRefreshTime = DateTime.UtcNow;
+            state.Nodes = action.Nodes;
+            state.IsActive = action.IsActive;
+            return state;
+        }
 
         [ReducerMethod]
         public static AppState ReduceSelectActiveNodeAction(AppState state, SelectActiveNodeAction action)
