@@ -1,0 +1,91 @@
+#asyncApiContainer {
+    position: relative;
+    height: 600px;
+}
+
+#asyncApiContainer #toolbox {
+    top: 10px;
+    left: 10px;
+    height: 30px;
+}
+
+#asyncApiContainer #toolbox ul {
+    margin: 0px;
+    padding-left: 5px;
+}
+
+#asyncApiContainer #toolbox ul li {
+    display: inline-block;
+    line-height: 30px;
+    padding-right: 5px;
+    cursor: pointer;
+}
+
+#asyncApiContainer #elements {
+    top: 50px;
+    left: 10px;
+    padding: 5px 5px 0px 5px;
+}
+
+#asyncApiContainer #elements .element {
+    border: 1px solid red;
+    margin-bottom: 5px;
+}
+
+#asyncApiContainer #toolbox, #asyncApiContainer #elements {
+    position: absolute;
+    background-color: #FAFAFA;
+    border: solid 1px #CCC;
+    border-radius: 2px;
+}
+
+#asyncApiContainer #editor {
+    width: 100%;
+    height: 100%;
+}
+
+#asyncApiContainer .element {
+    width: 100px;
+    height: 50px;
+    cursor: move;
+}
+
+/* Application */
+#asyncApiContainer .application.selected {
+    opacity: 0.5;
+}
+
+#asyncApiContainer .application .content {
+    border: 1px solid #b6b6bb;
+    border-radius: 5px;
+    background-color: #ebebef;
+    cursor: move;
+}
+
+#asyncApiContainer .application .header {
+    border-bottom: 1px solid #b6b6bb;
+    text-align: center;
+    user-select: none;
+    cursor: default !important;
+}
+
+#asyncApiContainer .application .header .actions {
+    position: absolute;
+    right: 0px;
+    top: 1px;
+    padding: 0;
+    margin: 0;
+    background-color: transparent !important;
+}
+
+
+#asyncApiContainer .application .header .actions > i {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+}
+
+#asyncApiContainer .moving {
+    cursor: move;
+}

@@ -1,0 +1,226 @@
+﻿@using System.Diagnostics
+<div id="asyncApiContainer">
+    <div id="toolbox">
+        <ul>
+            <li>
+                <i @onclick="() => HandleZoomIn()" class="fa-solid fa-magnifying-glass-plus"></i>
+            </li>
+            <li>
+                <i @onclick="() => HandleZoomOut()" class="fa-solid fa-magnifying-glass-minus"></i>
+            </li>
+            @if (Mode == EditionModes.EDIT)
+            {
+                <li>
+                    <i @onclick="() => HandleStartViewMode()" class="fa-solid fa-arrows-up-down-left-right"></i>
+                </li>
+            }
+            else
+            {                
+                <li>
+                    <i @onclick="() => HandleStartEditMode()" class="fa-solid fa-pen-to-square"></i>
+                </li>
+            }
+        </ul>
+    </div>
+    <div id="elements">
+        <div class="element" draggable="true" ondragstart="event.dataTransfer.setData('application', '')">
+            Application
+        </div>
+    </div>
+    <svg id="editor" class="@(Mode == EditionModes.VIEW ? "moving" : "")" viewBox="@ViewBox" @ondrop="HandleDrop" ondragover="event.preventDefault();" @onmousedown="HandleMouseDown" @onmousemove="HandleMouseMove" @onmouseup="HandleMouseUp">
+        <defs>
+            <marker id="asyncapieditor-barbEnd" refX="19" refY="7" markerWidth="20" markerHeight="14" markerUnits="strokeWidth" orient="auto">
+                <path d="M 19,7 L9,13 L14,7 L9,1 Z"></path>
+            </marker>
+        </defs>
+        <g class="children">
+            @foreach (var application in Applications)
+            {
+                <g class="@(SelectedApplication != null && application.Id == SelectedApplication.Id ? "application selected" : "application")" transform="@application.Matrix" @onmousedown="(e) => HandleSelectApplication(e, application)" @onmousedown:stopPropagation="true">
+                    <foreignObject width="@application.Width" height="@application.Height" class="content">
+                        <div class="header">
+                            @application.ClientId
+                            <div class="actions">
+                                <i class="fa-solid fa-trash" @onclick="() => RemoveApplication(application)"></i>
+                            </div>
+                        </div>
+                    </foreignObject>
+                </g>
+            }
+        </g>
+        @if(SelectedApplication != null)
+        {
+            <g class="application" transform="@SelectedApplication.Matrix" draggable="true">
+                <foreignObject width="@SelectedApplication.Width" height="@SelectedApplication.Height" class="content">
+                    <div class="header">
+                        @SelectedApplication.ClientId
+                    </div>
+                </foreignObject>
+            </g>
+        }
+    </svg>
+</div>
+
+@code {
+    private ICollection<ApplicationViewModel> Applications { get; set; } = new List<ApplicationViewModel>();
+    private string ViewBox { get; set; } = null!;
+    private EditionModes Mode { get; set; } = EditionModes.EDIT;
+    private bool StartMoving { get; set; } = false;
+    [Inject]
+    private IJSRuntime JS { get; set; }
+    [Parameter]
+    public int ZoomDelta { get; set; } = 20;
+    private MouseEventArgs PreviousMousePosition { get; set; } = null!;
+    private ApplicationViewModel SelectedApplication { get; set; } = null!;
+    private Offset SelectedOffset { get; set; } = null!;
+    private Offset InitCanvasOffset { get; set; } = null!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if(firstRender)
+        {
+            var size = await JS.InvokeAsync<ElementSize>("getSize", "asyncApiContainer");
+            ViewBox = $"0 0 {size.Width} {size.Height}";
+        }
+    }
+
+    private void HandleDrop(DragEventArgs args) 
+    {
+        var record = args.DataTransfer.Items.FirstOrDefault();
+        if (record == null) return;
+        switch(record.Type)
+        {
+            case "application":
+                var splitted = ViewBox.Split(' ').Select(t => double.Parse(t));
+                Applications.Add(new ApplicationViewModel
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    ClientId = "New application",
+                    CoordinateX = args.OffsetX + splitted.ElementAt(0),
+                    CoordinateY = args.OffsetY + splitted.ElementAt(1)
+                });
+                break;
+        }
+    }
+
+    private void HandleZoomIn()
+    {
+        Zoom(-ZoomDelta);
+    }
+
+    private void HandleZoomOut()
+    {
+        Zoom(ZoomDelta);
+    }
+
+    private void HandleStartViewMode()
+    {
+        Mode = EditionModes.VIEW;
+    }
+
+    private void HandleStartEditMode()
+    {
+        Mode = EditionModes.EDIT;
+    }
+
+    private async void HandleMouseDown(MouseEventArgs evt)
+    {
+        StartMoving = true;
+        SelectedOffset = new Offset
+        {
+            X = evt.ClientX,
+            Y = evt.ClientY
+        };
+        var splitted = ViewBox.Split(' ').Select(t => double.Parse(t));
+        InitCanvasOffset = new Offset
+        {
+            X = splitted.ElementAt(0),
+            Y = splitted.ElementAt(1)
+        };
+    }
+
+    private async void HandleSelectApplication(MouseEventArgs evt, ApplicationViewModel application)
+    {
+        var offset = await JS.InvokeAsync<Offset>("getApplicationMousePosition", "editor", evt.ClientX, evt.ClientY);
+        offset.X -= application.CoordinateX;
+        offset.Y -= application.CoordinateY;
+        StartMoving = true;
+        SelectedOffset = offset;
+        SelectedApplication = application.Clone();
+    }
+
+    private void HandleMouseMove(MouseEventArgs evt)
+    {
+        if (!StartMoving) return;
+        switch(Mode)
+        {
+            case EditionModes.VIEW:
+                MoveEditor();
+                break;
+            case EditionModes.EDIT:
+                MoveApplication();
+                break;
+        }
+
+        async void MoveEditor()
+        {
+            var splitted = ViewBox.Split(' ').Select(t => double.Parse(t));
+            var x = InitCanvasOffset.X - (evt.ClientX - SelectedOffset.X);
+            var y = InitCanvasOffset.Y - (evt.ClientY - SelectedOffset.Y);
+            ViewBox = $"{x} {y} {splitted.ElementAt(2)} {splitted.ElementAt(3)}";
+        }
+
+        async void MoveApplication()
+        {
+            if (SelectedApplication == null) return;
+            var offset = await JS.InvokeAsync<Offset>("getApplicationMousePosition", "editor", evt.ClientX, evt.ClientY);
+            SelectedApplication.CoordinateX = offset.X - SelectedOffset.X;
+            SelectedApplication.CoordinateY = offset.Y - SelectedOffset.Y;
+        }
+    }
+
+    private void HandleMouseUp(MouseEventArgs evt)
+    {
+        StartMoving = false;
+        if (SelectedApplication != null)
+            MoveApplication();
+
+        SelectedApplication = null;
+
+        void MoveApplication() {            
+            var currentApplication = Applications.First(a => a.Id == SelectedApplication.Id);
+            currentApplication.CoordinateX = SelectedApplication.CoordinateX;
+            currentApplication.CoordinateY = SelectedApplication.CoordinateY;
+        }
+    }
+
+    private void RemoveApplication(ApplicationViewModel application)
+    {
+        Applications.Remove(application);
+    }
+
+    private async void Zoom(int delta)
+    {
+        var splitted = ViewBox.Split(' ').Select(t => double.Parse(t));
+        ViewBox = $"{splitted.ElementAt(0)} {splitted.ElementAt(1)} {splitted.ElementAt(2) + delta} {splitted.ElementAt(3) + delta}";
+    }
+
+    private class ElementSize
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+
+    public class Offset 
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+    }
+
+    private enum EditionModes
+    {
+        EDIT = 0,
+        VIEW = 1
+    }
+}

@@ -1,0 +1,9 @@
+﻿@page "/vpns/{vpn}"
+@layout VpnLayout
+
+<AsyncApiEditor></AsyncApiEditor>
+
+@code {
+    [Parameter]
+    public string vpn { get; set; }
+}
