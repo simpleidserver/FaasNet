@@ -12,7 +12,7 @@
         {
             get
             {
-                return $"matrix(1 0 0 1 {CoordinateX} {CoordinateY})";
+                return $"matrix(1 0 0 1 {CoordinateX.ToString().Replace(",",".")} {CoordinateY.ToString().Replace(",", ".")})";
             }
         }
 

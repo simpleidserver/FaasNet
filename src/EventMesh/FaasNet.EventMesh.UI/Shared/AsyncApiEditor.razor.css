@@ -42,6 +42,7 @@
 #asyncApiContainer #editor {
     width: 100%;
     height: 100%;
+    touch-action: none;
 }
 
 #asyncApiContainer .element {
@@ -51,6 +52,10 @@
 }
 
 /* Application */
+#asyncApiContainer .application {    
+    cursor: move;
+}
+
 #asyncApiContainer .application.selected {
     opacity: 0.5;
 }
@@ -59,7 +64,6 @@
     border: 1px solid #b6b6bb;
     border-radius: 5px;
     background-color: #ebebef;
-    cursor: move;
 }
 
 #asyncApiContainer .application .header {

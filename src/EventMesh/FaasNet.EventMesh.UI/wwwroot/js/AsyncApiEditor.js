@@ -14,3 +14,16 @@ function getApplicationMousePosition(id, clientX, clientY) {
         Y: (clientY - ctm.f) / ctm.d
     };
 }
+
+function computeCoordinate(id, clientX, clientY) {
+    const elt = document.getElementById(id);
+    const ctm = elt.getScreenCTM();
+    const point = elt.createSVGPoint();
+    point.clientX = clientX;
+    point.clientY = clientY;
+    const result = point.matrixTransform(ctm.inverse());
+    return {
+        X: result.clientX,
+        Y : result.clientY
+    };
+}

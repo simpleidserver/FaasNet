@@ -1,13 +1,9 @@
 ﻿@using System.Diagnostics
+@using FaasNet.EventMesh.UI.Stores.Client
+
 <div id="asyncApiContainer">
     <div id="toolbox">
         <ul>
-            <li>
-                <i @onclick="() => HandleZoomIn()" class="fa-solid fa-magnifying-glass-plus"></i>
-            </li>
-            <li>
-                <i @onclick="() => HandleZoomOut()" class="fa-solid fa-magnifying-glass-minus"></i>
-            </li>
             @if (Mode == EditionModes.EDIT)
             {
                 <li>
@@ -27,7 +23,14 @@
             Application
         </div>
     </div>
-    <svg id="editor" class="@(Mode == EditionModes.VIEW ? "moving" : "")" viewBox="@ViewBox" @ondrop="HandleDrop" ondragover="event.preventDefault();" @onmousedown="HandleMouseDown" @onmousemove="HandleMouseMove" @onmouseup="HandleMouseUp">
+    <svg id="editor" class="@(Mode == EditionModes.VIEW ? "moving" : "")" viewBox="@ViewBox" 
+                @onmousewheel="HandleMouseWheel" 
+                @onmousewheel:stopPropagation="true"
+                @ondrop="HandleDrop" 
+                ondragover="event.preventDefault();" 
+                @onmousedown="HandleMouseDown" 
+                @onmousemove="HandleMouseMove" 
+                @onmouseup="HandleMouseUp">
         <defs>
             <marker id="asyncapieditor-barbEnd" refX="19" refY="7" markerWidth="20" markerHeight="14" markerUnits="strokeWidth" orient="auto">
                 <path d="M 19,7 L9,13 L14,7 L9,1 Z"></path>
@@ -36,7 +39,10 @@
         <g class="children">
             @foreach (var application in Applications)
             {
-                <g class="@(SelectedApplication != null && application.Id == SelectedApplication.Id ? "application selected" : "application")" transform="@application.Matrix" @onmousedown="(e) => HandleSelectApplication(e, application)" @onmousedown:stopPropagation="true">
+                <g class="@(SelectedApplication != null && application.Id == SelectedApplication.Id ? "application selected" : "application")" 
+                        transform="@application.Matrix" 
+                        @onmousedown="(e) => HandleSelectApplication(e, application)" 
+                        @onmousedown:stopPropagation="true">
                     <foreignObject width="@application.Width" height="@application.Height" class="content">
                         <div class="header">
                             @application.ClientId
@@ -61,6 +67,39 @@
     </svg>
 </div>
 
+<Modal Title="Add Client" @ref=addClientModal>
+    <EditForm OnValidSubmit="@HandleValidSubmit" Model="addClient">
+        <DataAnnotationsValidator />
+        <div class="modal-body">
+            <!-- ClientId -->
+            <div class="mb-3">
+                <label class="form-label">Client Identifier</label>
+                <InputText class="form-control" @bind-Value="addClient.ClientId" />
+                <ValidationMessage For="() => addClient.ClientId" />
+            </div>
+            <!-- VPN -->
+            <div class="mb-3">
+                <label class="form-label">VPN</label>
+                <input type="text" value="@addClient.Vpn" class="form-control" disabled />
+                <ValidationMessage For="() => addClient.Vpn" />
+            </div>
+            <!-- Purpose Types -->
+            <div class="mb-3">
+                <label class="form-label">Types of purpose</label>
+                <select class="form-select" @bind="addClient.PurposeTypes" multiple>
+                    <option value="0">Publish</option>
+                    <option value="1">Subscribe</option>
+                </select>
+                <ValidationMessage For="() => addClient.PurposeTypes" />
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+            <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+    </EditForm>
+</Modal>
+
 @code {
     private ICollection<ApplicationViewModel> Applications { get; set; } = new List<ApplicationViewModel>();
     private string ViewBox { get; set; } = null!;
@@ -69,11 +108,16 @@
     [Inject]
     private IJSRuntime JS { get; set; }
     [Parameter]
-    public int ZoomDelta { get; set; } = 20;
+    public string Vpn { get; set; }
+    [Parameter]
+    public double ScaleFactor { get; set;} = 1.02;
     private MouseEventArgs PreviousMousePosition { get; set; } = null!;
     private ApplicationViewModel SelectedApplication { get; set; } = null!;
-    private Offset SelectedOffset { get; set; } = null!;
-    private Offset InitCanvasOffset { get; set; } = null!;
+    private Offset SelectedMouseOffset { get; set; } = null!;
+    private Offset SelectedCanvasOffset { get; set; } = null!;
+    private IEnumerable<double> InitCanvasCoordinates { get; set; } = null!;
+    private Modal addClientModal { get; set; }
+    private AddClientAction addClient { get; set; } = new AddClientAction();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -82,36 +126,28 @@
         {
             var size = await JS.InvokeAsync<ElementSize>("getSize", "asyncApiContainer");
             ViewBox = $"0 0 {size.Width} {size.Height}";
+            InitCanvasCoordinates = GetViewBoxCoordinates();
+            addClient.Vpn = Vpn;
         }
     }
 
-    private void HandleDrop(DragEventArgs args) 
+    private async void HandleDrop(DragEventArgs args) 
     {
         var record = args.DataTransfer.Items.FirstOrDefault();
         if (record == null) return;
         switch(record.Type)
         {
             case "application":
-                var splitted = ViewBox.Split(' ').Select(t => double.Parse(t));
+                var offset = await JS.InvokeAsync<Offset>("getApplicationMousePosition", "editor", args.ClientX, args.ClientY);
                 Applications.Add(new ApplicationViewModel
                 {
                     Id = Guid.NewGuid().ToString(),
                     ClientId = "New application",
-                    CoordinateX = args.OffsetX + splitted.ElementAt(0),
-                    CoordinateY = args.OffsetY + splitted.ElementAt(1)
+                    CoordinateX = offset.X,
+                    CoordinateY = offset.Y
                 });
                 break;
         }
-    }
-
-    private void HandleZoomIn()
-    {
-        Zoom(-ZoomDelta);
-    }
-
-    private void HandleZoomOut()
-    {
-        Zoom(ZoomDelta);
     }
 
     private void HandleStartViewMode()
@@ -127,16 +163,16 @@
     private async void HandleMouseDown(MouseEventArgs evt)
     {
         StartMoving = true;
-        SelectedOffset = new Offset
-        {
-            X = evt.ClientX,
-            Y = evt.ClientY
-        };
-        var splitted = ViewBox.Split(' ').Select(t => double.Parse(t));
-        InitCanvasOffset = new Offset
+        var splitted = GetViewBoxCoordinates();
+        SelectedCanvasOffset = new Offset
         {
             X = splitted.ElementAt(0),
             Y = splitted.ElementAt(1)
+        };
+        SelectedMouseOffset = new Offset
+        {
+            X = evt.ClientX,
+            Y = evt.ClientY
         };
     }
 
@@ -146,7 +182,7 @@
         offset.X -= application.CoordinateX;
         offset.Y -= application.CoordinateY;
         StartMoving = true;
-        SelectedOffset = offset;
+        SelectedMouseOffset = offset;
         SelectedApplication = application.Clone();
     }
 
@@ -165,27 +201,26 @@
 
         async void MoveEditor()
         {
-            var splitted = ViewBox.Split(' ').Select(t => double.Parse(t));
-            var x = InitCanvasOffset.X - (evt.ClientX - SelectedOffset.X);
-            var y = InitCanvasOffset.Y - (evt.ClientY - SelectedOffset.Y);
-            ViewBox = $"{x} {y} {splitted.ElementAt(2)} {splitted.ElementAt(3)}";
+            var splitted = GetViewBoxCoordinates();
+            if (SelectedCanvasOffset == null) return;
+            var x = SelectedCanvasOffset.X - (evt.ClientX - SelectedMouseOffset.X);
+            var y = SelectedCanvasOffset.Y - (evt.ClientY - SelectedMouseOffset.Y);
+            UpdateViewBox(new double[] { x, y, splitted.ElementAt(2), splitted.ElementAt(3) });
         }
 
         async void MoveApplication()
         {
-            if (SelectedApplication == null) return;
             var offset = await JS.InvokeAsync<Offset>("getApplicationMousePosition", "editor", evt.ClientX, evt.ClientY);
-            SelectedApplication.CoordinateX = offset.X - SelectedOffset.X;
-            SelectedApplication.CoordinateY = offset.Y - SelectedOffset.Y;
+            if (SelectedApplication == null) return;
+            SelectedApplication.CoordinateX = offset.X - SelectedMouseOffset.X;
+            SelectedApplication.CoordinateY = offset.Y - SelectedMouseOffset.Y;
         }
     }
 
     private void HandleMouseUp(MouseEventArgs evt)
     {
         StartMoving = false;
-        if (SelectedApplication != null)
-            MoveApplication();
-
+        if (SelectedApplication != null) MoveApplication();
         SelectedApplication = null;
 
         void MoveApplication() {            
@@ -200,10 +235,38 @@
         Applications.Remove(application);
     }
 
-    private async void Zoom(int delta)
+    private async Task<bool> HandleMouseWheel(WheelEventArgs args) 
     {
-        var splitted = ViewBox.Split(' ').Select(t => double.Parse(t));
-        ViewBox = $"{splitted.ElementAt(0)} {splitted.ElementAt(1)} {splitted.ElementAt(2) + delta} {splitted.ElementAt(3) + delta}";
+        long normalized;
+        var delta = args.DeltaMode;
+        if (delta != default(long)) normalized = (delta % 120) == 0 ? delta / 120 : delta / 12;
+        else
+        {
+            if (args.DeltaY != default(double)) delta = (long)args.DeltaY;
+            else if (args.Detail != default(long)) delta = args.Detail;
+            else delta = 0;
+            normalized = -(delta % 3 == 0 ? delta * 10 : delta / 3);
+        }
+
+        var scaleDelta = normalized > 0 ? 1 / ScaleFactor : ScaleFactor;
+        var offset = await JS.InvokeAsync<Offset>("computeCoordinate", "editor", args.ClientX, args.ClientY);
+        var coordinates = GetViewBoxCoordinates();
+        var x = coordinates.ElementAt(0) - ((coordinates.ElementAt(0) - offset.X) * (scaleDelta - 1));
+        var y = coordinates.ElementAt(1) - ((coordinates.ElementAt(1) - offset.Y) * (scaleDelta - 1));
+        var width = coordinates.ElementAt(2) * scaleDelta;
+        var height = coordinates.ElementAt(3) * scaleDelta;
+        UpdateViewBox(new double[] { x, y, width, height });
+        return false;
+    }
+
+    private void HandleValidSubmit()
+    {
+
+    }
+
+    private void Close() 
+    {
+        addClientModal.Close();
     }
 
     private class ElementSize
@@ -222,5 +285,15 @@
     {
         EDIT = 0,
         VIEW = 1
+    }
+
+    private IEnumerable<double> GetViewBoxCoordinates()
+    {
+        return ViewBox.Split(' ').Select(t => double.Parse(t.Replace(".",",")));
+    }
+
+    private void UpdateViewBox(IEnumerable<double> coordinates)
+    {
+        ViewBox = string.Join(" ", coordinates.Select(c => c.ToString().Replace(",", ".")));
     }
 }
