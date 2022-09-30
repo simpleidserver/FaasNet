@@ -1,4 +1,5 @@
 ﻿@using System.Diagnostics
+@using FaasNet.EventMesh.UI.Helpers
 @using FaasNet.EventMesh.UI.Stores.Client
 
 <div id="asyncApiContainer">
@@ -43,26 +44,44 @@
                         transform="@application.Matrix" 
                         @onmousedown="(e) => HandleSelectApplication(e, application)" 
                         @onmousedown:stopPropagation="true">
-                    <foreignObject width="@application.Width" height="@application.Height" class="content">
-                        <div class="header">
-                            @application.ClientId
-                            <div class="actions">
-                                <i class="fa-solid fa-trash" @onclick="() => RemoveApplication(application)"></i>
+                    <foreignObject width="@application.Width" height="@application.Height" class="appContainer">
+                        @foreach(var anchor in application.Anchors)
+                        {                            
+                            <div class="@anchor.ClassName" @onmouseover="() => HandleMouseOver(application, anchor)" @onmouseout="HandleMouseOut" @onmousedown="(e) => HandleStartDrawLink(e, application.Id, anchor.Position)" @onmousedown:preventDefault="true" @onmousedown:stopPropagation="true"></div>
+                        }
+                        <div class="content">
+                            <div class="header">
+                                @application.ClientId
+                                <div class="actions">
+                                    <i class="fa-solid fa-trash" @onclick="() => RemoveApplication(application)"></i>
+                                </div>
                             </div>
                         </div>
                     </foreignObject>
                 </g>
             }
+
+            @foreach(var link in Links)
+            {
+                <path d="@link.Path" marker-end="url(#asyncapieditor-barbEnd)" stroke="black" fill="none"></path>
+            }
         </g>
         @if(SelectedApplication != null)
         {
             <g class="application" transform="@SelectedApplication.Matrix" draggable="true">
-                <foreignObject width="@SelectedApplication.Width" height="@SelectedApplication.Height" class="content">
-                    <div class="header">
-                        @SelectedApplication.ClientId
+                <foreignObject width="@SelectedApplication.Width" height="@SelectedApplication.Height" class="appContainer">
+                    <div class="content">
+                        <div class="header">
+                            @SelectedApplication.ClientId
+                        </div>
                     </div>
                 </foreignObject>
             </g>
+        }
+
+        @if(SelectedLink != null)
+        {
+            <path d="@SelectedLink.Path" marker-end="url(#asyncapieditor-barbEnd)" stroke="black" fill="none"></path>
         }
     </svg>
 </div>
@@ -102,6 +121,7 @@
 
 @code {
     private ICollection<ApplicationViewModel> Applications { get; set; } = new List<ApplicationViewModel>();
+    private ICollection<LinkViewModel> Links { get; set; } = new List<LinkViewModel>();
     private string ViewBox { get; set; } = null!;
     private EditionModes Mode { get; set; } = EditionModes.EDIT;
     private bool StartMoving { get; set; } = false;
@@ -113,8 +133,10 @@
     public double ScaleFactor { get; set;} = 1.02;
     private MouseEventArgs PreviousMousePosition { get; set; } = null!;
     private ApplicationViewModel SelectedApplication { get; set; } = null!;
-    private Offset SelectedMouseOffset { get; set; } = null!;
-    private Offset SelectedCanvasOffset { get; set; } = null!;
+    private (ApplicationViewModel, AnchorViewModel) LinkedApplication { get; set; } = (null, null);
+    private PointViewModel SelectedMouseOffset { get; set; } = null!;
+    private PointViewModel SelectedCanvasOffset { get; set; } = null!;
+    private LinkViewModel SelectedLink { get; set; } = null!;
     private IEnumerable<double> InitCanvasCoordinates { get; set; } = null!;
     private Modal addClientModal { get; set; }
     private AddClientAction addClient { get; set; } = new AddClientAction();
@@ -138,7 +160,7 @@
         switch(record.Type)
         {
             case "application":
-                var offset = await JS.InvokeAsync<Offset>("getApplicationMousePosition", "editor", args.ClientX, args.ClientY);
+                var offset = await JS.InvokeAsync<PointViewModel>("getApplicationMousePosition", "editor", args.ClientX, args.ClientY);
                 Applications.Add(new ApplicationViewModel
                 {
                     Id = Guid.NewGuid().ToString(),
@@ -160,16 +182,16 @@
         Mode = EditionModes.EDIT;
     }
 
-    private async void HandleMouseDown(MouseEventArgs evt)
+    private void HandleMouseDown(MouseEventArgs evt)
     {
         StartMoving = true;
         var splitted = GetViewBoxCoordinates();
-        SelectedCanvasOffset = new Offset
+        SelectedCanvasOffset = new PointViewModel
         {
             X = splitted.ElementAt(0),
             Y = splitted.ElementAt(1)
         };
-        SelectedMouseOffset = new Offset
+        SelectedMouseOffset = new PointViewModel
         {
             X = evt.ClientX,
             Y = evt.ClientY
@@ -178,7 +200,7 @@
 
     private async void HandleSelectApplication(MouseEventArgs evt, ApplicationViewModel application)
     {
-        var offset = await JS.InvokeAsync<Offset>("getApplicationMousePosition", "editor", evt.ClientX, evt.ClientY);
+        var offset = await JS.InvokeAsync<PointViewModel>("getApplicationMousePosition", "editor", evt.ClientX, evt.ClientY);
         offset.X -= application.CoordinateX;
         offset.Y -= application.CoordinateY;
         StartMoving = true;
@@ -186,7 +208,30 @@
         SelectedApplication = application.Clone();
     }
 
-    private void HandleMouseMove(MouseEventArgs evt)
+    private async void HandleStartDrawLink(MouseEventArgs evt, string applicationId, AnchorPositions position)
+    {
+        var pointViewModel = await JS.InvokeAsync<PointViewModel>("getApplicationMousePosition", "editor", evt.ClientX, evt.ClientY);
+        SelectedLink = new LinkViewModel
+        {
+            StartPoint = new LinkPointViewModel
+            {
+                X = pointViewModel.X,
+                Y = pointViewModel.Y,
+                AnchorPosition = position,
+                ApplicationId = applicationId
+            },
+            EndPoint = new LinkPointViewModel
+            {
+                X = pointViewModel.X,
+                Y = pointViewModel.Y,
+                AnchorPosition = position,
+                ApplicationId = applicationId
+            }
+        };
+        StartMoving = true;
+    }
+
+    private async void HandleMouseMove(MouseEventArgs evt)
     {
         if (!StartMoving) return;
         switch(Mode)
@@ -195,7 +240,9 @@
                 MoveEditor();
                 break;
             case EditionModes.EDIT:
-                MoveApplication();
+                var offset = await JS.InvokeAsync<PointViewModel>("getApplicationMousePosition", "editor", evt.ClientX, evt.ClientY);
+                if(SelectedApplication != null) MoveApplication(offset);
+                if(SelectedLink != null) MoveLink(offset);
                 break;
         }
 
@@ -208,12 +255,19 @@
             UpdateViewBox(new double[] { x, y, splitted.ElementAt(2), splitted.ElementAt(3) });
         }
 
-        async void MoveApplication()
+        void MoveApplication(PointViewModel offset)
         {
-            var offset = await JS.InvokeAsync<Offset>("getApplicationMousePosition", "editor", evt.ClientX, evt.ClientY);
-            if (SelectedApplication == null) return;
             SelectedApplication.CoordinateX = offset.X - SelectedMouseOffset.X;
             SelectedApplication.CoordinateY = offset.Y - SelectedMouseOffset.Y;
+        }
+
+        void MoveLink(PointViewModel offset) 
+        {
+            SelectedLink.EndPoint = new LinkPointViewModel
+            {
+                X = offset.X,
+                Y = offset.Y
+            };
         }
     }
 
@@ -221,18 +275,44 @@
     {
         StartMoving = false;
         if (SelectedApplication != null) MoveApplication();
+        if (SelectedLink != null && LinkedApplication.Item1 != null) AddLink();
         SelectedApplication = null;
+        SelectedLink = null;
 
         void MoveApplication() {            
-            var currentApplication = Applications.First(a => a.Id == SelectedApplication.Id);
+            var currentApplication = Applications.Single(a => a.Id == SelectedApplication.Id);
             currentApplication.CoordinateX = SelectedApplication.CoordinateX;
             currentApplication.CoordinateY = SelectedApplication.CoordinateY;
+            var pointsToUpdate = Links.SelectMany(l => new List<LinkPointViewModel> { l.StartPoint, l.EndPoint }).Where(p => p.ApplicationId == currentApplication.Id);
+            foreach(var pointToUpdate in pointsToUpdate)
+            {
+                var offset = currentApplication.ComputeAnchorOffset(pointToUpdate.AnchorPosition);
+                pointToUpdate.X = offset.Item1;
+                pointToUpdate.Y = offset.Item2;
+            }
+        }
+
+        void AddLink()
+        {
+            if (SelectedLink.StartPoint.ApplicationId == LinkedApplication.Item1.Id) return;
+            Links.Add(new LinkViewModel
+            {
+                StartPoint = SelectedLink.StartPoint,
+                EndPoint = new LinkPointViewModel
+                {
+                    X = SelectedLink.EndPoint.X,
+                    Y = SelectedLink.EndPoint.Y,
+                    AnchorPosition = LinkedApplication.Item2.Position,
+                    ApplicationId = LinkedApplication.Item1.Id
+                }
+            });
         }
     }
 
     private void RemoveApplication(ApplicationViewModel application)
     {
         Applications.Remove(application);
+        Links = Links.Where(l => !l.IsLinkedToApplication(application.Id)).ToList();
     }
 
     private async Task<bool> HandleMouseWheel(WheelEventArgs args) 
@@ -249,7 +329,7 @@
         }
 
         var scaleDelta = normalized > 0 ? 1 / ScaleFactor : ScaleFactor;
-        var offset = await JS.InvokeAsync<Offset>("computeCoordinate", "editor", args.ClientX, args.ClientY);
+        var offset = await JS.InvokeAsync<PointViewModel>("computeCoordinate", "editor", args.ClientX, args.ClientY);
         var coordinates = GetViewBoxCoordinates();
         var x = coordinates.ElementAt(0) - ((coordinates.ElementAt(0) - offset.X) * (scaleDelta - 1));
         var y = coordinates.ElementAt(1) - ((coordinates.ElementAt(1) - offset.Y) * (scaleDelta - 1));
@@ -257,6 +337,17 @@
         var height = coordinates.ElementAt(3) * scaleDelta;
         UpdateViewBox(new double[] { x, y, width, height });
         return false;
+    }
+
+    private void HandleMouseOver(ApplicationViewModel application, AnchorViewModel anchor) 
+    {
+        if (SelectedLink == null) return;
+        LinkedApplication = (application, anchor);
+    }
+
+    private void HandleMouseOut(MouseEventArgs evt)
+    {
+        LinkedApplication = (null, null);
     }
 
     private void HandleValidSubmit()
@@ -275,12 +366,6 @@
         public double Height { get; set; }
     }
 
-    public class Offset 
-    {
-        public double X { get; set; }
-        public double Y { get; set; }
-    }
-
     private enum EditionModes
     {
         EDIT = 0,
@@ -289,11 +374,11 @@
 
     private IEnumerable<double> GetViewBoxCoordinates()
     {
-        return ViewBox.Split(' ').Select(t => double.Parse(t.Replace(".",",")));
+        return CoordinateHelper.Parse(ViewBox);
     }
 
     private void UpdateViewBox(IEnumerable<double> coordinates)
     {
-        ViewBox = string.Join(" ", coordinates.Select(c => c.ToString().Replace(",", ".")));
+        ViewBox = CoordinateHelper.Sanitize(coordinates);
     }
 }

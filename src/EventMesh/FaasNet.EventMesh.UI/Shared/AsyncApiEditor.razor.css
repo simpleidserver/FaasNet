@@ -54,26 +54,56 @@
 /* Application */
 #asyncApiContainer .application {    
     cursor: move;
+    padding: 10px;
 }
 
 #asyncApiContainer .application.selected {
     opacity: 0.5;
 }
 
-#asyncApiContainer .application .content {
-    border: 1px solid #b6b6bb;
-    border-radius: 5px;
-    background-color: #ebebef;
+#asyncApiContainer .application .appContainer .anchor {
+    position: absolute;
+    background-color: red;
+    width: 10px;
+    height: 10px;
+    z-index: 10;
+    cursor: pointer;
 }
 
-#asyncApiContainer .application .header {
+#asyncApiContainer .application .appContainer .anchor.r,
+#asyncApiContainer .application .appContainer .anchor.l {
+    top: 45%;
+}
+
+#asyncApiContainer .application .appContainer .anchor.t,
+#asyncApiContainer .application .appContainer .anchor.b {
+    left: 45%;
+}
+
+#asyncApiContainer .application .appContainer .anchor.r {
+    right: 0px;
+}
+
+#asyncApiContainer .application .appContainer .anchor.b {
+    bottom: 0px;
+}
+
+    #asyncApiContainer .application .appContainer .content {
+        border: 1px solid #b6b6bb;
+        border-radius: 5px;
+        background-color: #ebebef;
+        position: relative;
+        height: 100%;
+    }
+
+#asyncApiContainer .application .appContainer .content .header {
     border-bottom: 1px solid #b6b6bb;
     text-align: center;
     user-select: none;
     cursor: default !important;
 }
 
-#asyncApiContainer .application .header .actions {
+#asyncApiContainer .application .appContainer .content .header .actions {
     position: absolute;
     right: 0px;
     top: 1px;
@@ -82,14 +112,13 @@
     background-color: transparent !important;
 }
 
-
-#asyncApiContainer .application .header .actions > i {
+#asyncApiContainer .application .appContainer .content .header .actions > i {
     cursor: pointer;
     width: 16px;
     height: 16px;
     font-size: 16px;
 }
 
-#asyncApiContainer .moving {
+#asyncApiContainer svg.moving {
     cursor: move;
 }
