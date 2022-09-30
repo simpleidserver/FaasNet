@@ -40,7 +40,7 @@
         <g class="children">
             @foreach (var application in Applications)
             {
-                <g class="@(SelectedApplication != null && application.Id == SelectedApplication.Id ? "application selected" : "application")" 
+                <g class="@(application.GetClassName(SelectedApplication?.Id))" 
                         transform="@application.Matrix" 
                         @onmousedown="(e) => HandleSelectApplication(e, application)" 
                         @onmousedown:stopPropagation="true">
@@ -49,12 +49,12 @@
                         {                            
                             <div class="@anchor.ClassName" @onmouseover="() => HandleMouseOver(application, anchor)" @onmouseout="HandleMouseOut" @onmousedown="(e) => HandleStartDrawLink(e, application.Id, anchor.Position)" @onmousedown:preventDefault="true" @onmousedown:stopPropagation="true"></div>
                         }
+                        <ul class="actions">
+                            <li><i class="fa-solid fa-trash" @onclick="() => RemoveApplication(application)"></i></li>
+                        </ul>
                         <div class="content">
                             <div class="header">
                                 @application.ClientId
-                                <div class="actions">
-                                    <i class="fa-solid fa-trash" @onclick="() => RemoveApplication(application)"></i>
-                                </div>
                             </div>
                         </div>
                     </foreignObject>
@@ -206,6 +206,8 @@
         StartMoving = true;
         SelectedMouseOffset = offset;
         SelectedApplication = application.Clone();
+        foreach (var app in Applications) app.IsActive = false;
+        application.IsActive = true;
     }
 
     private async void HandleStartDrawLink(MouseEventArgs evt, string applicationId, AnchorPositions position)
@@ -229,6 +231,8 @@
             }
         };
         StartMoving = true;
+        var filtered = Applications.Where(a => a.Id != applicationId);
+        foreach (var app in filtered) app.IsActive = true;
     }
 
     private async void HandleMouseMove(MouseEventArgs evt)
@@ -305,7 +309,9 @@
                     AnchorPosition = LinkedApplication.Item2.Position,
                     ApplicationId = LinkedApplication.Item1.Id
                 }
-            });
+                });
+            var filtered = Applications.Where(a => a.Id != SelectedLink.StartPoint.ApplicationId);
+            foreach (var app in filtered) app.IsActive = false;
         }
     }
 

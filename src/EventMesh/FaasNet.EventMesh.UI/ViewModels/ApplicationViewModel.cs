@@ -8,6 +8,7 @@
         public double CoordinateY { get; set; }
         public int Width { get; set; } = 200;
         public int Height { get; set; } = 80;
+        public bool IsActive { get; set; } = false;
         public ICollection<AnchorViewModel> Anchors { get; set; } = new List<AnchorViewModel>
         {
             new AnchorViewModel { Position = AnchorPositions.TOP },
@@ -21,6 +22,13 @@
             {
                 return $"matrix(1 0 0 1 {CoordinateX.ToString().Replace(",",".")} {CoordinateY.ToString().Replace(",", ".")})";
             }
+        }
+        public string GetClassName(string selectedApplicationId)
+        {
+            var result = new List<string> { "application" };
+            if (Id == selectedApplicationId) result.Add("moving");
+            if (IsActive) result.Add("selected");
+            return string.Join(" ", result);
         }
 
         public ApplicationViewModel Clone()

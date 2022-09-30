@@ -57,17 +57,35 @@
     padding: 10px;
 }
 
-#asyncApiContainer .application.selected {
+#asyncApiContainer .application.moving {
     opacity: 0.5;
 }
 
+#asyncApiContainer .application .appContainer {
+    position: relative;
+    border: 1px solid transparent;
+}
+
+#asyncApiContainer .application.selected .appContainer {
+    border: 1px dashed black;
+}
+
+#asyncApiContainer .application.selected .appContainer .anchor {
+    display: block !important;
+}
+
 #asyncApiContainer .application .appContainer .anchor {
-    position: absolute;
     background-color: red;
     width: 10px;
     height: 10px;
     z-index: 10;
     cursor: pointer;
+    position: absolute;
+    display: none;
+}
+
+#asyncApiContainer .application .appContainer .anchor {
+    display: none;
 }
 
 #asyncApiContainer .application .appContainer .anchor.r,
@@ -88,35 +106,49 @@
     bottom: 0px;
 }
 
-    #asyncApiContainer .application .appContainer .content {
-        border: 1px solid #b6b6bb;
-        border-radius: 5px;
-        background-color: #ebebef;
-        position: relative;
-        height: 100%;
-    }
+#asyncApiContainer .application .appContainer ul.actions {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
+#asyncApiContainer .application.selected .appContainer ul.actions {
+    display: block;
+}
+
+#asyncApiContainer .application .appContainer ul.actions {
+    display: none;
+}
+
+#asyncApiContainer .application .appContainer ul.actions > li {
+    display: inline-block;
+    padding: 2px;
+}
+
+#asyncApiContainer .application .appContainer .actions li > i {
+    cursor: pointer;
+    height: 16px;
+    font-size: 16px;
+}
+
+#asyncApiContainer .application .appContainer .content {
+    border: 1px solid #b6b6bb;
+    border-radius: 5px;
+    background-color: #ebebef;
+    position: absolute;
+    top:10px;
+    right: 30px;
+    left: 10px;
+    bottom: 10px;
+}
 
 #asyncApiContainer .application .appContainer .content .header {
     border-bottom: 1px solid #b6b6bb;
     text-align: center;
     user-select: none;
     cursor: default !important;
-}
-
-#asyncApiContainer .application .appContainer .content .header .actions {
-    position: absolute;
-    right: 0px;
-    top: 1px;
-    padding: 0;
-    margin: 0;
-    background-color: transparent !important;
-}
-
-#asyncApiContainer .application .appContainer .content .header .actions > i {
-    cursor: pointer;
-    width: 16px;
-    height: 16px;
-    font-size: 16px;
 }
 
 #asyncApiContainer svg.moving {
