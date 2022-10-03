@@ -26,9 +26,9 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposes)
+        public static BaseEventMeshPackage AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposes, double coordinateX = default(double), double coordinateY = default(double))
         {
-            return new AddClientRequest(GenerateRandomSeq(), clientId, vpn, purposes);
+            return new AddClientRequest(GenerateRandomSeq(), clientId, vpn, purposes, coordinateX, coordinateY);
         }
 
         public static BaseEventMeshPackage GetAllClient(FilterQuery filter)

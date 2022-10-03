@@ -1,9 +1,47 @@
-﻿@page "/vpns/{vpn}"
+﻿@page "/vpns/{vpn}/editor"
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@inherits FluxorComponent
 @layout VpnLayout
 
-<AsyncApiEditor></AsyncApiEditor>
+<Loader IsDisplayed="ClientState.Value.IsLoading">
+    <AsyncApiEditor Vpn="@vpn" Applications="Applications"></AsyncApiEditor>
+</Loader>
 
 @code {
     [Parameter]
     public string vpn { get; set; }
+    private ICollection<ApplicationViewModel> Applications { get; set; } = new List<ApplicationViewModel>();
+    [Inject] private IDispatcher Dispatcher { get; set; } = null!;
+    [Inject] private IState<ClientState> ClientState { get; set; } = null!;
+    [Inject] private IState<AppState> AppState { get; set; } = null!;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        SubscribeToAction<SearchClientsResultAction>((act) =>
+        {
+            Applications = act.Clients.Records.Select(c => new ApplicationViewModel
+            {
+                Id = Guid.NewGuid().ToString(),
+                ClientId = c.Id,
+                CoordinateX = c.CoordinateX,
+                CoordinateY = c.CoordinateY,
+                CreateDateTime = c.CreateDateTime.GetValueOrDefault(),
+                Purposes = c.Purposes
+            }).ToList();
+        });
+        SubscribeToAction<SelectActiveNodeAction>((act) =>
+        {
+            RefreshApplications();
+        });
+    }
+
+    private void RefreshApplications()
+    {
+        if (AppState.Value.SelectedNode == null) return;
+        Dispatcher.Dispatch(new GetAllClientsAction(vpn) { Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
+    }
 }

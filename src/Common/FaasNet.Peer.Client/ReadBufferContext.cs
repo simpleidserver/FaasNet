@@ -39,6 +39,13 @@ namespace FaasNet.Peer.Client
             return result;
         }
 
+        public double NextDouble()
+        {
+            var result = Buffer.GetDouble();
+            CurrentOffset += 8;
+            return result;
+        }
+
         public byte[] NextByteArray()
         {
             var size = NextInt();

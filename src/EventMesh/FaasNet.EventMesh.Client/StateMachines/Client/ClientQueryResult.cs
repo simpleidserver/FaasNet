@@ -13,6 +13,8 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
         public int SessionExpirationTimeMS { get; set; }
         public ICollection<ClientPurposeTypes> Purposes { get; set; } = new List<ClientPurposeTypes>();
         public DateTime? CreateDateTime { get; set; }
+        public double CoordinateX { get; set; }
+        public double CoordinateY { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
@@ -23,6 +25,8 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             var nb = context.NextInt();
             for (var i = 0; i < nb; i++) Purposes.Add((ClientPurposeTypes)context.NextInt());
             CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
+            CoordinateX = context.NextDouble();
+            CoordinateY = context.NextDouble();
         }
 
         public void Serialize(WriteBufferContext context)
@@ -34,6 +38,8 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             context.WriteInteger(Purposes.Count);
             foreach (var purpose in Purposes) context.WriteInteger((int)purpose);
             context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.GetValueOrDefault().Ticks));
+            context.WriteDouble(CoordinateX);
+            context.WriteDouble(CoordinateY);
         }
     }
 }

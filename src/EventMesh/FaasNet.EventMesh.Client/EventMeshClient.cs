@@ -71,10 +71,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as SearchSessionsResult;
         }
 
-        public async Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposes, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposes, double coordinateX = default(double), double coordinateY = default(double), int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AddClient(clientId, vpn, purposes);
+            var package = PackageRequestBuilder.AddClient(clientId, vpn, purposes, coordinateX, coordinateY);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);

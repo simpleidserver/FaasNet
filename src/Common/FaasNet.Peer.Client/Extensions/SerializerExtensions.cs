@@ -31,6 +31,11 @@ namespace FaasNet.Peer.Client.Extensions
             return result;
         }
 
+        public static ICollection<byte> ToBytes(this double d)
+        {
+            return BitConverter.GetBytes(d).ToList();
+        }
+
         public static ICollection<byte> ToBytes(this long l)
         {
             var result = new List<byte>
@@ -70,6 +75,12 @@ namespace FaasNet.Peer.Client.Extensions
                    | ((long)payload.ElementAt(1) & 0xff) << 8
                    | ((long)payload.ElementAt(0) & 0xff);
             return result;
+        }
+
+        public static double GetDouble(this Queue<byte> queue)
+        {
+            var payload = queue.Dequeue(8).ToArray();
+            return BitConverter.ToDouble(payload, 0);
         }
 
         public static string GetString(this Queue<byte> queue)

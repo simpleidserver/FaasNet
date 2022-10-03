@@ -24,7 +24,7 @@ namespace FaasNet.EventMesh.UI.Data
         Task<GenericSearchQueryResult<SessionQueryResult>> SearchSessions(string clientId, string vpn, FilterQuery filter, string url, int port, CancellationToken cancellationToken);
         Task<GenericSearchQueryResult<QueueQueryResult>> SearchQueues(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
         Task<AddVpnResult> AddVpn(string vpn, string description, string url, int port, CancellationToken cancellationToken);
-        Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken);
+        Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken, double coordinateX = default(double), double coordinateY = default(double));
         Task<GetClientResult> GetClient(string clientId, string vpn, string url, int port, CancellationToken cancellationToken);
         Task<AddQueueResponse> AddQueue(string vpn, string name, string topicFilter, string url, int port, CancellationToken cancellationToken);
         Task<PublishMessageResult> PublishMessage(string clientId, string vpn, string clientSecret, string topicMessage, string content, string url, int port, CancellationToken cancellationToken);
@@ -125,11 +125,11 @@ namespace FaasNet.EventMesh.UI.Data
             }
         }
 
-        public async Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken)
+        public async Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken, double coordinateX = default(double), double coordinateY = default(double))
         {
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
-                var clientResult = await client.AddClient(clientId, vpn, purposeTypes, _options.RequestTimeoutMS, cancellationToken);
+                var clientResult = await client.AddClient(clientId, vpn, purposeTypes, coordinateY, coordinateY, _options.RequestTimeoutMS, cancellationToken);
                 return clientResult;
             }
         }

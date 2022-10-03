@@ -3,6 +3,7 @@ using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.EventMesh.UI.Data;
 using Fluxor;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace FaasNet.EventMesh.UI.Stores.Client
@@ -26,7 +27,7 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         [EffectMethod]
         public async Task Handle(AddClientAction action, IDispatcher dispatcher)
         {
-            var result = await _eventMeshService.AddClient(action.ClientId, action.Vpn, action.PurposeTypes.Select(p => (ClientPurposeTypes)p).ToList(), action.Url, action.Port, CancellationToken.None);
+            var result = await _eventMeshService.AddClient(action.ClientId, action.Vpn, action.PurposeTypes.Select(p => (ClientPurposeTypes)p).ToList(), action.Url, action.Port, CancellationToken.None, action.CoordinateX, action.CoordinateY);
             if (!result.Success)
             {
                 dispatcher.Dispatch(new AddClientFailureAction($"An error occured while trying to add the Client, Error: {Enum.GetName(typeof(AddClientErrorStatus), result.Status.Value)}"));
@@ -34,6 +35,27 @@ namespace FaasNet.EventMesh.UI.Stores.Client
             }
 
             dispatcher.Dispatch(new AddClientResultAction { ClientId = action.ClientId, Vpn= action.Vpn, PurposeTypes = action.PurposeTypes, ClientResult = result });
+        }
+
+        [EffectMethod]
+        public async Task Handle(GetAllClientsAction action, IDispatcher dispatcher)
+        {
+            var filterQuery = new FilterQuery
+            {
+                NbRecords = 100,
+                Page = 0,
+                HasComparison = true,
+                Comparison = new ComparisonExpression
+                {
+                    Key = "Vpn",
+                    Value = action.Vpn,
+                    Operator = ComparisonOperators.EQUAL
+                },
+                SortBy = "CreateDateTime",
+                SortOrder = SortOrders.DESC
+            };
+            var result = await _eventMeshService.GetAllClients(filterQuery, action.Url, action.Port, CancellationToken.None);
+            dispatcher.Dispatch(new SearchClientsResultAction(result));
         }
     }
 
@@ -57,28 +79,32 @@ namespace FaasNet.EventMesh.UI.Stores.Client
     public class AddClientAction
     {
         [Required]
-        public string ClientId { get; set; }
+        public string ClientId { get; set; } = string.Empty;
         [Required]
-        public string Vpn { get; set; }
+        public string Vpn { get; set; } = string.Empty;
         [Required]
         public int[] PurposeTypes { get; set; } = new int[] { };
-        public string Url { get; set; }
+        public double CoordinateX { get; set; }
+        public double CoordinateY { get; set; }
+        public string Url { get; set; } = string.Empty;
         public int Port { get; set; }
 
         public void Reset()
         {
-            ClientId = String.Empty;
-            Vpn = String.Empty;
+            ClientId = string.Empty;
+            Vpn = string.Empty;
             PurposeTypes = new int[] { };
         }
     }
 
     public class AddClientResultAction
     {
-        public string ClientId { get; set; }
-        public string Vpn { get; set; }
+        public string ClientId { get; set; } = string.Empty;
+        public string Vpn { get; set; } = string.Empty;
         public int[] PurposeTypes { get; set; } = new int[] { };
-        public AddClientResult ClientResult { get; set; }
+        public double CoordinateX { get; set; }
+        public double CoordinateY { get; set; }
+        public AddClientResult ClientResult { get; set; } = null!;
     }
 
     public class AddClientFailureAction
@@ -89,5 +115,17 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         }
 
         public string Message { get; }
+    }
+
+    public class GetAllClientsAction
+    {
+        public GetAllClientsAction(string vpn)
+        {
+            Vpn = vpn;
+        }
+
+        public string Vpn { get; }
+        public string Url { get; set; }
+        public int Port { get; set; }
     }
 }

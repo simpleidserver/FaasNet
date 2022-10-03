@@ -9,6 +9,9 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         public static ClientState RdeduceSearchClientsAction(ClientState state, SearchClientsAction action) => new(isLoading: true, clients: null);
 
         [ReducerMethod]
+        public static ClientState ReduceGetAllClientsAction(ClientState state, GetAllClientsAction action) => new(isLoading: true, clients: null);
+
+        [ReducerMethod]
         public static ClientState ReduceSearchClientsResultAction(ClientState state, SearchClientsResultAction action) => new(isLoading: false, clients: action.Clients);
 
         [ReducerMethod]

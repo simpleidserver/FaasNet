@@ -5,6 +5,7 @@ namespace FaasNet.EventMesh.UI.ViewModels
 {
     public class LinkViewModel
     {
+        public bool IsActive { get; set; }
         public LinkPointViewModel StartPoint { get; set; }
         public LinkPointViewModel EndPoint { get; set; }
         public string Path
@@ -20,6 +21,34 @@ namespace FaasNet.EventMesh.UI.ViewModels
                 var curve = "M" + CoordinateHelper.Sanitize(StartPoint.X) + " " + CoordinateHelper.Sanitize(StartPoint.Y) + " Q " + CoordinateHelper.Sanitize(c1x) + " " + CoordinateHelper.Sanitize(c1y) + " " + CoordinateHelper.Sanitize(EndPoint.X) + " " + CoordinateHelper.Sanitize(EndPoint.Y);
                 Debug.WriteLine(curve);
                 return curve;
+            }
+        }
+        public string SelectionContainerWidth
+        {
+            get
+            {
+                return CoordinateHelper.Sanitize(Math.Abs(StartPoint.X - EndPoint.X));
+            }
+        }
+        public string SelectionContainerHeight
+        {
+            get
+            {
+                return CoordinateHelper.Sanitize(Math.Abs(StartPoint.Y - EndPoint.Y));
+            }
+        }
+        public string SelectionContainerMatrix
+        {
+            get
+            {
+                return $"matrix(1 0 0 1 {CoordinateHelper.Sanitize(Math.Min(StartPoint.X, EndPoint.X))} {CoordinateHelper.Sanitize(Math.Min(StartPoint.Y, EndPoint.Y))})";
+            }
+        }
+        public string SelectionContainerClass
+        {
+            get
+            {
+                return IsActive ? "linkSelectionContainer selected" : "linkSelectionContainer";
             }
         }
 

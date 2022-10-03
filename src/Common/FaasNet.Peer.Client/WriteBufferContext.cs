@@ -21,6 +21,12 @@ namespace FaasNet.Peer.Client
             return this;
         }
 
+        public WriteBufferContext WriteDouble(double it)
+        {
+            Buffer.AddRange(it.ToBytes());
+            return this;
+        }
+
         public WriteBufferContext WriteLong(long it)
         {
             Buffer.AddRange(it.ToBytes());

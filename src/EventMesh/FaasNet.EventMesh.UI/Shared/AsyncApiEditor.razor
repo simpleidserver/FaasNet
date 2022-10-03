@@ -1,6 +1,11 @@
 ﻿@using System.Diagnostics
+@using FaasNet.EventMesh.Client.StateMachines.Client
 @using FaasNet.EventMesh.UI.Helpers
+@using FaasNet.EventMesh.UI.Stores.App
 @using FaasNet.EventMesh.UI.Stores.Client
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@inherits FluxorComponent
 
 <div id="asyncApiContainer">
     <div id="toolbox">
@@ -24,6 +29,11 @@
             Application
         </div>
     </div>
+    @if(ActiveApplication != null)
+    {
+        <AsyncApiApplicationProperties ActiveApplication="@ActiveApplication" ApplicationClosed="@HandleCloseApplication" Vpn="@Vpn" />
+    }
+
     <svg id="editor" class="@(Mode == EditionModes.VIEW ? "moving" : "")" viewBox="@ViewBox" 
                 @onmousewheel="HandleMouseWheel" 
                 @onmousewheel:stopPropagation="true"
@@ -64,6 +74,17 @@
             @foreach(var link in Links)
             {
                 <path d="@link.Path" marker-end="url(#asyncapieditor-barbEnd)" stroke="black" fill="none"></path>
+                <g transform="@link.SelectionContainerMatrix">
+                    <foreignObject width="@link.SelectionContainerWidth" height="@link.SelectionContainerHeight"
+                        @onmousedown="(e) => HandleSelectLink(e, link)"
+                        @onmousedown:stopPropagation="true"
+                        class="@link.SelectionContainerClass">
+                        <div class="selectionContainer"></div>
+                        <ul class="actions">
+                            <li><i class="fa-solid fa-trash" @onclick="() => RemoveLink(link)"></i></li>
+                        </ul>
+                    </foreignObject>
+                </g>
             }
         </g>
         @if(SelectedApplication != null)
@@ -86,60 +107,27 @@
     </svg>
 </div>
 
-<Modal Title="Add Client" @ref=addClientModal>
-    <EditForm OnValidSubmit="@HandleValidSubmit" Model="addClient">
-        <DataAnnotationsValidator />
-        <div class="modal-body">
-            <!-- ClientId -->
-            <div class="mb-3">
-                <label class="form-label">Client Identifier</label>
-                <InputText class="form-control" @bind-Value="addClient.ClientId" />
-                <ValidationMessage For="() => addClient.ClientId" />
-            </div>
-            <!-- VPN -->
-            <div class="mb-3">
-                <label class="form-label">VPN</label>
-                <input type="text" value="@addClient.Vpn" class="form-control" disabled />
-                <ValidationMessage For="() => addClient.Vpn" />
-            </div>
-            <!-- Purpose Types -->
-            <div class="mb-3">
-                <label class="form-label">Types of purpose</label>
-                <select class="form-select" @bind="addClient.PurposeTypes" multiple>
-                    <option value="0">Publish</option>
-                    <option value="1">Subscribe</option>
-                </select>
-                <ValidationMessage For="() => addClient.PurposeTypes" />
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
-            <button type="submit" class="btn btn-primary">Add</button>
-        </div>
-    </EditForm>
-</Modal>
+<AsyncApiAddClient ClientAdded="@HandleClientAdded" Vpn="@Vpn" @ref="addClient" />
 
 @code {
-    private ICollection<ApplicationViewModel> Applications { get; set; } = new List<ApplicationViewModel>();
-    private ICollection<LinkViewModel> Links { get; set; } = new List<LinkViewModel>();
     private string ViewBox { get; set; } = null!;
     private EditionModes Mode { get; set; } = EditionModes.EDIT;
     private bool StartMoving { get; set; } = false;
-    [Inject]
-    private IJSRuntime JS { get; set; }
-    [Parameter]
-    public string Vpn { get; set; }
-    [Parameter]
-    public double ScaleFactor { get; set;} = 1.02;
+    [Parameter] public ICollection<ApplicationViewModel> Applications { get; set; } = new List<ApplicationViewModel>();
+    [Parameter] public ICollection<LinkViewModel> Links { get; set; } = new List<LinkViewModel>();
+    [Parameter] public string Vpn { get; set; } = string.Empty;
+    [Parameter] public double ScaleFactor { get; set; } = 1.02;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
     private MouseEventArgs PreviousMousePosition { get; set; } = null!;
     private ApplicationViewModel SelectedApplication { get; set; } = null!;
-    private (ApplicationViewModel, AnchorViewModel) LinkedApplication { get; set; } = (null, null);
+    private ApplicationViewModel ActiveApplication { get; set; } = null!;
+    private LinkViewModel SelectedLink { get; set; } = null!;
+    private (ApplicationViewModel, AnchorViewModel) LinkedApplication { get; set; } = (null!, null!);
     private PointViewModel SelectedMouseOffset { get; set; } = null!;
     private PointViewModel SelectedCanvasOffset { get; set; } = null!;
-    private LinkViewModel SelectedLink { get; set; } = null!;
+    private PointViewModel DroppedElementPosition { get; set; } = null!;
     private IEnumerable<double> InitCanvasCoordinates { get; set; } = null!;
-    private Modal addClientModal { get; set; }
-    private AddClientAction addClient { get; set; } = new AddClientAction();
+    private AsyncApiAddClient addClient { get; set; } = null!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -149,7 +137,6 @@
             var size = await JS.InvokeAsync<ElementSize>("getSize", "asyncApiContainer");
             ViewBox = $"0 0 {size.Width} {size.Height}";
             InitCanvasCoordinates = GetViewBoxCoordinates();
-            addClient.Vpn = Vpn;
         }
     }
 
@@ -160,14 +147,8 @@
         switch(record.Type)
         {
             case "application":
-                var offset = await JS.InvokeAsync<PointViewModel>("getApplicationMousePosition", "editor", args.ClientX, args.ClientY);
-                Applications.Add(new ApplicationViewModel
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    ClientId = "New application",
-                    CoordinateX = offset.X,
-                    CoordinateY = offset.Y
-                });
+                DroppedElementPosition = await JS.InvokeAsync<PointViewModel>("getApplicationMousePosition", "editor", args.ClientX, args.ClientY);
+                addClient.Open(DroppedElementPosition);
                 break;
         }
     }
@@ -196,6 +177,9 @@
             X = evt.ClientX,
             Y = evt.ClientY
         };
+        foreach (var app in Applications) app.IsActive = false;
+        foreach (var link in Links) link.IsActive = false;
+        ActiveApplication = null;
     }
 
     private async void HandleSelectApplication(MouseEventArgs evt, ApplicationViewModel application)
@@ -207,7 +191,16 @@
         SelectedMouseOffset = offset;
         SelectedApplication = application.Clone();
         foreach (var app in Applications) app.IsActive = false;
+        foreach (var link in Links) link.IsActive = false;
         application.IsActive = true;
+        ActiveApplication = application;
+    }
+
+    private void HandleSelectLink(MouseEventArgs evt, LinkViewModel link) 
+    {
+        foreach (var l in Links) l.IsActive = false;
+        foreach (var app in Applications) app.IsActive = false;
+        link.IsActive = true;
     }
 
     private async void HandleStartDrawLink(MouseEventArgs evt, string applicationId, AnchorPositions position)
@@ -321,6 +314,17 @@
         Links = Links.Where(l => !l.IsLinkedToApplication(application.Id)).ToList();
     }
 
+    private void RemoveLink(LinkViewModel link)
+    {
+        Links.Remove(link);
+    }
+
+    private void CloseActiveApplication()
+    {
+        ActiveApplication.IsActive = false;
+        ActiveApplication = null;
+    }
+
     private async Task<bool> HandleMouseWheel(WheelEventArgs args) 
     {
         long normalized;
@@ -356,14 +360,33 @@
         LinkedApplication = (null, null);
     }
 
-    private void HandleValidSubmit()
+    private void HandleClientAdded(AddClientResultAction result)
     {
+        var newApplication = new ApplicationViewModel
+        {
+            Id = Guid.NewGuid().ToString(),
+            ClientId = result.ClientId,
+            CoordinateX = DroppedElementPosition.X,
+            CoordinateY = DroppedElementPosition.Y,
+            IsActive = true,
+            IsNew = true,
+            ClientSecret = result.ClientResult.ClientSecret,
+            CreateDateTime = DateTime.UtcNow,
+            Purposes = result.PurposeTypes.Select(i => (ClientPurposeTypes)i)
+        };
+        Applications.Add(newApplication);
+        ActiveApplication = newApplication;
+    }
 
+    private void HandleCloseApplication()
+    {
+        ActiveApplication.IsActive = false;
+        ActiveApplication = null;
     }
 
     private void Close() 
     {
-        addClientModal.Close();
+        addClient.Close();
     }
 
     private class ElementSize

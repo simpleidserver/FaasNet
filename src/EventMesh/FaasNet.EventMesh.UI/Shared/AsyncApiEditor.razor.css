@@ -3,6 +3,7 @@
     height: 600px;
 }
 
+/* Toolbox */
 #asyncApiContainer #toolbox {
     top: 10px;
     left: 10px;
@@ -21,6 +22,15 @@
     cursor: pointer;
 }
 
+#asyncApiContainer #toolbox, 
+#asyncApiContainer #elements {
+    position: absolute;
+    background-color: #FAFAFA;
+    border: solid 1px #CCC !important;
+    border-radius: 2px;
+}
+
+/* Elements */
 #asyncApiContainer #elements {
     top: 50px;
     left: 10px;
@@ -32,11 +42,10 @@
     margin-bottom: 5px;
 }
 
-#asyncApiContainer #toolbox, #asyncApiContainer #elements {
-    position: absolute;
-    background-color: #FAFAFA;
-    border: solid 1px #CCC;
-    border-radius: 2px;
+#asyncApiContainer .element {
+    width: 100px;
+    height: 50px;
+    cursor: move;
 }
 
 #asyncApiContainer #editor {
@@ -45,20 +54,63 @@
     touch-action: none;
 }
 
-#asyncApiContainer .element {
-    width: 100px;
-    height: 50px;
-    cursor: move;
+/* Actions */
+#asyncApiContainer ul.actions {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    margin: 0px;
+    padding: 0px;
+    display: none;
+}
+
+#asyncApiContainer .selected ul.actions {
+    display: block;
+}
+
+#asyncApiContainer ul.actions > li {
+    display: inline-block;
+    padding: 2px;
+}
+
+#asyncApiContainer .actions li > i {
+    cursor: pointer;
+    height: 16px;
+    font-size: 16px;
+}
+
+/* Link */
+#asyncApiContainer .linkSelectionContainer {
+    position: relative;
+}
+
+#asyncApiContainer .linkSelectionContainer .selectionContainer {
+    border: 1px solid transparent;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    cursor: pointer;
+}
+
+#asyncApiContainer .linkSelectionContainer.selected .selectionContainer {
+    border: 1px dashed black !important;
 }
 
 /* Application */
-#asyncApiContainer .application {    
-    cursor: move;
+#asyncApiContainer .application {
+    cursor: pointer;
     padding: 10px;
 }
 
 #asyncApiContainer .application.moving {
     opacity: 0.5;
+}
+
+
+#asyncApiContainer .application.selected {
+    cursor: move !important;
 }
 
 #asyncApiContainer .application .appContainer {
@@ -104,33 +156,6 @@
 
 #asyncApiContainer .application .appContainer .anchor.b {
     bottom: 0px;
-}
-
-#asyncApiContainer .application .appContainer ul.actions {
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    margin: 0px;
-    padding: 0px;
-}
-
-#asyncApiContainer .application.selected .appContainer ul.actions {
-    display: block;
-}
-
-#asyncApiContainer .application .appContainer ul.actions {
-    display: none;
-}
-
-#asyncApiContainer .application .appContainer ul.actions > li {
-    display: inline-block;
-    padding: 2px;
-}
-
-#asyncApiContainer .application .appContainer .actions li > i {
-    cursor: pointer;
-    height: 16px;
-    font-size: 16px;
 }
 
 #asyncApiContainer .application .appContainer .content {

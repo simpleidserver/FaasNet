@@ -34,7 +34,9 @@ namespace FaasNet.EventMesh.StateMachines.Client
                         Purposes = addClient.Purposes, 
                         SessionExpirationTimeMS = addClient.SessionExpirationTimeMS, 
                         Vpn = addClient.Vpn,
-                        CreateDateTime = DateTime.UtcNow
+                        CreateDateTime = DateTime.UtcNow,
+                        CoordinateX = addClient.CoordinateX,
+                        CoordinateY = addClient.CoordinateY
                     });
                     break;
             }
@@ -106,7 +108,9 @@ namespace FaasNet.EventMesh.StateMachines.Client
                 Purposes = client.Purposes,
                 SessionExpirationTimeMS = client.SessionExpirationTimeMS,
                 Vpn = client.Vpn,
-                CreateDateTime = client.CreateDateTime
+                CreateDateTime = client.CreateDateTime,
+                CoordinateX = client.CoordinateX,
+                CoordinateY = client.CoordinateY
             };
         }
     }
@@ -119,6 +123,8 @@ namespace FaasNet.EventMesh.StateMachines.Client
         public int SessionExpirationTimeMS { get; set; }
         public ICollection<ClientPurposeTypes> Purposes { get; set; } = new List<ClientPurposeTypes>();
         public DateTime CreateDateTime { get; set; }
+        public double CoordinateX { get; set; }
+        public double CoordinateY { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
@@ -129,6 +135,8 @@ namespace FaasNet.EventMesh.StateMachines.Client
             var nb = context.NextInt();
             for (var i = 0; i < nb; i++) Purposes.Add((ClientPurposeTypes)context.NextInt());
             CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
+            CoordinateX = context.NextDouble();
+            CoordinateY = context.NextDouble();
         }
 
         public void Serialize(WriteBufferContext context)
@@ -140,6 +148,8 @@ namespace FaasNet.EventMesh.StateMachines.Client
             context.WriteInteger(Purposes.Count);
             foreach (var purpose in Purposes) context.WriteInteger((int)purpose);
             context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
+            context.WriteDouble(CoordinateX);
+            context.WriteDouble(CoordinateY);
         }
     }
 
