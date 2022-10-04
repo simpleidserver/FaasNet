@@ -3,7 +3,6 @@ using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.EventMesh.UI.Data;
 using Fluxor;
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace FaasNet.EventMesh.UI.Stores.Client
@@ -38,6 +37,25 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         }
 
         [EffectMethod]
+        public async Task Handle(BulkUpdateClientAction action, IDispatcher dispatcher)
+        {
+            var result = await _eventMeshService.BulkUpdateClient(action.Vpn, action.Clients.Select(c => new UpdateClientRequest
+            {
+                CoordinateX = c.CoordinateX,
+                CoordinateY = c.CoordinateY,
+                Id = c.ClientId,
+                Targets = c.Targets
+            }).ToList(), action.Url, action.Port, CancellationToken.None);
+            if (!result.Success)
+            {
+                dispatcher.Dispatch(new AddClientFailureAction($"An error occured while trying to update the Client, Error: {Enum.GetName(typeof(UpdateClientErrorStatus), result.Status.Value)}"));
+                return;
+            }
+
+            dispatcher.Dispatch(new BulkUpdateClientResultAction { Clients = action.Clients, Vpn = action.Vpn, ClientResult = result });
+        }
+
+        [EffectMethod]
         public async Task Handle(GetAllClientsAction action, IDispatcher dispatcher)
         {
             var filterQuery = new FilterQuery
@@ -56,6 +74,13 @@ namespace FaasNet.EventMesh.UI.Stores.Client
             };
             var result = await _eventMeshService.GetAllClients(filterQuery, action.Url, action.Port, CancellationToken.None);
             dispatcher.Dispatch(new SearchClientsResultAction(result));
+        }
+
+        [EffectMethod]
+        public async Task Handle(CheckClientPartitionIsSyncedAction action, IDispatcher dispatcher)
+        {
+            var result = await _eventMeshService.GetPartition("CLIENT", action.Url, action.Port, CancellationToken.None);
+            dispatcher.Dispatch(new CheckClientPartitionIsSyncedResultAction { IsSynced = result.State.CommitIndex == result.State.LastApplied });
         }
     }
 
@@ -97,6 +122,22 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         }
     }
 
+    public class BulkUpdateClientAction
+    {
+        public string Vpn { get; set; } = string.Empty;
+        public ICollection<UpdateClientSubAction> Clients { get; set; } = new List<UpdateClientSubAction>();
+        public string Url { get; set; } = string.Empty;
+        public int Port { get; set; }
+    }
+
+    public class UpdateClientSubAction
+    {
+        public string ClientId { get; set; } = string.Empty;
+        public double CoordinateX { get; set; }
+        public double CoordinateY { get; set; }
+        public ICollection<string> Targets { get; set; }
+    }
+
     public class AddClientResultAction
     {
         public string ClientId { get; set; } = string.Empty;
@@ -105,6 +146,13 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
         public AddClientResult ClientResult { get; set; } = null!;
+    }
+
+    public class BulkUpdateClientResultAction
+    {
+        public string Vpn { get; set; }
+        public ICollection<UpdateClientSubAction> Clients { get; set; } = new List<UpdateClientSubAction>();
+        public BulkUpdateClientResult ClientResult { get; set; } = null!;
     }
 
     public class AddClientFailureAction
@@ -127,5 +175,16 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         public string Vpn { get; }
         public string Url { get; set; }
         public int Port { get; set; }
+    }
+
+    public class CheckClientPartitionIsSyncedAction
+    {
+        public string Url { get; set; }
+        public int Port { get; set; }
+    }
+
+    public class CheckClientPartitionIsSyncedResultAction
+    {
+        public bool IsSynced { get; set; }
     }
 }

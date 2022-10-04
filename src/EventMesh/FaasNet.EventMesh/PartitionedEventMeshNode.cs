@@ -59,6 +59,8 @@ namespace FaasNet.EventMesh
             if (packageRequest.Command == EventMeshCommands.FIND_VPNS_BY_NAME_REQUEST) packageResult = await Handle(packageRequest as FindVpnsByNameRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.FIND_QUEUES_BY_NAME_REQUEST) packageResult = await Handle(packageRequest as FindQueuesByNameRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.FIND_CLIENTS_BY_NAME_REQUEST) packageResult = await Handle(packageRequest as FindClientsByNameRequest, TokenSource.Token);
+            if (packageRequest.Command == EventMeshCommands.BULK_UPDATE_CLIENT_REQUEST) packageResult = await Handle(packageRequest as BulkUpdateClientRequest, TokenSource.Token);
+            if (packageRequest.Command == EventMeshCommands.GET_PARTITION_REQUEST) packageResult = await Handle(packageRequest as GetPartitionRequest, TokenSource.Token);
             var writeBufferContext = new WriteBufferContext();
             packageResult.SerializeEnvelope(writeBufferContext);
             return writeBufferContext.Buffer.ToArray();
@@ -100,6 +102,20 @@ namespace FaasNet.EventMesh
             var readBufferContext = new ReadBufferContext(transferedResult);
             var stateMachineResult = BaseConsensusPackage.Deserialize(readBufferContext) as QueryResult;
             return (T)stateMachineResult.Result;
+        }
+
+        private async Task<GetPeerStateResult> GetPeerState(string partitionKey, CancellationToken cancellationToken)
+        {
+            var writeBufferContext = new WriteBufferContext();
+            ConsensusPackageRequestBuilder.GetPeerState().SerializeEnvelope(writeBufferContext);
+            var content = writeBufferContext.Buffer.ToArray();
+            var transferedResult = await PartitionCluster.Transfer(new TransferedRequest
+            {
+                PartitionKey = partitionKey,
+                Content = content
+            }, cancellationToken);
+            var readBufferContext = new ReadBufferContext(transferedResult);
+            return BaseConsensusPackage.Deserialize(readBufferContext) as GetPeerStateResult;
         }
     }
 }

@@ -4,7 +4,6 @@ namespace FaasNet.EventMesh.UI.ViewModels
 {
     public class ApplicationViewModel
     {
-        public string Id { get; set; } = string.Empty;
         public string ClientId { get; set; } = string.Empty;
         public DateTime CreateDateTime { get; set; }
         public IEnumerable<ClientPurposeTypes> Purposes { get; set; } = new List<ClientPurposeTypes>();
@@ -32,7 +31,7 @@ namespace FaasNet.EventMesh.UI.ViewModels
         public string GetClassName(string selectedApplicationId)
         {
             var result = new List<string> { "application" };
-            if (Id == selectedApplicationId) result.Add("moving");
+            if (ClientId == selectedApplicationId) result.Add("moving");
             if (IsActive) result.Add("selected");
             return string.Join(" ", result);
         }
@@ -41,7 +40,6 @@ namespace FaasNet.EventMesh.UI.ViewModels
         {
             return new ApplicationViewModel
             {
-                Id = Id,
                 ClientId = ClientId,
                 CoordinateX = CoordinateX,
                 CoordinateY = CoordinateY,

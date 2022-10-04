@@ -146,7 +146,7 @@ namespace FaasNet.RaftConsensus.Core
 
             async Task<BaseConsensusPackage> Transfer(AppendEntryRequest request, CancellationToken cancellationToken)
             {
-                if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS)) return ConsensusPackageResultBuilder.AppendEntry(0, 0, false);
+                if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS)) return ConsensusPackageResultBuilder.AppendEntry(0, 0, 0, false);
                 var leaderPeerId = PeerId.Deserialize(_peerState.VotedFor);
                 using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(leaderPeerId.IpEdp))
                     return (await consensusClient.AppendEntry(request.Payload, _raftConsensusPeerOptions.RequestExpirationTimeMS, cancellationToken)).First().Item1;
@@ -163,7 +163,7 @@ namespace FaasNet.RaftConsensus.Core
                 };
                 _peerState.IncreaseLastIndex();
                 await _logStore.Append(logEntry, cancellationToken);
-                return ConsensusPackageResultBuilder.AppendEntry(_peerState.CurrentTerm, _peerState.CommitIndex, true);
+                return ConsensusPackageResultBuilder.AppendEntry(_peerState.CurrentTerm, _peerState.CommitIndex, _peerState.LastApplied, true);
             }
         }
 

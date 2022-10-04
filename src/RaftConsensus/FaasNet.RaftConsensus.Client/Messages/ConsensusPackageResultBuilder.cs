@@ -23,13 +23,14 @@ namespace FaasNet.RaftConsensus.Client.Messages
             };
         }
 
-        public static BaseConsensusPackage AppendEntry(long term, long matchIndex, bool success)
+        public static BaseConsensusPackage AppendEntry(long term, long matchIndex, long lastIndex, bool success)
         {
             return new AppendEntryResult
             {
                 Term = term,
                 Success = success,
-                MatchIndex = matchIndex
+                MatchIndex = matchIndex,
+                LastIndex = lastIndex
             };
         }
 

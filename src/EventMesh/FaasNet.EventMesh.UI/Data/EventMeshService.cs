@@ -25,6 +25,7 @@ namespace FaasNet.EventMesh.UI.Data
         Task<GenericSearchQueryResult<QueueQueryResult>> SearchQueues(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
         Task<AddVpnResult> AddVpn(string vpn, string description, string url, int port, CancellationToken cancellationToken);
         Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken, double coordinateX = default(double), double coordinateY = default(double));
+        Task<BulkUpdateClientResult> BulkUpdateClient(string vpn, ICollection<UpdateClientRequest> clients, string url, int port, CancellationToken cancellationToken);
         Task<GetClientResult> GetClient(string clientId, string vpn, string url, int port, CancellationToken cancellationToken);
         Task<AddQueueResponse> AddQueue(string vpn, string name, string topicFilter, string url, int port, CancellationToken cancellationToken);
         Task<PublishMessageResult> PublishMessage(string clientId, string vpn, string clientSecret, string topicMessage, string content, string url, int port, CancellationToken cancellationToken);
@@ -32,6 +33,7 @@ namespace FaasNet.EventMesh.UI.Data
         Task<IEnumerable<string>> FindVpnsByName(string name, string url, int port, CancellationToken cancellationToken);
         Task<IEnumerable<string>> FindClientsByName(string name, string url, int port, CancellationToken cancellationToken);
         Task<IEnumerable<string>> FindQueuesByName(string name, string url, int port, CancellationToken cancellationToken);
+        Task<GetPartitionResult> GetPartition(string partition, string url, int port, CancellationToken cancellationToken);
     }
 
     public class EventMeshService : IEventMeshService
@@ -134,6 +136,15 @@ namespace FaasNet.EventMesh.UI.Data
             }
         }
 
+        public async Task<BulkUpdateClientResult> BulkUpdateClient(string vpn, ICollection<UpdateClientRequest> clients, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var clientResult = await client.UpdateClient(vpn, clients, _options.RequestTimeoutMS, cancellationToken);
+                return clientResult;
+            }
+        }
+
         public async Task<GetClientResult> GetClient(string clientId, string vpn, string url, int port, CancellationToken cancellationToken)
         {
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
@@ -173,6 +184,14 @@ namespace FaasNet.EventMesh.UI.Data
                     var result = await pubSession.PublishMessage(topicMessage, cloudEvent, _options.RequestTimeoutMS, cancellationToken);
                     return (result, result.Status == PublishMessageStatus.SUCCESS);
                 });
+            }
+        }
+
+        public async Task<GetPartitionResult> GetPartition(string partition, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                return await client.GetPartition(partition, _options.RequestTimeoutMS, cancellationToken);
             }
         }
 

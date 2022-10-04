@@ -4,6 +4,7 @@ using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.EventMesh.Client.StateMachines.Queue;
 using FaasNet.EventMesh.Client.StateMachines.Session;
 using FaasNet.EventMesh.Client.StateMachines.Vpn;
+using FaasNet.RaftConsensus.Client.Messages;
 using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.Messages
@@ -41,18 +42,31 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage AddClient(string seq, string clientId, string clientSecret)
+        public static BaseEventMeshPackage AddClient(string seq, string clientId, string clientSecret, long term, long matchIndex, long lastIndex)
         {
             return new AddClientResult(seq)
             {
                 ClientId = clientId,
-                ClientSecret = clientSecret
+                ClientSecret = clientSecret,
+                Term = term,
+                MatchIndex = matchIndex,
+                LastIndex = lastIndex
             };
         }
 
         public static BaseEventMeshPackage AddClient(string seq, AddClientErrorStatus status)
         {
             return new AddClientResult(seq, status);
+        }
+
+        public static BaseEventMeshPackage BulkUpdateClient(string seq, UpdateClientErrorStatus status)
+        {
+            return new BulkUpdateClientResult(seq, status);
+        }
+
+        public static BaseEventMeshPackage BulkUpdateClient(string seq)
+        {
+            return new BulkUpdateClientResult(seq);
         }
 
         public static BaseEventMeshPackage AddQueue(string seq, AddQueueStatus status = AddQueueStatus.SUCCESS)
@@ -157,6 +171,23 @@ namespace FaasNet.EventMesh.Client.Messages
             return new FindQueuesByNameResult(seq)
             {
                 Content = content
+            };
+        }
+
+        public static BaseEventMeshPackage GetPartition(string seq, GetPartitionStatus status)
+        {
+            return new GetPartitionResult(seq)
+            {
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage GetPartition(string seq, GetPeerStateResult state)
+        {
+            return new GetPartitionResult(seq)
+            {
+                Status = GetPartitionStatus.OK,
+                State = state
             };
         }
     }

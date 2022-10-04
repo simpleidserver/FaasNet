@@ -31,6 +31,11 @@ namespace FaasNet.EventMesh.Client.Messages
             return new AddClientRequest(GenerateRandomSeq(), clientId, vpn, purposes, coordinateX, coordinateY);
         }
 
+        public static BaseEventMeshPackage BulkUpdateClient(string vpn, ICollection<UpdateClientRequest> clients)
+        {
+            return new BulkUpdateClientRequest(GenerateRandomSeq(), vpn, clients);
+        }
+
         public static BaseEventMeshPackage GetAllClient(FilterQuery filter)
         {
             return new GetAllClientRequest(GenerateRandomSeq())
@@ -128,6 +133,14 @@ namespace FaasNet.EventMesh.Client.Messages
             return new FindQueuesByNameRequest(GenerateRandomSeq())
             {
                 Name = name
+            };
+        }
+
+        public static BaseEventMeshPackage GetPartition(string partition)
+        {
+            return new GetPartitionRequest(GenerateRandomSeq())
+            {
+                Partition = partition
             };
         }
 

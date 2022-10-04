@@ -5,6 +5,7 @@ using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Client.Transports;
+using FaasNet.RaftConsensus.Client.Messages;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -83,6 +84,20 @@ namespace FaasNet.EventMesh.Client
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
             return packageResult as AddClientResult;
+        }
+
+        public async Task<BulkUpdateClientResult> UpdateClient(string vpn, ICollection<UpdateClientRequest> clients, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.BulkUpdateClient(vpn, clients);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as BulkUpdateClientResult;
         }
 
         public async Task<GetClientResult> GetClient(string clientId, string vpn, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
@@ -181,6 +196,20 @@ namespace FaasNet.EventMesh.Client
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
             return packageResult as FindQueuesByNameResult;
+        }
+
+        public async Task<GetPartitionResult> GetPartition(string partition, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.GetPartition(partition);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as GetPartitionResult;
         }
 
         public async Task<EventMeshPublishSessionClient> CreatePubSession(string clientId, string vpn, string clientSecret, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))

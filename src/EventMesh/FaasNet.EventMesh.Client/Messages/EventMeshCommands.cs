@@ -124,6 +124,22 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Response returned when queues are found.
         /// </summary>
         public static EventMeshCommands FIND_QUEUES_BY_NAME_RESPONSE = new EventMeshCommands(29, "FIND_QUEUES_BY_NAME_RESPONSE");
+        /// <summary>
+        /// Request sent to update clients.
+        /// </summary>
+        public static EventMeshCommands BULK_UPDATE_CLIENT_REQUEST = new EventMeshCommands(30, "BULK_UPDATE_CLIENT_REQUEST");
+        /// <summary>
+        /// Result sent when client is updated.
+        /// </summary>
+        public static EventMeshCommands BULK_UPDATE_CLIENT_RESPONSE = new EventMeshCommands(31, "BULK_UPDATE_CLIENT_RESPONSE");
+        /// <summary>
+        /// Request sent to get the partition.
+        /// </summary>
+        public static EventMeshCommands GET_PARTITION_REQUEST = new EventMeshCommands(32, "GET_PARTITION_REQUEST");
+        /// <summary>
+        /// Result sent when partition is returned.
+        /// </summary>
+        public static EventMeshCommands GET_PARTITION_RESPONSE = new EventMeshCommands(33, "GET_PARTITION_RESPONSE");
 
         protected EventMeshCommands(int code)
         {

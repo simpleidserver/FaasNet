@@ -7,6 +7,8 @@
 @using Fluxor.Blazor.Web.Components
 @inherits FluxorComponent
 
+<button class="btn btn-primary" @onclick="(e) => Update()">Save</button>
+
 <div id="asyncApiContainer">
     <div id="toolbox">
         <ul>
@@ -50,14 +52,14 @@
         <g class="children">
             @foreach (var application in Applications)
             {
-                <g class="@(application.GetClassName(SelectedApplication?.Id))" 
+                <g class="@(application.GetClassName(SelectedApplication?.ClientId))" 
                         transform="@application.Matrix" 
                         @onmousedown="(e) => HandleSelectApplication(e, application)" 
                         @onmousedown:stopPropagation="true">
                     <foreignObject width="@application.Width" height="@application.Height" class="appContainer">
                         @foreach(var anchor in application.Anchors)
                         {                            
-                            <div class="@anchor.ClassName" @onmouseover="() => HandleMouseOver(application, anchor)" @onmouseout="HandleMouseOut" @onmousedown="(e) => HandleStartDrawLink(e, application.Id, anchor.Position)" @onmousedown:preventDefault="true" @onmousedown:stopPropagation="true"></div>
+                            <div class="@anchor.ClassName" @onmouseover="() => HandleMouseOver(application, anchor)" @onmouseout="HandleMouseOut" @onmousedown="(e) => HandleStartDrawLink(e, application.ClientId, anchor.Position)" @onmousedown:preventDefault="true" @onmousedown:stopPropagation="true"></div>
                         }
                         <ul class="actions">
                             <li><i class="fa-solid fa-trash" @onclick="() => RemoveApplication(application)"></i></li>
@@ -113,11 +115,16 @@
     private string ViewBox { get; set; } = null!;
     private EditionModes Mode { get; set; } = EditionModes.EDIT;
     private bool StartMoving { get; set; } = false;
+    private bool IsApplicationMoving { get; set; } = false;
     [Parameter] public ICollection<ApplicationViewModel> Applications { get; set; } = new List<ApplicationViewModel>();
     [Parameter] public ICollection<LinkViewModel> Links { get; set; } = new List<LinkViewModel>();
     [Parameter] public string Vpn { get; set; } = string.Empty;
     [Parameter] public double ScaleFactor { get; set; } = 1.02;
+    [Parameter] public EventCallback<bool> LoadingChanged { get; set; }
     [Inject] private IJSRuntime JS { get; set; } = null!;
+    [Inject] private IDispatcher Dispatcher { get; set; } = null!;
+    [Inject] private IState<AppState> AppState { get; set; } = null!;
+    [Inject] private ToastService ToastService { get; set; } = null!;
     private MouseEventArgs PreviousMousePosition { get; set; } = null!;
     private ApplicationViewModel SelectedApplication { get; set; } = null!;
     private ApplicationViewModel ActiveApplication { get; set; } = null!;
@@ -128,6 +135,28 @@
     private PointViewModel DroppedElementPosition { get; set; } = null!;
     private IEnumerable<double> InitCanvasCoordinates { get; set; } = null!;
     private AsyncApiAddClient addClient { get; set; } = null!;
+    private System.Timers.Timer _checkLastRepresentationIsSynchronizedTimer;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        SubscribeToAction<BulkUpdateClientResultAction>((act) =>
+        {
+            _checkLastRepresentationIsSynchronizedTimer.Start();
+        });
+        SubscribeToAction<CheckClientPartitionIsSyncedResultAction>(async (act) =>
+        {
+            if(act.IsSynced)
+            {
+                await LoadingChanged.InvokeAsync(false);
+                ToastService.AddInfo("Client", "ASYNCAPI definition has been updated");
+                StateHasChanged();
+                return;
+            }
+
+            _checkLastRepresentationIsSynchronizedTimer.Start();
+        });
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -137,6 +166,10 @@
             var size = await JS.InvokeAsync<ElementSize>("getSize", "asyncApiContainer");
             ViewBox = $"0 0 {size.Width} {size.Height}";
             InitCanvasCoordinates = GetViewBoxCoordinates();
+            _checkLastRepresentationIsSynchronizedTimer = new System.Timers.Timer();
+            _checkLastRepresentationIsSynchronizedTimer.Interval = 2000;
+            _checkLastRepresentationIsSynchronizedTimer.Elapsed += (o, e) => CheckLastRepresentationIsSynchronized();
+            _checkLastRepresentationIsSynchronizedTimer.AutoReset = false;
         }
     }
 
@@ -194,6 +227,7 @@
         foreach (var link in Links) link.IsActive = false;
         application.IsActive = true;
         ActiveApplication = application;
+        IsApplicationMoving = false;
     }
 
     private void HandleSelectLink(MouseEventArgs evt, LinkViewModel link) 
@@ -224,7 +258,7 @@
             }
         };
         StartMoving = true;
-        var filtered = Applications.Where(a => a.Id != applicationId);
+        var filtered = Applications.Where(a => a.ClientId != applicationId);
         foreach (var app in filtered) app.IsActive = true;
     }
 
@@ -254,6 +288,7 @@
 
         void MoveApplication(PointViewModel offset)
         {
+            IsApplicationMoving = true;
             SelectedApplication.CoordinateX = offset.X - SelectedMouseOffset.X;
             SelectedApplication.CoordinateY = offset.Y - SelectedMouseOffset.Y;
         }
@@ -276,12 +311,16 @@
         SelectedApplication = null;
         SelectedLink = null;
 
-        void MoveApplication() {            
-            var currentApplication = Applications.Single(a => a.Id == SelectedApplication.Id);
+        async void MoveApplication() 
+        {
+            if (!IsApplicationMoving) return;
+            var targets = Links.Where(l => l.StartPoint.ApplicationId == SelectedApplication.ClientId).Select(l => l.EndPoint.ApplicationId).ToList();
+            Debug.WriteLine("Move Application");
+            var currentApplication = Applications.Single(a => a.ClientId == SelectedApplication.ClientId);
             currentApplication.CoordinateX = SelectedApplication.CoordinateX;
             currentApplication.CoordinateY = SelectedApplication.CoordinateY;
-            var pointsToUpdate = Links.SelectMany(l => new List<LinkPointViewModel> { l.StartPoint, l.EndPoint }).Where(p => p.ApplicationId == currentApplication.Id);
-            foreach(var pointToUpdate in pointsToUpdate)
+            var pointsToUpdate = Links.SelectMany(l => new List<LinkPointViewModel> { l.StartPoint, l.EndPoint }).Where(p => p.ApplicationId == currentApplication.ClientId);
+            foreach (var pointToUpdate in pointsToUpdate)
             {
                 var offset = currentApplication.ComputeAnchorOffset(pointToUpdate.AnchorPosition);
                 pointToUpdate.X = offset.Item1;
@@ -291,7 +330,7 @@
 
         void AddLink()
         {
-            if (SelectedLink.StartPoint.ApplicationId == LinkedApplication.Item1.Id) return;
+            if (SelectedLink.StartPoint.ApplicationId == LinkedApplication.Item1.ClientId) return;
             Links.Add(new LinkViewModel
             {
                 StartPoint = SelectedLink.StartPoint,
@@ -300,10 +339,10 @@
                     X = SelectedLink.EndPoint.X,
                     Y = SelectedLink.EndPoint.Y,
                     AnchorPosition = LinkedApplication.Item2.Position,
-                    ApplicationId = LinkedApplication.Item1.Id
+                    ApplicationId = LinkedApplication.Item1.ClientId
                 }
                 });
-            var filtered = Applications.Where(a => a.Id != SelectedLink.StartPoint.ApplicationId);
+            var filtered = Applications.Where(a => a.ClientId != SelectedLink.StartPoint.ApplicationId);
             foreach (var app in filtered) app.IsActive = false;
         }
     }
@@ -311,7 +350,7 @@
     private void RemoveApplication(ApplicationViewModel application)
     {
         Applications.Remove(application);
-        Links = Links.Where(l => !l.IsLinkedToApplication(application.Id)).ToList();
+        Links = Links.Where(l => !l.IsLinkedToApplication(application.ClientId)).ToList();
     }
 
     private void RemoveLink(LinkViewModel link)
@@ -364,7 +403,6 @@
     {
         var newApplication = new ApplicationViewModel
         {
-            Id = Guid.NewGuid().ToString(),
             ClientId = result.ClientId,
             CoordinateX = DroppedElementPosition.X,
             CoordinateY = DroppedElementPosition.Y,
@@ -387,6 +425,29 @@
     private void Close() 
     {
         addClient.Close();
+    }
+
+    private async void Update()
+    {
+        await LoadingChanged.InvokeAsync(true);
+        Dispatcher.Dispatch(new BulkUpdateClientAction
+        {
+            Clients = Applications.Select(a => new UpdateClientSubAction
+            {
+                ClientId = a.ClientId,
+                CoordinateX = a.CoordinateX,
+                CoordinateY = a.CoordinateY,
+                Targets = Links.Where(l => l.StartPoint.ApplicationId == a.ClientId).Select(l => l.EndPoint.ApplicationId).ToList()
+            }).ToList(),
+            Port = AppState.Value.SelectedNode.Port,
+            Url = AppState.Value.SelectedNode.Url,
+            Vpn = Vpn
+        });
+    }
+
+    private void CheckLastRepresentationIsSynchronized()
+    {
+        Dispatcher.Dispatch(new CheckClientPartitionIsSyncedAction { Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port });
     }
 
     private class ElementSize

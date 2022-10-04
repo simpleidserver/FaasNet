@@ -22,6 +22,13 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         }
 
         [ReducerMethod]
+        public static ClientState ReduceUpdateClientAction(ClientState state, BulkUpdateClientAction action)
+        {
+            state.IsLoading = true;
+            return state;
+        }
+
+        [ReducerMethod]
         public static ClientState ReduceAddClientFailureAction(ClientState state, AddClientFailureAction action)
         {
             state.IsLoading = false;
@@ -35,6 +42,13 @@ namespace FaasNet.EventMesh.UI.Stores.Client
             var records = state.Clients.Records.ToList();
             records.Insert(0, new ClientQueryResult { Id = action.ClientId, Purposes = action.PurposeTypes.Select(p => (ClientPurposeTypes)p).ToList(), Vpn = action.Vpn });
             state.Clients.Records = records;
+            return state;
+        }
+
+        [ReducerMethod]
+        public static ClientState ReduceUpdateClientResultAction(ClientState state, BulkUpdateClientResultAction action)
+        {
+            state.IsLoading = false;
             return state;
         }
     }

@@ -25,8 +25,8 @@ namespace FaasNet.EventMesh.StateMachines.Client
             switch(cmd)
             {
                 case AddClientCommand addClient:
-                    var client = await _store.Get(addClient.Id, cancellationToken);
-                    if (client != null) return;
+                    var existingClient = await _store.Get(addClient.Id, addClient.Vpn, cancellationToken);
+                    if (existingClient != null) return;
                     _store.Add(new ClientRecord 
                     { 
                         ClientSecret = addClient.ClientSecret, 
@@ -38,6 +38,17 @@ namespace FaasNet.EventMesh.StateMachines.Client
                         CoordinateX = addClient.CoordinateX,
                         CoordinateY = addClient.CoordinateY
                     });
+                    break;
+                case BulkUpdateClientCommand updateClient:
+                    foreach(var client in updateClient.Clients)
+                    {
+                        var clientToUpdate = await _store.Get(client.Id, updateClient.Vpn, cancellationToken);
+                        if (clientToUpdate == null) continue;;
+                        clientToUpdate.Update(client);
+                        _store.Update(clientToUpdate);
+                    }
+
+                    await _store.SaveChanges(cancellationToken);
                     break;
             }
         }
@@ -125,6 +136,14 @@ namespace FaasNet.EventMesh.StateMachines.Client
         public DateTime CreateDateTime { get; set; }
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
+        public ICollection<string> Targets { get; set; } = new List<string>();
+
+        public void Update(UpdateClient cmd)
+        {
+            CoordinateX = cmd.CoordinateX;
+            CoordinateY = cmd.CoordinateY;
+            Targets = cmd.Targets;
+        }
 
         public void Deserialize(ReadBufferContext context)
         {
@@ -137,6 +156,8 @@ namespace FaasNet.EventMesh.StateMachines.Client
             CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
             CoordinateX = context.NextDouble();
             CoordinateY = context.NextDouble();
+            nb = context.NextInt();
+            for (var i = 0; i < nb; i++) Targets.Add(context.NextString());
         }
 
         public void Serialize(WriteBufferContext context)
@@ -150,6 +171,8 @@ namespace FaasNet.EventMesh.StateMachines.Client
             context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
             context.WriteDouble(CoordinateX);
             context.WriteDouble(CoordinateY);
+            context.WriteInteger(Targets.Count());
+            foreach (var target in Targets) context.WriteString(target);
         }
     }
 

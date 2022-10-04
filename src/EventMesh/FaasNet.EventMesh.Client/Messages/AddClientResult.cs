@@ -20,6 +20,9 @@ namespace FaasNet.EventMesh.Client.Messages
         public AddClientErrorStatus? Status { get; private set; }
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
+        public long Term { get; set; }
+        public long MatchIndex { get; set; }
+        public long LastIndex { get; set; }
 
         protected override void SerializeAction(WriteBufferContext context)
         {
@@ -29,6 +32,9 @@ namespace FaasNet.EventMesh.Client.Messages
             {
                 context.WriteString(ClientId);
                 context.WriteString(ClientSecret);
+                context.WriteLong(Term);
+                context.WriteLong(MatchIndex);
+                context.WriteLong(LastIndex);
             }
         }
 
@@ -40,6 +46,9 @@ namespace FaasNet.EventMesh.Client.Messages
             {
                 ClientId = context.NextString();
                 ClientSecret = context.NextString();
+                Term = context.NextLong();
+                MatchIndex = context.NextLong();
+                LastIndex = context.NextLong();
             }
 
             return this;

@@ -2,6 +2,7 @@
 using FaasNet.RaftConsensus.Client;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FaasNet.EventMesh.Client.StateMachines.Client
 {
@@ -15,6 +16,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
         public DateTime? CreateDateTime { get; set; }
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
+        public ICollection<string> Targets { get; set; } = new List<string>();
 
         public void Deserialize(ReadBufferContext context)
         {
@@ -27,6 +29,8 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
             CoordinateX = context.NextDouble();
             CoordinateY = context.NextDouble();
+            nb = context.NextInt();
+            for (var i = 0; i < nb; i++) Targets.Add(context.NextString());
         }
 
         public void Serialize(WriteBufferContext context)
@@ -40,6 +44,8 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.GetValueOrDefault().Ticks));
             context.WriteDouble(CoordinateX);
             context.WriteDouble(CoordinateY);
+            context.WriteInteger(Targets.Count());
+            foreach (var target in Targets) context.WriteString(target);
         }
     }
 }
