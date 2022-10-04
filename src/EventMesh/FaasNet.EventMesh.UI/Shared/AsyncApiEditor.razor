@@ -112,6 +112,8 @@
 <AsyncApiAddClient ClientAdded="@HandleClientAdded" Vpn="@Vpn" @ref="addClient" />
 
 @code {
+    const int WIDTH = 200;
+    const int PADDING = 20;
     private string ViewBox { get; set; } = null!;
     private EditionModes Mode { get; set; } = EditionModes.EDIT;
     private bool StartMoving { get; set; } = false;
@@ -136,6 +138,40 @@
     private IEnumerable<double> InitCanvasCoordinates { get; set; } = null!;
     private AsyncApiAddClient addClient { get; set; } = null!;
     private System.Timers.Timer _checkLastRepresentationIsSynchronizedTimer;
+
+    public void UpdateLinks(ICollection<ApplicationViewModel> applications, ICollection<LinkViewModel> links)
+    {
+        foreach(var link in links)
+        {
+            var fromApp = applications.FirstOrDefault(a => a.ClientId == link.StartPoint.ApplicationId);
+            var toApp = applications.FirstOrDefault(a => a.ClientId == link.EndPoint.ApplicationId);
+            link.StartPoint.AnchorPosition = ComputeAnchorPosition(fromApp, toApp);
+            link.EndPoint.AnchorPosition = ComputeAnchorPosition(toApp, fromApp);
+            UpdateAnchorPosition(link.StartPoint, fromApp);
+            UpdateAnchorPosition(link.EndPoint, toApp);
+        }
+
+        Applications = applications;
+        Links = links;
+        StateHasChanged();
+
+        void UpdateAnchorPosition(LinkPointViewModel pointToUpdate, ApplicationViewModel app)
+        {            
+            var offset = app.ComputeAnchorOffset(pointToUpdate.AnchorPosition);
+            pointToUpdate.X = offset.Item1;
+            pointToUpdate.Y = offset.Item2;
+        }
+
+        AnchorPositions ComputeAnchorPosition(ApplicationViewModel from, ApplicationViewModel to)
+        {
+            var minX = from.CoordinateX - PADDING;
+            var maxX = from.CoordinateX + WIDTH + PADDING;
+            if (minX > to.CoordinateX) return AnchorPositions.LEFT;
+            else if (maxX < to.CoordinateX) return AnchorPositions.RIGHT;
+            else if (from.CoordinateY < to.CoordinateY) return AnchorPositions.BOTTOM;
+            return AnchorPositions.TOP;
+        }
+    }
 
     protected async override Task OnInitializedAsync()
     {

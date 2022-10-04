@@ -121,7 +121,8 @@ namespace FaasNet.EventMesh.StateMachines.Client
                 Vpn = client.Vpn,
                 CreateDateTime = client.CreateDateTime,
                 CoordinateX = client.CoordinateX,
-                CoordinateY = client.CoordinateY
+                CoordinateY = client.CoordinateY,
+                Targets = client.Targets
             };
         }
     }

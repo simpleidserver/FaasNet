@@ -1,4 +1,5 @@
 ﻿@page "/vpns/{vpn}/editor"
+@using FaasNet.EventMesh.Client.StateMachines.Client
 @using FaasNet.EventMesh.UI.Stores.App
 @using FaasNet.EventMesh.UI.Stores.Client
 @using Fluxor
@@ -7,14 +8,14 @@
 @layout VpnLayout
 
 <Loader IsDisplayed="IsLoading">
-    <AsyncApiEditor Vpn="@vpn" Applications="Applications" LoadingChanged="HandleLoadingChanged"></AsyncApiEditor>
+    <AsyncApiEditor Vpn="@vpn" LoadingChanged="HandleLoadingChanged" @ref="Editor"></AsyncApiEditor>
 </Loader>
 
 @code {
     [Parameter]
     public string vpn { get; set; }
-    private ICollection<ApplicationViewModel> Applications { get; set; } = new List<ApplicationViewModel>();
     private bool IsLoading { get; set; } = true;
+    private AsyncApiEditor Editor { get; set; } = null;
     [Inject] private IDispatcher Dispatcher { get; set; } = null!;
     [Inject] private IState<AppState> AppState { get; set; } = null!;
 
@@ -27,7 +28,7 @@
         });
         SubscribeToAction<SearchClientsResultAction>((act) =>
         {
-            Applications = act.Clients.Records.Select(c => new ApplicationViewModel
+            var applications = act.Clients.Records.Select(c => new ApplicationViewModel
             {
                 ClientId = c.Id,
                 CoordinateX = c.CoordinateX,
@@ -35,6 +36,8 @@
                 CreateDateTime = c.CreateDateTime.GetValueOrDefault(),
                 Purposes = c.Purposes
             }).ToList();
+            var links = BuildLinks(act);
+            Editor.UpdateLinks(applications, links);
             IsLoading = false;
         });
         SubscribeToAction<SelectActiveNodeAction>((act) =>
@@ -53,5 +56,32 @@
     private void HandleLoadingChanged(bool isLoading)
     {
         IsLoading = isLoading;
+    }
+
+    private static ICollection<LinkViewModel> BuildLinks(SearchClientsResultAction act)
+    {
+        var links = new List<LinkViewModel>();
+        foreach (var client in act.Clients.Records)
+        {
+            if (client.Targets == null || !client.Targets.Any()) continue;
+            foreach (var target in client.Targets)
+            {
+                var toClient = act.Clients.Records.SingleOrDefault(c => c.Id == target);
+                if (toClient == null) continue;
+                links.Add(new LinkViewModel
+                {
+                    StartPoint = new LinkPointViewModel
+                    {
+                        ApplicationId = client.Id
+                    },
+                    EndPoint = new LinkPointViewModel
+                    {
+                        ApplicationId = toClient.Id
+                    }
+                });
+            }
+        }
+
+        return links;
     }
 }
