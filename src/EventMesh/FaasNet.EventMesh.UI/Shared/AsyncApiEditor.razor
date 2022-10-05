@@ -1,4 +1,5 @@
 ﻿@using System.Diagnostics
+@using FaasNet.EventMesh.Client.Messages
 @using FaasNet.EventMesh.Client.StateMachines.Client
 @using FaasNet.EventMesh.UI.Helpers
 @using FaasNet.EventMesh.UI.Stores.App
@@ -33,7 +34,7 @@
     </div>
     @if(ActiveApplication != null)
     {
-        <AsyncApiApplicationProperties ActiveApplication="@ActiveApplication" ApplicationClosed="@HandleCloseApplication" Vpn="@Vpn" />
+        <AsyncApiApplicationProperties ActiveApplication="@ActiveApplication" ApplicationClosed="@HandleCloseApplication" ApplicationRemoved="RemoveApplication" Vpn="@Vpn" />
     }
 
     <svg id="editor" class="@(Mode == EditionModes.VIEW ? "moving" : "")" viewBox="@ViewBox" 
@@ -191,6 +192,21 @@
             }
 
             _checkLastRepresentationIsSynchronizedTimer.Start();
+        });
+        SubscribeToAction<RemoveClientResultAction>(async (act) =>
+        {
+            await LoadingChanged.InvokeAsync(false);
+            if(act.IsRemoved)
+            {
+                ToastService.AddInfo("Client", $"Application {act.ClientId} has been removed");
+                if (ActiveApplication.ClientId == act.ClientId) ActiveApplication = null;
+                var app = Applications.First(a => a.ClientId == act.ClientId);
+                Applications.Remove(app);
+                Links = Links.Where(l => !l.IsLinkedToApplication(app.ClientId)).ToList();
+                return;
+            }
+            
+            ToastService.AddError("Client", $"An error occured while trying to remove the application {act.ClientId}, {Enum.GetName(typeof(RemoveClientStatus), act.Status)}");
         });
     }
 
@@ -383,10 +399,10 @@
         }
     }
 
-    private void RemoveApplication(ApplicationViewModel application)
+    private async void RemoveApplication(ApplicationViewModel application)
     {
-        Applications.Remove(application);
-        Links = Links.Where(l => !l.IsLinkedToApplication(application.ClientId)).ToList();
+        await LoadingChanged.InvokeAsync(true);
+        Dispatcher.Dispatch(new RemoveClientAction { Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port, ClientId = application.ClientId, Vpn = Vpn });
     }
 
     private void RemoveLink(LinkViewModel link)

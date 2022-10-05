@@ -82,6 +82,13 @@ namespace FaasNet.EventMesh.UI.Stores.Client
             var result = await _eventMeshService.GetPartition("CLIENT", action.Url, action.Port, CancellationToken.None);
             dispatcher.Dispatch(new CheckClientPartitionIsSyncedResultAction { IsSynced = result.State.CommitIndex == result.State.LastApplied });
         }
+
+        [EffectMethod]
+        public async Task Handle(RemoveClientAction action, IDispatcher dispatcher)
+        {
+            var cl = await _eventMeshService.RemoveClient(action.Vpn, action.ClientId, action.Url, action.Port, CancellationToken.None);
+            dispatcher.Dispatch(new RemoveClientResultAction { ClientId = action.ClientId, Vpn = action.Vpn, IsRemoved = cl.Status == RemoveClientStatus.OK, Status = cl.Status });
+        }
     }
 
     public class SearchClientsAction
@@ -186,5 +193,21 @@ namespace FaasNet.EventMesh.UI.Stores.Client
     public class CheckClientPartitionIsSyncedResultAction
     {
         public bool IsSynced { get; set; }
+    }
+
+    public class RemoveClientAction
+    {
+        public string Vpn { get; set; }
+        public string ClientId { get; set; }
+        public string Url { get; set; }
+        public int Port { get; set; }
+    }
+
+    public class RemoveClientResultAction
+    {
+        public bool IsRemoved { get; set; }
+        public string Vpn { get; set; }
+        public string ClientId { get; set; }
+        public RemoveClientStatus Status { get; set; }
     }
 }

@@ -190,5 +190,21 @@ namespace FaasNet.EventMesh.Client.Messages
                 State = state
             };
         }
+
+        public static BaseEventMeshPackage RemoveClient(string seq)
+        {
+            return new RemoveClientResult(seq)
+            {
+                Status = RemoveClientStatus.OK
+            };
+        }
+
+        public static BaseEventMeshPackage RemoveClient(string seq, RemoveClientStatus status)
+        {
+            return new RemoveClientResult(seq)
+            {
+                Status = status
+            };
+        }
     }
 }

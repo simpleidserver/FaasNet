@@ -40,7 +40,7 @@
                 <input type="text" class="form-control" value="@ActiveApplication.ClientSecret" />
             </div>
         }
-        <button class="btn btn-danger">Remove</button>
+        <button class="btn btn-danger" @onclick="Remove">Remove</button>
     </div>
 </div>
 
@@ -48,10 +48,16 @@
     [Parameter]
     public ApplicationViewModel ActiveApplication { get; set; } = null!;
     [Parameter] public EventCallback<bool> ApplicationClosed { get; set; }
+    [Parameter] public EventCallback<ApplicationViewModel> ApplicationRemoved { get; set; }
     [Parameter] public string Vpn { get; set; } = string.Empty;
 
     public async void Close()
     {
         await ApplicationClosed.InvokeAsync(true);
+    }
+
+    private async void Remove(MouseEventArgs a)
+    {
+        await ApplicationRemoved.InvokeAsync(ActiveApplication);
     }
 }

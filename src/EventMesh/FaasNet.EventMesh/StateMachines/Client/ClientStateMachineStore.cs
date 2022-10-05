@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client.StateMachines;
+﻿using FaasNet.Common.Extensions;
+using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Extensions;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using System;
@@ -16,6 +17,7 @@ namespace FaasNet.EventMesh.StateMachines.Client
         Task<IEnumerable<ClientRecord>> GetAll(CancellationToken cancellationToken);
         Task<GenericSearchResult<ClientRecord>> Find(FilterQuery filter, CancellationToken cancellationToken);
         Task<IEnumerable<string>> Find(string name, CancellationToken cancellationToken);
+        void Remove(ClientRecord record);
     }
 
     public class ClientStateMachineStore : IClientStateMachineStore
@@ -92,6 +94,11 @@ namespace FaasNet.EventMesh.StateMachines.Client
 
         public void Update(ClientRecord record)
         {
+        }
+
+        public void Remove(ClientRecord record)
+        {
+            _clients.Remove(record);
         }
     }
 }

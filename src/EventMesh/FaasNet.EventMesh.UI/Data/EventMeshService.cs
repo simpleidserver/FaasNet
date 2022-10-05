@@ -11,6 +11,7 @@ using FaasNet.Peer.Client.Messages;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
 using Microsoft.Extensions.Options;
+using System.Xml.Linq;
 
 namespace FaasNet.EventMesh.UI.Data
 {
@@ -34,6 +35,8 @@ namespace FaasNet.EventMesh.UI.Data
         Task<IEnumerable<string>> FindClientsByName(string name, string url, int port, CancellationToken cancellationToken);
         Task<IEnumerable<string>> FindQueuesByName(string name, string url, int port, CancellationToken cancellationToken);
         Task<GetPartitionResult> GetPartition(string partition, string url, int port, CancellationToken cancellationToken);
+        Task<RemoveClientResult> RemoveClient(string vpn, string clientId, string url, int port, CancellationToken cancellationToken);
+
     }
 
     public class EventMeshService : IEventMeshService
@@ -227,6 +230,14 @@ namespace FaasNet.EventMesh.UI.Data
             var result = new SubscriptionResult(_peerClientFactory, url, port, _options.RequestTimeoutMS);
             await result.Init(clientId, vpn, clientSecret, queueName, cancellationToken);
             return result;
+        }
+
+        public async Task<RemoveClientResult> RemoveClient(string vpn, string clientId, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+               return await client.RemoveClient(vpn, clientId, _options.RequestTimeoutMS, cancellationToken);
+            }
         }
 
         private async Task<T> Retry<T>(Func<Task<(T, bool)>> callback, int nbRetry = 0)

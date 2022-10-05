@@ -144,6 +144,15 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage RemoveClient(string vpn, string clientId)
+        {
+            return new RemoveClientRequest(GenerateRandomSeq())
+            {
+                ClientId = clientId,
+                Vpn = vpn
+            };
+        }
+
         private static string GenerateRandomSeq()
         {
             var builder = new StringBuilder(10);

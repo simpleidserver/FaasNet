@@ -140,6 +140,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result sent when partition is returned.
         /// </summary>
         public static EventMeshCommands GET_PARTITION_RESPONSE = new EventMeshCommands(33, "GET_PARTITION_RESPONSE");
+        /// <summary>
+        /// Request sent to remove a client.
+        /// </summary>
+        public static EventMeshCommands REMOVE_CLIENT_REQUEST = new EventMeshCommands(34, "REMOVE_CLIENT_REQUEST");
+        /// <summary>
+        /// Result sent when a client is removed.
+        /// </summary>
+        public static EventMeshCommands REMOVE_CLIENT_RESPONSE = new EventMeshCommands(35, "REMOVE_CLIENT_RESPONSE");
 
         protected EventMeshCommands(int code)
         {

@@ -51,5 +51,16 @@ namespace FaasNet.EventMesh.UI.Stores.Client
             state.IsLoading = false;
             return state;
         }
+
+        [ReducerMethod]
+        public static ClientState ReduceRemoveClientResultAction(ClientState state, RemoveClientResultAction action)
+        {
+            state.IsLoading = false;
+            if (!action.IsRemoved) return state;
+            var records = state.Clients.Records.ToList();
+            records.Remove(state.Clients.Records.First(r => r.Id == action.ClientId && r.Vpn == action.Vpn));
+            state.Clients.Records = records;
+            return state;
+        }
     }
 }

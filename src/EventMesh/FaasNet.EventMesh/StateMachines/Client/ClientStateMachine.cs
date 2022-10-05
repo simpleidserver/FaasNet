@@ -50,6 +50,12 @@ namespace FaasNet.EventMesh.StateMachines.Client
 
                     await _store.SaveChanges(cancellationToken);
                     break;
+                case RemoveClientCommand removeClient:
+                    var ec = await _store.Get(removeClient.ClientId, removeClient.Vpn, cancellationToken);
+                    if (ec == null) return;
+                    _store.Remove(ec);
+                    await _store.SaveChanges(cancellationToken);
+                    break;
             }
         }
 
