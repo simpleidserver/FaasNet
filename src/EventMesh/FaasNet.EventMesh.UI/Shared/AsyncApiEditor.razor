@@ -37,6 +37,11 @@
         <AsyncApiApplicationProperties ActiveApplication="@ActiveApplication" ApplicationClosed="@HandleCloseApplication" ApplicationRemoved="RemoveApplication" Vpn="@Vpn" />
     }
 
+    @if(ActiveLink != null) 
+    {
+        <AsyncApiLinkProperties Vpn="@Vpn" ActiveLink="@ActiveLink" LinkClosed="@HandleCloseLink" LinkRemoved="@RemoveLink"></AsyncApiLinkProperties>
+    }
+
     <svg id="editor" class="@(Mode == EditionModes.VIEW ? "moving" : "")" viewBox="@ViewBox" 
                 @onmousewheel="HandleMouseWheel" 
                 @onmousewheel:stopPropagation="true"
@@ -53,7 +58,7 @@
         <g class="children">
             @foreach (var application in Applications)
             {
-                <g class="@(application.GetClassName(SelectedApplication?.ClientId))" 
+                <g class="@(application.GetClassName(SelectedApplication?.ClientId, ActiveApplication?.ClientId))" 
                         transform="@application.Matrix" 
                         @onmousedown="(e) => HandleSelectApplication(e, application)" 
                         @onmousedown:stopPropagation="true">
@@ -131,6 +136,7 @@
     private MouseEventArgs PreviousMousePosition { get; set; } = null!;
     private ApplicationViewModel SelectedApplication { get; set; } = null!;
     private ApplicationViewModel ActiveApplication { get; set; } = null!;
+    private LinkViewModel ActiveLink { get; set; } = null!;
     private LinkViewModel SelectedLink { get; set; } = null!;
     private (ApplicationViewModel, AnchorViewModel) LinkedApplication { get; set; } = (null!, null!);
     private PointViewModel SelectedMouseOffset { get; set; } = null!;
@@ -205,7 +211,7 @@
                 Links = Links.Where(l => !l.IsLinkedToApplication(app.ClientId)).ToList();
                 return;
             }
-            
+
             ToastService.AddError("Client", $"An error occured while trying to remove the application {act.ClientId}, {Enum.GetName(typeof(RemoveClientStatus), act.Status)}");
         });
     }
@@ -265,6 +271,7 @@
         foreach (var app in Applications) app.IsActive = false;
         foreach (var link in Links) link.IsActive = false;
         ActiveApplication = null;
+        ActiveLink = null;
     }
 
     private async void HandleSelectApplication(MouseEventArgs evt, ApplicationViewModel application)
@@ -279,6 +286,7 @@
         foreach (var link in Links) link.IsActive = false;
         application.IsActive = true;
         ActiveApplication = application;
+        ActiveLink = null;
         IsApplicationMoving = false;
     }
 
@@ -287,6 +295,8 @@
         foreach (var l in Links) l.IsActive = false;
         foreach (var app in Applications) app.IsActive = false;
         link.IsActive = true;
+        ActiveLink = link;
+        ActiveApplication = null;
     }
 
     private async void HandleStartDrawLink(MouseEventArgs evt, string applicationId, AnchorPositions position)
@@ -408,6 +418,7 @@
     private void RemoveLink(LinkViewModel link)
     {
         Links.Remove(link);
+        ActiveLink = null;
     }
 
     private void CloseActiveApplication()
@@ -472,6 +483,12 @@
     {
         ActiveApplication.IsActive = false;
         ActiveApplication = null;
+    }
+
+    private void HandleCloseLink()
+    {
+        ActiveLink.IsActive = false;
+        ActiveLink = null;
     }
 
     private void Close() 

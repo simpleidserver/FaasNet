@@ -1,0 +1,58 @@
+﻿@using FaasNet.EventMesh.Client.StateMachines.Client
+<PropertiesPanel PanelClosed="Close" Title="Properties">
+    <!-- VPN -->
+    <div class="mb-3">
+        <label class="form-label">Vpn</label>
+        <input type="text" class="form-control" value="@Vpn" disabled />
+    </div>
+    <!-- From -->
+    <div class="mb-3">
+        <label class="form-label">From</label>
+        <input type="text" class="form-control" value="@ActiveLink.StartPoint.ApplicationId" disabled />
+    </div>
+    <!-- To -->
+    <div class="mb-3">
+        <label class="form-label">To</label>
+        <input type="text" class="form-control" value="@ActiveLink.EndPoint.ApplicationId" disabled />
+    </div>
+    <!-- JSON Schema -->
+    <div class="mb-3 row">
+        <div class="col">
+            <h6>JSON schema</h6>
+            <div id="jsonSchema"></div>
+        </div>
+        <div class="col">
+            <h6>Sample</h6>
+        </div>
+    </div>
+    <button class="btn btn-danger" @onclick="Remove">Remove</button>
+</PropertiesPanel>
+
+@code {
+    [Parameter]
+    public LinkViewModel ActiveLink { get; set; } = null!;
+    [Parameter] public EventCallback<bool> LinkClosed { get; set; }
+    [Parameter] public EventCallback<LinkViewModel> LinkRemoved { get; set; }
+    [Parameter] public string Vpn { get; set; } = string.Empty;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
+    // Continue to dev : https://www.youtube.com/watch?v=rGBsMVdX5UI&ab_channel=Magali
+
+    public async void Close()
+    {
+        await LinkClosed.InvokeAsync(true);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initEditor", "jsonSchema", "{}");
+        }
+    }
+
+    private async void Remove(MouseEventArgs a)
+    {
+        await LinkRemoved.InvokeAsync(ActiveLink);
+    }
+}

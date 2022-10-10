@@ -11,6 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\css\bootstrap\" />
+    <Folder Include="wwwroot\js\monacoeditor\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="wwwroot\js\AsyncApiEditor.js" />

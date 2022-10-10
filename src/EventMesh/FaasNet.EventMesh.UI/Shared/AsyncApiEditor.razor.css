@@ -64,7 +64,7 @@
     display: none;
 }
 
-#asyncApiContainer .selected ul.actions {
+#asyncApiContainer .active ul.actions {
     display: block;
 }
 
@@ -109,7 +109,7 @@
 }
 
 
-#asyncApiContainer .application.selected {
+#asyncApiContainer .application.active {
     cursor: move !important;
 }
 
@@ -118,7 +118,7 @@
     border: 1px solid transparent;
 }
 
-#asyncApiContainer .application.selected .appContainer {
+#asyncApiContainer .application.active .appContainer {
     border: 1px dashed black;
 }
 

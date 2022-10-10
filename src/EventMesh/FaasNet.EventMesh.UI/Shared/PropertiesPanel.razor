@@ -1,0 +1,33 @@
+﻿<div class="@PropertiesClassName">
+    <div class="header">
+        <h5>@Title</h5>
+        <div class="actions">
+            <i class="@MaximiseClassName" @onclick="() => ToggleMaximise()"></i>
+            <i class="fa-solid fa-xmark" @onclick="() => Close()"></i>
+        </div>
+    </div>
+    <div class="body">
+        @ChildContent
+    </div>
+</div>
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public string Title { get; set; }
+    [Parameter] public EventCallback<bool> PanelClosed { get; set; }
+    [Parameter] public bool IsDisplayed { get; set; }
+    public string PropertiesClassName { get; set; } = "properties";
+    public string MaximiseClassName { get; set; } = "fa-regular fa-maximize";
+    private bool isMaximise { get; set; } = false;
+
+    private void ToggleMaximise()
+    {
+        isMaximise = !isMaximise;
+        PropertiesClassName = isMaximise ? "properties maximise" : "properties";
+        MaximiseClassName = isMaximise ? "fa-solid fa-minimize" : "fa-regular fa-maximize";
+    }
+
+    private async void Close() 
+    {
+        await PanelClosed.InvokeAsync(true);
+    }
+}

@@ -28,11 +28,12 @@ namespace FaasNet.EventMesh.UI.ViewModels
                 return $"matrix(1 0 0 1 {CoordinateX.ToString().Replace(",",".")} {CoordinateY.ToString().Replace(",", ".")})";
             }
         }
-        public string GetClassName(string selectedApplicationId)
+        public string GetClassName(string selectedApplicationId, string activeApplication)
         {
             var result = new List<string> { "application" };
             if (ClientId == selectedApplicationId) result.Add("moving");
-            if (IsActive) result.Add("selected");
+            if (IsActive) result.Add("active");
+            if (IsActive && ((activeApplication == ClientId && Purposes.Contains(ClientPurposeTypes.PUBLISH)) || (activeApplication != ClientId && Purposes.Contains(ClientPurposeTypes.SUBSCRIBE)))) result.Add("selected");
             return string.Join(" ", result);
         }
 

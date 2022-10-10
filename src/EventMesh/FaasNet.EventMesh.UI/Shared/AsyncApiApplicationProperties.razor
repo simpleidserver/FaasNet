@@ -1,48 +1,40 @@
 ﻿@using FaasNet.EventMesh.Client.StateMachines.Client
-<div class="properties">
-    <div class="header">
-        <h5>Properties</h5>
-        <div class="actions">
-            <i class="fa-solid fa-xmark" @onclick="() => Close()"></i>
+<PropertiesPanel PanelClosed="Close" Title="Properties">
+    <!-- Client Identifier -->
+    <div class="mb-3">
+        <label class="form-label">Client Identifier</label>
+        <input type="text" class="form-control" value="@ActiveApplication.ClientId" disabled />
+    </div>
+    <!-- Vpn -->
+    <div class="mb-3">
+        <label class="form-label">VPN</label>
+        <input type="text" class="form-control" value="@Vpn" disabled />
+    </div>
+    <!-- Creation datetime -->
+    <div class="mb-3">
+        <label class="form-label">Creation Datetime</label>
+        <input type="text" class="form-control" value="@ActiveApplication.CreateDateTime.ToLocalTime()" disabled />
+    </div>
+    <!-- Purpose types -->
+    <div class="mb-3">
+        <label class="form-label">Purposes</label>
+        <div class="purposes">
+            @foreach (var purposeType in ActiveApplication.Purposes)
+            {
+                <span class="badge text-bg-primary purposeType">@Enum.GetName(typeof(ClientPurposeTypes), purposeType)</span>
+            }
         </div>
     </div>
-    <div class="body">
-        <!-- Client Identifier -->
-        <div class="mb-3">
-            <label class="form-label">Client Identifier</label>
-            <input type="text" class="form-control" value="@ActiveApplication.ClientId" disabled />
+    @if (ActiveApplication.IsNew)
+    {
+        <!-- Client secret-->
+        <div class="mb-3 secret">
+            <label class="form-label">Please copy the generated client secret</label>
+            <input type="text" class="form-control" value="@ActiveApplication.ClientSecret" />
         </div>
-        <!-- Vpn -->
-        <div class="mb-3">
-            <label class="form-label">VPN</label>
-            <input type="text" class="form-control" value="@Vpn" disabled />
-        </div>
-        <!-- Creation datetime -->
-        <div class="mb-3">
-            <label class="form-label">Creation Datetime</label>
-            <input type="text" class="form-control" value="@ActiveApplication.CreateDateTime.ToLocalTime()" disabled />
-        </div>
-        <!-- Purpose types -->
-        <div class="mb-3">
-            <label class="form-label">Purposes</label>
-            <div class="purposes">
-                @foreach (var purposeType in ActiveApplication.Purposes)
-                {
-                    <span class="badge text-bg-primary purposeType">@Enum.GetName(typeof(ClientPurposeTypes), purposeType)</span>
-                }
-            </div>
-        </div>
-        @if (ActiveApplication.IsNew)
-        {
-            <!-- Client secret-->
-            <div class="mb-3 secret">
-                <label class="form-label">Please copy the generated client secret</label>
-                <input type="text" class="form-control" value="@ActiveApplication.ClientSecret" />
-            </div>
-        }
-        <button class="btn btn-danger" @onclick="Remove">Remove</button>
-    </div>
-</div>
+    }
+    <button class="btn btn-danger" @onclick="Remove">Remove</button>
+</PropertiesPanel>
 
 @code {
     [Parameter]
