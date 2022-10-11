@@ -72,6 +72,8 @@ namespace FaasNet.EventMesh.Client.Messages
             if (cmd == EventMeshCommands.GET_PARTITION_RESPONSE) return new GetPartitionResult(seq).Extract(context);
             if (cmd == EventMeshCommands.REMOVE_CLIENT_REQUEST) return new RemoveClientRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.REMOVE_CLIENT_RESPONSE) return new RemoveClientResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_EVENT_DEFINITION_REQUEST) return new AddEventDefinitionRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_EVENT_DEFINITION_RESPONSE) return new AddEventDefinitionResult(seq).Extract(context); 
             return null;
         }
     }

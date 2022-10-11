@@ -8,7 +8,8 @@
     right: 1%;
     bottom: 1%;
     transition: all 0.5s ease;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .properties.maximise {
@@ -37,4 +38,9 @@
 
 .properties .body {
     padding: 0px 5px 5px 5px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
 }

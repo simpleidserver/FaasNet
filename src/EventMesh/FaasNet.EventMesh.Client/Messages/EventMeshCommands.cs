@@ -148,6 +148,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result sent when a client is removed.
         /// </summary>
         public static EventMeshCommands REMOVE_CLIENT_RESPONSE = new EventMeshCommands(35, "REMOVE_CLIENT_RESPONSE");
+        /// <summary>
+        /// Request sent to add an event definition.
+        /// </summary>
+        public static EventMeshCommands ADD_EVENT_DEFINITION_REQUEST = new EventMeshCommands(36, "ADD_EVENT_DEFINITION_REQUEST");
+        /// <summary>
+        /// Result returned when event definition is added.
+        /// </summary>
+        public static EventMeshCommands ADD_EVENT_DEFINITION_RESPONSE = new EventMeshCommands(37, "ADD_EVENT_DEFINITION_RESPONSE");
 
         protected EventMeshCommands(int code)
         {

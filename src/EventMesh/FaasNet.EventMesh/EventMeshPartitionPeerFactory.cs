@@ -1,4 +1,5 @@
 ﻿using FaasNet.EventMesh.StateMachines.Client;
+using FaasNet.EventMesh.StateMachines.EventDefinition;
 using FaasNet.EventMesh.StateMachines.Queue;
 using FaasNet.EventMesh.StateMachines.QueueMessage;
 using FaasNet.EventMesh.StateMachines.Session;
@@ -7,7 +8,6 @@ using FaasNet.Partition;
 using FaasNet.Peer;
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Core;
-using FaasNet.RaftConsensus.Core.StateMachines;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
@@ -41,6 +41,7 @@ namespace FaasNet.EventMesh
                 s.AddScoped<IQueueMessageStateMachineStore, QueueMessageStateMachineStore>();
                 s.AddScoped<ISessionStateMachineStore, SessionStateMachineStore>();
                 s.AddScoped<IVpnStateMachineStore, VpnStateMachineStore>();
+                s.AddScoped<IEventDefinitionStateMachineStore, EventDefinitionStateMachineStore>();
                 if (callbackService != null) callbackService(s);
             })
                 .UseServerUDPTransport()

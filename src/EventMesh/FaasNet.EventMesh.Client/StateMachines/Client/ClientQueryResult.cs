@@ -48,4 +48,20 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             foreach (var target in Targets) context.WriteString(target);
         }
     }
+
+    public class ClientTargetResult : ISerializable
+    {
+        public string Target { get; set; }
+        public string EventId { get; set; }
+
+        public void Deserialize(ReadBufferContext context)
+        {
+
+        }
+
+        public void Serialize(WriteBufferContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

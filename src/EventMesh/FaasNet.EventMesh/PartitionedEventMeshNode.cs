@@ -1,5 +1,6 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.StateMachines.Client;
+using FaasNet.EventMesh.StateMachines.EventDefinition;
 using FaasNet.EventMesh.StateMachines.Queue;
 using FaasNet.EventMesh.StateMachines.Session;
 using FaasNet.EventMesh.StateMachines.Vpn;
@@ -28,6 +29,7 @@ namespace FaasNet.EventMesh
         private const string CLIENT_PARTITION_KEY = "CLIENT";
         private const string SESSION_PARTITION_KEY = "SESSION";
         private const string QUEUE_PARTITION_KEY = "QUEUE";
+        private const string EVENTDEFINITION_PARTITION_KEY = "EVENTDEFINITION";
 
         public PartitionedEventMeshNode(IPeerClientFactory peerClientFactory, IOptions<EventMeshOptions> eventMeshOptions, IOptions<PeerOptions> peerOptions, IClusterStore clusterStore, IPartitionPeerStore partitionPeerStore, IOptions<PartitionedNodeOptions> options, IPartitionCluster partitionCluster, IServerTransport transport, IProtocolHandlerFactory protocolHandlerFactory, IEnumerable<ITimer> timers, ILogger<BasePeerHost> logger) : base(peerOptions, clusterStore, partitionPeerStore, partitionCluster, transport, protocolHandlerFactory, timers, logger)
         {
@@ -73,6 +75,7 @@ namespace FaasNet.EventMesh
             await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = CLIENT_PARTITION_KEY, Port = _options.StartPeerPort + 1, StateMachineType = typeof(ClientStateMachine) });
             await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = SESSION_PARTITION_KEY, Port = _options.StartPeerPort + 2, StateMachineType = typeof(SessionStateMachine) });
             await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = QUEUE_PARTITION_KEY, Port = _options.StartPeerPort + 3, StateMachineType = typeof(QueueStateMachine) });
+            await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = EVENTDEFINITION_PARTITION_KEY, Port = _options.StartPeerPort + 4, StateMachineType = typeof(EventDefinitionStateMachine) });
         }
 
         private async Task<AppendEntryResult> Send(string partitionKey, ICommand command, CancellationToken cancellationToken)

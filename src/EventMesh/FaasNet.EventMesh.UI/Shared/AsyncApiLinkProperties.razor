@@ -15,17 +15,27 @@
         <label class="form-label">To</label>
         <input type="text" class="form-control" value="@ActiveLink.EndPoint.ApplicationId" disabled />
     </div>
-    <!-- JSON Schema -->
-    <div class="mb-3 row">
-        <div class="col">
-            <h6>JSON schema</h6>
-            <div id="jsonSchema"></div>
+    @if(ActiveLink.Event != null)
+    {
+        <!-- JSON Schema -->
+        <div class="mb-3 row" id="jsonContainer">
+            <div class="col">
+                <h6>JSON schema</h6>
+                <div id="jsonEventDefinition"></div>
+            </div>
+            <div class="col">
+                <h6>Sample</h6>
+                <div id="sampleEventDefinition"></div>
+            </div>
         </div>
-        <div class="col">
-            <h6>Sample</h6>
-        </div>
+    }
+    <div id="actions">
+        <button class="btn btn-danger" @onclick="Remove">Remove</button>
+        @if(ActiveLink.Event == null)
+        {
+            <button class="btn btn-primary" @onclick="AddEventDefinition">Add event definition</button>
+        }
     </div>
-    <button class="btn btn-danger" @onclick="Remove">Remove</button>
 </PropertiesPanel>
 
 @code {
@@ -35,7 +45,6 @@
     [Parameter] public EventCallback<LinkViewModel> LinkRemoved { get; set; }
     [Parameter] public string Vpn { get; set; } = string.Empty;
     [Inject] private IJSRuntime JS { get; set; } = null!;
-    // Continue to dev : https://www.youtube.com/watch?v=rGBsMVdX5UI&ab_channel=Magali
 
     public async void Close()
     {
@@ -47,12 +56,18 @@
         await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("initEditor", "jsonSchema", "{}");
+            await JS.InvokeVoidAsync("initEditor", "jsonEventDefinition", "{}");
+            await JS.InvokeVoidAsync("initEditor", "sampleEventDefinition", "{}");
         }
     }
 
     private async void Remove(MouseEventArgs a)
     {
         await LinkRemoved.InvokeAsync(ActiveLink);
+    }
+
+    private async void AddEventDefinition(MouseEventArgs a)
+    {
+
     }
 }

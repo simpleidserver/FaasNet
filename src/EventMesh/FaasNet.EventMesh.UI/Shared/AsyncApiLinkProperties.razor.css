@@ -1,5 +1,16 @@
-#jsonSchema {
-    position: absolute;
-    width: 100%;
-    height: 200px;
+#jsonContainer, #jsonEventDefinition, #sampleEventDefinition {
+    flex-grow: 1;
+}
+
+#jsonContainer > div {
+    display: flex;
+    flex-direction: column;
+}
+
+#actions {
+    display: inline-block;
+}
+
+#actions > .btn {
+    margin-right: 5px;
 }

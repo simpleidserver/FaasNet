@@ -6,8 +6,9 @@ namespace FaasNet.EventMesh.UI.ViewModels
     public class LinkViewModel
     {
         public bool IsActive { get; set; }
-        public LinkPointViewModel StartPoint { get; set; }
-        public LinkPointViewModel EndPoint { get; set; }
+        public EventDefinitionViewModel Event { get; set; } = null!;
+        public LinkPointViewModel StartPoint { get; set; } = null!;
+        public LinkPointViewModel EndPoint { get; set; } = null!;
         public string Path
         {
             get

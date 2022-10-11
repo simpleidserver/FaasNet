@@ -206,5 +206,26 @@ namespace FaasNet.EventMesh.Client.Messages
                 Status = status
             };
         }
+
+        public static BaseEventMeshPackage AddEventDefinition(string seq, string eventDefId, AddEventDefinitionStatus status)
+        {
+            return new AddEventDefinitionResult(seq)
+            {
+                EventDefinitionId = eventDefId,
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage AddEventDefinition(string seq, string eventDefId, long term, long matchIndex, long lastIndex)
+        {
+            return new AddEventDefinitionResult(seq)
+            {
+                EventDefinitionId = eventDefId,
+                Status = AddEventDefinitionStatus.OK,
+                Term = term,
+                MatchIndex = matchIndex,
+                LastIndex = lastIndex
+            };
+        }
     }
 }
