@@ -164,6 +164,22 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result returned when event definition is returned.
         /// </summary>
         public static EventMeshCommands GET_EVENT_DEFINITION_RESULT = new EventMeshCommands(39, "GET_EVENT_DEFINITION_RESULT");
+        /// <summary>
+        /// Request sent to update an event definition.
+        /// </summary>
+        public static EventMeshCommands UPDATE_EVENT_DEFINITION_REQUEST = new EventMeshCommands(40, "UPDATE_EVENT_DEFINITION_REQUEST");
+        /// <summary>
+        /// Request returned when event definition is updated.
+        /// </summary>
+        public static EventMeshCommands UPDATE_EVENT_DEFINITION_RESULT = new EventMeshCommands(41, "UPDATE_EVENT_DEFINITION_RESULT");
+        /// <summary>
+        /// Request sent to remove an event definition.
+        /// </summary>
+        public static EventMeshCommands REMOVE_LINK_EVENT_DEFINITION_REQUEST = new EventMeshCommands(42, "REMOVE_LINK_EVENT_DEFINITION_REQUEST");
+        /// <summary>
+        /// Request returned when event definition is removed.
+        /// </summary>
+        public static EventMeshCommands REMOVE_LINK_EVENT_DEFINITION_RESULT = new EventMeshCommands(43, "REMOVE_LINK_EVENT_DEFINITION_RESULT");
 
         protected EventMeshCommands(int code)
         {

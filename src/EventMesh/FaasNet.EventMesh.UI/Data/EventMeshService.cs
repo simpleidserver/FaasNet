@@ -11,7 +11,6 @@ using FaasNet.Peer.Client.Messages;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Schema;
 
 namespace FaasNet.EventMesh.UI.Data
 {
@@ -38,6 +37,8 @@ namespace FaasNet.EventMesh.UI.Data
         Task<RemoveClientResult> RemoveClient(string vpn, string clientId, string url, int port, CancellationToken cancellationToken);
         Task<AddEventDefinitionResult> AddEventDefinition(string vpn, string jsonSchema, string source, string target, string url, int port, CancellationToken cancellationToken);
         Task<GetEventDefinitionResult> GetEventDefinition(string id, string vpn, string url, int port, CancellationToken cancellationToken);
+        Task<UpdateEventDefinitionResult> UpdateEventDefinition(string id, string vpn, string jsonSchema, string url, int port, CancellationToken cancellationToken);
+        Task<RemoveLinkEventDefinitionResult> RemoveLinkEventDefinition(string id, string vpn, string source, string target, string url, int port, CancellationToken cancellationToken);
 
     }
 
@@ -255,6 +256,22 @@ namespace FaasNet.EventMesh.UI.Data
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
                 return await client.GetEventDefinition(id, vpn, _options.RequestTimeoutMS, cancellationToken);
+            }
+        }
+
+        public async Task<UpdateEventDefinitionResult> UpdateEventDefinition(string id, string vpn, string jsonSchema, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                return await client.UpdateEventDefinition(id, vpn, jsonSchema, _options.RequestTimeoutMS, cancellationToken);
+            }
+        }
+
+        public async Task<RemoveLinkEventDefinitionResult> RemoveLinkEventDefinition(string id, string vpn, string source, string target, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                return await client.RemoveLinkEventDefinition(id, vpn, source, target, _options.RequestTimeoutMS, cancellationToken);
             }
         }
 

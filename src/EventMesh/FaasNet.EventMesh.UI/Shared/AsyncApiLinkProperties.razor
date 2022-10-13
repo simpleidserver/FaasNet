@@ -91,6 +91,14 @@
             {
                 ToastService.AddInfo("EventDefinition", "Event definition has been created");
                 ActiveLink.EventId = act.EventDef.EventDefinitionId;
+                IsLoading = false;
+                StateHasChanged();
+            });
+            SubscribeToAction<UpdateEventDefResultAction>(async (act) =>
+            {
+                ToastService.AddInfo("EventDefinition", "Event definition has been updated");
+                IsLoading = false;
+                StateHasChanged();
             });
             SubscribeToAction<GetEventDefResultAction>(async (act) =>
             {
@@ -111,6 +119,7 @@
 
     private async void AddEventDefinition(MouseEventArgs a)
     {
+        IsLoading = true;
         var jsonSchema = await jsonEventDefinition.InvokeAsync<string>("getValue");
         Dispatcher.Dispatch(new AddEventDefAction 
         { 
@@ -125,7 +134,16 @@
 
     private async void UpdateEventDefinition(MouseEventArgs e)
     {
-        // TODO
+        IsLoading = true;
+        var jsonSchema = await jsonEventDefinition.InvokeAsync<string>("getValue");
+        Dispatcher.Dispatch(new UpdateEventDefAction
+        {
+            Id = ActiveLink.EventId,
+            JsonSchema = jsonSchema,
+            Vpn = Vpn,
+            Url = AppState.Value.SelectedNode.Url,
+            Port = AppState.Value.SelectedNode.Port
+        });
     }
 
     private async void GenerateSample()
@@ -141,12 +159,12 @@
         if (!string.IsNullOrEmpty(ActiveLink.EventId))
         {
             Dispatcher.Dispatch(new GetEventDefAction
-                {
-                    Id = ActiveLink.EventId,
-                    Vpn = Vpn,
-                    Url = AppState.Value.SelectedNode.Url,
-                    Port = AppState.Value.SelectedNode.Port
-                });
+            {
+                Id = ActiveLink.EventId,
+                Vpn = Vpn,
+                Url = AppState.Value.SelectedNode.Url,
+                Port = AppState.Value.SelectedNode.Port
+            });
             return;
         }
 

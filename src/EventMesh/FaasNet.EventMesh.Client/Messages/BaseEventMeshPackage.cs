@@ -76,6 +76,10 @@ namespace FaasNet.EventMesh.Client.Messages
             if (cmd == EventMeshCommands.ADD_EVENT_DEFINITION_RESPONSE) return new AddEventDefinitionResult(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_EVENT_DEFINITION_REQUEST) return new GetEventDefinitionRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_EVENT_DEFINITION_RESULT) return new GetEventDefinitionResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.UPDATE_EVENT_DEFINITION_REQUEST) return new UpdateEventDefinitionRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.UPDATE_EVENT_DEFINITION_RESULT) return new UpdateEventDefinitionResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.REMOVE_LINK_EVENT_DEFINITION_REQUEST) return new RemoveLinkEventDefinitionRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.REMOVE_LINK_EVENT_DEFINITION_RESULT) return new RemoveLinkEventDefinitionResult(seq).Extract(context);
             return null;
         }
     }

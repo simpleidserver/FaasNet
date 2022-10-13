@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.StateMachines.Queue;
+﻿using FaasNet.Common.Extensions;
+using FaasNet.EventMesh.StateMachines.Queue;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using System;
 using System.Collections.Concurrent;
@@ -12,6 +13,7 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
     public interface IEventDefinitionStateMachineStore : IStateMachineRecordStore<EventDefinitionRecord>
     {
         Task<EventDefinitionRecord> Get(string key, string vpn, CancellationToken cancellationToken);
+        void Remove(EventDefinitionRecord evtDef);
     }
 
     public class EventDefinitionStateMachineStore : IEventDefinitionStateMachineStore
@@ -49,6 +51,11 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
             int nbPages = (int)Math.Ceiling((double)_records.Count / nbRecords);
             for (var currentPage = 0; currentPage < nbPages; currentPage++)
                 yield return (_records.Skip(currentPage * nbRecords).Take(nbRecords), currentPage);
+        }
+
+        public void Remove(EventDefinitionRecord evtDef)
+        {
+            _records.Remove(evtDef);
         }
 
         public Task<int> SaveChanges(CancellationToken cancellationToken)

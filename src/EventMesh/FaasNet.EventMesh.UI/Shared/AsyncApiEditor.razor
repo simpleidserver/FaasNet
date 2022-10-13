@@ -4,6 +4,7 @@
 @using FaasNet.EventMesh.UI.Helpers
 @using FaasNet.EventMesh.UI.Stores.App
 @using FaasNet.EventMesh.UI.Stores.Client
+@using FaasNet.EventMesh.UI.Stores.EventDef
 @using Fluxor
 @using Fluxor.Blazor.Web.Components
 @inherits FluxorComponent
@@ -216,6 +217,15 @@
 
             ToastService.AddError("Client", $"An error occured while trying to remove the application {act.ClientId}, {Enum.GetName(typeof(RemoveClientStatus), act.Status)}");
         });
+        SubscribeToAction<RemoveEventDefResultAction>(async (act) =>
+        {
+            ToastService.AddInfo("EventDefinition", "Event definition has been removed");
+            await LoadingChanged.InvokeAsync(false);
+            var link = Links.First(l => l.StartPoint.ApplicationId == act.Source && l.EndPoint.ApplicationId == act.Target);
+            Links.Remove(link);
+            ActiveLink = null;
+            StateHasChanged();
+        });
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -417,10 +427,10 @@
         Dispatcher.Dispatch(new RemoveClientAction { Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port, ClientId = application.ClientId, Vpn = Vpn });
     }
 
-    private void RemoveLink(LinkViewModel link)
+    private async void RemoveLink(LinkViewModel link)
     {
-        Links.Remove(link);
-        ActiveLink = null;
+        await LoadingChanged.InvokeAsync(true);
+        Dispatcher.Dispatch(new RemoveLinkEventDefAction { Id = link.EventId, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url, Vpn = Vpn, Source = ActiveLink.StartPoint.ApplicationId, Target= ActiveLink.EndPoint.ApplicationId });
     }
 
     private void CloseActiveApplication()

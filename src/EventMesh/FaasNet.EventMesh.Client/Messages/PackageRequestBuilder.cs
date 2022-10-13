@@ -174,6 +174,27 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage UpdateEventDefinition(string id, string vpn, string jsonSchema)
+        {
+            return new UpdateEventDefinitionRequest(GenerateRandomSeq())
+            {
+                Id = id,
+                Vpn = vpn,
+                JsonSchema = jsonSchema
+            };
+        }
+
+        public static BaseEventMeshPackage RemoveLinkEventDefinition(string id, string vpn, string source, string target)
+        {
+            return new RemoveLinkEventDefinitionRequest(GenerateRandomSeq())
+            {
+                Id = id,
+                Vpn = vpn,
+                Source = source,
+                Target = target
+            };
+        }
+
         private static string GenerateRandomSeq()
         {
             var builder = new StringBuilder(10);

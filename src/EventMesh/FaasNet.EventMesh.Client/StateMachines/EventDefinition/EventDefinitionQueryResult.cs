@@ -9,18 +9,20 @@ namespace FaasNet.EventMesh.Client.StateMachines.EventDefinition
         public string Id { get; set; }
         public string Vpn { get; set; }
         public string JsonSchema { get; set; }
-        public ICollection<string> Sources { get; set; } = new List<string>();
-        public ICollection<string> Targets { get; set; } = new List<string>();
+        public ICollection<EventDefinitionLinkResult> Links { get; set; } = new List<EventDefinitionLinkResult>();
 
         public void Deserialize(ReadBufferContext context)
         {
             Id = context.NextString();
             Vpn = context.NextString();
             JsonSchema = context.NextString();
-            var nbSources = context.NextInt();
-            for (var i = 0; i < nbSources; i++) Sources.Add(context.NextString());
-            var nbTargets = context.NextInt();
-            for (var i = 0; i < nbTargets; i++) Targets.Add(context.NextString());
+            var nbLinks = context.NextInt();
+            for (var i = 0; i < nbLinks; i++)
+            {
+                var link = new EventDefinitionLinkResult();
+                link.Deserialize(context);
+                Links.Add(link);
+            }
         }
 
         public void Serialize(WriteBufferContext context)
@@ -28,10 +30,26 @@ namespace FaasNet.EventMesh.Client.StateMachines.EventDefinition
             context.WriteString(Id);
             context.WriteString(Vpn);
             context.WriteString(JsonSchema);
-            context.WriteInteger(Sources.Count);
-            foreach (var source in Sources) context.WriteString(source);
-            context.WriteInteger(Targets.Count);
-            foreach (var target in Targets) context.WriteString(target);
+            context.WriteInteger(Links.Count);
+            foreach (var link in Links) link.Serialize(context);
+        }
+    }
+
+    public class EventDefinitionLinkResult : ISerializable
+    {
+        public string Source { get; set; }
+        public string Target { get; set; }
+
+        public void Deserialize(ReadBufferContext context)
+        {
+            Source = context.NextString();
+            Target = context.NextString();
+        }
+
+        public void Serialize(WriteBufferContext context)
+        {
+            context.WriteString(Source);
+            context.WriteString(Target);
         }
     }
 }

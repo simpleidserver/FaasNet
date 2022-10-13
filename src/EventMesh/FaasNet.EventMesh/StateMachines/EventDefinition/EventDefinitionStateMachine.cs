@@ -33,9 +33,32 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
                         JsonSchema = addEventDefinition.JsonSchema,
                         Vpn = addEventDefinition.Vpn
                     };
-                    record.Sources.Add(addEventDefinition.Source);
-                    record.Targets.Add(addEventDefinition.Target);
+                    record.Links.Add(new EventDefinitionLink
+                    {
+                        Source = addEventDefinition.Source,
+                        Target = addEventDefinition.Target
+                    });
                     _store.Add(record);
+                    await _store.SaveChanges(cancellationToken);
+                    break;
+                case UpdateEventDefinitionCommand updateEventDefinition:
+                    var evtDef = await _store.Get(updateEventDefinition.Id, updateEventDefinition.Vpn, cancellationToken);
+                    if (evtDef == null) return;
+                    evtDef.JsonSchema = updateEventDefinition.JsonSchema;
+                    _store.Update(evtDef);
+                    await _store.SaveChanges(cancellationToken);
+                    break;
+                case RemoveLinkEventDefinitionCommand removeEventDefinitionCommand:
+                    var ed = await _store.Get(removeEventDefinitionCommand.Id, removeEventDefinitionCommand.Vpn, cancellationToken);
+                    if (ed == null) return;
+                    var link = ed.Links.SingleOrDefault(l => l.Source == removeEventDefinitionCommand.Source && l.Target == removeEventDefinitionCommand.Target);
+                    if (link != null)
+                    {
+                        ed.Links.Remove(link);
+                        _store.Update(ed);
+                        await _store.SaveChanges(cancellationToken);
+                    }
+
                     break;
             }
         }
@@ -89,8 +112,6 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
             {
                 Id = evtDef.Id,
                 JsonSchema = evtDef.JsonSchema,
-                Sources = evtDef.Sources,
-                Targets = evtDef.Targets,
                 Vpn = evtDef.Vpn
             };
         }
@@ -102,8 +123,7 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
         public string Vpn { get; set; }
         public DateTime CreateDateTime { get; set; }
         public string JsonSchema { get; set; }
-        public ICollection<string> Sources { get; set; } = new List<string>();
-        public ICollection<string> Targets { get; set; } = new List<string>();
+        public ICollection<EventDefinitionLink> Links { get; set; } = new List<EventDefinitionLink>();
 
         public void Deserialize(ReadBufferContext context)
         {
@@ -111,10 +131,13 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
             Vpn = context.NextString();
             CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
             JsonSchema = context.NextString();
-            var nbSources = context.NextInt();
-            for (var i = 0; i < nbSources; i++) Sources.Add(context.NextString());
-            var nbTargets = context.NextInt();
-            for (var i = 0; i < nbTargets; i++) Targets.Add(context.NextString());
+            var nbLinks = context.NextInt();
+            for (var i = 0; i < nbLinks; i++)
+            {
+                var link = new EventDefinitionLink();
+                link.Deserialize(context);
+                Links.Add(link);
+            }
         }
 
         public void Serialize(WriteBufferContext context)
@@ -123,10 +146,26 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
             context.WriteString(Vpn);
             context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
             context.WriteString(JsonSchema);
-            context.WriteInteger(Sources.Count);
-            foreach (var source in Sources) context.WriteString(source);
-            context.WriteInteger(Targets.Count);
-            foreach (var target in Targets) context.WriteString(target);
+            context.WriteInteger(Links.Count);
+            foreach (var link in Links) link.Serialize(context);
+        }
+    }
+
+    public class EventDefinitionLink : ISerializable
+    {
+        public string Source { get; set; }
+        public string Target { get; set; }
+
+        public void Deserialize(ReadBufferContext context)
+        {
+            Source = context.NextString();
+            Target = context.NextString();
+        }
+
+        public void Serialize(WriteBufferContext context)
+        {
+            context.WriteString(Source);
+            context.WriteString(Target);
         }
     }
 }

@@ -253,6 +253,34 @@ namespace FaasNet.EventMesh.Client
             return packageResult as GetEventDefinitionResult;
         }
 
+        public async Task<UpdateEventDefinitionResult> UpdateEventDefinition(string id, string vpn, string jsonSchema, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.UpdateEventDefinition(id, vpn, jsonSchema);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as UpdateEventDefinitionResult;
+        }
+
+        public async Task<RemoveLinkEventDefinitionResult> RemoveLinkEventDefinition(string id, string vpn, string source, string target, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.RemoveLinkEventDefinition(id, vpn, source, target);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as RemoveLinkEventDefinitionResult;
+        }
+
         public async Task<EventMeshPublishSessionClient> CreatePubSession(string clientId, string vpn, string clientSecret, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();

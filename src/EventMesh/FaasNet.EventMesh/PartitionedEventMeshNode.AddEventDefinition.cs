@@ -2,7 +2,6 @@
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.EventMesh.Client.StateMachines.EventDefinition;
 using FaasNet.EventMesh.Client.StateMachines.Vpn;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,37 +19,18 @@ namespace FaasNet.EventMesh
             if (!target.Success) return PackageResponseBuilder.AddEventDefinition(addEventDefinition.Seq, addEventDefinition.Id, AddEventDefinitionStatus.UNKNOWN_TARGET);
             var eventDef = await Query<GetEventDefinitionQueryResult>(EVENTDEFINITION_PARTITION_KEY, new GetEventDefinitionQuery { Id = addEventDefinition.Id, Vpn = addEventDefinition.Vpn }, cancellationToken);
             if (eventDef.Success) return PackageResponseBuilder.AddEventDefinition(addEventDefinition.Seq, addEventDefinition.Id, AddEventDefinitionStatus.EXISTING_EVENTDEFINITION);
-            var bulkUpdateClientCommand = new BulkUpdateClientCommand
+            var addTargetCmd = new AddTargetCommand
             {
+                ClientId = addEventDefinition.Source,
                 Vpn = addEventDefinition.Vpn,
-                Clients = new List<UpdateClient>
-                {
-                    Build(source, addEventDefinition.Id, addEventDefinition.Target),
-                    Build(target)
-                }
+                Target = addEventDefinition.Target,
+                EventDefId = addEventDefinition.Id,
             };
-            await Send(CLIENT_PARTITION_KEY, bulkUpdateClientCommand, cancellationToken);
+            await Send(CLIENT_PARTITION_KEY, addTargetCmd, cancellationToken);
             var addEventDefCmd = new AddEventDefinitionCommand { Id = addEventDefinition.Id, JsonSchema = addEventDefinition.JsonSchema, Source = addEventDefinition.Source, Target = addEventDefinition.Target, Vpn = addEventDefinition.Vpn };
             var result = await Send(EVENTDEFINITION_PARTITION_KEY, addEventDefCmd, cancellationToken);
             if (!result.Success) return PackageResponseBuilder.AddEventDefinition(addEventDefinition.Seq, addEventDefinition.Id, AddEventDefinitionStatus.NOLEADER);
             return PackageResponseBuilder.AddEventDefinition(addEventDefinition.Seq, addEventDefinition.Id, result.Term, result.MatchIndex, result.LastIndex);
-        }
-
-        UpdateClient Build(GetClientQueryResult client, string eventId = null, string target = null)
-        {
-            var targets = client.Client.Targets;
-            if (!string.IsNullOrWhiteSpace(target)) targets.Add(new ClientTargetResult
-            {
-                EventId = eventId,
-                Target = target
-            });
-            return new UpdateClient
-            {
-                CoordinateX = client.Client.CoordinateX,
-                CoordinateY = client.Client.CoordinateY,
-                Id = client.Client.Id,
-                Targets = targets
-            };
         }
     }
 }

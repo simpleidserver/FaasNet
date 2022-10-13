@@ -66,6 +66,8 @@ namespace FaasNet.EventMesh
             if (packageRequest.Command == EventMeshCommands.REMOVE_CLIENT_REQUEST) packageResult = await Handle(packageRequest as RemoveClientRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.ADD_EVENT_DEFINITION_REQUEST) packageResult = await Handle(packageRequest as AddEventDefinitionRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.GET_EVENT_DEFINITION_REQUEST) packageResult = await Handle(packageRequest as GetEventDefinitionRequest, TokenSource.Token);
+            if (packageRequest.Command == EventMeshCommands.UPDATE_EVENT_DEFINITION_REQUEST) packageResult = await Handle(packageRequest as UpdateEventDefinitionRequest, TokenSource.Token);
+            if (packageRequest.Command == EventMeshCommands.REMOVE_LINK_EVENT_DEFINITION_REQUEST) packageResult = await Handle(packageRequest as RemoveLinkEventDefinitionRequest, TokenSource.Token);
             var writeBufferContext = new WriteBufferContext();
             packageResult.SerializeEnvelope(writeBufferContext);
             return writeBufferContext.Buffer.ToArray();

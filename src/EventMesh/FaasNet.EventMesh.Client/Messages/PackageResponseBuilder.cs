@@ -238,9 +238,25 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage UpdateEventDefinition(string seq, UpdateEventDefinitionStatus status)
+        {
+            return new UpdateEventDefinitionResult(seq)
+            {
+                Status = status
+            };
+        }
+
         public static BaseEventMeshPackage GetEventDefinition(string seq, GetEventDefinitionStatus status)
         {
             return new GetEventDefinitionResult(seq)
+            {
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage RemoveLinkEventDefinition(string seq, RemoveEventDefinitionStatus status)
+        {
+            return new RemoveLinkEventDefinitionResult(seq)
             {
                 Status = status
             };

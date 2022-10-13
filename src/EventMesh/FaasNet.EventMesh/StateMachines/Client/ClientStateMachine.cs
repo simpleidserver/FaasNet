@@ -38,6 +38,7 @@ namespace FaasNet.EventMesh.StateMachines.Client
                         CoordinateX = addClient.CoordinateX,
                         CoordinateY = addClient.CoordinateY
                     });
+                    await _store.SaveChanges(cancellationToken);
                     break;
                 case BulkUpdateClientCommand updateClient:
                     foreach(var client in updateClient.Clients)
@@ -55,6 +56,33 @@ namespace FaasNet.EventMesh.StateMachines.Client
                     if (ec == null) return;
                     _store.Remove(ec);
                     await _store.SaveChanges(cancellationToken);
+                    // Use masstransit to send the integration event "ClientRemovedEvent"
+                    // In the handler : remove all the links. If there is an exception then the message can be enqueued later on.
+                    break;
+                case AddTargetCommand addTarget:
+                    var cl = await _store.Get(addTarget.ClientId, addTarget.Vpn, cancellationToken);
+                    if (cl == null) return;
+                    if (!cl.Targets.Any(t => t.Target == addTarget.Target))
+                    {
+                        cl.Targets.Add(new ClientTarget
+                        {
+                            Target = addTarget.Target,
+                            EventId = addTarget.EventDefId
+                        });
+                        _store.Update(cl);
+                        await _store.SaveChanges(cancellationToken);
+                    }
+                    break;
+                case RemoveTargetCommand removeTarget:
+                    var c = await _store.Get(removeTarget.ClientId, removeTarget.Vpn, cancellationToken);
+                    if (c == null) return;
+                    var target = c.Targets.SingleOrDefault(t => t.Target == removeTarget.Target && t.EventId == removeTarget.EventId);
+                    if (target != null)
+                    {
+                        c.Targets.Remove(target);
+                        _store.Update(c);
+                        await _store.SaveChanges(cancellationToken);
+                    }
                     break;
             }
         }
