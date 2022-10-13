@@ -16,7 +16,9 @@
 	<Title><span>Queues</span></Title>
 	<ChildContent>
 		<Loader IsDisplayed="QueuesState.Value.IsLoading">
-			<button class="btn btn-primary mb-2" @onclick="AddQueue">Add Queue</button>
+			<div>
+				<button class="btn btn-primary mb-2" @onclick="AddQueue">Add Queue</button>
+			</div>
 			<Grid TRowData="QueueQueryResult" Result="QueuesState.Value.Queues" @bind-Query="Filter">
 				<GridColumn TRowData="QueueQueryResult" Title="Name" Name="QueueName" IsSortEnabled="true">
 					@if (context.CreateDateTime == null)

@@ -5,7 +5,6 @@ using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Client.Transports;
-using FaasNet.RaftConsensus.Client.Messages;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -238,6 +237,20 @@ namespace FaasNet.EventMesh.Client
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
             return packageResult as AddEventDefinitionResult;
+        }
+
+        public async Task<GetEventDefinitionResult> GetEventDefinition(string id, string vpn, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.GetEventDefinition(id, vpn);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as GetEventDefinitionResult;
         }
 
         public async Task<EventMeshPublishSessionClient> CreatePubSession(string clientId, string vpn, string clientSecret, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))

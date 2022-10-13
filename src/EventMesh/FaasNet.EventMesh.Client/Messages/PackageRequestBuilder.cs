@@ -165,6 +165,15 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage GetEventDefinition(string id, string vpn)
+        {
+            return new GetEventDefinitionRequest(GenerateRandomSeq())
+            {
+                Vpn = vpn,
+                Id = id
+            };
+        }
+
         private static string GenerateRandomSeq()
         {
             var builder = new StringBuilder(10);

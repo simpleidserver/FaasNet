@@ -23,7 +23,7 @@ namespace FaasNet.EventMesh.Client.Messages
             {
                 context.WriteLong(Term.Value);
                 context.WriteLong(MatchIndex.Value);
-                context.WriteLong(LastIndex);
+                context.WriteLong(LastIndex.Value);
             }
         }
 
@@ -47,6 +47,8 @@ namespace FaasNet.EventMesh.Client.Messages
         OK = 0,
         UNKNOWN_VPN = 1,
         EXISTING_EVENTDEFINITION = 2,
+        UNKNOWN_SOURCE = 3,
+        UNKNOWN_TARGET = 4,
         NOLEADER = 3
     }
 }

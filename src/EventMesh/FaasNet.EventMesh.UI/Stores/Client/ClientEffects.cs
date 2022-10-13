@@ -44,7 +44,11 @@ namespace FaasNet.EventMesh.UI.Stores.Client
                 CoordinateX = c.CoordinateX,
                 CoordinateY = c.CoordinateY,
                 Id = c.ClientId,
-                Targets = c.Targets
+                Targets = c.Targets.Select(t => new UpdateClientTarget
+                {
+                    Target = t.Target,
+                    EventId = t.EventId
+                }).ToList()
             }).ToList(), action.Url, action.Port, CancellationToken.None);
             if (!result.Success)
             {
@@ -142,7 +146,13 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         public string ClientId { get; set; } = string.Empty;
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
-        public ICollection<string> Targets { get; set; }
+        public ICollection<UpdateClientSubTarget> Targets { get; set; }
+    }
+
+    public class UpdateClientSubTarget
+    {
+        public string EventId { get; set; }
+        public string Target { get; set; }
     }
 
     public class AddClientResultAction

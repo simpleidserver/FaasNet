@@ -16,7 +16,9 @@
 	<Title><span>Vpns</span></Title>
 	<ChildContent>
 		<Loader IsDisplayed="VpnsState.Value.IsLoading">
-			<button class="btn btn-primary mb-2" @onclick="AddVpn">Add VPN</button>
+			<div>
+				<button class="btn btn-primary mb-2" @onclick="AddVpn">Add VPN</button>
+			</div>
 			<Grid TRowData="VpnQueryResult" Result="VpnsState.Value.Vpns" @bind-Query="Filter">
 				<GridColumn TRowData="VpnQueryResult" Title="Identifier" Name="Name">
 					@if(context.CreateDateTime == null)

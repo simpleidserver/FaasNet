@@ -128,7 +128,11 @@ namespace FaasNet.EventMesh.StateMachines.Client
                 CreateDateTime = client.CreateDateTime,
                 CoordinateX = client.CoordinateX,
                 CoordinateY = client.CoordinateY,
-                Targets = client.Targets
+                Targets = client.Targets.Select(t => new ClientTargetResult
+                {
+                    EventId = t.EventId,
+                    Target = t.Target
+                }).ToList()
             };
         }
     }
@@ -143,13 +147,17 @@ namespace FaasNet.EventMesh.StateMachines.Client
         public DateTime CreateDateTime { get; set; }
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
-        public ICollection<string> Targets { get; set; } = new List<string>();
+        public ICollection<ClientTarget> Targets { get; set; } = new List<ClientTarget>();
 
         public void Update(UpdateClient cmd)
         {
             CoordinateX = cmd.CoordinateX;
             CoordinateY = cmd.CoordinateY;
-            Targets = cmd.Targets;
+            Targets = cmd.Targets.Select(t => new ClientTarget
+            {
+                Target = t.Target,
+                EventId = t.EventId
+            }).ToList();
         }
 
         public void Deserialize(ReadBufferContext context)
@@ -164,7 +172,12 @@ namespace FaasNet.EventMesh.StateMachines.Client
             CoordinateX = context.NextDouble();
             CoordinateY = context.NextDouble();
             nb = context.NextInt();
-            for (var i = 0; i < nb; i++) Targets.Add(context.NextString());
+            for (var i = 0; i < nb; i++)
+            {
+                var target = new ClientTarget();
+                target.Deserialize(context);
+                Targets.Add(target);
+            }
         }
 
         public void Serialize(WriteBufferContext context)
@@ -179,8 +192,25 @@ namespace FaasNet.EventMesh.StateMachines.Client
             context.WriteDouble(CoordinateX);
             context.WriteDouble(CoordinateY);
             context.WriteInteger(Targets.Count());
-            foreach (var target in Targets) context.WriteString(target);
+            foreach (var target in Targets) target.Serialize(context);
         }
     }
 
+    public class ClientTarget : ISerializable
+    {
+        public string Target { get; set; }
+        public string EventId { get; set; }
+
+        public void Deserialize(ReadBufferContext context)
+        {
+            Target = context.NextString();
+            EventId = context.NextString();
+        }
+
+        public void Serialize(WriteBufferContext context)
+        {
+            context.WriteString(Target);
+            context.WriteString(EventId);
+        }
+    }
 }

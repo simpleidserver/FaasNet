@@ -1,6 +1,7 @@
 ﻿using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
+using FaasNet.EventMesh.Client.StateMachines.EventDefinition;
 using FaasNet.EventMesh.Client.StateMachines.Queue;
 using FaasNet.EventMesh.Client.StateMachines.Session;
 using FaasNet.EventMesh.Client.StateMachines.Vpn;
@@ -225,6 +226,23 @@ namespace FaasNet.EventMesh.Client.Messages
                 Term = term,
                 MatchIndex = matchIndex,
                 LastIndex = lastIndex
+            };
+        }
+
+        public static BaseEventMeshPackage GetEventDefinition(string seq, EventDefinitionQueryResult result)
+        {
+            return new GetEventDefinitionResult(seq)
+            {
+                Status = GetEventDefinitionStatus.OK,
+                Result = result
+            };
+        }
+
+        public static BaseEventMeshPackage GetEventDefinition(string seq, GetEventDefinitionStatus status)
+        {
+            return new GetEventDefinitionResult(seq)
+            {
+                Status = status
             };
         }
     }

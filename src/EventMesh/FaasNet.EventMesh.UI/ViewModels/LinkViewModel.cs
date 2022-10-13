@@ -6,7 +6,7 @@ namespace FaasNet.EventMesh.UI.ViewModels
     public class LinkViewModel
     {
         public bool IsActive { get; set; }
-        public EventDefinitionViewModel Event { get; set; } = null!;
+        public string EventId { get; set; } = null!;
         public LinkPointViewModel StartPoint { get; set; } = null!;
         public LinkPointViewModel EndPoint { get; set; } = null!;
         public string Path
@@ -24,6 +24,14 @@ namespace FaasNet.EventMesh.UI.ViewModels
                 return curve;
             }
         }
+        public string Color
+        {
+            get
+            {
+                return string.IsNullOrEmpty(EventId) ? "red" : "black";
+            }
+        }
+
         public string SelectionContainerWidth
         {
             get
@@ -63,7 +71,8 @@ namespace FaasNet.EventMesh.UI.ViewModels
             return new LinkViewModel
             {
                 StartPoint = StartPoint.Clone(),
-                EndPoint = EndPoint.Clone()
+                EndPoint = EndPoint.Clone(),
+                EventId = EventId
             };
         }
 

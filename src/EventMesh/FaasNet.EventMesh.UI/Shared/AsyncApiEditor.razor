@@ -8,7 +8,9 @@
 @using Fluxor.Blazor.Web.Components
 @inherits FluxorComponent
 
-<button class="btn btn-primary" @onclick="(e) => Update()">Save</button>
+<div>
+    <button class="btn btn-primary" @onclick="(e) => Update()">Save UI</button>
+</div>
 
 <div id="asyncApiContainer">
     <div id="toolbox">
@@ -81,7 +83,7 @@
 
             @foreach(var link in Links)
             {
-                <path d="@link.Path" marker-end="url(#asyncapieditor-barbEnd)" stroke="black" fill="none"></path>
+                <path d="@link.Path" marker-end="url(#asyncapieditor-barbEnd)" stroke="@link.Color" fill="none"></path>
                 <g transform="@link.SelectionContainerMatrix">
                     <foreignObject width="@link.SelectionContainerWidth" height="@link.SelectionContainerHeight"
                         @onmousedown="(e) => HandleSelectLink(e, link)"
@@ -506,7 +508,11 @@
                 ClientId = a.ClientId,
                 CoordinateX = a.CoordinateX,
                 CoordinateY = a.CoordinateY,
-                Targets = Links.Where(l => l.StartPoint.ApplicationId == a.ClientId).Select(l => l.EndPoint.ApplicationId).ToList()
+                Targets = Links.Where(l => l.StartPoint.ApplicationId == a.ClientId && !string.IsNullOrWhiteSpace(l.EventId)).Select(l => new UpdateClientSubTarget
+                {
+                    EventId = l.EventId,
+                    Target = l.EndPoint.ApplicationId
+                }).ToList()
             }).ToList(),
             Port = AppState.Value.SelectedNode.Port,
             Url = AppState.Value.SelectedNode.Url,

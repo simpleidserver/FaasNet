@@ -1,7 +1,6 @@
 ﻿using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FaasNet.EventMesh.Client.StateMachines.Client
 {
@@ -35,15 +34,20 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
         public string Id { get; set; }
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
-        public ICollection<string> Targets { get; set; } = new List<string>();
+        public ICollection<ClientTargetResult> Targets { get; set; } = new List<ClientTargetResult>();
 
         public void Deserialize(ReadBufferContext context)
         {
             Id = context.NextString();
             CoordinateX = context.NextDouble();
             CoordinateY = context.NextDouble();
-            var nbTargets = context.NextInt();
-            for (var i = 0; i < nbTargets; i++) Targets.Add(context.NextString());
+            var nb = context.NextInt();
+            for (var i = 0; i < nb; i++)
+            {
+                var target = new ClientTargetResult();
+                target.Deserialize(context);
+                Targets.Add(target);
+            }
         }
 
         public void Serialize(WriteBufferContext context)
@@ -51,8 +55,8 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             context.WriteString(Id);
             context.WriteDouble(CoordinateX);
             context.WriteDouble(CoordinateY);
-            context.WriteInteger(Targets.Count());
-            foreach (var target in Targets) context.WriteString(target);
+            context.WriteInteger((int)Targets.Count);
+            foreach (var target in Targets) target.Serialize(context);
         }
     }
 }

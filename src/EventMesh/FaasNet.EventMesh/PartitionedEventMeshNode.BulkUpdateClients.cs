@@ -23,7 +23,11 @@ namespace FaasNet.EventMesh
                     Id = c.Id, 
                     CoordinateX = c.CoordinateX, 
                     CoordinateY = c.CoordinateY, 
-                    Targets = c.Targets 
+                    Targets = c.Targets.Select(t => new ClientTargetResult
+                    {
+                        EventId = t.EventId,
+                        Target = t.Target
+                    }).ToList()
                 }).ToList()
             };
             var result = await Send(CLIENT_PARTITION_KEY, updateClientCommand, cancellationToken);

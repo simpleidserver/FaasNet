@@ -47,14 +47,14 @@ namespace FaasNet.EventMesh.Client.Messages
         public string Id { get; set; }
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
-        public ICollection<string> Targets { get; set; } = new List<string>();
+        public ICollection<UpdateClientTarget> Targets { get; set; } = new List<UpdateClientTarget>();
 
         public UpdateClientRequest()
         {
 
         }
 
-        public UpdateClientRequest(string clientId, double coordinateX, double coordinateY, ICollection<string> targets)
+        public UpdateClientRequest(string clientId, double coordinateX, double coordinateY, ICollection<UpdateClientTarget> targets)
         {
             Id = clientId;
             CoordinateX = coordinateX;
@@ -68,7 +68,7 @@ namespace FaasNet.EventMesh.Client.Messages
             context.WriteDouble(CoordinateX);
             context.WriteDouble(CoordinateY);
             context.WriteInteger(Targets.Count());
-            foreach (var target in Targets) context.WriteString(target);
+            foreach (var target in Targets) target.Serialize(context);
         }
 
         public void Deserialize(ReadBufferContext context)
@@ -77,7 +77,30 @@ namespace FaasNet.EventMesh.Client.Messages
             CoordinateX = context.NextDouble();
             CoordinateY = context.NextDouble();
             var nbTargets = context.NextInt();
-            for (var i = 0; i < nbTargets; i++) Targets.Add(context.NextString());
+            for (var i = 0; i < nbTargets; i++)
+            {
+                var target = new UpdateClientTarget();
+                target.Deserialize(context);
+                Targets.Add(target);
+            }
+        }
+    }
+
+    public class UpdateClientTarget
+    {
+        public string EventId { get; set; }
+        public string Target { get; set; }
+
+        public void Serialize(WriteBufferContext context)
+        {
+            context.WriteString(EventId);
+            context.WriteString(Target);
+        }
+
+        public void Deserialize(ReadBufferContext context)
+        {
+            EventId = context.NextString();
+            Target = context.NextString();
         }
     }
 }

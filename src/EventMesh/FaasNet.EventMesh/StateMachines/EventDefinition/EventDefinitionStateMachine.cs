@@ -83,11 +83,15 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
             return _store.Truncate(cancellationToken);
         }
 
-        private static EventDefinitionQueryResult Transform(EventDefinitionRecord client)
+        private static EventDefinitionQueryResult Transform(EventDefinitionRecord evtDef)
         {
             return new EventDefinitionQueryResult
             {
-
+                Id = evtDef.Id,
+                JsonSchema = evtDef.JsonSchema,
+                Sources = evtDef.Sources,
+                Targets = evtDef.Targets,
+                Vpn = evtDef.Vpn
             };
         }
     }

@@ -66,10 +66,11 @@
             if (client.Targets == null || !client.Targets.Any()) continue;
             foreach (var target in client.Targets)
             {
-                var toClient = act.Clients.Records.SingleOrDefault(c => c.Id == target);
+                var toClient = act.Clients.Records.SingleOrDefault(c => c.Id == target.Target);
                 if (toClient == null) continue;
                 links.Add(new LinkViewModel
                 {
+                    EventId = target.EventId,
                     StartPoint = new LinkPointViewModel
                     {
                         ApplicationId = client.Id

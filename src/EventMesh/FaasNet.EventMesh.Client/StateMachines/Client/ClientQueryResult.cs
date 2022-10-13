@@ -16,7 +16,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
         public DateTime? CreateDateTime { get; set; }
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
-        public ICollection<string> Targets { get; set; } = new List<string>();
+        public ICollection<ClientTargetResult> Targets { get; set; } = new List<ClientTargetResult>();
 
         public void Deserialize(ReadBufferContext context)
         {
@@ -30,7 +30,12 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             CoordinateX = context.NextDouble();
             CoordinateY = context.NextDouble();
             nb = context.NextInt();
-            for (var i = 0; i < nb; i++) Targets.Add(context.NextString());
+            for (var i = 0; i < nb; i++)
+            {
+                var target = new ClientTargetResult();
+                target.Deserialize(context);
+                Targets.Add(target);
+            }
         }
 
         public void Serialize(WriteBufferContext context)
@@ -45,7 +50,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             context.WriteDouble(CoordinateX);
             context.WriteDouble(CoordinateY);
             context.WriteInteger(Targets.Count());
-            foreach (var target in Targets) context.WriteString(target);
+            foreach (var target in Targets) target.Serialize(context);
         }
     }
 
@@ -56,12 +61,14 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
 
         public void Deserialize(ReadBufferContext context)
         {
-
+            Target = context.NextString();
+            EventId = context.NextString();
         }
 
         public void Serialize(WriteBufferContext context)
         {
-            throw new NotImplementedException();
+            context.WriteString(Target);
+            context.WriteString(EventId);
         }
     }
 }

@@ -156,6 +156,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result returned when event definition is added.
         /// </summary>
         public static EventMeshCommands ADD_EVENT_DEFINITION_RESPONSE = new EventMeshCommands(37, "ADD_EVENT_DEFINITION_RESPONSE");
+        /// <summary>
+        /// Request sent to get an event definition.
+        /// </summary>
+        public static EventMeshCommands GET_EVENT_DEFINITION_REQUEST = new EventMeshCommands(38, "GET_EVENT_DEFINITION_REQUEST");
+        /// <summary>
+        /// Result returned when event definition is returned.
+        /// </summary>
+        public static EventMeshCommands GET_EVENT_DEFINITION_RESULT = new EventMeshCommands(39, "GET_EVENT_DEFINITION_RESULT");
 
         protected EventMeshCommands(int code)
         {

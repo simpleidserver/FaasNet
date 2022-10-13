@@ -14,7 +14,9 @@
 	<Title><span>Clients</span></Title>
 	<ChildContent>
 		<Loader IsDisplayed="ClientState.Value.IsLoading">
-			<button class="btn btn-primary mb-2" @onclick="AddClient">Add Client</button>
+			<div>
+				<button class="btn btn-primary mb-2" @onclick="AddClient">Add Client</button>
+			</div>
 			@if (newClient != null)
 			{
 				<div class="alert alert-success">
