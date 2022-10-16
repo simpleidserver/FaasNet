@@ -10,7 +10,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(SearchSessionsRequest request, CancellationToken cancellationToken)
         {
-            var res = await Query<GenericSearchQueryResult<SessionQueryResult>>(SESSION_PARTITION_KEY, new SearchSessionsQuery 
+            var res = await Query<GenericSearchQueryResult<SessionQueryResult>>(PartitionNames.SESSION_PARTITION_KEY, new SearchSessionsQuery 
             { 
                 ClientId = request.ClientId, 
                 Vpn = request.Vpn, 

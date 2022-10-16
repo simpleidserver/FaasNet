@@ -9,7 +9,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(FindQueuesByNameRequest request, CancellationToken cancellationToken)
         {
-            var res = await Query<FindQueuesByNameQueryResult>(QUEUE_PARTITION_KEY, new FindQueuesByNameQuery { Name = request.Name }, cancellationToken);
+            var res = await Query<FindQueuesByNameQueryResult>(PartitionNames.QUEUE_PARTITION_KEY, new FindQueuesByNameQuery { Name = request.Name }, cancellationToken);
             return PackageResponseBuilder.FindQueuesByName(request.Seq, res.Content);
         }
     }

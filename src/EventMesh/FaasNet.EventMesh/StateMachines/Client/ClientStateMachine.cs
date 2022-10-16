@@ -1,7 +1,9 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
+using FaasNet.Partition;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Core.Infos;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using System;
 using System.Collections.Generic;
@@ -11,28 +13,28 @@ using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.StateMachines.Client
 {
-    public class ClientStateMachine : IStateMachine
+    public class ClientStateMachine : BaseStateMachine
     {
         private readonly IClientStateMachineStore _store;
         
-        public ClientStateMachine(IClientStateMachineStore store)
+        public ClientStateMachine(IClientStateMachineStore store, IPeerInfoStore peerInfoStore, IMediator mediator) : base(peerInfoStore, mediator)
         {
             _store = store;
         }
 
-        public async Task Apply(ICommand cmd, CancellationToken cancellationToken)
+        public override async Task Apply(ICommand cmd, CancellationToken cancellationToken)
         {
-            switch(cmd)
+            switch (cmd)
             {
                 case AddClientCommand addClient:
                     var existingClient = await _store.Get(addClient.Id, addClient.Vpn, cancellationToken);
                     if (existingClient != null) return;
-                    _store.Add(new ClientRecord 
-                    { 
-                        ClientSecret = addClient.ClientSecret, 
-                        Id = addClient.Id, 
-                        Purposes = addClient.Purposes, 
-                        SessionExpirationTimeMS = addClient.SessionExpirationTimeMS, 
+                    _store.Add(new ClientRecord
+                    {
+                        ClientSecret = addClient.ClientSecret,
+                        Id = addClient.Id,
+                        Purposes = addClient.Purposes,
+                        SessionExpirationTimeMS = addClient.SessionExpirationTimeMS,
                         Vpn = addClient.Vpn,
                         CreateDateTime = DateTime.UtcNow,
                         CoordinateX = addClient.CoordinateX,
@@ -41,10 +43,10 @@ namespace FaasNet.EventMesh.StateMachines.Client
                     await _store.SaveChanges(cancellationToken);
                     break;
                 case BulkUpdateClientCommand updateClient:
-                    foreach(var client in updateClient.Clients)
+                    foreach (var client in updateClient.Clients)
                     {
                         var clientToUpdate = await _store.Get(client.Id, updateClient.Vpn, cancellationToken);
-                        if (clientToUpdate == null) continue;;
+                        if (clientToUpdate == null) continue;
                         clientToUpdate.Update(client);
                         _store.Update(clientToUpdate);
                     }
@@ -56,8 +58,11 @@ namespace FaasNet.EventMesh.StateMachines.Client
                     if (ec == null) return;
                     _store.Remove(ec);
                     await _store.SaveChanges(cancellationToken);
-                    // Use masstransit to send the integration event "ClientRemovedEvent"
-                    // In the handler : remove all the links. If there is an exception then the message can be enqueued later on.
+                    await PropagateIntegrationEvent(new ClientRemoved { Id = ec.Id, Vpn = ec.Vpn, Targets = ec.Targets.Select(t => new ClientTargetRemoved
+                    {
+                        EventId = t.EventId,
+                        Target = t.Target
+                    }).ToList()}, cancellationToken);
                     break;
                 case AddTargetCommand addTarget:
                     var cl = await _store.Get(addTarget.ClientId, addTarget.Vpn, cancellationToken);
@@ -87,17 +92,17 @@ namespace FaasNet.EventMesh.StateMachines.Client
             }
         }
 
-        public Task BulkUpload(IEnumerable<IRecord> records, CancellationToken cancellationToken)
+        public override Task BulkUpload(IEnumerable<IRecord> records, CancellationToken cancellationToken)
         {
             return _store.BulkUpload(records.Cast<ClientRecord>(), cancellationToken);
         }
 
-        public async Task Commit(CancellationToken cancellationToken)
+        public override async Task Commit(CancellationToken cancellationToken)
         {
             await _store.SaveChanges(cancellationToken);
         }
 
-        public async Task<IQueryResult> Query(IQuery query, CancellationToken cancellationToken)
+        public override async Task<IQueryResult> Query(IQuery query, CancellationToken cancellationToken)
         {
             switch(query)
             {
@@ -124,7 +129,7 @@ namespace FaasNet.EventMesh.StateMachines.Client
             return null;
         }
 
-        public IEnumerable<(IEnumerable<IEnumerable<byte>>, int)> Snapshot(int nbRecords)
+        public override IEnumerable<(IEnumerable<IEnumerable<byte>>, int)> Snapshot(int nbRecords)
         {
             var name = typeof(ClientRecord).AssemblyQualifiedName;
             foreach (var records in _store.GetAll(nbRecords))
@@ -139,7 +144,7 @@ namespace FaasNet.EventMesh.StateMachines.Client
             }
         }
 
-        public Task Truncate(CancellationToken cancellationToken)
+        public override Task Truncate(CancellationToken cancellationToken)
         {
             return _store.Truncate(cancellationToken);
         }

@@ -11,7 +11,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(ReadMessageRequest readMessageRequest, CancellationToken cancellationToken)
         {
-            var session = await Query<GetSessionQueryResult>(SESSION_PARTITION_KEY, new GetSessionQuery { Id = readMessageRequest.SessionId }, cancellationToken);
+            var session = await Query<GetSessionQueryResult>(PartitionNames.SESSION_PARTITION_KEY, new GetSessionQuery { Id = readMessageRequest.SessionId }, cancellationToken);
             if (!session.Success) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.UNKNOWN_SESSION);
             if (!session.Session.IsValid) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.EXPIRED_SESSION);
             if (session.Session.ClientPurpose != ClientPurposeTypes.SUBSCRIBE) return PackageResponseBuilder.ReadMessage(readMessageRequest.Seq, ReadMessageStatus.BAD_SESSION_USAGE);

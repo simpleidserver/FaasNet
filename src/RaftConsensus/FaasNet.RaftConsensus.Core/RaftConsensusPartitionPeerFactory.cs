@@ -21,13 +21,17 @@ namespace FaasNet.RaftConsensus.Core
             _options = options.Value;
         }
 
-        public IPeerHost Build(int port, string partitionKey, Type stateMachineType, Action<IServiceCollection> callbackService = null, Action<PeerHostFactory> callbackHostFactory = null)
+        public IPeerHost Build(int port, string partitionKey, Type stateMachineType, IMediator mediator, Action<IServiceCollection> callbackService = null, Action<PeerHostFactory> callbackHostFactory = null)
         {
             var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var hostFactory = PeerHostFactory.NewUnstructured(o => {
                 o.Port = port;
                 o.PartitionKey = partitionKey;
-            }, callbackService: callbackService)
+            }, callbackService: (s) =>
+            {
+                s.AddSingleton(mediator);
+                if (callbackService != null) callbackService(s);
+            })
                 .UseServerUDPTransport()
                 .UseClientUDPTransport()
                 .UseClusterStore(_clusterStore)

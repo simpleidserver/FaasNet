@@ -11,7 +11,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(HelloRequest helloRequest, CancellationToken cancellationToken)
         {
-            var client = await Query<GetClientQueryResult>(CLIENT_PARTITION_KEY, new GetClientQuery { Id = helloRequest.ClientId, Vpn = helloRequest.Vpn }, cancellationToken);
+            var client = await Query<GetClientQueryResult>(PartitionNames.CLIENT_PARTITION_KEY, new GetClientQuery { Id = helloRequest.ClientId, Vpn = helloRequest.Vpn }, cancellationToken);
             if (!client.Success) return PackageResponseBuilder.Hello(helloRequest.Seq, HelloMessageStatus.UNKNOWN_CLIENT);
             if (!PasswordHelper.CheckPassword(helloRequest.ClientSecret, client.Client.ClientSecret)) return PackageResponseBuilder.Hello(helloRequest.Seq, HelloMessageStatus.BAD_CREDENTIALS);
             if (!client.Client.Purposes.Contains(helloRequest.Purpose)) return PackageResponseBuilder.Hello(helloRequest.Seq, HelloMessageStatus.BAD_PURPOSE);
@@ -26,7 +26,7 @@ namespace FaasNet.EventMesh
                 ExpirationTime = expirationTime, 
                 QueueName = helloRequest.QueueName 
             };
-            var result = await Send(SESSION_PARTITION_KEY, addSessionCommand, cancellationToken);
+            var result = await Send(PartitionNames.SESSION_PARTITION_KEY, addSessionCommand, cancellationToken);
             if (!result.Success) return PackageResponseBuilder.Hello(helloRequest.Seq, HelloMessageStatus.NOLEADER);
             return PackageResponseBuilder.Hello(helloRequest.Seq, sessionId);
         }

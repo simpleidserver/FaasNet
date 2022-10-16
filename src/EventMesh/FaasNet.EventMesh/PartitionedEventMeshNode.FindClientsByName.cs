@@ -9,7 +9,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(FindClientsByNameRequest request, CancellationToken cancellationToken)
         {
-            var res = await Query<FindClientsByNameQueryResult>(CLIENT_PARTITION_KEY, new FindClientsByNameQuery { Name = request.Name }, cancellationToken);
+            var res = await Query<FindClientsByNameQueryResult>(PartitionNames.CLIENT_PARTITION_KEY, new FindClientsByNameQuery { Name = request.Name }, cancellationToken);
             return PackageResponseBuilder.FindClientsByName(request.Seq, res.Content);
         }
     }

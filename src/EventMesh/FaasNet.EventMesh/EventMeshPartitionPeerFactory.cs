@@ -28,7 +28,7 @@ namespace FaasNet.EventMesh
             _options = options.Value;
         }
 
-        public IPeerHost Build(int port, string partitionKey, Type stateMachineType, Action<IServiceCollection> callbackService = null, Action<PeerHostFactory> callbackHostFactory = null)
+        public IPeerHost Build(int port, string partitionKey, Type stateMachineType, IMediator mediator, Action<IServiceCollection> callbackService = null, Action<PeerHostFactory> callbackHostFactory = null)
         {
             var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var hostFactory = PeerHostFactory.NewUnstructured(o => {
@@ -42,6 +42,7 @@ namespace FaasNet.EventMesh
                 s.AddScoped<ISessionStateMachineStore, SessionStateMachineStore>();
                 s.AddScoped<IVpnStateMachineStore, VpnStateMachineStore>();
                 s.AddScoped<IEventDefinitionStateMachineStore, EventDefinitionStateMachineStore>();
+                s.AddSingleton(mediator);
                 if (callbackService != null) callbackService(s);
             })
                 .UseServerUDPTransport()

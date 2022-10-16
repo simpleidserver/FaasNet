@@ -8,8 +8,8 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(GetPartitionRequest getPartitionRequest, CancellationToken cancellationToken)
         {
-            if (!await PartitionCluster.Contains(CLIENT_PARTITION_KEY, cancellationToken)) return PackageResponseBuilder.GetPartition(getPartitionRequest.Seq, GetPartitionStatus.NOPARTITION);
-            var peerState = await GetPeerState(CLIENT_PARTITION_KEY, cancellationToken);
+            if (!await PartitionCluster.Contains(PartitionNames.CLIENT_PARTITION_KEY, cancellationToken)) return PackageResponseBuilder.GetPartition(getPartitionRequest.Seq, GetPartitionStatus.NOPARTITION);
+            var peerState = await GetPeerState(PartitionNames.CLIENT_PARTITION_KEY, cancellationToken);
             return PackageResponseBuilder.GetPartition(getPartitionRequest.Seq, peerState);
         }
     }

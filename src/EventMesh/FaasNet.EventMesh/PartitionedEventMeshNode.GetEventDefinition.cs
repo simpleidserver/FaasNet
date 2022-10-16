@@ -9,7 +9,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(GetEventDefinitionRequest getEventDefinition, CancellationToken cancellationToken)
         {
-            var res = await Query<GetEventDefinitionQueryResult>(EVENTDEFINITION_PARTITION_KEY, new GetEventDefinitionQuery { Id = getEventDefinition.Id, Vpn = getEventDefinition.Vpn }, cancellationToken);
+            var res = await Query<GetEventDefinitionQueryResult>(PartitionNames.EVENTDEFINITION_PARTITION_KEY, new GetEventDefinitionQuery { Id = getEventDefinition.Id, Vpn = getEventDefinition.Vpn }, cancellationToken);
             if (res == null) return PackageResponseBuilder.GetEventDefinition(getEventDefinition.Seq, GetEventDefinitionStatus.NOT_FOUND);
             return PackageResponseBuilder.GetEventDefinition(getEventDefinition.Seq, res.EventDef);
         }

@@ -1,6 +1,8 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines.EventDefinition;
+using FaasNet.Partition;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Core.Infos;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using System;
 using System.Collections.Generic;
@@ -10,16 +12,16 @@ using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.StateMachines.EventDefinition
 {
-    public class EventDefinitionStateMachine : IStateMachine
+    public class EventDefinitionStateMachine : BaseStateMachine
     {
         private readonly IEventDefinitionStateMachineStore _store;
 
-        public EventDefinitionStateMachine(IEventDefinitionStateMachineStore store)
+        public EventDefinitionStateMachine(IEventDefinitionStateMachineStore store, IPeerInfoStore peerInfoStore, IMediator mediator) : base(peerInfoStore, mediator)
         {
             _store = store;
         }
 
-        public async Task Apply(ICommand cmd, CancellationToken cancellationToken)
+        public async override Task Apply(ICommand cmd, CancellationToken cancellationToken)
         {
             switch(cmd)
             {
@@ -40,6 +42,13 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
                     });
                     _store.Add(record);
                     await _store.SaveChanges(cancellationToken);
+                    await PropagateIntegrationEvent(new EventDefinitionLinkAdded
+                    {
+                        EventId = addEventDefinition.Id,
+                        Vpn = addEventDefinition.Vpn,
+                        Source = addEventDefinition.Source,
+                        Target = addEventDefinition.Target
+                    }, cancellationToken);
                     break;
                 case UpdateEventDefinitionCommand updateEventDefinition:
                     var evtDef = await _store.Get(updateEventDefinition.Id, updateEventDefinition.Vpn, cancellationToken);
@@ -57,23 +66,30 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
                         ed.Links.Remove(link);
                         _store.Update(ed);
                         await _store.SaveChanges(cancellationToken);
+                        await PropagateIntegrationEvent(new EventDefinitionLinkRemoved
+                        {
+                            EventId = removeEventDefinitionCommand.Id,
+                            Vpn = removeEventDefinitionCommand.Vpn,
+                            Source = removeEventDefinitionCommand.Source,
+                            Target = removeEventDefinitionCommand.Target
+                        }, cancellationToken);
                     }
 
                     break;
             }
         }
 
-        public Task BulkUpload(IEnumerable<IRecord> records, CancellationToken cancellationToken)
+        public override Task BulkUpload(IEnumerable<IRecord> records, CancellationToken cancellationToken)
         {
             return _store.BulkUpload(records.Cast<EventDefinitionRecord>(), cancellationToken);
         }
 
-        public Task Commit(CancellationToken cancellationToken)
+        public override Task Commit(CancellationToken cancellationToken)
         {
             return _store.SaveChanges(cancellationToken);
         }
 
-        public async Task<IQueryResult> Query(IQuery query, CancellationToken cancellationToken)
+        public override async Task<IQueryResult> Query(IQuery query, CancellationToken cancellationToken)
         {
             switch(query)
             {
@@ -86,7 +102,7 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
             return null;
         }
 
-        public IEnumerable<(IEnumerable<IEnumerable<byte>>, int)> Snapshot(int nbRecords)
+        public override IEnumerable<(IEnumerable<IEnumerable<byte>>, int)> Snapshot(int nbRecords)
         {
             var name = typeof(EventDefinitionRecord).AssemblyQualifiedName;
             foreach (var records in _store.GetAll(nbRecords))
@@ -101,7 +117,7 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
             }
         }
 
-        public Task Truncate(CancellationToken cancellationToken)
+        public override Task Truncate(CancellationToken cancellationToken)
         {
             return _store.Truncate(cancellationToken);
         }

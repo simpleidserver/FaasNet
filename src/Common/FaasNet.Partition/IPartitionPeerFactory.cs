@@ -6,6 +6,6 @@ namespace FaasNet.Partition
 {
     public interface IPartitionPeerFactory
     {
-        IPeerHost Build(int port, string partitionKey, Type stateMachineType, Action<IServiceCollection> callback = null, Action<PeerHostFactory> callbackHostFactory = null);
+        IPeerHost Build(int port, string partitionKey, Type stateMachineType, IMediator mediator, Action<IServiceCollection> callback = null, Action<PeerHostFactory> callbackHostFactory = null);
     }
 }

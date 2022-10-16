@@ -18,14 +18,16 @@ namespace FaasNet.Partition
         private readonly IPartitionPeerStore _partitionPeerStore;
         private readonly IClientTransportFactory _clientTransportFactory;
         private readonly PartitionedNodeOptions _options;
+        private readonly IMediator _mediator;
         private readonly ICollection<(IPeerHost, DirectPartitionPeer)> _partitions;
 
-        public DirectPartitionCluster(IPartitionPeerFactory partitionPeerFactory, IPartitionPeerStore partitionPeerStore, IClientTransportFactory clientTransportFactory, IOptions<PartitionedNodeOptions> options)
+        public DirectPartitionCluster(IPartitionPeerFactory partitionPeerFactory, IPartitionPeerStore partitionPeerStore, IClientTransportFactory clientTransportFactory, IMediator mediator, IOptions<PartitionedNodeOptions> options)
         {
             _partitionPeerFactory = partitionPeerFactory;
             _partitionPeerStore = partitionPeerStore;
             _clientTransportFactory = clientTransportFactory;
             _options = options.Value;
+            _mediator = mediator;
             _partitions = new List<(IPeerHost, DirectPartitionPeer)>();
         }
 
@@ -34,7 +36,7 @@ namespace FaasNet.Partition
             var partitions = await _partitionPeerStore.GetAll();
             foreach (var partition in partitions)
             {
-                var peerHost = _partitionPeerFactory.Build(partition.Port, partition.PartitionKey, partition.StateMachineType, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
+                var peerHost = _partitionPeerFactory.Build(partition.Port, partition.PartitionKey, partition.StateMachineType, _mediator, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
                 _partitions.Add((peerHost, partition));
                 await peerHost.Start();
             }
@@ -59,7 +61,7 @@ namespace FaasNet.Partition
             var port = !_partitions.Any() ? _options.StartPeerPort : _partitions.OrderByDescending(p => p.Item2.Port).First().Item2.Port + 1;
             var record = new DirectPartitionPeer { PartitionKey = partitionKey, Port = port, StateMachineType = stateMachineType };
             await _partitionPeerStore.Add(record);
-            var peerHost = _partitionPeerFactory.Build(port, partitionKey, stateMachineType, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
+            var peerHost = _partitionPeerFactory.Build(port, partitionKey, stateMachineType, _mediator, _options.CallbackPeerDependencies, _options.CallbackPeerConfiguration);
             await peerHost.Start();
             _partitions.Add((peerHost, record));
             return true;

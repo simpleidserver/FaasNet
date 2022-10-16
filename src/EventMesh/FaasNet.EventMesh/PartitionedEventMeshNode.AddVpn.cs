@@ -9,10 +9,10 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(AddVpnRequest addVpnRequest, CancellationToken cancellationToken)
         {
-            var vpn = await Query<GetVpnQueryResult>(VPN_PARTITION_KEY, new GetVpnQuery { Id = addVpnRequest.Vpn}, cancellationToken);
+            var vpn = await Query<GetVpnQueryResult>(PartitionNames.VPN_PARTITION_KEY, new GetVpnQuery { Id = addVpnRequest.Vpn}, cancellationToken);
             if (vpn.Success) return PackageResponseBuilder.AddVpn(addVpnRequest.Seq, AddVpnErrorStatus.EXISTINGVPN);
             var addVpnCommand = new AddVpnCommand { Id = addVpnRequest.Vpn, Description = addVpnRequest.Description };
-            var result = await Send(VPN_PARTITION_KEY, addVpnCommand, cancellationToken);
+            var result = await Send(PartitionNames.VPN_PARTITION_KEY, addVpnCommand, cancellationToken);
             if (!result.Success) return PackageResponseBuilder.AddVpn(addVpnRequest.Seq, AddVpnErrorStatus.NOLEADER);
             return PackageResponseBuilder.AddVpn(addVpnRequest.Seq);
         }

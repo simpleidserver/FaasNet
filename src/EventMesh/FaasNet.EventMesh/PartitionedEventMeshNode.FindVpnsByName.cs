@@ -9,7 +9,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(FindVpnsByNameRequest request, CancellationToken cancellationToken)
         {
-            var res = await Query<FindVpnsByNameQueryResult>(VPN_PARTITION_KEY, new FindVpnsByNameQuery { Name = request.Name }, cancellationToken);
+            var res = await Query<FindVpnsByNameQueryResult>(PartitionNames.VPN_PARTITION_KEY, new FindVpnsByNameQuery { Name = request.Name }, cancellationToken);
             return PackageResponseBuilder.FindVpnsByName(request.Seq, res.Content);
         }
     }

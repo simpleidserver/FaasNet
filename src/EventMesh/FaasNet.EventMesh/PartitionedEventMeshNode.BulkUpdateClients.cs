@@ -12,7 +12,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(BulkUpdateClientRequest updateClientRequest, CancellationToken cancellationToken)
         {
-            var vpn = await Query<GetVpnQueryResult>(VPN_PARTITION_KEY, new GetVpnQuery { Id = updateClientRequest.Vpn }, cancellationToken);
+            var vpn = await Query<GetVpnQueryResult>(PartitionNames.VPN_PARTITION_KEY, new GetVpnQuery { Id = updateClientRequest.Vpn }, cancellationToken);
             if (!vpn.Success) return PackageResponseBuilder.BulkUpdateClient(updateClientRequest.Seq, UpdateClientErrorStatus.UNKNOWN_VPN);
             var clientSecret = Guid.NewGuid().ToString();
             var updateClientCommand = new BulkUpdateClientCommand
@@ -30,7 +30,7 @@ namespace FaasNet.EventMesh
                     }).ToList()
                 }).ToList()
             };
-            var result = await Send(CLIENT_PARTITION_KEY, updateClientCommand, cancellationToken);
+            var result = await Send(PartitionNames.CLIENT_PARTITION_KEY, updateClientCommand, cancellationToken);
             if (!result.Success) return PackageResponseBuilder.BulkUpdateClient(updateClientRequest.Seq, UpdateClientErrorStatus.NOLEADER);
             return PackageResponseBuilder.BulkUpdateClient(updateClientRequest.Seq);
         }

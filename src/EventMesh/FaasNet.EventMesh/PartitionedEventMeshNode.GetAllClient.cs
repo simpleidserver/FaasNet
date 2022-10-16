@@ -10,7 +10,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(GetAllClientRequest getAllClientRequest, CancellationToken cancellationToken)
         {
-            var res = await Query<GenericSearchQueryResult<ClientQueryResult>>(CLIENT_PARTITION_KEY, new GetAllClientsQuery { Filter = getAllClientRequest.Filter }, cancellationToken);
+            var res = await Query<GenericSearchQueryResult<ClientQueryResult>>(PartitionNames.CLIENT_PARTITION_KEY, new GetAllClientsQuery { Filter = getAllClientRequest.Filter }, cancellationToken);
             return PackageResponseBuilder.GetAllClient(getAllClientRequest.Seq, res);
         }
     }

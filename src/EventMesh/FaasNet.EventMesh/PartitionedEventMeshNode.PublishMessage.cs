@@ -14,11 +14,11 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(PublishMessageRequest request, CancellationToken cancellationToken)
         {
-            var session = await Query<GetSessionQueryResult>(SESSION_PARTITION_KEY, new GetSessionQuery { Id = request.SessionId }, cancellationToken);
+            var session = await Query<GetSessionQueryResult>(PartitionNames.SESSION_PARTITION_KEY, new GetSessionQuery { Id = request.SessionId }, cancellationToken);
             if (!session.Success) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.UNKNOWN_SESSION);
             if (!session.Session.IsValid) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.EXPIRED_SESSION);
             if (session.Session.ClientPurpose != ClientPurposeTypes.PUBLISH) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.BAD_SESSION_USAGE);
-            var allQueues = await Query<SearchQueuesQueryResult>(QUEUE_PARTITION_KEY, new SearchQueuesQuery { Vpn = session.Session.Vpn, TopicMessage = request.Topic }, cancellationToken);
+            var allQueues = await Query<SearchQueuesQueryResult>(PartitionNames.QUEUE_PARTITION_KEY, new SearchQueuesQuery { Vpn = session.Session.Vpn, TopicMessage = request.Topic }, cancellationToken);
             var filteredQueues = allQueues;
             var publishedQueueNames = new ConcurrentBag<string>();
             var id = Guid.NewGuid().ToString();

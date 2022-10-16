@@ -10,7 +10,7 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(SearchQueuesRequest request, CancellationToken cancellationToken)
         {
-            var res = await Query<GenericSearchQueryResult<QueueQueryResult>>(QUEUE_PARTITION_KEY, new FindQueuesQuery
+            var res = await Query<GenericSearchQueryResult<QueueQueryResult>>(PartitionNames.QUEUE_PARTITION_KEY, new FindQueuesQuery
             {
                 Filter = request.Filter
             }, cancellationToken);
