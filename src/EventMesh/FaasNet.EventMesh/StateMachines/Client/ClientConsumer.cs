@@ -1,40 +1,77 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines.Client;
-using FaasNet.EventMesh.StateMachines.EventDefinition;
+using FaasNet.EventMesh.StateMachines.ApplicationDomain;
 using FaasNet.Partition;
+using FaasNet.RaftConsensus.Client;
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.StateMachines.Client
 {
-    public class ClientConsumer : BaseIntegrationEventConsumer, IConsumer<EventDefinitionLinkAdded>, IConsumer<EventDefinitionLinkRemoved>
+    public class ClientConsumer : BaseIntegrationEventConsumer, IConsumer<ApplicationDomainLinkAdded>, IConsumer<ApplicationDomainLinkRemoved>
     {
-        public ClientConsumer(IPartitionCluster partitionCluster) : base(partitionCluster)
-        {
+        private readonly EventMeshOptions _options;
 
+        public ClientConsumer(IOptions<EventMeshOptions> options, IPartitionCluster partitionCluster) : base(partitionCluster)
+        {
+            _options = options.Value;
         }
 
-        public async Task Consume(EventDefinitionLinkAdded request, CancellationToken cancellationToken)
+        public async Task Consume(ApplicationDomainLinkAdded request, CancellationToken cancellationToken)
         {
-            var addTargetCmd = new AddTargetCommand
+            var cmds = new List<ICommand>
             {
-                ClientId = request.Source,
-                Vpn = request.Vpn,
-                Target = request.Target,
-                EventDefId = request.EventId
+                new AddTargetCommand
+                {
+                    ClientId = request.Source,
+                    Vpn = request.Vpn,
+                    Target = request.Target,
+                    EventDefId = request.EventId
+                },
+                new AddSourceCommand
+                {
+                    ClientId = request.Target,
+                    Vpn = request.Vpn,
+                    Source = request.Source,
+                    EventDefId = request.EventId
+                }
             };
-            await Send(PartitionNames.CLIENT_PARTITION_KEY, addTargetCmd, cancellationToken);
+            await Parallel.ForEachAsync(cmds, new ParallelOptions
+            {
+                MaxDegreeOfParallelism = _options.MaxNbThreads
+            }, async (cmd, t) =>
+            {
+                await Send(PartitionNames.CLIENT_PARTITION_KEY, cmd, CancellationToken.None);
+            });
         }
 
-        public async Task Consume(EventDefinitionLinkRemoved request, CancellationToken cancellationToken)
+        public async Task Consume(ApplicationDomainLinkRemoved request, CancellationToken cancellationToken)
         {
-            var removedTargetCmd = new RemoveTargetCommand
+            var cmds = new List<ICommand>
             {
-                ClientId = request.Source,
-                Vpn = request.Vpn,
-                Target = request.Target,
-                EventId = request.EventId
+                new RemoveTargetCommand
+                {
+                    ClientId = request.Source,
+                    Vpn = request.Vpn,
+                    Target = request.Target,
+                    EventDefId = request.EventId
+                },
+                new RemoveSourceCommand
+                {
+                    ClientId = request.Target,
+                    Vpn = request.Vpn,
+                    Source = request.Source,
+                    EventDefId = request.EventId
+                }
             };
-            await Send(PartitionNames.CLIENT_PARTITION_KEY, removedTargetCmd, cancellationToken);
+            await Parallel.ForEachAsync(cmds, new ParallelOptions
+            {
+                MaxDegreeOfParallelism = _options.MaxNbThreads
+            }, async (cmd, t) =>
+            {
+                await Send(PartitionNames.CLIENT_PARTITION_KEY, cmd, CancellationToken.None);
+            });
         }
     }
 }

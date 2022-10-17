@@ -26,55 +26,51 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
             switch(cmd)
             {
                 case AddEventDefinitionCommand addEventDefinition:
-                    var existingVpnDef = await _store.Get(addEventDefinition.Id, addEventDefinition.Vpn, cancellationToken);
-                    if (existingVpnDef != null) return;
-                    var record = new EventDefinitionRecord
                     {
-                        Id = addEventDefinition.Id,
-                        CreateDateTime = DateTime.UtcNow,
-                        JsonSchema = addEventDefinition.JsonSchema,
-                        Vpn = addEventDefinition.Vpn
-                    };
-                    record.Links.Add(new EventDefinitionLink
-                    {
-                        Source = addEventDefinition.Source,
-                        Target = addEventDefinition.Target
-                    });
-                    _store.Add(record);
-                    await _store.SaveChanges(cancellationToken);
-                    await PropagateIntegrationEvent(new EventDefinitionLinkAdded
-                    {
-                        EventId = addEventDefinition.Id,
-                        Vpn = addEventDefinition.Vpn,
-                        Source = addEventDefinition.Source,
-                        Target = addEventDefinition.Target
-                    }, cancellationToken);
+                        var evtDef = await _store.Get(addEventDefinition.Id, addEventDefinition.Vpn, cancellationToken);
+                        if (evtDef != null) return;
+                        var record = new EventDefinitionRecord
+                        {
+                            Id = addEventDefinition.Id,
+                            CreateDateTime = DateTime.UtcNow,
+                            JsonSchema = addEventDefinition.JsonSchema,
+                            Vpn = addEventDefinition.Vpn
+                        };
+                        _store.Add(record);
+                        await _store.SaveChanges(cancellationToken);
+                    }
                     break;
                 case UpdateEventDefinitionCommand updateEventDefinition:
-                    var evtDef = await _store.Get(updateEventDefinition.Id, updateEventDefinition.Vpn, cancellationToken);
-                    if (evtDef == null) return;
-                    evtDef.JsonSchema = updateEventDefinition.JsonSchema;
-                    _store.Update(evtDef);
-                    await _store.SaveChanges(cancellationToken);
+                    {
+                        var evtDef = await _store.Get(updateEventDefinition.Id, updateEventDefinition.Vpn, cancellationToken);
+                        if (evtDef == null) return;
+                        evtDef.JsonSchema = updateEventDefinition.JsonSchema;
+                        _store.Update(evtDef);
+                        await _store.SaveChanges(cancellationToken);
+                    }
                     break;
                 case RemoveLinkEventDefinitionCommand removeEventDefinitionCommand:
-                    var ed = await _store.Get(removeEventDefinitionCommand.Id, removeEventDefinitionCommand.Vpn, cancellationToken);
-                    if (ed == null) return;
-                    var link = ed.Links.SingleOrDefault(l => l.Source == removeEventDefinitionCommand.Source && l.Target == removeEventDefinitionCommand.Target);
-                    if (link != null)
                     {
-                        ed.Links.Remove(link);
-                        _store.Update(ed);
-                        await _store.SaveChanges(cancellationToken);
-                        await PropagateIntegrationEvent(new EventDefinitionLinkRemoved
+                        var evtDef = await _store.Get(removeEventDefinitionCommand.Id, removeEventDefinitionCommand.Vpn, cancellationToken);
+                        if (evtDef == null) return;
+                        if (evtDef.Handle(removeEventDefinitionCommand))
                         {
-                            EventId = removeEventDefinitionCommand.Id,
-                            Vpn = removeEventDefinitionCommand.Vpn,
-                            Source = removeEventDefinitionCommand.Source,
-                            Target = removeEventDefinitionCommand.Target
-                        }, cancellationToken);
-                    }
+                            _store.Update(evtDef);
+                            await _store.SaveChanges(cancellationToken);
+                        }
 
+                    }
+                    break;
+                case AddLinkEventDefinitionCommand addLinkEventDefinitionCommand:
+                    {
+                        var evtDef = await _store.Get(addLinkEventDefinitionCommand.Id, addLinkEventDefinitionCommand.Vpn, cancellationToken);
+                        if (evtDef == null) return;
+                        if(evtDef.Handle(addLinkEventDefinitionCommand))
+                        {
+                            _store.Update(evtDef);
+                            await _store.SaveChanges(cancellationToken);
+                        }
+                    }
                     break;
             }
         }
@@ -140,6 +136,22 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
         public DateTime CreateDateTime { get; set; }
         public string JsonSchema { get; set; }
         public ICollection<EventDefinitionLink> Links { get; set; } = new List<EventDefinitionLink>();
+
+        public bool Handle(RemoveLinkEventDefinitionCommand cmd)
+        {
+            var link = Links.SingleOrDefault(l => l.Source == cmd.Source && l.Target == cmd.Target);
+            if (link == null) return false;
+            Links.Remove(link);
+            return true;
+        }
+
+        public bool Handle(AddLinkEventDefinitionCommand cmd)
+        {
+            var link = Links.SingleOrDefault(l => l.Source == cmd.Source && l.Target == cmd.Target);
+            if (link != null) return false;
+            Links.Add(new EventDefinitionLink { Source = cmd.Source, Target = cmd.Target });
+            return true;
+        }
 
         public void Deserialize(ReadBufferContext context)
         {

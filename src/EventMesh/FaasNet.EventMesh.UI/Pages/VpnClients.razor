@@ -1,0 +1,81 @@
+﻿@page "/vpns/{vpn}/clients"
+@inherits FluxorComponent
+@layout VpnLayout
+@using FaasNet.EventMesh.Client.Messages
+@using FaasNet.EventMesh.Client.StateMachines
+@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.Client.StateMachines.Queue
+@using FaasNet.EventMesh.Client.StateMachines.Session
+@using FaasNet.EventMesh.UI.Shared.Common
+@using FaasNet.EventMesh.UI.Shared.Components
+@using FaasNet.EventMesh.UI.Shared.Layout
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using FaasNet.EventMesh.UI.Stores.ClientSessions
+@using FaasNet.EventMesh.UI.Stores.Queues
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+
+<Section>
+	<Title><span>Clients</span></Title>
+	<ChildContent>
+		<Loader IsDisplayed="ClientState.Value.IsLoading">
+			<div>
+				<button class="btn btn-primary mb-2" @onclick="AddClient">Add Client</button>
+			</div>
+			@if (newClient != null)
+			{
+				<div class="alert alert-success">
+					Client <b>@newClient.ClientId</b> has been created with the secret <b>@newClient.ClientSecret</b>. Please copy it !
+				</div>
+			}
+			<Clients Vpn="@vpn"></Clients>
+		</Loader>
+	</ChildContent>
+</Section>
+
+<Modal Title="Add Client" @ref=addClientModal>
+	<AddClient @ref="addClientForm"></AddClient>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+	</div>
+</Modal>
+
+
+@code {
+	private AddClientResult newClient { get; set; } = null;
+	[Parameter] public string vpn { get; set; }
+	[Inject] private IState<ClientState> ClientState { get; set; } = null!;
+	[Inject] private IState<AppState> AppState { get; set; } = null!;
+	[Inject] private IDispatcher Dispatcher { get; set; } = null!;
+	[Inject] private ToastService ToastService { get; set; } = null!;
+	private Modal addClientModal;
+	private AddClient addClientForm;
+
+	protected override async Task OnInitializedAsync() 
+	{
+		await base.OnInitializedAsync();
+		SubscribeToAction<AddClientResultAction>((act) =>
+		{
+			addClientModal.Close();
+			newClient = act.ClientResult;
+			StateHasChanged();
+		});
+		SubscribeToAction<AddClientFailureAction>((act) =>
+		{
+			addClientModal.Close();
+			StateHasChanged();
+		});
+	}
+
+	private void AddClient()
+	{
+		addClientForm.Reset();
+		addClientModal.Open();
+	}
+
+	private void Close()
+	{
+		addClientModal.Close();
+	}
+}

@@ -21,4 +21,9 @@
 	<PackageReference Include="Fluxor.Blazor.Web" Version="5.5.0" />
 	<PackageReference Include="Fluxor.Blazor.Web.ReduxDevTools" Version="5.5.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="Pages\ApplicationDomains.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
 </Project>

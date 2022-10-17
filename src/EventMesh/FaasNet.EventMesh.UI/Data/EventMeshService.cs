@@ -2,6 +2,7 @@
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.ApplicationDomain;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.EventMesh.Client.StateMachines.Queue;
 using FaasNet.EventMesh.Client.StateMachines.Session;
@@ -38,7 +39,9 @@ namespace FaasNet.EventMesh.UI.Data
         Task<AddEventDefinitionResult> AddEventDefinition(string vpn, string jsonSchema, string source, string target, string url, int port, CancellationToken cancellationToken);
         Task<GetEventDefinitionResult> GetEventDefinition(string id, string vpn, string url, int port, CancellationToken cancellationToken);
         Task<UpdateEventDefinitionResult> UpdateEventDefinition(string id, string vpn, string jsonSchema, string url, int port, CancellationToken cancellationToken);
-        Task<RemoveLinkEventDefinitionResult> RemoveLinkEventDefinition(string id, string vpn, string source, string target, string url, int port, CancellationToken cancellationToken);
+        Task<RemoveLinkApplicationDomainResult> RemoveLinkEventDefinition(string id, string vpn, string source, string target, string url, int port, CancellationToken cancellationToken);
+        Task<AddApplicationDomainResult> AddApplicationDomain(string name, string vpn, string description, string rootTopic, string url, int port, CancellationToken cancellationToken);
+        Task<GenericSearchQueryResult<ApplicationDomainQueryResult>> GetAllApplicationDomains(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
 
     }
 
@@ -267,11 +270,28 @@ namespace FaasNet.EventMesh.UI.Data
             }
         }
 
-        public async Task<RemoveLinkEventDefinitionResult> RemoveLinkEventDefinition(string id, string vpn, string source, string target, string url, int port, CancellationToken cancellationToken)
+        public async Task<RemoveLinkApplicationDomainResult> RemoveLinkEventDefinition(string id, string vpn, string source, string target, string url, int port, CancellationToken cancellationToken)
         {
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
                 return await client.RemoveLinkEventDefinition(id, vpn, source, target, _options.RequestTimeoutMS, cancellationToken);
+            }
+        }
+
+        public async Task<AddApplicationDomainResult> AddApplicationDomain(string name, string vpn, string description, string rootTopic, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                return await client.AddApplicationDomain(name, vpn, description, rootTopic, _options.RequestTimeoutMS, cancellationToken);
+            }
+        }
+
+        public async Task<GenericSearchQueryResult<ApplicationDomainQueryResult>> GetAllApplicationDomains(FilterQuery filter, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var clientResult = await client.GetAllApplicationDomains(filter, _options.RequestTimeoutMS, cancellationToken);
+                return clientResult.Content;
             }
         }
 

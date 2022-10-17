@@ -2,33 +2,36 @@
 
 namespace FaasNet.EventMesh.Client.Messages
 {
-    public class RemoveLinkEventDefinitionRequest : BaseEventMeshPackage
+    public class RemoveLinkApplicationDomain : BaseEventMeshPackage
     {
-        public RemoveLinkEventDefinitionRequest(string seq) : base(seq)
+        public RemoveLinkApplicationDomain(string seq) : base(seq)
         {
         }
 
-        public string Id { get; set; }
+        public string Name { get; set; }
         public string Vpn { get; set; }
         public string Source { get; set; }
         public string Target { get; set; }
+        public string EventId { get; set; }
 
-        public override EventMeshCommands Command => EventMeshCommands.REMOVE_LINK_EVENT_DEFINITION_REQUEST;
+        public override EventMeshCommands Command => EventMeshCommands.REMOVE_LINK_APPLICATION_DOMAIN_REQUEST;
 
         protected override void SerializeAction(WriteBufferContext context)
         {
-            context.WriteString(Id);
+            context.WriteString(Name);
             context.WriteString(Vpn);
             context.WriteString(Source);
             context.WriteString(Target);
+            context.WriteString(EventId);
         }
 
-        public RemoveLinkEventDefinitionRequest Extract(ReadBufferContext context)
+        public RemoveLinkApplicationDomain Extract(ReadBufferContext context)
         {
-            Id = context.NextString();
+            Name = context.NextString();
             Vpn = context.NextString();
             Source = context.NextString();
             Target = context.NextString();
+            EventId = context.NextString();
             return this;
         }
     }

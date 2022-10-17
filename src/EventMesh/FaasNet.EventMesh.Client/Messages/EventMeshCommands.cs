@@ -173,13 +173,29 @@ namespace FaasNet.EventMesh.Client.Messages
         /// </summary>
         public static EventMeshCommands UPDATE_EVENT_DEFINITION_RESULT = new EventMeshCommands(41, "UPDATE_EVENT_DEFINITION_RESULT");
         /// <summary>
-        /// Request sent to remove an event definition.
+        /// Request sent to remove an application domain link.
         /// </summary>
-        public static EventMeshCommands REMOVE_LINK_EVENT_DEFINITION_REQUEST = new EventMeshCommands(42, "REMOVE_LINK_EVENT_DEFINITION_REQUEST");
+        public static EventMeshCommands REMOVE_LINK_APPLICATION_DOMAIN_REQUEST = new EventMeshCommands(42, "REMOVE_LINK_APPLICATION_DOMAIN_REQUEST");
         /// <summary>
-        /// Request returned when event definition is removed.
+        /// Request returned when application domain link is removed.
         /// </summary>
-        public static EventMeshCommands REMOVE_LINK_EVENT_DEFINITION_RESULT = new EventMeshCommands(43, "REMOVE_LINK_EVENT_DEFINITION_RESULT");
+        public static EventMeshCommands REMOVE_LINK_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(43, "REMOVE_LINK_APPLICATION_DOMAIN_RESULT");
+        /// <summary>
+        /// Request sent to add an application domain.
+        /// </summary>
+        public static EventMeshCommands ADD_APPLICATION_DOMAIN_REQUEST = new EventMeshCommands(44, "ADD_APPLICATION_DOMAIN_REQUEST");
+        /// <summary>
+        /// Result returned when an application domain is added.
+        /// </summary>
+        public static EventMeshCommands ADD_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(45, "ADD_APPLICATION_DOMAIN_RESULT");
+        /// <summary>
+        /// Request sent to search application domains.
+        /// </summary>
+        public static EventMeshCommands GET_ALL_APPLICATION_DOMAINS_REQUEST = new EventMeshCommands(46, "GET_ALL_APPLICATION_DOMAINS_REQUEST");
+        /// <summary>
+        /// Result returned when application domains is returned.
+        /// </summary>
+        public static EventMeshCommands GET_ALL_APPLICATION_DOMAINS_RESULT = new EventMeshCommands(47, "GET_ALL_APPLICATION_DOMAINS_RESULT");
 
         protected EventMeshCommands(int code)
         {

@@ -1,4 +1,5 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.StateMachines.ApplicationDomain;
 using FaasNet.EventMesh.StateMachines.Client;
 using FaasNet.EventMesh.StateMachines.EventDefinition;
 using FaasNet.EventMesh.StateMachines.Queue;
@@ -62,7 +63,9 @@ namespace FaasNet.EventMesh
             if (packageRequest.Command == EventMeshCommands.ADD_EVENT_DEFINITION_REQUEST) packageResult = await Handle(packageRequest as AddEventDefinitionRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.GET_EVENT_DEFINITION_REQUEST) packageResult = await Handle(packageRequest as GetEventDefinitionRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.UPDATE_EVENT_DEFINITION_REQUEST) packageResult = await Handle(packageRequest as UpdateEventDefinitionRequest, TokenSource.Token);
-            if (packageRequest.Command == EventMeshCommands.REMOVE_LINK_EVENT_DEFINITION_REQUEST) packageResult = await Handle(packageRequest as RemoveLinkEventDefinitionRequest, TokenSource.Token);
+            if (packageRequest.Command == EventMeshCommands.REMOVE_LINK_EVENT_DEFINITION_REQUEST) packageResult = await Handle(packageRequest as RemoveLinkApplicationDomain, TokenSource.Token);
+            if (packageRequest.Command == EventMeshCommands.ADD_APPLICATION_DOMAIN_REQUEST) packageResult = await Handle(packageRequest as AddApplicationDomainRequest, TokenSource.Token);
+            if (packageRequest.Command == EventMeshCommands.GET_ALL_APPLICATION_DOMAINS_REQUEST) packageResult = await Handle(packageRequest as GetAllApplicationDomainsRequest, TokenSource.Token);
             var writeBufferContext = new WriteBufferContext();
             packageResult.SerializeEnvelope(writeBufferContext);
             return writeBufferContext.Buffer.ToArray();
@@ -75,6 +78,7 @@ namespace FaasNet.EventMesh
             await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = PartitionNames.SESSION_PARTITION_KEY, Port = _options.StartPeerPort + 2, StateMachineType = typeof(SessionStateMachine) });
             await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = PartitionNames.QUEUE_PARTITION_KEY, Port = _options.StartPeerPort + 3, StateMachineType = typeof(QueueStateMachine) });
             await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = PartitionNames.EVENTDEFINITION_PARTITION_KEY, Port = _options.StartPeerPort + 4, StateMachineType = typeof(EventDefinitionStateMachine) });
+            await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = PartitionNames.APPLICATION_DOMAIN, Port = _options.StartPeerPort + 5, StateMachineType = typeof(ApplicationDomainStateMachine) });
         }
 
         private async Task<AppendEntryResult> Send(string partitionKey, ICommand command, CancellationToken cancellationToken)

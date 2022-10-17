@@ -1,15 +1,19 @@
-﻿@inherits LayoutComponentBase
+﻿@using FaasNet.EventMesh.UI.Shared.Components
+@inherits LayoutComponentBase
 @layout MainLayout
 
 <Section>
-    <Title>        
+    <Title>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
                     <NavLink href="/vpns">Vpns</NavLink>
                 </li>
                 <li class="breadcrumb-item">
-                    @Vpn
+                    <NavLink href="@("/vpns/" + Vpn + "/applicationdomains")">@Vpn</NavLink>
+                </li>
+                <li class="breadcrumb-item active">
+                    @ClientId
                 </li>
             </ol>
         </nav>
@@ -17,24 +21,27 @@
     <ChildContent>
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/editor")">Editor</NavLink>
+                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/clients/{ClientId}/info")">Information</NavLink>
             </li>
             <li class="nav-item">
-                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/queues")">Queues</NavLink>
+                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/clients/{ClientId}/sessions")">Sessions</NavLink>
             </li>
         </ul>
-        <div id="vpnContent">
+        <div id="clientContent">
             @Body
         </div>
     </ChildContent>
 </Section>
 
 @code {
+    public string ClientId { get; set; }
     public string Vpn { get; set; }
 
     protected override void OnParametersSet()
     {
         object clientId, vpn;
+        if((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("clientId", out clientId) == true)
+            ClientId = clientId?.ToString();
         if((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("vpn", out vpn) == true)
             Vpn = vpn?.ToString();
     }

@@ -118,6 +118,6 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
         public string Vpn { get; set; }
         public string Source { get; set; }
         public string Target { get; set; }
-        public RemoveLinkEventDefinitionResult Result { get; set; }
+        public RemoveLinkApplicationDomainResult Result { get; set; }
     }
 }

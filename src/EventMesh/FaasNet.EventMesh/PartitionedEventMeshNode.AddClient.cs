@@ -16,7 +16,7 @@ namespace FaasNet.EventMesh
             var client = await Query<GetClientQueryResult>(PartitionNames.CLIENT_PARTITION_KEY, new GetClientQuery { Id = addClientRequest.Id, Vpn = addClientRequest.Vpn }, cancellationToken);
             if (client.Success) return PackageResponseBuilder.AddClient(addClientRequest.Seq, AddClientErrorStatus.EXISTING_CLIENT);
             var clientSecret = Guid.NewGuid().ToString();
-            var addClientCommand = new AddClientCommand { Id = addClientRequest.Id, Purposes = addClientRequest.Purposes, Vpn = addClientRequest.Vpn, ClientSecret = PasswordHelper.ComputePassword(clientSecret), SessionExpirationTimeMS = _eventMeshOptions.ClientSessionExpirationTimeMS, CoordinateX = addClientRequest.CoordinateX, CoordinateY = addClientRequest.CoordinateY };
+            var addClientCommand = new AddClientCommand { Id = addClientRequest.Id, Purposes = addClientRequest.Purposes, Vpn = addClientRequest.Vpn, ClientSecret = PasswordHelper.ComputePassword(clientSecret), SessionExpirationTimeMS = _eventMeshOptions.ClientSessionExpirationTimeMS };
             var result = await Send(PartitionNames.CLIENT_PARTITION_KEY, addClientCommand, cancellationToken);
             if (!result.Success) return PackageResponseBuilder.AddClient(addClientRequest.Seq, AddClientErrorStatus.NOLEADER);
             return PackageResponseBuilder.AddClient(addClientRequest.Seq, addClientRequest.Id, clientSecret, result.Term, result.MatchIndex, result.LastIndex);

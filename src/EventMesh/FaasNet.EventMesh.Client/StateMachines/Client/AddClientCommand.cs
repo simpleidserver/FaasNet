@@ -11,8 +11,6 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
         public string Vpn { get; set; }
         public int SessionExpirationTimeMS { get; set; }
         public ICollection<ClientPurposeTypes> Purposes { get; set; } = new List<ClientPurposeTypes>();
-        public double CoordinateX { get; set; }
-        public double CoordinateY { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
@@ -22,8 +20,6 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             SessionExpirationTimeMS = context.NextInt();
             var nb = context.NextInt();
             for (var i = 0; i < nb; i++) Purposes.Add((ClientPurposeTypes)context.NextInt());
-            CoordinateX = context.NextDouble();
-            CoordinateY = context.NextDouble();
         }
 
         public void Serialize(WriteBufferContext context)
@@ -34,8 +30,6 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             context.WriteInteger(SessionExpirationTimeMS);
             context.WriteInteger(Purposes.Count);
             foreach (var purpose in Purposes) context.WriteInteger((int)purpose);
-            context.WriteDouble(CoordinateX);
-            context.WriteDouble(CoordinateY);
         }
     }
 }

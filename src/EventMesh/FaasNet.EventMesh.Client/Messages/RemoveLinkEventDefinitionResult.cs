@@ -2,28 +2,28 @@
 
 namespace FaasNet.EventMesh.Client.Messages
 {
-    public class RemoveLinkEventDefinitionResult : BaseEventMeshPackage
+    public class RemoveLinkApplicationDomainResult : BaseEventMeshPackage
     {
-        public RemoveLinkEventDefinitionResult(string seq) : base(seq)
+        public RemoveLinkApplicationDomainResult(string seq) : base(seq)
         {
         }
 
-        public override EventMeshCommands Command => EventMeshCommands.REMOVE_LINK_EVENT_DEFINITION_RESULT;
-        public RemoveEventDefinitionStatus Status { get; set; }
+        public override EventMeshCommands Command => EventMeshCommands.REMOVE_LINK_APPLICATION_DOMAIN_RESULT;
+        public RemoveLinkApplicationDomainStatus Status { get; set; }
 
         protected override void SerializeAction(WriteBufferContext context)
         {
             context.WriteInteger((int)Status);
         }
 
-        public RemoveLinkEventDefinitionResult Extract(ReadBufferContext context)
+        public RemoveLinkApplicationDomainResult Extract(ReadBufferContext context)
         {
-            Status = (RemoveEventDefinitionStatus)context.NextInt();
+            Status = (RemoveLinkApplicationDomainStatus)context.NextInt();
             return this;
         }
     }
 
-    public enum RemoveEventDefinitionStatus
+    public enum RemoveLinkApplicationDomainStatus
     {
         OK = 0,
         NOT_FOUND = 1,

@@ -11,8 +11,6 @@ namespace FaasNet.EventMesh.Client.Messages
         public string Id { get; set; }
         public string Vpn { get; set; }
         public string JsonSchema { get; set; }
-        public string Source { get; set; }
-        public string Target { get; set; }
 
         public override EventMeshCommands Command => EventMeshCommands.ADD_EVENT_DEFINITION_REQUEST;
 
@@ -21,8 +19,6 @@ namespace FaasNet.EventMesh.Client.Messages
             context.WriteString(Id);
             context.WriteString(Vpn);
             context.WriteString(JsonSchema);
-            context.WriteString(Source);
-            context.WriteString(Target);
         }
 
         public AddEventDefinitionRequest Extract(ReadBufferContext context)
@@ -30,8 +26,6 @@ namespace FaasNet.EventMesh.Client.Messages
             Id = context.NextString();
             Vpn = context.NextString();
             JsonSchema = context.NextString();
-            Source = context.NextString();
-            Target = context.NextString();
             return this;
         }
     }

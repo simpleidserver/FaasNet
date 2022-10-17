@@ -1,0 +1,69 @@
+﻿@inherits FluxorComponent
+@using FaasNet.EventMesh.Client.StateMachines
+@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@using FaasNet.EventMesh.UI.Shared.Components
+
+<EditForm OnValidSubmit="@HandleValidSubmit" Model="addClient">
+	<DataAnnotationsValidator />
+	<!-- ClientId -->
+	<div class="mb-3">
+		<label class="form-label">Client Identifier</label>
+		<InputText class="form-control" @bind-Value="addClient.ClientId" />
+		<ValidationMessage For="() => addClient.ClientId" />
+	</div>
+	<!-- VPN -->
+	<div class="mb-3">
+		<label class="form-label">VPN</label>
+		<InputText class="form-control" @bind-Value="addClient.Vpn" disabled />
+	</div>
+	<!-- Purpose Types -->
+	<div class="mb-3">
+		<label class="form-label">Types of purpose</label>
+		<select class="form-select" @bind="addClient.PurposeTypes" multiple>
+			<option value="0">Publish</option>
+			<option value="1">Subscribe</option>
+		</select>
+		<ValidationMessage For="() => addClient.PurposeTypes" />
+	</div>
+	<button type="submit" class="btn btn-primary">Add</button>
+</EditForm>
+
+@code {
+	public AddClientAction addClient { get; set; } = new();
+	[Parameter] public string Vpn { get; set; }
+	[Inject] private IState<AppState> AppState { get; set; } = null!;
+	[Inject] private IDispatcher Dispatcher { get; set; } = null!;
+	[Inject] private ToastService ToastService { get; set; } = null!;
+
+	public void Reset() 
+	{
+		addClient.Reset();
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		SubscribeToAction<AddClientResultAction>((act) =>
+		{
+			ToastService.AddInfo("Client", "Client has been added");
+			StateHasChanged();
+		});
+		SubscribeToAction<AddClientFailureAction>((act) =>
+		{
+			ToastService.AddError("Client", act.Message);
+			StateHasChanged();
+		});
+		addClient.Vpn = Vpn;
+	}
+
+	private void HandleValidSubmit()
+	{
+		addClient.Url = AppState.Value.SelectedNode.Url;
+		addClient.Port = AppState.Value.SelectedNode.Port;
+		Dispatcher.Dispatch(addClient);
+	}
+}

@@ -7,5 +7,6 @@
         public const string SESSION_PARTITION_KEY = "SESSION";
         public const string QUEUE_PARTITION_KEY = "QUEUE";
         public const string EVENTDEFINITION_PARTITION_KEY = "EVENTDEFINITION";
+        public const string APPLICATION_DOMAIN = "APPLICATION_DOMAIN";
     }
 }

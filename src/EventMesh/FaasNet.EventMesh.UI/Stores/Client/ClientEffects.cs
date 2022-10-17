@@ -128,7 +128,6 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         public void Reset()
         {
             ClientId = string.Empty;
-            Vpn = string.Empty;
             PurposeTypes = new int[] { };
         }
     }

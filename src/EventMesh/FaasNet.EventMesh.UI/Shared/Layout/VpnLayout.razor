@@ -1,0 +1,45 @@
+﻿@using FaasNet.EventMesh.UI.Shared.Components
+@inherits LayoutComponentBase
+@layout MainLayout
+
+<Section>
+    <Title>        
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <NavLink href="/vpns">Vpns</NavLink>
+                </li>
+                <li class="breadcrumb-item">
+                    @Vpn
+                </li>
+            </ol>
+        </nav>
+    </Title>
+    <ChildContent>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/applicationdomains")">Application domains</NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/clients")">Clients</NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/queues")">Queues</NavLink>
+            </li>
+        </ul>
+        <div id="vpnContent">
+            @Body
+        </div>
+    </ChildContent>
+</Section>
+
+@code {
+    public string Vpn { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        object clientId, vpn;
+        if((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("vpn", out vpn) == true)
+            Vpn = vpn?.ToString();
+    }
+}

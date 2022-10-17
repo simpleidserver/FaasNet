@@ -14,9 +14,8 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
         public int SessionExpirationTimeMS { get; set; }
         public ICollection<ClientPurposeTypes> Purposes { get; set; } = new List<ClientPurposeTypes>();
         public DateTime? CreateDateTime { get; set; }
-        public double CoordinateX { get; set; }
-        public double CoordinateY { get; set; }
-        public ICollection<ClientTargetResult> Targets { get; set; } = new List<ClientTargetResult>();
+        public ICollection<ClientLinkResult> Sources { get; set; } = new List<ClientLinkResult>();
+        public ICollection<ClientLinkResult> Targets { get; set; } = new List<ClientLinkResult>();
 
         public void Deserialize(ReadBufferContext context)
         {
@@ -27,12 +26,18 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             var nb = context.NextInt();
             for (var i = 0; i < nb; i++) Purposes.Add((ClientPurposeTypes)context.NextInt());
             CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
-            CoordinateX = context.NextDouble();
-            CoordinateY = context.NextDouble();
             nb = context.NextInt();
             for (var i = 0; i < nb; i++)
             {
-                var target = new ClientTargetResult();
+                var source = new ClientLinkResult();
+                source.Deserialize(context);
+                Sources.Add(source);
+            }
+
+            nb = context.NextInt();
+            for (var i = 0; i < nb; i++)
+            {
+                var target = new ClientLinkResult();
                 target.Deserialize(context);
                 Targets.Add(target);
             }
@@ -47,27 +52,27 @@ namespace FaasNet.EventMesh.Client.StateMachines.Client
             context.WriteInteger(Purposes.Count);
             foreach (var purpose in Purposes) context.WriteInteger((int)purpose);
             context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.GetValueOrDefault().Ticks));
-            context.WriteDouble(CoordinateX);
-            context.WriteDouble(CoordinateY);
+            context.WriteInteger(Sources.Count());
+            foreach (var source in Sources) source.Serialize(context);
             context.WriteInteger(Targets.Count());
             foreach (var target in Targets) target.Serialize(context);
         }
     }
 
-    public class ClientTargetResult : ISerializable
+    public class ClientLinkResult : ISerializable
     {
-        public string Target { get; set; }
+        public string ClientId { get; set; }
         public string EventId { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
-            Target = context.NextString();
+            ClientId = context.NextString();
             EventId = context.NextString();
         }
 
         public void Serialize(WriteBufferContext context)
         {
-            context.WriteString(Target);
+            context.WriteString(ClientId);
             context.WriteString(EventId);
         }
     }

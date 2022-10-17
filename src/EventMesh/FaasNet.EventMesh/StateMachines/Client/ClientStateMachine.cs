@@ -27,66 +27,67 @@ namespace FaasNet.EventMesh.StateMachines.Client
             switch (cmd)
             {
                 case AddClientCommand addClient:
-                    var existingClient = await _store.Get(addClient.Id, addClient.Vpn, cancellationToken);
-                    if (existingClient != null) return;
-                    _store.Add(new ClientRecord
                     {
-                        ClientSecret = addClient.ClientSecret,
-                        Id = addClient.Id,
-                        Purposes = addClient.Purposes,
-                        SessionExpirationTimeMS = addClient.SessionExpirationTimeMS,
-                        Vpn = addClient.Vpn,
-                        CreateDateTime = DateTime.UtcNow,
-                        CoordinateX = addClient.CoordinateX,
-                        CoordinateY = addClient.CoordinateY
-                    });
-                    await _store.SaveChanges(cancellationToken);
-                    break;
-                case BulkUpdateClientCommand updateClient:
-                    foreach (var client in updateClient.Clients)
-                    {
-                        var clientToUpdate = await _store.Get(client.Id, updateClient.Vpn, cancellationToken);
-                        if (clientToUpdate == null) continue;
-                        clientToUpdate.Update(client);
-                        _store.Update(clientToUpdate);
+                        var client = await _store.Get(addClient.Id, addClient.Vpn, cancellationToken);
+                        if (client != null) return;
+                        _store.Add(new ClientRecord
+                        {
+                            ClientSecret = addClient.ClientSecret,
+                            Id = addClient.Id,
+                            Purposes = addClient.Purposes,
+                            SessionExpirationTimeMS = addClient.SessionExpirationTimeMS,
+                            Vpn = addClient.Vpn,
+                            CreateDateTime = DateTime.UtcNow
+                        });
+                        await _store.SaveChanges(cancellationToken);
                     }
-
-                    await _store.SaveChanges(cancellationToken);
                     break;
-                case RemoveClientCommand removeClient:
-                    var ec = await _store.Get(removeClient.ClientId, removeClient.Vpn, cancellationToken);
-                    if (ec == null) return;
-                    _store.Remove(ec);
-                    await _store.SaveChanges(cancellationToken);
-                    await PropagateIntegrationEvent(new ClientRemoved { Id = ec.Id, Vpn = ec.Vpn, Targets = ec.Targets.Select(t => new ClientTargetRemoved
+                case AddSourceCommand addSource:
                     {
-                        EventId = t.EventId,
-                        Target = t.Target
-                    }).ToList()}, cancellationToken);
+                        var client = await _store.Get(addSource.ClientId, addSource.Vpn, cancellationToken);
+                        if (client == null) return;
+                        if(client.Handle(addSource))
+                        {
+                            _store.Update(client);
+                            await _store.SaveChanges(cancellationToken);
+                        }
+
+                    }
+                    break;
+                case RemoveSourceCommand removeSource:
+                    {
+                        var client = await _store.Get(removeSource.ClientId, removeSource.Vpn, cancellationToken);
+                        if (client == null) return;
+                        if (client.Handle(removeSource))
+                        {
+                            _store.Update(client);
+                            await _store.SaveChanges(cancellationToken);
+                        }
+
+                    }
                     break;
                 case AddTargetCommand addTarget:
-                    var cl = await _store.Get(addTarget.ClientId, addTarget.Vpn, cancellationToken);
-                    if (cl == null) return;
-                    if (!cl.Targets.Any(t => t.Target == addTarget.Target))
                     {
-                        cl.Targets.Add(new ClientTarget
+                        var client = await _store.Get(addTarget.ClientId, addTarget.Vpn, cancellationToken);
+                        if (client == null) return;
+                        if (client.Handle(addTarget))
                         {
-                            Target = addTarget.Target,
-                            EventId = addTarget.EventDefId
-                        });
-                        _store.Update(cl);
-                        await _store.SaveChanges(cancellationToken);
+                            _store.Update(client);
+                            await _store.SaveChanges(cancellationToken);
+                        }
+
                     }
                     break;
                 case RemoveTargetCommand removeTarget:
-                    var c = await _store.Get(removeTarget.ClientId, removeTarget.Vpn, cancellationToken);
-                    if (c == null) return;
-                    var target = c.Targets.SingleOrDefault(t => t.Target == removeTarget.Target && t.EventId == removeTarget.EventId);
-                    if (target != null)
                     {
-                        c.Targets.Remove(target);
-                        _store.Update(c);
-                        await _store.SaveChanges(cancellationToken);
+                        var client = await _store.Get(removeTarget.ClientId, removeTarget.Vpn, cancellationToken);
+                        if (client == null) return;
+                        if (client.Handle(removeTarget))
+                        {
+                            _store.Update(client);
+                            await _store.SaveChanges(cancellationToken);
+                        }
+
                     }
                     break;
             }
@@ -159,12 +160,15 @@ namespace FaasNet.EventMesh.StateMachines.Client
                 SessionExpirationTimeMS = client.SessionExpirationTimeMS,
                 Vpn = client.Vpn,
                 CreateDateTime = client.CreateDateTime,
-                CoordinateX = client.CoordinateX,
-                CoordinateY = client.CoordinateY,
-                Targets = client.Targets.Select(t => new ClientTargetResult
+                Sources = client.Sources.Select(t => new ClientLinkResult
                 {
                     EventId = t.EventId,
-                    Target = t.Target
+                    ClientId = t.ClientId
+                }).ToList(),
+                Targets = client.Targets.Select(t => new ClientLinkResult
+                {
+                    EventId = t.EventId,
+                    ClientId = t.ClientId
                 }).ToList()
             };
         }
@@ -178,19 +182,47 @@ namespace FaasNet.EventMesh.StateMachines.Client
         public int SessionExpirationTimeMS { get; set; }
         public ICollection<ClientPurposeTypes> Purposes { get; set; } = new List<ClientPurposeTypes>();
         public DateTime CreateDateTime { get; set; }
-        public double CoordinateX { get; set; }
-        public double CoordinateY { get; set; }
-        public ICollection<ClientTarget> Targets { get; set; } = new List<ClientTarget>();
+        public ICollection<ClientLink> Sources { get; set; } = new List<ClientLink>();
+        public ICollection<ClientLink> Targets { get; set; } = new List<ClientLink>();
 
-        public void Update(UpdateClient cmd)
+        public bool Handle(AddSourceCommand cmd)
         {
-            CoordinateX = cmd.CoordinateX;
-            CoordinateY = cmd.CoordinateY;
-            Targets = cmd.Targets.Select(t => new ClientTarget
+            var source = Sources.SingleOrDefault(s => s.ClientId == cmd.Source);
+            if (source != null) return false;
+            Sources.Add(new ClientLink
             {
-                Target = t.Target,
-                EventId = t.EventId
-            }).ToList();
+                ClientId = cmd.Source,
+                EventId = cmd.EventDefId
+            });
+            return true;
+        }
+
+        public bool Handle(RemoveSourceCommand cmd)
+        {
+            var source = Sources.SingleOrDefault(s => s.ClientId == cmd.Source);
+            if (source == null) return false;
+            Sources.Remove(source);
+            return true;
+        }
+
+        public bool Handle(AddTargetCommand cmd)
+        {
+            var source = Targets.SingleOrDefault(s => s.ClientId == cmd.Target);
+            if (source != null) return false;
+            Targets.Add(new ClientLink
+            {
+                ClientId = cmd.Target,
+                EventId = cmd.EventDefId
+            });
+            return true;
+        }
+
+        public bool Handle(RemoveTargetCommand cmd)
+        {
+            var target = Targets.SingleOrDefault(s => s.ClientId == cmd.Target);
+            if (target == null) return false;
+            Targets.Remove(target);
+            return true;
         }
 
         public void Deserialize(ReadBufferContext context)
@@ -202,12 +234,18 @@ namespace FaasNet.EventMesh.StateMachines.Client
             var nb = context.NextInt();
             for (var i = 0; i < nb; i++) Purposes.Add((ClientPurposeTypes)context.NextInt());
             CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
-            CoordinateX = context.NextDouble();
-            CoordinateY = context.NextDouble();
             nb = context.NextInt();
             for (var i = 0; i < nb; i++)
             {
-                var target = new ClientTarget();
+                var source = new ClientLink();
+                source.Deserialize(context);
+                Sources.Add(source);
+            }
+
+            nb = context.NextInt();
+            for(var i = 0; i < nb; i++)
+            {
+                var target = new ClientLink();
                 target.Deserialize(context);
                 Targets.Add(target);
             }
@@ -222,27 +260,27 @@ namespace FaasNet.EventMesh.StateMachines.Client
             context.WriteInteger(Purposes.Count);
             foreach (var purpose in Purposes) context.WriteInteger((int)purpose);
             context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
-            context.WriteDouble(CoordinateX);
-            context.WriteDouble(CoordinateY);
+            context.WriteInteger(Sources.Count());
+            foreach (var source in Sources) source.Serialize(context);
             context.WriteInteger(Targets.Count());
             foreach (var target in Targets) target.Serialize(context);
         }
     }
 
-    public class ClientTarget : ISerializable
+    public class ClientLink : ISerializable
     {
-        public string Target { get; set; }
+        public string ClientId { get; set; }
         public string EventId { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
-            Target = context.NextString();
+            ClientId = context.NextString();
             EventId = context.NextString();
         }
 
         public void Serialize(WriteBufferContext context)
         {
-            context.WriteString(Target);
+            context.WriteString(ClientId);
             context.WriteString(EventId);
         }
     }

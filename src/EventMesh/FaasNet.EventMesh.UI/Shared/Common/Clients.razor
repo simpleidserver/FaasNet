@@ -1,0 +1,85 @@
+﻿@inherits FluxorComponent
+@using FaasNet.EventMesh.Client.StateMachines
+@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@using FaasNet.EventMesh.UI.Shared.Components
+
+<Grid TRowData="ClientQueryResult" Result="ClientState.Value.Clients" @bind-Query="Filter">
+	<GridColumn TRowData="ClientQueryResult" Title="Identifier" Name="Id" IsSortEnabled="true">
+		@if (context.CreateDateTime == null)
+		{
+			<span class="newRecord"><b>NEW</b> @context.Id</span>
+		}
+		else
+		{
+			<NavLink href="@($"/vpns/{context.Vpn}/clients/{context.Id}/info")">@context.Id</NavLink>
+		}
+	</GridColumn>
+	<GridColumn TRowData="ClientQueryResult" Name="Purposes" Title="Purpose">
+		@foreach(var purposeType in context.Purposes) {
+			<span class="badge text-bg-primary purposeType">@Enum.GetName(typeof(ClientPurposeTypes), purposeType)</span>
+		}
+	</GridColumn>
+	<GridColumn TRowData="ClientQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
+		@if (context.CreateDateTime == null)
+		{
+			<span class="newRecord">-</span>
+		}
+		else
+		{
+			<span>@context.CreateDateTime.Value.ToLocalTime()</span>
+		}
+	</GridColumn>
+</Grid>
+
+@code {
+	[Inject] private IState<AppState> AppState { get; set; } = null!;
+	[Parameter] public string Vpn { get; set; }
+	private FilterQuery _filter = new FilterQuery
+	{
+		SortOrder = SortOrders.DESC,
+		SortBy = "CreateDateTime"
+	};
+	public FilterQuery Filter
+	{
+		get
+		{
+			return _filter;
+		}
+		set
+		{
+			_filter = value;
+			RefreshClients();
+		}
+	}
+	[Inject] private IDispatcher Dispatcher { get; set; } = null!;
+	[Inject] private IState<ClientState> ClientState { get; set; } = null!;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		SubscribeToAction<SelectActiveNodeAction>((act) =>
+		{
+			RefreshClients();
+		});
+		SubscribeToAction<AddClientResultAction>((act) => 
+		{
+			StateHasChanged();
+		});
+		_filter.Comparison = new ComparisonExpression
+		{
+			Operator = ComparisonOperators.EQUAL,
+			Key = "Vpn",
+			Value = Vpn
+		};
+	}
+
+	private void RefreshClients()
+	{
+		if (AppState.Value.SelectedNode == null) return;
+		Dispatcher.Dispatch(new SearchClientsAction { Filter = _filter, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
+	}
+}

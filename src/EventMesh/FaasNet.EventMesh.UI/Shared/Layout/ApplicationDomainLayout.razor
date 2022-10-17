@@ -1,21 +1,19 @@
 ﻿@inherits LayoutComponentBase
 @layout MainLayout
+@using FaasNet.EventMesh.UI.Shared.Components
 
 <Section>
-    <Title>
+    <Title>        
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
                     <NavLink href="/vpns">Vpns</NavLink>
                 </li>
                 <li class="breadcrumb-item">
-                    @Vpn
+                    <NavLink href="@("/vpns/" + Vpn + "/applicationdomains")">@Vpn</NavLink>
                 </li>
                 <li class="breadcrumb-item">
-                    Clients
-                </li>
-                <li class="breadcrumb-item active">
-                    @ClientId
+                    @ApplicationDomain
                 </li>
             </ol>
         </nav>
@@ -23,28 +21,25 @@
     <ChildContent>
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/clients/{ClientId}/info")">Information</NavLink>
-            </li>
-            <li class="nav-item">
-                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/clients/{ClientId}/sessions")">Sessions</NavLink>
+                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/applicationdomains/{ApplicationDomain}/editor")">Editor</NavLink>
             </li>
         </ul>
-        <div id="clientContent">
+        <div id="vpnContent">
             @Body
         </div>
     </ChildContent>
 </Section>
 
 @code {
-    public string ClientId { get; set; }
     public string Vpn { get; set; }
+    public string ApplicationDomain { get; set; }
 
     protected override void OnParametersSet()
     {
-        object clientId, vpn;
-        if((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("clientId", out clientId) == true)
-            ClientId = clientId?.ToString();
+        object clientId, vpn, applicationDomain;
         if((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("vpn", out vpn) == true)
             Vpn = vpn?.ToString();
+        if ((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("applicationDomain", out applicationDomain) == true)
+            ApplicationDomain = applicationDomain?.ToString();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.ApplicationDomain;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.EventMesh.Client.StateMachines.EventDefinition;
 using FaasNet.EventMesh.Client.StateMachines.Queue;
@@ -254,11 +255,32 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage RemoveLinkEventDefinition(string seq, RemoveEventDefinitionStatus status)
+        public static BaseEventMeshPackage RemoveLinkApplicationDomain(string seq, RemoveLinkApplicationDomainStatus status)
         {
-            return new RemoveLinkEventDefinitionResult(seq)
+            return new RemoveLinkApplicationDomainResult(seq)
             {
                 Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage AddApplicationDomain(string seq)
+        {
+            return new AddApplicationDomainResult(seq);
+        }
+
+        public static BaseEventMeshPackage AddApplicationDomain(string seq, AddApplicationDomainStatus status)
+        {
+            return new AddApplicationDomainResult(seq)
+            {
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage GetAllApplicationDomains(string seq, GenericSearchQueryResult<ApplicationDomainQueryResult> content)
+        {
+            return new GetAllApplicationDomainsResult(seq)
+            {
+                Content = content
             };
         }
     }

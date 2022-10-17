@@ -1,4 +1,5 @@
 ﻿using FaasNet.EventMesh;
+using FaasNet.EventMesh.StateMachines.ApplicationDomain;
 using FaasNet.EventMesh.StateMachines.Client;
 using FaasNet.EventMesh.StateMachines.EventDefinition;
 using FaasNet.Peer;
@@ -17,9 +18,10 @@ namespace FaasNet.Partition
             partitionedNodeHostFactory.Services.AddTransient<IPartitionPeerFactory, EventMeshPartitionPeerFactory>();
             partitionedNodeHostFactory.Services.AddScoped<IPeerHost, PartitionedEventMeshNode>();
             partitionedNodeHostFactory.Services.AddTransient<IMediator, Mediator>();
-            partitionedNodeHostFactory.Services.AddTransient<IConsumer<ClientRemoved>, EventDefinitionConsumer> ();
-            partitionedNodeHostFactory.Services.AddTransient<IConsumer<EventDefinitionLinkAdded>, ClientConsumer>();
-            partitionedNodeHostFactory.Services.AddTransient<IConsumer<EventDefinitionLinkRemoved>, ClientConsumer>();
+            partitionedNodeHostFactory.Services.AddTransient<IConsumer<ApplicationDomainLinkAdded>, EventDefinitionConsumer>();
+            partitionedNodeHostFactory.Services.AddTransient<IConsumer<ApplicationDomainLinkRemoved>, EventDefinitionConsumer>();
+            partitionedNodeHostFactory.Services.AddTransient<IConsumer<ApplicationDomainLinkAdded>, ClientConsumer>();
+            partitionedNodeHostFactory.Services.AddTransient<IConsumer<ApplicationDomainLinkRemoved>, ClientConsumer>();
             if (callbackOpts != null) partitionedNodeHostFactory.Services.Configure(callbackOpts);
             else partitionedNodeHostFactory.Services.Configure<EventMeshOptions>(o => { });
             return partitionedNodeHostFactory;

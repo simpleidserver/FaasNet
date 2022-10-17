@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.StateMachines.Client;
+﻿using FaasNet.EventMesh.StateMachines.ApplicationDomain;
+using FaasNet.EventMesh.StateMachines.Client;
 using FaasNet.EventMesh.StateMachines.EventDefinition;
 using FaasNet.EventMesh.StateMachines.Queue;
 using FaasNet.EventMesh.StateMachines.QueueMessage;
@@ -42,6 +43,7 @@ namespace FaasNet.EventMesh
                 s.AddScoped<ISessionStateMachineStore, SessionStateMachineStore>();
                 s.AddScoped<IVpnStateMachineStore, VpnStateMachineStore>();
                 s.AddScoped<IEventDefinitionStateMachineStore, EventDefinitionStateMachineStore>();
+                s.AddScoped<IApplicationDomainStateMachineStore, ApplicationDomainStateMachineStore>();
                 s.AddSingleton(mediator);
                 if (callbackService != null) callbackService(s);
             })

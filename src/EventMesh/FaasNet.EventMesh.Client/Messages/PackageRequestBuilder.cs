@@ -44,6 +44,14 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage GetAllApplicationDomains(FilterQuery filter)
+        {
+            return new GetAllApplicationDomainsRequest(GenerateRandomSeq())
+            {
+                Filter = filter
+            };
+        }
+
         public static BaseEventMeshPackage AddQueue(string vpn, string name, string topicFilter)
         {
             return new AddQueueRequest(GenerateRandomSeq())
@@ -186,12 +194,23 @@ namespace FaasNet.EventMesh.Client.Messages
 
         public static BaseEventMeshPackage RemoveLinkEventDefinition(string id, string vpn, string source, string target)
         {
-            return new RemoveLinkEventDefinitionRequest(GenerateRandomSeq())
+            return new RemoveLinkApplicationDomain(GenerateRandomSeq())
             {
                 Id = id,
                 Vpn = vpn,
                 Source = source,
                 Target = target
+            };
+        }
+
+        public static BaseEventMeshPackage AddApplicationDomain(string name, string vpn, string description, string rootTopic)
+        {
+            return new AddApplicationDomainRequest(GenerateRandomSeq())
+            {
+                Name = name,
+                Vpn = vpn,
+                Description = description,
+                RootTopic = rootTopic
             };
         }
 

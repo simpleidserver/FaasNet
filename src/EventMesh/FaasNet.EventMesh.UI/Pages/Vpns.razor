@@ -7,6 +7,7 @@
 @using FaasNet.EventMesh.UI.Stores.App
 @using FaasNet.EventMesh.UI.Stores.Client
 @using FaasNet.EventMesh.UI.Stores.Vpns
+@using FaasNet.EventMesh.UI.Shared.Components
 @using Fluxor
 @using Fluxor.Blazor.Web.Components
 
@@ -27,7 +28,7 @@
 					}
 					else
 					{
-						<NavLink href="@($"/vpns/{context.Name}/editor")">@context.Name</NavLink>
+						<NavLink href="@($"/vpns/{context.Name}/applicationdomains")">@context.Name</NavLink>
 					}
 				</GridColumn>
 				<GridColumn TRowData="VpnQueryResult" Title="Description" Name="Description">

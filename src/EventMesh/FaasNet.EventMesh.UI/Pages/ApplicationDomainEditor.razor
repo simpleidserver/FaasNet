@@ -1,19 +1,21 @@
-﻿@page "/vpns/{vpn}/editor"
+﻿@page "/vpns/{vpn}/applicationdomains/{applicationDomain}/editor"
 @using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.UI.Shared.AsyncApi
+@using FaasNet.EventMesh.UI.Shared.Layout
 @using FaasNet.EventMesh.UI.Stores.App
 @using FaasNet.EventMesh.UI.Stores.Client
 @using Fluxor
 @using Fluxor.Blazor.Web.Components
 @inherits FluxorComponent
-@layout VpnLayout
+@layout ApplicationDomainLayout
 
 <Loader IsDisplayed="IsLoading">
     <AsyncApiEditor Vpn="@vpn" LoadingChanged="HandleLoadingChanged" @ref="Editor"></AsyncApiEditor>
 </Loader>
 
 @code {
-    [Parameter]
-    public string vpn { get; set; }
+    [Parameter] public string vpn { get; set; }
+    [Parameter] public string applicationDomain { get; set; }
     private bool IsLoading { get; set; } = true;
     private AsyncApiEditor Editor { get; set; } = null;
     [Inject] private IDispatcher Dispatcher { get; set; } = null!;
@@ -66,7 +68,7 @@
             if (client.Targets == null || !client.Targets.Any()) continue;
             foreach (var target in client.Targets)
             {
-                var toClient = act.Clients.Records.SingleOrDefault(c => c.Id == target.Target);
+                var toClient = act.Clients.Records.SingleOrDefault(c => c.Id == target.ClientId);
                 if (toClient == null) continue;
                 links.Add(new LinkViewModel
                 {

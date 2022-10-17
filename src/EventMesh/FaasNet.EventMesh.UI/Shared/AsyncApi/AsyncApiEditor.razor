@@ -118,7 +118,7 @@
     </svg>
 </div>
 
-<AsyncApiAddClient ClientAdded="@HandleClientAdded" Vpn="@Vpn" @ref="addClient" />
+<AsyncApiClient ClientAdded="@HandleClientAdded" Vpn="@Vpn" @ref="addClient" />
 
 @code {
     const int WIDTH = 200;
@@ -146,7 +146,7 @@
     private PointViewModel SelectedCanvasOffset { get; set; } = null!;
     private PointViewModel DroppedElementPosition { get; set; } = null!;
     private IEnumerable<double> InitCanvasCoordinates { get; set; } = null!;
-    private AsyncApiAddClient addClient { get; set; } = null!;
+    private AsyncApiClient addClient { get; set; } = null!;
     private System.Timers.Timer _checkLastRepresentationIsSynchronizedTimer;
 
     public void UpdateLinks(ICollection<ApplicationViewModel> applications, ICollection<LinkViewModel> links)
