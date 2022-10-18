@@ -123,8 +123,6 @@
         var jsonSchema = await jsonEventDefinition.InvokeAsync<string>("getValue");
         Dispatcher.Dispatch(new AddEventDefAction 
         { 
-            Source = ActiveLink.StartPoint.ApplicationId,
-            Target = ActiveLink.EndPoint.ApplicationId,
             Vpn = Vpn, 
             Url = AppState.Value.SelectedNode.Url,
             Port = AppState.Value.SelectedNode.Port,

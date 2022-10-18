@@ -186,6 +186,7 @@
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        /*
         SubscribeToAction<BulkUpdateClientResultAction>((act) =>
         {
             _checkLastRepresentationIsSynchronizedTimer.Start();
@@ -202,30 +203,7 @@
 
             _checkLastRepresentationIsSynchronizedTimer.Start();
         });
-        SubscribeToAction<RemoveClientResultAction>(async (act) =>
-        {
-            await LoadingChanged.InvokeAsync(false);
-            if(act.IsRemoved)
-            {
-                ToastService.AddInfo("Client", $"Application {act.ClientId} has been removed");
-                if (ActiveApplication.ClientId == act.ClientId) ActiveApplication = null;
-                var app = Applications.First(a => a.ClientId == act.ClientId);
-                Applications.Remove(app);
-                Links = Links.Where(l => !l.IsLinkedToApplication(app.ClientId)).ToList();
-                return;
-            }
-
-            ToastService.AddError("Client", $"An error occured while trying to remove the application {act.ClientId}, {Enum.GetName(typeof(RemoveClientStatus), act.Status)}");
-        });
-        SubscribeToAction<RemoveEventDefResultAction>(async (act) =>
-        {
-            ToastService.AddInfo("EventDefinition", "Event definition has been removed");
-            await LoadingChanged.InvokeAsync(false);
-            var link = Links.First(l => l.StartPoint.ApplicationId == act.Source && l.EndPoint.ApplicationId == act.Target);
-            Links.Remove(link);
-            ActiveLink = null;
-            StateHasChanged();
-        });
+        */
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -251,7 +229,7 @@
         {
             case "application":
                 DroppedElementPosition = await JS.InvokeAsync<PointViewModel>("getApplicationMousePosition", "editor", args.ClientX, args.ClientY);
-                addClient.Open(DroppedElementPosition);
+                addClient.Open();
                 break;
         }
     }
@@ -424,13 +402,13 @@
     private async void RemoveApplication(ApplicationViewModel application)
     {
         await LoadingChanged.InvokeAsync(true);
-        Dispatcher.Dispatch(new RemoveClientAction { Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port, ClientId = application.ClientId, Vpn = Vpn });
+        // Dispatcher.Dispatch(new RemoveClientAction { Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port, ClientId = application.ClientId, Vpn = Vpn });
     }
 
     private async void RemoveLink(LinkViewModel link)
     {
         await LoadingChanged.InvokeAsync(true);
-        Dispatcher.Dispatch(new RemoveLinkEventDefAction { Id = link.EventId, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url, Vpn = Vpn, Source = ActiveLink.StartPoint.ApplicationId, Target= ActiveLink.EndPoint.ApplicationId });
+        // Dispatcher.Dispatch(new RemoveLinkEventDefAction { Id = link.EventId, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url, Vpn = Vpn, Source = ActiveLink.StartPoint.ApplicationId, Target= ActiveLink.EndPoint.ApplicationId });
     }
 
     private void CloseActiveApplication()
@@ -511,6 +489,7 @@
     private async void Update()
     {
         await LoadingChanged.InvokeAsync(true);
+        /*
         Dispatcher.Dispatch(new BulkUpdateClientAction
         {
             Clients = Applications.Select(a => new UpdateClientSubAction
@@ -528,6 +507,7 @@
             Url = AppState.Value.SelectedNode.Url,
             Vpn = Vpn
         });
+        */
     }
 
     private void CheckLastRepresentationIsSynchronized()

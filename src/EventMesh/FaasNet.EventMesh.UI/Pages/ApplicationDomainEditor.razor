@@ -3,6 +3,7 @@
 @using FaasNet.EventMesh.UI.Shared.AsyncApi
 @using FaasNet.EventMesh.UI.Shared.Layout
 @using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.ApplicationDomains
 @using FaasNet.EventMesh.UI.Stores.Client
 @using Fluxor
 @using Fluxor.Blazor.Web.Components
@@ -24,19 +25,17 @@
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        SubscribeToAction<BulkUpdateClientAction>((act) =>
+        SubscribeToAction<GetApplicationDomainResultAction>((act) =>
         {
-            IsLoading = true;
-        });
-        SubscribeToAction<SearchClientsResultAction>((act) =>
-        {
-            var applications = act.Clients.Records.Select(c => new ApplicationViewModel
+            var applications = act.Content.Content.Elements.Select(e => new ApplicationViewModel
             {
-                ClientId = c.Id,
-                CoordinateX = c.CoordinateX,
-                CoordinateY = c.CoordinateY,
-                CreateDateTime = c.CreateDateTime.GetValueOrDefault(),
-                Purposes = c.Purposes
+                ClientId = e.ElementId,
+                CreateDateTime = DateTime.UtcNow,
+                Purposes = new List<ClientPurposeTypes>
+                {
+                    ClientPurposeTypes.PUBLISH,
+                    ClientPurposeTypes.SUBSCRIBE
+                }
             }).ToList();
             var links = BuildLinks(act);
             Editor.UpdateLinks(applications, links);
@@ -52,7 +51,7 @@
     private void RefreshApplications()
     {
         if (AppState.Value.SelectedNode == null) return;
-        Dispatcher.Dispatch(new GetAllClientsAction(vpn) { Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
+        Dispatcher.Dispatch(new GetApplicationDomainAction { Name = applicationDomain, Vpn = vpn, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
     }
 
     private void HandleLoadingChanged(bool isLoading)
@@ -60,26 +59,24 @@
         IsLoading = isLoading;
     }
 
-    private static ICollection<LinkViewModel> BuildLinks(SearchClientsResultAction act)
+    private static ICollection<LinkViewModel> BuildLinks(GetApplicationDomainResultAction act)
     {
         var links = new List<LinkViewModel>();
-        foreach (var client in act.Clients.Records)
+        foreach (var client in act.Content.Content.Elements)
         {
             if (client.Targets == null || !client.Targets.Any()) continue;
             foreach (var target in client.Targets)
             {
-                var toClient = act.Clients.Records.SingleOrDefault(c => c.Id == target.ClientId);
-                if (toClient == null) continue;
                 links.Add(new LinkViewModel
                 {
                     EventId = target.EventId,
                     StartPoint = new LinkPointViewModel
                     {
-                        ApplicationId = client.Id
+                        ApplicationId = client.ElementId
                     },
                     EndPoint = new LinkPointViewModel
                     {
-                        ApplicationId = toClient.Id
+                        ApplicationId = target.Target
                     }
                 });
             }

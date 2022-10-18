@@ -125,77 +125,85 @@ namespace FaasNet.EventMesh.Client.Messages
         /// </summary>
         public static EventMeshCommands FIND_QUEUES_BY_NAME_RESPONSE = new EventMeshCommands(29, "FIND_QUEUES_BY_NAME_RESPONSE");
         /// <summary>
-        /// Request sent to update clients.
-        /// </summary>
-        public static EventMeshCommands BULK_UPDATE_CLIENT_REQUEST = new EventMeshCommands(30, "BULK_UPDATE_CLIENT_REQUEST");
-        /// <summary>
-        /// Result sent when client is updated.
-        /// </summary>
-        public static EventMeshCommands BULK_UPDATE_CLIENT_RESPONSE = new EventMeshCommands(31, "BULK_UPDATE_CLIENT_RESPONSE");
-        /// <summary>
         /// Request sent to get the partition.
         /// </summary>
-        public static EventMeshCommands GET_PARTITION_REQUEST = new EventMeshCommands(32, "GET_PARTITION_REQUEST");
+        public static EventMeshCommands GET_PARTITION_REQUEST = new EventMeshCommands(30, "GET_PARTITION_REQUEST");
         /// <summary>
         /// Result sent when partition is returned.
         /// </summary>
-        public static EventMeshCommands GET_PARTITION_RESPONSE = new EventMeshCommands(33, "GET_PARTITION_RESPONSE");
-        /// <summary>
-        /// Request sent to remove a client.
-        /// </summary>
-        public static EventMeshCommands REMOVE_CLIENT_REQUEST = new EventMeshCommands(34, "REMOVE_CLIENT_REQUEST");
-        /// <summary>
-        /// Result sent when a client is removed.
-        /// </summary>
-        public static EventMeshCommands REMOVE_CLIENT_RESPONSE = new EventMeshCommands(35, "REMOVE_CLIENT_RESPONSE");
+        public static EventMeshCommands GET_PARTITION_RESPONSE = new EventMeshCommands(31, "GET_PARTITION_RESPONSE");
         /// <summary>
         /// Request sent to add an event definition.
         /// </summary>
-        public static EventMeshCommands ADD_EVENT_DEFINITION_REQUEST = new EventMeshCommands(36, "ADD_EVENT_DEFINITION_REQUEST");
+        public static EventMeshCommands ADD_EVENT_DEFINITION_REQUEST = new EventMeshCommands(32, "ADD_EVENT_DEFINITION_REQUEST");
         /// <summary>
         /// Result returned when event definition is added.
         /// </summary>
-        public static EventMeshCommands ADD_EVENT_DEFINITION_RESPONSE = new EventMeshCommands(37, "ADD_EVENT_DEFINITION_RESPONSE");
+        public static EventMeshCommands ADD_EVENT_DEFINITION_RESPONSE = new EventMeshCommands(33, "ADD_EVENT_DEFINITION_RESPONSE");
         /// <summary>
         /// Request sent to get an event definition.
         /// </summary>
-        public static EventMeshCommands GET_EVENT_DEFINITION_REQUEST = new EventMeshCommands(38, "GET_EVENT_DEFINITION_REQUEST");
+        public static EventMeshCommands GET_EVENT_DEFINITION_REQUEST = new EventMeshCommands(34, "GET_EVENT_DEFINITION_REQUEST");
         /// <summary>
         /// Result returned when event definition is returned.
         /// </summary>
-        public static EventMeshCommands GET_EVENT_DEFINITION_RESULT = new EventMeshCommands(39, "GET_EVENT_DEFINITION_RESULT");
+        public static EventMeshCommands GET_EVENT_DEFINITION_RESULT = new EventMeshCommands(35, "GET_EVENT_DEFINITION_RESULT");
         /// <summary>
         /// Request sent to update an event definition.
         /// </summary>
-        public static EventMeshCommands UPDATE_EVENT_DEFINITION_REQUEST = new EventMeshCommands(40, "UPDATE_EVENT_DEFINITION_REQUEST");
+        public static EventMeshCommands UPDATE_EVENT_DEFINITION_REQUEST = new EventMeshCommands(36, "UPDATE_EVENT_DEFINITION_REQUEST");
         /// <summary>
         /// Request returned when event definition is updated.
         /// </summary>
-        public static EventMeshCommands UPDATE_EVENT_DEFINITION_RESULT = new EventMeshCommands(41, "UPDATE_EVENT_DEFINITION_RESULT");
+        public static EventMeshCommands UPDATE_EVENT_DEFINITION_RESULT = new EventMeshCommands(37, "UPDATE_EVENT_DEFINITION_RESULT");
         /// <summary>
         /// Request sent to remove an application domain link.
         /// </summary>
-        public static EventMeshCommands REMOVE_LINK_APPLICATION_DOMAIN_REQUEST = new EventMeshCommands(42, "REMOVE_LINK_APPLICATION_DOMAIN_REQUEST");
+        public static EventMeshCommands REMOVE_LINK_APPLICATION_DOMAIN_REQUEST = new EventMeshCommands(38, "REMOVE_LINK_APPLICATION_DOMAIN_REQUEST");
         /// <summary>
         /// Request returned when application domain link is removed.
         /// </summary>
-        public static EventMeshCommands REMOVE_LINK_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(43, "REMOVE_LINK_APPLICATION_DOMAIN_RESULT");
+        public static EventMeshCommands REMOVE_LINK_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(39, "REMOVE_LINK_APPLICATION_DOMAIN_RESULT");
         /// <summary>
         /// Request sent to add an application domain.
         /// </summary>
-        public static EventMeshCommands ADD_APPLICATION_DOMAIN_REQUEST = new EventMeshCommands(44, "ADD_APPLICATION_DOMAIN_REQUEST");
+        public static EventMeshCommands ADD_APPLICATION_DOMAIN_REQUEST = new EventMeshCommands(40, "ADD_APPLICATION_DOMAIN_REQUEST");
         /// <summary>
         /// Result returned when an application domain is added.
         /// </summary>
-        public static EventMeshCommands ADD_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(45, "ADD_APPLICATION_DOMAIN_RESULT");
+        public static EventMeshCommands ADD_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(41, "ADD_APPLICATION_DOMAIN_RESULT");
         /// <summary>
         /// Request sent to search application domains.
         /// </summary>
-        public static EventMeshCommands GET_ALL_APPLICATION_DOMAINS_REQUEST = new EventMeshCommands(46, "GET_ALL_APPLICATION_DOMAINS_REQUEST");
+        public static EventMeshCommands GET_ALL_APPLICATION_DOMAINS_REQUEST = new EventMeshCommands(42, "GET_ALL_APPLICATION_DOMAINS_REQUEST");
         /// <summary>
         /// Result returned when application domains is returned.
         /// </summary>
-        public static EventMeshCommands GET_ALL_APPLICATION_DOMAINS_RESULT = new EventMeshCommands(47, "GET_ALL_APPLICATION_DOMAINS_RESULT");
+        public static EventMeshCommands GET_ALL_APPLICATION_DOMAINS_RESULT = new EventMeshCommands(43, "GET_ALL_APPLICATION_DOMAINS_RESULT");
+        /// <summary>
+        /// Request sent to add the link application domain.
+        /// </summary>
+        public static EventMeshCommands ADD_LINK_APPLICATION_DOMAIN_REQUEST = new EventMeshCommands(44, "ADD_LINK_APPLICATION_DOMAIN_REQUEST");
+        /// <summary>
+        /// Result returned when the link application domain is added.
+        /// </summary>
+        public static EventMeshCommands ADD_LINK_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(45, "ADD_LINK_APPLICATION_DOMAIN_RESULT");
+        /// <summary>
+        /// Request sent to update the coordinates of the application domain.
+        /// </summary>
+        public static EventMeshCommands UPDATE_APPLICATION_DOMAIN_COORDINATES_REQUEST = new EventMeshCommands(46, "UPDATE_APPLICATION_DOMAIN_COORDINATES");
+        /// <summary>
+        /// Result returned when the coordinates of the application domain are updated.
+        /// </summary>
+        public static EventMeshCommands UPDATE_APPLICATION_DOMAIN_COORDINATES_RESULT = new EventMeshCommands(47, "UPDATE_APPLICATION_DOMAIN_COORDINATES_RESULT");
+        /// <summary>
+        /// Request sent to get the application domain.
+        /// </summary>
+        public static EventMeshCommands GET_APPLICATION_DOMAIN_REQUEST = new EventMeshCommands(48, "GET_APPLICATION_DOMAIN_REQUEST");
+        /// <summary>
+        /// Result returned when the application domain is returned.
+        /// </summary>
+        public static EventMeshCommands GET_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(49, "GET_APPLICATION_DOMAIN_RESULT");
 
         protected EventMeshCommands(int code)
         {

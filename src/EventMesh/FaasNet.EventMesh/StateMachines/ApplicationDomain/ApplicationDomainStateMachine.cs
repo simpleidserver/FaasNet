@@ -120,13 +120,21 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
             switch(query)
             {
                 case GetAllApplicationDomainsQuery getAllApplicationDomains:
-                    var res = await _store.Find(getAllApplicationDomains.Filter, cancellationToken);
-                    return new GenericSearchQueryResult<ApplicationDomainQueryResult>
                     {
-                        TotalPages = res.TotalPages,
-                        TotalRecords = res.TotalRecords,
-                        Records = res.Records.Select(r => Transform(r))
-                    };
+                        var res = await _store.Find(getAllApplicationDomains.Filter, cancellationToken);
+                        return new GenericSearchQueryResult<ApplicationDomainQueryResult>
+                        {
+                            TotalPages = res.TotalPages,
+                            TotalRecords = res.TotalRecords,
+                            Records = res.Records.Select(r => Transform(r))
+                        };
+                    }
+                case GetApplicationDomainQuery getApplicationDomainQuery:
+                    {
+                        var res = await _store.Get(getApplicationDomainQuery.Name, getApplicationDomainQuery.Vpn, cancellationToken);
+                        if (res == null) return new GetApplicationDomainQueryResult { Success = false };
+                        return new GetApplicationDomainQueryResult { Success = true, Content = Transform(res) };
+                    }
             }
 
             return null;
@@ -161,7 +169,18 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
                 Name = applicationDomain.Name,
                 RootTopic = applicationDomain.RootTopic,
                 UpdateDateTime = applicationDomain.UpdateDateTime,
-                Vpn = applicationDomain.Vpn
+                Vpn = applicationDomain.Vpn,
+                Elements = applicationDomain.Elements.Select(d => new ApplicationDomainElementResult
+                {
+                    CoordinateX = d.CoordinateX,
+                    CoordinateY = d.CoordinateY,
+                    ElementId = d.ElementId,
+                    Targets = d.Targets.Select(t => new ApplicationDomainElementLinkResult
+                    {
+                        EventId = t.EventId,
+                        Target = t.Target
+                    }).ToList()
+                }).ToList()
             };
         }
     }

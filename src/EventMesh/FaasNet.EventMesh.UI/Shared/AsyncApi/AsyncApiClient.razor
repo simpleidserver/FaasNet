@@ -6,33 +6,36 @@
 @using FaasNet.EventMesh.UI.Shared.Components
 
 @inherits FluxorComponent
-<Panel Title="Choose a client" @ref="panel">
-    <!-- Select an existing client -->
-    <div class="card">
-        <div class="card-header">
-            Select an existing client
+<Modal Title="Choose a client" IsFullWidth="true" @ref="panel">
+    <div class="apiClient">
+        <!-- Add a new client -->
+        <div class="card">
+            <div class="card-header">
+                Add a client
+            </div>
+            <div class="card-body">
+                <AddClient Vpn="@Vpn"></AddClient>
+            </div>
         </div>
-        <div class="card-body">
-            <Clients Vpn="@Vpn"></Clients>
+        <!-- Select an existing client -->
+        <div class="card">
+            <div class="card-header">
+                Select an existing client
+            </div>
+            <div class="card-body">
+                <Clients Vpn="@Vpn"></Clients>
+            </div>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary">Confirm</button>
         </div>
     </div>
-    <div class="card">
-        <div class="card-header">
-            Add a client
-        </div>
-        <div class="card-body">
-            <AddClient Vpn="@Vpn"></AddClient>
-        </div>
-    </div>
-    <div>
-        <button type="button" class="btn btn-primary">Confirm</button>
-    </div>
-</Panel>
+</Modal>
 
 @code {
     [Parameter] public EventCallback<AddClientResultAction> ClientAdded { get; set; }
     [Parameter] public string Vpn { get; set; } = null!;
-    public Panel panel;
+    public Modal panel;
 
     public void Open()
     {

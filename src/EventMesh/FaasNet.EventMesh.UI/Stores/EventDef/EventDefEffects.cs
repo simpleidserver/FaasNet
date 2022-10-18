@@ -17,7 +17,7 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
         [EffectMethod]
         public async Task Handle(AddEventDefAction action, IDispatcher dispatcher)
         {
-            var result = await _eventMeshService.AddEventDefinition(action.Vpn, action.JsonSchema, action.Source, action.Target, action.Url, action.Port, CancellationToken.None);
+            var result = await _eventMeshService.AddEventDefinition(action.Vpn, action.JsonSchema, action.Url, action.Port, CancellationToken.None);
             if (result.Status != AddEventDefinitionStatus.OK)
             {
                 dispatcher.Dispatch(new AddEventDefFailureAction($"An error occured while trying to add the , Error: {Enum.GetName(typeof(AddEventDefinitionStatus), result.Status)}"));
@@ -41,21 +41,12 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
             var result = await _eventMeshService.UpdateEventDefinition(action.Id, action.Vpn, action.JsonSchema, action.Url, action.Port, CancellationToken.None);
             dispatcher.Dispatch(new UpdateEventDefResultAction { Result = result });
         }
-
-        [EffectMethod]
-        public async Task Handle(RemoveLinkEventDefAction action, IDispatcher dispatcher)
-        {
-            var result = await _eventMeshService.RemoveLinkEventDefinition(action.Id, action.Vpn, action.Source, action.Target, action.Url, action.Port, CancellationToken.None);
-            dispatcher.Dispatch(new RemoveEventDefResultAction { Id = action.Id, Vpn = action.Vpn, Result = result, Target = action.Target, Source = action.Source });
-        }
     }
 
     public class AddEventDefAction
     {
         public string Vpn { get; set; }
         public string JsonSchema { get; set; }
-        public string Source { get; set; }
-        public string Target { get; set; }
         public string Url { get; set; }
         public int Port { get; set; }
     }
@@ -100,24 +91,5 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
     public class UpdateEventDefResultAction
     {
         public UpdateEventDefinitionResult Result { get; set; }
-    }
-
-    public class RemoveLinkEventDefAction
-    {
-        public string Id { get; set; }
-        public string Vpn { get; set; }
-        public string Source { get; set; }
-        public string Target { get; set; }
-        public string Url { get; set; }
-        public int Port { get; set; }
-    }
-
-    public class RemoveEventDefResultAction
-    {
-        public string Id { get; set; }
-        public string Vpn { get; set; }
-        public string Source { get; set; }
-        public string Target { get; set; }
-        public RemoveLinkApplicationDomainResult Result { get; set; }
     }
 }

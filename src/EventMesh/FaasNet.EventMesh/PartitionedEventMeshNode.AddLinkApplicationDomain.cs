@@ -9,7 +9,7 @@ namespace FaasNet.EventMesh
 {
     public partial class PartitionedEventMeshNode
     {
-        public async Task<BaseEventMeshPackage> Handle(RemoveLinkApplicationDomainRequest removeLinkApplicationDomain, CancellationToken cancellationToken)
+        public async Task<BaseEventMeshPackage> Handle(AddLinkApplicationDomainRequest removeLinkApplicationDomain, CancellationToken cancellationToken)
         {
             var vpn = await Query<GetVpnQueryResult>(PartitionNames.VPN_PARTITION_KEY, new GetVpnQuery { Id = removeLinkApplicationDomain.Vpn }, cancellationToken);
             if (!vpn.Success) return PackageResponseBuilder.RemoveLinkApplicationDomain(removeLinkApplicationDomain.Seq, RemoveLinkApplicationDomainStatus.UNKNOWN_VPN);

@@ -71,10 +71,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as SearchSessionsResult;
         }
 
-        public async Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposes, double coordinateX = default(double), double coordinateY = default(double), int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposes, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AddClient(clientId, vpn, purposes, coordinateX, coordinateY);
+            var package = PackageRequestBuilder.AddClient(clientId, vpn, purposes);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);
@@ -83,20 +83,6 @@ namespace FaasNet.EventMesh.Client
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
             return packageResult as AddClientResult;
-        }
-
-        public async Task<BulkUpdateClientResult> UpdateClient(string vpn, ICollection<UpdateClientRequest> clients, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.BulkUpdateClient(vpn, clients);
-            package.SerializeEnvelope(writeCtx);
-            var payload = writeCtx.Buffer.ToArray();
-            await Send(payload, timeoutMS, cancellationToken);
-            var resultPayload = await Receive(timeoutMS, cancellationToken);
-            var readCtx = new ReadBufferContext(resultPayload);
-            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
-            EnsureSuccessStatus(package, packageResult);
-            return packageResult as BulkUpdateClientResult;
         }
 
         public async Task<GetClientResult> GetClient(string clientId, string vpn, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
@@ -211,24 +197,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as GetPartitionResult;
         }
 
-        public async Task<RemoveClientResult> RemoveClient(string vpn, string clientId, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AddEventDefinitionResult> AddEventDefinition(string id, string vpn, string jsonSchema, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.RemoveClient(vpn, clientId);
-            package.SerializeEnvelope(writeCtx);
-            var payload = writeCtx.Buffer.ToArray();
-            await Send(payload, timeoutMS, cancellationToken);
-            var resultPayload = await Receive(timeoutMS, cancellationToken);
-            var readCtx = new ReadBufferContext(resultPayload);
-            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
-            EnsureSuccessStatus(package, packageResult);
-            return packageResult as RemoveClientResult;
-        }
-
-        public async Task<AddEventDefinitionResult> AddEventDefinition(string id, string vpn, string jsonSchema, string source, string target, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AddEventDefinition(id, vpn, jsonSchema, source, target);
+            var package = PackageRequestBuilder.AddEventDefinition(id, vpn, jsonSchema);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);
@@ -267,20 +239,6 @@ namespace FaasNet.EventMesh.Client
             return packageResult as UpdateEventDefinitionResult;
         }
 
-        public async Task<RemoveLinkApplicationDomainResult> RemoveLinkEventDefinition(string id, string vpn, string source, string target, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.RemoveLinkEventDefinition(id, vpn, source, target);
-            package.SerializeEnvelope(writeCtx);
-            var payload = writeCtx.Buffer.ToArray();
-            await Send(payload, timeoutMS, cancellationToken);
-            var resultPayload = await Receive(timeoutMS, cancellationToken);
-            var readCtx = new ReadBufferContext(resultPayload);
-            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
-            EnsureSuccessStatus(package, packageResult);
-            return packageResult as RemoveLinkApplicationDomainResult;
-        }
-
         public async Task<AddApplicationDomainResult> AddApplicationDomain(string name, string vpn, string description, string rootTopic, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
@@ -293,6 +251,62 @@ namespace FaasNet.EventMesh.Client
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
             return packageResult as AddApplicationDomainResult;
+        }
+
+        public async Task<AddLinkApplicationDomainResult> AddApplicationDomainLink(string name, string vpn, string source, string target, string eventId, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.AddLinkApplicationDomain(name, vpn, source, target, eventId);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as AddLinkApplicationDomainResult;
+        }
+
+        public async Task<RemoveLinkApplicationDomainResult> RemoveApplicationDomainLink(string name, string vpn, string source, string target, string eventId, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.RemoveLinkApplicationDomain(name, vpn, source, target, eventId);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as RemoveLinkApplicationDomainResult;
+        }
+
+        public async Task<UpdateApplicationDomainCoordinatesResult> UpdateApplicationDomainCoordinates(string name, string vpn, ICollection<ApplicationDomainCoordinate> coordinates, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.UpdateApplicationDomainCoordinates(name, vpn, coordinates);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as UpdateApplicationDomainCoordinatesResult;
+        }
+
+        public async Task<GetApplicationDomainResult> GetApplicationDomain(string name, string vpn, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.GetApplicationDomain(name, vpn);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as GetApplicationDomainResult;
         }
 
         public async Task<GetAllApplicationDomainsResult> GetAllApplicationDomains(FilterQuery filter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))

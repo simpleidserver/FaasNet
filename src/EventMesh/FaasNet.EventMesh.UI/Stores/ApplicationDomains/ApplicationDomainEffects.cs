@@ -35,6 +35,21 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
             var result = await _eventMeshService.GetAllApplicationDomains(action.Filter, action.Url, action.Port, CancellationToken.None);
             dispatcher.Dispatch(new SearchApplicationDomainsResultAction(result));
         }
+
+
+        [EffectMethod]
+        public async Task Handle(RemoveApplicationDomainLinkAction action, IDispatcher dispatcher)
+        {
+            var result = await _eventMeshService.RemoveLinkEventDefinition(action.Name, action.Vpn, action.Source, action.Target, action.EventId, action.Url, action.Port, CancellationToken.None);
+            dispatcher.Dispatch(new RemoveApplicationDomainLinkResultAction { Name = action.Name, EventId = action.EventId, Vpn = action.Vpn, Result = result, Target = action.Target, Source = action.Source });
+        }
+
+        [EffectMethod]
+        public async Task Handle(GetApplicationDomainAction action, IDispatcher dispatcher)
+        {
+            var result = await _eventMeshService.GetApplicationDomain(action.Name, action.Vpn, action.Url, action.Port, CancellationToken.None);
+            dispatcher.Dispatch(new GetApplicationDomainResultAction { Content = result });
+        }
     }
 
     public class AddApplicationDomainAction
@@ -91,5 +106,39 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
         {
             ApplicationDomains = applicationDomains;
         }
+    }
+
+    public class GetApplicationDomainAction
+    {
+        public string Name { get; set; }
+        public string Vpn { get; set; }
+        public string Url { get; set; }
+        public int Port { get; set; }
+    }
+
+    public class GetApplicationDomainResultAction
+    {
+        public GetApplicationDomainResult Content { get; set; }
+    }
+
+    public class RemoveApplicationDomainLinkAction
+    {
+        public string Name { get; set; }
+        public string Vpn { get; set; }
+        public string Source { get; set; }
+        public string Target { get; set; }
+        public string EventId { get; set; }
+        public string Url { get; set; }
+        public int Port { get; set; }
+    }
+
+    public class RemoveApplicationDomainLinkResultAction
+    {
+        public string Name { get; set; }
+        public string Vpn { get; set; }
+        public string Source { get; set; }
+        public string Target { get; set; }
+        public string EventId { get; set; }
+        public RemoveLinkApplicationDomainResult Result { get; set; }
     }
 }

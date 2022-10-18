@@ -61,16 +61,6 @@ namespace FaasNet.EventMesh.Client.Messages
             return new AddClientResult(seq, status);
         }
 
-        public static BaseEventMeshPackage BulkUpdateClient(string seq, UpdateClientErrorStatus status)
-        {
-            return new BulkUpdateClientResult(seq, status);
-        }
-
-        public static BaseEventMeshPackage BulkUpdateClient(string seq)
-        {
-            return new BulkUpdateClientResult(seq);
-        }
-
         public static BaseEventMeshPackage AddQueue(string seq, AddQueueStatus status = AddQueueStatus.SUCCESS)
         {
             return new AddQueueResponse(seq)
@@ -193,22 +183,6 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage RemoveClient(string seq)
-        {
-            return new RemoveClientResult(seq)
-            {
-                Status = RemoveClientStatus.OK
-            };
-        }
-
-        public static BaseEventMeshPackage RemoveClient(string seq, RemoveClientStatus status)
-        {
-            return new RemoveClientResult(seq)
-            {
-                Status = status
-            };
-        }
-
         public static BaseEventMeshPackage AddEventDefinition(string seq, string eventDefId, AddEventDefinitionStatus status)
         {
             return new AddEventDefinitionResult(seq)
@@ -281,6 +255,31 @@ namespace FaasNet.EventMesh.Client.Messages
             return new GetAllApplicationDomainsResult(seq)
             {
                 Content = content
+            };
+        }
+
+        public static BaseEventMeshPackage AddLinkApplicationDomain(string seq, AddLinkApplicationDomainStatus status)
+        {
+            return new AddLinkApplicationDomainResult(seq)
+            {
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage UpdateApplicationDomainCoordinates(string seq, UpdateApplicationDomainCoordinatesStatus status)
+        {
+            return new UpdateApplicationDomainCoordinatesResult(seq)
+            {
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage GetApplicationDomain(string seq, ApplicationDomainQueryResult applicationDomain = null)
+        {
+            return new GetApplicationDomainResult(seq)
+            {
+                Success = applicationDomain != null,
+                Content = applicationDomain
             };
         }
     }

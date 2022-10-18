@@ -26,14 +26,9 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposes, double coordinateX = default(double), double coordinateY = default(double))
+        public static BaseEventMeshPackage AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposes)
         {
-            return new AddClientRequest(GenerateRandomSeq(), clientId, vpn, purposes, coordinateX, coordinateY);
-        }
-
-        public static BaseEventMeshPackage BulkUpdateClient(string vpn, ICollection<UpdateClientRequest> clients)
-        {
-            return new BulkUpdateClientRequest(GenerateRandomSeq(), vpn, clients);
+            return new AddClientRequest(GenerateRandomSeq(), clientId, vpn, purposes);
         }
 
         public static BaseEventMeshPackage GetAllClient(FilterQuery filter)
@@ -152,24 +147,13 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage RemoveClient(string vpn, string clientId)
-        {
-            return new RemoveClientRequest(GenerateRandomSeq())
-            {
-                ClientId = clientId,
-                Vpn = vpn
-            };
-        }
-
-        public static BaseEventMeshPackage AddEventDefinition(string id, string vpn, string jsonSchema, string source, string target)
+        public static BaseEventMeshPackage AddEventDefinition(string id, string vpn, string jsonSchema)
         {
             return new AddEventDefinitionRequest(GenerateRandomSeq())
             {
                 Id = id,
                 JsonSchema = jsonSchema,
-                Target = target,
-                Vpn = vpn,
-                Source = source
+                Vpn = vpn
             };
         }
 
@@ -192,14 +176,27 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage RemoveLinkEventDefinition(string id, string vpn, string source, string target)
+        public static BaseEventMeshPackage RemoveLinkApplicationDomain(string name, string vpn, string source, string target, string eventId)
         {
-            return new RemoveLinkApplicationDomain(GenerateRandomSeq())
+            return new RemoveLinkApplicationDomainRequest(GenerateRandomSeq())
             {
-                Id = id,
+                Name = name,
                 Vpn = vpn,
                 Source = source,
-                Target = target
+                Target = target,
+                EventId = eventId
+            };
+        }
+
+        public static BaseEventMeshPackage AddLinkApplicationDomain(string name, string vpn, string source, string target, string eventId)
+        {
+            return new AddLinkApplicationDomainRequest(GenerateRandomSeq())
+            {
+                Name = name,
+                Vpn = vpn,
+                Source = source,
+                Target = target,
+                EventId = eventId
             };
         }
 
@@ -211,6 +208,25 @@ namespace FaasNet.EventMesh.Client.Messages
                 Vpn = vpn,
                 Description = description,
                 RootTopic = rootTopic
+            };
+        }
+
+        public static BaseEventMeshPackage UpdateApplicationDomainCoordinates(string name, string vpn, ICollection<ApplicationDomainCoordinate> coordinates)
+        {
+            return new UpdateApplicationDomainCoordinatesRequest(GenerateRandomSeq())
+            {
+                Name = name,
+                Vpn = vpn,
+                Coordinates = coordinates
+            };
+        }
+
+        public static BaseEventMeshPackage GetApplicationDomain(string name, string vpn)
+        {
+            return new GetApplicationDomainRequest(GenerateRandomSeq())
+            {
+                Name = name,
+                Vpn = vpn
             };
         }
 

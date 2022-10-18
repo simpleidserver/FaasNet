@@ -66,24 +66,26 @@ namespace FaasNet.EventMesh.Client.Messages
             if (cmd == EventMeshCommands.FIND_CLIENTS_BY_NAME_RESPONSE) return new FindClientsByNameResult(seq).Extract(context);
             if (cmd == EventMeshCommands.FIND_QUEUES_BY_NAME_REQUEST) return new FindQueuesByNameRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.FIND_QUEUES_BY_NAME_RESPONSE) return new FindQueuesByNameResult(seq).Extract(context);
-            if (cmd == EventMeshCommands.BULK_UPDATE_CLIENT_REQUEST) return new BulkUpdateClientRequest(seq).Extract(context);
-            if (cmd == EventMeshCommands.BULK_UPDATE_CLIENT_RESPONSE) return new BulkUpdateClientResult(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_PARTITION_REQUEST) return new GetPartitionRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_PARTITION_RESPONSE) return new GetPartitionResult(seq).Extract(context);
-            if (cmd == EventMeshCommands.REMOVE_CLIENT_REQUEST) return new RemoveClientRequest(seq).Extract(context);
-            if (cmd == EventMeshCommands.REMOVE_CLIENT_RESPONSE) return new RemoveClientResult(seq).Extract(context);
             if (cmd == EventMeshCommands.ADD_EVENT_DEFINITION_REQUEST) return new AddEventDefinitionRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.ADD_EVENT_DEFINITION_RESPONSE) return new AddEventDefinitionResult(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_EVENT_DEFINITION_REQUEST) return new GetEventDefinitionRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_EVENT_DEFINITION_RESULT) return new GetEventDefinitionResult(seq).Extract(context);
             if (cmd == EventMeshCommands.UPDATE_EVENT_DEFINITION_REQUEST) return new UpdateEventDefinitionRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.UPDATE_EVENT_DEFINITION_RESULT) return new UpdateEventDefinitionResult(seq).Extract(context);
-            if (cmd == EventMeshCommands.REMOVE_LINK_EVENT_DEFINITION_REQUEST) return new RemoveLinkApplicationDomain(seq).Extract(context);
-            if (cmd == EventMeshCommands.REMOVE_LINK_EVENT_DEFINITION_RESULT) return new RemoveLinkApplicationDomainResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.REMOVE_LINK_APPLICATION_DOMAIN_REQUEST) return new RemoveLinkApplicationDomainRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.REMOVE_LINK_APPLICATION_DOMAIN_RESULT) return new RemoveLinkApplicationDomainResult(seq).Extract(context);
             if (cmd == EventMeshCommands.ADD_APPLICATION_DOMAIN_REQUEST) return new AddApplicationDomainRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.ADD_APPLICATION_DOMAIN_RESULT) return new AddApplicationDomainResult(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_ALL_APPLICATION_DOMAINS_REQUEST) return new GetAllApplicationDomainsRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_ALL_APPLICATION_DOMAINS_RESULT) return new GetAllApplicationDomainsResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_LINK_APPLICATION_DOMAIN_REQUEST) return new AddLinkApplicationDomainRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_LINK_APPLICATION_DOMAIN_RESULT) return new AddLinkApplicationDomainResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.UPDATE_APPLICATION_DOMAIN_COORDINATES_REQUEST) return new UpdateApplicationDomainCoordinatesRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.UPDATE_APPLICATION_DOMAIN_COORDINATES_REQUEST) return new UpdateApplicationDomainCoordinatesResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.GET_APPLICATION_DOMAIN_REQUEST) return new GetApplicationDomainRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.GET_APPLICATION_DOMAIN_RESULT) return new GetApplicationDomainResult(seq).Extract(context);
             return null;
         }
     }

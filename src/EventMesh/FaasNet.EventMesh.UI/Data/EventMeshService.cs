@@ -25,8 +25,7 @@ namespace FaasNet.EventMesh.UI.Data
         Task<GenericSearchQueryResult<SessionQueryResult>> SearchSessions(string clientId, string vpn, FilterQuery filter, string url, int port, CancellationToken cancellationToken);
         Task<GenericSearchQueryResult<QueueQueryResult>> SearchQueues(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
         Task<AddVpnResult> AddVpn(string vpn, string description, string url, int port, CancellationToken cancellationToken);
-        Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken, double coordinateX = default(double), double coordinateY = default(double));
-        Task<BulkUpdateClientResult> BulkUpdateClient(string vpn, ICollection<UpdateClientRequest> clients, string url, int port, CancellationToken cancellationToken);
+        Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken);
         Task<GetClientResult> GetClient(string clientId, string vpn, string url, int port, CancellationToken cancellationToken);
         Task<AddQueueResponse> AddQueue(string vpn, string name, string topicFilter, string url, int port, CancellationToken cancellationToken);
         Task<PublishMessageResult> PublishMessage(string clientId, string vpn, string clientSecret, string topicMessage, string content, string url, int port, CancellationToken cancellationToken);
@@ -35,14 +34,13 @@ namespace FaasNet.EventMesh.UI.Data
         Task<IEnumerable<string>> FindClientsByName(string name, string url, int port, CancellationToken cancellationToken);
         Task<IEnumerable<string>> FindQueuesByName(string name, string url, int port, CancellationToken cancellationToken);
         Task<GetPartitionResult> GetPartition(string partition, string url, int port, CancellationToken cancellationToken);
-        Task<RemoveClientResult> RemoveClient(string vpn, string clientId, string url, int port, CancellationToken cancellationToken);
-        Task<AddEventDefinitionResult> AddEventDefinition(string vpn, string jsonSchema, string source, string target, string url, int port, CancellationToken cancellationToken);
+        Task<AddEventDefinitionResult> AddEventDefinition(string vpn, string jsonSchema, string url, int port, CancellationToken cancellationToken);
         Task<GetEventDefinitionResult> GetEventDefinition(string id, string vpn, string url, int port, CancellationToken cancellationToken);
         Task<UpdateEventDefinitionResult> UpdateEventDefinition(string id, string vpn, string jsonSchema, string url, int port, CancellationToken cancellationToken);
-        Task<RemoveLinkApplicationDomainResult> RemoveLinkEventDefinition(string id, string vpn, string source, string target, string url, int port, CancellationToken cancellationToken);
+        Task<RemoveLinkApplicationDomainResult> RemoveLinkEventDefinition(string name, string vpn, string source, string target, string eventId, string url, int port, CancellationToken cancellationToken);
         Task<AddApplicationDomainResult> AddApplicationDomain(string name, string vpn, string description, string rootTopic, string url, int port, CancellationToken cancellationToken);
         Task<GenericSearchQueryResult<ApplicationDomainQueryResult>> GetAllApplicationDomains(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
-
+        Task<GetApplicationDomainResult> GetApplicationDomain(string name, string vpn, string url, int port, CancellationToken cancellationToken);
     }
 
     public class EventMeshService : IEventMeshService
@@ -136,20 +134,11 @@ namespace FaasNet.EventMesh.UI.Data
             }
         }
 
-        public async Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken, double coordinateX = default(double), double coordinateY = default(double))
+        public async Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken)
         {
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
-                var clientResult = await client.AddClient(clientId, vpn, purposeTypes, coordinateY, coordinateY, _options.RequestTimeoutMS, cancellationToken);
-                return clientResult;
-            }
-        }
-
-        public async Task<BulkUpdateClientResult> BulkUpdateClient(string vpn, ICollection<UpdateClientRequest> clients, string url, int port, CancellationToken cancellationToken)
-        {
-            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
-            {
-                var clientResult = await client.UpdateClient(vpn, clients, _options.RequestTimeoutMS, cancellationToken);
+                var clientResult = await client.AddClient(clientId, vpn, purposeTypes, _options.RequestTimeoutMS, cancellationToken);
                 return clientResult;
             }
         }
@@ -238,19 +227,11 @@ namespace FaasNet.EventMesh.UI.Data
             return result;
         }
 
-        public async Task<RemoveClientResult> RemoveClient(string vpn, string clientId, string url, int port, CancellationToken cancellationToken)
+        public async Task<AddEventDefinitionResult> AddEventDefinition(string vpn, string jsonSchema, string url, int port, CancellationToken cancellationToken)
         {
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
-               return await client.RemoveClient(vpn, clientId, _options.RequestTimeoutMS, cancellationToken);
-            }
-        }
-
-        public async Task<AddEventDefinitionResult> AddEventDefinition(string vpn, string jsonSchema, string source, string target, string url, int port, CancellationToken cancellationToken)
-        {
-            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
-            {
-                return await client.AddEventDefinition(Guid.NewGuid().ToString(), vpn, jsonSchema, source, target, _options.RequestTimeoutMS, cancellationToken);
+                return await client.AddEventDefinition(Guid.NewGuid().ToString(), vpn, jsonSchema, _options.RequestTimeoutMS, cancellationToken);
             }
         }
 
@@ -270,11 +251,11 @@ namespace FaasNet.EventMesh.UI.Data
             }
         }
 
-        public async Task<RemoveLinkApplicationDomainResult> RemoveLinkEventDefinition(string id, string vpn, string source, string target, string url, int port, CancellationToken cancellationToken)
+        public async Task<RemoveLinkApplicationDomainResult> RemoveLinkEventDefinition(string name, string vpn, string source, string target, string eventId, string url, int port, CancellationToken cancellationToken)
         {
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
-                return await client.RemoveLinkEventDefinition(id, vpn, source, target, _options.RequestTimeoutMS, cancellationToken);
+                return await client.RemoveApplicationDomainLink(name, vpn, source, target, eventId, _options.RequestTimeoutMS, cancellationToken);
             }
         }
 
@@ -292,6 +273,15 @@ namespace FaasNet.EventMesh.UI.Data
             {
                 var clientResult = await client.GetAllApplicationDomains(filter, _options.RequestTimeoutMS, cancellationToken);
                 return clientResult.Content;
+            }
+        }
+
+        public async Task<GetApplicationDomainResult> GetApplicationDomain(string name, string vpn, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var result = await client.GetApplicationDomain(name, vpn, _options.RequestTimeoutMS, cancellationToken);
+                return result;
             }
         }
 

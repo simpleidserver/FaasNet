@@ -26,7 +26,7 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         [EffectMethod]
         public async Task Handle(AddClientAction action, IDispatcher dispatcher)
         {
-            var result = await _eventMeshService.AddClient(action.ClientId, action.Vpn, action.PurposeTypes.Select(p => (ClientPurposeTypes)p).ToList(), action.Url, action.Port, CancellationToken.None, action.CoordinateX, action.CoordinateY);
+            var result = await _eventMeshService.AddClient(action.ClientId, action.Vpn, action.PurposeTypes.Select(p => (ClientPurposeTypes)p).ToList(), action.Url, action.Port, CancellationToken.None);
             if (!result.Success)
             {
                 dispatcher.Dispatch(new AddClientFailureAction($"An error occured while trying to add the Client, Error: {Enum.GetName(typeof(AddClientErrorStatus), result.Status.Value)}"));
@@ -34,29 +34,6 @@ namespace FaasNet.EventMesh.UI.Stores.Client
             }
 
             dispatcher.Dispatch(new AddClientResultAction { ClientId = action.ClientId, Vpn= action.Vpn, PurposeTypes = action.PurposeTypes, ClientResult = result });
-        }
-
-        [EffectMethod]
-        public async Task Handle(BulkUpdateClientAction action, IDispatcher dispatcher)
-        {
-            var result = await _eventMeshService.BulkUpdateClient(action.Vpn, action.Clients.Select(c => new UpdateClientRequest
-            {
-                CoordinateX = c.CoordinateX,
-                CoordinateY = c.CoordinateY,
-                Id = c.ClientId,
-                Targets = c.Targets.Select(t => new UpdateClientTarget
-                {
-                    Target = t.Target,
-                    EventId = t.EventId
-                }).ToList()
-            }).ToList(), action.Url, action.Port, CancellationToken.None);
-            if (!result.Success)
-            {
-                dispatcher.Dispatch(new AddClientFailureAction($"An error occured while trying to update the Client, Error: {Enum.GetName(typeof(UpdateClientErrorStatus), result.Status.Value)}"));
-                return;
-            }
-
-            dispatcher.Dispatch(new BulkUpdateClientResultAction { Clients = action.Clients, Vpn = action.Vpn, ClientResult = result });
         }
 
         [EffectMethod]
@@ -86,13 +63,6 @@ namespace FaasNet.EventMesh.UI.Stores.Client
             var result = await _eventMeshService.GetPartition("CLIENT", action.Url, action.Port, CancellationToken.None);
             dispatcher.Dispatch(new CheckClientPartitionIsSyncedResultAction { IsSynced = result.State.CommitIndex == result.State.LastApplied });
         }
-
-        [EffectMethod]
-        public async Task Handle(RemoveClientAction action, IDispatcher dispatcher)
-        {
-            var cl = await _eventMeshService.RemoveClient(action.Vpn, action.ClientId, action.Url, action.Port, CancellationToken.None);
-            dispatcher.Dispatch(new RemoveClientResultAction { ClientId = action.ClientId, Vpn = action.Vpn, IsRemoved = cl.Status == RemoveClientStatus.OK, Status = cl.Status });
-        }
     }
 
     public class SearchClientsAction
@@ -120,8 +90,6 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         public string Vpn { get; set; } = string.Empty;
         [Required]
         public int[] PurposeTypes { get; set; } = new int[] { };
-        public double CoordinateX { get; set; }
-        public double CoordinateY { get; set; }
         public string Url { get; set; } = string.Empty;
         public int Port { get; set; }
 
@@ -130,14 +98,6 @@ namespace FaasNet.EventMesh.UI.Stores.Client
             ClientId = string.Empty;
             PurposeTypes = new int[] { };
         }
-    }
-
-    public class BulkUpdateClientAction
-    {
-        public string Vpn { get; set; } = string.Empty;
-        public ICollection<UpdateClientSubAction> Clients { get; set; } = new List<UpdateClientSubAction>();
-        public string Url { get; set; } = string.Empty;
-        public int Port { get; set; }
     }
 
     public class UpdateClientSubAction
@@ -162,13 +122,6 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
         public AddClientResult ClientResult { get; set; } = null!;
-    }
-
-    public class BulkUpdateClientResultAction
-    {
-        public string Vpn { get; set; }
-        public ICollection<UpdateClientSubAction> Clients { get; set; } = new List<UpdateClientSubAction>();
-        public BulkUpdateClientResult ClientResult { get; set; } = null!;
     }
 
     public class AddClientFailureAction
@@ -202,21 +155,5 @@ namespace FaasNet.EventMesh.UI.Stores.Client
     public class CheckClientPartitionIsSyncedResultAction
     {
         public bool IsSynced { get; set; }
-    }
-
-    public class RemoveClientAction
-    {
-        public string Vpn { get; set; }
-        public string ClientId { get; set; }
-        public string Url { get; set; }
-        public int Port { get; set; }
-    }
-
-    public class RemoveClientResultAction
-    {
-        public bool IsRemoved { get; set; }
-        public string Vpn { get; set; }
-        public string ClientId { get; set; }
-        public RemoveClientStatus Status { get; set; }
     }
 }
