@@ -1,0 +1,35 @@
+﻿@using FaasNet.EventMesh.UI.Shared.Common
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.ApplicationDomains
+@using FaasNet.EventMesh.UI.Stores.Client
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@using FaasNet.EventMesh.UI.Shared.Components
+@inherits FluxorComponent
+
+<Modal Title="Choose an event" IsFullWidth="true" @ref="evtModal">
+    <div class="apiEvent">
+        <div>
+            <button type="button" class="btn btn-primary">Confirm</button>
+        </div>
+    </div>
+</Modal>
+
+@code {
+    public Modal evtModal;
+
+    public void Open()
+    {
+        evtModal.Open();
+    }
+
+    public void Close()
+    {
+        evtModal.Close();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+}

@@ -20,7 +20,7 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         public async Task Handle(SearchClientsAction action, IDispatcher dispatcher)
         {
             var result = await _eventMeshService.GetAllClients(action.Filter, action.Url, action.Port, CancellationToken.None);
-            dispatcher.Dispatch(new SearchClientsResultAction(result));
+            dispatcher.Dispatch(new SearchClientsResultAction(Transform(result)));
         }
 
         [EffectMethod]
@@ -54,7 +54,7 @@ namespace FaasNet.EventMesh.UI.Stores.Client
                 SortOrder = SortOrders.DESC
             };
             var result = await _eventMeshService.GetAllClients(filterQuery, action.Url, action.Port, CancellationToken.None);
-            dispatcher.Dispatch(new SearchClientsResultAction(result));
+            dispatcher.Dispatch(new SearchClientsResultAction(Transform(result)));
         }
 
         [EffectMethod]
@@ -62,6 +62,14 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         {
             var result = await _eventMeshService.GetPartition("CLIENT", action.Url, action.Port, CancellationToken.None);
             dispatcher.Dispatch(new CheckClientPartitionIsSyncedResultAction { IsSynced = result.State.CommitIndex == result.State.LastApplied });
+        }
+
+        private static GenericSearchQueryResult<ClientViewModel> Transform(GenericSearchQueryResult<ClientQueryResult> result)
+        {
+            return new GenericSearchQueryResult<ClientViewModel>
+            {
+                Records = result.Records.Select(c => new ClientViewModel(c))
+            };
         }
     }
 
@@ -74,9 +82,9 @@ namespace FaasNet.EventMesh.UI.Stores.Client
 
     public class SearchClientsResultAction
     {
-        public GenericSearchQueryResult<ClientQueryResult> Clients { get; }
+        public GenericSearchQueryResult<ClientViewModel> Clients { get; }
 
-        public SearchClientsResultAction(GenericSearchQueryResult<ClientQueryResult> clients)
+        public SearchClientsResultAction(GenericSearchQueryResult<ClientViewModel> clients)
         {
             Clients = clients;
         }
@@ -155,5 +163,10 @@ namespace FaasNet.EventMesh.UI.Stores.Client
     public class CheckClientPartitionIsSyncedResultAction
     {
         public bool IsSynced { get; set; }
+    }
+
+    public class ToggleSelectionClientAction
+    {
+        public string ClientId { get; set; }
     }
 }

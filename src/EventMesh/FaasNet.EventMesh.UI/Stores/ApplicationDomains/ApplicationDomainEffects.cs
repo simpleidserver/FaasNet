@@ -50,6 +50,32 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
             var result = await _eventMeshService.GetApplicationDomain(action.Name, action.Vpn, action.Url, action.Port, CancellationToken.None);
             dispatcher.Dispatch(new GetApplicationDomainResultAction { Content = result });
         }
+
+        [EffectMethod]
+        public async Task Handle(AddApplicationDomainElementAction action, IDispatcher dispatcher)
+        {
+            var result = await _eventMeshService.AddApplicationDomainElement(action.Name, action.Vpn, action.ElementId, action.CoordinateX, action.CoordinateY, action.Url, action.Port, CancellationToken.None);
+            if(result.Status != AddElementApplicationDomainStatus.OK)
+            {
+                dispatcher.Dispatch(new AddApplicationDomainElementFailureAction($"An error occured while trying to add the application domain element, Error: {Enum.GetName(typeof(AddElementApplicationDomainStatus), result.Status)}"));
+                return;
+            }
+
+            dispatcher.Dispatch(new AddApplicationDomainElementResultAction { CoordinateX = action.CoordinateY, CoordinateY = action.CoordinateY, ElementId = action.ElementId, Name = action.Name, Vpn = action.Vpn });
+        }
+
+        [EffectMethod]
+        public async Task Handle(RemoveApplicationDomainElementAction action, IDispatcher dispatcher)
+        {
+            var result = await _eventMeshService.RemoveApplicationDomainElement(action.Name, action.Vpn, action.ElementId, action.Url, action.Port, CancellationToken.None);
+            if (result.Status != RemoveElementApplicationDomainStatus.OK)
+            {
+                dispatcher.Dispatch(new RemoveApplicationDomainElementFailureAction($"An error occured while trying to remove the application domain element, Error: {Enum.GetName(typeof(RemoveElementApplicationDomainStatus), result.Status)}"));
+                return;
+            }
+
+            dispatcher.Dispatch(new RemoveApplicationDomainElementResultAction { ElementId = action.ElementId, Name = action.Name, Vpn = action.Vpn });
+        }
     }
 
     public class AddApplicationDomainAction
@@ -140,5 +166,61 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
         public string Target { get; set; }
         public string EventId { get; set; }
         public RemoveLinkApplicationDomainResult Result { get; set; }
+    }
+
+    public class AddApplicationDomainElementAction
+    {
+        public string Name { get; set; }
+        public string Vpn { get; set; }
+        public string ElementId { get; set; }
+        public double CoordinateX { get; set; }
+        public double CoordinateY { get; set; }
+        public string Url { get; set; }
+        public int Port { get; set; }
+    }
+
+    public class AddApplicationDomainElementFailureAction
+    {
+        public AddApplicationDomainElementFailureAction(string message)
+        {
+            Message = message;
+        }
+
+        public string Message { get; private set; }
+    }
+
+    public class AddApplicationDomainElementResultAction
+    {
+        public string Name { get; set; }
+        public string Vpn { get; set; }
+        public string ElementId { get; set; }
+        public double CoordinateX { get; set; }
+        public double CoordinateY { get; set; }
+    }
+
+    public class RemoveApplicationDomainElementAction
+    {
+        public string Name { get; set; }
+        public string Vpn { get; set; }
+        public string ElementId { get; set; }
+        public string Url { get; set; }
+        public int Port { get; set; }
+    }
+
+    public class RemoveApplicationDomainElementFailureAction
+    {
+        public RemoveApplicationDomainElementFailureAction(string message)
+        {
+            Message = message;
+        }
+
+        public string Message { get; private set; }
+    }
+
+    public class RemoveApplicationDomainElementResultAction
+    {
+        public string Name { get; set; }
+        public string Vpn { get; set; }
+        public string ElementId { get; set; }
     }
 }

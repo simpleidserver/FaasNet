@@ -1,0 +1,7 @@
+.apiEvent {
+    padding: 0px 10px 10px 10px;
+}
+
+.apiEvent > div {
+    margin-top: 10px;
+}

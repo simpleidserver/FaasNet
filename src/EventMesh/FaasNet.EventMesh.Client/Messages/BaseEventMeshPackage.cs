@@ -86,6 +86,10 @@ namespace FaasNet.EventMesh.Client.Messages
             if (cmd == EventMeshCommands.UPDATE_APPLICATION_DOMAIN_COORDINATES_REQUEST) return new UpdateApplicationDomainCoordinatesResult(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_APPLICATION_DOMAIN_REQUEST) return new GetApplicationDomainRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_APPLICATION_DOMAIN_RESULT) return new GetApplicationDomainResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_ELEMENT_APPLICATION_DOMAIN_REQUEST) return new AddElementApplicationDomainRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_ELEMENT_APPLICATION_DOMAIN_RESULT) return new AddElementApplicationDomainResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.REMOVE_ELEMENT_APPLICATION_DOMAIN_REQUEST) return new RemoveElementApplicationDomainRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.REMOVE_ELEMENT_APPLICATION_DOMAIN_RESULT) return new RemoveElementApplicationDomainResult(seq).Extract(context);
             return null;
         }
     }

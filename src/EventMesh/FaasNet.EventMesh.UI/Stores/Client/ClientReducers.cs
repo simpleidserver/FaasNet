@@ -17,25 +17,48 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         [ReducerMethod]
         public static ClientState ReduceAddClientAction(ClientState state, AddClientAction action)
         {
-            state.IsLoading = true;
-            return state;
+            return state with
+            {
+                IsLoading = true
+            };
         }
 
         [ReducerMethod]
         public static ClientState ReduceAddClientFailureAction(ClientState state, AddClientFailureAction action)
         {
-            state.IsLoading = false;
-            return state;
+            return state with
+            {
+                IsLoading = false
+            };
         }
 
         [ReducerMethod]
         public static ClientState ReduceAddClientResultAction(ClientState state, AddClientResultAction action)
         {
-            state.IsLoading = false;
             var records = state.Clients.Records.ToList();
-            records.Insert(0, new ClientQueryResult { Id = action.ClientId, Purposes = action.PurposeTypes.Select(p => (ClientPurposeTypes)p).ToList(), Vpn = action.Vpn });
-            state.Clients.Records = records;
-            return state;
+            records.Insert(0, new ClientViewModel { Id = action.ClientId, Purposes = action.PurposeTypes.Select(p => (ClientPurposeTypes)p).ToList(), Vpn = action.Vpn });
+            return state with
+            {
+                IsLoading = false,
+                Clients = state.Clients
+            };
+        }
+
+        [ReducerMethod]
+        public static ClientState ReduceToggleSelectionClientAction(ClientState state, ToggleSelectionClientAction action)
+        {
+            var clients = state.Clients.Records.ToList();
+            foreach(var client in clients)
+            {
+                if (client.Id != action.ClientId) client.IsSelected = false;
+                else client.IsSelected = !client.IsSelected;
+            }
+
+            state.Clients.Records = clients;
+            return state with
+            {
+                Clients = state.Clients
+            };
         }
     }
 }

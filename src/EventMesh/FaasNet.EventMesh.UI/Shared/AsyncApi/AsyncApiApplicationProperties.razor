@@ -1,4 +1,6 @@
 ﻿@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.UI.Shared.Components
+
 <PropertiesPanel PanelClosed="Close" Title="Properties">
     <!-- Client Identifier -->
     <div class="mb-3">
@@ -13,7 +15,7 @@
     <!-- Creation datetime -->
     <div class="mb-3">
         <label class="form-label">Creation Datetime</label>
-        <input type="text" class="form-control" value="@ActiveApplication.CreateDateTime.ToLocalTime()" disabled />
+        <input type="text" class="form-control" value="@ActiveApplication.CreateDateTime.GetValueOrDefault().ToLocalTime()" disabled />
     </div>
     <!-- Purpose types -->
     <div class="mb-3">
@@ -25,33 +27,16 @@
             }
         </div>
     </div>
-    @if (ActiveApplication.IsNew)
-    {
-        <!-- Client secret-->
-        <div class="mb-3 secret">
-            <label class="form-label">Please copy the generated client secret</label>
-            <input type="text" class="form-control" value="@ActiveApplication.ClientSecret" />
-        </div>
-    }
-    <div>
-        <button class="btn btn-danger" @onclick="Remove">Remove</button>
-    </div>
 </PropertiesPanel>
 
 @code {
     [Parameter]
     public ApplicationViewModel ActiveApplication { get; set; } = null!;
     [Parameter] public EventCallback<bool> ApplicationClosed { get; set; }
-    [Parameter] public EventCallback<ApplicationViewModel> ApplicationRemoved { get; set; }
     [Parameter] public string Vpn { get; set; } = string.Empty;
 
     public async void Close()
     {
         await ApplicationClosed.InvokeAsync(true);
-    }
-
-    private async void Remove(MouseEventArgs a)
-    {
-        await ApplicationRemoved.InvokeAsync(ActiveApplication);
     }
 }

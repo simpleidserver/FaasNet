@@ -5,10 +5,8 @@ namespace FaasNet.EventMesh.UI.ViewModels
     public class ApplicationViewModel
     {
         public string ClientId { get; set; } = string.Empty;
-        public DateTime CreateDateTime { get; set; }
+        public DateTime? CreateDateTime { get; set; }
         public IEnumerable<ClientPurposeTypes> Purposes { get; set; } = new List<ClientPurposeTypes>();
-        public bool IsNew { get; set; } = false;
-        public string ClientSecret { get; set; } = string.Empty;
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
         public int Width { get; set; } = 200;

@@ -10,17 +10,17 @@
 @inherits FluxorComponent
 @layout ApplicationDomainLayout
 
-<Loader IsDisplayed="IsLoading">
-    <AsyncApiEditor Vpn="@vpn" LoadingChanged="HandleLoadingChanged" @ref="Editor"></AsyncApiEditor>
+<Loader IsDisplayed="@ApplicationDomain.Value.IsLoading">
+    <AsyncApiEditor Vpn="@vpn" Name="@applicationDomain" @ref="Editor"></AsyncApiEditor>
 </Loader>
 
 @code {
     [Parameter] public string vpn { get; set; }
     [Parameter] public string applicationDomain { get; set; }
-    private bool IsLoading { get; set; } = true;
     private AsyncApiEditor Editor { get; set; } = null;
     [Inject] private IDispatcher Dispatcher { get; set; } = null!;
     [Inject] private IState<AppState> AppState { get; set; } = null!;
+    [Inject] private IState<ApplicationDomainState> ApplicationDomain { get; set; } = null!;
 
     protected async override Task OnInitializedAsync()
     {
@@ -39,7 +39,6 @@
             }).ToList();
             var links = BuildLinks(act);
             Editor.UpdateLinks(applications, links);
-            IsLoading = false;
         });
         SubscribeToAction<SelectActiveNodeAction>((act) =>
         {
@@ -52,11 +51,6 @@
     {
         if (AppState.Value.SelectedNode == null) return;
         Dispatcher.Dispatch(new GetApplicationDomainAction { Name = applicationDomain, Vpn = vpn, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
-    }
-
-    private void HandleLoadingChanged(bool isLoading)
-    {
-        IsLoading = isLoading;
     }
 
     private static ICollection<LinkViewModel> BuildLinks(GetApplicationDomainResultAction act)

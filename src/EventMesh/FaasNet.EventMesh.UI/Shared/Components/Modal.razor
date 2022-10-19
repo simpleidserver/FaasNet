@@ -30,11 +30,13 @@
 		modalDisplay = "block;";
 		modalClass = "show";
 		showBackdrop = true;
+		StateHasChanged();
 	}
 
 	public void Close() {
 		modalDisplay = "none;";
 		modalClass = string.Empty;
 		showBackdrop = false;
+		StateHasChanged();
 	}
 }

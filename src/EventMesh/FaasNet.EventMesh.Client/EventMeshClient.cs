@@ -281,6 +281,34 @@ namespace FaasNet.EventMesh.Client
             return packageResult as RemoveLinkApplicationDomainResult;
         }
 
+        public async Task<AddElementApplicationDomainResult> AddApplicationDomainElement(string name, string vpn, string elementId, double coordinateX, double coordinateY, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.AddApplicationDomainElement(name, vpn, elementId, coordinateX, coordinateY);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as AddElementApplicationDomainResult;
+        }
+
+        public async Task<RemoveElementApplicationDomainResult> RemoveApplicationDomainElement(string name, string vpn, string elementId, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.RemoveApplicationDomainElement(name, vpn, elementId);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as RemoveElementApplicationDomainResult;
+        }
+
         public async Task<UpdateApplicationDomainCoordinatesResult> UpdateApplicationDomainCoordinates(string name, string vpn, ICollection<ApplicationDomainCoordinate> coordinates, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();

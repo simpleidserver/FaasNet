@@ -41,6 +41,8 @@ namespace FaasNet.EventMesh.UI.Data
         Task<AddApplicationDomainResult> AddApplicationDomain(string name, string vpn, string description, string rootTopic, string url, int port, CancellationToken cancellationToken);
         Task<GenericSearchQueryResult<ApplicationDomainQueryResult>> GetAllApplicationDomains(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
         Task<GetApplicationDomainResult> GetApplicationDomain(string name, string vpn, string url, int port, CancellationToken cancellationToken);
+        Task<AddElementApplicationDomainResult> AddApplicationDomainElement(string name, string vpn, string elementId, double coordinateX, double coordinateY, string url, int port, CancellationToken cancellationToken);
+        Task<RemoveElementApplicationDomainResult> RemoveApplicationDomainElement(string name, string vpn, string elementId, string url, int port, CancellationToken cancellationToken);
     }
 
     public class EventMeshService : IEventMeshService
@@ -281,6 +283,24 @@ namespace FaasNet.EventMesh.UI.Data
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
                 var result = await client.GetApplicationDomain(name, vpn, _options.RequestTimeoutMS, cancellationToken);
+                return result;
+            }
+        }
+
+        public async Task<AddElementApplicationDomainResult> AddApplicationDomainElement(string name, string vpn, string elementId, double coordinateX, double coordinateY, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var result = await client.AddApplicationDomainElement(name, vpn, elementId, coordinateX, coordinateY, _options.RequestTimeoutMS, cancellationToken);
+                return result;
+            }
+        }
+
+        public async Task<RemoveElementApplicationDomainResult> RemoveApplicationDomainElement(string name, string vpn, string elementId, string url, int port, CancellationToken cancellationToken)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var result = await client.RemoveApplicationDomainElement(name, vpn, elementId, _options.RequestTimeoutMS, cancellationToken);
                 return result;
             }
         }

@@ -1,5 +1,6 @@
 ﻿@using FaasNet.EventMesh.UI.Shared.Common
 @using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.ApplicationDomains
 @using FaasNet.EventMesh.UI.Stores.Client
 @using Fluxor
 @using Fluxor.Blazor.Web.Components
@@ -23,18 +24,19 @@
                 Select an existing client
             </div>
             <div class="card-body">
-                <Clients Vpn="@Vpn"></Clients>
+                <Clients Vpn="@Vpn" IsSelectionEnabled="true"></Clients>
             </div>
         </div>
         <div>
-            <button type="button" class="btn btn-primary">Confirm</button>
+            <button type="button" class="btn btn-primary" @onclick="HandleConfirm">Confirm</button>
         </div>
     </div>
 </Modal>
 
 @code {
-    [Parameter] public EventCallback<AddClientResultAction> ClientAdded { get; set; }
+    [Parameter] public EventCallback<ClientViewModel> ClientSelected { get; set; }
     [Parameter] public string Vpn { get; set; } = null!;
+    [Inject] private IState<ClientState> ClientState { get; set; } = null!;
     public Modal panel;
 
     public void Open()
@@ -50,5 +52,11 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+    }
+
+    private async void HandleConfirm(MouseEventArgs args)
+    {
+        var selectedClient = ClientState.Value.Clients.Records.SingleOrDefault(r => r.IsSelected);
+        await ClientSelected.InvokeAsync(selectedClient);
     }
 }

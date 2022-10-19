@@ -66,6 +66,27 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
                     }
 
                     break;
+                case RemoveApplicationDomainElementCommand removeApplicationDomainElementCommand:
+                    {
+                        var existingApplicationDomain = await _store.Get(removeApplicationDomainElementCommand.Name, removeApplicationDomainElementCommand.Vpn, cancellationToken);
+                        if (existingApplicationDomain == null) return;
+                        if(existingApplicationDomain.TryHandle(removeApplicationDomainElementCommand, out ApplicationDomainElement elt))
+                        {
+                            _store.Update(existingApplicationDomain);
+                            await _store.SaveChanges(cancellationToken);
+                            foreach(var link in elt.Targets)
+                            {
+                                await PropagateIntegrationEvent(new ApplicationDomainLinkRemoved
+                                {
+                                    Source = removeApplicationDomainElementCommand.ElementId,
+                                    Target = link.Target,
+                                    EventId = link.EventId,
+                                    Vpn = removeApplicationDomainElementCommand.Vpn
+                                }, cancellationToken);
+                            }
+                        }
+                    }
+                    break;
                 case AddApplicationDomainLinkCommand addApplicationDomainLinkCommand:
                     {
                         var existingApplicationDomain = await _store.Get(addApplicationDomainLinkCommand.Name, addApplicationDomainLinkCommand.Vpn, cancellationToken);
@@ -208,6 +229,14 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
             return true;
         }
 
+        public bool TryHandle(RemoveApplicationDomainElementCommand cmd, out ApplicationDomainElement elt)
+        {
+            elt = Elements.SingleOrDefault(e => e.ElementId == cmd.ElementId);
+            if (elt == null) return false;
+            Elements.Remove(elt);
+            return true;
+        }
+
         public bool Handle(UpdateApplicationDomainCoordinatesCommand cmd)
         {
             foreach(var elt in Elements)
@@ -301,6 +330,7 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
             context.WriteString(ElementId);
             context.WriteDouble(CoordinateX);
             context.WriteDouble(CoordinateY);
+            context.WriteInteger(Targets.Count());
             foreach (var target in Targets) target.Serialize(context);
         }
     }

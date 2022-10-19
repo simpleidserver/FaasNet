@@ -73,6 +73,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.ApplicationDomain
             context.WriteString(ElementId);
             context.WriteDouble(CoordinateX);
             context.WriteDouble(CoordinateY);
+            context.WriteInteger(Targets.Count());
             foreach (var target in Targets) target.Serialize(context);
         }
     }

@@ -5,7 +5,7 @@ using Fluxor;
 namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
 {
     [FeatureState]
-    public class ApplicationDomainState
+    public record ApplicationDomainState
     {
         public ApplicationDomainState()
         {
@@ -14,6 +14,7 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
 
         public bool IsLoading { get; set; }
         public GenericSearchQueryResult<ApplicationDomainQueryResult> ApplicationDomains { get; set; } = new GenericSearchQueryResult<ApplicationDomainQueryResult>();
+        public ApplicationDomainQueryResult ApplicationDomain { get; set; } = null!;
 
         public ApplicationDomainState(bool isLoading, GenericSearchQueryResult<ApplicationDomainQueryResult> applicationDomains)
         {

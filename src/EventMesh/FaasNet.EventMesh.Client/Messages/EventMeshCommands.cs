@@ -204,6 +204,22 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result returned when the application domain is returned.
         /// </summary>
         public static EventMeshCommands GET_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(49, "GET_APPLICATION_DOMAIN_RESULT");
+        /// <summary>
+        /// Request sent to add an element in the application domain.
+        /// </summary>
+        public static EventMeshCommands ADD_ELEMENT_APPLICATION_DOMAIN_REQUEST = new EventMeshCommands(50, "ADD_ELEMENT_APPLICATION_DOMAIN_REQUEST");
+        /// <summary>
+        /// Result sent when the application is added into the application domain.
+        /// </summary>
+        public static EventMeshCommands ADD_ELEMENT_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(51, "ADD_ELEMENT_APPLICATION_DOMAIN_RESULT");
+        /// <summary>
+        /// Request sent to remove an element in the application domain.
+        /// </summary>
+        public static EventMeshCommands REMOVE_ELEMENT_APPLICATION_DOMAIN_REQUEST = new EventMeshCommands(52, "REMOVE_ELEMENT_APPLICATION_DOMAIN_REQUEST");
+        /// <summary>
+        /// Result sent when the application is removed from the application domain.
+        /// </summary>
+        public static EventMeshCommands REMOVE_ELEMENT_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(53, "REMOVE_ELEMENT_APPLICATION_DOMAIN_RESULT");
 
         protected EventMeshCommands(int code)
         {

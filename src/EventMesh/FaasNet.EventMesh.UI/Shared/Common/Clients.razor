@@ -7,8 +7,14 @@
 @using Fluxor.Blazor.Web.Components
 @using FaasNet.EventMesh.UI.Shared.Components
 
-<Grid TRowData="ClientQueryResult" Result="ClientState.Value.Clients" @bind-Query="Filter">
-	<GridColumn TRowData="ClientQueryResult" Title="Identifier" Name="Id" IsSortEnabled="true">
+<Grid TRowData="ClientViewModel" Result="ClientState.Value.Clients" @bind-Query="Filter">
+	@if (IsSelectionEnabled)
+	{
+		<GridColumn TRowData="ClientViewModel" Title="" Name="Id">
+			<input class="form-check-input" type="checkbox" checked="@(context.IsSelected ? "checked": null)" @onchange="(evt) => HandleToggle(evt, context)" />
+		</GridColumn>
+	}
+	<GridColumn TRowData="ClientViewModel" Title="Identifier" Name="Id" IsSortEnabled="true">
 		@if (context.CreateDateTime == null)
 		{
 			<span class="newRecord"><b>NEW</b> @context.Id</span>
@@ -18,12 +24,12 @@
 			<NavLink href="@($"/vpns/{context.Vpn}/clients/{context.Id}/info")">@context.Id</NavLink>
 		}
 	</GridColumn>
-	<GridColumn TRowData="ClientQueryResult" Name="Purposes" Title="Purpose">
-		@foreach(var purposeType in context.Purposes) {
+	<GridColumn TRowData="ClientViewModel" Name="Purposes" Title="Purpose">
+		@foreach (var purposeType in context.Purposes) {
 			<span class="badge text-bg-primary purposeType">@Enum.GetName(typeof(ClientPurposeTypes), purposeType)</span>
 		}
 	</GridColumn>
-	<GridColumn TRowData="ClientQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
+	<GridColumn TRowData="ClientViewModel" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
 		@if (context.CreateDateTime == null)
 		{
 			<span class="newRecord">-</span>
@@ -38,11 +44,12 @@
 @code {
 	[Inject] private IState<AppState> AppState { get; set; } = null!;
 	[Parameter] public string Vpn { get; set; }
+	[Parameter] public bool IsSelectionEnabled { get; set; }
 	private FilterQuery _filter = new FilterQuery
-	{
-		SortOrder = SortOrders.DESC,
-		SortBy = "CreateDateTime"
-	};
+		{
+			SortOrder = SortOrders.DESC,
+			SortBy = "CreateDateTime"
+		};
 	public FilterQuery Filter
 	{
 		get
@@ -65,7 +72,11 @@
 		{
 			RefreshClients();
 		});
-		SubscribeToAction<AddClientResultAction>((act) => 
+		SubscribeToAction<AddClientResultAction>((act) =>
+		{
+			StateHasChanged();
+		});
+		SubscribeToAction<ToggleSelectionClientAction>((act) =>
 		{
 			StateHasChanged();
 		});
@@ -81,5 +92,10 @@
 	{
 		if (AppState.Value.SelectedNode == null) return;
 		Dispatcher.Dispatch(new SearchClientsAction { Filter = _filter, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
+	}
+
+	private async void HandleToggle(ChangeEventArgs args, ClientViewModel client)
+	{
+		Dispatcher.Dispatch(new ToggleSelectionClientAction { ClientId = client.Id });
 	}
 }

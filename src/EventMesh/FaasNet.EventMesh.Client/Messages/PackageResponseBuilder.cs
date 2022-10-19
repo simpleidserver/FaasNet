@@ -282,5 +282,21 @@ namespace FaasNet.EventMesh.Client.Messages
                 Content = applicationDomain
             };
         }
+
+        public static BaseEventMeshPackage AddApplicationDomainElement(string seq, AddElementApplicationDomainStatus status)
+        {
+            return new AddElementApplicationDomainResult(seq)
+            {
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage RemoveApplicationDomainElement(string seq, RemoveElementApplicationDomainStatus status)
+        {
+            return new RemoveElementApplicationDomainResult(seq)
+            {
+                Status = status
+            };
+        }
     }
 }

@@ -230,6 +230,28 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage AddApplicationDomainElement(string name, string vpn, string elementId, double coordinateX, double coordinateY)
+        {
+            return new AddElementApplicationDomainRequest(GenerateRandomSeq())
+            {
+                Name = name,
+                Vpn = vpn,
+                ElementId = elementId,
+                CoordinateX = coordinateX,
+                CoordinateY = coordinateY
+            };
+        }
+
+        public static BaseEventMeshPackage RemoveApplicationDomainElement(string name, string vpn, string elementId)
+        {
+            return new RemoveElementApplicationDomainRequest(GenerateRandomSeq())
+            {
+                Name = name,
+                Vpn = vpn,
+                ElementId = elementId
+            };
+        }
+
         private static string GenerateRandomSeq()
         {
             var builder = new StringBuilder(10);
