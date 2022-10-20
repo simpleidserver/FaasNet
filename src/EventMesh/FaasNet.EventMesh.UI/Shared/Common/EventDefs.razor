@@ -1,0 +1,110 @@
+﻿@inherits FluxorComponent
+@using FaasNet.EventMesh.Client.StateMachines
+@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using FaasNet.EventMesh.UI.Stores.EventDef
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@using FaasNet.EventMesh.UI.Shared.Components
+
+<Grid TRowData="EventDefViewModel" Result="EventDefState.Value.EventDefs" @bind-Query="Filter">
+	@if (IsSelectionEnabled)
+	{
+		<GridColumn TRowData="EventDefViewModel" Title="" Name="Id">
+			<input class="form-check-input" type="checkbox" checked="@(context.IsSelected ? "checked": null)" @onchange="(evt) => HandleToggle(evt, context)" />
+		</GridColumn>
+	}
+	<GridColumn TRowData="EventDefViewModel" Title="Identifier" Name="Id" IsSortEnabled="true">
+		@if (context.IsNew == null)
+		{
+			<span class="newRecord"><b>NEW</b> @context.Id</span>
+		}
+		else
+		{
+			<NavLink href="@($"/vpns/{context.Vpn}/eventdefs/{context.Id}/info")">@context.Id</NavLink>
+		}
+	</GridColumn>
+	<GridColumn TRowData="EventDefViewModel" Name="JsonSchema" Title="Json Schema">
+		<div>@context.JsonSchema</div>
+	</GridColumn>
+	<GridColumn TRowData="EventDefViewModel" Name="CreateDateTime" Title="Creation Datetime" IsSortEnabled="true">
+		@if (context.IsNew == null)
+		{
+			<span class="newRecord">-</span>
+		}
+		else
+		{
+			<span>@context.CreateDateTime.ToLocalTime()</span>
+		}
+	</GridColumn>
+	<GridColumn TRowData="EventDefViewModel" Name="UpdateDateTime" Title="Update Datetime" IsSortEnabled="true">
+		@if (context.IsNew == null)
+		{
+			<span class="newRecord">-</span>
+		}
+		else
+		{
+			<span>@context.UpdateDateTime.ToLocalTime()</span>
+		}
+	</GridColumn>
+</Grid>
+
+@code {
+	[Inject] private IState<AppState> AppState { get; set; } = null!;
+	[Parameter] public string Vpn { get; set; }
+	[Parameter] public bool IsSelectionEnabled { get; set; }
+	private FilterQuery _filter = new FilterQuery
+	{
+		SortOrder = SortOrders.DESC,
+		SortBy = "CreateDateTime"
+	};
+	public FilterQuery Filter
+	{
+		get
+		{
+			return _filter;
+		}
+		set
+		{
+			_filter = value;
+			RefreshEventDefs();
+		}
+	}
+	[Inject] private IDispatcher Dispatcher { get; set; } = null!;
+	[Inject] private IState<EventDefState> EventDefState { get; set; } = null!;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		SubscribeToAction<SelectActiveNodeAction>((act) =>
+		{
+			RefreshEventDefs();
+		});
+		SubscribeToAction<AddEventDefResultAction>((act) =>
+		{
+			StateHasChanged();
+		});
+		SubscribeToAction<ToggleSelectionEventDefAction>((act) =>
+		{
+			StateHasChanged();
+		});
+		_filter.Comparison = new ComparisonExpression
+		{
+			Operator = ComparisonOperators.EQUAL,
+			Key = "Vpn",
+			Value = Vpn
+		};
+	}
+
+	private void RefreshEventDefs()
+	{
+		if (AppState.Value.SelectedNode == null) return;
+		Dispatcher.Dispatch(new SearchEventDefsAction { Filter = _filter, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
+	}
+
+	private async void HandleToggle(ChangeEventArgs args, EventDefViewModel evtDef)
+	{
+		Dispatcher.Dispatch(new ToggleSelectionEventDefAction { Id = evtDef.Id, Vpn = evtDef.Vpn });
+	}
+}

@@ -90,6 +90,8 @@ namespace FaasNet.EventMesh.Client.Messages
             if (cmd == EventMeshCommands.ADD_ELEMENT_APPLICATION_DOMAIN_RESULT) return new AddElementApplicationDomainResult(seq).Extract(context);
             if (cmd == EventMeshCommands.REMOVE_ELEMENT_APPLICATION_DOMAIN_REQUEST) return new RemoveElementApplicationDomainRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.REMOVE_ELEMENT_APPLICATION_DOMAIN_RESULT) return new RemoveElementApplicationDomainResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.GET_ALL_EVENT_DEFS_REQUEST) return new GetAllEventDefsRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.GET_ALL_EVENT_DEFS_RESULT) return new GetAllEventDefsResult(seq).Extract(context);
             return null;
         }
     }

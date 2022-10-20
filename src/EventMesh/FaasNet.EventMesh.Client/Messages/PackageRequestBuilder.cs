@@ -147,13 +147,14 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage AddEventDefinition(string id, string vpn, string jsonSchema)
+        public static BaseEventMeshPackage AddEventDefinition(string id, string vpn, string jsonSchema, string description)
         {
             return new AddEventDefinitionRequest(GenerateRandomSeq())
             {
                 Id = id,
                 JsonSchema = jsonSchema,
-                Vpn = vpn
+                Vpn = vpn,
+                Description = description
             };
         }
 
@@ -249,6 +250,14 @@ namespace FaasNet.EventMesh.Client.Messages
                 Name = name,
                 Vpn = vpn,
                 ElementId = elementId
+            };
+        }
+
+        public static BaseEventMeshPackage GetAllEventDefs(FilterQuery filter)
+        {
+            return new GetAllEventDefsRequest(GenerateRandomSeq())
+            {
+                Filter = filter
             };
         }
 

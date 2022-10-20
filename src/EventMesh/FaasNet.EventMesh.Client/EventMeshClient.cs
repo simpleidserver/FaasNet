@@ -197,10 +197,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as GetPartitionResult;
         }
 
-        public async Task<AddEventDefinitionResult> AddEventDefinition(string id, string vpn, string jsonSchema, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AddEventDefinitionResult> AddEventDefinition(string id, string vpn, string jsonSchema, string description, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AddEventDefinition(id, vpn, jsonSchema);
+            var package = PackageRequestBuilder.AddEventDefinition(id, vpn, jsonSchema, description);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);
@@ -223,6 +223,20 @@ namespace FaasNet.EventMesh.Client
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
             return packageResult as GetEventDefinitionResult;
+        }
+
+        public async Task<GetAllEventDefsResult> GetEventDefinitions(FilterQuery filter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.GetAllEventDefs(filter);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as GetAllEventDefsResult;
         }
 
         public async Task<UpdateEventDefinitionResult> UpdateEventDefinition(string id, string vpn, string jsonSchema, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))

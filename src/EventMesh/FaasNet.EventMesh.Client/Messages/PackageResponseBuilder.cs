@@ -44,6 +44,14 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage GetAllEventDefs(string seq, GenericSearchQueryResult<EventDefinitionQueryResult> eventDefs)
+        {
+            return new GetAllEventDefsResult(seq)
+            {
+                Content = eventDefs
+            };
+        }
+
         public static BaseEventMeshPackage AddClient(string seq, string clientId, string clientSecret, long term, long matchIndex, long lastIndex)
         {
             return new AddClientResult(seq)

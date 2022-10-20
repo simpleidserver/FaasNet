@@ -9,6 +9,7 @@ namespace FaasNet.EventMesh.Client.Messages
         }
 
         public string Id { get; set; }
+        public string Description { get; set; }
         public string Vpn { get; set; }
         public string JsonSchema { get; set; }
 
@@ -17,6 +18,7 @@ namespace FaasNet.EventMesh.Client.Messages
         protected override void SerializeAction(WriteBufferContext context)
         {
             context.WriteString(Id);
+            context.WriteString(Description);
             context.WriteString(Vpn);
             context.WriteString(JsonSchema);
         }
@@ -24,6 +26,7 @@ namespace FaasNet.EventMesh.Client.Messages
         public AddEventDefinitionRequest Extract(ReadBufferContext context)
         {
             Id = context.NextString();
+            Description = context.NextString();
             Vpn = context.NextString();
             JsonSchema = context.NextString();
             return this;

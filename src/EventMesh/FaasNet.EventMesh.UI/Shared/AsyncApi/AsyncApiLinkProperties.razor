@@ -88,6 +88,7 @@
         await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
+            /*
             SubscribeToAction<AddEventDefResultAction>(async (act) =>
             {
                 ToastService.AddInfo("EventDefinition", "Event definition has been created");
@@ -107,6 +108,7 @@
                 IsLoading = false;
                 StateHasChanged();
             });
+            */
             jsonEventDefinition = await JS.InvokeAsync<IJSObjectReference>("initEditor", "jsonEventDefinition", "{}");
             sampleEventDefinition = await JS.InvokeAsync<IJSObjectReference>("initEditor", "sampleEventDefinition", "{}");
             Refresh();

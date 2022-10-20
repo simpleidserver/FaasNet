@@ -1,5 +1,6 @@
 ﻿using FaasNet.Common.Extensions;
-using FaasNet.EventMesh.StateMachines.Queue;
+using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Extensions;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using System;
 using System.Collections.Concurrent;
@@ -14,6 +15,7 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
     {
         Task<EventDefinitionRecord> Get(string key, string vpn, CancellationToken cancellationToken);
         void Remove(EventDefinitionRecord evtDef);
+        Task<GenericSearchResult<EventDefinitionRecord>> Find(FilterQuery filter, CancellationToken cancellationToken);
     }
 
     public class EventDefinitionStateMachineStore : IEventDefinitionStateMachineStore
@@ -67,6 +69,20 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
         {
             _records = new ConcurrentBag<EventDefinitionRecord>();
             return Task.CompletedTask;
+        }
+
+        public Task<GenericSearchResult<EventDefinitionRecord>> Find(FilterQuery filter, CancellationToken cancellationToken)
+        {
+            IEnumerable<EventDefinitionRecord> filtered = _records.AsQueryable().InvokeOrderBy(filter.SortBy, filter.SortOrder).ToList();
+            var totalRecords = filtered.Count();
+            filtered = filtered.Skip(filter.NbRecords * filter.Page).Take(filter.NbRecords);
+            var nbPages = (int)Math.Ceiling((decimal)totalRecords / filter.NbRecords);
+            return Task.FromResult(new GenericSearchResult<EventDefinitionRecord>
+            {
+                Records = filtered,
+                TotalPages = nbPages,
+                TotalRecords = totalRecords
+            });
         }
 
         public void Update(EventDefinitionRecord record)

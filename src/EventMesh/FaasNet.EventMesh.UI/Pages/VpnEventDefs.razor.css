@@ -1,0 +1,3 @@
+.modal-body {
+    padding: calc(var(--bs-modal-padding) - var(--bs-modal-footer-gap) * .5);
+}

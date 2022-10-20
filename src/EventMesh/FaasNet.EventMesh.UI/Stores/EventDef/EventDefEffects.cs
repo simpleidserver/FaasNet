@@ -1,6 +1,9 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.UI.Data;
+using FaasNet.EventMesh.UI.ViewModels;
 using Fluxor;
+using System.ComponentModel.DataAnnotations;
 
 namespace FaasNet.EventMesh.UI.Stores.EventDef
 {
@@ -17,14 +20,14 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
         [EffectMethod]
         public async Task Handle(AddEventDefAction action, IDispatcher dispatcher)
         {
-            var result = await _eventMeshService.AddEventDefinition(action.Vpn, action.JsonSchema, action.Url, action.Port, CancellationToken.None);
+            var result = await _eventMeshService.AddEventDefinition(action.Id, action.Vpn, action.JsonSchema, action.Description, action.Url, action.Port, CancellationToken.None);
             if (result.Status != AddEventDefinitionStatus.OK)
             {
                 dispatcher.Dispatch(new AddEventDefFailureAction($"An error occured while trying to add the , Error: {Enum.GetName(typeof(AddEventDefinitionStatus), result.Status)}"));
                 return;
             }
 
-            dispatcher.Dispatch(new AddEventDefResultAction { EventDef = result });
+            dispatcher.Dispatch(new AddEventDefResultAction { JsonSchema = action.JsonSchema, Vpn = action.Vpn, Id = action.Id, Description = action.Description });
         }
 
 
@@ -41,19 +44,49 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
             var result = await _eventMeshService.UpdateEventDefinition(action.Id, action.Vpn, action.JsonSchema, action.Url, action.Port, CancellationToken.None);
             dispatcher.Dispatch(new UpdateEventDefResultAction { Result = result });
         }
+
+        [EffectMethod]
+        public async Task Handle(SearchEventDefsAction action, IDispatcher dispatcher)
+        {
+            var result = await _eventMeshService.SearchEventDefs(action.Filter, action.Url, action.Port, CancellationToken.None);
+            dispatcher.Dispatch(new SearchEventDefsResultAction 
+            {
+                EventDefinitions = new GenericSearchQueryResult<EventDefViewModel>
+                {
+                    TotalPages = result.Content.TotalPages,
+                    TotalRecords = result.Content.TotalRecords,
+                    Records = result.Content.Records.Select(r => new EventDefViewModel(r)).ToList()
+                }
+            });
+        }
     }
 
     public class AddEventDefAction
     {
+        [Required]
+        public string Id { get; set; }
         public string Vpn { get; set; }
+        [Required]
+        public string Description { get; set; }
+        [Required]
         public string JsonSchema { get; set; }
         public string Url { get; set; }
         public int Port { get; set; }
+
+        public void Reset()
+        {
+            Id = String.Empty;
+            Description = String.Empty;
+            JsonSchema = string.Empty;
+        }
     }
 
     public class AddEventDefResultAction
     {
-        public AddEventDefinitionResult EventDef { get; set; }
+        public string Id { get; set; }
+        public string Vpn { get; set; }
+        public string JsonSchema { get; set; }
+        public string Description { get; set; }
     }
 
     public class AddEventDefFailureAction
@@ -91,5 +124,23 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
     public class UpdateEventDefResultAction
     {
         public UpdateEventDefinitionResult Result { get; set; }
+    }
+
+    public class SearchEventDefsAction
+    {
+        public FilterQuery Filter { get; set; }
+        public string Url { get; set; }
+        public int Port { get; set; }
+    }
+
+    public class SearchEventDefsResultAction
+    {
+        public GenericSearchQueryResult<EventDefViewModel> EventDefinitions { get; set; }
+    }
+
+    public class ToggleSelectionEventDefAction
+    {
+        public string Id { get; set; }
+        public string Vpn { get; set; }
     }
 }

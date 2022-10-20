@@ -35,7 +35,9 @@
 </Section>
 
 <Modal Title="Add Client" @ref=addClientModal>
-	<AddClient @ref="addClientForm"></AddClient>
+	<div class="modal-body">		
+		<AddClient @ref="addClientForm" Vpn="@vpn"></AddClient>
+	</div>
 	<div class="modal-footer">
 		<button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
 	</div>

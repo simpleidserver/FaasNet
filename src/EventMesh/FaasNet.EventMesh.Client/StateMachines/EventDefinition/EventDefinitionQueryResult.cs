@@ -1,5 +1,6 @@
 ﻿using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
+using System;
 using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.StateMachines.EventDefinition
@@ -8,14 +9,20 @@ namespace FaasNet.EventMesh.Client.StateMachines.EventDefinition
     {
         public string Id { get; set; }
         public string Vpn { get; set; }
+        public string Description { get; set; }
         public string JsonSchema { get; set; }
+        public DateTime CreateDateTime { get; set; }
+        public DateTime UpdateDateTime { get; set; }
         public ICollection<EventDefinitionLinkResult> Links { get; set; } = new List<EventDefinitionLinkResult>();
 
         public void Deserialize(ReadBufferContext context)
         {
             Id = context.NextString();
             Vpn = context.NextString();
+            Description = context.NextString();
             JsonSchema = context.NextString();
+            CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
+            UpdateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
             var nbLinks = context.NextInt();
             for (var i = 0; i < nbLinks; i++)
             {
@@ -29,7 +36,10 @@ namespace FaasNet.EventMesh.Client.StateMachines.EventDefinition
         {
             context.WriteString(Id);
             context.WriteString(Vpn);
+            context.WriteString(Description);
             context.WriteString(JsonSchema);
+            context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
+            context.WriteTimeSpan(TimeSpan.FromTicks(UpdateDateTime.Ticks));
             context.WriteInteger(Links.Count);
             foreach (var link in Links) link.Serialize(context);
         }

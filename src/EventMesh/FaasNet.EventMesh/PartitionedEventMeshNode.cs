@@ -69,6 +69,7 @@ namespace FaasNet.EventMesh
             if (packageRequest.Command == EventMeshCommands.GET_APPLICATION_DOMAIN_REQUEST) packageResult = await Handle(packageRequest as GetApplicationDomainRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.ADD_ELEMENT_APPLICATION_DOMAIN_REQUEST) packageResult = await Handle(packageRequest as AddElementApplicationDomainRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.REMOVE_ELEMENT_APPLICATION_DOMAIN_REQUEST) packageResult = await Handle(packageRequest as RemoveElementApplicationDomainRequest, TokenSource.Token);
+            if (packageRequest.Command == EventMeshCommands.GET_ALL_EVENT_DEFS_REQUEST) packageResult = await Handle(packageRequest as GetAllEventDefsRequest, TokenSource.Token);
             var writeBufferContext = new WriteBufferContext();
             packageResult.SerializeEnvelope(writeBufferContext);
             return writeBufferContext.Buffer.ToArray();

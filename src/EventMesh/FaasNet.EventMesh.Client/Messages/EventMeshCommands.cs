@@ -220,6 +220,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result sent when the application is removed from the application domain.
         /// </summary>
         public static EventMeshCommands REMOVE_ELEMENT_APPLICATION_DOMAIN_RESULT = new EventMeshCommands(53, "REMOVE_ELEMENT_APPLICATION_DOMAIN_RESULT");
+        /// <summary>
+        /// Request sent to get event definitions.
+        /// </summary>
+        public static EventMeshCommands GET_ALL_EVENT_DEFS_REQUEST = new EventMeshCommands(54, "GET_ALL_EVENT_DEFS_REQUEST");
+        /// <summary>
+        /// Result returned when event definitions are returned.
+        /// </summary>
+        public static EventMeshCommands GET_ALL_EVENT_DEFS_RESULT = new EventMeshCommands(55, "GET_ALL_EVENT_DEFS_RESULT");
 
         protected EventMeshCommands(int code)
         {

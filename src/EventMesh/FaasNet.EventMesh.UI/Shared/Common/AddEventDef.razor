@@ -1,0 +1,73 @@
+﻿@inherits FluxorComponent
+@using FaasNet.EventMesh.Client.StateMachines
+@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using FaasNet.EventMesh.UI.Stores.EventDef
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@using FaasNet.EventMesh.UI.Shared.Components
+
+<EditForm OnValidSubmit="@HandleValidSubmit" Model="addEventDef">
+	<DataAnnotationsValidator />
+	<!-- Event Definition Identifier -->
+	<div class="mb-3">
+		<label class="form-label">Event Definition Identifier</label>
+		<InputText class="form-control" @bind-Value="addEventDef.Id" />
+		<ValidationMessage For="() => addEventDef.Id" />
+	</div>
+	<!-- VPN -->
+	<div class="mb-3">
+		<label class="form-label">VPN</label>
+		<InputText class="form-control" @bind-Value="addEventDef.Vpn" disabled />
+	</div>
+	<!-- Description -->
+	<div class="mb-3">
+		<label class="form-label">Description</label>
+		<InputTextArea class="form-control" @bind-Value="addEventDef.Description" />
+		<ValidationMessage For="() => addEventDef.Description" />
+	</div>
+	<!-- Json Schema -->
+	<div class="mb-3">
+		<label class="form-label">JSON Schema</label>
+		<InputTextArea class="form-control" @bind-Value="addEventDef.JsonSchema" />
+		<ValidationMessage For="() => addEventDef.JsonSchema" />
+	</div>
+	<button type="submit" class="btn btn-primary">Add</button>
+</EditForm>
+
+@code {
+	public AddEventDefAction addEventDef { get; set; } = new();
+	[Parameter] public string Vpn { get; set; }
+	[Inject] private IState<AppState> AppState { get; set; } = null!;
+	[Inject] private IDispatcher Dispatcher { get; set; } = null!;
+	[Inject] private ToastService ToastService { get; set; } = null!;
+
+	public void Reset() 
+	{
+		addEventDef.Reset();
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		SubscribeToAction<AddEventDefResultAction>((act) =>
+		{
+			ToastService.AddInfo("EventDefinition", "Event definition has been added");
+			StateHasChanged();
+		});
+		SubscribeToAction<AddEventDefFailureAction>((act) =>
+		{
+			ToastService.AddError("EventDefinition", act.Message);
+			StateHasChanged();
+		});
+		addEventDef.Vpn = Vpn;
+	}
+
+	private void HandleValidSubmit()
+	{
+		addEventDef.Url = AppState.Value.SelectedNode.Url;
+		addEventDef.Port = AppState.Value.SelectedNode.Port;
+		Dispatcher.Dispatch(addEventDef);
+	}
+}

@@ -119,7 +119,7 @@
     </svg>
 </div>
 
-<AsyncApiEvent @ref="addEvent" />
+<AsyncApiEventDef @ref="addEventDef" />
 <AsyncApiClient ClientSelected="@HandleSelectClient" Vpn="@Vpn" @ref="addClient" />
 
 @code {
@@ -149,7 +149,7 @@
     private PointViewModel DroppedElementPosition { get; set; } = null!;
     private IEnumerable<double> InitCanvasCoordinates { get; set; } = null!;
     private AsyncApiClient addClient { get; set; } = null!;
-    private AsyncApiEvent addEvent { get; set; } = null!;
+    private AsyncApiEventDef addEventDef { get; set; } = null!;
 
     public void UpdateLinks(ICollection<ApplicationViewModel> applications, ICollection<LinkViewModel> links)
     {
@@ -401,7 +401,7 @@
         void AddLink()
         {
             if (SelectedLink.StartPoint.ApplicationId == LinkedApplication.Item1.ClientId) return;
-            addEvent.Open();
+            addEventDef.Open();
             /*
             Links.Add(new LinkViewModel
             {

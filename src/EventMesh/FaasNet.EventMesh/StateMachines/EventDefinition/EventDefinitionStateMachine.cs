@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client.StateMachines.EventDefinition;
+﻿using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.EventDefinition;
 using FaasNet.Partition;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
@@ -33,6 +34,7 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
                         {
                             Id = addEventDefinition.Id,
                             CreateDateTime = DateTime.UtcNow,
+                            UpdateDateTime = DateTime.UtcNow,
                             JsonSchema = addEventDefinition.JsonSchema,
                             Vpn = addEventDefinition.Vpn
                         };
@@ -90,9 +92,21 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
             switch(query)
             {
                 case GetEventDefinitionQuery getEventDef:
-                    var result = await _store.Get(getEventDef.Id, getEventDef.Vpn, cancellationToken);
-                    if (result == null) return new GetEventDefinitionQueryResult();
-                    return new GetEventDefinitionQueryResult(Transform(result));
+                    {
+                        var result = await _store.Get(getEventDef.Id, getEventDef.Vpn, cancellationToken);
+                        if (result == null) return new GetEventDefinitionQueryResult();
+                        return new GetEventDefinitionQueryResult(Transform(result));
+                    }
+                case GetEventDefsQuery getEventDefsQuery:
+                    {
+                        var result = await _store.Find(getEventDefsQuery.Filter, cancellationToken);
+                        return new GenericSearchQueryResult<EventDefinitionQueryResult>
+                        {
+                            Records = result.Records.Select(r => Transform(r)),
+                            TotalPages = result.TotalPages,
+                            TotalRecords = result.TotalRecords
+                        };
+                    }
             }
 
             return null;
@@ -124,7 +138,15 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
             {
                 Id = evtDef.Id,
                 JsonSchema = evtDef.JsonSchema,
-                Vpn = evtDef.Vpn
+                Description = evtDef.Description,
+                Vpn = evtDef.Vpn,
+                CreateDateTime = evtDef.CreateDateTime,
+                UpdateDateTime = evtDef.UpdateDateTime,
+                Links = evtDef.Links.Select(l => new EventDefinitionLinkResult
+                {
+                    Source = l.Source,
+                    Target = l.Target
+                }).ToList()
             };
         }
     }
@@ -133,7 +155,9 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
     {
         public string Id { get; set; }
         public string Vpn { get; set; }
+        public string Description { get; set; }
         public DateTime CreateDateTime { get; set; }
+        public DateTime UpdateDateTime { get; set; }
         public string JsonSchema { get; set; }
         public ICollection<EventDefinitionLink> Links { get; set; } = new List<EventDefinitionLink>();
 
@@ -157,7 +181,9 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
         {
             Id = context.NextString();
             Vpn = context.NextString();
+            Description = context.NextString();
             CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
+            UpdateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
             JsonSchema = context.NextString();
             var nbLinks = context.NextInt();
             for (var i = 0; i < nbLinks; i++)
@@ -172,7 +198,9 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
         {
             context.WriteString(Id);
             context.WriteString(Vpn);
+            context.WriteString(Description);
             context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
+            context.WriteTimeSpan(TimeSpan.FromTicks(UpdateDateTime.Ticks));
             context.WriteString(JsonSchema);
             context.WriteInteger(Links.Count);
             foreach (var link in Links) link.Serialize(context);
