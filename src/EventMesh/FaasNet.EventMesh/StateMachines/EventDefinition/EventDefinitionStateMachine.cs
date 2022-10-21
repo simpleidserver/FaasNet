@@ -36,6 +36,7 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
                             CreateDateTime = DateTime.UtcNow,
                             UpdateDateTime = DateTime.UtcNow,
                             JsonSchema = addEventDefinition.JsonSchema,
+                            Description = addEventDefinition.Description,
                             Vpn = addEventDefinition.Vpn
                         };
                         _store.Add(record);

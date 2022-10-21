@@ -37,6 +37,7 @@ namespace FaasNet.EventMesh.UI.Stores.Client
         {
             var records = state.Clients.Records.ToList();
             records.Insert(0, new ClientViewModel { Id = action.ClientId, Purposes = action.PurposeTypes.Select(p => (ClientPurposeTypes)p).ToList(), Vpn = action.Vpn });
+            state.Clients.Records = records;
             return state with
             {
                 IsLoading = false,

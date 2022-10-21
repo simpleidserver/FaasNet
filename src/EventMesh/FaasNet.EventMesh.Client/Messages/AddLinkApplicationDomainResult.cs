@@ -25,6 +25,9 @@ namespace FaasNet.EventMesh.Client.Messages
 
     public enum AddLinkApplicationDomainStatus
     {
-        OK = 0
+        OK = 0,
+        UNKNOWN_VPN = 1,
+        NOT_FOUND = 2,
+        NOLEADER = 3
     }
 }

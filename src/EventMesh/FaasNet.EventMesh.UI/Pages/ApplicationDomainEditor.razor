@@ -31,6 +31,8 @@
             {
                 ClientId = e.ElementId,
                 CreateDateTime = DateTime.UtcNow,
+                CoordinateX = e.CoordinateX,
+                CoordinateY = e.CoordinateY,
                 Purposes = new List<ClientPurposeTypes>
                 {
                     ClientPurposeTypes.PUBLISH,

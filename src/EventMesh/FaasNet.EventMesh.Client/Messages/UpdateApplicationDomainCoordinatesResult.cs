@@ -27,6 +27,6 @@ namespace FaasNet.EventMesh.Client.Messages
     {
         OK = 0,
         UNKNOWN_VPN = 1,
-        NOLEADER
+        NOLEADER = 2
     }
 }

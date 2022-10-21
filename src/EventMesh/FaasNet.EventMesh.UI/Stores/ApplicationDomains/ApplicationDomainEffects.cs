@@ -36,6 +36,13 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
             dispatcher.Dispatch(new SearchApplicationDomainsResultAction(result));
         }
 
+        [EffectMethod]
+        public async Task Handle(AddApplicationDomainLinkAction action, IDispatcher dispatcher)
+        {
+            var result = await _eventMeshService.AddLinkEventDefinition(action.Name, action.Vpn, action.Source, action.Target, action.EventId, action.Url, action.Port, CancellationToken.None);
+            dispatcher.Dispatch(new AddApplicationDomainLinkResultAction { Name = action.Name, EventId = action.EventId, Vpn = action.Vpn, Target = action.Target, Source = action.Source });
+        }
+
 
         [EffectMethod]
         public async Task Handle(RemoveApplicationDomainLinkAction action, IDispatcher dispatcher)
@@ -75,6 +82,13 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
             }
 
             dispatcher.Dispatch(new RemoveApplicationDomainElementResultAction { ElementId = action.ElementId, Name = action.Name, Vpn = action.Vpn });
+        }
+
+        [EffectMethod]
+        public async Task Handle(UpdateApplicationDomainCoordinatesAction action, IDispatcher dispatcher)
+        {
+            await _eventMeshService.UpdateApplicationDomainCoordinates(action.Name, action.Vpn, action.Coordinates, action.Url, action.Port, CancellationToken.None);
+            dispatcher.Dispatch(new UpdateApplicationDomainCoordinatesResultAction { Coordinates = action.Coordinates, Name = action.Name, Vpn = action.Vpn });
         }
     }
 
@@ -145,6 +159,26 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
     public class GetApplicationDomainResultAction
     {
         public GetApplicationDomainResult Content { get; set; }
+    }
+
+    public class AddApplicationDomainLinkAction
+    {
+        public string Name { get; set; }
+        public string Vpn { get; set; }
+        public string Source { get; set; }
+        public string Target { get; set; }
+        public string EventId { get; set; }
+        public string Url { get; set; }
+        public int Port { get; set; }
+    }
+
+    public class AddApplicationDomainLinkResultAction
+    {
+        public string Name { get; set; }
+        public string Vpn { get; set; }
+        public string Source { get; set; }
+        public string Target { get; set; }
+        public string EventId { get; set; }
     }
 
     public class RemoveApplicationDomainLinkAction
@@ -222,5 +256,21 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
         public string Name { get; set; }
         public string Vpn { get; set; }
         public string ElementId { get; set; }
+    }
+
+    public class UpdateApplicationDomainCoordinatesAction
+    {
+        public string Name { get; set; }
+        public string Vpn { get; set; }
+        public ICollection<ApplicationDomainCoordinate> Coordinates { get; set; }
+        public string Url { get; set; }
+        public int Port { get; set; }
+    }
+
+    public class UpdateApplicationDomainCoordinatesResultAction
+    {
+        public string Name { get; set; }
+        public string Vpn { get; set; }
+        public ICollection<ApplicationDomainCoordinate> Coordinates { get; set; }
     }
 }

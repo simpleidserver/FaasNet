@@ -119,7 +119,7 @@
     </svg>
 </div>
 
-<AsyncApiEventDef @ref="addEventDef" />
+<AsyncApiEventDef EvtDefSelected="@HandleSelectEvtDef" @ref="addEventDef" Vpn="@Vpn" />
 <AsyncApiClient ClientSelected="@HandleSelectClient" Vpn="@Vpn" @ref="addClient" />
 
 @code {
@@ -143,6 +143,7 @@
     private ApplicationViewModel ActiveApplication { get; set; } = null!;
     private LinkViewModel ActiveLink { get; set; } = null!;
     private LinkViewModel SelectedLink { get; set; } = null!;
+    private LinkViewModel PendingLink { get; set; } = null!;
     private (ApplicationViewModel, AnchorViewModel) LinkedApplication { get; set; } = (null!, null!);
     private PointViewModel SelectedMouseOffset { get; set; } = null!;
     private PointViewModel SelectedCanvasOffset { get; set; } = null!;
@@ -225,6 +226,27 @@
         {
             var link = Links.Single(l => l.StartPoint.ApplicationId == act.Source && l.EndPoint.ApplicationId == act.Target);
             Links.Remove(link);
+            ToastService.AddInfo("ApplicationDomain", "Application link has been removed from the appliaction domain");
+            StateHasChanged();
+        });
+        SubscribeToAction<AddApplicationDomainLinkResultAction>((act) =>
+        {
+            Links.Add(PendingLink);
+            ToastService.AddInfo("ApplicationDomain", "Application link has been added into the appliaction domain");
+            StateHasChanged();
+        });
+        SubscribeToAction<UpdateApplicationDomainCoordinatesResultAction>((act) =>
+        {            
+            ToastService.AddInfo("ApplicationDomain", "Coordinates have been updated");
+            foreach(var app in Applications)
+            {
+                var coordinate = act.Coordinates.SingleOrDefault(c => c.ElementId == app.ClientId);
+                if (coordinate == null) continue;
+                app.CoordinateX = coordinate.CoordinateX;
+                app.CoordinateY = coordinate.CoordinateY;
+            }
+
+            StateHasChanged();
         });
     }
 
@@ -401,9 +423,7 @@
         void AddLink()
         {
             if (SelectedLink.StartPoint.ApplicationId == LinkedApplication.Item1.ClientId) return;
-            addEventDef.Open();
-            /*
-            Links.Add(new LinkViewModel
+            PendingLink = new LinkViewModel
             {
                 StartPoint = SelectedLink.StartPoint,
                 EndPoint = new LinkPointViewModel
@@ -413,10 +433,8 @@
                     AnchorPosition = LinkedApplication.Item2.Position,
                     ApplicationId = LinkedApplication.Item1.ClientId
                 }
-                });
-            var filtered = Applications.Where(a => a.ClientId != SelectedLink.StartPoint.ApplicationId);
-            foreach (var app in filtered) app.IsActive = false;
-            */
+            };
+            addEventDef.Open();
         }
     }
 
@@ -473,6 +491,13 @@
         Dispatcher.Dispatch(new AddApplicationDomainElementAction { ElementId = client.Id, Name = Name, Vpn = Vpn, Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port, CoordinateX = DroppedElementPosition.X, CoordinateY = DroppedElementPosition.Y });
     }
 
+    private void HandleSelectEvtDef(EventDefViewModel evtDef) 
+    {
+        addEventDef.Close();
+        if (evtDef == null) return;
+        Dispatcher.Dispatch(new AddApplicationDomainLinkAction { EventId = evtDef.Id, Name = Name, Vpn = Vpn, Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port, Source = PendingLink.StartPoint.ApplicationId, Target = PendingLink.EndPoint.ApplicationId });
+    }
+
     private void RemoveApplication(ApplicationViewModel application)
     {
         Dispatcher.Dispatch(new RemoveApplicationDomainElementAction { ElementId = application.ClientId, Name = Name, Vpn = Vpn, Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port });
@@ -497,25 +522,19 @@
 
     private async void Update()
     {
-        /*
-            Dispatcher.Dispatch(new BulkUpdateClientAction
-            {
-            Clients = Applications.Select(a => new UpdateClientSubAction
-                {
-                ClientId = a.ClientId,
-                CoordinateX = a.CoordinateX,
-                CoordinateY = a.CoordinateY,
-                Targets = Links.Where(l => l.StartPoint.ApplicationId == a.ClientId && !string.IsNullOrWhiteSpace(l.EventId)).Select(l => new UpdateClientSubTarget
-                    {
-                    EventId = l.EventId,
-                    Target = l.EndPoint.ApplicationId
-            }).ToList()
-            }).ToList(),
-            Port = AppState.Value.SelectedNode.Port,
+        Dispatcher.Dispatch(new UpdateApplicationDomainCoordinatesAction 
+        { 
+            Name = Name, 
+            Vpn = Vpn, 
             Url = AppState.Value.SelectedNode.Url,
-        Vpn = Vpn
+            Port = AppState.Value.SelectedNode.Port,
+            Coordinates = Applications.Select(a => new ApplicationDomainCoordinate
+            {
+                ElementId = a.ClientId,
+                CoordinateX = a.CoordinateX,
+                CoordinateY = a.CoordinateY
+            }).ToList()
         });
-    */
     }
 
     private class ElementSize

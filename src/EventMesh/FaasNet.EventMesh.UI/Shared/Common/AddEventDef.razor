@@ -1,6 +1,7 @@
 ﻿@inherits FluxorComponent
 @using FaasNet.EventMesh.Client.StateMachines
 @using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.UI.Helpers
 @using FaasNet.EventMesh.UI.Stores.App
 @using FaasNet.EventMesh.UI.Stores.Client
 @using FaasNet.EventMesh.UI.Stores.EventDef
@@ -28,12 +29,20 @@
 		<ValidationMessage For="() => addEventDef.Description" />
 	</div>
 	<!-- Json Schema -->
-	<div class="mb-3">
-		<label class="form-label">JSON Schema</label>
-		<InputTextArea class="form-control" @bind-Value="addEventDef.JsonSchema" />
-		<ValidationMessage For="() => addEventDef.JsonSchema" />
+	<div class="mb-3 row" id="jsonContainer">		
+        <div class="col">
+            <h6>JSON schema</h6>
+            <div id="jsonEventDefinition"></div>
+        </div>
+        <div class="col">
+            <h6>Sample</h6>
+            <div id="sampleEventDefinition"></div>
+        </div>
 	</div>
-	<button type="submit" class="btn btn-primary">Add</button>
+	<div id="actions">
+		<button type="submit" class="btn btn-primary">Add</button>
+		<button class="btn btn-primary" @onclick="GenerateSample" @onclick:preventDefault="true">Generate sample</button>
+	</div>
 </EditForm>
 
 @code {
@@ -42,6 +51,9 @@
 	[Inject] private IState<AppState> AppState { get; set; } = null!;
 	[Inject] private IDispatcher Dispatcher { get; set; } = null!;
 	[Inject] private ToastService ToastService { get; set; } = null!;
+	[Inject] private IJSRuntime JS { get; set; } = null!;
+	private IJSObjectReference jsonEventDefinition;
+	private IJSObjectReference sampleEventDefinition;
 
 	public void Reset() 
 	{
@@ -64,10 +76,29 @@
 		addEventDef.Vpn = Vpn;
 	}
 
-	private void HandleValidSubmit()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
+		await base.OnAfterRenderAsync(firstRender);
+		if (firstRender)
+		{
+			jsonEventDefinition = await JS.InvokeAsync<IJSObjectReference>("initEditor", "jsonEventDefinition", "{}", false);
+			sampleEventDefinition = await JS.InvokeAsync<IJSObjectReference>("initEditor", "sampleEventDefinition", "{}", false);
+		}
+	}
+
+	private async void HandleValidSubmit()
+	{
+		var jsonSchema = await jsonEventDefinition.InvokeAsync<string>("getValue");
 		addEventDef.Url = AppState.Value.SelectedNode.Url;
 		addEventDef.Port = AppState.Value.SelectedNode.Port;
+		addEventDef.JsonSchema = jsonSchema;
 		Dispatcher.Dispatch(addEventDef);
+	}
+
+	private async void GenerateSample()
+	{
+		var jsonSchema = await jsonEventDefinition.InvokeAsync<string>("getValue");
+		var sample = JsonSchemaHelper.GenerateSample(jsonSchema);
+		await sampleEventDefinition.InvokeVoidAsync("setValue", sample);
 	}
 }

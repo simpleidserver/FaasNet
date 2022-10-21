@@ -15,7 +15,7 @@ namespace FaasNet.EventMesh
             if (!vpn.Success) return PackageResponseBuilder.RemoveLinkApplicationDomain(removeLinkApplicationDomain.Seq, RemoveLinkApplicationDomainStatus.UNKNOWN_VPN);
             var evtDef = await Query<GetApplicationDomainQueryResult>(PartitionNames.APPLICATION_DOMAIN, new  GetApplicationDomainQuery { Name = removeLinkApplicationDomain.Name, Vpn = removeLinkApplicationDomain.Vpn }, cancellationToken);
             if (!evtDef.Success) return PackageResponseBuilder.RemoveLinkApplicationDomain(removeLinkApplicationDomain.Seq, RemoveLinkApplicationDomainStatus.NOT_FOUND);
-            var result = await Send(PartitionNames.APPLICATION_DOMAIN, new RemoveApplicationDomainLinkCommand { Name = removeLinkApplicationDomain.Name, Vpn = removeLinkApplicationDomain.Vpn, EventId = removeLinkApplicationDomain.EventId }, cancellationToken);
+            var result = await Send(PartitionNames.APPLICATION_DOMAIN, new RemoveApplicationDomainLinkCommand { Name = removeLinkApplicationDomain.Name, Vpn = removeLinkApplicationDomain.Vpn, EventId = removeLinkApplicationDomain.EventId, Source = removeLinkApplicationDomain.Source, Target = removeLinkApplicationDomain.Target }, cancellationToken);
             if (!result.Success) return PackageResponseBuilder.RemoveLinkApplicationDomain(removeLinkApplicationDomain.Seq, RemoveLinkApplicationDomainStatus.NOLEADER);
             return PackageResponseBuilder.RemoveLinkApplicationDomain(removeLinkApplicationDomain.Seq, RemoveLinkApplicationDomainStatus.OK);
         }

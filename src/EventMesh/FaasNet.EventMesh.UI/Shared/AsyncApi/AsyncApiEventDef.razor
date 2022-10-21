@@ -2,21 +2,48 @@
 @using FaasNet.EventMesh.UI.Stores.App
 @using FaasNet.EventMesh.UI.Stores.ApplicationDomains
 @using FaasNet.EventMesh.UI.Stores.Client
+@using FaasNet.EventMesh.UI.Stores.EventDef
 @using Fluxor
+@using System.Linq
 @using Fluxor.Blazor.Web.Components
 @using FaasNet.EventMesh.UI.Shared.Components
 @inherits FluxorComponent
 
 <Modal Title="Choose an event" IsFullWidth="true" @ref="evtModal">
     <div class="apiEvent">
+        <!-- Add a new event definition -->
+        <div class="card">
+            <div class="card-header">
+                Add an Event Definition
+            </div>
+            <div class="card-body">
+                <Loader IsDisplayed="@EventDefState.Value.IsLoading">
+                    <AddEventDef Vpn="@Vpn"></AddEventDef>
+                </Loader>
+            </div>
+        </div>
+        <!-- Event definitions -->
+        <div class="card">
+            <div class="card-header">
+                Select an existing event definition
+            </div>
+            <div class="card-body">
+                <Loader IsDisplayed="@EventDefState.Value.IsLoading">
+                    <EventDefs IsSelectionEnabled="true" Vpn="@Vpn"></EventDefs>
+                </Loader>
+            </div>
+        </div>
         <div>
-            <button type="button" class="btn btn-primary">Confirm</button>
+            <button type="button" class="btn btn-primary" @onclick="HandleConfirm">Confirm</button>
         </div>
     </div>
 </Modal>
 
 @code {
     public Modal evtModal;
+    [Inject] private IState<EventDefState> EventDefState { get; set; } = null!;
+    [Parameter] public EventCallback<EventDefViewModel> EvtDefSelected { get; set; }
+    [Parameter] public string Vpn { get; set; }
 
     public void Open()
     {
@@ -31,5 +58,11 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+    }
+
+    private async void HandleConfirm(MouseEventArgs args)
+    {
+        var selectedEvtDef = EventDefState.Value.EventDefs.Records.Single(e => e.IsSelected);
+        await EvtDefSelected.InvokeAsync(selectedEvtDef);
     }
 }

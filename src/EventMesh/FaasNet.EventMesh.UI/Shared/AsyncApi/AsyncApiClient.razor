@@ -15,7 +15,9 @@
                 Add a client
             </div>
             <div class="card-body">
-                <AddClient Vpn="@Vpn"></AddClient>
+                <Loader IsDisplayed="@ClientState.Value.IsLoading">
+                    <AddClient Vpn="@Vpn"></AddClient>
+                </Loader>
             </div>
         </div>
         <!-- Select an existing client -->
@@ -24,7 +26,9 @@
                 Select an existing client
             </div>
             <div class="card-body">
-                <Clients Vpn="@Vpn" IsSelectionEnabled="true"></Clients>
+                <Loader IsDisplayed="@ClientState.Value.IsLoading">
+                    <Clients Vpn="@Vpn" IsSelectionEnabled="true"></Clients>
+                </Loader>
             </div>
         </div>
         <div>
@@ -57,6 +61,7 @@
     private async void HandleConfirm(MouseEventArgs args)
     {
         var selectedClient = ClientState.Value.Clients.Records.SingleOrDefault(r => r.IsSelected);
+        if (selectedClient == null) return;
         await ClientSelected.InvokeAsync(selectedClient);
     }
 }

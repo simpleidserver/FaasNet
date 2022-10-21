@@ -1,6 +1,7 @@
 ﻿using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FaasNet.EventMesh.Client.StateMachines.ApplicationDomain
 {
@@ -27,6 +28,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.ApplicationDomain
         {
             context.WriteString(Name);
             context.WriteString(Vpn);
+            context.WriteInteger(Elements.Count());
             foreach (var elt in Elements) elt.Serialize(context);
         }
     }

@@ -1,6 +1,7 @@
 ﻿@using FaasNet.EventMesh.Client.StateMachines.Client
 @using FaasNet.EventMesh.UI.Helpers
 @using FaasNet.EventMesh.UI.Shared.Components
+@using FaasNet.EventMesh.UI.Stores.Client
 @using FaasNet.EventMesh.UI.Stores.EventDef
 @using Fluxor
 @using FaasNet.EventMesh.UI.Stores.App
@@ -9,23 +10,23 @@
 @inherits FluxorComponent
 
 <PropertiesPanel PanelClosed="Close" Title="Properties">
-    <Loader IsDisplayed="IsLoading">
-        <!-- VPN -->
-        <div class="mb-3">
-            <label class="form-label">Vpn</label>
-            <input type="text" class="form-control" value="@Vpn" disabled />
-        </div>
-        <!-- From -->
-        <div class="mb-3">
-            <label class="form-label">From</label>
-            <input type="text" class="form-control" value="@ActiveLink.StartPoint.ApplicationId" disabled />
-        </div>
-        <!-- To -->
-        <div class="mb-3">
-            <label class="form-label">To</label>
-            <input type="text" class="form-control" value="@ActiveLink.EndPoint.ApplicationId" disabled />
-        </div>
-        <!-- JSON Schema -->
+    <!-- VPN -->
+    <div class="mb-3">
+        <label class="form-label">Vpn</label>
+        <input type="text" class="form-control" value="@Vpn" disabled />
+    </div>
+    <!-- From -->
+    <div class="mb-3">
+        <label class="form-label">From</label>
+        <input type="text" class="form-control" value="@ActiveLink.StartPoint.ApplicationId" disabled />
+    </div>
+    <!-- To -->
+    <div class="mb-3">
+        <label class="form-label">To</label>
+        <input type="text" class="form-control" value="@ActiveLink.EndPoint.ApplicationId" disabled />
+    </div>
+    <!-- JSON Schema -->
+    <Loader IsDisplayed="@EvtDefState.Value.IsLoading">
         <div class="mb-3 row" id="jsonContainer">
             <div class="col">
                 <h6>JSON schema</h6>
@@ -36,33 +37,24 @@
                 <div id="sampleEventDefinition"></div>
             </div>
         </div>
-        <div id="actions">
-            <button class="btn btn-danger" @onclick="Remove">Remove</button>
-            <button class="btn btn-primary" @onclick="GenerateSample">Generate sample</button>
-            @if (string.IsNullOrEmpty(ActiveLink.EventId))
-            {
-                <button class="btn btn-primary" @onclick="AddEventDefinition">Add event definition</button>
-            }
-            else
-            {
-                <button class="btn btn-primary" @onclick="UpdateEventDefinition">Update event definition</button>
-            }
-        </div>
     </Loader>
+    <div id="actions">
+        <button class="btn btn-danger" @onclick="Remove">Remove</button>
+        <button class="btn btn-primary" @onclick="GenerateSample">Generate sample</button>
+    </div>
 </PropertiesPanel>
 
 @code {
     private LinkViewModel _activeLink;
-    [Parameter]
-    public LinkViewModel ActiveLink
+    [Parameter] public LinkViewModel ActiveLink
     {
-        get 
+        get
         {
             return _activeLink;
         }
         set
         {
-            if(_activeLink == value) return;
+            if (_activeLink == value) return;
             _activeLink = value;
             if (jsonEventDefinition != null) Refresh();
         }
@@ -71,10 +63,9 @@
     [Parameter] public EventCallback<LinkViewModel> LinkRemoved { get; set; }
     [Parameter] public string Vpn { get; set; } = string.Empty;
     [Inject] private IJSRuntime JS { get; set; } = null!;
-    [Inject] private IDispatcher Dispatcher { get; set; } = null!;
     [Inject] private IState<AppState> AppState { get; set; } = null!;
-    [Inject] private ToastService ToastService { get; set; } = null!;
-    private bool IsLoading { get; set; } = true;
+    [Inject] private IState<EventDefState> EvtDefState { get; set; } = null!;
+    [Inject] private IDispatcher Dispatcher { get; set; } = null!;
     private IJSObjectReference jsonEventDefinition;
     private IJSObjectReference sampleEventDefinition;
 
@@ -83,34 +74,23 @@
         await LinkClosed.InvokeAsync(true);
     }
 
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        SubscribeToAction<GetEventDefResultAction>(async (act) =>
+        {
+            await jsonEventDefinition.InvokeVoidAsync("setValue", act.EventDef.Result.JsonSchema);
+            StateHasChanged();
+        });
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
-            /*
-            SubscribeToAction<AddEventDefResultAction>(async (act) =>
-            {
-                ToastService.AddInfo("EventDefinition", "Event definition has been created");
-                ActiveLink.EventId = act.EventDef.EventDefinitionId;
-                IsLoading = false;
-                StateHasChanged();
-            });
-            SubscribeToAction<UpdateEventDefResultAction>(async (act) =>
-            {
-                ToastService.AddInfo("EventDefinition", "Event definition has been updated");
-                IsLoading = false;
-                StateHasChanged();
-            });
-            SubscribeToAction<GetEventDefResultAction>(async (act) =>
-            {
-                await jsonEventDefinition.InvokeVoidAsync("setValue", act.EventDef.Result.JsonSchema);
-                IsLoading = false;
-                StateHasChanged();
-            });
-            */
-            jsonEventDefinition = await JS.InvokeAsync<IJSObjectReference>("initEditor", "jsonEventDefinition", "{}");
-            sampleEventDefinition = await JS.InvokeAsync<IJSObjectReference>("initEditor", "sampleEventDefinition", "{}");
+            jsonEventDefinition = await JS.InvokeAsync<IJSObjectReference>("initEditor", "jsonEventDefinition", "{}", true);
+            sampleEventDefinition = await JS.InvokeAsync<IJSObjectReference>("initEditor", "sampleEventDefinition", "{}", true);
             Refresh();
         }
     }
@@ -118,33 +98,6 @@
     private async void Remove(MouseEventArgs a)
     {
         await LinkRemoved.InvokeAsync(ActiveLink);
-    }
-
-    private async void AddEventDefinition(MouseEventArgs a)
-    {
-        IsLoading = true;
-        var jsonSchema = await jsonEventDefinition.InvokeAsync<string>("getValue");
-        Dispatcher.Dispatch(new AddEventDefAction 
-        { 
-            Vpn = Vpn, 
-            Url = AppState.Value.SelectedNode.Url,
-            Port = AppState.Value.SelectedNode.Port,
-            JsonSchema = jsonSchema
-        });
-    }
-
-    private async void UpdateEventDefinition(MouseEventArgs e)
-    {
-        IsLoading = true;
-        var jsonSchema = await jsonEventDefinition.InvokeAsync<string>("getValue");
-        Dispatcher.Dispatch(new UpdateEventDefAction
-        {
-            Id = ActiveLink.EventId,
-            JsonSchema = jsonSchema,
-            Vpn = Vpn,
-            Url = AppState.Value.SelectedNode.Url,
-            Port = AppState.Value.SelectedNode.Port
-        });
     }
 
     private async void GenerateSample()
@@ -156,7 +109,6 @@
 
     private async void Refresh()
     {
-        IsLoading = true;
         if (!string.IsNullOrEmpty(ActiveLink.EventId))
         {
             Dispatcher.Dispatch(new GetEventDefAction
@@ -168,7 +120,5 @@
             });
             return;
         }
-
-        IsLoading = false;
     }
 }

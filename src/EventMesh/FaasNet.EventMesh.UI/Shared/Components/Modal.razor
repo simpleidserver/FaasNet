@@ -1,4 +1,4 @@
-﻿<div class="modal @(IsFullWidth ? "full-width" : "") @modalClass" style="display: @modalDisplay">
+﻿<div class="modal @ClassName @(IsFullWidth ? "full-width" : "") @modalClass" style="display: @modalDisplay">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -21,6 +21,8 @@
 	public RenderFragment ChildContent { get; set; }
 	[Parameter]
 	public bool IsFullWidth { get; set; } = false;
+	[Parameter]
+	public string ClassName { get; set; } = "";
 
 	private string modalDisplay = "none;";
 	private string modalClass = string.Empty;

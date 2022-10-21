@@ -68,7 +68,6 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
         public string Vpn { get; set; }
         [Required]
         public string Description { get; set; }
-        [Required]
         public string JsonSchema { get; set; }
         public string Url { get; set; }
         public int Port { get; set; }

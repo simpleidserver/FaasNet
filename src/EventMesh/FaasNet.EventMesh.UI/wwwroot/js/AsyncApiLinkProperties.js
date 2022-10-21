@@ -1,7 +1,8 @@
-﻿function initEditor(id, value) {
+﻿function initEditor(id, value, readonly) {
     return monaco.editor.create(document.getElementById(id), {
         value: value,
         language: 'javascript',
-        automaticLayout: true
+        automaticLayout: true,
+        readOnly: readonly
     });
 }
