@@ -7,6 +7,7 @@ using FaasNet.EventMesh.Client.StateMachines.Queue;
 using FaasNet.EventMesh.Client.StateMachines.Session;
 using FaasNet.EventMesh.Client.StateMachines.Vpn;
 using FaasNet.RaftConsensus.Client.Messages;
+using Saunter.AsyncApiSchema.v2;
 using System.Collections.Generic;
 
 namespace FaasNet.EventMesh.Client.Messages
@@ -296,6 +297,23 @@ namespace FaasNet.EventMesh.Client.Messages
             return new AddElementApplicationDomainResult(seq)
             {
                 Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage GetAsyncApi(string seq, GetAsyncApiResultStatus status)
+        {
+            return new GetAsyncApiResult(seq)
+            {
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage GetAsyncApi(string seq, string document)
+        {
+            return new GetAsyncApiResult(seq)
+            {
+                Status = GetAsyncApiResultStatus.OK,
+                Document = document
             };
         }
 

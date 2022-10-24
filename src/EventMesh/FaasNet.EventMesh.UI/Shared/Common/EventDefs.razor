@@ -28,6 +28,9 @@
 	<GridColumn TRowData="EventDefViewModel" Name="Description" Title="Description">
 		@context.Description
 	</GridColumn>
+	<GridColumn TRowData="EventDefViewModel" Name="Topic" Title="Topic">
+		@context.Topic
+	</GridColumn>
 	<GridColumn TRowData="EventDefViewModel" Name="CreateDateTime" Title="Creation Datetime" IsSortEnabled="true">
 		@if (context.IsNew == null)
 		{

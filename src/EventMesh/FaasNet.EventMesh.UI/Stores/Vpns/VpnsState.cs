@@ -5,7 +5,7 @@ using Fluxor;
 namespace FaasNet.EventMesh.UI.Stores.Vpns
 {
     [FeatureState]
-    public class VpnsState
+    public record VpnsState
     {
         public VpnsState()
         {

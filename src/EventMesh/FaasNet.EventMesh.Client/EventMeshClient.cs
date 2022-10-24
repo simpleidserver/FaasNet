@@ -197,10 +197,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as GetPartitionResult;
         }
 
-        public async Task<AddEventDefinitionResult> AddEventDefinition(string id, string vpn, string jsonSchema, string description, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AddEventDefinitionResult> AddEventDefinition(string id, string vpn, string jsonSchema, string description, string topic, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AddEventDefinition(id, vpn, jsonSchema, description);
+            var package = PackageRequestBuilder.AddEventDefinition(id, vpn, jsonSchema, description, topic);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);
@@ -349,6 +349,20 @@ namespace FaasNet.EventMesh.Client
             var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
             EnsureSuccessStatus(package, packageResult);
             return packageResult as GetApplicationDomainResult;
+        }
+
+        public async Task<GetAsyncApiResult> GetAsyncApi(string clientId, string vpn, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var writeCtx = new WriteBufferContext();
+            var package = PackageRequestBuilder.GetAsyncApi(clientId, vpn);
+            package.SerializeEnvelope(writeCtx);
+            var payload = writeCtx.Buffer.ToArray();
+            await Send(payload, timeoutMS, cancellationToken);
+            var resultPayload = await Receive(timeoutMS, cancellationToken);
+            var readCtx = new ReadBufferContext(resultPayload);
+            var packageResult = BaseEventMeshPackage.Deserialize(readCtx);
+            EnsureSuccessStatus(package, packageResult);
+            return packageResult as GetAsyncApiResult;
         }
 
         public async Task<GetAllApplicationDomainsResult> GetAllApplicationDomains(FilterQuery filter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))

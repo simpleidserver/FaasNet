@@ -35,6 +35,7 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
                             Id = addEventDefinition.Id,
                             CreateDateTime = DateTime.UtcNow,
                             UpdateDateTime = DateTime.UtcNow,
+                            Topic = addEventDefinition.Topic,
                             JsonSchema = addEventDefinition.JsonSchema,
                             Description = addEventDefinition.Description,
                             Vpn = addEventDefinition.Vpn
@@ -141,6 +142,7 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
                 JsonSchema = evtDef.JsonSchema,
                 Description = evtDef.Description,
                 Vpn = evtDef.Vpn,
+                Topic = evtDef.Topic,
                 CreateDateTime = evtDef.CreateDateTime,
                 UpdateDateTime = evtDef.UpdateDateTime,
                 Links = evtDef.Links.Select(l => new EventDefinitionLinkResult
@@ -156,10 +158,12 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
     {
         public string Id { get; set; }
         public string Vpn { get; set; }
+        public string Topic { get; set; }
         public string Description { get; set; }
         public DateTime CreateDateTime { get; set; }
         public DateTime UpdateDateTime { get; set; }
         public string JsonSchema { get; set; }
+        public string MessageTopic { get; set; }
         public ICollection<EventDefinitionLink> Links { get; set; } = new List<EventDefinitionLink>();
 
         public bool Handle(RemoveLinkEventDefinitionCommand cmd)
@@ -182,6 +186,7 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
         {
             Id = context.NextString();
             Vpn = context.NextString();
+            Topic = context.NextString();
             Description = context.NextString();
             CreateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
             UpdateDateTime = new DateTime(context.NextTimeSpan().Value.Ticks);
@@ -199,6 +204,7 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
         {
             context.WriteString(Id);
             context.WriteString(Vpn);
+            context.WriteString(Topic);
             context.WriteString(Description);
             context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
             context.WriteTimeSpan(TimeSpan.FromTicks(UpdateDateTime.Ticks));

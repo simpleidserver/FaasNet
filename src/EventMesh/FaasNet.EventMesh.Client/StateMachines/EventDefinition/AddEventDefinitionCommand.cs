@@ -7,6 +7,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.EventDefinition
     {
         public string Id { get; set; }
         public string Vpn { get; set; }
+        public string Topic { get; set; }
         public string Description { get; set; }
         public string JsonSchema { get; set; }
 
@@ -14,6 +15,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.EventDefinition
         {
             Id = context.NextString();
             Vpn = context.NextString();
+            Topic = context.NextString();
             Description = context.NextString();
             JsonSchema = context.NextString();
         }
@@ -22,6 +24,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.EventDefinition
         {
             context.WriteString(Id);
             context.WriteString(Vpn);
+            context.WriteString(Topic);
             context.WriteString(Description);
             context.WriteString(JsonSchema);
         }

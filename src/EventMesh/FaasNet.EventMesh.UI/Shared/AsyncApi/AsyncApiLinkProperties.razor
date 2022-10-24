@@ -27,6 +27,11 @@
     </div>
     <!-- JSON Schema -->
     <Loader IsDisplayed="@EvtDefState.Value.IsLoading">
+        <!-- Topic -->
+        <div class="mb-3">
+            <label class="form-label">Topic</label>
+            <input type="text" class="form-control" value="@EvtDefState.Value.EventDef.Topic" disabled />
+        </div>
         <div class="mb-3 row" id="jsonContainer">
             <div class="col">
                 <h6>JSON schema</h6>

@@ -5,3 +5,7 @@
 .properties .purposes > span {
     margin-right: 5px;
 }
+
+#asyncApi {
+    height: 600px;
+}

@@ -14,25 +14,32 @@ namespace FaasNet.EventMesh.UI.Stores.Vpns
         [ReducerMethod]
         public static VpnsState ReduceAddVpnAction(VpnsState state, AddVpnAction action)
         {
-            state.IsLoading = true;
-            return state;
+            return state with
+            {
+                IsLoading = true
+            };
         }
 
         [ReducerMethod]
         public static VpnsState ReduceAddVpnFailureAction(VpnsState state, AddVpnFailureAction action)
         {
-            state.IsLoading = false;
-            return state;
+            return state with
+            {
+                IsLoading = false
+            };
         }
 
         [ReducerMethod]
         public static VpnsState ReduceAddVpnResultAction(VpnsState state, AddVpnResultAction action)
         {
-            state.IsLoading = false;
             var records = state.Vpns.Records.ToList();
             records.Insert(0, new VpnQueryResult { Description = action.Description, Name = action.Name });
             state.Vpns.Records = records;
-            return state;
+            return state with
+            {
+                IsLoading = false,
+                Vpns = state.Vpns
+            };
         }
     }
 }

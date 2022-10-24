@@ -10,6 +10,7 @@ namespace FaasNet.EventMesh.Client.Messages
 
         public string Id { get; set; }
         public string Description { get; set; }
+        public string Topic { get; set; }
         public string Vpn { get; set; }
         public string JsonSchema { get; set; }
 
@@ -19,6 +20,7 @@ namespace FaasNet.EventMesh.Client.Messages
         {
             context.WriteString(Id);
             context.WriteString(Description);
+            context.WriteString(Topic);
             context.WriteString(Vpn);
             context.WriteString(JsonSchema);
         }
@@ -27,6 +29,7 @@ namespace FaasNet.EventMesh.Client.Messages
         {
             Id = context.NextString();
             Description = context.NextString();
+            Topic = context.NextString();
             Vpn = context.NextString();
             JsonSchema = context.NextString();
             return this;

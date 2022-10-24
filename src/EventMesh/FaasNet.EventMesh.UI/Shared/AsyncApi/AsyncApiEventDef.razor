@@ -12,27 +12,17 @@
 <Modal Title="Choose an event" IsFullWidth="true" @ref="evtModal">
     <div class="apiEvent">
         <!-- Add a new event definition -->
-        <div class="card">
-            <div class="card-header">
-                Add an Event Definition
-            </div>
-            <div class="card-body">
-                <Loader IsDisplayed="@EventDefState.Value.IsLoading">
-                    <AddEventDef Vpn="@Vpn"></AddEventDef>
-                </Loader>
-            </div>
-        </div>
+        <Card Title="Add an Event definition">
+            <Loader IsDisplayed="@EventDefState.Value.IsLoading">
+                <AddEventDef Vpn="@Vpn"></AddEventDef>
+            </Loader>
+        </Card>
         <!-- Event definitions -->
-        <div class="card">
-            <div class="card-header">
-                Select an existing event definition
-            </div>
-            <div class="card-body">
-                <Loader IsDisplayed="@EventDefState.Value.IsLoading">
-                    <EventDefs IsSelectionEnabled="true" Vpn="@Vpn"></EventDefs>
-                </Loader>
-            </div>
-        </div>
+        <Card Title="Select an existing event definition">
+            <Loader IsDisplayed="@EventDefState.Value.IsLoading">
+                <EventDefs IsSelectionEnabled="true" Vpn="@Vpn"></EventDefs>
+            </Loader>
+        </Card>
         <div>
             <button type="button" class="btn btn-primary" @onclick="HandleConfirm">Confirm</button>
         </div>

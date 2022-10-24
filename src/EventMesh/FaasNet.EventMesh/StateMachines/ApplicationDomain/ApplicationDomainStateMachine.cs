@@ -93,6 +93,10 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
                         if (existingApplicationDomain == null) return;
                         if (existingApplicationDomain.Handle(addApplicationDomainLinkCommand))
                         {
+                            // Un client possède toujours une queue.
+                            // Quand un lien est ajouté alors il faut ajouter une nouvelle "subscription".
+                            // Lorsqu'un message est publié on doit récupérer l'ensemble des queues 
+                            // Pouvoir générer un asyncapi à partir d'un client.
                             _store.Update(existingApplicationDomain);
                             await _store.SaveChanges(cancellationToken);
                             await PropagateIntegrationEvent(new ApplicationDomainLinkAdded

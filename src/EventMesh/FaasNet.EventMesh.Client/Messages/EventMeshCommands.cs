@@ -228,6 +228,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result returned when event definitions are returned.
         /// </summary>
         public static EventMeshCommands GET_ALL_EVENT_DEFS_RESULT = new EventMeshCommands(55, "GET_ALL_EVENT_DEFS_RESULT");
+        /// <summary>
+        /// Request sent to get the ASYNCAPI definition.
+        /// </summary>
+        public static EventMeshCommands GET_ASYNC_API_REQUEST = new EventMeshCommands(56, "GET_ASYNC_API_REQUEST");
+        /// <summary>
+        /// Result returned when the ASYNCAPI definition is returned.
+        /// </summary>
+        public static EventMeshCommands GET_ASYNC_API_RESULT = new EventMeshCommands(57, "GET_ASYNC_API_RESULT");
 
         protected EventMeshCommands(int code)
         {

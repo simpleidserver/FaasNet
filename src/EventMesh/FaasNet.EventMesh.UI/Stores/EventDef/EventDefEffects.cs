@@ -1,7 +1,6 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.UI.Data;
-using FaasNet.EventMesh.UI.ViewModels;
 using Fluxor;
 using System.ComponentModel.DataAnnotations;
 
@@ -20,7 +19,7 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
         [EffectMethod]
         public async Task Handle(AddEventDefAction action, IDispatcher dispatcher)
         {
-            var result = await _eventMeshService.AddEventDefinition(action.Id, action.Vpn, action.JsonSchema, action.Description, action.Url, action.Port, CancellationToken.None);
+            var result = await _eventMeshService.AddEventDefinition(action.Id, action.Vpn, action.JsonSchema, action.Description, action.Topic, action.Url, action.Port, CancellationToken.None);
             if (result.Status != AddEventDefinitionStatus.OK)
             {
                 dispatcher.Dispatch(new AddEventDefFailureAction($"An error occured while trying to add the , Error: {Enum.GetName(typeof(AddEventDefinitionStatus), result.Status)}"));
@@ -68,6 +67,8 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
         public string Vpn { get; set; }
         [Required]
         public string Description { get; set; }
+        [Required]
+        public string Topic { get; set; }
         public string JsonSchema { get; set; }
         public string Url { get; set; }
         public int Port { get; set; }

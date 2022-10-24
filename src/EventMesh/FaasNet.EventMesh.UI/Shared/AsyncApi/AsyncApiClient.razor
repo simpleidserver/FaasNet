@@ -10,27 +10,17 @@
 <Modal Title="Choose a client" IsFullWidth="true" @ref="panel">
     <div class="apiClient">
         <!-- Add a new client -->
-        <div class="card">
-            <div class="card-header">
-                Add a client
-            </div>
-            <div class="card-body">
-                <Loader IsDisplayed="@ClientState.Value.IsLoading">
-                    <AddClient Vpn="@Vpn"></AddClient>
-                </Loader>
-            </div>
-        </div>
+        <Card Title="Add a client">
+            <Loader IsDisplayed="@ClientState.Value.IsLoading">
+                <AddClient Vpn="@Vpn"></AddClient>
+            </Loader>
+        </Card>
         <!-- Select an existing client -->
-        <div class="card">
-            <div class="card-header">
-                Select an existing client
-            </div>
-            <div class="card-body">
-                <Loader IsDisplayed="@ClientState.Value.IsLoading">
-                    <Clients Vpn="@Vpn" IsSelectionEnabled="true"></Clients>
-                </Loader>
-            </div>
-        </div>
+        <Card Title="Select an existing client">
+            <Loader IsDisplayed="@ClientState.Value.IsLoading">
+                <Clients Vpn="@Vpn" IsSelectionEnabled="true"></Clients>
+            </Loader>
+        </Card>
         <div>
             <button type="button" class="btn btn-primary" @onclick="HandleConfirm">Confirm</button>
         </div>

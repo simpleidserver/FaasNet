@@ -1,5 +1,4 @@
-﻿using FaasNet.EventMesh.UI.Shared.Common;
-using FaasNet.EventMesh.UI.Stores.Client;
+﻿using FaasNet.EventMesh.UI.Stores.Client;
 using Fluxor;
 
 namespace FaasNet.EventMesh.UI.Stores.EventDef
@@ -29,10 +28,34 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
         }
 
         [ReducerMethod]
-        public static EventDefState ReduceSearchClientsAction(EventDefState state, SearchEventDefsAction action) => new(isLoading: true, eventDefs: null);
+        public static EventDefState ReduceSearchClientsAction(EventDefState state, GetEventDefResultAction action)
+        {
+            return state with
+            {
+                IsLoading = false,
+                EventDef = new EventDefViewModel(action.EventDef.Result)
+            };
+        }
 
         [ReducerMethod]
-        public static EventDefState ReduceSearchEventDefsResultAction(EventDefState state, SearchEventDefsResultAction action) => new(isLoading: false, eventDefs: action.EventDefinitions);
+        public static EventDefState ReduceSearchClientsAction(EventDefState state, SearchEventDefsAction action)
+        {
+            return state with
+            {
+                IsLoading = true,
+                EventDefs = null
+            };
+        }
+
+        [ReducerMethod]
+        public static EventDefState ReduceSearchEventDefsResultAction(EventDefState state, SearchEventDefsResultAction action)
+        {
+            return state with
+            {
+                IsLoading= false,
+                EventDefs = action.EventDefinitions
+            };
+        }
 
         [ReducerMethod]
         public static EventDefState ReduceToggleSelectionEventDefAction(EventDefState state, ToggleSelectionEventDefAction action)

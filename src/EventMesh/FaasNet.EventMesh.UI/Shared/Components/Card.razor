@@ -1,0 +1,21 @@
+﻿<div class="card">
+    <div class="card-header" @onclick="Toggle">
+        @Title
+    </div>
+    <div class="card-body @(!IsDisplayed ? "hide" : string.Empty)">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    public bool IsDisplayed { get; set; } = true;
+
+    private void Toggle(MouseEventArgs args)
+    {
+        IsDisplayed = !IsDisplayed;
+    }
+}

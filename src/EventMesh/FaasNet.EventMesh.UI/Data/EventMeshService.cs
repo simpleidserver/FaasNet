@@ -34,7 +34,7 @@ namespace FaasNet.EventMesh.UI.Data
         Task<IEnumerable<string>> FindClientsByName(string name, string url, int port, CancellationToken cancellationToken);
         Task<IEnumerable<string>> FindQueuesByName(string name, string url, int port, CancellationToken cancellationToken);
         Task<GetPartitionResult> GetPartition(string partition, string url, int port, CancellationToken cancellationToken);
-        Task<AddEventDefinitionResult> AddEventDefinition(string id, string vpn, string jsonSchema, string description, string url, int port, CancellationToken cancellationToken);
+        Task<AddEventDefinitionResult> AddEventDefinition(string id, string vpn, string jsonSchema, string description, string topic, string url, int port, CancellationToken cancellationToken);
         Task<GetEventDefinitionResult> GetEventDefinition(string id, string vpn, string url, int port, CancellationToken cancellationToken);
         Task<UpdateEventDefinitionResult> UpdateEventDefinition(string id, string vpn, string jsonSchema, string url, int port, CancellationToken cancellationToken);
         Task<AddLinkApplicationDomainResult> AddLinkEventDefinition(string name, string vpn, string source, string target, string eventId, string url, int port, CancellationToken cancellationToken);
@@ -46,6 +46,7 @@ namespace FaasNet.EventMesh.UI.Data
         Task<RemoveElementApplicationDomainResult> RemoveApplicationDomainElement(string name, string vpn, string elementId, string url, int port, CancellationToken cancellationToken);
         Task<GetAllEventDefsResult> SearchEventDefs(FilterQuery filter, string url, int port, CancellationToken cancellationToken);
         Task<UpdateApplicationDomainCoordinatesResult> UpdateApplicationDomainCoordinates(string name, string vpn, ICollection<ApplicationDomainCoordinate> coordinates, string url, int port, CancellationToken cancellationToken);
+        Task<GetAsyncApiResult> GetAsyncApiDefinition(string clientId, string vpn, string url, int port, CancellationToken token);
     }
 
     public class EventMeshService : IEventMeshService
@@ -232,11 +233,11 @@ namespace FaasNet.EventMesh.UI.Data
             return result;
         }
 
-        public async Task<AddEventDefinitionResult> AddEventDefinition(string id, string vpn, string jsonSchema, string description, string url, int port, CancellationToken cancellationToken)
+        public async Task<AddEventDefinitionResult> AddEventDefinition(string id, string vpn, string jsonSchema, string description, string topic, string url, int port, CancellationToken cancellationToken)
         {
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
-                return await client.AddEventDefinition(id, vpn, jsonSchema, description, _options.RequestTimeoutMS, cancellationToken);
+                return await client.AddEventDefinition(id, vpn, jsonSchema, description, topic, _options.RequestTimeoutMS, cancellationToken);
             }
         }
 
@@ -330,6 +331,15 @@ namespace FaasNet.EventMesh.UI.Data
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
                 var result = await client.UpdateApplicationDomainCoordinates(name, vpn, coordinates, _options.RequestTimeoutMS, cancellationToken);
+                return result;
+            }
+        }
+
+        public async Task<GetAsyncApiResult> GetAsyncApiDefinition(string clientId, string vpn, string url, int port, CancellationToken token)
+        {
+            using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
+            {
+                var result = await client.GetAsyncApi(clientId, vpn, _options.RequestTimeoutMS, token);
                 return result;
             }
         }

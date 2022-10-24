@@ -3,6 +3,7 @@ using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.EventMesh.UI.Data;
 using Fluxor;
+using Saunter.AsyncApiSchema.v2;
 using System.ComponentModel.DataAnnotations;
 
 namespace FaasNet.EventMesh.UI.Stores.Client
@@ -64,6 +65,13 @@ namespace FaasNet.EventMesh.UI.Stores.Client
             dispatcher.Dispatch(new CheckClientPartitionIsSyncedResultAction { IsSynced = result.State.CommitIndex == result.State.LastApplied });
         }
 
+        [EffectMethod]
+        public async Task Handle(GetClientAsyncApiAction action, IDispatcher dispatcher)
+        {
+            var result = await _eventMeshService.GetAsyncApiDefinition(action.ClientId, action.Vpn, action.Url, action.Port, CancellationToken.None);
+            dispatcher.Dispatch(new GetClientAsyncApiResultAction { Document = result.Document });
+        }
+
         private static GenericSearchQueryResult<ClientViewModel> Transform(GenericSearchQueryResult<ClientQueryResult> result)
         {
             return new GenericSearchQueryResult<ClientViewModel>
@@ -71,6 +79,19 @@ namespace FaasNet.EventMesh.UI.Stores.Client
                 Records = result.Records.Select(c => new ClientViewModel(c))
             };
         }
+    }
+
+    public class GetClientAsyncApiAction
+    {
+        public string ClientId { get; set; }
+        public string Vpn { get; set; }
+        public string Url { get; set; }
+        public int Port { get; set; }
+    }
+
+    public class GetClientAsyncApiResultAction
+    {
+        public string Document { get; set; }
     }
 
     public class SearchClientsAction

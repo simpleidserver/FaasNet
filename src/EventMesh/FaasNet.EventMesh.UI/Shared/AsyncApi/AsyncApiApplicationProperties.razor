@@ -1,5 +1,11 @@
 ﻿@using FaasNet.EventMesh.Client.StateMachines.Client
 @using FaasNet.EventMesh.UI.Shared.Components
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@using Saunter.Serialization
+@inherits FluxorComponent
 
 <PropertiesPanel PanelClosed="Close" Title="Properties">
     <!-- Client Identifier -->
@@ -27,16 +33,62 @@
             }
         </div>
     </div>
+    <div id="actions">
+        <button class="btn btn-primary" @onclick="DownloadASYNCAPI">Download ASYNCAPI file</button>
+    </div>
 </PropertiesPanel>
 
+<Modal Title="ASYNCAPI Definition" ClassName="modal-xl" @ref=asyncApiDefinitionModal>
+    <div class="modal-body">
+        <div id="asyncApi"></div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+    </div>
+</Modal>
+
 @code {
-    [Parameter]
-    public ApplicationViewModel ActiveApplication { get; set; } = null!;
+    [Inject] private IDispatcher Dispatcher { get; set; } = null!;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
+    [Inject] private IState<AppState> AppState { get; set; } = null!;
+    [Parameter] public ApplicationViewModel ActiveApplication { get; set; } = null!;
     [Parameter] public EventCallback<bool> ApplicationClosed { get; set; }
     [Parameter] public string Vpn { get; set; } = string.Empty;
+    private Modal asyncApiDefinitionModal;
+    private IJSObjectReference asyncApi;
+
+    protected async override Task OnInitializedAsync()
+    {        
+        await base.OnInitializedAsync();
+        SubscribeToAction<GetClientAsyncApiResultAction>(async (act) =>
+        {
+            asyncApiDefinitionModal.Open();
+            await asyncApi.InvokeVoidAsync("setValue", act.Document);
+            StateHasChanged();
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            asyncApi = await JS.InvokeAsync<IJSObjectReference>("initEditor", "asyncApi", "{}", true);
+        }
+    }
 
     public async void Close()
     {
         await ApplicationClosed.InvokeAsync(true);
+    }
+
+    private void DownloadASYNCAPI(MouseEventArgs args)
+    {
+        Dispatcher.Dispatch(new GetClientAsyncApiAction { ClientId = ActiveApplication.ClientId, Vpn = Vpn, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url });
+    }
+
+    private void CloseModal()
+    {
+        asyncApiDefinitionModal.Close();
     }
 }
