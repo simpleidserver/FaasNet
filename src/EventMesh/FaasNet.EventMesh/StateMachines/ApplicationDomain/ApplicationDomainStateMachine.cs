@@ -197,6 +197,7 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
                 Vpn = applicationDomain.Vpn,
                 Elements = applicationDomain.Elements.Select(d => new ApplicationDomainElementResult
                 {
+                    PurposeTypes = d.PurposeTypes,
                     CoordinateX = d.CoordinateX,
                     CoordinateY = d.CoordinateY,
                     ElementId = d.ElementId,
@@ -226,6 +227,7 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
             if (element != null) return false;
             Elements.Add(new ApplicationDomainElement
             {
+                PurposeTypes = cmd.PurposeTypes,
                 ElementId = cmd.ElementId,
                 CoordinateX = cmd.CoordinateX,
                 CoordinateY = cmd.CoordinateY
@@ -311,6 +313,7 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
     public class ApplicationDomainElement : ISerializable
     {
         public string ElementId { get; set; }
+        public IEnumerable<ApplicationDomainElementPurposeTypes> PurposeTypes { get; set; }
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
         public ICollection<ApplicationDomainElementLink> Targets { get; set; } = new List<ApplicationDomainElementLink>();
@@ -318,9 +321,14 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
         public void Deserialize(ReadBufferContext context)
         {
             ElementId = context.NextString();
+            var lst = new List<ApplicationDomainElementPurposeTypes>();
+            var nb = context.NextInt();
+            for (var i = 0; i < nb; i++)
+                lst.Add((ApplicationDomainElementPurposeTypes)context.NextInt());
+            PurposeTypes = lst;
             CoordinateX = context.NextDouble();
             CoordinateY = context.NextDouble();
-            var nb = context.NextInt();
+            nb = context.NextInt();
             for(var i = 0; i < nb; i++)
             {
                 var link = new ApplicationDomainElementLink();
@@ -332,6 +340,9 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
         public void Serialize(WriteBufferContext context)
         {
             context.WriteString(ElementId);
+            context.WriteInteger(PurposeTypes.Count());
+            foreach (var purposeType in PurposeTypes)
+                context.WriteInteger((int)purposeType);
             context.WriteDouble(CoordinateX);
             context.WriteDouble(CoordinateY);
             context.WriteInteger(Targets.Count());

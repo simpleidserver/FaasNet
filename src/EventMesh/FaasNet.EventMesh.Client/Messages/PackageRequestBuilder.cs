@@ -1,5 +1,6 @@
 ﻿using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.ApplicationDomain;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using System;
 using System.Collections.Generic;
@@ -232,7 +233,7 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage AddApplicationDomainElement(string name, string vpn, string elementId, double coordinateX, double coordinateY)
+        public static BaseEventMeshPackage AddApplicationDomainElement(string name, string vpn, string elementId, double coordinateX, double coordinateY, IEnumerable<ApplicationDomainElementPurposeTypes> purposeTypes)
         {
             return new AddElementApplicationDomainRequest(GenerateRandomSeq())
             {
@@ -240,7 +241,8 @@ namespace FaasNet.EventMesh.Client.Messages
                 Vpn = vpn,
                 ElementId = elementId,
                 CoordinateX = coordinateX,
-                CoordinateY = coordinateY
+                CoordinateY = coordinateY,
+                PurposeTypes = purposeTypes
             };
         }
 

@@ -1,5 +1,6 @@
 ﻿@using System.Diagnostics
 @using FaasNet.EventMesh.Client.Messages
+@using FaasNet.EventMesh.Client.StateMachines.ApplicationDomain
 @using FaasNet.EventMesh.Client.StateMachines.Client
 @using FaasNet.EventMesh.UI.Helpers
 @using FaasNet.EventMesh.UI.Stores.App
@@ -195,7 +196,7 @@
             StateHasChanged();
         });
         SubscribeToAction<AddApplicationDomainElementResultAction>((act) =>
-        {            
+        {
             var newApplication = new ApplicationViewModel
             {
                 ClientId = act.ElementId,
@@ -203,7 +204,7 @@
                 CoordinateY = act.CoordinateY,
                 IsActive = true,
                 CreateDateTime = DateTime.UtcNow,
-                // Purposes = client.Purposes
+                Purposes = act.PurposeTypes.Select(p => p == ApplicationDomainElementPurposeTypes.PUBLISH ? ClientPurposeTypes.PUBLISH : ClientPurposeTypes.SUBSCRIBE)
             };
             Applications.Add(newApplication);
             ActiveApplication = newApplication;
@@ -487,8 +488,9 @@
     private void HandleSelectClient(ClientViewModel client)
     {
         addClient.Close();
-        if (client == null || (client != null && Applications.Any(a => a.ClientId == client.Id))) return;        
-        Dispatcher.Dispatch(new AddApplicationDomainElementAction { ElementId = client.Id, Name = Name, Vpn = Vpn, Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port, CoordinateX = DroppedElementPosition.X, CoordinateY = DroppedElementPosition.Y });
+        if (client == null || (client != null && Applications.Any(a => a.ClientId == client.Id))) return;
+        var purposeTypes = client.Purposes.Select(p => p == ClientPurposeTypes.PUBLISH ? ApplicationDomainElementPurposeTypes.PUBLISH : ApplicationDomainElementPurposeTypes.SUBSCRIBE);
+        Dispatcher.Dispatch(new AddApplicationDomainElementAction { ElementId = client.Id, Name = Name, Vpn = Vpn, Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port, CoordinateX = DroppedElementPosition.X, CoordinateY = DroppedElementPosition.Y, PurposeTypes = purposeTypes });
     }
 
     private void HandleSelectEvtDef(EventDefViewModel evtDef) 

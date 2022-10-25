@@ -61,14 +61,14 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
         [EffectMethod]
         public async Task Handle(AddApplicationDomainElementAction action, IDispatcher dispatcher)
         {
-            var result = await _eventMeshService.AddApplicationDomainElement(action.Name, action.Vpn, action.ElementId, action.CoordinateX, action.CoordinateY, action.Url, action.Port, CancellationToken.None);
+            var result = await _eventMeshService.AddApplicationDomainElement(action.Name, action.Vpn, action.ElementId, action.CoordinateX, action.CoordinateY, action.PurposeTypes, action.Url, action.Port, CancellationToken.None);
             if(result.Status != AddElementApplicationDomainStatus.OK)
             {
                 dispatcher.Dispatch(new AddApplicationDomainElementFailureAction($"An error occured while trying to add the application domain element, Error: {Enum.GetName(typeof(AddElementApplicationDomainStatus), result.Status)}"));
                 return;
             }
 
-            dispatcher.Dispatch(new AddApplicationDomainElementResultAction { CoordinateX = action.CoordinateY, CoordinateY = action.CoordinateY, ElementId = action.ElementId, Name = action.Name, Vpn = action.Vpn });
+            dispatcher.Dispatch(new AddApplicationDomainElementResultAction { CoordinateX = action.CoordinateY, CoordinateY = action.CoordinateY, ElementId = action.ElementId, Name = action.Name, Vpn = action.Vpn, PurposeTypes = action.PurposeTypes });
         }
 
         [EffectMethod]
@@ -209,6 +209,7 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
         public string ElementId { get; set; }
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
+        public IEnumerable<ApplicationDomainElementPurposeTypes> PurposeTypes { get; set; }
         public string Url { get; set; }
         public int Port { get; set; }
     }
@@ -230,6 +231,7 @@ namespace FaasNet.EventMesh.UI.Stores.ApplicationDomains
         public string ElementId { get; set; }
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
+        public IEnumerable<ApplicationDomainElementPurposeTypes> PurposeTypes { get; set; }
     }
 
     public class RemoveApplicationDomainElementAction

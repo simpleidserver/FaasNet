@@ -50,6 +50,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.ApplicationDomain
     public class ApplicationDomainElementResult : ISerializable
     {
         public string ElementId { get; set; }
+        public IEnumerable<ApplicationDomainElementPurposeTypes> PurposeTypes { get; set; } = new List<ApplicationDomainElementPurposeTypes>();
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
         public ICollection<ApplicationDomainElementLinkResult> Targets { get; set; } = new List<ApplicationDomainElementLinkResult>();
@@ -57,9 +58,14 @@ namespace FaasNet.EventMesh.Client.StateMachines.ApplicationDomain
         public void Deserialize(ReadBufferContext context)
         {
             ElementId = context.NextString();
+            var nb = context.NextInt();
+            var purposeTypes = new List<ApplicationDomainElementPurposeTypes>();
+            for(var i = 0; i < nb; i++)
+                purposeTypes.Add((ApplicationDomainElementPurposeTypes)context.NextInt());
+            PurposeTypes = purposeTypes;
             CoordinateX = context.NextDouble();
             CoordinateY = context.NextDouble();
-            var nb = context.NextInt();
+            nb = context.NextInt();
             for (var i = 0; i < nb; i++)
             {
                 var link = new ApplicationDomainElementLinkResult();
@@ -71,6 +77,9 @@ namespace FaasNet.EventMesh.Client.StateMachines.ApplicationDomain
         public void Serialize(WriteBufferContext context)
         {
             context.WriteString(ElementId);
+            context.WriteInteger(PurposeTypes.Count());
+            foreach (var purposeType in PurposeTypes)
+                context.WriteInteger((int)purposeType);
             context.WriteDouble(CoordinateX);
             context.WriteDouble(CoordinateY);
             context.WriteInteger(Targets.Count());
@@ -94,5 +103,11 @@ namespace FaasNet.EventMesh.Client.StateMachines.ApplicationDomain
             context.WriteString(EventId);
             context.WriteString(Target);
         }
+    }
+
+    public enum ApplicationDomainElementPurposeTypes
+    {
+        PUBLISH = 0,
+        SUBSCRIBE = 1
     }
 }

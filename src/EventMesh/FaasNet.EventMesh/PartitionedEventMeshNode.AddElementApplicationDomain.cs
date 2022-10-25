@@ -14,7 +14,7 @@ namespace FaasNet.EventMesh
             if (!vpn.Success) return PackageResponseBuilder.AddApplicationDomainElement(addElemenApplicationDomain.Seq, AddElementApplicationDomainStatus.UNKNOWN_VPN);
             var applicationDomain = await Query<GetApplicationDomainQueryResult>(PartitionNames.APPLICATION_DOMAIN, new  GetApplicationDomainQuery { Name = addElemenApplicationDomain.Name, Vpn = addElemenApplicationDomain.Vpn }, cancellationToken);
             if (!applicationDomain.Success) return PackageResponseBuilder.AddApplicationDomainElement(addElemenApplicationDomain.Seq, AddElementApplicationDomainStatus.NOT_FOUND);
-            var result = await Send(PartitionNames.APPLICATION_DOMAIN, new AddApplicationDomainElementCommand { Name = addElemenApplicationDomain.Name, Vpn = addElemenApplicationDomain.Vpn, CoordinateX = addElemenApplicationDomain.CoordinateX, CoordinateY = addElemenApplicationDomain.CoordinateY, ElementId = addElemenApplicationDomain.ElementId }, cancellationToken);
+            var result = await Send(PartitionNames.APPLICATION_DOMAIN, new AddApplicationDomainElementCommand { Name = addElemenApplicationDomain.Name, Vpn = addElemenApplicationDomain.Vpn, CoordinateX = addElemenApplicationDomain.CoordinateX, CoordinateY = addElemenApplicationDomain.CoordinateY, ElementId = addElemenApplicationDomain.ElementId, PurposeTypes = addElemenApplicationDomain.PurposeTypes }, cancellationToken);
             if (!result.Success) return PackageResponseBuilder.AddApplicationDomainElement(addElemenApplicationDomain.Seq, AddElementApplicationDomainStatus.NOLEADER);
             return PackageResponseBuilder.AddApplicationDomainElement(addElemenApplicationDomain.Seq, AddElementApplicationDomainStatus.OK);
         }

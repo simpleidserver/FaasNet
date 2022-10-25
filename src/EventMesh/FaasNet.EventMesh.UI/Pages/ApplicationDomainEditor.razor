@@ -1,4 +1,5 @@
 ﻿@page "/vpns/{vpn}/applicationdomains/{applicationDomain}/editor"
+@using FaasNet.EventMesh.Client.StateMachines.ApplicationDomain
 @using FaasNet.EventMesh.Client.StateMachines.Client
 @using FaasNet.EventMesh.UI.Shared.AsyncApi
 @using FaasNet.EventMesh.UI.Shared.Layout
@@ -33,11 +34,7 @@
                 CreateDateTime = DateTime.UtcNow,
                 CoordinateX = e.CoordinateX,
                 CoordinateY = e.CoordinateY,
-                Purposes = new List<ClientPurposeTypes>
-                {
-                    ClientPurposeTypes.PUBLISH,
-                    ClientPurposeTypes.SUBSCRIBE
-                }
+                Purposes = e.PurposeTypes.Select(p => p == ApplicationDomainElementPurposeTypes.PUBLISH ? ClientPurposeTypes.PUBLISH : ClientPurposeTypes.SUBSCRIBE)
             }).ToList();
             var links = BuildLinks(act);
             Editor.UpdateLinks(applications, links);

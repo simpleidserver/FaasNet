@@ -1,6 +1,5 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines.ApplicationDomain;
-using FaasNet.EventMesh.Client.StateMachines.EventDefinition;
 using FaasNet.EventMesh.Client.StateMachines.Vpn;
 using System.Threading;
 using System.Threading.Tasks;

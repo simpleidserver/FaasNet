@@ -2,6 +2,7 @@
 using FaasNet.EventMesh.Client.Exceptions;
 using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.ApplicationDomain;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Client.Transports;
@@ -295,10 +296,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as RemoveLinkApplicationDomainResult;
         }
 
-        public async Task<AddElementApplicationDomainResult> AddApplicationDomainElement(string name, string vpn, string elementId, double coordinateX, double coordinateY, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AddElementApplicationDomainResult> AddApplicationDomainElement(string name, string vpn, string elementId, double coordinateX, double coordinateY, IEnumerable<ApplicationDomainElementPurposeTypes> purposeTypes, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AddApplicationDomainElement(name, vpn, elementId, coordinateX, coordinateY);
+            var package = PackageRequestBuilder.AddApplicationDomainElement(name, vpn, elementId, coordinateX, coordinateY, purposeTypes);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);
