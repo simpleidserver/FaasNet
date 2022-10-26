@@ -7,7 +7,7 @@ namespace FaasNet.EventMesh.Client.StateMachines.Queue
     {
         public FilterQuery Filter { get; set; } = new FilterQuery
         {
-            SortBy = nameof(QueueQueryResult.TopicFilter),
+            SortBy = nameof(QueueQueryResult.QueueName),
             SortOrder = SortOrders.ASC
         };
 

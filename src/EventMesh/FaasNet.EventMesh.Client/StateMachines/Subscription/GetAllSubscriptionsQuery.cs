@@ -1,23 +1,23 @@
 ﻿using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 
-namespace FaasNet.EventMesh.Client.StateMachines.Queue
+namespace FaasNet.EventMesh.Client.StateMachines.Subscription
 {
-    public class SearchQueuesQuery : IQuery
+    public class GetAllSubscriptionsQuery : IQuery
     {
+        public string TopicFilter { get; set; }
         public string Vpn { get; set; }
-        public string TopicMessage { get; set; }
 
         public void Deserialize(ReadBufferContext context)
         {
+            TopicFilter = context.NextString();
             Vpn = context.NextString();
-            TopicMessage = context.NextString();
         }
 
         public void Serialize(WriteBufferContext context)
         {
+            context.WriteString(TopicFilter);
             context.WriteString(Vpn);
-            context.WriteString(TopicMessage);
         }
     }
 }

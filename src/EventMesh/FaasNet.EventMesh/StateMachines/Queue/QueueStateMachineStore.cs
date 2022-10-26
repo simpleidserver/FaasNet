@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +13,6 @@ namespace FaasNet.EventMesh.StateMachines.Queue
     public interface IQueueStateMachineStore : IStateMachineRecordStore<QueueRecord>
     {
         Task<QueueRecord> Get(string key, string vpn, CancellationToken cancellationToken);
-        Task<IEnumerable<QueueRecord>> Search(string vpn, string topic, CancellationToken cancellationToken);
         Task<GenericSearchResult<QueueRecord>> Find(FilterQuery filter, CancellationToken cancellationToken);
         Task<IEnumerable<string>> Find(string name, CancellationToken cancellationToken);
     }
@@ -53,16 +51,6 @@ namespace FaasNet.EventMesh.StateMachines.Queue
             int nbPages = (int)Math.Ceiling((double)_records.Count / nbRecords);
             for (var currentPage = 0; currentPage < nbPages; currentPage++)
                 yield return (_records.Skip(currentPage * nbRecords).Take(nbRecords), currentPage);
-        }
-
-        public Task<IEnumerable<QueueRecord>> Search(string vpn, string topic, CancellationToken cancellationToken)
-        {
-            var result = _records.Where(r =>
-            {
-                var regex = new Regex(r.TopicFilter);
-                return (r.TopicFilter == topic || regex.IsMatch(topic)) && r.Vpn == vpn;
-            });
-            return Task.FromResult(result);
         }
 
         public Task<GenericSearchResult<QueueRecord>> Find(FilterQuery filter, CancellationToken cancellationToken)

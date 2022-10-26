@@ -4,6 +4,7 @@ using FaasNet.EventMesh.StateMachines.Client;
 using FaasNet.EventMesh.StateMachines.EventDefinition;
 using FaasNet.EventMesh.StateMachines.Queue;
 using FaasNet.EventMesh.StateMachines.Session;
+using FaasNet.EventMesh.StateMachines.Subscriptions;
 using FaasNet.EventMesh.StateMachines.Vpn;
 using FaasNet.Partition;
 using FaasNet.Peer;
@@ -84,6 +85,7 @@ namespace FaasNet.EventMesh
             await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = PartitionNames.QUEUE_PARTITION_KEY, Port = _options.StartPeerPort + 3, StateMachineType = typeof(QueueStateMachine) });
             await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = PartitionNames.EVENTDEFINITION_PARTITION_KEY, Port = _options.StartPeerPort + 4, StateMachineType = typeof(EventDefinitionStateMachine) });
             await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = PartitionNames.APPLICATION_DOMAIN, Port = _options.StartPeerPort + 5, StateMachineType = typeof(ApplicationDomainStateMachine) });
+            await PartitionPeerStore.Add(new DirectPartitionPeer { PartitionKey = PartitionNames.SUBSCRIPTION_PARTITION_KEY, Port = _options.StartPeerPort + 6, StateMachineType = typeof(SubscriptionStateMachine) });
         }
 
         private async Task<AppendEntryResult> Send(string partitionKey, ICommand command, CancellationToken cancellationToken)

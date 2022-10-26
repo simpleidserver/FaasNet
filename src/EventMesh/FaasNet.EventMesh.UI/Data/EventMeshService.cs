@@ -27,7 +27,7 @@ namespace FaasNet.EventMesh.UI.Data
         Task<AddVpnResult> AddVpn(string vpn, string description, string url, int port, CancellationToken cancellationToken);
         Task<AddClientResult> AddClient(string clientId, string vpn, ICollection<ClientPurposeTypes> purposeTypes, string url, int port, CancellationToken cancellationToken);
         Task<GetClientResult> GetClient(string clientId, string vpn, string url, int port, CancellationToken cancellationToken);
-        Task<AddQueueResponse> AddQueue(string vpn, string name, string topicFilter, string url, int port, CancellationToken cancellationToken);
+        Task<AddQueueResponse> AddQueue(string vpn, string name, string url, int port, CancellationToken cancellationToken);
         Task<PublishMessageResult> PublishMessage(string clientId, string vpn, string clientSecret, string topicMessage, string content, string url, int port, CancellationToken cancellationToken);
         Task<SubscriptionResult> Subscribe(string clientId, string vpn, string clientSecret, string queueName, string url, int port, CancellationToken cancellationToken);
         Task<IEnumerable<string>> FindVpnsByName(string name, string url, int port, CancellationToken cancellationToken);
@@ -158,11 +158,11 @@ namespace FaasNet.EventMesh.UI.Data
             }
         }
 
-        public async Task<AddQueueResponse> AddQueue(string vpn, string name, string topicFilter, string url, int port, CancellationToken cancellationToken)
+        public async Task<AddQueueResponse> AddQueue(string vpn, string name, string url, int port, CancellationToken cancellationToken)
         {
             using (var client = _peerClientFactory.Build<EventMeshClient>(url, port))
             {
-                var result = await client.AddQueue(vpn, name, topicFilter, _options.RequestTimeoutMS, cancellationToken);
+                var result = await client.AddQueue(vpn, name, _options.RequestTimeoutMS, cancellationToken);
                 return result;
             }
         }

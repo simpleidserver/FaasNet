@@ -114,10 +114,10 @@ namespace FaasNet.EventMesh.Client
             return packageResult as GetAllClientResult;
         }
 
-        public async Task<AddQueueResponse> AddQueue(string vpn, string name, string topicFilter, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AddQueueResponse> AddQueue(string vpn, string name, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
             var writeCtx = new WriteBufferContext();
-            var package = PackageRequestBuilder.AddQueue(vpn, name, topicFilter);
+            var package = PackageRequestBuilder.AddQueue(vpn, name);
             package.SerializeEnvelope(writeCtx);
             var payload = writeCtx.Buffer.ToArray();
             await Send(payload, timeoutMS, cancellationToken);

@@ -31,5 +31,20 @@ namespace FaasNet.EventMesh.StateMachines
             var result = BaseConsensusPackage.Deserialize(readBufferContext) as AppendEntryResult;
             return result;
         }
+
+        protected async Task<T> Query<T>(string partitionKey, IQuery query, CancellationToken cancellationToken) where T : IQueryResult
+        {
+            var writeBufferContext = new WriteBufferContext();
+            ConsensusPackageRequestBuilder.Query(query).SerializeEnvelope(writeBufferContext);
+            var content = writeBufferContext.Buffer.ToArray();
+            var transferedResult = await PartitionCluster.Transfer(new TransferedRequest
+            {
+                PartitionKey = partitionKey,
+                Content = content
+            }, cancellationToken);
+            var readBufferContext = new ReadBufferContext(transferedResult);
+            var stateMachineResult = BaseConsensusPackage.Deserialize(readBufferContext) as QueryResult;
+            return (T)stateMachineResult.Result;
+        }
     }
 }

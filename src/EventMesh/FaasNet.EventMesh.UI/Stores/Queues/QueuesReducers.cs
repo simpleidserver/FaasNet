@@ -30,7 +30,7 @@ namespace FaasNet.EventMesh.UI.Stores.Queues
         {
             state.IsLoading = false;
             var records = state.Queues.Records.ToList();
-            records.Insert(0, new QueueQueryResult { Vpn = action.Vpn, QueueName = action.Name, TopicFilter = action.TopicFilter });
+            records.Insert(0, new QueueQueryResult { Vpn = action.Vpn, QueueName = action.Name });
             state.Queues.Records = records;
             return state;
         }

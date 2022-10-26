@@ -100,7 +100,7 @@ Console.WriteLine("Press any key to add a queue");
 Console.ReadLine();
 using (var client = PeerClientFactory.Build<EventMeshClient>("localhost", 5000, ClientTransportFactory.NewUDP()))
 {
-    await Retry(async() => await client.AddQueue("VPN", "queue", "topic1"), (c) =>
+    await Retry(async() => await client.AddQueue("VPN", "queue"), (c) =>
     {
         if (c.Status == AddQueueStatus.SUCCESS) return true;
         DisplayError(Enum.GetName(typeof(AddQueueStatus), c.Status));

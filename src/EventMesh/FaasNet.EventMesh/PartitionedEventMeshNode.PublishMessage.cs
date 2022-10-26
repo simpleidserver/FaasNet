@@ -1,8 +1,8 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines.Client;
-using FaasNet.EventMesh.Client.StateMachines.Queue;
 using FaasNet.EventMesh.Client.StateMachines.QueueMessage;
 using FaasNet.EventMesh.Client.StateMachines.Session;
+using FaasNet.EventMesh.Client.StateMachines.Subscription;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -18,16 +18,16 @@ namespace FaasNet.EventMesh
             if (!session.Success) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.UNKNOWN_SESSION);
             if (!session.Session.IsValid) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.EXPIRED_SESSION);
             if (session.Session.ClientPurpose != ClientPurposeTypes.PUBLISH) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.BAD_SESSION_USAGE);
-            var allQueues = await Query<SearchQueuesQueryResult>(PartitionNames.QUEUE_PARTITION_KEY, new SearchQueuesQuery { Vpn = session.Session.Vpn, TopicMessage = request.Topic }, cancellationToken);
+            var allQueues = await Query<GetAllSubscriptionsQueryResult>(PartitionNames.SUBSCRIPTION_PARTITION_KEY, new GetAllSubscriptionsQuery { TopicFilter = request.Topic, Vpn = request.Vpn }, cancellationToken);
             var filteredQueues = allQueues;
             var publishedQueueNames = new ConcurrentBag<string>();
             var id = Guid.NewGuid().ToString();
-            await Parallel.ForEachAsync(filteredQueues.Queues, new ParallelOptions
+            await Parallel.ForEachAsync(filteredQueues.Subscriptions, new ParallelOptions
             {
                 MaxDegreeOfParallelism = _eventMeshOptions.MaxNbThreads
             }, async (q, t) =>
             {
-                var partitionKey = $"{q.Vpn}_{q.QueueName}";
+                var partitionKey = q.ClientId;
                 var addMessageCommand = new AddQueueMessageCommand { Id = id, Data = request.CloudEvent, Topic = request.Topic };
                 var result = await Send(partitionKey, addMessageCommand, cancellationToken);
                 if (result.Success) publishedQueueNames.Add(partitionKey);

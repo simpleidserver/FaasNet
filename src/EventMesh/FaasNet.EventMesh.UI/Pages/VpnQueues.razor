@@ -22,9 +22,6 @@
 				<GridColumn TRowData="QueueQueryResult" Title="Name" Name="QueueName" IsSortEnabled="true">
 					<span>@context.QueueName</span>
 				</GridColumn>
-				<GridColumn TRowData="QueueQueryResult" Title="Topic Filter" Name="TopicFilter" IsSortEnabled="true">
-					<span>@context.TopicFilter</span>
-				</GridColumn>
 				<GridColumn TRowData="QueueQueryResult" Title="Creation Datetime" Name="CreateDateTime" IsSortEnabled="true">
 					@if(context.CreateDateTime == null) 
 					{

@@ -2,6 +2,8 @@
 using FaasNet.EventMesh.StateMachines.ApplicationDomain;
 using FaasNet.EventMesh.StateMachines.Client;
 using FaasNet.EventMesh.StateMachines.EventDefinition;
+using FaasNet.EventMesh.StateMachines.Queue;
+using FaasNet.EventMesh.StateMachines.Subscriptions;
 using FaasNet.Peer;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -22,6 +24,9 @@ namespace FaasNet.Partition
             partitionedNodeHostFactory.Services.AddTransient<IConsumer<ApplicationDomainLinkRemoved>, EventDefinitionConsumer>();
             partitionedNodeHostFactory.Services.AddTransient<IConsumer<ApplicationDomainLinkAdded>, ClientConsumer>();
             partitionedNodeHostFactory.Services.AddTransient<IConsumer<ApplicationDomainLinkRemoved>, ClientConsumer>();
+            partitionedNodeHostFactory.Services.AddTransient<IConsumer<ApplicationDomainLinkAdded>, SubscriptionConsumer>();
+            partitionedNodeHostFactory.Services.AddTransient<IConsumer<ApplicationDomainLinkRemoved>, SubscriptionConsumer>();
+            partitionedNodeHostFactory.Services.AddTransient<IConsumer<ClientAdded>, QueueConsumer>();
             if (callbackOpts != null) partitionedNodeHostFactory.Services.Configure(callbackOpts);
             else partitionedNodeHostFactory.Services.Configure<EventMeshOptions>(o => { });
             return partitionedNodeHostFactory;

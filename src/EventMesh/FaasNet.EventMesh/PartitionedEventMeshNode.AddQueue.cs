@@ -71,7 +71,7 @@ namespace FaasNet.EventMesh
 
             async Task AddQueue()
             {
-                var addQueueCommand = new AddQueueCommand { QueueName = addQueueRequest.QueueName, Vpn = addQueueRequest.Vpn, TopicFilter = addQueueRequest.TopicFilter };
+                var addQueueCommand = new AddQueueCommand { QueueName = addQueueRequest.QueueName, Vpn = addQueueRequest.Vpn };
                 await Send(PartitionNames.QUEUE_PARTITION_KEY, addQueueCommand, cancellationToken);
             }
 

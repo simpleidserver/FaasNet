@@ -8,5 +8,6 @@
         public const string QUEUE_PARTITION_KEY = "QUEUE";
         public const string EVENTDEFINITION_PARTITION_KEY = "EVENTDEFINITION";
         public const string APPLICATION_DOMAIN = "APPLICATION_DOMAIN";
+        public const string SUBSCRIPTION_PARTITION_KEY = "SUBSCRIPTION";
     }
 }

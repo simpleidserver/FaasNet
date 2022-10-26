@@ -48,13 +48,12 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
-        public static BaseEventMeshPackage AddQueue(string vpn, string name, string topicFilter)
+        public static BaseEventMeshPackage AddQueue(string vpn, string name)
         {
             return new AddQueueRequest(GenerateRandomSeq())
             {
                 Vpn = vpn,
-                QueueName = name,
-                TopicFilter = topicFilter
+                QueueName = name
             };
         }
 

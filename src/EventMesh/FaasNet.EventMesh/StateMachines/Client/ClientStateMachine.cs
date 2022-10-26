@@ -40,6 +40,11 @@ namespace FaasNet.EventMesh.StateMachines.Client
                             CreateDateTime = DateTime.UtcNow
                         });
                         await _store.SaveChanges(cancellationToken);
+                        await PropagateIntegrationEvent(new ClientAdded
+                        {
+                            ClientId = addClient.Id,
+                            Vpn = addClient.Vpn
+                        }, cancellationToken);
                     }
                     break;
                 case AddSourceCommand addSource:
