@@ -1,0 +1,64 @@
+﻿@page "/vpns/{vpn}/eventdefs/{evtId}/links"
+@inherits FluxorComponent
+@layout EventDefLayout
+@using FaasNet.EventMesh.Client.StateMachines
+@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.Client.StateMachines.EventDefinition
+@using FaasNet.EventMesh.UI.Shared.Components
+@using FaasNet.EventMesh.UI.Shared.Layout
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using FaasNet.EventMesh.UI.Stores.ClientInfo
+@using FaasNet.EventMesh.UI.Stores.EventDef
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+
+<div>
+    <Loader IsDisplayed="EventDefState.Value.IsLoading">
+        @if (EventDefState.Value.EventDef != null)
+        {
+            <Grid TRowData="EventDefinitionLinkResult" Result="EventDefState.Value.EventDef.LinksResult" @bind-Query="Filter">
+		        <GridColumn TRowData="EventDefinitionLinkResult" Title="Source" Name="Source">
+                    <NavLink href="@($"/vpns/{vpn}/clients/{context.Source}/info")">@context.Source</NavLink>
+		        </GridColumn>
+                <GridColumn TRowData="EventDefinitionLinkResult" Title="Target" Name="Target">
+                    <NavLink href="@($"/vpns/{vpn}/clients/{context.Target}/info")">@context.Target</NavLink>
+	            </GridColumn>
+            </Grid>
+        }
+    </Loader>
+</div>
+
+
+@code {
+    [Parameter]
+    public string evtId { get; set; }
+    [Parameter]
+    public string vpn { get; set; }
+    private FilterQuery Filter { get; set; } = new FilterQuery
+    {
+        SortOrder = SortOrders.ASC,
+        SortBy = "Source"
+    };
+    [Inject] private IState<EventDefState> EventDefState { get; set; } = null!;
+    [Inject] private IState<AppState> AppState { get; set; } = null!;
+    [Inject] private IDispatcher Dispatcher { get; set; } = null!;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
+    private IJSObjectReference jsonEventDefinition;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        await base.OnInitializedAsync();
+        SubscribeToAction<SelectActiveNodeAction>((act) =>
+        {
+            RefreshEventDef();
+        });
+        RefreshEventDef();
+    }
+
+    private void RefreshEventDef()
+    {
+        if (AppState.Value.SelectedNode == null) return;
+        Dispatcher.Dispatch(new GetEventDefAction { Id = evtId,  Vpn = vpn, Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port });
+    }
+}

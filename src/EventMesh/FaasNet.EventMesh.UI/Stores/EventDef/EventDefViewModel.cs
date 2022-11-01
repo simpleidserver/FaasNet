@@ -1,4 +1,5 @@
-﻿using FaasNet.EventMesh.Client.StateMachines.Client;
+﻿using FaasNet.EventMesh.Client.StateMachines;
+using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.EventMesh.Client.StateMachines.EventDefinition;
 
 namespace FaasNet.EventMesh.UI.Stores.EventDef
@@ -20,5 +21,15 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
 
         public bool IsSelected { get; set; }
         public bool IsNew { get; set; } = false;
+        public GenericSearchQueryResult<EventDefinitionLinkResult> LinksResult
+        {
+            get
+            {
+                return new GenericSearchQueryResult<EventDefinitionLinkResult>
+                {
+                    Records = Links
+                };
+            }
+        }
     }
 }

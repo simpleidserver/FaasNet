@@ -1,0 +1,48 @@
+﻿@using FaasNet.EventMesh.UI.Shared.Components
+@inherits LayoutComponentBase
+@layout MainLayout
+
+<Section>
+    <Title>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <NavLink href="/vpns">Vpns</NavLink>
+                </li>
+                <li class="breadcrumb-item">
+                    <NavLink href="@("/vpns/" + Vpn + "/applicationdomains")">@Vpn</NavLink>
+                </li>
+                <li class="breadcrumb-item active">
+                    @EvtDefId
+                </li>
+            </ol>
+        </nav>
+    </Title>
+    <ChildContent>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/eventdefs/{EvtDefId}/info")">Information</NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="@($"/vpns/{Vpn}/eventdefs/{EvtDefId}/links")">Links</NavLink>
+            </li>
+        </ul>
+        <div id="clientContent">
+            @Body
+        </div>
+    </ChildContent>
+</Section>
+
+@code {
+    public string EvtDefId { get; set; }
+    public string Vpn { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        object evtDefId, vpn;
+        if ((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("evtId", out evtDefId) == true)
+            EvtDefId = evtDefId?.ToString();
+        if ((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("vpn", out vpn) == true)
+            Vpn = vpn?.ToString();
+    }
+}

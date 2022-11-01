@@ -1,0 +1,97 @@
+﻿@page "/vpns/{vpn}/eventdefs/{evtId}"
+@page "/vpns/{vpn}/eventdefs/{evtId}/info"
+@inherits FluxorComponent
+@layout EventDefLayout
+@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.UI.Shared.Layout
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using FaasNet.EventMesh.UI.Stores.ClientInfo
+@using FaasNet.EventMesh.UI.Stores.EventDef
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+
+<div>
+    <Loader IsDisplayed="EventDefState.Value.IsLoading">
+        @if (EventDefState.Value.EventDef != null)
+        {           
+            <!-- Identifier -->
+            <div class="mb-3">
+                <label class="form-label">Identifier</label>
+                <input type="text" class="form-control" disabled value="@EventDefState.Value.EventDef.Id" />
+            </div>
+            <!-- VPN -->
+            <div class="mb-3">
+                <label class="form-label">VPN</label>
+                <input type="text" class="form-control" disabled value="@EventDefState.Value.EventDef.Vpn" />
+            </div>
+            <!-- Topic -->
+            <div class="mb-3">
+                <label class="form-label">Topic</label>
+                <input type="text" class="form-control" disabled value="@EventDefState.Value.EventDef.Topic" />
+            </div>
+            <!-- Description -->
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" disabled>@EventDefState.Value.EventDef.Description</textarea>
+            </div>
+            <!-- CreateDateTime -->
+            <div class="mb-3">
+                <label class="form-label">Creation Datetime</label>
+                <input type="text" class="form-control" disabled value="@(EventDefState.Value.EventDef.CreateDateTime.ToLocalTime())" />
+            </div>
+            <!-- UpdateDateTime -->
+            <div class="mb-3">
+                <label class="form-label">Update Datetime</label>
+                <input type="text" class="form-control" disabled value="@(EventDefState.Value.EventDef.UpdateDateTime.ToLocalTime())" />
+            </div>
+            <!-- JsonSchema -->
+            <div class="mb-3">
+                <label class="form-label">JSON Schema</label>
+                <div id="jsonEventDefinition"></div>
+            </div>
+        }
+    </Loader>
+</div>
+
+
+@code {
+    [Parameter]
+    public string evtId { get; set; }
+    [Parameter]
+    public string vpn { get; set; }
+    [Inject] private IState<EventDefState> EventDefState { get; set; } = null!;
+    [Inject] private IState<AppState> AppState { get; set; } = null!;
+    [Inject] private IDispatcher Dispatcher { get; set; } = null!;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
+    private IJSObjectReference jsonEventDefinition;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        await base.OnInitializedAsync();
+        SubscribeToAction<SelectActiveNodeAction>((act) =>
+        {
+            RefreshEventDef();
+        });
+        SubscribeToAction<GetEventDefResultAction>(async (act) =>
+        {
+            if(jsonEventDefinition != null) await jsonEventDefinition.InvokeVoidAsync("setValue", act.EventDef.Result.JsonSchema);
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            jsonEventDefinition = await JS.InvokeAsync<IJSObjectReference>("initEditor", "jsonEventDefinition", "{}", false);
+            RefreshEventDef();
+        }
+    }
+
+    private void RefreshEventDef()
+    {
+        if (AppState.Value.SelectedNode == null) return;
+        Dispatcher.Dispatch(new GetEventDefAction { Id = evtId,  Vpn = vpn, Url = AppState.Value.SelectedNode.Url, Port = AppState.Value.SelectedNode.Port });
+    }
+}

@@ -28,7 +28,16 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
         }
 
         [ReducerMethod]
-        public static EventDefState ReduceSearchClientsAction(EventDefState state, GetEventDefResultAction action)
+        public static EventDefState ReduceGetEventDefAction(EventDefState state, GetEventDefAction action)
+        {
+            return state with
+            {
+                IsLoading = true
+            };
+        }
+
+        [ReducerMethod]
+        public static EventDefState ReduceGetEventDefResultAction(EventDefState state, GetEventDefResultAction action)
         {
             return state with
             {
