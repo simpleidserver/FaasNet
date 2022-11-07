@@ -237,9 +237,18 @@ namespace FaasNet.RaftConsensus.Core
 
         private async Task<BaseConsensusPackage> Handle(QueryRequest request, CancellationToken cancellationToken)
         {
+            if (_peerInfo.Status != PeerStatus.LEADER) return await Transfer(request, cancellationToken);
             var stateMachine = (IStateMachine)ActivatorUtilities.CreateInstance(_serviceProvider, _raftConsensusPeerOptions.StateMachineType);
             var result = await stateMachine.Query(request.Query, cancellationToken);
             return ConsensusPackageResultBuilder.Query(result);
+
+            async Task<BaseConsensusPackage> Transfer(QueryRequest request, CancellationToken cancellationToken)
+            {
+                if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS)) return ConsensusPackageResultBuilder.Query(new EmptyQueryResult());
+                var leaderPeerId = PeerId.Deserialize(_peerState.VotedFor);
+                using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(leaderPeerId.IpEdp))
+                    return (await consensusClient.ExecuteQuery(request.Query, _raftConsensusPeerOptions.RequestExpirationTimeMS, cancellationToken)).First().Item1;
+            }
         }
     }
 }
