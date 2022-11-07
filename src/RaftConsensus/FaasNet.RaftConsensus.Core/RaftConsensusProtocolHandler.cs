@@ -244,7 +244,7 @@ namespace FaasNet.RaftConsensus.Core
 
             async Task<BaseConsensusPackage> Transfer(QueryRequest request, CancellationToken cancellationToken)
             {
-                if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS)) return ConsensusPackageResultBuilder.Query(new EmptyQueryResult());
+                if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS)) return ConsensusPackageResultBuilder.Query();
                 var leaderPeerId = PeerId.Deserialize(_peerState.VotedFor);
                 using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(leaderPeerId.IpEdp))
                     return (await consensusClient.ExecuteQuery(request.Query, _raftConsensusPeerOptions.RequestExpirationTimeMS, cancellationToken)).First().Item1;

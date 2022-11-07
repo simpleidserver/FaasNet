@@ -71,7 +71,16 @@ namespace FaasNet.RaftConsensus.Client.Messages
         {
             return new QueryResult
             {
+                IsFound = true,
                 Result = result
+            };
+        }
+
+        public static BaseConsensusPackage Query()
+        {
+            return new QueryResult
+            {
+                IsFound = false
             };
         }
     }

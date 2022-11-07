@@ -57,6 +57,7 @@ namespace FaasNet.EventMesh
                     o.ConfigurationDirectoryPath = Path.Combine(path, port.ToString());
                     o.StateMachineType = stateMachineType ?? _options.StateMachineType;
                     o.IsConfigurationStoredInMemory = true;
+                    o.LeaderHeartbeatTimerMS = 100;
                     o.LeaderCallback += () =>
                     {
                         Debug.WriteLine("There is one leader !");

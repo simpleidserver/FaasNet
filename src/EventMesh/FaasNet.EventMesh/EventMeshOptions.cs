@@ -1,4 +1,6 @@
-﻿namespace FaasNet.EventMesh
+﻿using System;
+
+namespace FaasNet.EventMesh
 {
     public class EventMeshOptions
     {
@@ -18,5 +20,13 @@
         /// Expiration time of a client session.
         /// </summary>
         public int ClientSessionExpirationTimeMS { get; set; } = 5 * 60000; // 5 minute.
+        /// <summary>
+        /// When there is no elected leader, retry the query or command a certain amount ot time.
+        /// </summary>
+        public int NbRetryWhenNoLeader { get; set; } = 5;
+        /// <summary>
+        /// Wait interval between two retry.
+        /// </summary>
+        public TimeSpan WaitRetryWhenNoLeader { get; set; } = TimeSpan.FromSeconds(3);
     }
 }

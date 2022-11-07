@@ -37,6 +37,7 @@ namespace FaasNet.EventMesh.StateMachines.Session
                         Id = addSession.Id, 
                         QueueName = addSession.QueueName
                     });
+
                     break;
             }
         }

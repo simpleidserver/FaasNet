@@ -16,6 +16,7 @@ using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -115,6 +116,7 @@ namespace FaasNet.EventMesh
             }, cancellationToken);
             var readBufferContext = new ReadBufferContext(transferedResult);
             var stateMachineResult = BaseConsensusPackage.Deserialize(readBufferContext) as QueryResult;
+            if (!stateMachineResult.IsFound) return Activator.CreateInstance<T>();
             return (T)stateMachineResult.Result;
         }
 

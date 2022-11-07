@@ -37,6 +37,11 @@ namespace FaasNet.EventMesh.StateMachines.QueueMessage
         public Task<QueueMessageRecord> Get(int offset, CancellationToken cancellationToken)
         {
             var reversed = _records.OrderBy(r => r.Index);
+            if (_records.Any())
+            {
+                string ss = "";
+            }
+
             return Task.FromResult(reversed.ElementAtOrDefault(offset));
         }
 
