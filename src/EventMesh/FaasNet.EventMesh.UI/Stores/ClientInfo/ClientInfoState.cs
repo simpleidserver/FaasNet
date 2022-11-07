@@ -1,23 +1,24 @@
 ﻿using FaasNet.EventMesh.Client.Messages;
+using FaasNet.EventMesh.UI.Stores.Client;
 using Fluxor;
 
 namespace FaasNet.EventMesh.UI.Stores.ClientInfo
 {
     [FeatureState]
-    public class ClientInfoState
+    public record ClientInfoState
     {
         public ClientInfoState()
         {
 
         }
 
-        public GetClientResult ClientInfo { get; set; }
+        public ClientViewModel Client { get; set; }
         public bool IsLoading { get; set; }
 
-        public ClientInfoState(bool isLoading, GetClientResult clientInfo)
+        public ClientInfoState(bool isLoading, ClientViewModel client)
         {
             IsLoading = isLoading;
-            ClientInfo = clientInfo;
+            Client = client;
         }
     }
 }

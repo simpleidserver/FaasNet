@@ -62,7 +62,7 @@ namespace FaasNet.EventMesh
                 {
                     Payload = NJsonSchema.JsonSchema.FromJsonAsync(e.EventDef.JsonSchema).Result
                 }
-                )).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                )).DistinctBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             }
 
             Dictionary<string, ChannelItem> TransformChannels(IEnumerable<GetEventDefinitionQueryResult> evts, bool isSub = true)
@@ -81,7 +81,7 @@ namespace FaasNet.EventMesh
                     };
                     
                     return new KeyValuePair<string, ChannelItem>(e.EventDef.Topic, channelItem);
-                }).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                }).DistinctBy(kvp => kvp.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             }
         }
     }

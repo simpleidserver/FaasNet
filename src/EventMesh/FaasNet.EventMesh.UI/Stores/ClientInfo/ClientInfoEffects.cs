@@ -1,5 +1,5 @@
-﻿using FaasNet.EventMesh.Client.Messages;
-using FaasNet.EventMesh.UI.Data;
+﻿using FaasNet.EventMesh.UI.Data;
+using FaasNet.EventMesh.UI.Stores.Client;
 using Fluxor;
 
 namespace FaasNet.EventMesh.UI.Stores.ClientInfo
@@ -17,7 +17,7 @@ namespace FaasNet.EventMesh.UI.Stores.ClientInfo
         public async Task Handle(GetClientInfoAction action, IDispatcher dispatcher)
         {
             var result = await _eventMeshService.GetClient(action.ClientId, action.Vpn, action.Url, action.Port, CancellationToken.None);
-            dispatcher.Dispatch(new GetClientInfoResultAction(result));
+            dispatcher.Dispatch(new GetClientInfoResultAction(new ClientViewModel(result.Content)));
         }
     }
 
@@ -31,9 +31,9 @@ namespace FaasNet.EventMesh.UI.Stores.ClientInfo
 
     public class GetClientInfoResultAction
     {
-        public GetClientResult ClientInfo { get; }
+        public ClientViewModel ClientInfo { get; }
 
-        public GetClientInfoResultAction(GetClientResult clientInfo)
+        public GetClientInfoResultAction(ClientViewModel clientInfo)
         {
             ClientInfo = clientInfo;
         }

@@ -12,7 +12,6 @@ namespace FaasNet.EventMesh.Client.Messages
         public override EventMeshCommands Command => EventMeshCommands.PUBLISH_MESSAGE_REQUEST;
         public string SessionId { get; set; }
         public string Topic { get; set; }
-        public string Vpn { get; set; }
         public CloudEvent CloudEvent { get; set; }
 
         protected override void SerializeAction(WriteBufferContext context)

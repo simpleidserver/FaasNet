@@ -17,6 +17,7 @@ namespace FaasNet.EventMesh.UI.Stores.EventDef
             UpdateDateTime = result.UpdateDateTime;
             Links = result.Links;
             Topic = result.Topic;
+            Description = result.Description;
         }
 
         public bool IsSelected { get; set; }

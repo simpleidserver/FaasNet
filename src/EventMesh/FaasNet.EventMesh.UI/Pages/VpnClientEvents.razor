@@ -1,0 +1,72 @@
+﻿@page "/vpns/{vpn}/clients/{clientId}/events"
+@inherits FluxorComponent
+@using FaasNet.EventMesh.Client.StateMachines
+@using FaasNet.EventMesh.Client.StateMachines.Client
+@using FaasNet.EventMesh.Client.StateMachines.Session
+@using FaasNet.EventMesh.UI.Shared.Layout
+@using FaasNet.EventMesh.UI.Stores.App
+@using FaasNet.EventMesh.UI.Stores.Client
+@using FaasNet.EventMesh.UI.Stores.ClientInfo
+@using FaasNet.EventMesh.UI.Stores.ClientSessions
+@using Fluxor
+@using Fluxor.Blazor.Web.Components
+@using FaasNet.EventMesh.UI.Shared.Components
+@layout ClientLayout
+
+<div>
+    <Loader IsDisplayed="ClientInfoState.Value.IsLoading">
+        <Grid TRowData="ClientLinkViewModel" Result="ClientInfoState.Value.Client.Links" @bind-Query="Filter">
+            <GridColumn TRowData="ClientLinkViewModel" Title="Direction" Name="Direction">
+                @Enum.GetName(typeof(ClientLinkDirections), context.Direction)
+            </GridColumn>
+            <GridColumn TRowData="ClientLinkViewModel" Title="Client Identifier" Name="ClientId">
+                <NavLink href="@($"/vpns/{vpn}/clients/{context.ClientId}/info")">@context.ClientId</NavLink>
+            </GridColumn>
+            <GridColumn TRowData="ClientLinkViewModel" Title="Event Identifier" Name="EventId">
+                <NavLink href="@($"/vpns/{vpn}/eventdefs/{context.EventId}/info")">@context.EventId</NavLink>
+            </GridColumn>
+        </Grid>
+    </Loader>
+</div>
+
+
+@code {
+	private FilterQuery _filter = new FilterQuery
+	{
+		SortOrder = SortOrders.DESC,
+		SortBy = "Direction"
+	};
+	public FilterQuery Filter
+	{
+		get
+		{
+			return _filter;
+		}
+		set
+		{
+			_filter = value;
+		}
+	}
+    [Parameter]
+    public string clientId { get; set; }
+    [Parameter]
+    public string vpn { get; set; }
+    [Inject] private IState<ClientInfoState> ClientInfoState { get; set; } = null!;
+    [Inject] private IState<AppState> AppState { get; set; } = null!;
+    [Inject] private IDispatcher Dispatcher { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        await base.OnInitializedAsync();
+        SubscribeToAction<SelectActiveNodeAction>((act) =>
+        {
+            RefreshClientInfo();
+        });
+    }  
+
+    private void RefreshClientInfo()
+    {
+		if(AppState.Value.SelectedNode == null) return;
+        Dispatcher.Dispatch(new GetClientInfoAction { ClientId = clientId, Port = AppState.Value.SelectedNode.Port, Url = AppState.Value.SelectedNode.Url, Vpn = vpn });
+    }
+}

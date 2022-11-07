@@ -18,12 +18,12 @@ namespace FaasNet.EventMesh.StateMachines.Subscriptions
         {
             var evt = await Query<GetEventDefinitionQueryResult>(PartitionNames.EVENTDEFINITION_PARTITION_KEY, new GetEventDefinitionQuery { Id = request.EventId, Vpn = request.Vpn }, cancellationToken);
             if (!evt.Success) return;
-            await Send(PartitionNames.SUBSCRIPTION_PARTITION_KEY, new AddSubscriptionCommand { ClientId = request.Source, EventId = request.EventId, Topic = evt.EventDef.Topic, Vpn = request.Vpn, Id = Guid.NewGuid().ToString() }, cancellationToken);
+            await Send(PartitionNames.SUBSCRIPTION_PARTITION_KEY, new AddSubscriptionCommand { ClientId = request.Target, EventId = request.EventId, Topic = evt.EventDef.Topic, Vpn = request.Vpn, Id = Guid.NewGuid().ToString() }, cancellationToken);
         }
 
         public async Task Consume(ApplicationDomainLinkRemoved request, CancellationToken cancellationToken)
         {
-            await Send(PartitionNames.SUBSCRIPTION_PARTITION_KEY, new RemoveSubscriptionCommand { ClientId = request.Source, EventId = request.EventId, Vpn = request.Vpn }, cancellationToken);
+            await Send(PartitionNames.SUBSCRIPTION_PARTITION_KEY, new RemoveSubscriptionCommand { ClientId = request.Target, EventId = request.EventId, Vpn = request.Vpn }, cancellationToken);
         }
     }
 }

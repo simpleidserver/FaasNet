@@ -18,7 +18,8 @@ namespace FaasNet.EventMesh
             if (!session.Success) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.UNKNOWN_SESSION);
             if (!session.Session.IsValid) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.EXPIRED_SESSION);
             if (session.Session.ClientPurpose != ClientPurposeTypes.PUBLISH) return PackageResponseBuilder.PublishMessage(request.Seq, PublishMessageStatus.BAD_SESSION_USAGE);
-            var allQueues = await Query<GetAllSubscriptionsQueryResult>(PartitionNames.SUBSCRIPTION_PARTITION_KEY, new GetAllSubscriptionsQuery { TopicFilter = request.Topic, Vpn = request.Vpn }, cancellationToken);
+            var vpn = session.Session.Vpn;
+            var allQueues = await Query<GetAllSubscriptionsQueryResult>(PartitionNames.SUBSCRIPTION_PARTITION_KEY, new GetAllSubscriptionsQuery { TopicFilter = request.Topic, Vpn = vpn }, cancellationToken);
             var filteredQueues = allQueues;
             var publishedQueueNames = new ConcurrentBag<string>();
             var id = Guid.NewGuid().ToString();
@@ -27,7 +28,7 @@ namespace FaasNet.EventMesh
                 MaxDegreeOfParallelism = _eventMeshOptions.MaxNbThreads
             }, async (q, t) =>
             {
-                var partitionKey = q.ClientId;
+                var partitionKey = $"{vpn}_{q.ClientId}";
                 var addMessageCommand = new AddQueueMessageCommand { Id = id, Data = request.CloudEvent, Topic = request.Topic };
                 var result = await Send(partitionKey, addMessageCommand, cancellationToken);
                 if (result.Success) publishedQueueNames.Add(partitionKey);

@@ -12,28 +12,28 @@
 
 <div>
     <Loader IsDisplayed="ClientInfoState.Value.IsLoading">
-        @if (ClientInfoState.Value.ClientInfo != null && ClientInfoState.Value.ClientInfo.Success)
+        @if (ClientInfoState.Value.Client != null)
         {           
             <!-- Identifier -->
             <div class="mb-3">
                 <label class="form-label">Identifier</label>
-                <input type="text" class="form-control" disabled value="@ClientInfoState.Value.ClientInfo.Content.Id" />
+                <input type="text" class="form-control" disabled value="@ClientInfoState.Value.Client.Id" />
             </div>
             <!-- VPN -->
             <div class="mb-3">
                 <label class="form-label">VPN</label>
-                <input type="text" class="form-control" disabled value="@ClientInfoState.Value.ClientInfo.Content.Vpn" />
+                <input type="text" class="form-control" disabled value="@ClientInfoState.Value.Client.Vpn" />
             </div>
             <!-- CreateDateTime -->
             <div class="mb-3">
                 <label class="form-label">Creation Datetime</label>
-                <input type="text" class="form-control" disabled value="@(ClientInfoState.Value.ClientInfo.Content.CreateDateTime.GetValueOrDefault().ToLocalTime())" />
+                <input type="text" class="form-control" disabled value="@(ClientInfoState.Value.Client.CreateDateTime.GetValueOrDefault().ToLocalTime())" />
             </div>
             <!-- Purpose types -->
             <div class="mb-3">
                 <label class="form-label">Purpose Types</label>
                 <div>
-                    @foreach (var purposeType in ClientInfoState.Value.ClientInfo.Content.Purposes)
+                    @foreach (var purposeType in ClientInfoState.Value.Client.Purposes)
                     {
 		    	        <span class="badge text-bg-primary purposeType">@Enum.GetName(typeof(ClientPurposeTypes), purposeType)</span>
 		            }
