@@ -39,9 +39,9 @@ namespace FaasNet.RaftConsensus.Core
                 {
                     o.ConfigurationDirectoryPath = Path.Combine(path, port.ToString());
                     o.StateMachineType = stateMachineType ?? _options.StateMachineType;
-                    o.LeaderCallback += () =>
+                    o.LeaderCallback += (s) =>
                     {
-                        Debug.WriteLine("There is one leader !");
+                        Debug.WriteLine($"There is one leader for the partition {s} !");
                     };
                 });
             if (callbackHostFactory != null) callbackHostFactory(hostFactory);

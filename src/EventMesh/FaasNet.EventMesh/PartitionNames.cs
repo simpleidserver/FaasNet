@@ -1,4 +1,6 @@
-﻿namespace FaasNet.EventMesh
+﻿using System.Collections;
+
+namespace FaasNet.EventMesh
 {
     public static class PartitionNames
     {

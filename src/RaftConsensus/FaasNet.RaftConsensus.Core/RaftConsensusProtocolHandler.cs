@@ -30,6 +30,7 @@ namespace FaasNet.RaftConsensus.Core
         private readonly IServiceProvider _serviceProvider;
         private readonly ISnapshotHelper _snapshotHelper;
         private readonly RaftConsensusPeerOptions _raftConsensusPeerOptions;
+        private SemaphoreSlim _appendEntrySem = new SemaphoreSlim(1);
 
         public RaftConsensusProtocolHandler(IPeerInfoStore peerInfoStore, ILogStore logStore, IPeerClientFactory peerClientFactory, ICommitHelper commitHelper, IServiceProvider serviceProvider, ISnapshotHelper snapshotHelper, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
         {
@@ -154,6 +155,7 @@ namespace FaasNet.RaftConsensus.Core
 
             async Task<BaseConsensusPackage> Append(AppendEntryRequest request, CancellationToken cancellationToken)
             {
+                _appendEntrySem.Wait();
                 var lastIndex = _peerState.LastApplied;
                 var logEntry = new LogEntry
                 {
@@ -161,8 +163,9 @@ namespace FaasNet.RaftConsensus.Core
                     Command = request.Payload,
                     Index = lastIndex + 1
                 };
-                _peerState.IncreaseLastIndex();
                 await _logStore.Append(logEntry, cancellationToken);
+                _peerState.IncreaseLastIndex();
+                _appendEntrySem.Release();
                 return ConsensusPackageResultBuilder.AppendEntry(_peerState.CurrentTerm, _peerState.CommitIndex, _peerState.LastApplied, true);
             }
         }

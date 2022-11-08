@@ -5,7 +5,6 @@ using FaasNet.EventMesh.Client.StateMachines.Session;
 using FaasNet.EventMesh.Client.StateMachines.Subscription;
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -16,6 +17,7 @@ namespace FaasNet.RaftConsensus.Core
 {
     public partial class RaftConsensusTimer
     {
+        private SemaphoreSlim _sem = new SemaphoreSlim(1);
         private System.Timers.Timer _leaderTimer;
 
         private void CreateLeaderTimer()
@@ -23,9 +25,7 @@ namespace FaasNet.RaftConsensus.Core
             _leaderTimer = new System.Timers.Timer();
             _leaderTimer.Elapsed += async (o, e) =>
             {
-                var allPeers = (await _clusterStore.GetAllNodes(_peerOptions.PartitionKey, _cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
-                await AppendEntries(allPeers);
-                Snapshot(allPeers);
+                await Commit();
                 StartLeader();
             };
             _leaderTimer.AutoReset = false;
@@ -43,14 +43,31 @@ namespace FaasNet.RaftConsensus.Core
             _leaderTimer.Stop();
         }
 
+        private async Task Commit()
+        {
+            if (_peerInfo.Status != PeerStatus.LEADER) return;
+            await _sem.WaitAsync();
+            var allPeers = (await _clusterStore.GetAllNodes(_peerOptions.PartitionKey, _cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
+            await AppendEntries(allPeers);
+            Snapshot(allPeers);
+            _sem.Release();
+        }
+
         private async Task AppendEntries(IEnumerable<ClusterPeer> peers)
         {
-            var tasks = new List<Task>();
+            var sw = new Stopwatch();
+            sw.Start();
+            var tasks = new List<Task<(ClusterPeer, List<LogEntry>)>>();
+            var result = new List<(ClusterPeer, List<LogEntry>)>();
             foreach (var peer in peers) tasks.Add(AppendEntries(peer));
-            await Task.WhenAll(tasks);
-            await TryCommit(_cancellationTokenSource.Token);
-
-            async Task AppendEntries(ClusterPeer peer)
+            var lst = await Task.WhenAll(tasks);
+            await TryCommit(lst, _cancellationTokenSource.Token);
+            sw.Stop();
+            var filtered = lst.Where(r => r.Item2.Any());
+            if(filtered.Any())
+                _logger.LogInformation("entries {entries} have been appended into the peers in {appendEntriesExceutionTimeMS}MS", filtered.Select(r => $"Peer: {r.Item1.Url}:{r.Item1.Port}, Entries: {r.Item2.Count()}"), sw.ElapsedMilliseconds);
+            
+            async Task<(ClusterPeer, List<LogEntry>)> AppendEntries(ClusterPeer peer)
             {
                 try
                 {
@@ -63,13 +80,15 @@ namespace FaasNet.RaftConsensus.Core
                             otherPeer = _peerInfo.AddOtherPeer(peer.Id);
                             await Heartbeat(edp, otherPeer);
                         }
-                        else await PropagateLogEntries(edp, otherPeer);
+                        else return (peer, await PropagateLogEntries(edp, otherPeer));
                     }
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.ToString());
                 }
+
+                return (peer, new List<LogEntry>());
             }
 
             async Task Heartbeat(IPEndPoint edp, OtherPeerInfo otherPeer)
@@ -81,7 +100,7 @@ namespace FaasNet.RaftConsensus.Core
                 }
             }
 
-            async Task PropagateLogEntries(IPEndPoint edp, OtherPeerInfo otherPeer)
+            async Task<List<LogEntry>> PropagateLogEntries(IPEndPoint edp, OtherPeerInfo otherPeer)
             {
                 using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(edp))
                 {
@@ -102,10 +121,11 @@ namespace FaasNet.RaftConsensus.Core
 
                     var result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, previousIndex, previousTerm, logs, _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
                     otherPeer.MatchIndex = result.Item1.MatchIndex;
+                    return logs;
                 }
             }
 
-            async Task TryCommit(CancellationToken cancellationToken)
+            async Task TryCommit(IEnumerable<(ClusterPeer, List<LogEntry>)> peers, CancellationToken cancellationToken)
             {
                 var otherPeers = _peerInfo.OtherPeerInfos;
                 var nextCommitIndex = _peerState.CommitIndex + 1;
@@ -114,6 +134,19 @@ namespace FaasNet.RaftConsensus.Core
                 if (quorum > nbMatchIndexes) return;
                 var commitIndex = _peerState.CommitIndex + 1;
                 await _commitHelper.Commit(commitIndex, cancellationToken);
+                await Parallel.ForEachAsync(peers.Where(p => p.Item2.Any()), new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = _raftOptions.MaxNbThreads
+                }, async (s, t) =>
+                {
+                    var otherPeer = _peerInfo.GetOtherPeer(s.Item1.Id);
+                    var edp = new IPEndPoint(DnsHelper.ResolveIPV4(s.Item1.Url), s.Item1.Port);
+                    using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(edp))
+                    {
+                        var result = (await consensusClient.AppendEntries(_peerState.CurrentTerm, _peerOptions.Id, 0, 0, new List<LogEntry>(), _peerState.CommitIndex, _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
+                        otherPeer.MatchIndex = result.Item1.MatchIndex;
+                    }
+                });
             }
         }
 

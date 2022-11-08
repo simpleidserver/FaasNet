@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "FaasNet.Common": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:52628;http://localhost:52638"
+    }
+  }
+}

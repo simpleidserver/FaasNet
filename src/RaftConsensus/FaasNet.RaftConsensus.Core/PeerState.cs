@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
@@ -107,6 +108,8 @@ namespace FaasNet.RaftConsensus.Core
             }
         }
 
+        public event EventHandler LastIndexIncremented;
+
         /// <summary>
         /// Term of the snapshot.
         /// </summary>
@@ -167,6 +170,8 @@ namespace FaasNet.RaftConsensus.Core
         public void IncreaseLastIndex()
         {
             LastApplied++;
+            if (LastIndexIncremented != null)
+                LastIndexIncremented(this, EventArgs.Empty);
         }
 
         public static PeerState New(string path, bool isInMemory = false)
@@ -209,6 +214,11 @@ namespace FaasNet.RaftConsensus.Core
                 var json = JsonSerializer.Serialize(this);
                 File.WriteAllText(Directory, json);
             }
+        }
+
+        public override string ToString()
+        {
+            return $"LastApplied = {_lastApplied}, CommitIndex = {_commitIndex}, VotedFor = {VotedFor}";
         }
     }
 }

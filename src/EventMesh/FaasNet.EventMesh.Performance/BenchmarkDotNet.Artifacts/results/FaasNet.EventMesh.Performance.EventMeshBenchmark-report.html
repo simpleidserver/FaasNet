@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>FaasNet.EventMesh.Performance.EventMeshBenchmark-20221108-222401</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=Windows 11 (10.0.22000.1098/21H2)
+Intel Core i7-8750H CPU 2.20GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical cores
+.NET SDK=6.0.400
+  [Host] : .NET 6.0.9 (6.0.922.41905), X64 RyuJIT AVX2 DEBUG  [AttachedDebugger]
+</code></pre>
+<pre><code>Toolchain=InProcessToolchain  InvocationCount=1  IterationCount=100  
+LaunchCount=1  UnrollFactor=1  
+</code></pre>
+
+<table>
+<thead><tr><th>            Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>NbRequestSent</th><th>NbRequestReceived</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>PublishAndReceiveMessage</td><td>23.09 ms</td><td>1.147 ms</td><td>3.327 ms</td><td>110</td><td>61</td><td>1.45 MB</td>
+</tr></tbody></table>
+</body>
+</html>

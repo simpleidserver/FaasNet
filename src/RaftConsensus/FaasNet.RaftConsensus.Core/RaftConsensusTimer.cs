@@ -5,6 +5,7 @@ using FaasNet.RaftConsensus.Core.Infos;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,34 +47,50 @@ namespace FaasNet.RaftConsensus.Core
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             _peerInfo = _peerInfoStore.Get();
             _peerState = PeerState.New(_raftOptions.ConfigurationDirectoryPath, _raftOptions.IsConfigurationStoredInMemory);
-            _peerInfo.FollowerStateStarted += (sender, args) =>
-            {
-                var stateChanged = args as PeerInfoStateChanged;
-                if(stateChanged.IsDifferent) _logger.LogInformation($"Peer {_peerOptions.Id} is a follower");
-                StartFollower();
-            };
-            _peerInfo.CandidateStateStarted += async (sender, args) =>
-            {
-                _logger.LogInformation($"Peer {_peerOptions.Id} is a candidate");
-                await StartCandidate();
-            };
-            _peerInfo.LeaderStateStarted += async (sender, args) =>
-            {
-                _logger.LogInformation($"Peer {_peerOptions.Id} is a leader");
-                var allPeers = (await _clusterStore.GetAllNodes(_peerOptions.PartitionKey, _cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
-                await AppendEntries(allPeers);
-                StartLeader();
-                if (_raftOptions.LeaderCallback != null) _raftOptions.LeaderCallback();
-            };
+            _peerInfo.FollowerStateStarted += HandleFollowerStateStarted;
+            _peerInfo.CandidateStateStarted += HandleCandidateStateStarted;
+            _peerInfo.LeaderStateStarted += HandleLeaderStateStarted;
             _peerInfo.MoveToFollower();
+            _peerState.LastIndexIncremented += HandleLastIndexIncremented;
             return Task.CompletedTask;
         }
 
         public void Stop()
         {
             _cancellationTokenSource.Cancel();
+            _peerInfo.FollowerStateStarted -= HandleFollowerStateStarted;
+            _peerInfo.CandidateStateStarted -= HandleCandidateStateStarted;
+            _peerInfo.LeaderStateStarted -= HandleLeaderStateStarted;
+            _peerState.LastIndexIncremented -= HandleLastIndexIncremented;
             StopFollowerTimer();
             StopLeaderTimer();
+        }
+
+        private void HandleFollowerStateStarted(object o, EventArgs args)
+        {
+            var stateChanged = args as PeerInfoStateChanged;
+            if (stateChanged.IsDifferent) _logger.LogInformation($"Peer {_peerOptions.Id} is a follower");
+            StartFollower();
+        }
+
+        private async void HandleCandidateStateStarted(object o, EventArgs args)
+        {
+            _logger.LogInformation($"Peer {_peerOptions.Id} is a candidate");
+            await StartCandidate();
+        }
+
+        private async void HandleLeaderStateStarted(object o, EventArgs args)
+        {
+            _logger.LogInformation($"Peer {_peerOptions.Id} is a leader");
+            var allPeers = (await _clusterStore.GetAllNodes(_peerOptions.PartitionKey, _cancellationTokenSource.Token)).Where(p => p.Id != _peerOptions.Id);
+            await AppendEntries(allPeers);
+            StartLeader();
+            if (_raftOptions.LeaderCallback != null) _raftOptions.LeaderCallback(_peerOptions.PartitionKey);
+        }
+
+        private async void HandleLastIndexIncremented(object o, EventArgs args)
+        {
+            await Commit();
         }
     }
 }

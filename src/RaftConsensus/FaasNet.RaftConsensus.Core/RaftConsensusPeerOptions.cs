@@ -28,7 +28,7 @@ namespace FaasNet.RaftConsensus.Core
         /// <summary>
         /// Action is called when the Peer is a leader.
         /// </summary>
-        public Action LeaderCallback { get; set; }
+        public Action<string> LeaderCallback { get; set; }
         /// <summary>
         /// Expiration time of a client request.
         /// </summary>
@@ -49,6 +49,10 @@ namespace FaasNet.RaftConsensus.Core
         /// Number of records in each snapshot file.
         /// </summary>
         public int NbRecordsPerSnapshotFile { get; set; } = 500;
+        /// <summary>
+        /// Callback called when a leader is elected.
+        /// </summary>
+        public Action<string> CallbackLeaderElected { get; set; }
     }
 
     public class Interval

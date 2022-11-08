@@ -57,10 +57,9 @@ namespace FaasNet.EventMesh
                     o.ConfigurationDirectoryPath = Path.Combine(path, port.ToString());
                     o.StateMachineType = stateMachineType ?? _options.StateMachineType;
                     o.IsConfigurationStoredInMemory = true;
-                    o.LeaderHeartbeatTimerMS = 100;
-                    o.LeaderCallback += () =>
+                    o.LeaderCallback += (s) =>
                     {
-                        Debug.WriteLine("There is one leader !");
+                        Debug.WriteLine($"There is one leader for the partition {s} !");
                     };
                 });
             if (callbackHostFactory != null) callbackHostFactory(hostFactory);

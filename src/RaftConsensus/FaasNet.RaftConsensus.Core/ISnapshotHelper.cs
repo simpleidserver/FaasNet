@@ -30,22 +30,22 @@ namespace FaasNet.RaftConsensus.Core
             _peerState = PeerState.New(_raftOptions.ConfigurationDirectoryPath, _raftOptions.IsConfigurationStoredInMemory);
         }
 
-        public async Task TakeSnapshot(long index)
+        public Task TakeSnapshot(long index)
         {
             var snapshotDirectory = GetSnapshotDirectoryPath(index);
             Directory.CreateDirectory(snapshotDirectory);
             var stateMachine = (IStateMachine)ActivatorUtilities.CreateInstance(_serviceProvider, _raftOptions.StateMachineType);
-            await Parallel.ForEachAsync(stateMachine.Snapshot(_raftOptions.NbRecordsPerSnapshotFile), new ParallelOptions
+            foreach(var e in stateMachine.Snapshot(_raftOptions.NbRecordsPerSnapshotFile))
             {
-                MaxDegreeOfParallelism = _raftOptions.MaxNbThreads
-            }, async (e, t) =>
-            {
-                using (var file = new StreamWriter(Path.Combine(snapshotDirectory, $"statemachines-{e.Item2}.txt")))
+                var path = Path.Combine(snapshotDirectory, $"statemachines-{e.Item2}.txt");
+                using (var file = new StreamWriter(path))
                     foreach (var payload in e.Item1)
                         file.WriteLine(Convert.ToBase64String(payload.ToArray()));
-            });
+            }
+
             _peerState.SnapshotTerm = _peerState.CurrentTerm;
             _peerState.SnapshotLastApplied = _peerState.CommitIndex;
+            return Task.CompletedTask;
         }
 
         public void EraseSnapshot(long index)
