@@ -9,10 +9,13 @@ using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client;
 using FaasNet.EventMesh.Client.StateMachines.ApplicationDomain;
 using FaasNet.EventMesh.Client.StateMachines.Client;
+using FaasNet.EventMesh.Performance.Columns;
+using FaasNet.EventMesh.Performance.Exporters;
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Client.Transports;
 using FaasNet.Peer.Clusters;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace FaasNet.EventMesh.Performance
 {
@@ -44,7 +47,8 @@ namespace FaasNet.EventMesh.Performance
         };
         private SemaphoreSlim _semStandardPartitionsLaunched = new SemaphoreSlim(0);
         private SemaphoreSlim _semClientPartitionsLaunched = new SemaphoreSlim(0);
-
+        private StreamWriter _recordsFile;
+        private Stopwatch sw = new Stopwatch();
         public int NbMessageSent { get; set; } = 0;
         public int NbMessageReceived { get; set; } = 1;
 
@@ -120,12 +124,17 @@ namespace FaasNet.EventMesh.Performance
 #pragma warning disable 4014
             Task.Run(ListenMessages, _cancellationTokenSource.Token);
 #pragma warning restore 4014
+            if (File.Exists(Constants.RecordsFilePath)) File.Delete(Constants.RecordsFilePath);
+            _recordsFile = new StreamWriter(Constants.RecordsFilePath);
+            sw.Start();
         }
 
         [GlobalCleanup]
         public void GlobalCleanup()
         {
             _cancellationTokenSource.Cancel();
+            _recordsFile.Dispose();
+            sw.Stop();
         }
 
         [Benchmark]
@@ -148,8 +157,9 @@ namespace FaasNet.EventMesh.Performance
                 return (r, r.Status == Client.Messages.PublishMessageStatus.SUCCESS);
             });
             NbMessageSent++;
-            // TODO : CONTINUE !!!
-            File.WriteAllText(Constants.FilePath, $"{NbMessageSent};{NbMessageReceived}");
+            var record = $"{NbMessageSent}{Constants.Separator}{sw.ElapsedMilliseconds}{Constants.Separator}{NbMessageReceived}";
+            File.WriteAllText(Constants.SummaryFilePath, record);
+            _recordsFile.WriteLine(record);
         }
 
         private async Task<T> Retry<T>(Func<Task<(T, bool)>> callback, int nbRetry = 0) where T : class
@@ -187,7 +197,6 @@ namespace FaasNet.EventMesh.Performance
                 {
                     _cancellationTokenSource.Token.ThrowIfCancellationRequested();
                     var r = await _subSessionClient.ReadMessage(NbMessageReceived);
-                    Console.WriteLine(r.Status);
                     if (r.Status == Client.Messages.ReadMessageStatus.SUCCESS)
                         NbMessageReceived++;
                 }
@@ -204,14 +213,13 @@ namespace FaasNet.EventMesh.Performance
         public EventMeshBenchmarkConfig()
         {
             AddJob(Job.Default
-                .WithToolchain(InProcessToolchain.Instance)
+                // .WithToolchain(InProcessToolchain.Instance)
                 .RunOncePerIteration()
                 .WithIterationCount(100)
                 .WithLaunchCount(1));
             AddColumn(new RequestSentColumn());
             AddColumn(new RequestReceivedColumn());
             AddDiagnoser(MemoryDiagnoser.Default);
-            AddDiagnoser(new RequestReceivedDiagnoser());
             AddExporter(new CsvExporter(CsvSeparator.CurrentCulture));
             AddExporter(new HtmlExporter());
             AddExporter(new CsvMeasurementsWithRequestsExporter(CsvSeparator.CurrentCulture));

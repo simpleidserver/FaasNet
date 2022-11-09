@@ -2,13 +2,13 @@
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 
-namespace FaasNet.EventMesh.Performance
+namespace FaasNet.EventMesh.Performance.Columns
 {
-    public class RequestReceivedColumn : IColumn
+    public abstract class BaseRequestColumn : IColumn
     {
-        public string Id => nameof(RequestReceivedColumn);
+        public abstract string Id { get; }
 
-        public string ColumnName => "NbRequestReceived";
+        public abstract string ColumnName { get; }
 
         public bool AlwaysShow => true;
 
@@ -20,19 +20,21 @@ namespace FaasNet.EventMesh.Performance
 
         public UnitType UnitType => UnitType.Size;
 
-        public string Legend => "Number of received requests";
+        public abstract string Legend { get; }
 
         public string GetValue(Summary summary, BenchmarkCase benchmarkCase) => GetValue(summary, benchmarkCase, SummaryStyle.Default);
 
         public string GetValue(Summary summary, BenchmarkCase benchmarkCase, SummaryStyle style)
         {
-            if (!File.Exists(Constants.FilePath)) return string.Empty;
-            var content = File.ReadAllText(Constants.FilePath);
-            return content.Split(';').Last();
+            if (!File.Exists(Constants.SummaryFilePath)) return string.Empty;
+            var content = File.ReadAllText(Constants.SummaryFilePath);
+            return GetValue(content.Split(Constants.Separator));
         }
 
         public bool IsAvailable(Summary summary) => true;
 
-        public bool IsDefault(Summary summary, BenchmarkCase benchmarkCase) => true;
+        public bool IsDefault(Summary summary, BenchmarkCase benchmarkCase) => false;
+
+        protected abstract string GetValue(IEnumerable<string> values);
     }
 }

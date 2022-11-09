@@ -2,6 +2,9 @@
 {
     public static class Constants
     {
-        public static string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "size.txt");
+        private static string BaseDirectoryPath = "C:\\Projects\\FaasNet\\src\\EventMesh\\FaasNet.EventMesh.Performance";
+        public static string RecordsFilePath = Path.Combine(BaseDirectoryPath, "records.txt");
+        public static string SummaryFilePath = Path.Combine(BaseDirectoryPath, "summary.txt");
+        public static char Separator = ';';
     }
 }

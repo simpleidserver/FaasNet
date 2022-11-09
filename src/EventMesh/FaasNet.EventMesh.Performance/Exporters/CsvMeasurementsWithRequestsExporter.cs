@@ -2,10 +2,10 @@
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Exporters.Csv;
 using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Reports;
 
-namespace FaasNet.EventMesh.Performance
+namespace FaasNet.EventMesh.Performance.Exporters
 {
     public class CsvMeasurementsWithRequestsExporter : ExporterBase
     {
@@ -17,6 +17,7 @@ namespace FaasNet.EventMesh.Performance
         private static readonly Lazy<MeasurementColumn[]> Columns = new Lazy<MeasurementColumn[]>(BuildColumns);
 
         private readonly CsvSeparator separator;
+
         public CsvMeasurementsWithRequestsExporter(CsvSeparator separator, SummaryStyle style = null)
         {
             this.separator = separator;
@@ -37,6 +38,7 @@ namespace FaasNet.EventMesh.Performance
         {
             string realSeparator = Separator;
             var columns = GetColumns(summary);
+            logger.WriteLine(string.Join(realSeparator, columns.Select(c => CsvHelper.Escape(c.Title, realSeparator))));
 
             foreach (var report in summary.Reports)
             {
@@ -74,6 +76,7 @@ namespace FaasNet.EventMesh.Performance
 
         private static MeasurementColumn[] BuildColumns()
         {
+            var lines = File.ReadAllLines(Constants.RecordsFilePath);
             // Target
             var columns = new List<MeasurementColumn>
             {
@@ -100,10 +103,21 @@ namespace FaasNet.EventMesh.Performance
             columns.Add(new MeasurementColumn("Measurement_Operations", (summary, report, m) => m.Operations.ToString()));
             columns.Add(new MeasurementColumn("Measurement_Value", (summary, report, m) => (m.Nanoseconds / m.Operations).ToString("0.##", summary.GetCultureInfo())));
 
+            // Request
+            columns.Add(new MeasurementColumn("NbRequestSent", (summary, report, m) =>
+            {
+                var line = lines.ElementAt(m.IterationIndex);
+                return line.Split(Constants.Separator).First();
+            }));
             columns.Add(new MeasurementColumn("NbRequestReceived", (summary, report, m) =>
             {
-                var columns = report.AllMeasurements;
-                return "";
+                var line = lines.ElementAt(m.IterationIndex);
+                return line.Split(Constants.Separator).Last();
+            }));
+            columns.Add(new MeasurementColumn("Timestamp", (summary, report, m) =>
+            {
+                var line = lines.ElementAt(m.IterationIndex);
+                return line.Split(Constants.Separator).ElementAt(1);
             }));
             return columns.ToArray();
         }
