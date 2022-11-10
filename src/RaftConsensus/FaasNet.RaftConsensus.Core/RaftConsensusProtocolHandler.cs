@@ -7,6 +7,7 @@ using FaasNet.RaftConsensus.Core.Infos;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using FaasNet.RaftConsensus.Core.Stores;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -30,10 +31,13 @@ namespace FaasNet.RaftConsensus.Core
         private readonly IServiceProvider _serviceProvider;
         private readonly ISnapshotHelper _snapshotHelper;
         private readonly RaftConsensusPeerOptions _raftConsensusPeerOptions;
+        private readonly ILogger<RaftConsensusProtocolHandler> _logger;
+        private readonly TaskPool _taskPool;
         private SemaphoreSlim _appendEntrySem = new SemaphoreSlim(1);
 
-        public RaftConsensusProtocolHandler(IPeerInfoStore peerInfoStore, ILogStore logStore, IPeerClientFactory peerClientFactory, ICommitHelper commitHelper, IServiceProvider serviceProvider, ISnapshotHelper snapshotHelper, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
+        public RaftConsensusProtocolHandler(ILogger<RaftConsensusProtocolHandler>  logger, IPeerInfoStore peerInfoStore, ILogStore logStore, IPeerClientFactory peerClientFactory, ICommitHelper commitHelper, IServiceProvider serviceProvider, ISnapshotHelper snapshotHelper, IOptions<RaftConsensusPeerOptions> raftConsensusPeerOptions)
         {
+            _logger = logger;
             _peerInfo = peerInfoStore.Get();
             _logStore = logStore;
             _raftConsensusPeerOptions = raftConsensusPeerOptions.Value;
@@ -42,6 +46,7 @@ namespace FaasNet.RaftConsensus.Core
             _serviceProvider = serviceProvider;
             _snapshotHelper = snapshotHelper;
             _peerState = PeerState.New(raftConsensusPeerOptions.Value.ConfigurationDirectoryPath, raftConsensusPeerOptions.Value.IsConfigurationStoredInMemory);
+            _taskPool = new TaskPool(_raftConsensusPeerOptions.MaxNbThreads);
         }
 
         public string MagicCode => BaseConsensusPackage.MAGIC_CODE;
@@ -181,51 +186,40 @@ namespace FaasNet.RaftConsensus.Core
             return ConsensusPackageResultBuilder.GetLogs(result);
         }
 
-        private async Task<BaseConsensusPackage> Handle(InstallSnapshotRequest request, CancellationToken cancellationToken)
+        private Task<BaseConsensusPackage> Handle(InstallSnapshotRequest request, CancellationToken cancellationToken)
         {
             bool success = false;
-            if (request.Term < _peerState.CurrentTerm) success = false;
+            if (request.SnapshotTerm < _peerState.CurrentTerm || request.SnapshotIndex < _peerState.CommitIndex) success = false;
             else
             {
                 success = true;
                 UpdateSnapshot(request);
-                await UpdateCommitIndex(request, _peerState);
+                if(request.IsFinished)
+                {
+#pragma warning disable 4014
+                    _taskPool.Enqueue(() => RestoreStateMachine(_peerState));
+#pragma warning restore 4014
+                }
             }
 
-            return ConsensusPackageResultBuilder.InstallSnapshot(success, _peerState.CurrentTerm, _peerState.SnapshotLastApplied, _peerState.SnapshotCommitIndex);
+            return Task.FromResult(ConsensusPackageResultBuilder.InstallSnapshot(success));
 
             void UpdateSnapshot(InstallSnapshotRequest request)
             {
-                if (request.SnapshotIndex == _peerState.SnapshotLastApplied) return;
-                if (request.Iteration == 0) _snapshotHelper.EraseSnapshot(request.SnapshotIndex);
-                _snapshotHelper.WriteSnapshot(request.SnapshotIndex, request.Iteration, request.Data);
-                if (request.Iteration == request.Total - 1) _peerState.SnapshotLastApplied = request.SnapshotIndex;
-            }
-
-            async Task UpdateCommitIndex(InstallSnapshotRequest request, PeerState peerState)
-            {
-                if (request.CommitIndex > peerState.SnapshotCommitIndex && request.CommitIndex == _peerState.SnapshotLastApplied)
-                {
-                    Debug.WriteLine($"CommitIndex : {peerState.CommitIndex}, SnapshotCommitIndex: {peerState.SnapshotCommitIndex}");
-                    peerState.SnapshotCommitIndex = request.CommitIndex;
-                    if (peerState.CommitIndex < peerState.SnapshotCommitIndex)
-                    {
-                        await RestoreStateMachine(peerState);
-                        peerState.CommitIndex = peerState.SnapshotCommitIndex;
-                        peerState.LastApplied = peerState.SnapshotCommitIndex;
-                    }
-                    else await _logStore.RemoveTo(peerState.SnapshotCommitIndex, cancellationToken);
-                }
+                var newIndex = _peerState.SnapshotCommitIndex + 1;
+                if (request.Iteration == 0) _snapshotHelper.EraseSnapshot(newIndex);
+                _snapshotHelper.WriteSnapshot(newIndex, request.Iteration, request.Data);
             }
 
             async Task RestoreStateMachine(PeerState peerState)
             {
+                var newIndex = _peerState.SnapshotCommitIndex + 1;
                 var stateMachine = (IStateMachine)ActivatorUtilities.CreateInstance(_serviceProvider, _raftConsensusPeerOptions.StateMachineType);
                 await stateMachine.Truncate(cancellationToken);
-                foreach(var snapshotRecord in _snapshotHelper.ReadSnapshot(peerState.SnapshotCommitIndex))
+                foreach (var snapshotRecord in _snapshotHelper.ReadSnapshot(newIndex))
                 {
                     var allRecords = new List<IRecord>();
-                    foreach(var payload in snapshotRecord.Item1)
+                    foreach (var payload in snapshotRecord.Content)
                     {
                         var readBufferContext = new ReadBufferContext(payload.ToArray());
                         var record = (IRecord)Activator.CreateInstance(Type.GetType(readBufferContext.NextString()));
@@ -235,23 +229,27 @@ namespace FaasNet.RaftConsensus.Core
 
                     await stateMachine.BulkUpload(allRecords, cancellationToken);
                 }
+
+                await CommitSnapshot(peerState, stateMachine);
+            }
+
+            async Task CommitSnapshot(PeerState peerState, IStateMachine stateMachine)
+            {
+                peerState.SnapshotCommitIndex = peerState.SnapshotCommitIndex + 1;
+                peerState.SnapshotLastApplied = request.SnapshotIndex;
+                peerState.SnapshotTerm = request.SnapshotTerm;
+                peerState.CommitIndex = peerState.SnapshotLastApplied;
+                peerState.LastApplied = peerState.SnapshotLastApplied;
+                _logger.LogInformation("Snapshot {stateMachine} is committed, last log index is {snapshotLastApplied}", stateMachine.Name, peerState.SnapshotLastApplied);
+                await _logStore.Truncate(CancellationToken.None);
             }
         }
 
         private async Task<BaseConsensusPackage> Handle(QueryRequest request, CancellationToken cancellationToken)
         {
-            if (_peerInfo.Status != PeerStatus.LEADER) return await Transfer(request, cancellationToken);
             var stateMachine = (IStateMachine)ActivatorUtilities.CreateInstance(_serviceProvider, _raftConsensusPeerOptions.StateMachineType);
             var result = await stateMachine.Query(request.Query, cancellationToken);
             return ConsensusPackageResultBuilder.Query(result);
-
-            async Task<BaseConsensusPackage> Transfer(QueryRequest request, CancellationToken cancellationToken)
-            {
-                if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS)) return ConsensusPackageResultBuilder.Query();
-                var leaderPeerId = PeerId.Deserialize(_peerState.VotedFor);
-                using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(leaderPeerId.IpEdp))
-                    return (await consensusClient.ExecuteQuery(request.Query, _raftConsensusPeerOptions.RequestExpirationTimeMS, cancellationToken)).First().Item1;
-            }
         }
     }
 }

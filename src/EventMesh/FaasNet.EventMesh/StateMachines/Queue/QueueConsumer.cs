@@ -27,5 +27,9 @@ namespace FaasNet.EventMesh.StateMachines.Queue
                 await eventMeshClient.AddQueue(request.Vpn, request.ClientId, cancellationToken: cancellationToken);
             }
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

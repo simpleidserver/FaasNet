@@ -1,16 +1,7 @@
-﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Diagnosers;
-using BenchmarkDotNet.Exporters;
-using BenchmarkDotNet.Exporters.Csv;
-using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Toolchains.InProcess;
-using CloudNative.CloudEvents;
-using FaasNet.EventMesh.Client;
+﻿using FaasNet.EventMesh.Client;
+using FaasNet.EventMesh.Client.Messages;
 using FaasNet.EventMesh.Client.StateMachines.ApplicationDomain;
 using FaasNet.EventMesh.Client.StateMachines.Client;
-using FaasNet.EventMesh.Performance.Columns;
-using FaasNet.EventMesh.Performance.Exporters;
 using FaasNet.Peer.Client;
 using FaasNet.Peer.Client.Transports;
 using FaasNet.Peer.Clusters;
@@ -20,15 +11,14 @@ using System.Diagnostics;
 namespace FaasNet.EventMesh.Performance
 {
     // https://openmessaging.cloud/docs/benchmarks/
-    [Config(typeof(EventMeshBenchmarkConfig))]
-    public class EventMeshBenchmark
+    public partial class EventMeshBenchmark
     {
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private const string messageTopic = "messageTopic";
         private const string vpn = "Vpn";
-        private EventMeshClient _eventMeshClient;
-        private EventMeshPublishSessionClient _pubSessionClient;
-        private EventMeshSubscribeSessionClient _subSessionClient;
+        private ConcurrentBag<ClusterPeer> clusterNodes = new ConcurrentBag<ClusterPeer>();
+        private AddClientResult _addSubClient = null!;
+        private AddClientResult _addPubClient = null!;
+        private EventMeshClient _eventMeshClient = null!;
         private ConcurrentBag<string> _partitionKeys = new ConcurrentBag<string>();
         private List<string> _allStandardPartitionNames = new List<string>
         {
@@ -45,17 +35,42 @@ namespace FaasNet.EventMesh.Performance
             "Vpn_pubClientId",
             "Vpn_subClientId"
         };
+        private CancellationTokenSource _subClientCancellationTokenSource = new CancellationTokenSource();
         private SemaphoreSlim _semStandardPartitionsLaunched = new SemaphoreSlim(0);
         private SemaphoreSlim _semClientPartitionsLaunched = new SemaphoreSlim(0);
-        private StreamWriter _recordsFile;
-        private Stopwatch sw = new Stopwatch();
         public int NbMessageSent { get; set; } = 0;
         public int NbMessageReceived { get; set; } = 1;
 
-        [GlobalSetup]
-        public async Task GlobalSetup()
+        public async Task Launch(int nbIterations = 100)
         {
-            var clusterNodes = new ConcurrentBag<ClusterPeer>();
+            await GlobalSetup();
+            await LaunchPublishAndReceiveMessage(nbIterations);
+            await LaunchNewNodeAndReceiveMessage(nbIterations);
+            GlobalCleanup();
+        }
+
+        public void ReceiveMessageFromThirdNode()
+        {
+
+        }
+
+        private async Task ExecuteOperation(Func<Task> callback, int nbIterations = 100)
+        {
+            var sw = new Stopwatch();
+            for (var i = 0; i < nbIterations; i++)
+            {
+                sw.Reset();
+                sw.Start();
+                await callback();
+                sw.Stop();
+                Console.WriteLine($"operation {i} is executed in {sw.ElapsedMilliseconds}MS");
+            }
+        }
+
+        #region Setup and cleanup
+
+        private async Task GlobalSetup()
+        {
             var firstNode = await NodeHelper.BuildAndStartNode(5000, clusterNodes, 30000, (p) =>
             {
                 CheckPartitions(p);
@@ -74,12 +89,12 @@ namespace FaasNet.EventMesh.Performance
                 var r = await _eventMeshClient.AddVpn(vpn);
                 return (r, r.Status == null);
             });
-            var addPubClient = await Retry(async () =>
+            _addPubClient = await Retry(async () =>
             {
                 var r = await _eventMeshClient.AddClient("pubClientId", vpn, new List<ClientPurposeTypes> { ClientPurposeTypes.PUBLISH });
                 return (r, r.Status == null);
             });
-            var addSubClient = await Retry(async () =>
+            _addSubClient = await Retry(async () =>
             {
                 var r = await _eventMeshClient.AddClient("subClientId", vpn, new List<ClientPurposeTypes> { ClientPurposeTypes.SUBSCRIBE });
                 return (r, r.Status == null);
@@ -119,62 +134,9 @@ namespace FaasNet.EventMesh.Performance
                 var r = await _eventMeshClient.AddApplicationDomainLink("appdomain", vpn, "pubClientId", "subClientId", "evtId");
                 return (r, r.Status == Client.Messages.AddLinkApplicationDomainStatus.OK);
             });
-            _pubSessionClient = await _eventMeshClient.CreatePubSession(addPubClient.ClientId, vpn, addPubClient.ClientSecret);
-            _subSessionClient = await _eventMeshClient.CreateSubSession(addSubClient.ClientId, vpn, addSubClient.ClientSecret, addSubClient.ClientId);
-#pragma warning disable 4014
-            Task.Run(ListenMessages, _cancellationTokenSource.Token);
-#pragma warning restore 4014
-            if (File.Exists(Constants.RecordsFilePath)) File.Delete(Constants.RecordsFilePath);
-            _recordsFile = new StreamWriter(Constants.RecordsFilePath);
-            sw.Start();
         }
 
-        [GlobalCleanup]
-        public void GlobalCleanup()
-        {
-            _cancellationTokenSource.Cancel();
-            _recordsFile.Dispose();
-            sw.Stop();
-        }
-
-        [Benchmark]
-        public async Task PublishAndReceiveMessage()
-        {
-            var cloudEvent = new CloudEvent
-            {
-                Type = "com.github.pull.create",
-                Source = new Uri("https://github.com/cloudevents/spec/pull"),
-                Subject = "123",
-                Id = "A234-1234-1234",
-                Time = new DateTimeOffset(2018, 4, 5, 17, 31, 0, TimeSpan.Zero),
-                DataContentType = "application/json",
-                Data = $"Message number {NbMessageSent}",
-                ["comexampleextension1"] = "value"
-            };
-            await Retry(async () =>
-            {
-                var r = await _pubSessionClient.PublishMessage( messageTopic, cloudEvent);
-                return (r, r.Status == Client.Messages.PublishMessageStatus.SUCCESS);
-            });
-            NbMessageSent++;
-            var record = $"{NbMessageSent}{Constants.Separator}{sw.ElapsedMilliseconds}{Constants.Separator}{NbMessageReceived}";
-            File.WriteAllText(Constants.SummaryFilePath, record);
-            _recordsFile.WriteLine(record);
-        }
-
-        private async Task<T> Retry<T>(Func<Task<(T, bool)>> callback, int nbRetry = 0) where T : class
-        {
-            var kvp = await callback();
-            if(!kvp.Item2)
-            {
-                nbRetry++;
-                if (nbRetry >= 10) return null;
-                Thread.Sleep(200);
-                return await Retry(callback, nbRetry);
-            }
-
-            return kvp.Item1;
-        }
+        private void GlobalCleanup() { }
 
         private void CheckPartitions(string partitionKey)
         {
@@ -189,41 +151,20 @@ namespace FaasNet.EventMesh.Performance
                 _semClientPartitionsLaunched.Release();
         }
 
-        private async void ListenMessages()
+        private static async Task<T> Retry<T>(Func<Task<(T, bool)>> callback, int nbRetry = 0) where T : class
         {
-            try
+            var kvp = await callback();
+            if (!kvp.Item2)
             {
-                while (true)
-                {
-                    _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-                    var r = await _subSessionClient.ReadMessage(NbMessageReceived);
-                    if (r.Status == Client.Messages.ReadMessageStatus.SUCCESS)
-                        NbMessageReceived++;
-                }
+                nbRetry++;
+                if (nbRetry >= 10) return null;
+                Thread.Sleep(200);
+                return await Retry(callback, nbRetry);
             }
-            catch
-            {
 
-            }
+            return kvp.Item1;
         }
-    }
 
-    public class EventMeshBenchmarkConfig : ManualConfig
-    {
-        public EventMeshBenchmarkConfig()
-        {
-            AddJob(Job.Default
-                // .WithToolchain(InProcessToolchain.Instance)
-                .RunOncePerIteration()
-                .WithIterationCount(100)
-                .WithLaunchCount(1));
-            AddColumn(new RequestSentColumn());
-            AddColumn(new RequestReceivedColumn());
-            AddDiagnoser(MemoryDiagnoser.Default);
-            AddExporter(new CsvExporter(CsvSeparator.CurrentCulture));
-            AddExporter(new HtmlExporter());
-            AddExporter(new CsvMeasurementsWithRequestsExporter(CsvSeparator.CurrentCulture));
-            WithOptions(ConfigOptions.DisableOptimizationsValidator);
-        }
+        #endregion
     }
 }

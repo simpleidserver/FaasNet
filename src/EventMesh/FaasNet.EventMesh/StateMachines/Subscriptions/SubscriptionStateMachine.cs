@@ -1,4 +1,5 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines.Subscription;
+using FaasNet.EventMesh.StateMachines.Session;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
@@ -17,6 +18,8 @@ namespace FaasNet.EventMesh.StateMachines.Subscriptions
         {
             _store = store;
         }
+
+        public string Name => nameof(SubscriptionStateMachine);
 
         public async Task Apply(ICommand cmd, CancellationToken cancellationToken)
         {

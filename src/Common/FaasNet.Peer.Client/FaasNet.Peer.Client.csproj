@@ -3,6 +3,11 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="StateMachines\**" />
+    <EmbeddedResource Remove="StateMachines\**" />
+    <None Remove="StateMachines\**" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\FaasNet.Common\FaasNet.Common.csproj" />
   </ItemGroup>
 </Project>

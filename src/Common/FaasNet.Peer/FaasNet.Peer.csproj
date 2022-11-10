@@ -2,6 +2,17 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Infos\**" />
+    <Compile Remove="StateMachines\**" />
+    <Compile Remove="Stores\**" />
+    <EmbeddedResource Remove="Infos\**" />
+    <EmbeddedResource Remove="StateMachines\**" />
+    <EmbeddedResource Remove="Stores\**" />
+    <None Remove="Infos\**" />
+    <None Remove="StateMachines\**" />
+    <None Remove="Stores\**" />
+  </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />

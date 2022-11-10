@@ -18,6 +18,10 @@ namespace FaasNet.EventMesh.StateMachines.Client
             _options = options.Value;
         }
 
+        public void Dispose()
+        {
+        }
+
         public async Task Consume(ApplicationDomainLinkAdded request, CancellationToken cancellationToken)
         {
             var cmds = new List<ICommand>

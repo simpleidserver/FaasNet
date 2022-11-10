@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "FaasNet.EventMesh.Sink.RocksDB": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:61565;http://localhost:61566"
+    }
+  }
+}

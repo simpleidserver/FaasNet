@@ -59,13 +59,11 @@ namespace FaasNet.RaftConsensus.Client.Messages
             };
         }
 
-        public static BaseConsensusPackage InstallSnapshot(long term, string leaderId, long commitIndex, long snapshotTerm, long snapshotIndex, int iteration, int total, IEnumerable<IEnumerable<byte>> data)
+        public static BaseConsensusPackage InstallSnapshot(string leaderId, long snapshotTerm, long snapshotIndex, int iteration, int total, IEnumerable<IEnumerable<byte>> data)
         {
             return new InstallSnapshotRequest
             {
-                Term = term,
                 LeaderId = leaderId,
-                CommitIndex = commitIndex,
                 SnapshotTerm = snapshotTerm,
                 SnapshotIndex = snapshotIndex,
                 Iteration = iteration,

@@ -22,6 +22,8 @@ namespace FaasNet.EventMesh.StateMachines.Client
             _store = store;
         }
 
+        public override string Name => nameof(ClientStateMachine);
+
         public override async Task Apply(ICommand cmd, CancellationToken cancellationToken)
         {
             switch (cmd)

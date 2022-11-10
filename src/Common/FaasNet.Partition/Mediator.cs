@@ -25,7 +25,11 @@ namespace FaasNet.Partition
             var consumerType = typeof(IConsumer<>).MakeGenericType(typeof(T));
             var enumerableConsumerType = typeof(IEnumerable<>).MakeGenericType(consumerType);
             var consumers = (IEnumerable<IConsumer<T>>)_serviceProvider.GetRequiredService(enumerableConsumerType);
-            foreach (var consumer in consumers) await consumer.Consume(cmd, cancellationToken);
+            foreach (var consumer in consumers)
+            {
+                await consumer.Consume(cmd, cancellationToken);
+                consumer.Dispose();
+            }
         }
     }
 }

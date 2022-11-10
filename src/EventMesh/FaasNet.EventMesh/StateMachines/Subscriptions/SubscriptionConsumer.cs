@@ -25,5 +25,9 @@ namespace FaasNet.EventMesh.StateMachines.Subscriptions
         {
             await Send(PartitionNames.SUBSCRIPTION_PARTITION_KEY, new RemoveSubscriptionCommand { ClientId = request.Target, EventId = request.EventId, Vpn = request.Vpn }, cancellationToken);
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

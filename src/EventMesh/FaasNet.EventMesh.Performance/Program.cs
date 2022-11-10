@@ -1,5 +1,5 @@
-﻿using BenchmarkDotNet.Running;
-using FaasNet.EventMesh.Performance;
+﻿using FaasNet.EventMesh.Performance;
 
-var summary = BenchmarkRunner.Run<EventMeshBenchmark>();
-var jobs = summary.BenchmarksCases.Select(b => b.Job);
+var benchmark = new EventMeshBenchmark();
+await benchmark.Launch(300);
+Console.ReadLine();

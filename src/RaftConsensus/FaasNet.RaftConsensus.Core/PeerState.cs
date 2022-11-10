@@ -144,9 +144,8 @@ namespace FaasNet.RaftConsensus.Core
             }
         }
 
-
         /// <summary>
-        /// Index of highest snapshot (initialized to 0, increases monotonically).
+        /// Index of highest log in the snapshot.
         /// </summary>
         public long SnapshotLastApplied
         {

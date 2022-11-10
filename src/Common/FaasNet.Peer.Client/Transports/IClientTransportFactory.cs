@@ -1,6 +1,4 @@
 ﻿using FaasNet.Peer.Client.Transports;
-using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace FaasNet.Peer.Client
 {
@@ -9,28 +7,13 @@ namespace FaasNet.Peer.Client
         IClientTransport Create();
     }
 
-    public class ClientTransportFactory : IClientTransportFactory
+    public class UDPClientTransportFactory : IClientTransportFactory
     {
-        private readonly IServiceProvider _serviceProvider;
+        public IClientTransport Create() => new ClientUDPTransport();
+    }
 
-        public ClientTransportFactory(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
-        public IClientTransport Create()
-        {
-            return _serviceProvider.GetService<IClientTransport>();
-        }
-
-        public static IClientTransport NewTCP()
-        {
-            return new ClientTCPTransport();
-        }
-
-        public static IClientTransport NewUDP()
-        {
-            return new ClientUDPTransport();
-        }
+    public class TCPClientTransportFactory : IClientTransportFactory
+    {
+        public IClientTransport Create() => new ClientTCPTransport();
     }
 }

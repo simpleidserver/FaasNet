@@ -22,6 +22,8 @@ namespace FaasNet.EventMesh
     {
         public async Task<BaseEventMeshPackage> Handle(AddQueueRequest addQueueRequest, CancellationToken cancellationToken)
         {
+            // Problème avec les partitions !!!
+            // Comprendre comment propager une partition...
             var vpn = await Query<GetVpnQueryResult>(PartitionNames.VPN_PARTITION_KEY, new GetVpnQuery { Id = addQueueRequest.Vpn }, cancellationToken);
             if (!vpn.Success) return PackageResponseBuilder.AddQueue(addQueueRequest.Seq, AddQueueStatus.UNKNOWN_VPN);
             var queue = await Query<GetQueueQueryResult>(PartitionNames.QUEUE_PARTITION_KEY, new GetQueueQuery 

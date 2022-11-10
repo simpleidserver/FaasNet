@@ -56,14 +56,11 @@ namespace FaasNet.RaftConsensus.Client.Messages
             };
         }
 
-        public static BaseConsensusPackage InstallSnapshot(bool success, long term, long matchIndex, long commitIndex)
+        public static BaseConsensusPackage InstallSnapshot(bool success)
         {
             return new InstallSnapshotResult
             {
-                Success = success,
-                Term = term,
-                MatchIndex = matchIndex,
-                CommitIndex = commitIndex
+                Success = success
             };
         }
 

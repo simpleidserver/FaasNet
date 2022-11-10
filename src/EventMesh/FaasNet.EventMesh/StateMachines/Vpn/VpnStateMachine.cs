@@ -1,5 +1,6 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Vpn;
+using FaasNet.EventMesh.StateMachines.Subscriptions;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
@@ -19,6 +20,8 @@ namespace FaasNet.EventMesh.StateMachines.Vpn
         {
             _store = store;
         }
+
+        public string Name => nameof(VpnStateMachine);
 
         public async Task Apply(ICommand cmd, CancellationToken cancellationToken)
         {

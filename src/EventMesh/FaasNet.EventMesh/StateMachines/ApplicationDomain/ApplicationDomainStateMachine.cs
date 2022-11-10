@@ -1,5 +1,6 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.ApplicationDomain;
+using FaasNet.EventMesh.StateMachines.QueueMessage;
 using FaasNet.Partition;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
@@ -21,6 +22,8 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
         {
             _store = store;
         }
+
+        public override string Name => nameof(ApplicationDomainStateMachine);
 
         public override async Task Apply(ICommand cmd, CancellationToken cancellationToken)
         {
@@ -283,7 +286,7 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
             Description = context.NextString();
             RootTopic = context.NextString();
             var nb = context.NextInt();
-            for(var i = 0; i < nb; i++)
+            for (var i = 0; i < nb; i++)
             {
                 var elt = new ApplicationDomainElement();
                 elt.Deserialize(context);
@@ -300,6 +303,7 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
             context.WriteString(Vpn);
             context.WriteString(Description);
             context.WriteString(RootTopic);
+            context.WriteInteger(Elements.Count);
             foreach (var elt in Elements) elt.Serialize(context);
             context.WriteTimeSpan(TimeSpan.FromTicks(CreateDateTime.Ticks));
             context.WriteTimeSpan(TimeSpan.FromTicks(UpdateDateTime.Ticks));

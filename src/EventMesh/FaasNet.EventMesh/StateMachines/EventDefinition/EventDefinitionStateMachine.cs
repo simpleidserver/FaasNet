@@ -1,5 +1,6 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.EventDefinition;
+using FaasNet.EventMesh.StateMachines.ApplicationDomain;
 using FaasNet.Partition;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
@@ -21,6 +22,8 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
         {
             _store = store;
         }
+
+        public override string Name => nameof(EventDefinitionStateMachine);
 
         public async override Task Apply(ICommand cmd, CancellationToken cancellationToken)
         {

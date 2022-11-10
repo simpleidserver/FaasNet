@@ -1,6 +1,5 @@
 ﻿using FaasNet.Peer;
 using FaasNet.Peer.Client;
-using FaasNet.Peer.Client.Transports;
 using FaasNet.Peer.Clusters;
 using FaasNet.Peer.Transports;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +24,6 @@ namespace FaasNet.Partition
             if (clusterPeers != null) _serviceCollection.AddScoped<IClusterStore>(s => new InMemoryClusterStore(clusterPeers));
             else _serviceCollection.AddScoped<IClusterStore, InMemoryClusterStore>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
-            _serviceCollection.AddTransient<IClientTransportFactory, ClientTransportFactory>();
             _serviceCollection.AddScoped<IPartitionCluster, DirectPartitionCluster>();
             _serviceCollection.AddSingleton<IPartitionPeerStore>(new InMemoryPartitionPeerStore(new ConcurrentBag<DirectPartitionPeer>()));
             _serviceCollection.AddTransient<IPeerClientFactory, PeerClientFactory>();
@@ -71,14 +69,14 @@ namespace FaasNet.Partition
         public PartitionedNodeHostFactory UseClientTCPTransport()
         {
             RemoveClientTransport();
-            _serviceCollection.AddTransient<IClientTransport, ClientTCPTransport>();
+            _serviceCollection.AddTransient<IClientTransportFactory, TCPClientTransportFactory>();
             return this;
         }
 
         public PartitionedNodeHostFactory UseClientUDPTransport()
         {
             RemoveClientTransport();
-            _serviceCollection.AddTransient<IClientTransport, ClientUDPTransport>();
+            _serviceCollection.AddTransient<IClientTransportFactory, UDPClientTransportFactory>();
             return this;
         }
 
@@ -112,7 +110,7 @@ namespace FaasNet.Partition
 
         private void RemoveServerTransport() => RemoveDependency<IServerTransport>();
 
-        private void RemoveClientTransport() => RemoveDependency<IClientTransport>();
+        private void RemoveClientTransport() => RemoveDependency<IClientTransportFactory>();
 
         private void RemovePartitionPeerStore() => RemoveDependency<IPartitionPeerStore>();
 

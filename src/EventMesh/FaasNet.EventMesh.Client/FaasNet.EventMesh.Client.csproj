@@ -3,6 +3,11 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Stores\**" />
+    <EmbeddedResource Remove="Stores\**" />
+    <None Remove="Stores\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="CloudNative.CloudEvents" Version="2.2.0" />
     <PackageReference Include="CloudNative.CloudEvents.SystemTextJson" Version="2.2.0" />
     <PackageReference Include="Saunter" Version="0.11.0" />

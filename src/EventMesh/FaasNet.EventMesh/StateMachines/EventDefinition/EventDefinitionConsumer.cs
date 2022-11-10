@@ -16,6 +16,10 @@ namespace FaasNet.EventMesh.StateMachines.EventDefinition
             _options = options.Value;
         }
 
+        public void Dispose()
+        {
+        }
+
         public async Task Consume(ApplicationDomainLinkAdded message, CancellationToken cancellationToken)
         {
             await Send(PartitionNames.EVENTDEFINITION_PARTITION_KEY, new AddLinkEventDefinitionCommand

@@ -1,6 +1,7 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Client;
 using FaasNet.EventMesh.Client.StateMachines.Session;
+using FaasNet.EventMesh.StateMachines.Queue;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
@@ -20,6 +21,8 @@ namespace FaasNet.EventMesh.StateMachines.Session
         {
             _store = store;
         }
+
+        public string Name => nameof(SessionStateMachine);
 
         public async Task Apply(ICommand cmd, CancellationToken cancellationToken)
         {

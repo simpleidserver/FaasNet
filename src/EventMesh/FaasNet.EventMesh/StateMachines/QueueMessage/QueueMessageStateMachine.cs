@@ -1,5 +1,6 @@
 ﻿using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client.StateMachines.QueueMessage;
+using FaasNet.EventMesh.StateMachines.Client;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
@@ -18,6 +19,8 @@ namespace FaasNet.EventMesh.StateMachines.QueueMessage
         {
             _store = store;
         }
+
+        public string Name => nameof(QueueMessageStateMachine);
 
         public Task Apply(ICommand cmd, CancellationToken cancellationToken)
         {

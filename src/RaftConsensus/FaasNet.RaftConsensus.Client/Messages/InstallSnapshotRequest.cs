@@ -9,19 +9,9 @@ namespace FaasNet.RaftConsensus.Client.Messages
         public override ConsensusCommands Command => ConsensusCommands.INSTALL_SNAPSHOT_REQUEST;
 
         /// <summary>
-        /// Leader's term.
-        /// </summary>
-        public long Term { get; set; }
-
-        /// <summary>
         /// So follower can redirect clients.
         /// </summary>
         public string LeaderId { get; set; }
-
-        /// <summary>
-        /// Commit snapshot index.
-        /// </summary>
-        public long CommitIndex { get; set; }
 
         /// <summary>
         /// Term of the snapshot.
@@ -43,6 +33,8 @@ namespace FaasNet.RaftConsensus.Client.Messages
         /// </summary>
         public int Total { get; set; }
 
+        public bool IsFinished => Iteration == Total - 1;
+
         /// <summary>
         /// Data of the snapshot.
         /// </summary>
@@ -50,9 +42,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
 
         protected override void SerializeAction(WriteBufferContext context)
         {
-            context.WriteLong(Term);
             context.WriteString(LeaderId);
-            context.WriteLong(CommitIndex);
             context.WriteLong(SnapshotTerm);
             context.WriteLong(SnapshotIndex);
             context.WriteInteger(Iteration);
@@ -65,9 +55,7 @@ namespace FaasNet.RaftConsensus.Client.Messages
 
         public InstallSnapshotRequest Extract(ReadBufferContext context)
         {
-            Term = context.NextLong();
             LeaderId = context.NextString();
-            CommitIndex = context.NextLong();
             SnapshotTerm = context.NextLong();
             SnapshotIndex = context.NextLong();
             Iteration = context.NextInt();

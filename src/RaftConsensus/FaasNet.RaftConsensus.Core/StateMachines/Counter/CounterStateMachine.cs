@@ -12,6 +12,8 @@ namespace FaasNet.RaftConsensus.Core.StateMachines.Counter
     {
         private readonly IStateMachineRecordStore<CounterRecord> _store;
 
+        public string Name => nameof(CounterStateMachine);
+
         public CounterStateMachine(IStateMachineRecordStore<CounterRecord> store)
         {
             _store = store;

@@ -7,6 +7,7 @@ namespace FaasNet.RaftConsensus.Core.StateMachines
 {
     public interface IStateMachine
     {
+        string Name { get; }
         Task Apply(ICommand cmd, CancellationToken cancellationToken);
         Task Truncate(CancellationToken cancellationToken);
         Task BulkUpload(IEnumerable<IRecord> records, CancellationToken cancellationToken);

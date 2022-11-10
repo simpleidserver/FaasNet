@@ -41,6 +41,8 @@ namespace FaasNet.Peer.Client.Transports
         public void Close()
         {
             _udpClient?.Close();
+            _udpClient.Dispose();
+            _udpClient = null;
         }
 
         public void Dispose()

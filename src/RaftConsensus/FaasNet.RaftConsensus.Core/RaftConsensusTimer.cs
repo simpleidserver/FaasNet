@@ -26,6 +26,7 @@ namespace FaasNet.RaftConsensus.Core
         private PeerInfo _peerInfo;
         private PeerState _peerState;
         private CancellationTokenSource _cancellationTokenSource;
+        private TaskPool _taskPool;
 
         public RaftConsensusTimer(IPeerInfoStore peerInfoStore, ILogger<RaftConsensusTimer> logger, IClusterStore clusterStore, ILogStore logStore, IPeerClientFactory peerClientFactory, ICommitHelper commitHelper, ISnapshotHelper snapshotHelper, IOptions<PeerOptions> peerOptions, IOptions<RaftConsensusPeerOptions> raftOptions)
         {
@@ -38,6 +39,7 @@ namespace FaasNet.RaftConsensus.Core
             _snapshotHelper = snapshotHelper;
             _peerOptions = peerOptions.Value;
             _raftOptions = raftOptions.Value;
+            _taskPool = new TaskPool(_raftOptions.MaxNbThreads);
             CreateFollowerTimer();
             CreateLeaderTimer();
         }

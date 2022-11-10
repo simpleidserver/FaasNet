@@ -18,6 +18,7 @@ namespace FaasNet.RaftConsensus.Core.StateMachines
             _mediator = mediator;
         }
 
+        public abstract string Name { get; }
         public abstract Task Apply(ICommand cmd, CancellationToken cancellationToken);
         public abstract Task BulkUpload(IEnumerable<IRecord> records, CancellationToken cancellationToken);
         public abstract Task Commit(CancellationToken cancellationToken);

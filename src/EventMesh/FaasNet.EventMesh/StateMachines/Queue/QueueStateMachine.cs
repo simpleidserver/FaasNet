@@ -1,5 +1,6 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Queue;
+using FaasNet.EventMesh.StateMachines.EventDefinition;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
@@ -19,6 +20,8 @@ namespace FaasNet.EventMesh.StateMachines.Queue
         {
             _store = store;
         }
+
+        public string Name => nameof(QueueStateMachine);
 
         public async Task Apply(ICommand cmd, CancellationToken cancellationToken)
         {

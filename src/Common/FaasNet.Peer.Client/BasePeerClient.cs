@@ -16,7 +16,6 @@ namespace FaasNet.Peer.Client
             _transport = transport;
         }
 
-        public IClientTransportFactory PeerClientFactory { get; }
         protected IClientTransport Transport => _transport;
 
         public void Open(string url, int port)
@@ -41,7 +40,7 @@ namespace FaasNet.Peer.Client
 
         public void Dispose()
         {
-            _transport.Close();
+            _transport.Dispose();
         }
     }
 }

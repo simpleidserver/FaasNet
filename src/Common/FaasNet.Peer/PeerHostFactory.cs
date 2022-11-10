@@ -21,7 +21,6 @@ namespace FaasNet.Peer
             _serviceCollection.AddScoped<IPeerHost, StructuredPeerHost>();
             _serviceCollection.AddTransient<IProtocolHandlerFactory, ProtocolHandlerFactory>();
             _serviceCollection.AddTransient<IPeerClientFactory, PeerClientFactory>();
-            _serviceCollection.AddTransient<IClientTransportFactory, ClientTransportFactory>();
             _serviceCollection.AddLogging();
             if (callbackService != null) callbackService(_serviceCollection);
         }
@@ -36,7 +35,6 @@ namespace FaasNet.Peer
             if (clusterPeers != null) _serviceCollection.AddScoped<IClusterStore>(s => new InMemoryClusterStore(clusterPeers));
             else _serviceCollection.AddScoped<IClusterStore, InMemoryClusterStore>();
             _serviceCollection.AddTransient<IPeerClientFactory, PeerClientFactory>();
-            _serviceCollection.AddTransient<IClientTransportFactory, ClientTransportFactory>();
             _serviceCollection.AddLogging();
             if (callbackService != null) callbackService(_serviceCollection);
         }
@@ -84,14 +82,14 @@ namespace FaasNet.Peer
         public PeerHostFactory UseClientTCPTransport()
         {
             RemoveClientTransport();
-            _serviceCollection.AddTransient<IClientTransport, ClientTCPTransport>();
+            _serviceCollection.AddTransient<IClientTransportFactory, TCPClientTransportFactory>();
             return this;
         }
 
         public PeerHostFactory UseClientUDPTransport()
         {
             RemoveClientTransport();
-            _serviceCollection.AddTransient<IClientTransport, ClientUDPTransport>();
+            _serviceCollection.AddTransient<IClientTransportFactory, UDPClientTransportFactory>();
             return this;
         }
 
@@ -124,7 +122,7 @@ namespace FaasNet.Peer
 
         private void RemoveClientTransport()
         {
-            var registeredType = _serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IClientTransport));
+            var registeredType = _serviceCollection.FirstOrDefault(s => s.ServiceType == typeof(IClientTransportFactory));
             if (registeredType != null) _serviceCollection.Remove(registeredType);
         }
 

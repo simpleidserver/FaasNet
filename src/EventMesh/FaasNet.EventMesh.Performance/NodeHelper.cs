@@ -2,6 +2,8 @@
 using FaasNet.Peer;
 using FaasNet.Peer.Clusters;
 using FaasNet.RaftConsensus.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
 namespace FaasNet.EventMesh.Performance
@@ -23,11 +25,18 @@ namespace FaasNet.EventMesh.Performance
                         o.LeaderCallback += leaderCallback;
                     });
                 };
+                no.CallbackPeerDependencies = (s) =>
+                {
+                    s.AddLogging(l =>
+                    {
+                        l.ClearProviders();
+                        l.AddConsole();
+                        l.SetMinimumLevel(LogLevel.Information);
+                    });
+                };
             }, clusterNodes: clusterNodes)
                 .UseUDPTransport()
-                .UseEventMesh(o =>
-                {
-                });
+                .UseEventMesh();
             var node = nodeHostFactory.Build();
             await node.Start();
             return node;

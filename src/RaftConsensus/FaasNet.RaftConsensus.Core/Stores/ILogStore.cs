@@ -17,6 +17,7 @@ namespace FaasNet.RaftConsensus.Core.Stores
         Task RemoveTo(long endIndex, CancellationToken cancellation);
         Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken);
         Task Append(LogEntry entry, CancellationToken cancellationToken);
+        Task Truncate(CancellationToken cancellationToken);
     }
 
     public class InMemoryLogStore : ILogStore
@@ -77,6 +78,12 @@ namespace FaasNet.RaftConsensus.Core.Stores
         {
             var result = _entries.Where(e => e.Index > fromIndex && e.Index <= toIndex);
             return Task.FromResult(result);
+        }
+
+        public Task Truncate(CancellationToken cancellationToken)
+        {
+            _entries = new ConcurrentBag<LogEntry>();
+            return Task.CompletedTask;
         }
     }
 }
