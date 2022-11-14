@@ -30,6 +30,10 @@ namespace FaasNet.RaftConsensus.Core
         /// </summary>
         public Action<string> LeaderCallback { get; set; }
         /// <summary>
+        /// Action is called when the Peers is a follower.
+        /// </summary>
+        public Action<string> FollowerCallback { get; set; }
+        /// <summary>
         /// Expiration time of a client request.
         /// </summary>
         public int RequestExpirationTimeMS { get; set; } = 5000;

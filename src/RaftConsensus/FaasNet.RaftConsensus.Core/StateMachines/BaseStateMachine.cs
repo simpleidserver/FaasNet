@@ -28,7 +28,6 @@ namespace FaasNet.RaftConsensus.Core.StateMachines
 
         protected async Task PropagateIntegrationEvent<T>(T evt, CancellationToken cancellationToken) where T : class
         {
-            if (_peerInfo.Status != PeerStatus.LEADER) return;
             await _mediator.Send(evt, cancellationToken);
         }
     }

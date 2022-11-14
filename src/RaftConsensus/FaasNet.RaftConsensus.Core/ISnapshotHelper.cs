@@ -12,7 +12,7 @@ namespace FaasNet.RaftConsensus.Core
     {
         Task TakeSnapshot(long index);
         void EraseSnapshot(long index);
-        void WriteSnapshot(long index, int iteration, IEnumerable<IEnumerable<byte>> buffer);
+        void WriteSnapshot(long index, int recordIndex, IEnumerable<byte> buffer);
         IEnumerable<SnapshotChunkResult> ReadSnapshot(long index);
     }
 
@@ -46,9 +46,9 @@ namespace FaasNet.RaftConsensus.Core
             _snapshotStore.Erase(index);
         }
 
-        public void WriteSnapshot(long index, int iteration, IEnumerable<IEnumerable<byte>> buffer)
+        public void WriteSnapshot(long index, int recordIndex, IEnumerable<byte> buffer)
         {
-            _snapshotStore.Write(index, iteration, buffer);
+            _snapshotStore.Write(index, recordIndex, buffer);
         }
 
         public IEnumerable<SnapshotChunkResult> ReadSnapshot(long index)

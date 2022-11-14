@@ -22,6 +22,7 @@ namespace FaasNet.RaftConsensus.Core.Stores
 
     public class InMemoryLogStore : ILogStore
     {
+        private object _obj = new object();
         private ConcurrentBag<LogEntry> _entries;
 
         public InMemoryLogStore()
@@ -41,31 +42,43 @@ namespace FaasNet.RaftConsensus.Core.Stores
 
         public Task RemoveFrom(long startIndex, CancellationToken cancellation)
         {
-            startIndex = startIndex <= 0 ? 0 : startIndex - 1;
-            _entries = new ConcurrentBag<LogEntry>(_entries.Where(e => e.Index < startIndex));
-            return Task.CompletedTask;
+            lock(_obj)
+            {
+                startIndex = startIndex <= 0 ? 0 : startIndex - 1;
+                _entries = new ConcurrentBag<LogEntry>(_entries.Where(e => e.Index < startIndex));
+                return Task.CompletedTask;
+            }
         }
 
         public Task RemoveTo(long endIndex, CancellationToken cancellation)
         {
-            _entries = new ConcurrentBag<LogEntry>(_entries.Where(e => e.Index > endIndex));
-            return Task.CompletedTask;
+            lock(_obj)
+            {
+                _entries = new ConcurrentBag<LogEntry>(_entries.Where(e => e.Index > endIndex));
+                return Task.CompletedTask;
+            }
         }
 
         public Task UpdateRange(IEnumerable<LogEntry> entries, CancellationToken cancellationToken)
         {
-            foreach (var entry in entries)
+            lock(_obj)
             {
-                _entries.Add(entry);
-            }
+                foreach (var entry in entries)
+                {
+                    _entries.Add(entry);
+                }
 
-            return Task.CompletedTask;
+                return Task.CompletedTask;
+            }
         }
 
         public Task Append(LogEntry entry, CancellationToken cancellationToken)
         {
-            _entries.Add(entry);
-            return Task.CompletedTask;
+            lock(_obj)
+            {
+                _entries.Add(entry);
+                return Task.CompletedTask;
+            }
         }
 
         public Task<IEnumerable<LogEntry>> GetFrom(long index, bool equal = true, CancellationToken cancellationToken = default(CancellationToken))

@@ -42,11 +42,6 @@ namespace FaasNet.EventMesh.StateMachines.Client
                             CreateDateTime = DateTime.UtcNow
                         });
                         await _store.SaveChanges(cancellationToken);
-                        await PropagateIntegrationEvent(new ClientAdded
-                        {
-                            ClientId = addClient.Id,
-                            Vpn = addClient.Vpn
-                        }, cancellationToken);
                     }
                     break;
                 case AddSourceCommand addSource:
@@ -58,7 +53,6 @@ namespace FaasNet.EventMesh.StateMachines.Client
                             _store.Update(client);
                             await _store.SaveChanges(cancellationToken);
                         }
-
                     }
                     break;
                 case RemoveSourceCommand removeSource:
@@ -70,7 +64,6 @@ namespace FaasNet.EventMesh.StateMachines.Client
                             _store.Update(client);
                             await _store.SaveChanges(cancellationToken);
                         }
-
                     }
                     break;
                 case AddTargetCommand addTarget:
@@ -82,7 +75,6 @@ namespace FaasNet.EventMesh.StateMachines.Client
                             _store.Update(client);
                             await _store.SaveChanges(cancellationToken);
                         }
-
                     }
                     break;
                 case RemoveTargetCommand removeTarget:
@@ -94,7 +86,6 @@ namespace FaasNet.EventMesh.StateMachines.Client
                             _store.Update(client);
                             await _store.SaveChanges(cancellationToken);
                         }
-
                     }
                     break;
             }

@@ -45,6 +45,7 @@ namespace FaasNet.EventMesh.Performance
         {
             await GlobalSetup();
             await LaunchPublishAndReceiveMessage(nbIterations);
+            Console.ReadLine();
             await LaunchNewNodeAndReceiveMessage(nbIterations);
             GlobalCleanup();
         }

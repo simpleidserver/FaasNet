@@ -10,7 +10,7 @@ namespace FaasNet.EventMesh.Performance
 {
     public static class NodeHelper
     { 
-        public static async Task<IPeerHost> BuildAndStartNode(int port, ConcurrentBag<ClusterPeer> clusterNodes, int startPeerPort = 30000, Action<string> leaderCallback = null)
+        public static async Task<IPeerHost> BuildAndStartNode(int port, ConcurrentBag<ClusterPeer> clusterNodes, int startPeerPort = 30000, Action<string> leaderCallback = null, Action<string> followerCallback = null)
         {
             PartitionedNodeHostFactory nodeHostFactory = PartitionedNodeHostFactory.New(options: p =>
             {
@@ -23,6 +23,7 @@ namespace FaasNet.EventMesh.Performance
                     p.Services.PostConfigure<RaftConsensusPeerOptions>(o =>
                     {
                         o.LeaderCallback += leaderCallback;
+                        o.FollowerCallback += followerCallback;
                     });
                 };
                 no.CallbackPeerDependencies = (s) =>

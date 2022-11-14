@@ -71,7 +71,12 @@ namespace FaasNet.RaftConsensus.Core
         private void HandleFollowerStateStarted(object o, EventArgs args)
         {
             var stateChanged = args as PeerInfoStateChanged;
-            if (stateChanged.IsDifferent) _logger.LogInformation($"Peer {_peerOptions.Id} is a follower");
+            if (stateChanged.IsDifferent)
+            {
+                if (_raftOptions.FollowerCallback != null) _raftOptions.FollowerCallback(_peerOptions.PartitionKey);
+                _logger.LogInformation($"Peer {_peerOptions.Id} is a follower");
+            }
+
             StartFollower();
         }
 

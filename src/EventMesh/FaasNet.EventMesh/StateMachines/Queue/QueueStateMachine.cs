@@ -1,51 +1,58 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.Queue;
-using FaasNet.EventMesh.StateMachines.EventDefinition;
+using FaasNet.Partition;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
+using FaasNet.RaftConsensus.Core.Infos;
 using FaasNet.RaftConsensus.Core.StateMachines;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaasNet.EventMesh.StateMachines.Queue
 {
-    public class QueueStateMachine : IStateMachine
+    public class QueueStateMachine : BaseStateMachine
     {
         private readonly IQueueStateMachineStore _store;
 
-        public QueueStateMachine(IQueueStateMachineStore store)
+        public QueueStateMachine(IQueueStateMachineStore store, IPeerInfoStore peerInfoStore, IMediator mediator) : base(peerInfoStore, mediator)
         {
             _store = store;
         }
 
-        public string Name => nameof(QueueStateMachine);
+        public override string Name => nameof(QueueStateMachine);
 
-        public async Task Apply(ICommand cmd, CancellationToken cancellationToken)
+        public override async Task Apply(ICommand cmd, CancellationToken cancellationToken)
         {
             switch (cmd)
             {
                 case AddQueueCommand addQueue:
+                    Debug.WriteLine($"Add queue {addQueue.QueueName}");
                     var client = await _store.Get(addQueue.QueueName, addQueue.Vpn, cancellationToken);
                     if (client != null) return;
                     _store.Add(new QueueRecord { QueueName = addQueue.QueueName, Vpn = addQueue.Vpn, CreateDateTime = DateTime.UtcNow });
+                    await PropagateIntegrationEvent(new QueueAdded { QueueName = addQueue.QueueName, Vpn = addQueue.Vpn }, cancellationToken);
                     break;
             }
         }
 
-        public Task BulkUpload(IEnumerable<IRecord> records, CancellationToken cancellationToken)
+        public override async Task BulkUpload(IEnumerable<IRecord> records, CancellationToken cancellationToken)
         {
-            return _store.BulkUpload(records.Cast<QueueRecord>(), cancellationToken);
+            var queues = records.Cast<QueueRecord>();
+            foreach(var queue in queues)
+                await PropagateIntegrationEvent(new QueueAdded { QueueName = queue.QueueName, Vpn = queue.Vpn }, cancellationToken);
+            await _store.BulkUpload(queues, cancellationToken);
         }
 
-        public async Task Commit(CancellationToken cancellationToken)
+        public override async Task Commit(CancellationToken cancellationToken)
         {
             await _store.SaveChanges(cancellationToken);
         }
 
-        public async Task<IQueryResult> Query(IQuery query, CancellationToken cancellationToken)
+        public override async Task<IQueryResult> Query(IQuery query, CancellationToken cancellationToken)
         {
             switch (query)
             {
@@ -72,7 +79,7 @@ namespace FaasNet.EventMesh.StateMachines.Queue
             return null;
         }
 
-        public IEnumerable<(IEnumerable<IEnumerable<byte>>, int)> Snapshot(int nbRecords)
+        public override IEnumerable<(IEnumerable<IEnumerable<byte>>, int)> Snapshot(int nbRecords)
         {
             var name = typeof(QueueRecord).AssemblyQualifiedName;
             foreach (var records in _store.GetAll(nbRecords))
@@ -87,7 +94,7 @@ namespace FaasNet.EventMesh.StateMachines.Queue
             }
         }
 
-        public Task Truncate(CancellationToken cancellationToken)
+        public override Task Truncate(CancellationToken cancellationToken)
         {
             return _store.Truncate(cancellationToken);
         }

@@ -1,6 +1,5 @@
 ﻿using CloudNative.CloudEvents;
 using FaasNet.EventMesh.Client.StateMachines.QueueMessage;
-using FaasNet.EventMesh.StateMachines.Client;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Core.StateMachines;
@@ -94,6 +93,7 @@ namespace FaasNet.EventMesh.StateMachines.QueueMessage
         {
             Id = context.NextString();
             Topic = context.NextString();
+            Index = context.NextInt();
             Data = context.NextCloudEvent();
         }
 
@@ -101,6 +101,7 @@ namespace FaasNet.EventMesh.StateMachines.QueueMessage
         {
             context.WriteString(Id);
             context.WriteString(Topic);
+            context.WriteInteger(Index);
             Data.Serialize(context);
         }
     }

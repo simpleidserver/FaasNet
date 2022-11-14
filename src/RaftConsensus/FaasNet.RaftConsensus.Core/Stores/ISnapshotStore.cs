@@ -1,8 +1,10 @@
-﻿using FaasNet.RaftConsensus.Core.StateMachines;
+﻿using FaasNet.Common.Extensions;
+using FaasNet.RaftConsensus.Core.StateMachines;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -13,13 +15,13 @@ namespace FaasNet.RaftConsensus.Core.Stores
         void Save(IStateMachine stateMachine, long index);
         void Erase(long index);
         IEnumerable<SnapshotChunkResult> Read(long index);
-        void Write(long index, int iteration, IEnumerable<IEnumerable<byte>> buffer);
+        void Write(long index, int recordIndex, IEnumerable<byte> buffer);
     }
 
     public class InMemorySnapshotStore : ISnapshotStore
     {
         private readonly RaftConsensusPeerOptions _raftOptions;
-        private readonly ConcurrentDictionary<long, IEnumerable<(int, IEnumerable<IEnumerable<byte>>)>> _snapshot = new ConcurrentDictionary<long, IEnumerable<(int, IEnumerable<IEnumerable<byte>>)>>();
+        private readonly ConcurrentBag<Snapshot> _snapshots = new ConcurrentBag<Snapshot>();
 
         public InMemorySnapshotStore(IOptions<RaftConsensusPeerOptions> raftOptions)
         {
@@ -29,41 +31,81 @@ namespace FaasNet.RaftConsensus.Core.Stores
         public void Save(IStateMachine stateMachine, long index)
         {
             IEnumerable<(int, IEnumerable<IEnumerable<byte>>)> records = stateMachine.Snapshot(_raftOptions.NbRecordsPerSnapshotFile).Select(r => (r.Item2, r.Item1));
-            _snapshot.AddOrUpdate(index, records, (k, o) => records);
+            _snapshots.Add(new Snapshot
+            {
+                Index = index,
+                Chunks = records.SelectMany(r => r.Item2.Select(d => new SnapshotChunk
+                {
+                    Payload = d.ToList()
+                })).ToList()
+            });
         }
 
         public void Erase(long index)
         {
-            _snapshot.Remove(index, out IEnumerable<(int, IEnumerable<IEnumerable<byte>>)> r);
+            var record = _snapshots.FirstOrDefault(s => s.Index == index);
+            if (record != null) return;
+            _snapshots.Remove(record);
         }
 
         public IEnumerable<SnapshotChunkResult> Read(long index)
         {
-            IEnumerable<(int, IEnumerable<IEnumerable<byte>>)> res;
-            if (!_snapshot.TryGetValue(index, out res))
+            var record = _snapshots.FirstOrDefault(s => s.Index == index);
+            if (record == null)
             {
-                yield return new(0, 0, null);
+                yield return new(0, null);
             }
             else
             {
-                var nbChuncks = res.Count();
-                foreach (var record in res.OrderBy(r => r.Item1))
-                    yield return new(nbChuncks, record.Item1, record.Item2);
+                int chunkIndex = 0;
+                foreach(var chunk in record.Chunks)
+                {
+                    yield return new(chunkIndex, chunk.Payload);
+                    chunkIndex++;
+                }
             }
         }
 
-        public void Write(long index, int iteration, IEnumerable<IEnumerable<byte>> buffer)
+        public void Write(long index, int recordIndex, IEnumerable<byte> buffer)
         {
-            IEnumerable<(int, IEnumerable<IEnumerable<byte>>)> empty = new List<(int, IEnumerable<IEnumerable<byte>>)>();
-            if (!_snapshot.ContainsKey(index)) _snapshot.AddOrUpdate(index, empty, (l, o) => empty);
-            var lst = _snapshot[index].ToList();
-            lst.Add((iteration, buffer));
-            _snapshot[index] = lst;
+            var snapshot = _snapshots.FirstOrDefault(s => s.Index == index);
+            if (snapshot == null)
+            {
+                snapshot = new Snapshot { Index = index };
+                _snapshots.Add(snapshot);
+            }
+
+            var snapshotChunk = snapshot.Chunks.ElementAtOrDefault(recordIndex);
+            if (snapshotChunk != null) AppendData(snapshotChunk, buffer);
+            else WriteNewLine(snapshot, buffer.ToList());
+
+            void AppendData(SnapshotChunk chunk, IEnumerable<byte> buffer)
+            {
+                chunk.Payload.AddRange(buffer);
+            }
+
+            void WriteNewLine(Snapshot snapshot, List<byte> buffer)
+            {
+                snapshot.Chunks.Add(new SnapshotChunk { Payload = buffer });
+            }
+        }
+
+        private class Snapshot
+        {
+            public long Index { get; set; }
+            public ICollection<SnapshotChunk> Chunks = new List<SnapshotChunk>();
+        }
+
+        private class SnapshotChunk
+        {
+            public List<byte> Payload { get; set; }
         }
     }
 
     public class FileSnapshotStore : ISnapshotStore
     {
+        private const string stateMachineFileName = "statemachines.txt";
+        private const string offsetFileName = "offset-{0}.txt";
         private readonly RaftConsensusPeerOptions _raftOptions;
 
         public FileSnapshotStore(IOptions<RaftConsensusPeerOptions> raftOptions)
@@ -74,12 +116,14 @@ namespace FaasNet.RaftConsensus.Core.Stores
         public void Save(IStateMachine stateMachine, long index)
         {
             var snapshotDirectory = GetSnapshotDirectoryPath(index);
-            foreach (var e in stateMachine.Snapshot(_raftOptions.NbRecordsPerSnapshotFile))
+            var path = Path.Combine(snapshotDirectory, stateMachineFileName);
+            using(var file = new StreamWriter(path))
             {
-                var path = Path.Combine(snapshotDirectory, $"statemachines-{e.Item2}.txt");
-                using (var file = new StreamWriter(path))
+                foreach (var e in stateMachine.Snapshot(_raftOptions.NbRecordsPerSnapshotFile))
+                {
                     foreach (var payload in e.Item1)
                         file.WriteLine(Convert.ToBase64String(payload.ToArray()));
+                }
             }
         }
 
@@ -94,28 +138,72 @@ namespace FaasNet.RaftConsensus.Core.Stores
             var snapshotDirectory = GetSnapshotDirectoryPath(index);
             if (!Directory.Exists(snapshotDirectory))
             {
-                yield return new(0, 0, null);
+                yield return new(0, null);
             }
             else
             {
-                var chuncks = Directory.GetFiles(snapshotDirectory, "*.txt");
-                var nbChuncks = chuncks.Count();
-                foreach (var file in chuncks.OrderBy(f => f))
+                var path = Path.Combine(snapshotDirectory, stateMachineFileName);
+                using (var fileStream = File.OpenRead(path))
                 {
-                    var number = int.Parse(Path.GetFileName(file).Replace(".txt", string.Empty).Split('-').Last());
-                    var content = File.ReadAllLines(file).Select(l => (IEnumerable<byte>)Convert.FromBase64String(l));
-                    yield return new SnapshotChunkResult(nbChuncks, number, content);
+                    using (var streamReader = new StreamReader(fileStream))
+                    {
+                        string line;
+                        int chunkIndex = 0;
+                        while ((line = streamReader.ReadLine()) != null)
+                        {
+                            var content = (IEnumerable<byte>)Convert.FromBase64String(line);
+                            yield return new (chunkIndex, content);
+                            chunkIndex++;
+                        }
+                    }
                 }
             }
         }
 
-        public void Write(long index, int iteration, IEnumerable<IEnumerable<byte>> buffer)
+        public void Write(long index, int recordIndex, IEnumerable<byte> buffer)
         {
             var snapshotDirectory = GetSnapshotDirectoryPath(index);
-            Directory.CreateDirectory(snapshotDirectory);
-            using (var file = new StreamWriter(Path.Combine(snapshotDirectory, $"statemachines-{iteration}.txt")))
-                foreach (var payload in buffer)
-                    file.WriteLine(Convert.ToBase64String(payload.ToArray()));
+            var path = Path.Combine(snapshotDirectory, stateMachineFileName);
+            using (var file = new FileStream(Path.Combine(snapshotDirectory, path), FileMode.OpenOrCreate))
+            {
+                if (!TryGetOffset(snapshotDirectory, recordIndex, out int offset))
+                    WriteNewLine(recordIndex, file, buffer);
+                else
+                    AppendData(file, recordIndex, offset, buffer);
+            }
+
+            void WriteNewLine(int recordIndex, FileStream file, IEnumerable<byte> buffer)
+            {
+                using (var writer = new StreamWriter(file))
+                    writer.WriteLine(buffer);
+                SaveOffset(recordIndex, buffer.Count());
+            }
+
+            void AppendData(FileStream file, int recordIndex, int offset, IEnumerable<byte> buffer)
+            {
+                file.Position = offset;
+                file.Write(buffer.ToArray(), 0, buffer.Count());
+                SaveOffset(recordIndex, offset + buffer.Count());
+            }
+
+            void SaveOffset(int recordIndex, int offset)
+            {
+                var offsetFilePath = Path.Combine(snapshotDirectory, string.Format(offsetFileName, recordIndex));
+                File.WriteAllText(offsetFilePath, offset.ToString());
+            }
+
+            bool TryGetOffset(string snapshotDirectory, int recordIndex, out int offset)
+            {
+                offset = 0;
+                var offsetFilePath = Path.Combine(snapshotDirectory, string.Format(offsetFileName, recordIndex));
+                if (File.Exists(offsetFilePath))
+                {
+                    offset = int.Parse(File.ReadAllText(offsetFilePath));
+                    return true;
+                }
+
+                return false;
+            }
         }
 
         private string GetSnapshotDirectoryPath(long index)
@@ -127,15 +215,13 @@ namespace FaasNet.RaftConsensus.Core.Stores
 
     public class SnapshotChunkResult
     {
-        public SnapshotChunkResult(int nbChuncks, int currentChunck, IEnumerable<IEnumerable<byte>> content)
+        public SnapshotChunkResult(int currentChunck, IEnumerable<byte> content)
         {
-            NbChuncks = nbChuncks;
             CurrentChunck = currentChunck;
             Content = content;
         }
 
-        public int NbChuncks { get; private set; }
         public int CurrentChunck { get; private set; }
-        public IEnumerable<IEnumerable<byte>> Content { get; private set; }
+        public IEnumerable<byte> Content { get; private set; }
     }
 }

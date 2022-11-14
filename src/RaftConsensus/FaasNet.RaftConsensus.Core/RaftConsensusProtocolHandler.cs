@@ -136,7 +136,11 @@ namespace FaasNet.RaftConsensus.Core
 
             void UpdateTerm(AppendEntriesRequest request, PeerState peerState)
             {
-                if (request.Term > peerState.CurrentTerm) peerState.CurrentTerm = request.Term;
+                if (request.Term > peerState.CurrentTerm)
+                {
+                    peerState.CurrentTerm = request.Term;
+                    peerState.VotedFor = request.LeaderId;
+                }
             }
 
             void UpdateLeader(PeerInfo peerInfo)
@@ -152,7 +156,7 @@ namespace FaasNet.RaftConsensus.Core
 
             async Task<BaseConsensusPackage> Transfer(AppendEntryRequest request, CancellationToken cancellationToken)
             {
-                if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS)) return ConsensusPackageResultBuilder.AppendEntry(0, 0, 0, false);
+                if (!_peerInfo.IsLeaderActive(_raftConsensusPeerOptions.LeaderHeartbeatExpirationDurationMS) || string.IsNullOrWhiteSpace(_peerState.VotedFor)) return ConsensusPackageResultBuilder.AppendEntry(0, 0, 0, false);
                 var leaderPeerId = PeerId.Deserialize(_peerState.VotedFor);
                 using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(leaderPeerId.IpEdp))
                     return (await consensusClient.AppendEntry(request.Payload, _raftConsensusPeerOptions.RequestExpirationTimeMS, cancellationToken)).First().Item1;
@@ -193,13 +197,13 @@ namespace FaasNet.RaftConsensus.Core
             else
             {
                 success = true;
-                UpdateSnapshot(request);
                 if(request.IsFinished)
                 {
 #pragma warning disable 4014
                     _taskPool.Enqueue(() => RestoreStateMachine(_peerState));
 #pragma warning restore 4014
                 }
+                else UpdateSnapshot(request);
             }
 
             return Task.FromResult(ConsensusPackageResultBuilder.InstallSnapshot(success));
@@ -207,8 +211,8 @@ namespace FaasNet.RaftConsensus.Core
             void UpdateSnapshot(InstallSnapshotRequest request)
             {
                 var newIndex = _peerState.SnapshotCommitIndex + 1;
-                if (request.Iteration == 0) _snapshotHelper.EraseSnapshot(newIndex);
-                _snapshotHelper.WriteSnapshot(newIndex, request.Iteration, request.Data);
+                if (request.IsInit) _snapshotHelper.EraseSnapshot(newIndex);
+                _snapshotHelper.WriteSnapshot(newIndex, request.RecordIndex, request.Data);
             }
 
             async Task RestoreStateMachine(PeerState peerState)
@@ -216,20 +220,16 @@ namespace FaasNet.RaftConsensus.Core
                 var newIndex = _peerState.SnapshotCommitIndex + 1;
                 var stateMachine = (IStateMachine)ActivatorUtilities.CreateInstance(_serviceProvider, _raftConsensusPeerOptions.StateMachineType);
                 await stateMachine.Truncate(cancellationToken);
+                var allRecords = new List<IRecord>();
                 foreach (var snapshotRecord in _snapshotHelper.ReadSnapshot(newIndex))
                 {
-                    var allRecords = new List<IRecord>();
-                    foreach (var payload in snapshotRecord.Content)
-                    {
-                        var readBufferContext = new ReadBufferContext(payload.ToArray());
-                        var record = (IRecord)Activator.CreateInstance(Type.GetType(readBufferContext.NextString()));
-                        record.Deserialize(readBufferContext);
-                        allRecords.Add(record);
-                    }
-
-                    await stateMachine.BulkUpload(allRecords, cancellationToken);
+                    var readBufferContext = new ReadBufferContext(snapshotRecord.Content.ToArray());
+                    var record = (IRecord)Activator.CreateInstance(Type.GetType(readBufferContext.NextString()));
+                    record.Deserialize(readBufferContext);
+                    allRecords.Add(record);
                 }
 
+                await stateMachine.BulkUpload(allRecords, cancellationToken);
                 await CommitSnapshot(peerState, stateMachine);
             }
 

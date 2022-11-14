@@ -17,7 +17,7 @@ namespace FaasNet.Peer
             peerHostFactory.Services.AddScoped<ILogStore, InMemoryLogStore>();
             peerHostFactory.Services.AddScoped<IPeerInfoStore, PeerInfoStore>();
             peerHostFactory.Services.AddScoped<IStateMachineRecordStore<CounterRecord>, CounterStateMachineStore>();
-            peerHostFactory.Services.AddScoped<ISnapshotStore, InMemorySnapshotStore>();
+            peerHostFactory.Services.AddSingleton<ISnapshotStore, InMemorySnapshotStore>();
             peerHostFactory.Services.AddTransient<ISnapshotHelper, SnapshotHelper>();
             peerHostFactory.Services.AddTransient<ICommitHelper, CommitHelper>();
             peerHostFactory.Services.AddTransient<ITimer, RaftConsensusTimer>();

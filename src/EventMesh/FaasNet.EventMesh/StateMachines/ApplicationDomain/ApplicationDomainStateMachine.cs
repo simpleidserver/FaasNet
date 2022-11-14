@@ -1,6 +1,5 @@
 ﻿using FaasNet.EventMesh.Client.StateMachines;
 using FaasNet.EventMesh.Client.StateMachines.ApplicationDomain;
-using FaasNet.EventMesh.StateMachines.QueueMessage;
 using FaasNet.Partition;
 using FaasNet.Peer.Client;
 using FaasNet.RaftConsensus.Client;
@@ -77,16 +76,6 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
                         {
                             _store.Update(existingApplicationDomain);
                             await _store.SaveChanges(cancellationToken);
-                            foreach(var link in elt.Targets)
-                            {
-                                await PropagateIntegrationEvent(new ApplicationDomainLinkRemoved
-                                {
-                                    Source = removeApplicationDomainElementCommand.ElementId,
-                                    Target = link.Target,
-                                    EventId = link.EventId,
-                                    Vpn = removeApplicationDomainElementCommand.Vpn
-                                }, cancellationToken);
-                            }
                         }
                     }
                     break;
@@ -98,13 +87,6 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
                         {
                             _store.Update(existingApplicationDomain);
                             await _store.SaveChanges(cancellationToken);
-                            await PropagateIntegrationEvent(new ApplicationDomainLinkAdded
-                            {
-                                Source = addApplicationDomainLinkCommand.Source,
-                                Target = addApplicationDomainLinkCommand.Target,
-                                EventId = addApplicationDomainLinkCommand.EventId,
-                                Vpn = addApplicationDomainLinkCommand.Vpn
-                            }, cancellationToken);
                         }
                     }
                     break;
@@ -116,13 +98,6 @@ namespace FaasNet.EventMesh.StateMachines.ApplicationDomain
                         {
                             _store.Update(existingApplicationDomain);
                             await _store.SaveChanges(cancellationToken);
-                            await PropagateIntegrationEvent(new ApplicationDomainLinkRemoved
-                            {
-                                Source = removeApplicationDomainLinkCommand.Source,
-                                Target = removeApplicationDomainLinkCommand.Target,
-                                EventId = removeApplicationDomainLinkCommand.EventId,
-                                Vpn = removeApplicationDomainLinkCommand.Vpn
-                            }, cancellationToken);
                         }
                     }
                     break;

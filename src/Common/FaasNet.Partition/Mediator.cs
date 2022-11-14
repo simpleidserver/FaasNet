@@ -28,7 +28,6 @@ namespace FaasNet.Partition
             foreach (var consumer in consumers)
             {
                 await consumer.Consume(cmd, cancellationToken);
-                consumer.Dispose();
             }
         }
     }

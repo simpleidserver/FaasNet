@@ -24,33 +24,34 @@ namespace FaasNet.RaftConsensus.Client.Messages
         public long SnapshotIndex { get; set; }
 
         /// <summary>
-        /// Current iteration.
+        /// Is finished
         /// </summary>
-        public int Iteration { get; set; }
+        public bool IsFinished { get; set; }
 
         /// <summary>
-        /// Total number of iterations.
+        /// Index of the record.
         /// </summary>
-        public int Total { get; set; }
-
-        public bool IsFinished => Iteration == Total - 1;
+        public int RecordIndex { get; set; }
+        /// <summary>
+        /// Is initial request.
+        /// </summary>
+        public bool IsInit { get; set; } = false;
 
         /// <summary>
         /// Data of the snapshot.
         /// </summary>
-        public IEnumerable<IEnumerable<byte>> Data { get; set; }
+        public IEnumerable<byte> Data { get; set; }
 
         protected override void SerializeAction(WriteBufferContext context)
         {
             context.WriteString(LeaderId);
             context.WriteLong(SnapshotTerm);
             context.WriteLong(SnapshotIndex);
-            context.WriteInteger(Iteration);
-            context.WriteInteger(Total);
-            context.WriteInteger(Data == null ? 0 : Data.Count());
-            if (Data != null)
-                foreach (var payload in Data)
-                    context.WriteByteArray(payload.ToArray());
+            context.WriteBoolean(IsFinished);
+            if (IsFinished) return;
+            context.WriteInteger(RecordIndex);
+            context.WriteBoolean(IsInit);
+            context.WriteByteArray(Data.ToArray());
         }
 
         public InstallSnapshotRequest Extract(ReadBufferContext context)
@@ -58,12 +59,11 @@ namespace FaasNet.RaftConsensus.Client.Messages
             LeaderId = context.NextString();
             SnapshotTerm = context.NextLong();
             SnapshotIndex = context.NextLong();
-            Iteration = context.NextInt();
-            Total = context.NextInt();
-            int nb = context.NextInt();
-            var result = new List<IEnumerable<byte>>();
-            for (var i = 0; i < nb; i++) result.Add(context.NextByteArray());
-            Data = result;
+            IsFinished = context.NextBoolean();
+            if (IsFinished) return this;
+            RecordIndex = context.NextInt();
+            IsInit = context.NextBoolean();
+            Data = context.NextByteArray();
             return this;
         }
     }

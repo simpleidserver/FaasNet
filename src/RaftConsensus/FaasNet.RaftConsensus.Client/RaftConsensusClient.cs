@@ -30,9 +30,17 @@ namespace FaasNet.RaftConsensus.Client
             return DeserializeResult<BaseConsensusPackage, AppendEntriesResult>(receivedResult);
         }
 
-        public async Task<IEnumerable<(InstallSnapshotResult, string)>> InstallSnapshot(string leaderId, long snapshotTerm, long snapshotIndex, int iteration, int total, IEnumerable<IEnumerable<byte>> data, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<(InstallSnapshotResult, string)>> InstallSnapshot(string leaderId, long snapshotTerm, long snapshotIndex, IEnumerable<byte> data, int recordIndex, bool isInit, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var request = SerializeRequest(ConsensusPackageRequestBuilder.InstallSnapshot(leaderId, snapshotTerm, snapshotIndex, iteration, total, data));
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.InstallSnapshot(leaderId, snapshotTerm, snapshotIndex, data, recordIndex, isInit));
+            await Send(request, timeoutMS, cancellationToken);
+            var receivedResult = await Receive(timeoutMS, cancellationToken);
+            return DeserializeResult<BaseConsensusPackage, InstallSnapshotResult>(receivedResult);
+        }
+
+        public async Task<IEnumerable<(InstallSnapshotResult, string)>> CommitSnapshot(string leaderId, long snapshotTerm, long snapshotIndex, int timeoutMS = 500, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var request = SerializeRequest(ConsensusPackageRequestBuilder.CommitSnapshot(leaderId, snapshotTerm, snapshotIndex));
             await Send(request, timeoutMS, cancellationToken);
             var receivedResult = await Receive(timeoutMS, cancellationToken);
             return DeserializeResult<BaseConsensusPackage, InstallSnapshotResult>(receivedResult);

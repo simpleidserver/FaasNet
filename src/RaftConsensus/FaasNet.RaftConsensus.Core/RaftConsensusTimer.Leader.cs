@@ -104,15 +104,22 @@ namespace FaasNet.RaftConsensus.Core
 
             async Task InstallSnapshot(IPEndPoint edp, OtherPeerInfo otherPeer)
             {
+                bool isInit = true;
                 foreach (var snapshotChunk in _snapshotHelper.ReadSnapshot(_peerState.SnapshotCommitIndex))
                 {
                     using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(edp))
                     {
                         var result = (await consensusClient.InstallSnapshot(_peerOptions.Id, _peerState.SnapshotTerm,
-                            _peerState.SnapshotLastApplied, snapshotChunk.CurrentChunck, snapshotChunk.NbChuncks, snapshotChunk.Content,
+                            _peerState.SnapshotLastApplied, snapshotChunk.Content, snapshotChunk.CurrentChunck, isInit,
                             _raftOptions.RequestExpirationTimeMS, _cancellationTokenSource.Token)).First();
+                        isInit = false;
                         if (!result.Item1.Success) return;
                     }
+                }
+
+                using (var consensusClient = _peerClientFactory.Build<RaftConsensusClient>(edp))
+                {
+                    await consensusClient.CommitSnapshot(_peerOptions.Id, _peerState.SnapshotTerm, _peerState.SnapshotLastApplied);
                 }
             }
 

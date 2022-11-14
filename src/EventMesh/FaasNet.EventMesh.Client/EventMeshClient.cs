@@ -469,6 +469,8 @@ namespace FaasNet.EventMesh.Client
             return packageResult as ReadMessageResult;
         }
 
+        public HelloResult Session => _session;
+
         internal static void EnsureSuccessStatus(BaseEventMeshPackage packageRequest, BaseEventMeshPackage packageResponse)
         {
             if (packageRequest.Seq != packageResponse.Seq) throw new EventMeshClientException("the seq in the request doesn't match the seq in the response");
