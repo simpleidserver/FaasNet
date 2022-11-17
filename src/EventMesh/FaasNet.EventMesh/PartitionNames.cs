@@ -18,7 +18,7 @@ namespace FaasNet.EventMesh
             CLIENT_PARTITION_KEY,
             SESSION_PARTITION_KEY,
             QUEUE_PARTITION_KEY,
-            EVENTDEFINITION_PARTITION_KEY
+            EVENTDEFINITION_PARTITION_KEY,
             APPLICATION_DOMAIN,
             SUBSCRIPTION_PARTITION_KEY
         };

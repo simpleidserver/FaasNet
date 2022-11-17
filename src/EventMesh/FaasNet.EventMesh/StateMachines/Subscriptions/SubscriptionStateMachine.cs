@@ -87,7 +87,7 @@ namespace FaasNet.EventMesh.StateMachines.Subscriptions
         {
             return new SubscriptionResult
             {
-                ClientId = record.ClientId,
+                QueueName = record.QueueName,
                 EventId = record.EventId,
                 Id = record.Id,
                 Topic = record.Topic,
@@ -99,7 +99,7 @@ namespace FaasNet.EventMesh.StateMachines.Subscriptions
     public class SubscriptionRecord : IRecord
     {
         public string Id { get; set; }
-        public string ClientId { get; set; }
+        public string QueueName { get; set; }
         public string EventId { get; set; }
         public string Vpn { get; set; }
         public string Topic { get; set; }
@@ -107,7 +107,7 @@ namespace FaasNet.EventMesh.StateMachines.Subscriptions
         public void Deserialize(ReadBufferContext context)
         {
             Id = context.NextString();
-            ClientId = context.NextString();
+            QueueName = context.NextString();
             EventId = context.NextString();
             Vpn = context.NextString();
             Topic = context.NextString();
@@ -116,7 +116,7 @@ namespace FaasNet.EventMesh.StateMachines.Subscriptions
         public void Serialize(WriteBufferContext context)
         {
             context.WriteString(Id);
-            context.WriteString(ClientId);
+            context.WriteString(QueueName);
             context.WriteString(EventId);
             context.WriteString(Vpn);
             context.WriteString(Topic);
@@ -127,7 +127,7 @@ namespace FaasNet.EventMesh.StateMachines.Subscriptions
             return new SubscriptionRecord
             {
                 Id = cmd.Id,
-                ClientId = cmd.ClientId,
+                QueueName = cmd.QueueName,
                 EventId = cmd.EventId,
                 Topic = cmd.Topic,
                 Vpn = cmd.Vpn

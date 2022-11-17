@@ -1,7 +1,10 @@
 ﻿using FaasNet.EventMesh.Performance;
-using System;
-using System.Text;
+using FaasNet.EventMesh.Performance.Scenarios;
 
-var benchmark = new EventMeshBenchmark();
-await benchmark.Launch(300);
+var benchmark = new EventMeshBenchmarkLauncher();
+await benchmark.Launch(new IBenchmarkScenario[]
+{
+    new PublishAndReceiveMessageScenario(600),
+    // new ReceiveMessageInNewNodeScenario()
+});
 Console.ReadLine();

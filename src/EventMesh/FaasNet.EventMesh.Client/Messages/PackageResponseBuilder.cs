@@ -324,5 +324,22 @@ namespace FaasNet.EventMesh.Client.Messages
                 Status = status
             };
         }
+
+        public static BaseEventMeshPackage AddSubscription(string seq, AddSubscriptionStatus status)
+        {
+            return new AddSubscriptionResult(seq)
+            {
+                Status = status
+            };
+        }
+
+        public static BaseEventMeshPackage AddSubscription(string seq, string id)
+        {
+            return new AddSubscriptionResult(seq)
+            {
+                Status = AddSubscriptionStatus.OK,
+                SubscriptionId = id
+            };
+        }
     }
 }

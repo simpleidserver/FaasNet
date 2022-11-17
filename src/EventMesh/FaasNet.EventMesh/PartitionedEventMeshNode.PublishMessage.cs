@@ -28,7 +28,7 @@ namespace FaasNet.EventMesh
                 MaxDegreeOfParallelism = _eventMeshOptions.MaxNbThreads
             }, async (q, t) =>
             {
-                var partitionKey = $"{vpn}_{q.ClientId}";
+                var partitionKey = $"{vpn}_{q.QueueName}";
                 var addMessageCommand = new AddQueueMessageCommand { Id = id, Data = request.CloudEvent, Topic = request.Topic };
                 var result = await Send(partitionKey, addMessageCommand, cancellationToken);
                 if (result.Success) publishedQueueNames.Add(partitionKey);

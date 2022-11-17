@@ -94,6 +94,8 @@ namespace FaasNet.EventMesh.Client.Messages
             if (cmd == EventMeshCommands.GET_ALL_EVENT_DEFS_RESULT) return new GetAllEventDefsResult(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_ASYNC_API_REQUEST) return new GetAsyncApiRequest(seq).Extract(context);
             if (cmd == EventMeshCommands.GET_ASYNC_API_RESULT) return new GetAsyncApiResult(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_SUBSCRIPTION_REQUEST) return new AddSubscriptionRequest(seq).Extract(context);
+            if (cmd == EventMeshCommands.ADD_SUBSCRIPTION_RESULT) return new AddSubscriptionResult(seq).Extract(context);
             return null;
         }
     }

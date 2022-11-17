@@ -272,6 +272,16 @@ namespace FaasNet.EventMesh.Client.Messages
             };
         }
 
+        public static BaseEventMeshPackage AddSubscription(string vpn, string queueName, string topic)
+        {
+            return new AddSubscriptionRequest(GenerateRandomSeq())
+            {
+                Vpn = vpn,
+                QueueName = queueName,
+                Topic = topic
+            };
+        }
+
         private static string GenerateRandomSeq()
         {
             var builder = new StringBuilder(10);

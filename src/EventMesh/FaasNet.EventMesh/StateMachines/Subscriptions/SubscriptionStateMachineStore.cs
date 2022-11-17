@@ -44,7 +44,7 @@ namespace FaasNet.EventMesh.StateMachines.Subscriptions
 
         public Task<SubscriptionRecord> Get(string clientId, string eventId, string vpn, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_subscriptions.FirstOrDefault(s => s.ClientId == clientId && s.EventId == eventId && s.Vpn == vpn));
+            return Task.FromResult(_subscriptions.FirstOrDefault(s => s.QueueName == clientId && s.EventId == eventId && s.Vpn == vpn));
         }
 
         public IEnumerable<(IEnumerable<SubscriptionRecord>, int)> GetAll(int nbRecords)

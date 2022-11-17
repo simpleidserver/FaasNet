@@ -70,7 +70,7 @@ namespace FaasNet.EventMesh
             {
                 var evt = await Query<GetEventDefinitionQueryResult>(PartitionNames.EVENTDEFINITION_PARTITION_KEY, new GetEventDefinitionQuery { Id = addLinkApplicationDomainRequest.EventId, Vpn = addLinkApplicationDomainRequest.Vpn }, cancellationToken);
                 if (!evt.Success) return;
-                await Send(PartitionNames.SUBSCRIPTION_PARTITION_KEY, new AddSubscriptionCommand { ClientId = addLinkApplicationDomainRequest.Target, EventId = addLinkApplicationDomainRequest.EventId, Topic = evt.EventDef.Topic, Vpn = addLinkApplicationDomainRequest.Vpn, Id = Guid.NewGuid().ToString() }, cancellationToken);
+                await Send(PartitionNames.SUBSCRIPTION_PARTITION_KEY, new AddSubscriptionCommand { QueueName = addLinkApplicationDomainRequest.Target, EventId = addLinkApplicationDomainRequest.EventId, Topic = evt.EventDef.Topic, Vpn = addLinkApplicationDomainRequest.Vpn, Id = Guid.NewGuid().ToString() }, cancellationToken);
             }
         }
     }

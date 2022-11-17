@@ -236,6 +236,14 @@ namespace FaasNet.EventMesh.Client.Messages
         /// Result returned when the ASYNCAPI definition is returned.
         /// </summary>
         public static EventMeshCommands GET_ASYNC_API_RESULT = new EventMeshCommands(57, "GET_ASYNC_API_RESULT");
+        /// <summary>
+        /// Request sent to add a subscription.
+        /// </summary>
+        public static EventMeshCommands ADD_SUBSCRIPTION_REQUEST = new EventMeshCommands(58, "ADD_SUBSCRIPTION_REQUEST");
+        /// <summary>
+        /// Result returned when subscription is added.
+        /// </summary>
+        public static EventMeshCommands ADD_SUBSCRIPTION_RESULT = new EventMeshCommands(59, "ADD_SUBSCRIPTION_RESULT");
 
         protected EventMeshCommands(int code)
         {

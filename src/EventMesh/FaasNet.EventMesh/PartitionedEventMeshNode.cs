@@ -16,6 +16,7 @@ using FaasNet.RaftConsensus.Client;
 using FaasNet.RaftConsensus.Client.Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -73,6 +74,7 @@ namespace FaasNet.EventMesh
             if (packageRequest.Command == EventMeshCommands.REMOVE_ELEMENT_APPLICATION_DOMAIN_REQUEST) packageResult = await Handle(packageRequest as RemoveElementApplicationDomainRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.GET_ALL_EVENT_DEFS_REQUEST) packageResult = await Handle(packageRequest as GetAllEventDefsRequest, TokenSource.Token);
             if (packageRequest.Command == EventMeshCommands.GET_ASYNC_API_REQUEST) packageResult = await Handle(packageRequest as GetAsyncApiRequest, TokenSource.Token);
+            if (packageRequest.Command == EventMeshCommands.ADD_SUBSCRIPTION_REQUEST) packageResult = await Handle(packageRequest as AddSubscriptionRequest, TokenSource.Token);
             var writeBufferContext = new WriteBufferContext();
             packageResult.SerializeEnvelope(writeBufferContext);
             return writeBufferContext.Buffer.ToArray();
