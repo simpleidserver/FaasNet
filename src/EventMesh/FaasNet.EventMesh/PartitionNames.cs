@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace FaasNet.EventMesh
 {
@@ -11,5 +12,15 @@ namespace FaasNet.EventMesh
         public const string EVENTDEFINITION_PARTITION_KEY = "EVENTDEFINITION";
         public const string APPLICATION_DOMAIN = "APPLICATION_DOMAIN";
         public const string SUBSCRIPTION_PARTITION_KEY = "SUBSCRIPTION";
+        public static ICollection<string> ALL => new List<string>
+        {
+            VPN_PARTITION_KEY,
+            CLIENT_PARTITION_KEY,
+            SESSION_PARTITION_KEY,
+            QUEUE_PARTITION_KEY,
+            EVENTDEFINITION_PARTITION_KEY
+            APPLICATION_DOMAIN,
+            SUBSCRIPTION_PARTITION_KEY
+        };
     }
 }

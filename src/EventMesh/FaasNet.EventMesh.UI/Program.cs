@@ -12,8 +12,7 @@ builder.Services.Configure<EventMeshUIOptions>((o) => { });
 builder.Services.AddScoped<ToastService, ToastService>();
 builder.Services.AddSingleton<IEventMeshService, EventMeshService>();
 builder.Services.AddTransient<IPeerClientFactory, PeerClientFactory>();
-builder.Services.AddTransient<IClientTransportFactory, ClientTransportFactory>();
-builder.Services.AddTransient<IClientTransport, ClientUDPTransport>();
+builder.Services.AddTransient<IClientTransportFactory, UDPClientTransportFactory>();
 
 builder.Services.AddFluxor(o =>
 {

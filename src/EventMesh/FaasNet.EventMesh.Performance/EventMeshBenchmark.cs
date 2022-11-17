@@ -50,11 +50,6 @@ namespace FaasNet.EventMesh.Performance
             GlobalCleanup();
         }
 
-        public void ReceiveMessageFromThirdNode()
-        {
-
-        }
-
         private async Task ExecuteOperation(Func<Task> callback, int nbIterations = 100)
         {
             var sw = new Stopwatch();
@@ -72,15 +67,14 @@ namespace FaasNet.EventMesh.Performance
 
         private async Task GlobalSetup()
         {
-            var firstNode = await NodeHelper.BuildAndStartNode(5000, clusterNodes, 30000, (p) =>
+            await NodeHelper.BuildAndStartNode(5000, clusterNodes, 30000, (p) =>
             {
                 CheckPartitions(p);
             });
-            var secondNode = await NodeHelper.BuildAndStartNode(5001, clusterNodes, 40000, (p) =>
+            await NodeHelper.BuildAndStartNode(5001, clusterNodes, 40000, (p) =>
             {
                 CheckPartitions(p);
             });
-
             _semStandardPartitionsLaunched.Wait();
             Console.WriteLine("Standard partitions are launched");
 
@@ -100,6 +94,7 @@ namespace FaasNet.EventMesh.Performance
                 var r = await _eventMeshClient.AddClient("subClientId", vpn, new List<ClientPurposeTypes> { ClientPurposeTypes.SUBSCRIBE });
                 return (r, r.Status == null);
             });
+            await _eventMeshClient.AddQueue(vpn, "QueueName");
 
             _semClientPartitionsLaunched.Wait();
             Console.WriteLine("Clients partitions are launched");
